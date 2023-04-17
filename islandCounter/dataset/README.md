@@ -11,3 +11,5 @@ Create me text output with X and _ as only characters (and some line wrapping of
 Each line should have at least 20 characters.
 Put the output please into code block. so that the browser does not format it weirdly.
 ```
+
+Additional maps where generated manually.
