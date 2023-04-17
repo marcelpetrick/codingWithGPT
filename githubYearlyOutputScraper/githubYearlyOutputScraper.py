@@ -8,28 +8,17 @@ import os
 import time
 from selenium import webdriver
 from PIL import Image
-from selenium.webdriver.firefox.options import Options
 
-# Set the path to the geckodriver
-#gecko_driver_path = os.path.join(os.getcwd(), "geckodriver")
-gecko_driver_path = "C:\\geckodriver\\geckodriver.exe"
+# Set the path to the Edge WebDriver
+edge_driver_path = os.path.join(os.getcwd(), "msedgedriver.exe")
 
 # Set up the browser
-options = Options()
-binary = r'C:\Users\mpetrick\AppData\Local\Microsoft\WindowsApps\firefox.exe'
-options.binary_location = binary
+options = webdriver.EdgeOptions()
+options.use_chromium = True  # This line is necessary for Edge Chromium
 options.headless = True
 
-# problem with FF path: cmd > where /R C:\ firefox.exe
-# C:\Users\mpetrick>where /R C:\ firefox.exe
-# C:\Users\mpetrick\AppData\Local\Microsoft\WindowsApps\firefox.exe
-#options.binary_location = "C:\\Users\\mpetrick\\AppData\\Local\\Microsoft\\WindowsApps\\Mozilla.Firefox_n80bbvh6b1yt2\\firefox.exe"
 # Initialize the WebDriver
-browser = webdriver.Firefox(executable_path=gecko_driver_path, options=options)
-# fails here with
-# "selenium.common.exceptions.InvalidArgumentException: Message: binary is not a Firefox executable" ..
-# after lots or reading and checking and trying ..
-# The Windows app binary for Firefox is a different executable than the regular Firefox installation. While the Windows app version of Firefox uses the same rendering engine and shares most features with the regular Firefox, it's packaged and installed differently, which can cause compatibility issues with certain tools, like Selenium.
+browser = webdriver.Edge(executable_path=edge_driver_path, options=options)
 browser.set_window_size(1920, 1080)
 
 # Navigate to the GitHub profile
@@ -40,7 +29,8 @@ browser.get(url)
 time.sleep(5)
 
 # Find the commit graph element
-commit_graph = browser.find_element_by_css_selector("div.js-yearly-contributions")
+from selenium.webdriver.common.by import By
+commit_graph = browser.find_element(By.CSS_SELECTOR, "div.js-yearly-contributions") # Code needed to be replaced, because deprecated
 
 # Screenshot the commit graph
 commit_graph.screenshot("commit_graph.png")
