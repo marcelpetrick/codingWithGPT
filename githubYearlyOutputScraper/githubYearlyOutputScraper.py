@@ -2,7 +2,8 @@
 # Doing this for every of the available years and saving this as PNG. Plan is to convert them later to a GIF.
 # Start 20230417_2245 - End 20230417_2330
 # Start 20230418_1840 - End 20230418_1910
-# Start 20230418_2335 - End 202304
+# Start 20230418_2335 - End 20230419_0010
+# sum: 110 min
 
 # How to get those via pip?
 # pip install pillow
@@ -75,5 +76,33 @@ def imageGetter():
     browser.quit()
 
 #----------------------------------------------------------------------------------------------------------------
+# Generate me code which puts all the PNG files it has found in the subfolder "output" into a single looped gif. The duration for each frame fo the gif should be 0.1 second.
+def imageCombiner():
+    import os
+    from PIL import Image
 
+    # Define the input and output paths
+    input_folder = "output"
+    output_file = "looped_gif.gif"
+
+    # Get a list of all PNG files in the input folder
+    png_files = [f for f in os.listdir(input_folder) if f.endswith(".png")]
+    # "How to sort a list named png_files descending?"
+    sorted_png_files = sorted(png_files, reverse=True)
+
+    # Open the images and store them in a list
+    images = [Image.open(os.path.join(input_folder, f)) for f in sorted_png_files]
+
+    # Save the images as a single looped GIF
+    images[0].save(
+        output_file,
+        save_all=True,
+        append_images=images[1:],
+        duration=500,  # Duration in milliseconds, 100 ms = 0.1 second # increased to 500
+        loop=0,  # 0 means loop indefinitely
+    )
+
+#----------------------------------------------------------------------------------------------------------------
+# final calls
 imageGetter()
+imageCombiner()
