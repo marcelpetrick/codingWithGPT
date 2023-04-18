@@ -1,5 +1,5 @@
 # What is this?
-One of the ideas on my crazy-list was a web-scraper, which screenshots the commit-graph for each year I was active on Github. Then combines them into a gif.  
+One of the ideas on my crazy-list was a web-scraper, which screenshots the commit-graph for each year I was active on Github. Then combines them into a GIF.  
 I never dedicated time to investigate this. 
 
 Used the opportunity. Asked first which ways to use to render/get the images? One of the suggestions was the Selenium-framework. I had some experience with automation (see #autoit), but not with Selenium. First try to use the connector for Firefox did not work out due to technical reasons. Decided then to ask for code for Edge. This worked. Additional prompts and some correction led to a function which generates all urls, takes all images in a loop, then combines them. Wow.  
@@ -8,7 +8,7 @@ Time invested: 110 min.
 
 Without help I would have done more research, reading and trial&error. Definitely not below 4h.  But the structure of the code would have been better. I did not want to alter the results from the prompts so much, so I had to use some awkward calls. But it works.
 
-## Result
+## Result (GIF - press play button)
 ![](looped_gif.gif)
 
 ## Resulting call
