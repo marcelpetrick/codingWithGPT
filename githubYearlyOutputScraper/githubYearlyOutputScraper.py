@@ -12,7 +12,7 @@
 import os
 import time
 from selenium import webdriver
-from PIL import Image
+from selenium.webdriver.common.by import By
 
 # Set the path to the Edge WebDriver
 edge_driver_path = os.path.join(os.getcwd(), "msedgedriver.exe") # put this to the main partition, no need to adjust
@@ -33,8 +33,18 @@ browser.get(url)
 # Wait for the page to load
 time.sleep(3) # TODO really necessary? Maybe reduce this
 
+# Find and click on the year buttons for 2021 and 2022
+#year_buttons = browser.find_elements_by_xpath("//button[contains(@class, 'js-calendar-graph-filter')]") # gpt-generated and deprecated
+# year_buttons = browser.find_element(By.XPATH, "//button[contains(@class, 'js-calendar-graph-filter')]") # fixed, but not working
+year_buttons = browser.find_element(By.CSS_SELECTOR, "div.js-profile-timeline-year-list color-bg-default js-sticky")
+
+years_to_click = ["2021", "2022"]
+for button in year_buttons:
+    if button.text in years_to_click:
+        button.click()
+        time.sleep(2)  # Wait for the commit graph to update after clicking
+
 # Find the commit graph element - had to be adjusted due to deprecation. Result from the prompt was not working, pre-2022!
-from selenium.webdriver.common.by import By
 commit_graph = browser.find_element(By.CSS_SELECTOR, "div.js-yearly-contributions") # Code needed to be replaced, because deprecated
 
 # Screenshot the commit graph
