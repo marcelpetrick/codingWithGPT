@@ -10,11 +10,13 @@
 
 # Give me a pip command for all the imports
 # pip install yolov5 opencv-python requests pywebp
+# Attention: pywebp had a problem - ERROR: Could not find a version that satisfies the requirement request (from pywebp) (from versions: none) - asked for way to solve.
+# pip install Pillow
 
 import os
-import cv2 # dead include?
+import cv2
 import requests
-from pywebp import WebP
+from PIL import Image, ImageSequence
 import tempfile
 from yolov5 import YOLOv5
 
@@ -28,8 +30,9 @@ def download_image(url, filepath):
 
 # Convert animated WebP to a series of images
 def webp_to_images(webp_file):
-    with WebP(webp_file) as webp:
-        images = [frame.as_opencv() for frame in webp]
+    with Image.open(webp_file) as webp:
+        images = [frame.copy() for frame in ImageSequence.Iterator(webp)]
+        images = [cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR) for img in images]
     return images
 
 
@@ -45,8 +48,7 @@ def detect_cat(images, yolo):
 
 def main():
     # Set the URL of the webp-image on Tumblr
-    #url = 'https://your-tumblr-url.com/your-image.webp' # from prompt
-    url = 'https://64.media.tumblr.com/f2642e16b4e35e03fb78974bf4682014/87afdb1757d216d5-02/s500x750/4351c8582650e748af424110c25ac9a316f74443.gifv' # mine - but gifv, ugh
+    url = 'https://your-tumblr-url.com/your-image.webp'
 
     # Download the image
     with tempfile.NamedTemporaryFile(suffix='.webp', delete=False) as tmp_webp:
