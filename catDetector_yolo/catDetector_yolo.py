@@ -13,13 +13,11 @@
 # Attention: pywebp had a problem - ERROR: Could not find a version that satisfies the requirement request (from pywebp) (from versions: none) - asked for way to solve.
 # pip install Pillow
 
-import os
+import os # missing, added myself
 import cv2
 import requests
-from PIL import Image, ImageSequence
 import tempfile
 from yolov5 import YOLOv5
-
 
 # Download the webp-image from Tumblr
 def download_image(url, filepath):
@@ -27,14 +25,17 @@ def download_image(url, filepath):
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
-
-# Convert animated WebP to a series of images
-def webp_to_images(webp_file):
-    with Image.open(webp_file) as webp:
-        images = [frame.copy() for frame in ImageSequence.Iterator(webp)]
-        images = [cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR) for img in images]
+# Read GIFV file using OpenCV
+def gifv_to_images(gifv_file):
+    cap = cv2.VideoCapture(gifv_file)
+    images = []
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        images.append(frame)
+    cap.release()
     return images
-
 
 # Check if there's a cat in any of the images
 def detect_cat(images, yolo):
@@ -48,15 +49,16 @@ def detect_cat(images, yolo):
 
 def main():
     # Set the URL of the webp-image on Tumblr
-    url = 'https://your-tumblr-url.com/your-image.webp'
+    #url = 'https://your-tumblr-url.com/your-image.webp' # from prompt
+    url = 'https://64.media.tumblr.com/f2642e16b4e35e03fb78974bf4682014/87afdb1757d216d5-02/s500x750/4351c8582650e748af424110c25ac9a316f74443.gifv' # mine - but gifv, ugh
 
     # Download the image
-    with tempfile.NamedTemporaryFile(suffix='.webp', delete=False) as tmp_webp:
-        download_image(url, tmp_webp.name)
+    with tempfile.NamedTemporaryFile(suffix='.gifv', delete=False) as tmp_gifv:
+        download_image(url, tmp_gifv.name)
 
-    # Convert the WebP to images
-    images = webp_to_images(tmp_webp.name)
-    os.unlink(tmp_webp.name)
+    # Convert the GIFV to images
+    images = gifv_to_images(tmp_gifv.name)
+    os.unlink(tmp_gifv.name)
 
     # Initialize YOLOv5 model
     yolo = YOLOv5('yolov5s.pt')
@@ -65,9 +67,9 @@ def main():
     cat_detected = detect_cat(images, yolo)
 
     if cat_detected:
-        print("A cat was detected in the webp-image.")
+        print("A cat was detected in the gifv-image.")
     else:
-        print("No cat was detected in the webp-image.")
+        print("No cat was detected in the gifv-image.")
 
 
 if __name__ == '__main__':
