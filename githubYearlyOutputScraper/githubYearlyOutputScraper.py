@@ -1,62 +1,79 @@
 # Plan is to make a script, which renders my own github-profile and then screenshots the part of the commit-graph.
 # Doing this for every of the available years and saving this as PNG. Plan is to convert them later to a GIF.
 # Start 20230417_2245 - End 20230417_2330
-# Start 20230418_1840 - End
+# Start 20230418_1840 - End 20230418_1910
+# Start 20230418_2335 - End 202304
 
 # How to get those via pip?
 # pip install pillow
 # pip install selenium
 
-# Regenerted the prompt to use Microsoft Edge, because the geckodriver did not work with the Firefox coming from those
+# I have a URL called "https://github.com/marcelpetrick?tab=overview&from=2022-12-01&to=2022-12-31" . Generate me
+# code which is usable for all years from 2015 to 2023. Returnvalue should be a list of all urls
+def urlCreator():
+    def generate_github_urls(username, start_year, end_year):
+        base_url = "https://github.com/{username}?tab=overview&from={year}-01-01&to={year}-12-31"
+        urlsDict = dict()
+
+        for year in range(start_year, end_year + 1):
+            url = base_url.format(username=username, year=year)
+            #urls.append(url)
+            urlsDict[year] = url
+
+        return urlsDict
+
+    # Generate URLs for the years 2015 to 2023
+    username = "marcelpetrick"
+    start_year = 2015
+    end_year = 2023
+    urls = generate_github_urls(username, start_year, end_year)
+    print(urls)
+    return urls
+
+#urlCreator()
+
+#----------------------------------------------------------------------------------------------------------------
+# Regenerated the prompt to use Microsoft Edge, because the geckodriver did not work with the Firefox coming from those
 # Windows-Apps - no proper executable. With the limited admin rights on this machine, I choose another path ..
-import os
-import time
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+def imageGetter():
+    import os
+    import time
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
 
-# Set the path to the Edge WebDriver
-edge_driver_path = os.path.join(os.getcwd(), "msedgedriver.exe") # put this to the main partition, no need to adjust
+    # Set the path to the Edge WebDriver
+    edge_driver_path = os.path.join(os.getcwd(), "msedgedriver.exe") # put this to the main partition, no need to adjust
 
-# Set up the browser
-options = webdriver.EdgeOptions()
-options.use_chromium = True  # This line is necessary for Edge Chromium
-options.headless = True
+    # Set up the browser
+    options = webdriver.EdgeOptions()
+    options.use_chromium = True  # This line is necessary for Edge Chromium
+    options.headless = True
 
-# Initialize the WebDriver
-browser = webdriver.Edge(executable_path=edge_driver_path, options=options)
-browser.set_window_size(1920, 1080)
+    # Initialize the WebDriver
+    browser = webdriver.Edge(executable_path=edge_driver_path, options=options)
+    browser.set_window_size(1920, 1080)
 
-# Navigate to the GitHub profile
-url = "https://github.com/marcelpetrick/" # set my own repo
-browser.get(url)
+    # Navigate to the GitHub profile
+    #url = "https://github.com/marcelpetrick/" # set my own repo
 
-# Wait for the page to load
-time.sleep(3) # TODO really necessary? Maybe reduce this
+    # new code to loop over the urls - manually written, no clue how to query ChatGPT
+    urlsDict = urlCreator()
+    for year, url in urlsDict.items():
+        print(f"processing {year}")
+        browser.get(url)
 
-# Find and click on the year buttons for 2021 and 2022
-#year_buttons = browser.find_elements_by_xpath("//button[contains(@class, 'js-calendar-graph-filter')]") # gpt-generated and deprecated
-# year_buttons = browser.find_element(By.XPATH, "//button[contains(@class, 'js-calendar-graph-filter')]") # fixed, but not working
-year_buttons = browser.find_element(By.CSS_SELECTOR, "div.js-profile-timeline-year-list color-bg-default js-sticky")
+        # Wait for the page to load
+        time.sleep(2) # TODO really necessary? Maybe reduce this
 
-years_to_click = ["2021", "2022"]
-for button in year_buttons:
-    if button.text in years_to_click:
-        button.click()
-        time.sleep(2)  # Wait for the commit graph to update after clicking
+        # Find the commit graph element - had to be adjusted due to deprecation. Result from the prompt was not working, pre-2022!
+        commit_graph = browser.find_element(By.CSS_SELECTOR, "div.js-yearly-contributions") # Code needed to be replaced, because deprecated
 
-# Find the commit graph element - had to be adjusted due to deprecation. Result from the prompt was not working, pre-2022!
-commit_graph = browser.find_element(By.CSS_SELECTOR, "div.js-yearly-contributions") # Code needed to be replaced, because deprecated
+        # Screenshot the commit graph
+        commit_graph.screenshot(f"output/commit_graph{year}.png")
 
-# Screenshot the commit graph
-commit_graph.screenshot("commit_graph.png")
+    # Close the browser
+    browser.quit()
 
-# Close the browser
-browser.quit()
+#----------------------------------------------------------------------------------------------------------------
 
-# TODO this does not crop, lol. Commented the whole block.
-# # Open the image and crop if necessary
-# image = Image.open("commit_graph.png")
-# image.show()
-#
-# # Save the final image
-# image.save("commit_graph_cropped.png")
+imageGetter()
