@@ -1,12 +1,20 @@
-# GPT4: Create me a python script which takes the given path (else use the current one as parameter) and then checks all directories there if they contain a space character in their name. If yes, then collect them in a list. Print this list at last, then return.""
+# GPT4: "good, works now. Don't modify the script, but tell me a proper check with regular expression, which allows only numbers from 0 to 9, underscore and upper- and lower-case latin characters (the usual 26) for the filename. Put this check into a function which returns true or false. name fo the function: noWeirdCharsPlease()."
+import re
 
-import os
-from pathlib import Path
+def noWeirdCharsPlease(filename):
+    pattern = r'^[A-Za-z0-9_]+$'
+    return bool(re.match(pattern, filename))
+
+# # Example usage
+# print(noWeirdCharsPlease("example_filename123"))  # True
+# print(noWeirdCharsPlease("example filename123"))  # False
+
+
+# GPT4: Create me a python script which takes the given path (else use the current one as parameter) and then checks all directories there if they contain a space character in their name. If yes, then collect them in a list. Print this list at last, then return.""
 
 import os
 import sys
 from pathlib import Path
-
 
 def check_space_in_directory_names(path=None):
     if path is None:
@@ -17,10 +25,10 @@ def check_space_in_directory_names(path=None):
     directories_with_space = []
 
     for entry in os.scandir(path):
-        if entry.is_dir() and ' ' in entry.name:
+        if entry.is_dir() and not noWeirdCharsPlease(entry.name):
             directories_with_space.append(entry.name)
 
-    print("Directories with space in their names:", directories_with_space)
+    print("Directories with weird (non \"latin char nor arabic digits or underscore\") in their names:", directories_with_space)
     return directories_with_space
 
 # This needed more specification, but with that additional prompt it incorporated the arg-parsing ..
