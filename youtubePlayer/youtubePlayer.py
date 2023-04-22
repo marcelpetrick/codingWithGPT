@@ -49,6 +49,7 @@ class MainWindow(QWidget):
 
     def search_song(self, song_title):
         query = f"{song_title} site:youtube.com"
+        print("after the query")
         for j in search(query, num_results=1):
             return j
         return None
@@ -58,9 +59,13 @@ class MainWindow(QWidget):
         if not song_title:
             return
 
+        print("song_title:", song_title) # added by me
+
         song_url = self.search_song(song_title)
         if not song_url:
             return
+
+        print("song_url:", song_url)  # added by me
 
         video = pafy.new(song_url)
         best_audio = video.getbestaudio()
