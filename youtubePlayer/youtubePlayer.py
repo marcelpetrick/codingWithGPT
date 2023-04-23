@@ -24,7 +24,19 @@ import sys
 import pygame
 import pafy
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton
-from googlesearch import search
+#from googlesearch import search
+
+# inserted to replace youtbe-search and googlesearch
+def directSearch(input):
+    import urllib.request
+    import re
+
+    search_keyword = input.replace(" ", "+")
+    html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search_keyword)
+    video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
+    result = "https://www.youtube.com/watch?v=" + video_ids[0]
+    print("result:", result)
+    return result
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -48,11 +60,7 @@ class MainWindow(QWidget):
         pygame.mixer.init()
 
     def search_song(self, song_title):
-        query = f"{song_title} site:youtube.com"
-        print("after the query")
-        for j in search(query, num_results=1):
-            return j
-        return None
+        return directSearch(song_title)
 
     def play_song(self):
         song_title = self.song_title_input.text()
@@ -67,6 +75,7 @@ class MainWindow(QWidget):
 
         print("song_url:", song_url)  # added by me
 
+        # ERROR: Unable to extract uploader id; please report this issue on https://yt-dl.org/bug . Make sure you are using the latest version; see  https://yt-dl.org/update  on how to update. Be sure to call youtube-dl with the --verbose flag and include its complete output.
         video = pafy.new(song_url)
         best_audio = video.getbestaudio()
         audio_url = best_audio.url
