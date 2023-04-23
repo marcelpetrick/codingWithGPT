@@ -19,6 +19,11 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPush
 import yt_dlp
 from yt_dlp import YoutubeDL
 
+# player solution without external vlc or ffmpeg
+# pip install moviepy --user
+import moviepy.editor as mp
+
+
 # inserted to replace youtube-search and googlesearch
 def directSearch(input):
     import urllib.request
@@ -75,7 +80,13 @@ class MainWindow(QWidget):
             ydl.download([song_url])
 
         audio_file = ydl.prepare_filename(ydl.extract_info(song_url, download=False))
-        pygame.mixer.music.load(audio_file)
+
+        # Convert the audio file to .ogg format
+        audio = mp.AudioFileClip(audio_file)
+        ogg_audio_file = 'temp_audio.ogg'
+        audio.write_audiofile(ogg_audio_file, codec='libvorbis')
+
+        pygame.mixer.music.load(ogg_audio_file)
         pygame.mixer.music.play()
 
     def stop_song(self):
@@ -88,7 +99,3 @@ if __name__ == "__main__":
     main_window.show()
 
     sys.exit(app.exec_())
-
-
-# problem with js-part of the player: googled myself
-# pip install git+https://github.com/blackjack4494/yt-dlc
