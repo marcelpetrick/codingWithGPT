@@ -7,26 +7,19 @@
 # for pip
 # pip install PyQt5 youtube-search-python python-vlc
 
-# I also dont have mpv or any other player installed. just use what can be taken from python or pip.
+# I also don't have mpv or any other player installed. just use what can be taken from python or pip.
 # pip install pygame
 # pip install pygame
-
-import sys
-import pygame
-#import pafy
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton
-# there is no module name youtube search
-# from youtube_search import YoutubeSearch
 
 #pip install youtube_dl
 
 import sys
 import pygame
-import pafy
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton
-#from googlesearch import search
+import yt_dlp
+from yt_dlp import YoutubeDL
 
-# inserted to replace youtbe-search and googlesearch
+# inserted to replace youtube-search and googlesearch
 def directSearch(input):
     import urllib.request
     import re
@@ -67,20 +60,22 @@ class MainWindow(QWidget):
         if not song_title:
             return
 
-        print("song_title:", song_title) # added by me
-
         song_url = self.search_song(song_title)
         if not song_url:
             return
 
-        print("song_url:", song_url)  # added by me
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'outtmpl': 'temp_audio.%(ext)s',
+            'noplaylist': True,
+            'quiet': True,
+        }
 
-        # ERROR: Unable to extract uploader id; please report this issue on https://yt-dl.org/bug . Make sure you are using the latest version; see  https://yt-dl.org/update  on how to update. Be sure to call youtube-dl with the --verbose flag and include its complete output.
-        video = pafy.new(song_url)
-        best_audio = video.getbestaudio()
-        audio_url = best_audio.url
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([song_url])
 
-        pygame.mixer.music.load(audio_url)
+        audio_file = ydl.prepare_filename(ydl.extract_info(song_url, download=False))
+        pygame.mixer.music.load(audio_file)
         pygame.mixer.music.play()
 
     def stop_song(self):
@@ -93,3 +88,7 @@ if __name__ == "__main__":
     main_window.show()
 
     sys.exit(app.exec_())
+
+
+# problem with js-part of the player: googled myself
+# pip install git+https://github.com/blackjack4494/yt-dlc
