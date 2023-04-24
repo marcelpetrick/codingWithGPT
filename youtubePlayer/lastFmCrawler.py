@@ -29,8 +29,10 @@ headers = {
     'Access-Control-Allow-Methods': 'GET',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '3600',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109) Gecko/20100101 Firefox/112.0' # lel https://www.whatismybrowser.com/guides/the-latest-user-agent/firefox
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109) Gecko/20100101 Firefox/112.0', # lel https://www.whatismybrowser.com/guides/the-latest-user-agent/firefox
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
     }
+headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36'}
 
 #-----------------------------------------------------------------
 
@@ -93,7 +95,7 @@ def scrapArtistTrackFromPage(url):
     # todo a solution for the iteration: instead of parsing the footer for the pagination thingy (what is the maximum page?),
     # just compare the track-artist-parsing-result from last page with current page: if identical, then a non-existent page was requested! #avoidTheProblem ..
     if not req.status_code == 200: #check for status code "success", but last.fm falls back to the last loved tracks page (here 4) .. uff
-        print("failure; page not successfully downloaded")
+        print("--> failure; page not successfully downloaded")
         return
 
     soup = BeautifulSoup(req.content, "lxml")
@@ -175,3 +177,32 @@ def writeToFile(input):
 # ------------- trigger ---------------
 sortedCollection = scrapypediscrap()
 writeToFile(sortedCollection)
+
+
+
+#-----
+
+# different lib, which should be better than requests by sending the header info in the correct order. no progress, still getting 406 Not Acceptable
+def httpxTest():
+    import httpx
+
+    HEADERS = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_3_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "de,en-US;q=0.7,en;q=0.3",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "0",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Cache-Control": "max-age=0",
+        "DNT": "1",
+    }
+    print("before")
+    myURL = "https://www.last.fm/user/aaabbbccc/loved?page=1"
+    #myURL = "https://oxylabs.io/blog/httpx-vs-requests-vs-aiohttp"
+    print("before GET")
+    response = httpx.get(myURL, headers=HEADERS)
+    print("response: ", response.text)
