@@ -9,32 +9,17 @@
 
 # I also don't have mpv or any other player installed. just use what can be taken from python or pip.
 # pip install pygame
-# pip install pygame
-
-#pip install youtube_dl
 
 import sys
 import pygame
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton
 import yt_dlp
-from yt_dlp import YoutubeDL
+import urllib.request
+import re
 
 # player solution without external vlc or ffmpeg
 # pip install moviepy --user
 import moviepy.editor as mp
-
-
-# inserted to replace youtube-search and googlesearch
-def directSearch(input):
-    import urllib.request
-    import re
-
-    search_keyword = input.replace(" ", "+")
-    html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search_keyword)
-    video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
-    result = "https://www.youtube.com/watch?v=" + video_ids[0]
-    print("result:", result)
-    return result
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -58,13 +43,14 @@ class MainWindow(QWidget):
         pygame.mixer.init()
 
     def search_song(self, song_title):
-        return directSearch(song_title)
+        search_keyword = song_title.replace(" ", "+")
+        html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search_keyword)
+        video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
+        result = "https://www.youtube.com/watch?v=" + video_ids[0]
+        return result
 
-    def play_song(self):
-        song_title = self.song_title_input.text()
-        if not song_title:
-            return
-
+    # refactored manually
+    def prepare_song_file(self, song_title):
         song_url = self.search_song(song_title)
         if not song_url:
             return
@@ -85,6 +71,15 @@ class MainWindow(QWidget):
         audio = mp.AudioFileClip(audio_file)
         ogg_audio_file = 'temp_audio.ogg'
         audio.write_audiofile(ogg_audio_file, codec='libvorbis')
+
+        return ogg_audio_file
+
+    def play_song(self):
+        song_title = self.song_title_input.text()
+        if not song_title:
+            return
+
+        ogg_audio_file = self.prepare_song_file(song_title)
 
         pygame.mixer.music.load(ogg_audio_file)
         pygame.mixer.music.play()
