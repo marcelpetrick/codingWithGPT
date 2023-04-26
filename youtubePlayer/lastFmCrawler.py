@@ -86,6 +86,10 @@ def scrapArtistTrackFromPage(url):
     print("--------------------------------------")
     print("url is:", url)
 
+    waitTime = 10
+    print(f".. wait {waitTime} seconds to avoid blocking ..")
+    time.sleep(waitTime)
+
     # do the request
     currentTime = time.time()
     req = requests.get(url, headers)
