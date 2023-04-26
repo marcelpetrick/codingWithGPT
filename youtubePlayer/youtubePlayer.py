@@ -16,29 +16,87 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPush
 import yt_dlp
 import urllib.request
 import re
+import sys
+import webbrowser
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QTableView, QHeaderView, QAbstractItemView, QScrollBar
+from PyQt5.QtCore import Qt, QAbstractTableModel, QSize
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+
 
 # player solution without external vlc or ffmpeg
 # pip install moviepy --user
 import moviepy.editor as mp
 
+def read_loved_songs_file(file_path):
+    result = []
+    with open(file_path, "r", encoding="utf-8") as file:
+        for line in file:
+            line = line.strip()
+            try:
+                artist, album = eval(line)  # Convert the line to a tuple
+                result.append({artist: album})
+            except Exception as e:
+                print(f"Error parsing line '{line}': {e}")
+    return result
+
+
+# # quick test
+# file_path = "lovedSongs.txt"
+# data = read_loved_songs_file(file_path)
+# print(data)
+
+#-------------------------------------
+class ArtistAlbumModel(QAbstractTableModel):
+    def __init__(self, data):
+        super().__init__()
+        self.data = data
+
+    def rowCount(self, parent=None):
+        return len(self.data)
+
+    def columnCount(self, parent=None):
+        return 2
+
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            artist_album = list(self.data[index.row()].items())[0]
+            return artist_album[index.column()]
+
+    def headerData(self, section, orientation, role):
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return ["Artist", "Album"][section]
+
+
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.layout = QVBoxLayout()
+        self.setWindowTitle("Music Player")
+        self.resize(800, 600) # QApplication.instance().desktop().height())
 
-        self.song_title_input = QLineEdit(self)
-        self.layout.addWidget(self.song_title_input)
+        layout = QVBoxLayout(self)
+
+        self.lineEdit = QLineEdit(self)
+        layout.addWidget(self.lineEdit)
 
         self.play_button = QPushButton("Play", self)
-        self.play_button.clicked.connect(self.play_song)
-        self.layout.addWidget(self.play_button)
+        layout.addWidget(self.play_button)
 
         self.stop_button = QPushButton("Stop", self)
-        self.stop_button.clicked.connect(self.stop_song)
-        self.layout.addWidget(self.stop_button)
+        layout.addWidget(self.stop_button)
 
-        self.setLayout(self.layout)
+        self.artist_album_model = ArtistAlbumModel(read_loved_songs_file("lovedSongs.txt"))
+
+        self.table_view = QTableView(self)
+        self.table_view.setModel(self.artist_album_model)
+        self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table_view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.table_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table_view.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.table_view.setFixedHeight(10 * self.table_view.rowHeight(0) + self.table_view.horizontalHeader().height())
+        layout.addWidget(self.table_view)
 
         pygame.mixer.init()
 
@@ -86,6 +144,8 @@ class MainWindow(QWidget):
 
     def stop_song(self):
         pygame.mixer.music.stop()
+
+#-------------------------------------
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

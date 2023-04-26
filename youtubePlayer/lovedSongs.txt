@@ -1,0 +1,7 @@
+('Bach', 'Toccata and Fugue')
+('Baroque Music', 'Classical Music from the Baroque Period')
+('Carl Orff', 'Fortuna Imperatrix Mundi: Fortune plango vulnera')
+('Carl Orff', 'O Fortuna')
+('Carlos Cipa', 'The Monarch And The Viceroy')
+('Carlos Cipa', 'The Whole Truth')
+('Richard Wagner', 'The Ride of the Valkyries')
