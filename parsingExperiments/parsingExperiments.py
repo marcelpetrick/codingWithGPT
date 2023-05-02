@@ -1,8 +1,9 @@
+# Parse the given strings to a dictionary of key-value-pairs.
 def process_string_to_dict(input_string):
     # Strip the prefix b'{ and the suffix }'
     stripped_string = input_string[3:-2]
 
-    # Replace \n and \t with nothing
+    # Replace \n and \t and " with nothing
     cleaned_string = stripped_string.replace('\\n', '').replace('\\t', '').replace("\"", "")
 
     # Split the string into key-value pairs
@@ -18,6 +19,7 @@ def process_string_to_dict(input_string):
 
     return result_dict
 
+# Just create fitting input for the "parser" coming from a text-file (quotation mark inside string-challenge).
 def read_file_to_list(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         lines = [line.rstrip('\n') for line in file]
