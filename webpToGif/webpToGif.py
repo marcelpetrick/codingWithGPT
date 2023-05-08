@@ -1,7 +1,14 @@
-# I have a webp file with animations fo 30 frames. this file should be split into single frames and stored as GIF in
+# 0. I have a webp file with animations fo 30 frames. this file should be split into single frames and stored as GIF in
 # the same folder. the resolution should not be changed, colors should be kept as well. the frames should be numbered
 # frame00.gif to frameXX.gif. The script shall be written in python and use a path to a webp-file as input. document
 # the code with sphinx as well.
+#
+# 1. Two hints. The output shall be static frames, no animated gifs. So if the webp has 10 frames, we get 10
+# single-frame gifs. ok?
+#
+# also, call the script "webpToGif.py".
+#
+# Regenerate and fix.
 
 # pip install pillow
 
@@ -11,7 +18,7 @@ import sys
 
 def extract_frames(input_path):
     """
-    Extract frames from an animated webp file and save them as GIF files.
+    Extract frames from an animated webp file and save them as static GIF files.
 
     :param input_path: str
         Path to the webp file.
@@ -26,7 +33,7 @@ def extract_frames(input_path):
         while True:
             im.seek(i)
             frame_path = os.path.join(base_dir, f"frame{i:02d}.gif")
-            im.save(frame_path, "GIF", save_all=True)
+            im.copy().save(frame_path, "GIF")
             i += 1
     except EOFError:
         # End of the animation
