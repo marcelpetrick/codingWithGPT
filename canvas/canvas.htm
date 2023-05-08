@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawing Canvas</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="drawingCanvas" width="800" height="600"></canvas>
+    <br>
+    <button onclick="changeColor('red')">Red</button>
+    <button onclick="changeColor('black')">Black</button>
+    <button onclick="changeColor('white')">White</button>
+    <button onclick="saveDrawing()">Save</button>
+
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const context = canvas.getContext('2d');
+        let drawing = false;
+        let currentColor = 'black';
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        function startDrawing(event) {
+            drawing = true;
+            context.beginPath();
+            context.moveTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
+        }
+
+        function draw(event) {
+            if (!drawing) return;
+            context.lineTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
+            context.strokeStyle = currentColor;
+            context.lineWidth = 2;
+            context.lineCap = 'round';
+            context.stroke();
+        }
+
+        function stopDrawing() {
+            drawing = false;
+        }
+
+        function changeColor(color) {
+            currentColor = color;
+        }
+
+        async function saveDrawing() {
+            const imageData = canvas.toDataURL('image/png');
+            // Replace the following URL with the endpoint in your Django app
+            const response = await fetch('/save-drawing/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Add CSRF token header if you're using Django CSRF middleware
+                    // 'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({ image_data: imageData }),
+            });
+
+            if (response.ok) {
+                alert('Drawing saved successfully');
+            } else {
+                alert('Error saving drawing');
+            }
+        }
+    </script>
+</body>
+</html>
