@@ -55,3 +55,7 @@ if __name__ == "__main__":
 # Screenshot 2023-04-21 111710.png -> img08.png
 # Screenshot 2023-04-21 112044.png -> img09.png
 # PS C:\mpetrick\repos\codingWithGPT>
+
+
+# usage:
+# python .\changeScreenshotNamesIntoImg00Tonn.py "C:\\Users\\mpetrick\\Pictures\\Screenshots"
