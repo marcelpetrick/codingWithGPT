@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # call the python script and pass the parameters
-python3 detect_cats.py path/to/check 10
+python3 detect_cats.py foo/test 10
 
 # store the return code (boolean value) in a variable
 is_cat_detected=$?
@@ -16,3 +16,9 @@ if [ $is_cat_detected -eq 0 ]; then
 else
     echo "Cat is not detected."
 fi
+
+
+# example: directly manipulated
+# $ ./call-detect_cats.sh
+# Return Value: 0
+# Cat is detected.
