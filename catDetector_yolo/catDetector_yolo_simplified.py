@@ -7,6 +7,16 @@ import sys
 from yolov5 import YOLOv5
 
 def detect_cat(images, yolo):
+    """
+    Detects if a cat exists in a given set of images using the YOLOv5 model.
+
+    :param images: A list of image paths.
+    :type images: list
+    :param yolo: YOLOv5 model instance.
+    :type yolo: YOLOv5
+    :return: True if a cat is detected in any image, False otherwise.
+    :rtype: bool
+    """
     for image in images:
         print("detect_cat: image now in processing: ", image)
         normPath = os.path.normpath(image)
@@ -31,6 +41,15 @@ def detect_cat(images, yolo):
     return False
 
 def str_to_int(s):
+    """
+    Converts a string that contains a number (possibly with leading alphabetic characters) to an integer.
+
+    :param s: The string to be converted.
+    :type s: str
+    :return: The converted integer and a boolean indicating success or failure.
+    :rtype: tuple
+    """
+
     # Strip leading alphabetic characters
     s = s.lstrip('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
 
@@ -43,6 +62,16 @@ def str_to_int(s):
         return None, False
 
 def get_image_paths(path, maxNumber):
+    """
+    Retrieves image paths from a given directory up to a maximum number.
+
+    :param path: Directory path to search for images.
+    :type path: str
+    :param max_number: Maximum number of image paths to retrieve.
+    :type max_number: int
+    :return: List of image paths.
+    :rtype: list
+    """
     image_paths = []
 
     current_directory = os.getcwd()
@@ -73,8 +102,17 @@ def get_image_paths(path, maxNumber):
 # print(f"paths: {result}")
 
 def detect_cats(path_to_check, frames_to_process):
+    """
+    Detects if a cat exists in any image from a given directory using the YOLOv5 model.
+
+    :param path_to_check: Directory path to search for images.
+    :type path_to_check: str
+    :param frames_to_process: Maximum number of images to process.
+    :type frames_to_process: int
+    :return: True if a cat is detected in any image, False otherwise.
+    :rtype: bool
+    """
     # step `prepare`: find all jpg images in the folder and put them up to the given number into a list
-    # todo
     images = get_image_paths(path_to_check, frames_to_process)
 
     # Initialize YOLOv5 model
@@ -104,7 +142,7 @@ if __name__ == "__main__":
 
 # test call
 # python catDetector_yolo_simplified.py testdata//mojo 20
-#
+# ..
 # Detected object class: cat
 # A cat was detected in one of the images.
 # PS C:\mpetrick\repos\codingWithGPT\catDetector_yolo>
