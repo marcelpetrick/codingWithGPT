@@ -1,8 +1,8 @@
 import requests
 
 def send_file(filename):
-    # url = 'http://server-ip:5000/upload'
-    url = 'http://127.0.0.1:5000/upload'
+    url = 'http://marcel-precision3551:5000/upload'
+    #url = 'http://127.0.0.1:5000/upload'
     files = {'file': open(filename, 'rb')}
 
     response = requests.post(url, files=files)
@@ -11,4 +11,4 @@ def send_file(filename):
     else:
         print('Error:', response.text)
 
-send_file('mojo.gif')
+send_file('tempgifs/cam0.gif')

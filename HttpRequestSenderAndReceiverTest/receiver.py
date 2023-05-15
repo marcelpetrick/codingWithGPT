@@ -32,10 +32,11 @@ def upload_file():
         return 'No selected file', 400
 
     if file:
-        file.save(os.path.join('temp/', file.filename))
+        newName = os.path.join('temp/', file.filename)
+        file.save(newName)
         # TODO: process the image and get the result
         # This might take up to 30 seconds
-        result = process_image(file.filename)
+        result = process_image(newName)
         print(f"result: {result}")
         return {'result': "TRUE" if result else "FALSE"}
 
