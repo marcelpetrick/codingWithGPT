@@ -1,8 +1,12 @@
-# write me a python function which takes a filepath to a directory. i have already the caller code. let's call this function "changeScreenshotNamesIntoImg00Tonn".  So it should do the following: 1. find all image-format files and put them to a list. 2. sort this list ascending by name. 3. Change the files filenames into "imgXX" where XX stands for 00, 01, 02, 03 .. and so on. Keep the file-extension from the original name.
+# write me a python function which takes a filepath to a directory. i have already the caller code. let's call this
+# function "changeScreenshotNamesIntoImg00Tonn".  So it should do the following: 1. find all image-format files and
+# put them to a list. 2. sort this list ascending by name. 3. Change the files filenames into "imgXX" where XX stands
+# for 00, 01, 02, 03 .. and so on. Keep the file-extension from the original name.
 
-import sys # had to fix this import, was os
+import sys  # had to fix this import, was os
 from pathlib import Path
 from typing import List
+
 
 def changeScreenshotNamesIntoImg00Tonn(directory: str) -> None:
     img_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp')
@@ -26,10 +30,11 @@ def changeScreenshotNamesIntoImg00Tonn(directory: str) -> None:
         image_file.rename(new_filepath)
         print(f"{image_file.name} -> {new_filename}")
 
+
 # Example usage:
 # changeScreenshotNamesIntoImg00Tonn("/path/to/your/directory")
 
-#-------------------------------------------
+# -------------------------------------------
 
 if __name__ == "__main__":
     path_arg = None
@@ -38,8 +43,7 @@ if __name__ == "__main__":
     print("path_arg:", path_arg)
     changeScreenshotNamesIntoImg00Tonn(path_arg)
 
-
-#-------------------------------------------
+# -------------------------------------------
 
 # example call
 # PS C:\mpetrick\repos\codingWithGPT> python .\changeScreenshotNamesIntoImg00Tonn.py "C:\\Users\\mpetrick\\Pictures\\Screenshots\\foo"
@@ -56,6 +60,7 @@ if __name__ == "__main__":
 # Screenshot 2023-04-21 112044.png -> img09.png
 # PS C:\mpetrick\repos\codingWithGPT>
 
-
-# usage:
+# usage Win:
 # python .\changeScreenshotNamesIntoImg00Tonn.py "C:\\Users\\mpetrick\\Pictures\\Screenshots"
+# usage Linux:
+# python changeScreenshotNamesIntoImg00Tonn.py /home/mpetrick/Pictures/
