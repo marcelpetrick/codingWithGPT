@@ -22,19 +22,31 @@ def parse_dates_from_folder_names(folder_path):
 def count_dates(date_list):
     return collections.Counter(date_list)
 
-
+# ok. already good, but make  the description on the horizontal scale a bit better. each month should have a tick. and a rotated text for "021-05", "021-06" and so on.
+# also limit the amount of items for the vertical axis to the maxmium height +1. Not soo much free whitespace.
+# at last: make the bars a bit wider. and color them red. red rectangles.
 def plot_date_counts(date_counts):
     # sort by date
     sorted_counts = {k: v for k, v in sorted(date_counts.items())}
 
     dates = [datetime.datetime.strptime(date, '%Y%m') for date in sorted_counts.keys()]
-    counts = sorted_counts.values()
+    counts = list(sorted_counts.values())
 
     plt.figure(figsize=(10, 6))
-    plt.bar(dates, counts)
+
+    # Create wider, red bars
+    plt.bar(dates, counts, color='red', width=20)
+
+    # Set y-axis limit
+    plt.ylim(0, max(counts) + 1)
+
+    # Set x-axis labels rotated
+    plt.xticks(dates, [date.strftime('%Y-%m') for date in dates], rotation='vertical')
+
     plt.xlabel('Month')
-    plt.ylabel('Number of folders')
-    plt.title('Number of folders per month')
+    plt.ylabel('Number of visited meetups')
+    plt.title('Number of visited meetups per month')
+    plt.tight_layout()  # ensures that the x-labels are fully visible
     plt.savefig('output.png')
 
 
@@ -45,4 +57,4 @@ def main(folder_path):
 
 
 if __name__ == "__main__":
-    main("/home/mpetrick/repos/DevNotes/BeenThereSeenThat/")  # replace with your directory
+    main("/home/mpetrick/repos/DevNotes/BeenThereSeenThat/")
