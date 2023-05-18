@@ -32,6 +32,7 @@ def upload_file():
         return 'No selected file', 400
 
     if file:
+        # todo make sure the temp-dir exists - else create it. Else the process_image runs on a non-existing file because saving failed.
         newName = os.path.join('temp/', file.filename)
         file.save(newName)
         # TODO: process the image and get the result
