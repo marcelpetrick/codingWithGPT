@@ -18,12 +18,12 @@ def detect_cat(images, yolo):
     :rtype: bool
     """
     for image in images:
-        print("detect_cat: image now in processing: ", image)
+        print("detect_cat: image now in processing:", image)
         normPath = os.path.normpath(image)
-        print("  -> normPath: ", normPath)
+        #print("  -> normPath: ", normPath)
         # Replace single slashes with double slashes
         double_slash_path = normPath.replace(os.sep, "//")
-        print("  -> double_slash_path: ", double_slash_path)
+        #print("  -> double_slash_path: ", double_slash_path)
 
         results = yolo.predict(image)
         #print("results.names:", results.names)
@@ -34,8 +34,8 @@ def detect_cat(images, yolo):
                 #print("tensor:", tensor)
                 class_index = int(tensor[-1].item())  # Get the class index
                 class_name = results.names[class_index]  # Get the class name
-                print(f"Detected object class: {class_name}")
-                if class_name == 'cat':
+                print(f"  detected object class: {class_name}")
+                if class_name == "cat":
                     return True
 
     return False
@@ -94,7 +94,7 @@ def get_image_paths(path, maxNumber):
             if image_number < maxNumber:
                 image_paths.append(image)
         else:
-            print("The string does not contain a valid integer.")
+            print("Error: the string does not contain a valid integer.")
 
     return image_paths
 
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     frames_to_process = int(sys.argv[2])
     result = detect_cats(path_to_check, frames_to_process)
     endTime = time.time()
-    print("cat detection took: ", endTime - startTime, " seconds")
+    print("Cat detection took: ", endTime - startTime, " seconds")
     sys.exit(0 if result else 1)
 
 # test call
