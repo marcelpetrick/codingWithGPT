@@ -13,7 +13,8 @@ def send_file(filename):
     response = requests.post(url, files=files)
     if response.ok:
         print('response:', response.json())  # should print the result: {'result': True/False}
-        return True if response.json() == "True" else False
+        print("  ", response.json().get("result"))
+        return True if response.json().get("result") == "TRUE" else False
     else:
         print('Error:', response.text)
         return False

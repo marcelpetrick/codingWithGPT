@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # call the python script and pass the parameters
-python3 sender_catProcessor.py tempgifs 10
+python3 sender_catProcessor.py tempgifs 1
+# 1 returns 1 (no cat), 10 returns 0 (found cat)
 
 # store the return code (boolean value) in a variable
 is_cat_detected=$?
