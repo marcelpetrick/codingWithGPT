@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Picker</title>
+</head>
+<body>
+    <input type="file" id="filePicker" />
+    <input type="text" id="caption" placeholder="File name will appear here..." />
+
+    <script>
+        document.getElementById('filePicker').addEventListener('change', function(e) {
+            // Get the file name
+            let fileName = e.target.files[0].name;
+
+            // Set the file name into the text field
+            document.getElementById('caption').value = fileName;
+        });
+
+        // Allow user to edit the text field
+        document.getElementById('caption').addEventListener('input', function() {
+            console.log('User is editing the text field');
+        });
+    </script>
+</body>
+</html>
