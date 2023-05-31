@@ -23,7 +23,7 @@ def count_dates(date_list):
     return collections.Counter(date_list)
 
 # ok. already good, but make  the description on the horizontal scale a bit better. each month should have a tick. and a rotated text for "021-05", "021-06" and so on.
-# also limit the amount of items for the vertical axis to the maxmium height +1. Not soo much free whitespace.
+# also limit the amount of items for the vertical axis to the maximum height +1. Not soo much free whitespace.
 # at last: make the bars a bit wider. and color them red. red rectangles.
 def plot_date_counts(date_counts):
     # sort by date
