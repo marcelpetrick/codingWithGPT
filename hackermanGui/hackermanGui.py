@@ -75,7 +75,8 @@ class ProcessThread(QThread):
         self.prompt = prompt
 
     def run(self):
-        self.resultReady.emit(self.processPrompt())
+        result = self.processPrompt()
+        self.resultReady.emit(result)
 
     def processPrompt(self):
         # Generate random text after 2 seconds
@@ -163,7 +164,7 @@ class MainWindow(QMainWindow):
 
         self.thread = ProcessThread(prompt)
         self.thread.resultReady.connect(self.updateResult)
-        self.thread.finished.connect(self.enableInput)
+        self.thread.finished.connect(self.processingFinished)
         self.thread.start()
 
     def disableInput(self):
@@ -180,6 +181,15 @@ class MainWindow(QMainWindow):
         self.promptResults += formatted_result
         processed_html = markdown.markdown(self.promptResults)  # Convert result to HTML
         self.result_text_edit.setHtml(processed_html)
+        self.scrollResultViewToBottom()
+
+    def processingFinished(self):
+        self.enableInput()
+        self.prompt_line_edit.clear()
+
+    def scrollResultViewToBottom(self):
+        scrollbar = self.result_text_edit.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
 
     def updateStatistics(self, stat1, stat2, stat3):
         self.stats_label1.setText("Stat 1: {}".format(stat1))
