@@ -1,5 +1,7 @@
 import sys
 import markdown
+import random
+import time
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QPushButton, QTextEdit, QLabel, QScrollBar
 
@@ -53,14 +55,16 @@ class ProcessThread(QThread):
         self.prompt = prompt
 
     def run(self):
-        result = self.processPrompt(self.prompt)
-        self.resultReady.emit(result)
+        self.resultReady.emit(self.processPrompt())
 
-    def processPrompt(self, prompt):
-        # Dummy implementation
-        # Replace this with your actual processing logic
-        processed_text = "Processed: " + prompt
-        return processed_text
+    def processPrompt(self):
+        # Generate random text after 2 seconds
+        time.sleep(2)
+        random_text = "This is the random result."
+
+        # Format the prompt and random text as Markdown
+        formatted_prompt = f"**Prompt:**\n\n{self.prompt}\n\n**Result:**\n\n{random_text}"
+        return formatted_prompt
 
 
 class MainWindow(QMainWindow):
