@@ -2,6 +2,45 @@ import sys
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QPushButton, QTextEdit, QLabel, QScrollBar
 
+FUTURISTIC_STYLE = """
+QWidget {
+    background-color: #333333;
+    color: #FFFFFF;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+}
+
+QLineEdit {
+    background-color: #222222;
+    color: #FFFFFF;
+    border: 1px solid #666666;
+    padding: 5px;
+}
+
+QPushButton {
+    background-color: #7B68EE;
+    color: #FFFFFF;
+    border: none;
+    padding: 5px 10px;
+    margin-left: 5px;
+}
+
+QPushButton:hover {
+    background-color: #8A2BE2;
+}
+
+QTextEdit {
+    background-color: #222222;
+    color: #FFFFFF;
+    border: 1px solid #666666;
+    padding: 5px;
+}
+
+QLabel {
+    color: #FFFFFF;
+    font-weight: bold;
+}
+"""
 
 class ProcessThread(QThread):
     resultReady = pyqtSignal(str)
@@ -28,7 +67,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Prompt Processor")
         self.resize(600, 400)
 
-        # Create the main layout
+        self.setStyleSheet(FUTURISTIC_STYLE)  # Apply the futuristic style
+
         main_layout = QVBoxLayout()
 
         # Create the input area
