@@ -5,7 +5,7 @@ import time
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt5.QtGui import QMovie, QPainter, QColor, QPen
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QPushButton, QTextEdit, QLabel, QScrollBar, QProgressBar
-
+from PyQt5.QtGui import QIcon
 import os
 import openai
 import time
@@ -112,7 +112,7 @@ class ProcessThread(QThread):
 
         processedResult = result["choices"][0]["message"]["content"]
         tokenUsage = result["usage"]["total_tokens"]
-        print(f"used tokens: {tokenUsage}")
+        #print(f"used tokens: {tokenUsage}")
 
         # Format the prompt and random text as Markdown
         formatted_prompt = f"**Prompt:**\n\n{self.prompt}"
@@ -138,6 +138,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("hackerman gui")
+        self.setWindowIcon(QIcon('icon.ico'))
         self.resize(600, 400)
 
         self.setStyleSheet(FUTURISTIC_STYLE)
@@ -229,7 +230,6 @@ class MainWindow(QMainWindow):
         self.loading_spinner.hide()
 
     def updateResult(self, result):
-        print("updateResult")
         formatted_result = f"<br>{result}"
         self.promptResults += formatted_result
         processed_html = markdown.markdown(self.promptResults)  # Convert result to HTML
@@ -238,7 +238,6 @@ class MainWindow(QMainWindow):
         self.updateStatistics()
 
     def updateTokenCount(self, result):
-        print("updateTokenCount")
         self.currentTokens = int(result)
         self.usedTokens += self.currentTokens
 
@@ -251,7 +250,6 @@ class MainWindow(QMainWindow):
         scrollbar.setValue(scrollbar.maximum())
 
     def updateStatistics(self):
-        print("updateStatistics")
         self.stats_label1.setText("Used tokens currently: {}".format(self.currentTokens))
         self.stats_label2.setText("Used tokens total: {}".format(self.usedTokens))
         self.stats_label3.setText("Used money: ~{} $".format(self.usedTokens / 1000 * 0.03))
