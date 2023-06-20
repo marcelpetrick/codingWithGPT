@@ -252,7 +252,7 @@ class MainWindow(QMainWindow):
     def updateStatistics(self):
         self.stats_label1.setText("Used tokens currently: {}".format(self.currentTokens))
         self.stats_label2.setText("Used tokens total: {}".format(self.usedTokens))
-        self.stats_label3.setText("Used money: ~{} $".format(self.usedTokens / 1000 * 0.03))
+        self.stats_label3.setText("Used money: ~{:.4f} $".format(self.usedTokens / 1000 * 0.03))
 
 
 if __name__ == "__main__":
