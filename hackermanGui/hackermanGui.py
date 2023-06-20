@@ -102,7 +102,6 @@ class SeparatorLine(QWidget):
         painter.setPen(pen)
         painter.drawLine(0, 0, self.width(), 0)
 
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -113,25 +112,39 @@ class MainWindow(QMainWindow):
 
         main_layout = QVBoxLayout()
 
+        # Create API key input field
+        api_layout = QHBoxLayout()
+        self.api_label = QLabel("OpenAI API key:")
+        self.api_line_edit = QLineEdit()
+        self.api_line_edit.setMaxLength(2048)
+        api_layout.addWidget(self.api_label)
+        api_layout.addWidget(self.api_line_edit)
+
         input_layout = QHBoxLayout()
+        self.prompt_label = QLabel("Prompt:")
         self.prompt_line_edit = QLineEdit()
         self.prompt_line_edit.setMaxLength(2048)
         self.go_button = QPushButton("Go")
         self.go_button.clicked.connect(self.processButtonClicked)
-
-        self.separator_line = SeparatorLine()
-
+        input_layout.addWidget(self.prompt_label)
         input_layout.addWidget(self.prompt_line_edit)
         input_layout.addWidget(self.go_button)
+
+        self.separator_line = SeparatorLine()
 
         self.loading_spinner = QProgressBar()
         self.loading_spinner.setRange(0, 0)  # Indeterminate progress
         self.loading_spinner.setTextVisible(False)
         self.loading_spinner.hide()
 
+        # Add API layout to main layout
+        main_layout.addLayout(api_layout)
         main_layout.addLayout(input_layout)
         main_layout.addWidget(self.separator_line)
         main_layout.addWidget(self.loading_spinner)
+
+        # Initialize internal variable for API key
+        self.api_key = ""
 
         self.result_text_edit = QTextEdit()
         self.result_text_edit.setReadOnly(True)
@@ -153,6 +166,7 @@ class MainWindow(QMainWindow):
 
     def processButtonClicked(self):
         prompt = self.prompt_line_edit.text()
+        self.api_key = self.api_line_edit.text()  # Update the API key variable with user input
         if prompt:
             self.disableInput()
             self.startProcessingThread(prompt)
