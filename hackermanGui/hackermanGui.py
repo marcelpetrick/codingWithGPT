@@ -11,6 +11,16 @@ from PyQt5.QtGui import QIcon
 
 
 def gpt4request(gpt_prompt, apiKey):
+    """
+    Send a request to the GPT-4 model with the provided prompt and API key.
+
+    :param gpt_prompt: The prompt to send to the GPT-4 model.
+    :type gpt_prompt: str
+    :param apiKey: The API key to use.
+    :type apiKey: str
+    :return: The response from the GPT-4 model.
+    :rtype: openai.api_resources.completion.ChatCompletion
+    """
     start_time = time.time()
 
     if apiKey:
@@ -29,8 +39,8 @@ def gpt4request(gpt_prompt, apiKey):
     end_time = time.time()
 
     elapsed_time = end_time - start_time
-    print(f"The code took {elapsed_time} seconds to run.")
-    #print(f"response: {response}")
+    print(f"API call took {elapsed_time} seconds to run.")
+    # print(f"response: {response}")
     return response
 
 
@@ -95,20 +105,40 @@ QLabel {
 
 
 class ProcessThread(QThread):
+    """
+    A QThread that processes a prompt in a separate thread and emits the result and token count.
+    """
     resultReady = pyqtSignal(str)
     tokenCountReady = pyqtSignal(str)
 
     def __init__(self, prompt, apiKey):
+        """
+        Initialize the thread with the given prompt and API key.
+
+        :param prompt: The prompt to process.
+        :type prompt: str
+        :param apiKey: The API key to use.
+        :type apiKey: str
+        """
         super().__init__()
         self.prompt = prompt
         self.apiKey = apiKey
 
     def run(self):
+        """
+        Process the prompt and emit the result and token count.
+        """
         result = self.processPrompt()
         self.tokenCountReady.emit(str(result[1]))
         self.resultReady.emit(result[0])
 
     def processPrompt(self):
+        """
+        Process the prompt and return the formatted result and token count.
+
+        :return: A list containing the formatted result and token count.
+        :rtype: list
+        """
         result = gpt4request(self.prompt, self.apiKey)
 
         processedResult = result["choices"][0]["message"]["content"]
@@ -136,7 +166,14 @@ class SeparatorLine(QWidget):
 
 
 class MainWindow(QMainWindow):
+    """
+    The main window of the application.
+    """
+
     def __init__(self):
+        """
+        Initialize the main window.
+        """
         super().__init__()
         self.setWindowTitle("hackerman gui")
         self.setWindowIcon(QIcon('icon.ico'))
@@ -204,6 +241,9 @@ class MainWindow(QMainWindow):
         self.updateStatistics()
 
     def processButtonClicked(self):
+        """
+        Process the prompt when the Go button is clicked.
+        """
         prompt = self.prompt_line_edit.text()
         self.api_key = self.api_line_edit.text()  # Update the API key variable with user input
         if prompt:
@@ -211,6 +251,12 @@ class MainWindow(QMainWindow):
             self.startProcessingThread(prompt)
 
     def startProcessingThread(self, prompt):
+        """
+        Start a new processing thread for the given prompt.
+
+        :param prompt: The prompt to process.
+        :type prompt: str
+        """
         self.loading_spinner.show()
         self.go_button.setEnabled(False)
         self.prompt_line_edit.setEnabled(False)
@@ -222,15 +268,27 @@ class MainWindow(QMainWindow):
         self.thread.start()
 
     def disableInput(self):
+        """
+        Disable the input fields and Go button.
+        """
         self.prompt_line_edit.setEnabled(False)
         self.go_button.setEnabled(False)
 
     def enableInput(self):
+        """
+        Enable the input fields and Go button and hide the loading spinner.
+        """
         self.prompt_line_edit.setEnabled(True)
         self.go_button.setEnabled(True)
         self.loading_spinner.hide()
 
     def updateResult(self, result):
+        """
+        Update the result text edit with the given result.
+
+        :param result: The result to append to the result text edit.
+        :type result: str
+        """
         formatted_result = f"<br>{result}"
         self.promptResults += formatted_result
         processed_html = markdown.markdown(self.promptResults)  # Convert result to HTML
@@ -239,24 +297,42 @@ class MainWindow(QMainWindow):
         self.updateStatistics()
 
     def updateTokenCount(self, result):
+        """
+        Update the token count labels with the given result.
+
+        :param result: The result to update the token count labels with.
+        :type result: str
+        """
         self.currentTokens = int(result)
         self.usedTokens += self.currentTokens
 
     def processingFinished(self):
+        """
+        Enable the input fields and Go button, clear the prompt line edit, and hide the loading spinner when the processing thread has finished.
+        """
         self.enableInput()
         self.prompt_line_edit.clear()
 
     def scrollResultViewToBottom(self):
+        """
+        Scroll the result text edit's scrollbar to the bottom.
+        """
         scrollbar = self.result_text_edit.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
 
     def updateStatistics(self):
+        """
+        Update the statistics labels with the current and total token counts and the approximate cost.
+        """
         self.stats_label1.setText("Used tokens currently: {}".format(self.currentTokens))
         self.stats_label2.setText("Used tokens total: {}".format(self.usedTokens))
         self.stats_label3.setText("Used money: ~{:.4f} $".format(self.usedTokens / 1000 * 0.03))
 
 
 if __name__ == "__main__":
+    """
+    Run the application.
+    """
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
