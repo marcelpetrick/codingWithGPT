@@ -1,42 +1,37 @@
 import sys
 import markdown
-import random
-import time
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer
-from PyQt5.QtGui import QMovie, QPainter, QColor, QPen
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QPushButton, QTextEdit, QLabel, QScrollBar, QProgressBar
-from PyQt5.QtGui import QIcon
 import os
 import openai
 import time
+from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtGui import QPainter, QColor, QPen
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QPushButton, \
+    QTextEdit, QLabel, QProgressBar
+from PyQt5.QtGui import QIcon
+
 
 def gpt4request(gpt_prompt, apiKey):
-  #gpt_prompt = input ("What prompt do you want to use: ")
-  #print(f"Working with gpt_prompt: {gpt_prompt}")
-  #gpt_prompt = "Write me a python program which prints the very first 100 prime numbers. Not up to 100, but the first 100 ones."
-  start_time = time.time()
+    start_time = time.time()
 
-  if apiKey:
-    print("log: using given key")
-    openai.api_key = apiKey
-  else:
-    print("log: using getenv")
-    openai.api_key = os.getenv("OPENAI_API_KEY")
+    if apiKey:
+        openai.api_key = apiKey
+    else:
+        openai.api_key = os.getenv("OPENAI_API_KEY")
 
-  message=[{"role": "user", "content": gpt_prompt}]
-  response = openai.ChatCompletion.create(
-      model="gpt-4-0613",
-      messages = message,
-      temperature=0.2,
-      max_tokens=1000,
-      frequency_penalty=0.0
-  )
-  end_time = time.time()
+    message = [{"role": "user", "content": gpt_prompt}]
+    response = openai.ChatCompletion.create(
+        model="gpt-4-0613",
+        messages=message,
+        temperature=0.2,
+        max_tokens=1000,
+        frequency_penalty=0.0
+    )
+    end_time = time.time()
 
-  elapsed_time = end_time - start_time
-  print(f"The code took {elapsed_time} seconds to run.")
-  print(f"response: {response}")
-  return response
+    elapsed_time = end_time - start_time
+    print(f"The code took {elapsed_time} seconds to run.")
+    #print(f"response: {response}")
+    return response
 
 
 FUTURISTIC_STYLE = """
@@ -118,7 +113,6 @@ class ProcessThread(QThread):
 
         processedResult = result["choices"][0]["message"]["content"]
         tokenUsage = result["usage"]["total_tokens"]
-        #print(f"used tokens: {tokenUsage}")
 
         # Format the prompt and random text as Markdown
         formatted_prompt = f"**Prompt:**\n\n{self.prompt}"
@@ -139,6 +133,7 @@ class SeparatorLine(QWidget):
         pen = QPen(QColor(0, 0, 0))
         painter.setPen(pen)
         painter.drawLine(0, 0, self.width(), 0)
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
