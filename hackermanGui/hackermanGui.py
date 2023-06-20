@@ -6,6 +6,33 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt5.QtGui import QMovie, QPainter, QColor, QPen
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QPushButton, QTextEdit, QLabel, QScrollBar, QProgressBar
 
+import os
+import openai
+import time
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+def gpt4request(gpt_prompt):
+  #gpt_prompt = input ("What prompt do you want to use: ")
+  print(f"Working with gpt_prompt: {gpt_prompt}")
+  #gpt_prompt = "Write me a python program which prints the very first 100 prime numbers. Not up to 100, but the first 100 ones."
+  start_time = time.time()
+
+  message=[{"role": "user", "content": gpt_prompt}]
+  response = openai.ChatCompletion.create(
+      model="gpt-4-0613",
+      messages = message,
+      temperature=0.2,
+      max_tokens=1000,
+      frequency_penalty=0.0
+  )
+  end_time = time.time()
+
+  elapsed_time = end_time - start_time
+  print(f"The code took {elapsed_time} seconds to run.")
+  print(f"response: {response}")
+  return response
+
 
 FUTURISTIC_STYLE = """
 QWidget {
@@ -79,13 +106,12 @@ class ProcessThread(QThread):
         self.resultReady.emit(result)
 
     def processPrompt(self):
-        # Generate random text after 2 seconds
-        time.sleep(2)
-        random_text = "This is the random result."
+        result = gpt4request(self.prompt)
 
         # Format the prompt and random text as Markdown
         formatted_prompt = f"**Prompt:**\n\n{self.prompt}"
-        formatted_result = f"\n\n**Result:**\n\n{random_text}\n\n{'-' * 30}"
+        formatted_result = f"\n\n**Result:**\n\n{result}\n\n{'-' * 30}"
+
         return formatted_prompt + formatted_result
 
 
