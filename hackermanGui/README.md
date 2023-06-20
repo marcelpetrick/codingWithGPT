@@ -17,6 +17,7 @@ To run the Hackerman GUI, execute the following command:
 
 ## Usage
 
+0. Enter your OpenAI API key into the first field.
 1. Enter your prompt in the input field.
 2. Click the "Go" button to process the prompt.
 3. The program will display a busy animation and block the input field and button while processing the prompt.
@@ -25,6 +26,8 @@ To run the Hackerman GUI, execute the following command:
 6. The program will update the result view for each new prompt, adding a separator line between each prompt and result.
 7. You can scroll down to view the latest results.
 8. The program also displays three arbitrary statistics in the footer section.
+
+![](usage.gif)
 
 ## Expected Result
 
