@@ -108,11 +108,15 @@ class ProcessThread(QThread):
     def processPrompt(self):
         result = gpt4request(self.prompt)
 
+        processedResult = result["choices"][0]["message"]["content"]
+        tokenUsage = result["usage"]["total_tokens"]
+        print(f"used tokens: {tokenUsage}")
+
         # Format the prompt and random text as Markdown
         formatted_prompt = f"**Prompt:**\n\n{self.prompt}"
-        formatted_result = f"\n\n**Result:**\n\n{result}\n\n{'-' * 30}"
+        formatted_result = f"\n\n**Result:**\n\n{processedResult}\n\n{'-' * 30}"
 
-        return formatted_prompt + formatted_result
+        return [formatted_prompt + formatted_result, tokenUsage]
 
 
 class SeparatorLine(QWidget):
@@ -190,6 +194,9 @@ class MainWindow(QMainWindow):
 
         self.promptResults = ""
 
+        self.currentTokens = 0
+        self.usedTokens = 0
+
     def processButtonClicked(self):
         prompt = self.prompt_line_edit.text()
         self.api_key = self.api_line_edit.text()  # Update the API key variable with user input
@@ -217,7 +224,9 @@ class MainWindow(QMainWindow):
         self.loading_spinner.hide()
 
     def updateResult(self, result):
-        formatted_result = f"<br>{result}"
+        self.currentTokens = result[1]
+        self.usedTokens += self.currentTokens
+        formatted_result = f"<br>{result[0]}"
         self.promptResults += formatted_result
         processed_html = markdown.markdown(self.promptResults)  # Convert result to HTML
         self.result_text_edit.setHtml(processed_html)
@@ -232,9 +241,9 @@ class MainWindow(QMainWindow):
         scrollbar.setValue(scrollbar.maximum())
 
     def updateStatistics(self, stat1, stat2, stat3):
-        self.stats_label1.setText("Stat 1: {}".format(stat1))
-        self.stats_label2.setText("Stat 2: {}".format(stat2))
-        self.stats_label3.setText("Stat 3: {}".format(stat3))
+        self.stats_label1.setText("Used tokens currently: {}".format(self.currentTokens))
+        self.stats_label2.setText("Used tokens total: {}".format(self.usedTokens))
+        self.stats_label3.setText("Used money: ~{} $".format(self.usedTokens / 1000 * 0.03))
 
 
 if __name__ == "__main__":
