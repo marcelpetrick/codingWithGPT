@@ -10,13 +10,18 @@ import os
 import openai
 import time
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-def gpt4request(gpt_prompt):
+def gpt4request(gpt_prompt, apiKey):
   #gpt_prompt = input ("What prompt do you want to use: ")
-  print(f"Working with gpt_prompt: {gpt_prompt}")
+  #print(f"Working with gpt_prompt: {gpt_prompt}")
   #gpt_prompt = "Write me a python program which prints the very first 100 prime numbers. Not up to 100, but the first 100 ones."
   start_time = time.time()
+
+  if apiKey:
+    print("log: using given key")
+    openai.api_key = apiKey
+  else:
+    print("log: using getenv")
+    openai.api_key = os.getenv("OPENAI_API_KEY")
 
   message=[{"role": "user", "content": gpt_prompt}]
   response = openai.ChatCompletion.create(
@@ -98,9 +103,10 @@ class ProcessThread(QThread):
     resultReady = pyqtSignal(str)
     tokenCountReady = pyqtSignal(str)
 
-    def __init__(self, prompt):
+    def __init__(self, prompt, apiKey):
         super().__init__()
         self.prompt = prompt
+        self.apiKey = apiKey
 
     def run(self):
         result = self.processPrompt()
@@ -108,7 +114,7 @@ class ProcessThread(QThread):
         self.resultReady.emit(result[0])
 
     def processPrompt(self):
-        result = gpt4request(self.prompt)
+        result = gpt4request(self.prompt, self.apiKey)
 
         processedResult = result["choices"][0]["message"]["content"]
         tokenUsage = result["usage"]["total_tokens"]
@@ -214,7 +220,7 @@ class MainWindow(QMainWindow):
         self.go_button.setEnabled(False)
         self.prompt_line_edit.setEnabled(False)
 
-        self.thread = ProcessThread(prompt)
+        self.thread = ProcessThread(prompt, self.api_key)
         self.thread.resultReady.connect(self.updateResult)
         self.thread.tokenCountReady.connect(self.updateTokenCount)
         self.thread.finished.connect(self.processingFinished)
