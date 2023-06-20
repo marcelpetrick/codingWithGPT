@@ -96,6 +96,7 @@ QLabel {
 
 class ProcessThread(QThread):
     resultReady = pyqtSignal(str)
+    tokenCountReady = pyqtSignal(str)
 
     def __init__(self, prompt):
         super().__init__()
@@ -103,7 +104,8 @@ class ProcessThread(QThread):
 
     def run(self):
         result = self.processPrompt()
-        self.resultReady.emit(result)
+        self.tokenCountReady.emit(str(result[1]))
+        self.resultReady.emit(result[0])
 
     def processPrompt(self):
         result = gpt4request(self.prompt)
@@ -197,6 +199,8 @@ class MainWindow(QMainWindow):
         self.currentTokens = 0
         self.usedTokens = 0
 
+        self.updateStatistics()
+
     def processButtonClicked(self):
         prompt = self.prompt_line_edit.text()
         self.api_key = self.api_line_edit.text()  # Update the API key variable with user input
@@ -211,6 +215,7 @@ class MainWindow(QMainWindow):
 
         self.thread = ProcessThread(prompt)
         self.thread.resultReady.connect(self.updateResult)
+        self.thread.tokenCountReady.connect(self.updateTokenCount)
         self.thread.finished.connect(self.processingFinished)
         self.thread.start()
 
@@ -224,13 +229,18 @@ class MainWindow(QMainWindow):
         self.loading_spinner.hide()
 
     def updateResult(self, result):
-        self.currentTokens = result[1]
-        self.usedTokens += self.currentTokens
-        formatted_result = f"<br>{result[0]}"
+        print("updateResult")
+        formatted_result = f"<br>{result}"
         self.promptResults += formatted_result
         processed_html = markdown.markdown(self.promptResults)  # Convert result to HTML
         self.result_text_edit.setHtml(processed_html)
         self.scrollResultViewToBottom()
+        self.updateStatistics()
+
+    def updateTokenCount(self, result):
+        print("updateTokenCount")
+        self.currentTokens = int(result)
+        self.usedTokens += self.currentTokens
 
     def processingFinished(self):
         self.enableInput()
@@ -240,7 +250,8 @@ class MainWindow(QMainWindow):
         scrollbar = self.result_text_edit.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
 
-    def updateStatistics(self, stat1, stat2, stat3):
+    def updateStatistics(self):
+        print("updateStatistics")
         self.stats_label1.setText("Used tokens currently: {}".format(self.currentTokens))
         self.stats_label2.setText("Used tokens total: {}".format(self.usedTokens))
         self.stats_label3.setText("Used money: ~{} $".format(self.usedTokens / 1000 * 0.03))
