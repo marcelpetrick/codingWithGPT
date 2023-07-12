@@ -194,7 +194,7 @@ class MainWindow(QMainWindow):
         input_layout = QHBoxLayout()
         self.prompt_label = QLabel("Prompt:")
         self.prompt_line_edit = QLineEdit()
-        self.prompt_line_edit.setMaxLength(2048)
+        self.prompt_line_edit.setMaxLength(20480)
         self.go_button = QPushButton("Go")
         self.go_button.clicked.connect(self.processButtonClicked)
         input_layout.addWidget(self.prompt_label)
