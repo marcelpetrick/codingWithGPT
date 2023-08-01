@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import argparse
 
 def export_images(db_name):
     # Connect to the sqlite database
@@ -39,5 +40,10 @@ def export_images(db_name):
     # Close the connection
     conn.close()
 
-export_images('your_database.db')  # Replace 'your_database.db' with your actual db name
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Export images from a SQLite database.")
+    parser.add_argument("dbname", help="The name of the SQLite database")
 
+    args = parser.parse_args()
+
+    export_images(args.dbname)
