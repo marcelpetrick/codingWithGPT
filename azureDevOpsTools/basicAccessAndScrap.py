@@ -1,38 +1,30 @@
 import os
-import requests
-from datetime import datetime, timedelta
-
 # Fetch the PAT from environment variables
 PAT = os.getenv('PAT')
 print(f'PAT: {PAT}')
-# Rest of your script continues here...
+organization_url = 'https://dev.azure.com/bora-devops/P118_HMI/_apis/wit/wiql?api-version=6.0'
 
-# Replace with your project URL
-#project_url = 'https://dev.azure.com/YOUR_ORGANIZATION/YOUR_PROJECT/_apis/wit/wiql?api-version=6.0'
-project_url = 'https://dev.azure.com/bora-devops/P118_HMI/_apis/wit/wiql?api-version=6.0'
-headers = {
-    'Content-Type': 'application/json',
-    'Authorization': f'Basic {PAT}'
-}
+from azure.devops.connection import Connection
+from msrest.authentication import BasicAuthentication
+import pprint
 
-# Query to get work items that have been changed in the past two days with the tag "Update3"
-query = {
-    "query": """
-    SELECT [System.Id], [System.Title], [System.Tags] 
-    FROM workitems 
-    WHERE [System.TeamProject] = @project
-    AND [System.ChangedDate] >= @today-2
-    AND [System.Tags] CONTAINS 'Update_3'
-    """
-}
+# replace these with your own values
+#organization_url = "https://dev.azure.com/your-organization"
+organization_url = 'https://dev.azure.com/bora-devops/P118_HMI'
+pat = PAT #"your-personal-access-token"
 
-response = requests.post(project_url, json=query, headers=headers)
+credentials = BasicAuthentication('', pat)
+connection = Connection(base_url=organization_url, creds=credentials)
 
-if response.status_code == 200:
-    work_items = response.json()['workItems']
-    for item in work_items:
-        print(f"ID: {item['id']} - URL: {item['url']}")
-else:
-    print(f"Error fetching work items: {response.text}")
+client = connection.clients.get_work_item_tracking_client()
+
+# Sample query: Get all work items
+wiql = "SELECT [System.Id] FROM workitems"
+
+results = client.query_by_wiql(wiql).work_items
+
+# print all work item IDs
+for work_item in results:
+    print(work_item.id)
 
 
