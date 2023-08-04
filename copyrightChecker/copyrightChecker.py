@@ -28,7 +28,7 @@ def check_copyright(directory):
                     if copyright_text in line:
                         foundCopyright = True
                 if not foundCopyright:
-                    print(filename)
+                    #print(filename)
                     result_list.append(filename)
                     copyrightless_files += 1
 
@@ -49,9 +49,30 @@ def filter_list(input_list : list, filter_string_list : list):
             filtered_list.append(entry)
     return filtered_list
 
-
+#-----------
 directory_to_check = '/home/mpetrick/repos/P118_HMI/'
 result_list = check_copyright(directory_to_check)
-filtered_list = filter_list(result_list, ['protobuf/Target', 'azure_c_shared_utility', 'umock_c', 'azure_prov_client'])
+filtered_list = filter_list(result_list, [
+                                            '01_Simulator/protobuf',
+                                            '/azure/azureiot/',
+                                            '/ioboard/Include/IOBoardAccess',
+                                            'ioboardsim/io.pb.h',
+                                            'common/shared/notifyguard.h',
+                                            '04_Templates/template.h',
+                                            'tst_azureiothub/azure/umock_c',
+                                            'tst_azureiothub/azure/azure_prov_client',
+                                            'tst_azureiothub/azure/azure_c_shared_utility/',
+                                            'oboardsimulatorserver/io.pb.h'
+                                            'tst_journalcontroller/systemd',
+                                            'fff.h',
+                                            'httplib.h',
+                                            'tst_journalcontroller/systemd',
+                                            'azure/azure_macro_utils',
+                                            'notifyguard.cpp',
+                                            '/template.'
+                                            'io.pb.h'
+                                          ])
+# just to check content
+for elem in filtered_list:
+    print(elem)
 print(len(filtered_list))
-print(filtered_list)
