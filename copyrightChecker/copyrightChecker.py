@@ -1,6 +1,6 @@
-import os
 import fnmatch
 import itertools
+import os
 
 
 def find_files(directory, pattern):
@@ -58,6 +58,44 @@ def filter_list(input_list: list, filter_string_list: list):
     return [entry for entry in input_list if not any(filter_string in entry for filter_string in filter_string_list)]
 
 
+def prepend_copyright_to_file(path, copyright_year="2023", company_name="Data Modul AG"):
+    try:
+        # Get the filename
+        filename = os.path.basename(path)
+
+        # Prepare the text to be prepended
+        prepend_text = f"""/**
+ * @file    {filename}
+ * @brief   TODO add text here
+ *
+ * Copyright (C) {copyright_year} {company_name}
+ *
+ * {company_name} owns the sole copyright of the software. Under international
+ * copyright laws you (1) may not make a copy of this software except for the
+ * purposes of maintaining a single archive copy, (2) may not derive works
+ * herefrom, (3) may not distribute this work to others. These rights are
+ * provided for information clarification, other restrictions of rights may
+ * apply as well.
+ *
+ */
+"""
+
+        # Open the file in read mode and read its contents
+        with open(path, 'r') as original_file:
+            file_contents = original_file.read()
+
+        # Open the file in write mode, write the prepend text and the original file contents
+        with open(path, 'w') as modified_file:
+            modified_file.write(prepend_text + file_contents)
+
+        print(f"Text prepended to file: {path}")
+
+    except FileNotFoundError:
+        print(f"File not found: {path}")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+
 def leProgramme():
     directory_to_check = '/home/mpetrick/repos/P118_HMI/'
     result_list = check_copyright(directory_to_check)
@@ -87,5 +125,9 @@ def leProgramme():
         print(elem)
     print(f'items: {len(uniqueSortedList)}')
 
+    for file in uniqueSortedList:
+        prepend_copyright_to_file(file)
 
+
+# --------------------------
 leProgramme()
