@@ -27,8 +27,14 @@ project = get_projects_response[1]
 # Get the Work Item Tracking client
 wit_client = connection.clients.get_work_item_tracking_client()
 
-# Get work items for the second project
-wiql = "SELECT [System.Id], [System.Title], [System.State] FROM workitems WHERE [System.TeamProject] = @project"
+# Get work items for the second project with the tag 'Update_3'
+wiql = """
+SELECT [System.Id], [System.Title], [System.State]
+FROM workitems
+WHERE [System.TeamProject] = @project
+AND [System.Tags] CONTAINS 'Update_3'
+AND [System.Tags] CONTAINS 'DMO_toImplement'
+"""
 wiql = wiql.replace("@project", "'" + project.name + "'")
 wiql_object = Wiql(query=wiql)
 query_result = wit_client.query_by_wiql(wiql_object)
@@ -36,4 +42,4 @@ query_result = wit_client.query_by_wiql(wiql_object)
 # Print out each work item
 for work_item in query_result.work_items:
     print(work_item)
-
+print(f"amount of found tickets: {len(query_result.work_items)}")
