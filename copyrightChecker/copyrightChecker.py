@@ -58,31 +58,34 @@ def filter_list(input_list: list, filter_string_list: list):
     return [entry for entry in input_list if not any(filter_string in entry for filter_string in filter_string_list)]
 
 
-#-----------
-directory_to_check = '/home/mpetrick/repos/P118_HMI/'
-result_list = check_copyright(directory_to_check)
-filtered_list = filter_list(result_list, [
-                                            '01_Simulator/protobuf',
-                                            '/azure/azureiot/',
-                                            '/ioboard/Include/IOBoardAccess',
-                                            'ioboardsim/io.pb.h',
-                                            'common/shared/notifyguard.h',
-                                            '04_Templates/template.h',
-                                            'tst_azureiothub/azure/umock_c',
-                                            'tst_azureiothub/azure/azure_prov_client',
-                                            'tst_azureiothub/azure/azure_c_shared_utility/',
-                                            'oboardsimulatorserver/io.pb.h'
-                                            'tst_journalcontroller/systemd',
-                                            'fff.h',
-                                            'httplib.h',
-                                            'tst_journalcontroller/systemd',
-                                            'azure/azure_macro_utils',
-                                            'notifyguard.cpp',
-                                            '/template.'
-                                            'io.pb.h'
-                                          ])
-# just to check content
-uniqueSortedList = sorted(list(set(filtered_list)))
-for elem in uniqueSortedList:
-    print(elem)
-print(len(uniqueSortedList))
+def leProgramme():
+    directory_to_check = '/home/mpetrick/repos/P118_HMI/'
+    result_list = check_copyright(directory_to_check)
+    filtered_list = filter_list(result_list, [
+                            '/azure/azureiot/',
+                            '/ioboard/Include/IOBoardAccess',
+                            '01_Simulator/protobuf',
+                            '04_Templates/template.cpp',
+                            '04_Templates/template.h',
+                            'azure/azure_macro_utils',
+                            'common/shared/notifyguard.h',
+                            'fff.h',
+                            'httplib.h',
+                            'io.pb.h',
+                            'ioboardsim/io.pb.h',
+                            'notifyguard.cpp',
+                            'oboardsimulatorserver/io.pb.h',
+                            'tst_azureiothub/azure/azure_c_shared_utility/',
+                            'tst_azureiothub/azure/azure_prov_client',
+                            'tst_azureiothub/azure/umock_c',
+                            'tst_journalcontroller/systemd',
+                                              ])
+    # just to check content
+    uniqueSortedList = sorted(list(set(filtered_list)))
+
+    for elem in uniqueSortedList:
+        print(elem)
+    print(f'items: {len(uniqueSortedList)}')
+
+
+leProgramme()
