@@ -35,18 +35,23 @@ def check_copyright(directory):
     print(f'Checked {total_files} files. {copyrightless_files} files did not have the copyright line.')
     return result_list
 
-# remove all entries from result_list wich have a certain string
-def filter_list(result_list : list, filter_string : str):
+
+def filter_list(input_list : list, filter_string_list : list):
+    # remove all entries from result_list which have a certain string
     filtered_list = []
-    for entry in result_list:
-        if filter_string not in entry:
+    for entry in input_list:
+        found = False
+        for filter_string in filter_string_list:
+            if filter_string in entry:
+                found = True
+                break
+        if not found:
             filtered_list.append(entry)
     return filtered_list
 
 
 directory_to_check = '/home/mpetrick/repos/P118_HMI/'
 result_list = check_copyright(directory_to_check)
-filtered_list = filter_list(result_list, 'protobuf/Target')
-filtered_list = filter_list(filtered_list, 'azure_c_shared_utility')
-#do as well for umock_c
+filtered_list = filter_list(result_list, ['protobuf/Target', 'azure_c_shared_utility', 'umock_c', 'azure_prov_client'])
 print(len(filtered_list))
+print(filtered_list)
