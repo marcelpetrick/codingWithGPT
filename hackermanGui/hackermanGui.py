@@ -33,7 +33,7 @@ def gpt4request(gpt_prompt, apiKey):
         model="gpt-4-0613",
         messages=message,
         temperature=0.2,
-        max_tokens=1000,
+        max_tokens=4000,
         frequency_penalty=0.0
     )
     end_time = time.time()
@@ -194,7 +194,7 @@ class MainWindow(QMainWindow):
         input_layout = QHBoxLayout()
         self.prompt_label = QLabel("Prompt:")
         self.prompt_line_edit = QLineEdit()
-        self.prompt_line_edit.setMaxLength(20480)
+        self.prompt_line_edit.setMaxLength(512*1024)
         self.go_button = QPushButton("Go")
         self.go_button.clicked.connect(self.processButtonClicked)
         input_layout.addWidget(self.prompt_label)
