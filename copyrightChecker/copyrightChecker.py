@@ -82,6 +82,7 @@ filtered_list = filter_list(result_list, [
                                             'io.pb.h'
                                           ])
 # just to check content
-for elem in filtered_list:
+uniqueSortedList = sorted(list(set(filtered_list)))
+for elem in uniqueSortedList:
     print(elem)
-print(len(filtered_list))
+print(len(uniqueSortedList))
