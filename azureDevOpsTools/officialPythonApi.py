@@ -1,7 +1,6 @@
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 from azure.devops.v7_0.work_item_tracking.models import Wiql
-import pprint
 
 def get_pat_from_file(file_path):
     with open(file_path, 'r') as file:
@@ -42,4 +41,11 @@ query_result = wit_client.query_by_wiql(wiql_object)
 # Print out each work item
 for work_item in query_result.work_items:
     print(work_item)
+    print(work_item.id)
+
+    #fetch_and_parse_dates(work_item.url, personal_access_token)
+    work_item = wit_client.get_work_item(work_item.id)
+    print(f"work_item: {work_item}")
+
 print(f"amount of found tickets: {len(query_result.work_items)}")
+
