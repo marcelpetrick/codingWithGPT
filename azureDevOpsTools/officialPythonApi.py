@@ -1,10 +1,19 @@
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 from azure.devops.v7_0.work_item_tracking.models import Wiql
+import pprint
+
 
 def get_pat_from_file(file_path):
     with open(file_path, 'r') as file:
         return file.read().strip()
+
+
+def parse_created_date(work_item):
+    fields = work_item['fields']
+    created_date = fields['System.CreatedDate']
+    return created_date
+
 
 # Fill in with your personal access token and org URL
 personal_access_token = get_pat_from_file('test_pat_full_access.txt')
@@ -40,12 +49,20 @@ query_result = wit_client.query_by_wiql(wiql_object)
 
 # Print out each work item
 for work_item in query_result.work_items:
+    print("-- workitem --")
     print(work_item)
     print(work_item.id)
 
     #fetch_and_parse_dates(work_item.url, personal_access_token)
-    work_item = wit_client.get_work_item(work_item.id)
-    print(f"work_item: {work_item}")
+    work_item_result = wit_client.get_work_item(work_item.id)
+    print(f"work_item: {work_item_result}")
+    pprint.pprint(work_item_result.fields)
+    print("fields:", work_item_result.fields)
+
+    #print(parse_created_date(work_item)) # todo continue here
 
 print(f"amount of found tickets: {len(query_result.work_items)}")
 
+# 'System.CreatedDate':
+# Microsoft.VSTS.Common.ResolvedDate':
+# 'Microsoft.VSTS.Common.ClosedDate':
