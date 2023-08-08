@@ -29,7 +29,18 @@ def plot_tickets(tickets, start_date, end_date):
     plt.title(f'Tickets from {start_date.strftime("%Y-%m-%d")} to {end_date.strftime("%Y-%m-%d")}')
     plt.yticks(range(len(tickets)), [""] * len(tickets))  # Empty y-ticks
 
-    colors = ['red', 'green', 'yellow', 'orange', 'purple']
+    # Color mapping based on ticket type
+    type_colors = {
+        'Feature': 'purple',
+        'Task': 'yellow',
+        'User Story': 'yellow',
+        'Bug': 'red',
+    }
+
+    # Add vertical dashed line at specified date
+    implementation_date = datetime.strptime('2023-06-01', '%Y-%m-%d')
+    ax.axvline(implementation_date, linestyle='--', color='black', lw=1)
+    ax.text(implementation_date, len(tickets) - 1, 'start of implementation', rotation=90, verticalalignment='bottom', fontsize=8)
 
     for idx, ticket in enumerate(tickets):
         y_value = idx
@@ -37,9 +48,12 @@ def plot_tickets(tickets, start_date, end_date):
         resolved_date = datetime.strptime(ticket['Resolved Date'], '%Y-%m-%dT%H:%M:%S.%fZ') if ticket['Resolved Date'] else end_date
         closed_date = datetime.strptime(ticket['Closed Date'], '%Y-%m-%dT%H:%M:%S.%fZ') if ticket['Closed Date'] else end_date
 
+        # Select the color based on ticket type
+        color = type_colors.get(ticket['Work Item Type'], 'gray')  # Default to gray if type is not recognized
+
         # Draw the rectangle for the ticket
         rect = patches.Rectangle((mdates.date2num(created_date), y_value - 0.2), mdates.date2num(resolved_date or closed_date) - mdates.date2num(created_date), 0.4,
-                                 facecolor=colors[idx % len(colors)], edgecolor='black')
+                                 facecolor=color, edgecolor='black')
         ax.add_patch(rect)
 
         # Add the ticket details
@@ -49,7 +63,6 @@ def plot_tickets(tickets, start_date, end_date):
 
     plt.gca().invert_yaxis()
     plt.savefig('tickets_plot.png')
-    #plt.show()
 
 
 def extract_dates(line):
