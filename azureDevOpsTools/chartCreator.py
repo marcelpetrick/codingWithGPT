@@ -1,16 +1,12 @@
-import re
-from datetime import datetime
-import ast
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.patches as patches
+from datetime import datetime
+import ast
+import re
 
 def extract_tickets_from_file(file_path):
-    """Extracts ticket information from a given text file.
-
-    :param file_path: Path to the text file containing ticket data.
-    :return: A list of dictionaries containing ticket information.
-    """
+    """Extracts ticket information from a given text file."""
     tickets = []
     with open(file_path, 'r') as file:
         for line in file:
@@ -19,43 +15,42 @@ def extract_tickets_from_file(file_path):
     return tickets
 
 def plot_tickets(tickets, start_date, end_date):
-    """Plots tickets on a timeline using specified start and end dates.
+    """Plots tickets on a timeline using specified start and end dates."""
+    fig, ax = plt.subplots(figsize=(15, len(tickets) * 0.5))
 
-    :param tickets: A list of dictionaries containing ticket information.
-    :param start_date: The start date of the global timescale.
-    :param end_date: The end date of the global timescale.
-    """
-    fig, ax = plt.subplots(figsize=(12, len(tickets) * 0.2))
-    colors = ['red', 'green', 'yellow', 'orange', 'purple']
+    # Increase the left margin to accommodate text
+    plt.subplots_adjust(left=0.5)
 
-    # Set the x-axis as a global timescale
     ax.set_xlim(start_date, end_date)
+    ax.set_ylim(0, len(tickets))
     ax.xaxis.set_major_locator(mdates.MonthLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.xticks(rotation=45)
     plt.title(f'Tickets from {start_date.strftime("%Y-%m-%d")} to {end_date.strftime("%Y-%m-%d")}')
-    plt.yticks([])
+    plt.yticks(range(len(tickets)), [""] * len(tickets))  # Empty y-ticks
 
-    # Plot each ticket
+    colors = ['red', 'green', 'yellow', 'orange', 'purple']
+
     for idx, ticket in enumerate(tickets):
-        y_value = len(tickets) - idx
+        y_value = idx
         created_date = datetime.strptime(ticket['Created Date'], '%Y-%m-%dT%H:%M:%S.%fZ')
         resolved_date = datetime.strptime(ticket['Resolved Date'], '%Y-%m-%dT%H:%M:%S.%fZ') if ticket['Resolved Date'] else end_date
         closed_date = datetime.strptime(ticket['Closed Date'], '%Y-%m-%dT%H:%M:%S.%fZ') if ticket['Closed Date'] else end_date
 
-        # Draw the line for the ticket
-        rect = patches.Rectangle((mdates.date2num(created_date), y_value - 0.05), mdates.date2num(resolved_date or closed_date) - mdates.date2num(created_date), 0.1,
+        # Draw the rectangle for the ticket
+        rect = patches.Rectangle((mdates.date2num(created_date), y_value - 0.2), mdates.date2num(resolved_date or closed_date) - mdates.date2num(created_date), 0.4,
                                  facecolor=colors[idx % len(colors)], edgecolor='black')
         ax.add_patch(rect)
 
         # Add the ticket details
         title_ellipsed = (ticket['Title'][:30] + '...') if len(ticket['Title']) > 30 else ticket['Title']
-        ax.text(mdates.date2num(start_date) - 50, y_value, f"ID: {ticket['ID']} | Type: {ticket['Work Item Type']} | Title: {title_ellipsed}",
+        ax.text(mdates.date2num(start_date) - 100, y_value, f"ID: {ticket['ID']} | Type: {ticket['Work Item Type']} | Title: {title_ellipsed}",
                 verticalalignment='center', horizontalalignment='right', fontsize=8)
 
     plt.gca().invert_yaxis()
-    plt.tight_layout()
     plt.savefig('tickets_plot.png')
+    #plt.show()
+
 
 def extract_dates(line):
     """Extracts dates from a given line.
