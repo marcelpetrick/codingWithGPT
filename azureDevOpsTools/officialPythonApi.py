@@ -20,8 +20,26 @@ def get_pat_from_file(file_path):
 
 def parse_metadata_from_ticket(work_item):
     fields = work_item.fields
+
+    # Extracting the required fields
+    id = work_item.id
     created_date = fields['System.CreatedDate']
-    return created_date
+    resolved_date = fields.get('Microsoft.VSTS.Common.ResolvedDate', None)
+    closed_date = fields.get('Microsoft.VSTS.Common.ClosedDate', None)
+    work_item_type = fields.get('System.WorkItemType', None)
+    title = fields.get('System.Title', None)
+
+    # Creating the result dictionary
+    result = {
+        'ID': id,
+        'Created Date': created_date,
+        'Resolved Date': resolved_date,
+        'Closed Date': closed_date,
+        'Title': title,
+        'Work Item Type': work_item_type,
+    }
+
+    return result
 
 
 # Fill in with your personal access token and org URL
@@ -58,17 +76,16 @@ query_result = wit_client.query_by_wiql(wiql_object)
 
 # Print out each work item
 for work_item in query_result.work_items:
-    print("-- workitem --")
-    print(work_item)
-    print(work_item.id)
+    #print("-- workitem --")
+    #print(work_item)
+    #print(work_item.id)
 
     #fetch_and_parse_dates(work_item.url, personal_access_token)
     work_item_result = wit_client.get_work_item(work_item.id)
-    print(f"work_item: {work_item_result}")
-    pprint.pprint(work_item_result.fields)
-    print("fields:", work_item_result.fields)
+    #print(f"work_item: {work_item_result}")
+    #pprint.pprint(work_item_result.fields)
+    #print("fields:", work_item_result.fields)
 
     print(parse_metadata_from_ticket(work_item_result)) # todo continue here
 
 print(f"amount of found tickets: {len(query_result.work_items)}")
-
