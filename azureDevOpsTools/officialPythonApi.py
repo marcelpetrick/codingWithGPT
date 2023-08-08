@@ -9,8 +9,17 @@ def get_pat_from_file(file_path):
         return file.read().strip()
 
 
-def parse_created_date(work_item):
-    fields = work_item['fields']
+# todo:
+# 'System.CreatedDate':
+# Microsoft.VSTS.Common.ResolvedDate':
+# 'Microsoft.VSTS.Common.ClosedDate':
+# also report title and type
+# 'System.WorkItemType': 'Bug',
+#  'System.Title': 'Shutdown - Gerät schaltet sich nicht automatisch ab nach '
+#                  'Beendigung des Garprogramms',
+
+def parse_metadata_from_ticket(work_item):
+    fields = work_item.fields
     created_date = fields['System.CreatedDate']
     return created_date
 
@@ -59,10 +68,7 @@ for work_item in query_result.work_items:
     pprint.pprint(work_item_result.fields)
     print("fields:", work_item_result.fields)
 
-    #print(parse_created_date(work_item)) # todo continue here
+    print(parse_metadata_from_ticket(work_item_result)) # todo continue here
 
 print(f"amount of found tickets: {len(query_result.work_items)}")
 
-# 'System.CreatedDate':
-# Microsoft.VSTS.Common.ResolvedDate':
-# 'Microsoft.VSTS.Common.ClosedDate':
