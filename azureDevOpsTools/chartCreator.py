@@ -5,8 +5,13 @@ from datetime import datetime
 import ast
 import re
 
+
 def extract_tickets_from_file(file_path):
-    """Extracts ticket information from a given text file."""
+    """Extracts ticket information from a given text file.
+
+    :param file_path: Path to the text file containing ticket information.
+    :return: A list of dictionaries, each representing a ticket.
+    """
     tickets = []
     with open(file_path, 'r') as file:
         for line in file:
@@ -14,11 +19,15 @@ def extract_tickets_from_file(file_path):
             tickets.append(ticket)
     return tickets
 
-def plot_tickets(tickets, start_date, end_date):
-    """Plots tickets on a timeline using specified start and end dates."""
-    fig, ax = plt.subplots(figsize=(15, len(tickets) * 0.5))
 
-    # Increase the left margin to accommodate text
+def plot_tickets(tickets, start_date, end_date):
+    """Plots tickets on a timeline using specified start and end dates.
+
+    :param tickets: A list of dictionaries, each representing a ticket.
+    :param start_date: The start date for the timeline.
+    :param end_date: The end date for the timeline.
+    """
+    fig, ax = plt.subplots(figsize=(15, len(tickets) * 0.5))
     plt.subplots_adjust(left=0.5)
 
     ax.set_xlim(start_date, end_date)
@@ -77,6 +86,7 @@ def extract_dates(line):
         dates.append(datetime.strptime(match, '%Y-%m-%dT%H:%M:%S.%fZ'))
     return dates
 
+
 def find_earliest_and_latest_dates(file_path):
     """Finds the earliest and latest dates from a given text file.
 
@@ -96,9 +106,24 @@ def find_earliest_and_latest_dates(file_path):
 
     return earliest_date.strftime('%Y-%m-%d %H:%M') if earliest_date else None, latest_date.strftime('%Y-%m-%d %H:%M') if latest_date else None
 
+
+import glob
+import os
+
+
 def main():
     """Main function to extract ticket information, find global timescale, and plot tickets."""
-    file_path = 'collectedUpdate3Tickets_20230808_1736.txt'
+
+    # Find all files matching the pattern and select the most recent one
+    pattern = 'collectedUpdate3Tickets_*.txt'
+    file_paths = glob.glob(pattern)
+    file_path = max(file_paths, key=os.path.getctime) if file_paths else None
+    print(f"Will operate on most recent file: {file_path}")
+
+    if file_path is None:
+        print("No matching files found.")
+        return
+
     tickets = extract_tickets_from_file(file_path)
 
     # Find the global earliest and latest dates
