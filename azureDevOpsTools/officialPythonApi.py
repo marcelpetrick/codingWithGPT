@@ -3,13 +3,26 @@ from msrest.authentication import BasicAuthentication
 from azure.devops.v7_0.work_item_tracking.models import Wiql
 import pprint
 
+from datetime import datetime
+
+def write_list_of_dict_to_file(data):
+    # Get the current date and time
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+
+    # Create a filename with the timestamp
+    filename = f"collectedUpdate3Tickets_{timestamp}.txt"
+
+    # Write the dictionary to the file
+    with open(filename, 'w') as file:
+        for item in data:
+            file.write(f'{str(item)}\n')
 
 def get_pat_from_file(file_path):
     with open(file_path, 'r') as file:
         return file.read().strip()
 
 
-# todo:
+# todo: parese the necessary data
 # 'System.CreatedDate':
 # Microsoft.VSTS.Common.ResolvedDate':
 # 'Microsoft.VSTS.Common.ClosedDate':
@@ -74,6 +87,8 @@ wiql = wiql.replace("@project", "'" + project.name + "'")
 wiql_object = Wiql(query=wiql)
 query_result = wit_client.query_by_wiql(wiql_object)
 
+workitemResults = []
+
 # Print out each work item
 for work_item in query_result.work_items:
     #print("-- workitem --")
@@ -86,6 +101,10 @@ for work_item in query_result.work_items:
     #pprint.pprint(work_item_result.fields)
     #print("fields:", work_item_result.fields)
 
-    print(parse_metadata_from_ticket(work_item_result)) # todo continue here
+    parsed = parse_metadata_from_ticket(work_item_result)
+    workitemResults.append(parsed)
+    print(parsed)
 
 print(f"amount of found tickets: {len(query_result.work_items)}")
+
+write_list_of_dict_to_file(workitemResults)
