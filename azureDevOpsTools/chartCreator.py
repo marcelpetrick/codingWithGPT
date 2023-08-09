@@ -56,9 +56,9 @@ def plot_tickets(tickets, start_date, end_date, result_file_name):
 
     for idx, ticket in enumerate(tickets):
         y_value = idx
-        created_date = datetime.strptime(ticket['Created Date'], '%Y-%m-%dT%H:%M:%S.%fZ')
-        resolved_date = datetime.strptime(ticket['Resolved Date'], '%Y-%m-%dT%H:%M:%S.%fZ') if ticket['Resolved Date'] else end_date
-        closed_date = datetime.strptime(ticket['Closed Date'], '%Y-%m-%dT%H:%M:%S.%fZ') if ticket['Closed Date'] else end_date
+        created_date = parse_date(ticket['Created Date'])
+        resolved_date = parse_date(ticket['Resolved Date']) if ticket['Resolved Date'] else end_date
+        closed_date = parse_date(ticket['Closed Date']) if ticket['Closed Date'] else end_date
 
         # Select the color based on ticket type
         color = type_colors.get(ticket['Work Item Type'], 'gray')  # Default to gray if type is not recognized
@@ -110,6 +110,13 @@ def find_earliest_and_latest_dates(file_path):
     return earliest_date.strftime('%Y-%m-%d %H:%M') if earliest_date else None, latest_date.strftime('%Y-%m-%d %H:%M') if latest_date else None
 
 
+def parse_date(date_string):
+    try:
+        return datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%S.%fZ')
+    except ValueError:
+        return datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
+
+
 def main():
     """Main function to extract ticket information, find global timescale, and plot tickets."""
 
@@ -130,9 +137,10 @@ def main():
     tickets = extract_tickets_from_file(file_path)
 
     # Find the global earliest and latest dates
-    all_dates = [datetime.strptime(ticket['Created Date'], '%Y-%m-%dT%H:%M:%S.%fZ') for ticket in tickets]
-    all_dates += [datetime.strptime(ticket['Resolved Date'], '%Y-%m-%dT%H:%M:%S.%fZ') for ticket in tickets if ticket['Resolved Date']]
-    all_dates += [datetime.strptime(ticket['Closed Date'], '%Y-%m-%dT%H:%M:%S.%fZ') for ticket in tickets if ticket['Closed Date']]
+    all_dates = [parse_date(ticket['Created Date']) for ticket in tickets]
+    all_dates += [parse_date(ticket['Resolved Date']) for ticket in tickets if ticket['Resolved Date']]
+    all_dates += [parse_date(ticket['Closed Date']) for ticket in tickets if ticket['Closed Date']]
+
     earliest_date = min(all_dates)
     latest_date = max(all_dates)
 
