@@ -22,7 +22,7 @@ def get_pat_from_file(file_path):
         return file.read().strip()
 
 
-# todo: parese the necessary data
+# todo: parse the necessary data
 # 'System.CreatedDate':
 # Microsoft.VSTS.Common.ResolvedDate':
 # 'Microsoft.VSTS.Common.ClosedDate':

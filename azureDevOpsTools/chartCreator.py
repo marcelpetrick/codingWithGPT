@@ -4,6 +4,8 @@ import matplotlib.patches as patches
 from datetime import datetime
 import ast
 import re
+import glob
+import os
 
 
 def extract_tickets_from_file(file_path):
@@ -20,12 +22,13 @@ def extract_tickets_from_file(file_path):
     return tickets
 
 
-def plot_tickets(tickets, start_date, end_date):
+def plot_tickets(tickets, start_date, end_date, result_file_name):
     """Plots tickets on a timeline using specified start and end dates.
 
     :param tickets: A list of dictionaries, each representing a ticket.
     :param start_date: The start date for the timeline.
     :param end_date: The end date for the timeline.
+    :param result_file_name: The name of the resulting plot file.
     """
     fig, ax = plt.subplots(figsize=(15, len(tickets) * 0.5))
     plt.subplots_adjust(left=0.5)
@@ -71,7 +74,7 @@ def plot_tickets(tickets, start_date, end_date):
                 verticalalignment='center', horizontalalignment='right', fontsize=8)
 
     plt.gca().invert_yaxis()
-    plt.savefig('tickets_plot.png')
+    plt.savefig(result_file_name)  # Save the plot with the specified file name
 
 
 def extract_dates(line):
@@ -107,10 +110,6 @@ def find_earliest_and_latest_dates(file_path):
     return earliest_date.strftime('%Y-%m-%d %H:%M') if earliest_date else None, latest_date.strftime('%Y-%m-%d %H:%M') if latest_date else None
 
 
-import glob
-import os
-
-
 def main():
     """Main function to extract ticket information, find global timescale, and plot tickets."""
 
@@ -124,6 +123,10 @@ def main():
         print("No matching files found.")
         return
 
+    # Extracting the date-time part from the input file name
+    date_time_part = re.search(r'(\d{8}_\d{4})', file_path).group(1) if file_path else ''
+    result_file_name = f'tickets_plot_{date_time_part}.png'
+
     tickets = extract_tickets_from_file(file_path)
 
     # Find the global earliest and latest dates
@@ -136,7 +139,7 @@ def main():
     print(f'Earliest date: {earliest_date.strftime("%Y-%m-%d %H:%M")}')
     print(f'Latest date: {latest_date.strftime("%Y-%m-%d %H:%M")}')
 
-    plot_tickets(tickets, earliest_date, latest_date)
+    plot_tickets(tickets, earliest_date, latest_date, result_file_name)  # Pass the result file name
 
 
 if __name__ == "__main__":
