@@ -14,6 +14,13 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLi
 from PyQt5.QtCore import QTimer
 import sys
 import datetime
+from collections import Counter
+
+
+def seconds_to_hms(seconds):
+    h, s = divmod(seconds, 3600)
+    m, s = divmod(s, 60)
+    return f"{h}h {m}m {s}s"
 
 
 class TimeTrackingApp(QMainWindow):
@@ -38,10 +45,15 @@ class TimeTrackingApp(QMainWindow):
         self.radio_group = QButtonGroup(self)
         self.layout.addWidget(QLabel("Items:"))
 
-        # Timer to log the selected item every second
+        # Timer to log the selected item every second and update the used times
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.log_selected_item)
+        self.timer.timeout.connect(self.evaluate)
         self.timer.start(1000)
+
+        # Label to display the evaluation results
+        self.results_label = QLabel(self)
+        self.layout.addWidget(self.results_label)
 
     def add_item(self):
         item_name = self.line_edit.text().strip()
@@ -63,6 +75,18 @@ class TimeTrackingApp(QMainWindow):
             date = datetime.datetime.now().strftime("%Y-%m-%d")
             with open(f"{date}.txt", "a") as file:
                 file.write(f"{item_name}\n")
+
+    def evaluate(self):
+        date = datetime.datetime.now().strftime("%Y-%m-%d")
+        try:
+            with open(f"{date}.txt", "r") as file:
+                lines = file.readlines()
+                item_names = [line.strip() for line in lines]
+                item_counts = Counter(item_names)
+                results = [f"{item}: {seconds_to_hms(count)}" for item, count in item_counts.items()]
+                self.results_label.setText("\n".join(results))
+        except FileNotFoundError:
+            pass
 
 
 if __name__ == "__main__":
