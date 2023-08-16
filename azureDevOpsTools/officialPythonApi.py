@@ -76,6 +76,7 @@ project = get_projects_response[1]
 wit_client = connection.clients.get_work_item_tracking_client()
 
 # Get work items for the second project with the tag 'Update_3'
+# TODO add here the select for the dates - don't do this in a second step via parsing the data
 wiql = """
 SELECT [System.Id], [System.Title], [System.State]
 FROM workitems
