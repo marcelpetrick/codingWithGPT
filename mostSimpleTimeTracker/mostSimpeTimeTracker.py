@@ -147,7 +147,7 @@ class TimeTrackingApp(QMainWindow):
         try:
             with open(f"{date}.txt", "r") as file:
                 lines = file.readlines()
-                item_names = [line.strip() for line in lines]
+                item_names = [line.strip().lower() for line in lines]
                 item_counts = Counter(item_names)
                 sorted_items = sorted(item_counts.items(), key=lambda x: x[1], reverse=True)
                 results = [f"{item}: {seconds_to_hms(count)}" for item, count in sorted_items]
