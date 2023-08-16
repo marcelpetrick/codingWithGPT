@@ -9,9 +9,12 @@
 #
 # is everything clear? impress me. it is really, important to me.
 
-
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QRadioButton, QButtonGroup, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QRadioButton, QButtonGroup, \
+    QLabel
+from PyQt5.QtCore import QTimer
 import sys
+import datetime
+
 
 class TimeTrackingApp(QMainWindow):
     def __init__(self):
@@ -35,6 +38,11 @@ class TimeTrackingApp(QMainWindow):
         self.radio_group = QButtonGroup(self)
         self.layout.addWidget(QLabel("Items:"))
 
+        # Timer to log the selected item every second
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.log_selected_item)
+        self.timer.start(1000)
+
     def add_item(self):
         item_name = self.line_edit.text().strip()
         if item_name:
@@ -42,6 +50,20 @@ class TimeTrackingApp(QMainWindow):
             self.layout.addWidget(radio_button)
             self.radio_group.addButton(radio_button)
             radio_button.setChecked(True)
+
+    def log_selected_item(self):
+        checked_button = None
+        for button in self.radio_group.buttons():
+            if button.isChecked():
+                checked_button = button
+                break
+
+        if checked_button:
+            item_name = checked_button.text()
+            date = datetime.datetime.now().strftime("%Y-%m-%d")
+            with open(f"{date}.txt", "a") as file:
+                file.write(f"{item_name}\n")
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
