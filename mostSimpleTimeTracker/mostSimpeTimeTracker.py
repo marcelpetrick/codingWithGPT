@@ -9,11 +9,13 @@
 #
 # is everything clear? impress me. it is really, important to me.
 #
-# ... added way more requests ..
+# .. added way more requests ..
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QRadioButton, QButtonGroup, \
     QLabel, QFrame
+from PyQt5.QtGui import QPalette
 from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QColor
 import sys
 import datetime
 from collections import Counter
@@ -44,7 +46,7 @@ class TimeTrackingApp(QMainWindow):
         """
         super().__init__()
 
-        self.setWindowTitle("Time Tracking Tool")
+        self.setWindowTitle("Most Simple Time Tracker")
 
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
@@ -86,6 +88,29 @@ class TimeTrackingApp(QMainWindow):
         # Load configuration
         self.load_configuration()
 
+        # Set color palette
+        self.set_palette()
+
+    def set_palette(self):
+        """
+        Set a light green color palette for the application.
+        """
+        palette = QPalette()
+        palette.setColor(QPalette.Window, QColor(240, 255, 240))
+        palette.setColor(QPalette.WindowText, QColor(0, 128, 0))
+        palette.setColor(QPalette.Base, QColor(245, 255, 245))
+        palette.setColor(QPalette.AlternateBase, QColor(240, 255, 240))
+        palette.setColor(QPalette.ToolTipBase, QColor(240, 255, 240))
+        palette.setColor(QPalette.ToolTipText, QColor(0, 128, 0))
+        palette.setColor(QPalette.Text, QColor(0, 128, 0))
+        palette.setColor(QPalette.Button, QColor(240, 255, 240))
+        palette.setColor(QPalette.ButtonText, QColor(0, 128, 0))
+        palette.setColor(QPalette.BrightText, QColor(255, 0, 0))
+        palette.setColor(QPalette.Link, QColor(0, 128, 0))
+        palette.setColor(QPalette.Highlight, QColor(0, 128, 0))
+        palette.setColor(QPalette.HighlightedText, QColor(240, 255, 240))
+        self.setPalette(palette)
+
     def add_item(self):
         """
         Add a new item to the radio button group.
@@ -124,7 +149,8 @@ class TimeTrackingApp(QMainWindow):
                 lines = file.readlines()
                 item_names = [line.strip() for line in lines]
                 item_counts = Counter(item_names)
-                results = [f"{item}: {seconds_to_hms(count)}" for item, count in item_counts.items()]
+                sorted_items = sorted(item_counts.items(), key=lambda x: x[1], reverse=True)
+                results = [f"{item}: {seconds_to_hms(count)}" for item, count in sorted_items]
                 self.results_label.setText("\n".join(results))
         except FileNotFoundError:
             pass
