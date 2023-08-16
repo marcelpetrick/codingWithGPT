@@ -15,6 +15,7 @@ from PyQt5.QtCore import QTimer
 import sys
 import datetime
 from collections import Counter
+import configparser
 
 
 def seconds_to_hms(seconds):
@@ -55,6 +56,9 @@ class TimeTrackingApp(QMainWindow):
         self.results_label = QLabel(self)
         self.layout.addWidget(self.results_label)
 
+        # Load configuration
+        self.load_configuration()
+
     def add_item(self):
         item_name = self.line_edit.text().strip()
         if item_name:
@@ -87,6 +91,33 @@ class TimeTrackingApp(QMainWindow):
                 self.results_label.setText("\n".join(results))
         except FileNotFoundError:
             pass
+
+    def load_configuration(self):
+        config = configparser.ConfigParser()
+        config.read("config.ini")
+        if "items" in config:
+            for item_name, status in config["items"].items():
+                radio_button = QRadioButton(item_name, self)
+                self.layout.addWidget(radio_button)
+                self.radio_group.addButton(radio_button)
+                if status == "selected":
+                    radio_button.setChecked(True)
+
+    def save_configuration(self):
+        config = configparser.ConfigParser()
+        config["items"] = {}
+        for button in self.radio_group.buttons():
+            item_name = button.text()
+            if button.isChecked():
+                config["items"][item_name] = "selected"
+            else:
+                config["items"][item_name] = "unselected"
+        with open("config.ini", "w") as file:
+            config.write(file)
+
+    def closeEvent(self, event):
+        self.save_configuration()
+        super().closeEvent(event)
 
 
 if __name__ == "__main__":
