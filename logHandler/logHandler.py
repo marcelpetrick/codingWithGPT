@@ -45,22 +45,18 @@ class OutputFileManager:
     def __init__(self, max_size, max_files):
         self.max_files = max_files
         self.file_handler = FileHandler(max_size)
-        self.open_files = []
 
     def write_output(self, output):
-        self.check_open_files()
         self.file_handler.write(output)
-        if self.file_handler.current_file not in self.open_files:
-            self.open_files.append(self.file_handler.current_file)
+        self.cleanup_old_files()
 
-    def check_open_files(self):
-        while len(self.open_files) >= self.max_files:
+    def cleanup_old_files(self):
+        log_files = sorted(glob.glob("*.log"))
+        while len(log_files) > self.max_files:
             try:
-                file_to_close = self.open_files.pop(0)
-                file_to_close.close()
-                os.remove(file_to_close.name)
-            except IOError as e:
-                print(f"Error closing file: {e}", file=sys.stderr)
+                os.remove(log_files.pop(0))
+            except OSError as e:
+                print(f"Error deleting file: {e}", file=sys.stderr)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -78,3 +74,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# working state!
+# usage:
+#
+# (.venv) [mpetrick@marcel-precision3551 logHandler]$ python configurableLoremIpsum.py --rate=10 --line=1024 | python logHandler.py --max_size=1 --max_files=3
+# Maximum log size: 1 MiBytes
+# Maximum number of remaining files: 3
+# Started new file: 20230821-162423.log
+# Started new file: 20230821-162433.log
+# Started new file: 20230821-162443.log
+# Started new file: 20230821-162454.log
+# ^CTraceback (most recent call last):
