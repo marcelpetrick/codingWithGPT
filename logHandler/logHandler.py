@@ -35,6 +35,7 @@ class FileHandler:
         try:
             self.current_file = open(file_name, 'a')
             self.current_file_size = os.path.getsize(file_name)
+            print(f"Started new file: {file_name}")
         except IOError as e:
             print(f"Error opening file: {e}", file=sys.stderr)
 
@@ -47,10 +48,11 @@ class OutputFileManager:
     def write_output(self, output):
         self.check_open_files()
         self.file_handler.write(output)
-        self.open_files.append(self.file_handler.current_file)
+        if self.file_handler.current_file not in self.open_files:
+            self.open_files.append(self.file_handler.current_file)
 
     def check_open_files(self):
-        if len(self.open_files) >= self.max_files:
+        while len(self.open_files) >= self.max_files:
             try:
                 file_to_close = self.open_files.pop(0)
                 file_to_close.close()
@@ -58,15 +60,13 @@ class OutputFileManager:
                 print(f"Error closing file: {e}", file=sys.stderr)
 
 def main():
-    max_size = 10  # MiBytes
-    max_files = 5
+    max_size = 3  # MiBytes
+    max_files = 2
     print(f"Maximum log size: {max_size} MiBytes")
     print(f"Maximum number of remaining files: {max_files}")
     manager = OutputFileManager(max_size, max_files)
     while True:
         line = sys.stdin.readline()
-        if not line:
-            break
         manager.write_output(line)
 
 if __name__ == "__main__":
