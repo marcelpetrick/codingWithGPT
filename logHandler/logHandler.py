@@ -8,6 +8,8 @@
 import sys
 import os
 import time
+import argparse
+import glob
 
 class FileHandler:
     def __init__(self, max_size):
@@ -56,17 +58,22 @@ class OutputFileManager:
             try:
                 file_to_close = self.open_files.pop(0)
                 file_to_close.close()
+                os.remove(file_to_close.name)
             except IOError as e:
                 print(f"Error closing file: {e}", file=sys.stderr)
 
 def main():
-    max_size = 3  # MiBytes
-    max_files = 2
-    print(f"Maximum log size: {max_size} MiBytes")
-    print(f"Maximum number of remaining files: {max_files}")
-    manager = OutputFileManager(max_size, max_files)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--max_size", type=int, default=10, help="Maximum log size in MiBytes")
+    parser.add_argument("--max_files", type=int, default=2, help="Maximum number of remaining files")
+    args = parser.parse_args()
+    print(f"Maximum log size: {args.max_size} MiBytes")
+    print(f"Maximum number of remaining files: {args.max_files}")
+    manager = OutputFileManager(args.max_size, args.max_files)
     while True:
         line = sys.stdin.readline()
+        if not line:
+            break
         manager.write_output(line)
 
 if __name__ == "__main__":
