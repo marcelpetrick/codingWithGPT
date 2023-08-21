@@ -16,7 +16,7 @@ class FileHandler:
         self.current_file_size = 0
 
     def get_file_name(self):
-        return time.strftime("%Y%m%d-%H%M%S")
+        return time.strftime("%Y%m%d-%H%M%S") + ".log"
 
     def write(self, output):
         if not self.current_file or self.current_file_size > self.max_size:
@@ -60,6 +60,8 @@ class OutputFileManager:
 def main():
     max_size = 10  # MiBytes
     max_files = 5
+    print(f"Maximum log size: {max_size} MiBytes")
+    print(f"Maximum number of remaining files: {max_files}")
     manager = OutputFileManager(max_size, max_files)
     while True:
         line = sys.stdin.readline()
