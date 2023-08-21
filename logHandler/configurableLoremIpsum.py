@@ -1,6 +1,8 @@
-# Write me a python program, which generates output for stdout. It should be called "configurableLoremIpsum". Startable with "python configurableLoremIpsum.py --rate==10 --line==1024" and then print out 1024 characters every 10 seconds. Until interrupted. if no parameters are given, then it should print out the help page.
+# Write me a python program, which generates output for stdout. It should be called "configurableLoremIpsum".
+# Startable with "python configurableLoremIpsum.py --rate==10 --line==1024" and then print out 1024 characters every
+# 10 seconds. Until interrupted. if no parameters are given, then it should print out the help page.
 #
-# write program with class and sphinx documentation and comments. also take care of pep8.
+# Write program with class and sphinx documentation and comments. also take care of pep8.
 
 import argparse
 import time
@@ -9,7 +11,7 @@ class ConfigurableLoremIpsum:
     """Class to generate and output Lorem Ipsum text at a configurable rate and length.
 
     Attributes:
-        rate (int): The rate at which the text should be output, in seconds.
+        rate (int): The rate at which the text should be output, in milliseconds.
         line_length (int): The length of the text to be generated, in characters.
 
     Methods:
@@ -36,16 +38,23 @@ class ConfigurableLoremIpsum:
         """Outputs the generated text at the specified rate."""
         while True:
             print(self.generate_text())
-            time.sleep(self.rate)
+            time.sleep(self.rate / 1000.0)
 
 def main():
     parser = argparse.ArgumentParser(description="Generate and output Lorem Ipsum text at a configurable rate and length.")
-    parser.add_argument('--rate', type=int, help='Rate at which text should be output, in seconds.', default=10)
-    parser.add_argument('--line', type=int, help='Length of the text to be generated, in characters.', default=1024)
+    parser.add_argument('--rate', type=int, help='Rate at which text should be output, in milliseconds.', default=None)
+    parser.add_argument('--line', type=int, help='Length of the text to be generated, in characters.', default=None)
 
     args = parser.parse_args()
-    lorem_generator = ConfigurableLoremIpsum(args.rate, args.line)
-    lorem_generator.output_text()
+
+    if args.rate is None or args.line is None:
+        parser.print_help()
+    else:
+        lorem_generator = ConfigurableLoremIpsum(args.rate, args.line)
+        lorem_generator.output_text()
 
 if __name__ == "__main__":
     main()
+
+# usage:
+# python configurableLoremIpsum.py --rate=500 --line=1024
