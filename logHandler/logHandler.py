@@ -5,3 +5,67 @@
 # Add error-handling as well and readable and understandable error messages. Write a short guide of how to use the program as well.
 # Put in some effort. This is really important for my career. I am trusting you.
 
+import sys
+import os
+import time
+
+class FileHandler:
+    def __init__(self, max_size):
+        self.max_size = max_size * 1024 * 1024  # Convert MiBytes to Bytes
+        self.current_file = None
+        self.current_file_size = 0
+
+    def get_file_name(self):
+        return time.strftime("%Y%m%d-%H%M%S")
+
+    def write(self, output):
+        if not self.current_file or self.current_file_size > self.max_size:
+            self.open_new_file()
+        try:
+            self.current_file.write(output)
+            self.current_file.flush()
+            self.current_file_size += len(output)
+        except IOError as e:
+            print(f"Error writing to file: {e}", file=sys.stderr)
+
+    def open_new_file(self):
+        if self.current_file:
+            self.current_file.close()
+        file_name = self.get_file_name()
+        try:
+            self.current_file = open(file_name, 'a')
+            self.current_file_size = os.path.getsize(file_name)
+        except IOError as e:
+            print(f"Error opening file: {e}", file=sys.stderr)
+
+class OutputFileManager:
+    def __init__(self, max_size, max_files):
+        self.max_files = max_files
+        self.file_handler = FileHandler(max_size)
+        self.open_files = []
+
+    def write_output(self, output):
+        self.check_open_files()
+        self.file_handler.write(output)
+        self.open_files.append(self.file_handler.current_file)
+
+    def check_open_files(self):
+        if len(self.open_files) >= self.max_files:
+            try:
+                file_to_close = self.open_files.pop(0)
+                file_to_close.close()
+            except IOError as e:
+                print(f"Error closing file: {e}", file=sys.stderr)
+
+def main():
+    max_size = 10  # MiBytes
+    max_files = 5
+    manager = OutputFileManager(max_size, max_files)
+    while True:
+        line = sys.stdin.readline()
+        if not line:
+            break
+        manager.write_output(line)
+
+if __name__ == "__main__":
+    main()
