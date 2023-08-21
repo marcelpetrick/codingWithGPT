@@ -12,15 +12,36 @@ import argparse
 import glob
 
 class FileHandler:
+    """
+    Handles writing output to files based on the maximum file size.
+    """
     def __init__(self, max_size):
+        """
+        Initializes the FileHandler with the given maximum file size.
+
+        Args:
+            max_size (int): Maximum file size in MiBytes.
+        """
         self.max_size = max_size * 1024 * 1024  # Convert MiBytes to Bytes
         self.current_file = None
         self.current_file_size = 0
 
     def get_file_name(self):
+        """
+        Generates a file name based on the current date and time.
+
+        Returns:
+            str: Generated file name.
+        """
         return time.strftime("%Y%m%d-%H%M%S") + ".log"
 
     def write(self, output):
+        """
+        Writes the given output to the current file.
+
+        Args:
+            output (str): Output to write to the file.
+        """
         if not self.current_file or self.current_file_size > self.max_size:
             self.open_new_file()
         try:
@@ -31,6 +52,9 @@ class FileHandler:
             print(f"Error writing to file: {e}", file=sys.stderr)
 
     def open_new_file(self):
+        """
+        Closes the current file (if open) and opens a new file for writing.
+        """
         if self.current_file:
             self.current_file.close()
         file_name = self.get_file_name()
@@ -42,15 +66,34 @@ class FileHandler:
             print(f"Error opening file: {e}", file=sys.stderr)
 
 class OutputFileManager:
+    """
+    Manages the output files based on the maximum file size and the maximum number of remaining files.
+    """
     def __init__(self, max_size, max_files):
+        """
+        Initializes the OutputFileManager with the given maximum file size and maximum number of remaining files.
+
+        Args:
+            max_size (int): Maximum file size in MiBytes.
+            max_files (int): Maximum number of remaining files.
+        """
         self.max_files = max_files
         self.file_handler = FileHandler(max_size)
 
     def write_output(self, output):
+        """
+        Writes the given output to the current file and performs cleanup of old files if necessary.
+
+        Args:
+            output (str): Output to write to the file.
+        """
         self.file_handler.write(output)
         self.cleanup_old_files()
 
     def cleanup_old_files(self):
+        """
+        Deletes old log files based on the content of the current directory until only the specified number of files are left.
+        """
         log_files = sorted(glob.glob("*.log"))
         while len(log_files) > self.max_files:
             try:
@@ -59,6 +102,9 @@ class OutputFileManager:
                 print(f"Error deleting file: {e}", file=sys.stderr)
 
 def main():
+    """
+    Main function that parses command-line arguments, initializes the OutputFileManager, and writes input from stdin to files.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--max_size", type=int, default=10, help="Maximum log size in MiBytes")
     parser.add_argument("--max_files", type=int, default=2, help="Maximum number of remaining files")
@@ -86,3 +132,6 @@ if __name__ == "__main__":
 # Started new file: 20230821-162443.log
 # Started new file: 20230821-162454.log
 # ^CTraceback (most recent call last):
+
+# usual call be like:
+# (./your_program 2>&1) | python logHandler.py --max_size=10 --max_files=2
