@@ -78,7 +78,7 @@ def main():
     args = parser.parse_args()
     width = args.width
     height = args.height
-    wall_thickness = 3
+    wall_thickness = 20
     labyrinth = generate_iterative_random_maze(width, height, wall_thickness)
     img = draw_updated_labyrinth(labyrinth, wall_thickness)
     img.save("labyrinth.png")
