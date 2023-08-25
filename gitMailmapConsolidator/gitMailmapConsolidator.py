@@ -1,4 +1,5 @@
 import sys
+import difflib
 from collections import defaultdict
 
 
@@ -10,7 +11,6 @@ def process_input(input_data):
     :return: A dictionary with email as the key and a list of (count, name) as values.
     :rtype: dict
     """
-    # Store the count, name, and email
     data = []
     for line in input_data:
         parts = line.strip().split()
@@ -19,7 +19,6 @@ def process_input(input_data):
         email = parts[-1].strip('<>')
         data.append((count, name, email))
 
-    # Create a dictionary with email as the key and a list of (count, name) as values
     email_map = defaultdict(list)
     for count, name, email in data:
         email_map[email].append((count, name))
@@ -40,14 +39,18 @@ def generate_mailmap(email_map):
     for email, entries in email_map.items():
         entries.sort(reverse=True)  # Sort by count
         most_common_name = entries[0][1]
+        print(f'"{most_common_name}" <{email}>')
 
-        # Add the most common name-email pair as a "base" entry
-        mailmap_entries.append(f"{most_common_name} <{email}>")
-
-        # Map all other names and emails to the most common one
         for _, name in entries:
             if name != most_common_name:
-                mailmap_entries.append(f"{most_common_name} <{email}> {name} <{email}>")
+                similarity = difflib.SequenceMatcher(None, name, most_common_name).ratio()
+                print(f'similarity: {similarity}')
+                # If names are similar but not identical, create a mapping
+                if similarity > 0.5: # and similarity < 1.0:
+                    mailmap_entries.append(f"{most_common_name} <{email}> {name} <{email}>")
+                    print("very similar")
+                else:
+                    print("no mapping")
 
     return "\n".join(mailmap_entries)
 
