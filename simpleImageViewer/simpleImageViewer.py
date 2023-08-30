@@ -25,7 +25,8 @@ class PhotoViewer(QtWidgets.QGraphicsView):
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(30, 30, 30)))
         self.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.mousePressPos = None
+        self.dragPos = None
+
 
     def hasPhoto(self):
         return not self._empty
@@ -54,22 +55,24 @@ class PhotoViewer(QtWidgets.QGraphicsView):
             self._empty = True
             self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
             self._photo.setPixmap(QtGui.QPixmap())
-        self.fitInView()
+        #self.fitInView()
 
     def wheelEvent(self, event):
         pass
 
     def mousePressEvent(self, event):
-        self.mousePressPos = event.pos()
+        self.dragPos = event.pos()
         super(PhotoViewer, self).mousePressEvent(event)
 
-    def mouseReleaseEvent(self, event):
-        moved = event.pos() - self.mousePressPos
-        if moved.manhattanLength() > 4:
-            event.ignore()
-            return
-        super(PhotoViewer, self).mouseReleaseEvent(event)
+    def mouseMoveEvent(self, event):
+        if self.dragPos:
+            moved = event.pos() - self.dragPos
+            if moved.manhattanLength() > 4:
+                self.dragPos = event.pos()
+                self.window().dragged(moved.x())
 
+    def mouseReleaseEvent(self, event):
+        self.dragPos = None
 
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
@@ -77,11 +80,12 @@ class Window(QtWidgets.QMainWindow):
 
         self.viewer = PhotoViewer(self)
         self.setCentralWidget(self.viewer)
-        self.viewer.setPhoto(QtGui.QPixmap('1.png'))
-        self.index = 0
-        self.files = [f for f in os.listdir('.') if os.path.isfile(f) and f.endswith('.png')]
 
-        self.show()
+        self.files = sorted([f for f in os.listdir('.') if os.path.isfile(f) and f.endswith('.png')])
+        self.index = 0
+        self.viewer.setPhoto(QtGui.QPixmap(self.files[self.index]))
+
+        self.showMaximized()
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Right:
@@ -92,9 +96,17 @@ class Window(QtWidgets.QMainWindow):
             self.viewer.setPhoto(QtGui.QPixmap(self.files[self.index]))
         super(Window, self).keyPressEvent(event)
 
+    def dragged(self, x):
+        if x > 0:
+            self.index = (self.index - 1) % len(self.files)
+        else:
+            self.index = (self.index + 1) % len(self.files)
+        self.viewer.setPhoto(QtGui.QPixmap(self.files[self.index]))
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     window = Window()
-    window.show()
+    window.setWindowTitle('simple image viewer')
+    window.showMaximized()
+    #window.show()
     sys.exit(app.exec_())
