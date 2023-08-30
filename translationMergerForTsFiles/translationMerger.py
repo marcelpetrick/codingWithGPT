@@ -15,6 +15,7 @@
 # save resulting file
 #
 #-------------------------------------------
+
 import sys
 import xml.etree.ElementTree as ET
 
@@ -97,6 +98,16 @@ def replace_first_lines(file_path):
         file.writelines(lines)
         file.truncate()
 
+def store_first_two_lines(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    return lines[:2]
+
+def replace_first_two_lines(file_path, new_lines):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    with open(file_path, 'w') as file:
+        file.writelines(new_lines + lines[2:])
 
 def main():
     """
@@ -112,6 +123,9 @@ def main():
     target_file = sys.argv[1].split('=')[1]
     source_file = sys.argv[2].split('=')[1]
 
+    # preserve the first two lines of the target file
+    headerBackup = store_first_two_lines(target_file)
+
     target_tree = ET.parse(target_file)
     source_tree = ET.parse(source_file)
 
@@ -121,12 +135,15 @@ def main():
     target_tree.write(target_file, encoding='utf-8')
 
     replace_first_lines(target_file)  # Replace the first two lines of the output file
+    replace_first_two_lines(target_file, headerBackup)  # Restore the first two lines of the output file
     with open(target_file, 'a', encoding='utf-8') as file:  # Preserve the last empty line
         file.write('\n')
 
     print(f"TS file {target_file} transformed successfully.")
 
 
+# call via:
 # $ python translationMerger.py target=recipebook_en_GB.ts source=230802_XBO_Automatikprogramme_en_GB-de-en_gb-QA-C.ts
+# or use the `feeder.py` script
 if __name__ == "__main__":
     main()
