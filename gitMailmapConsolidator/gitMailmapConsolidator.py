@@ -1,3 +1,8 @@
+# Note: beware, the tool is not working Well. I had something really helpful in mind:
+# take the given output from `git shortlog -sne`, then find for all mail-adresses the best version and create matching
+# replacements for "similar" adresses and names. Something like Levenstein-distance as metric, etc.
+# But .. this needs time which I don't have.
+
 import sys
 import difflib
 from collections import defaultdict
