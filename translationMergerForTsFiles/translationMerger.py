@@ -80,6 +80,24 @@ def update_target_translation(target_root, source_text, translation_text):
             if 'type' in translation.attrib:
                 del translation.attrib['type']
 
+
+def replace_first_lines(file_path):
+    """
+    Replaces the first two lines of a file with the XML declaration and DOCTYPE.
+
+    :param file_path: The path to the file to modify.
+    :type file_path: str
+    """
+    with open(file_path, 'r+', encoding='utf-8') as file:
+        lines = file.readlines()
+        lines[0] = '<?xml version="1.0" encoding="utf-8"?>\n'
+        lines.insert(1, '<!DOCTYPE TS>\n')
+
+        file.seek(0)
+        file.writelines(lines)
+        file.truncate()
+
+
 def main():
     """
     The main entry point of the script. It checks if the target and source file paths
@@ -101,6 +119,12 @@ def main():
     update_translations(target_tree, source_tree, unfinished_entries)
 
     target_tree.write(target_file, encoding='utf-8')
+
+    replace_first_lines(target_file)  # Replace the first two lines of the output file
+    with open(target_file, 'a', encoding='utf-8') as file:  # Preserve the last empty line
+        file.write('\n')
+
+    print(f"TS file {target_file} transformed successfully.")
 
 
 # $ python translationMerger.py target=recipebook_en_GB.ts source=230802_XBO_Automatikprogramme_en_GB-de-en_gb-QA-C.ts
