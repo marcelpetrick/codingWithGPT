@@ -3,7 +3,7 @@ import markdown
 import os
 import openai
 import time
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, QTimer
 from PyQt5.QtGui import QPainter, QColor, QPen
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QPushButton, \
     QTextEdit, QLabel, QProgressBar
@@ -224,7 +224,10 @@ class MainWindow(QMainWindow):
         self.stats_label2 = QLabel("Stat 2:")
         self.stats_label3 = QLabel("Stat 3:")
 
+        self.time_label = QLabel("Time for last request: %")
+
         main_layout.addWidget(self.result_text_edit)
+        main_layout.addWidget(self.time_label)
         main_layout.addWidget(self.stats_label1)
         main_layout.addWidget(self.stats_label2)
         main_layout.addWidget(self.stats_label3)
@@ -245,10 +248,21 @@ class MainWindow(QMainWindow):
         Process the prompt when the Go button is clicked.
         """
         prompt = self.prompt_line_edit.text()
-        self.api_key = self.api_line_edit.text()  # Update the API key variable with user input
+        self.api_key = self.api_line_edit.text()
         if prompt:
+            self.start_time = time.time()  # Save the start time
+            self.timer = QTimer(self)  # Create a timer
+            self.timer.timeout.connect(self.updateTimeLabel)  # Connect the timer to a method to update the time label
+            self.timer.start(100)  # Start the timer, updating every 100 milliseconds
             self.disableInput()
             self.startProcessingThread(prompt)
+
+    def updateTimeLabel(self):
+        """
+        Update the time label with the elapsed time since the 'Go' button was clicked.
+        """
+        elapsed_time = time.time() - self.start_time
+        self.time_label.setText(f"Time for last request: {elapsed_time:.1f} seconds")
 
     def startProcessingThread(self, prompt):
         """
@@ -308,10 +322,13 @@ class MainWindow(QMainWindow):
 
     def processingFinished(self):
         """
-        Enable the input fields and Go button, clear the prompt line edit, and hide the loading spinner when the processing thread has finished.
+        Enable the input fields and Go button, clear the prompt line edit,
+        and hide the loading spinner when the processing thread has finished.
         """
         self.enableInput()
         self.prompt_line_edit.clear()
+        self.timer.stop()  # Stop the timer
+        self.updateTimeLabel()  # Update the time label one final time
 
     def scrollResultViewToBottom(self):
         """
