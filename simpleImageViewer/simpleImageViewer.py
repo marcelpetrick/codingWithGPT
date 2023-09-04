@@ -79,7 +79,7 @@ class Window(QtWidgets.QMainWindow):
         self.index = 0
         self.viewer.setPhoto(QtGui.QPixmap(self.files[self.index]))
 
-        self.showFullScreen()
+        #self.showFullScreen() # uncomment this to have a full screen app
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Right:
