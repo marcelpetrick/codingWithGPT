@@ -1,6 +1,26 @@
 import sys
 from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve
 import os
+
+
+class PositionHolder(QtCore.QObject):
+    valueChanged = QtCore.pyqtSignal(QtCore.QPointF)
+
+    def __init__(self):
+        super(PositionHolder, self).__init__()
+        self._pos = QtCore.QPointF(0, 0)
+
+    @QtCore.pyqtProperty(QtCore.QPointF, notify=valueChanged)
+    def pos(self):
+        return self._pos
+
+    @pos.setter
+    def pos(self, value):
+        if self._pos != value:
+            self._pos = value
+            self.valueChanged.emit(self._pos)
+
 
 class PhotoViewer(QtWidgets.QGraphicsView):
     photoClicked = QtCore.pyqtSignal(QtCore.QPoint)
@@ -21,12 +41,24 @@ class PhotoViewer(QtWidgets.QGraphicsView):
         self.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.dragPos = None
 
+        self._nextPhoto = QtWidgets.QGraphicsPixmapItem()
+        self._scene.addItem(self._nextPhoto)
+
+        self.positionHolder = PositionHolder()
+        self.anim = QPropertyAnimation(self.positionHolder, b'pos')
+        self.positionHolder.valueChanged.connect(self._photo.setPos)
+
+        self.anim.setDuration(1000)  # duration of the animation in milliseconds
+        self.anim.setEasingCurve(QEasingCurve.OutQuint)
+
 
     def hasPhoto(self):
         return not self._empty
 
     def fitInView(self, scale=True):
-        rect = QtCore.QRectF(self._photo.pixmap().rect())
+        #rect = QtCore.QRectF(self._photo.pixmap().rect())
+        rect = QtCore.QRectF(0, 0, self._photo.pixmap().width(), self._photo.pixmap().height())
+
         if not rect.isNull():
             self.setSceneRect(rect)
             if self.hasPhoto():
@@ -39,7 +71,7 @@ class PhotoViewer(QtWidgets.QGraphicsView):
                 self.scale(factor, factor)
             self._zoom = 0
 
-    def setPhoto(self, pixmap=None):
+    def setPhoto(self, pixmap=None, direction=1):
         self._zoom = 0
         if pixmap and not pixmap.isNull():
             self._empty = False
@@ -50,6 +82,26 @@ class PhotoViewer(QtWidgets.QGraphicsView):
             self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
             self._photo.setPixmap(QtGui.QPixmap())
         #self.fitInView()
+
+        # Calculate start and end positions for animation
+        start_pos = self._photo.pos()
+        end_pos = QtCore.QPointF(-direction * self._photo.pixmap().width(), start_pos.y())
+        #next_start_pos = QtCore.QPointF(direction * self._photo.pixmap().width(), start_pos.y())
+        next_start_pos = QtCore.QPointF(start_pos.x() + direction * self._photo.pixmap().width(), start_pos.y())
+
+        # Setup the next photo
+        self._nextPhoto.setPixmap(pixmap)
+        self._nextPhoto.setPos(next_start_pos)
+
+        # Swap photo references so that _nextPhoto becomes the _photo after animation
+        self._photo, self._nextPhoto = self._nextPhoto, self._photo
+
+        # Start animation
+        self.anim.setStartValue(start_pos)
+        self.anim.setEndValue(end_pos)
+        self.anim.start()
+
+        self.fitInView()
 
     def wheelEvent(self, event):
         pass
@@ -79,23 +131,25 @@ class Window(QtWidgets.QMainWindow):
         self.index = 0
         self.viewer.setPhoto(QtGui.QPixmap(self.files[self.index]))
 
-        #self.showFullScreen() # uncomment this to have a full screen app
+        self.showFullScreen() # uncomment this to have a full screen app
 
     def keyPressEvent(self, event):
+        direction = 0
         if event.key() == QtCore.Qt.Key_Right:
             self.index = (self.index + 1) % len(self.files)
-            self.viewer.setPhoto(QtGui.QPixmap(self.files[self.index]))
+            direction = 1
         elif event.key() == QtCore.Qt.Key_Left:
             self.index = (self.index - 1) % len(self.files)
-            self.viewer.setPhoto(QtGui.QPixmap(self.files[self.index]))
+            direction = -1
+        if direction:
+            self.viewer.setPhoto(QtGui.QPixmap(self.files[self.index]), direction)
         super(Window, self).keyPressEvent(event)
 
     def dragged(self, x):
-        if x > 0:
-            self.index = (self.index - 1) % len(self.files)
-        else:
-            self.index = (self.index + 1) % len(self.files)
-        self.viewer.setPhoto(QtGui.QPixmap(self.files[self.index]))
+        direction = 1 if x > 0 else -1
+        self.index = (self.index - direction) % len(self.files)
+        self.viewer.setPhoto(QtGui.QPixmap(self.files[self.index]), direction)
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
