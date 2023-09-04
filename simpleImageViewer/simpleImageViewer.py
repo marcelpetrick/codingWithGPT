@@ -40,25 +40,21 @@ class PhotoViewer(QtWidgets.QGraphicsView):
         self.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(30, 30, 30)))
         self.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.dragPos = None
-
         self._nextPhoto = QtWidgets.QGraphicsPixmapItem()
         self._scene.addItem(self._nextPhoto)
 
         self.positionHolder = PositionHolder()
         self.anim = QPropertyAnimation(self.positionHolder, b'pos')
-        self.positionHolder.valueChanged.connect(self._photo.setPos)
+        self.positionHolder.valueChanged.connect(self.slidePhotos)
 
-        self.anim.setDuration(1000)  # duration of the animation in milliseconds
+        self.anim.setDuration(2000)  # duration of the animation in milliseconds
         self.anim.setEasingCurve(QEasingCurve.OutQuint)
-
 
     def hasPhoto(self):
         return not self._empty
 
     def fitInView(self, scale=True):
-        #rect = QtCore.QRectF(self._photo.pixmap().rect())
         rect = QtCore.QRectF(0, 0, self._photo.pixmap().width(), self._photo.pixmap().height())
-
         if not rect.isNull():
             self.setSceneRect(rect)
             if self.hasPhoto():
@@ -81,27 +77,26 @@ class PhotoViewer(QtWidgets.QGraphicsView):
             self._empty = True
             self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
             self._photo.setPixmap(QtGui.QPixmap())
-        #self.fitInView()
 
-        # Calculate start and end positions for animation
         start_pos = self._photo.pos()
         end_pos = QtCore.QPointF(-direction * self._photo.pixmap().width(), start_pos.y())
-        #next_start_pos = QtCore.QPointF(direction * self._photo.pixmap().width(), start_pos.y())
         next_start_pos = QtCore.QPointF(start_pos.x() + direction * self._photo.pixmap().width(), start_pos.y())
 
-        # Setup the next photo
         self._nextPhoto.setPixmap(pixmap)
         self._nextPhoto.setPos(next_start_pos)
 
-        # Swap photo references so that _nextPhoto becomes the _photo after animation
         self._photo, self._nextPhoto = self._nextPhoto, self._photo
 
-        # Start animation
         self.anim.setStartValue(start_pos)
         self.anim.setEndValue(end_pos)
         self.anim.start()
 
         self.fitInView()
+
+    def slidePhotos(self, position):
+        self._photo.setPos(position)
+        direction = 1 if self._nextPhoto.pos().x() > self._photo.pos().x() else -1
+        self._nextPhoto.setPos(position.x() + direction * self._photo.pixmap().width(), position.y())
 
     def wheelEvent(self, event):
         pass
@@ -113,12 +108,13 @@ class PhotoViewer(QtWidgets.QGraphicsView):
     def mouseMoveEvent(self, event):
         if self.dragPos:
             moved = event.pos() - self.dragPos
-            if moved.manhattanLength() > 4:
+            if moved.manhattanLength() > 20:
                 self.dragPos = event.pos()
                 self.window().dragged(moved.x())
 
     def mouseReleaseEvent(self, event):
         self.dragPos = None
+
 
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
@@ -131,7 +127,7 @@ class Window(QtWidgets.QMainWindow):
         self.index = 0
         self.viewer.setPhoto(QtGui.QPixmap(self.files[self.index]))
 
-        self.showFullScreen() # uncomment this to have a full screen app
+        #self.showFullScreen()  # uncomment this to have a full screen app
 
     def keyPressEvent(self, event):
         direction = 0
