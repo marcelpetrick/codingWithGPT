@@ -39,11 +39,12 @@ class AzureDevOpsClient:
         work_item_result = wit_client.get_work_item(work_item.id)
         fields = work_item_result.fields
         return {
+            'Title': fields.get('System.Title', None),
+            'URL': work_item_result.url,
             'ID': work_item_result.id,
             'Created Date': fields['System.CreatedDate'],
             'Resolved Date': fields.get('Microsoft.VSTS.Common.ResolvedDate', None),
             'Closed Date': fields.get('Microsoft.VSTS.Common.ClosedDate', None),
-            'Title': fields.get('System.Title', None),
             'Work Item Type': fields.get('System.WorkItemType', None)
         }
 
