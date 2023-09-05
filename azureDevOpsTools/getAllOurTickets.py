@@ -1,102 +1,73 @@
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 from azure.devops.v7_0.work_item_tracking.models import Wiql
-import pprint
-
 from datetime import datetime
 
-def write_list_of_dict_to_file(data):
-    # Get the current date and time
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
 
-    # Create a filename with the timestamp
-    filename = f"collectedUpdate3Tickets_{timestamp}.txt"
+class AzureDevOpsClient:
+    def __init__(self, pat_file, organization_url):
+        self.pat = self._get_pat_from_file(pat_file)
+        self.organization_url = organization_url
+        self.credentials = BasicAuthentication('', self.pat)
+        self.connection = Connection(base_url=self.organization_url, creds=self.credentials)
 
-    # Write the dictionary to the file
-    with open(filename, 'w') as file:
-        for item in data:
-            file.write(f'{str(item)}\n')
+    @staticmethod
+    def _get_pat_from_file(file_path):
+        with open(file_path, 'r') as file:
+            return file.read().strip()
 
-def get_pat_from_file(file_path):
-    with open(file_path, 'r') as file:
-        return file.read().strip()
+    def get_project(self, index=1):
+        core_client = self.connection.clients.get_core_client()
+        get_projects_response = core_client.get_projects()
+        return get_projects_response[index]
+
+    def query_work_items(self, project_name, tags):
+        wit_client = self.connection.clients.get_work_item_tracking_client()
+        wiql = """
+        SELECT [System.Id], [System.Title], [System.State]
+        FROM workitems
+        WHERE [System.TeamProject] = @project
+        """
+        for tag in tags:
+            wiql += f"AND [System.Tags] CONTAINS '{tag}'\n"
+        wiql = wiql.replace("@project", f"'{project_name}'")
+        wiql_object = Wiql(query=wiql)
+        return wit_client.query_by_wiql(wiql_object).work_items
+
+    def parse_metadata_from_ticket(self, work_item):
+        wit_client = self.connection.clients.get_work_item_tracking_client()
+        work_item_result = wit_client.get_work_item(work_item.id)
+        fields = work_item_result.fields
+        return {
+            'ID': work_item_result.id,
+            'Created Date': fields['System.CreatedDate'],
+            'Resolved Date': fields.get('Microsoft.VSTS.Common.ResolvedDate', None),
+            'Closed Date': fields.get('Microsoft.VSTS.Common.ClosedDate', None),
+            'Title': fields.get('System.Title', None),
+            'Work Item Type': fields.get('System.WorkItemType', None)
+        }
 
 
-def parse_metadata_from_ticket(work_item):
-    fields = work_item.fields
-
-    # Extracting the required fields
-    id = work_item.id
-    created_date = fields['System.CreatedDate']
-    resolved_date = fields.get('Microsoft.VSTS.Common.ResolvedDate', None)
-    closed_date = fields.get('Microsoft.VSTS.Common.ClosedDate', None)
-    work_item_type = fields.get('System.WorkItemType', None)
-    title = fields.get('System.Title', None)
-
-    # Creating the result dictionary
-    result = {
-        'ID': id,
-        'Created Date': created_date,
-        'Resolved Date': resolved_date,
-        'Closed Date': closed_date,
-        'Title': title,
-        'Work Item Type': work_item_type,
-    }
-
-    return result
+class FileWriter:
+    @staticmethod
+    def write_list_of_dict_to_file(data):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+        filename = f"tickets_DMO_toImplement_{timestamp}.txt"
+        with open(filename, 'w') as file:
+            for item in data:
+                file.write(f'{str(item)}\n')
 
 
-# Fill in with your personal access token and org URL
-personal_access_token = get_pat_from_file('test_pat_full_access.txt')
-organization_url = 'https://dev.azure.com/bora-devops'
+if __name__ == '__main__':
+    client = AzureDevOpsClient('test_pat_full_access.txt', 'https://dev.azure.com/bora-devops')
+    project = client.get_project()
+    work_items = client.query_work_items(project.name, ['DMO_toImplement'])
 
-# Create a connection to the org
-credentials = BasicAuthentication('', personal_access_token)
-connection = Connection(base_url=organization_url, creds=credentials)
+    parsed_work_items = [client.parse_metadata_from_ticket(work_item) for work_item in work_items]
 
-# Get a client (the "core" client provides access to projects, teams, etc)
-core_client = connection.clients.get_core_client()
+    for item in parsed_work_items:
+        print(item)
 
-# Get the first page of projects
-get_projects_response = core_client.get_projects()
+    print(f"amount of found tickets: {len(parsed_work_items)}")
 
-# Get the second project
-project = get_projects_response[1]
-
-# Get the Work Item Tracking client
-wit_client = connection.clients.get_work_item_tracking_client()
-
-# Get work items for the second project with the tag 'Update_3'
-# TODO add here the select for the dates - don't do this in a second step via parsing the data
-wiql = """
-SELECT [System.Id], [System.Title], [System.State]
-FROM workitems
-WHERE [System.TeamProject] = @project
-AND [System.Tags] CONTAINS 'Update_3'
-AND [System.Tags] CONTAINS 'DMO_toImplement'
-"""
-wiql = wiql.replace("@project", "'" + project.name + "'")
-wiql_object = Wiql(query=wiql)
-query_result = wit_client.query_by_wiql(wiql_object)
-
-workitemResults = []
-
-# Print out each work item
-for work_item in query_result.work_items:
-    #print("-- workitem --")
-    #print(work_item)
-    #print(work_item.id)
-
-    #fetch_and_parse_dates(work_item.url, personal_access_token)
-    work_item_result = wit_client.get_work_item(work_item.id)
-    #print(f"work_item: {work_item_result}")
-    #pprint.pprint(work_item_result.fields)
-    #print("fields:", work_item_result.fields)
-
-    parsed = parse_metadata_from_ticket(work_item_result)
-    workitemResults.append(parsed)
-    print(parsed)
-
-print(f"amount of found tickets: {len(query_result.work_items)}")
-
-write_list_of_dict_to_file(workitemResults)
+    FileWriter.write_list_of_dict_to_file(parsed_work_items)
