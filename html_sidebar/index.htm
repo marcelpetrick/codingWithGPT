@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Design</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="sidebar">
+        <button onclick="showContent('content1')">Page 1</button>
+        <button onclick="showContent('content2')">Page 2</button>
+        <button onclick="showContent('content3')">Page 3</button>
+        <button onclick="toggleSidebar()">Toggle Sidebar</button>
+    </div>
+    <div class="content-area">
+        <div class="content" id="content1">1</div>
+        <div class="content" id="content2" style="display: none;">2</div>
+        <div class="content" id="content3" style="display: none;">3</div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
