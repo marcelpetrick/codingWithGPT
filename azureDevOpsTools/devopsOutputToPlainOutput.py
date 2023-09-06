@@ -1,17 +1,28 @@
 import sys
 import os
 import ast
+from typing import Generator, Dict, List
 
 
-def parse_file(filename):
-    """Parse the input file and convert each line to a dictionary."""
+def parse_file(filename: str) -> Generator[Dict[str, str], None, None]:
+    """
+    Parse the input file and convert each line to a dictionary.
+
+    :param filename: Path to the input file.
+    :return: A generator that yields dictionaries from each line of the file.
+    """
     with open(filename, 'r') as file:
         for line in file:
             yield ast.literal_eval(line.strip())
 
 
-def format_output(data_dict):
-    """Format the dictionary data to the specified output format."""
+def format_output(data_dict: Dict[str, str]) -> str:
+    """
+    Format the dictionary data to the specified output format.
+
+    :param data_dict: Dictionary containing ticket data.
+    :return: Formatted string of ticket data.
+    """
     title = data_dict['Title']
     url = data_dict['URL']
     resolved_date = data_dict['Resolved Date']
@@ -32,32 +43,34 @@ def format_output(data_dict):
     return f'{elements[0]}; {elements[1]}; {elements[2]}'
 
 
-def save_to_file(data, output_filename):
-    """Save the formatted data to the specified output file."""
+def save_to_file(data: List[str], output_filename: str) -> None:
+    """
+    Save the formatted data to the specified output file.
+
+    :param data: List of formatted ticket data.
+    :param output_filename: Name of the output file.
+    """
     with open(output_filename, 'w') as file:
         for item in data:
             file.write(item + '\n')
 
 
-def main():
-    # Check if filename is provided
+def main() -> None:
+    """Main function to execute the script."""
     if len(sys.argv) < 2:
         print("Usage: python devopsOutputToPlainOutput.py <filename>")
         sys.exit(1)
 
     filename = sys.argv[1]
 
-    # Check if file exists
     if not os.path.exists(filename):
         print(f"Error: The file {filename} does not exist!")
         sys.exit(1)
 
     try:
-        # Parse the file and format the output
-        parsed_data = parse_file(filename)
+        parsed_data = list(parse_file(filename))
         formatted_data = [format_output(item) for item in parsed_data]
 
-        # Extract the date from the input filename for the output filename
         date_str = filename.split("_")[-1].replace(".txt", "")
         output_filename = f"tickets_plain_output_{date_str}.txt"
 
@@ -71,7 +84,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# call with:
-# $ python devopsOutputToPlainOutput.py tickets_DMO_toImplement_20230906_0959.txt
