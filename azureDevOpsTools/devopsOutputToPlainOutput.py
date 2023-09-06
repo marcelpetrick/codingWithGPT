@@ -20,7 +20,16 @@ def format_output(data_dict):
     if resolved_date is None:
         resolved_date = closed_date if closed_date is not None else 'NONE'
 
-    return f'{title}; {url}; {resolved_date}'
+    # List of elements to format
+    elements = [title, url, resolved_date]
+
+    # Check for semicolons and replace, then print message
+    for idx, element in enumerate(elements):
+        if ';' in element:
+            elements[idx] = element.replace(';', ',')
+            print(f"Replaced ';' with ',' in: {element}")
+
+    return f'{elements[0]}; {elements[1]}; {elements[2]}'
 
 
 def save_to_file(data, output_filename):
@@ -62,3 +71,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# call with:
+# $ python devopsOutputToPlainOutput.py tickets_DMO_toImplement_20230906_0959.txt
