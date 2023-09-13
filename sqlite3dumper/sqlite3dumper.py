@@ -13,38 +13,32 @@ class SQLite3Dumper:
         self.db_path = db_path
         self.output = output
 
-    def get_table_names(self):
+    def get_column_names(self, table_name):
         con = sqlite3.connect(self.db_path)
         cur = con.cursor()
-        cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = cur.fetchall()
+        cur.execute(f"PRAGMA table_info({table_name})")
+        columns_info = cur.fetchall()
         con.close()
-        return [table[0] for table in tables]
+        return [col[1] for col in columns_info]
 
     def dump_data(self):
+        table_name = "bora_recipe"
+        all_columns = self.get_column_names(table_name)
+
+        # Exclude the specified columns
+        selected_columns = [col for col in all_columns if col not in ["icon", "background_image", "steps_json", "develop_flag", "qr_image", "menu_flag", "subcategory", "url"]]
+
         con = sqlite3.connect(self.db_path)
         cur = con.cursor()
 
-        table_names = self.get_table_names()
+        dump_string = f"Table: {table_name}\n"
+        dump_string += ", ".join(selected_columns) + "\n"
+        dump_string += "-" * len(", ".join(selected_columns)) + "\n"
 
-        dump_string = ""
-        for table in table_names:
-            dump_string += f"Table: {table}\n"
-
-            cur.execute(f"PRAGMA table_info({table})")
-            columns_info = cur.fetchall()
-            text_and_json_columns = [col[1] for col in columns_info if col[2] in ["TEXT", "JSON"]]
-
-            if text_and_json_columns:
-                # Add column headers
-                dump_string += ", ".join(text_and_json_columns) + "\n"
-                dump_string += "-" * len(", ".join(text_and_json_columns)) + "\n"
-
-                cur.execute(f"SELECT {', '.join(text_and_json_columns)} FROM {table}")
-                rows = cur.fetchall()
-                for row in rows:
-                    dump_string += ", ".join([str(item) for item in row]) + "\n"
-            dump_string += "\n"
+        cur.execute(f"SELECT {', '.join(selected_columns)} FROM {table_name}")
+        rows = cur.fetchall()
+        for row in rows:
+            dump_string += ", ".join([str(item) for item in row]) + "\n"
 
         con.close()
 
