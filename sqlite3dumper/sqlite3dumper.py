@@ -4,7 +4,6 @@
 # so then open the database and put all data in a strxutured way to the textfile. add error handling and readable error messages. make the code object oriented and based on at least one class.
 
 import sqlite3
-import json
 import sys
 
 
@@ -31,16 +30,22 @@ class SQLite3Dumper:
         dump_string = ""
         for table in table_names:
             dump_string += f"Table: {table}\n"
+
             cur.execute(f"PRAGMA table_info({table})")
-            columns = cur.fetchall()
-            text_and_json_columns = [col[1] for col in columns if col[2] in ["TEXT", "JSON"]]
+            columns_info = cur.fetchall()
+            text_and_json_columns = [col[1] for col in columns_info if col[2] in ["TEXT", "JSON"]]
 
             if text_and_json_columns:
+                # Add column headers
+                dump_string += ", ".join(text_and_json_columns) + "\n"
+                dump_string += "-" * len(", ".join(text_and_json_columns)) + "\n"
+
                 cur.execute(f"SELECT {', '.join(text_and_json_columns)} FROM {table}")
                 rows = cur.fetchall()
                 for row in rows:
                     dump_string += ", ".join([str(item) for item in row]) + "\n"
-                dump_string += "\n"
+            dump_string += "\n"
+
         con.close()
 
         if self.output:
@@ -69,3 +74,7 @@ if __name__ == '__main__':
 
 # usage:
 # $ python sqlite3dumper.py in=recipebook.sqlite
+
+# dump with bash:
+# $ sqlite3 recipebook.sqlite  .dump > dump.sql.txt
+
