@@ -13,20 +13,12 @@ class SQLite3Dumper:
         self.db_path = db_path
         self.output = output
 
-    def get_column_names(self, table_name):
-        con = sqlite3.connect(self.db_path)
-        cur = con.cursor()
-        cur.execute(f"PRAGMA table_info({table_name})")
-        columns_info = cur.fetchall()
-        con.close()
-        return [col[1] for col in columns_info]
-
     def dump_data(self):
         table_name = "bora_recipe"
-        all_columns = self.get_column_names(table_name)
-
-        # Exclude the specified columns
-        selected_columns = [col for col in all_columns if col not in ["icon", "background_image", "steps_json", "develop_flag", "qr_image", "menu_flag", "subcategory", "url"]]
+        selected_columns = ["id",
+                            "fallback_name",
+                            #"fallback_info",
+                            ]
 
         con = sqlite3.connect(self.db_path)
         cur = con.cursor()
@@ -67,8 +59,7 @@ if __name__ == '__main__':
         print(f"Error: {e}")
 
 # usage:
-# $ python sqlite3dumper.py in=recipebook.sqlite
+# python sqlite3dumper.py in=recipebook.sqlite out=descriptionDump.txt
 
-# dump with bash:
-# $ sqlite3 recipebook.sqlite  .dump > dump.sql.txt
-
+# dump with bash - but too much:
+# sqlite3 recipebook.sqlite  .dump > dump.sql.txt

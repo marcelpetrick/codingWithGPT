@@ -1,0 +1,11 @@
+Answer the following query from a person who is hungry. His request is listed at $QUERY$. Try to meet his desires and needs. Use the recipes, which are listed at $RECIPES$ as selector. Return the three results. The result is only the leading id, the number at the start of each line, as only answer to this query. No other information. Just three numbers.
+
+-----
+$QUERY$:
+
+I am a fatty and quite hungry. Recommend me a dish with meat, which is healthy.
+
+-----
+$RECIPES$:
+
+<insert>
