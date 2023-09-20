@@ -9,7 +9,7 @@
 # HTML_filePickerLineEditTest
 # $ python findAndFixUpperCaseDirectoryNames.py --fix
 # Renamed directories to lowercase.
-# $ 
+# $
 
 import os
 import sys
@@ -19,9 +19,9 @@ def find_uppercase_directories(path="."):
     return [d for d in os.listdir(path) if os.path.isdir(d) and d[0].isupper()]
 
 def rename_to_lowercase(directories):
-    """Rename the provided directories to lowercase."""
+    """Rename the first character of the provided directories to lowercase."""
     for directory in directories:
-        os.rename(directory, directory.lower())
+        os.rename(directory, directory[0].lower() + directory[1:])
 
 def main():
     upper_case_directories = find_uppercase_directories()
