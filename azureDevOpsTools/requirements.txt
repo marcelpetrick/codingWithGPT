@@ -1,0 +1,12 @@
+matplotlib
+# ast is part of the Python standard library
+# re is part of the Python standard library
+# glob is part of the Python standard library
+# os is part of the Python standard library
+azure-devops
+msrest
+# pprint is part of the Python standard library
+# datetime is part of the Python standard library
+# sys is part of the Python standard library
+ezodf
+lxml
