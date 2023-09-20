@@ -29,7 +29,7 @@ def extract_data_from_column(doc, column_name="C"):
 def main():
     # Check if filename is provided
     if len(sys.argv) < 2:
-        print("Usage: python getUrlsFromChart.py <filename.ods>")
+        print("Usage: python getUrlsFromOdsChart.py <filename.ods>")
         sys.exit(1)
 
     filename = sys.argv[1]
