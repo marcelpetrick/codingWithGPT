@@ -182,3 +182,187 @@
     - D. Unified networking by default between accounts
     > **Answer: B**
     > **Explanation:** AWS Organizations allows you to consolidate billing across multiple AWS accounts, enabling centralized tracking of charges and detailed cost reports.
+
+### Set 6:
+
+1. **AWS Object Storage:**
+   Which AWS service is an object storage service that offers scalability, data availability, security, and performance?
+   - A. Amazon EBS
+   - B. Amazon EFS
+   - C. Amazon S3
+   - D. Amazon Glacier
+   > **Answer: C**
+   > **Explanation:** Amazon S3 (Simple Storage Service) is an object storage service that offers industry-leading scalability, data availability, security, and performance.
+
+2. **Amazon EC2 Purchasing Options:**
+   Which EC2 purchasing option allows you to use the unused EC2 capacity at a significantly reduced rate?
+   - A. Reserved Instances
+   - B. On-Demand Instances
+   - C. Spot Instances
+   - D. Dedicated Hosts
+   > **Answer: C**
+   > **Explanation:** Spot Instances allow customers to purchase unused EC2 capacity at a reduced rate. However, these instances can be terminated by AWS with a two-minute notification when AWS needs the capacity back.
+
+3. **AWS Compliance Programs:**
+   What AWS service helps you automate compliance checks for the IT environment against industry standards and best practices?
+   - A. AWS Config
+   - B. AWS Identity and Access Management (IAM)
+   - C. AWS Shield
+   - D. AWS Inspector
+   > **Answer: A**
+   > **Explanation:** AWS Config is a service that enables you to assess, audit, and evaluate the configurations of your AWS resources. It helps with compliance auditing, security analysis, resource change tracking, and troubleshooting.
+
+4. **Serverless Application Repository:**
+   What is the purpose of the AWS Serverless Application Repository?
+   - A. To manage server configurations for applications
+   - B. To store and share serverless applications
+   - C. To provide a version control system for Lambda functions
+   - D. To deploy virtual servers on demand
+   > **Answer: B**
+   > **Explanation:** The AWS Serverless Application Repository is designed to enable teams, organizations, and individual developers to store and share reusable applications, and easily assemble and deploy serverless architectures in powerful new ways.
+
+5. **Amazon VPC:**
+   In Amazon VPC, what is the term for a virtual network dedicated to your AWS account?
+   - A. Virtual Private Network (VPN)
+   - B. Virtual Private Cloud (VPC)
+   - C. Subnet
+   - D. Internet Gateway
+   > **Answer: B**
+   > **Explanation:** A Virtual Private Cloud (VPC) is a virtual network dedicated to your AWS account. It is logically isolated from other virtual networks in the AWS Cloud.
+
+6. **AWS Data Transfer Charges:**
+   When does AWS NOT charge for data transfer?
+   - A. Data transfer between different AWS services within the same region
+   - B. Data transfer from an EC2 instance to the Internet
+   - C. Data transfer into AWS from the Internet
+   - D. Data transfer between EC2 instances and Amazon S3 in the same region
+   > **Answer: C**
+   > **Explanation:** AWS does not charge for all inbound data transfer (from the Internet to AWS). However, outbound data transfer and data transfer between services may incur charges.
+
+7. **Amazon EC2 Instances:**
+   Which of the following actions is NOT possible with Amazon EC2 instances?
+   - A. Increasing the disk size of an EBS volume attached to an instance
+   - B. Changing the instance type of a stopped instance
+   - C. Moving an instance from one region to another
+   - D. Taking a snapshot of an EBS volume attached to an instance
+   > **Answer: C**
+   > **Explanation:** While you can change the instance type of a stopped instance and modify the size of an EBS volume, you cannot move an instance from one region to another. You can, however, take a snapshot of an EBS volume and create a new instance in another region using that snapshot.
+
+8. **AWS Service for Content Delivery:**
+   What AWS service would you use to quickly distribute content to users around the world with low latency, high data transfer speeds, and no minimum usage commitments?
+   - A. AWS Direct Connect
+   - B. Amazon EFS
+   - C. Amazon CloudFront
+   - D. Amazon Route 53
+   > **Answer: C**
+   > **Explanation:** Amazon CloudFront is a content delivery network (CDN) service that securely delivers data, videos, applications, and APIs to customers globally with low latency, high transfer speeds, and no minimum usage commitments.
+
+9. **Elastic Load Balancing:**
+   What does Elastic Load Balancing do?
+   - A. It automatically adjusts the number of EC2 instances handling application traffic.
+   - B. It distributes incoming application traffic across multiple targets, such as EC2 instances, containers, and IP addresses.
+   - C. It balances the storage load between multiple EBS volumes.
+   - D. It balances the data load between different AWS regions.
+   > **Answer: B**
+   > **Explanation:** Elastic Load Balancing automatically distributes incoming application traffic across multiple targets, such as Amazon EC2 instances, containers, and IP addresses, in one or more Availability Zones.
+
+10. **AWS Storage Services:**
+    Which AWS service is a file storage service for use with Amazon EC2 instances?
+    - A. Amazon EBS
+    - B. Amazon EFS
+    - C. Amazon S3
+    - D. AWS Storage Gateway
+   > **Answer: B**
+   > **Explanation:** Amazon Elastic File System (EFS) is a file storage service for use with Amazon EC2. EFS provides a simple, scalable, fully managed elastic NFS file system for use with AWS Cloud services and on-premises resources.
+
+### Set 7:
+
+1. **AWS Budgets:**
+   What AWS feature allows you to set custom budgets to track your cost and usage from the simplest to the most complex requirements?
+   - A. AWS Cost Explorer
+   - B. AWS Trusted Advisor
+   - C. AWS Budgets
+   - D. AWS Cost and Usage Report
+   > **Answer: C**
+   > **Explanation:** AWS Budgets gives you the ability to set custom budgets that alert you when your costs or usage exceed (or are forecasted to exceed) your budgeted amount.
+
+2. **Disaster Recovery in AWS:**
+   Which AWS service is primarily used for disaster recovery and backup of data?
+   - A. Amazon S3
+   - B. Amazon Glacier
+   - C. AWS Storage Gateway
+   - D. Amazon EBS
+   > **Answer: B**
+   > **Explanation:** Amazon Glacier (now known as Amazon S3 Glacier) is a secure, durable, and extremely low-cost storage service for data archiving and long-term backup. It's designed to deliver 99.999999999% durability and provides comprehensive security and compliance capabilities that can help meet even the most stringent regulatory requirements.
+
+3. **AWS Global Infrastructure:**
+   What are the main components of the AWS Global Infrastructure?
+   - A. Regions, Availability Zones, and Edge Locations
+   - B. Data Centers, Content Delivery Networks, and Databases
+   - C. Compute, Storage, and Database services
+   - D. Virtual Private Clouds, Subnets, and Endpoints
+   > **Answer: A**
+   > **Explanation:** AWS Global Infrastructure consists of Regions, Availability Zones, and Edge Locations. Regions are geographic locations around the world where AWS clusters data centers. Each AWS Region consists of multiple, isolated, and physically separate AZ's within a geographic area. Edge Locations are endpoints for AWS which are used for caching content for Amazon CloudFront.
+
+4. **Amazon EC2 Auto Scaling:**
+   What is the main benefit of Amazon EC2 Auto Scaling?
+   - A. It automatically changes the EC2 instance types based on workload requirements.
+   - B. It automates the process of adding or removing EC2 instances based on traffic or load.
+   - C. It reduces the cost of EC2 instances by scaling down when the instances are not in use.
+   - D. It increases the storage capacity of EC2 instances automatically.
+   > **Answer: B**
+   > **Explanation:** Amazon EC2 Auto Scaling helps you maintain application availability and allows you to automatically add or remove EC2 instances according to conditions you define, such as traffic or CPU utilization.
+
+5. **AWS IAM Roles:**
+   Why should you use IAM roles instead of sharing security credentials?
+   - A. Roles provide more secure and flexible access to resources.
+   - B. Roles allow you to have unlimited IAM users.
+   - C. Roles enable users to have full administrative access.
+   - D. Roles are easier to use because they do not require any credentials.
+   > **Answer: A**
+   > **Explanation:** IAM roles offer a more secure way to delegate access to users, services, and applications without the use of static access keys. Roles provide temporary security tokens for authentication, which can be automatically rotated and managed by AWS.
+
+6. **AWS CloudTrail:**
+   What does AWS CloudTrail primarily help with?
+   - A. It helps with auditing and reviewing user actions and API usage.
+   - B. It accelerates content delivery through a network of edge locations.
+   - C. It balances the load across EC2 instances.
+   - D. It automates software deployments to EC2 instances.
+   > **Answer: A**
+   > **Explanation:** AWS CloudTrail is a service that enables governance, compliance, operational auditing, and risk auditing of your AWS account. It allows you to log, continuously monitor, and retain account activity related to actions across your AWS infrastructure.
+
+7. **Amazon VPC Peering:**
+   What does a VPC peering connection allow you to do?
+   - A. Connect one VPC with another VPC through a direct network route.
+   - B. Peer a VPC with an on-premises data center.
+   - C. Automatically replicate data across two VPCs.
+   - D. Increase the bandwidth to the internet from a VPC.
+   > **Answer: A**
+   > **Explanation:** A VPC peering connection is a networking connection between two VPCs that enables you to route traffic between them using private IPv4 addresses or IPv6 addresses. Instances in either VPC can communicate with each other as if they are within the same network.
+
+8. **AWS Cost Optimization:**
+   What tool can help you with cost optimization by identifying unused and idle resources or instances with low utilization in AWS?
+   - A. AWS Budgets
+   - B. AWS Cost Explorer
+   - C. AWS Trusted Advisor
+   - D. Amazon CloudWatch
+   > **Answer: C**
+   > **Explanation:** AWS Trusted Advisor provides real-time guidance to help you provision your resources following AWS best practices. It can help you reduce cost by identifying unused and idle resources or instances with low utilization.
+
+9. **Amazon DynamoDB:**
+   Which of the following best describes Amazon DynamoDB?
+   - A. It's a managed NoSQL database service.
+   - B. It's a virtual server for hosting web applications.
+   - C. It's a file storage service for EC2 instances.
+   - D. It's a relational database service with a SQL interface.
+   > **Answer: A**
+   > **Explanation:** Amazon DynamoDB is a managed NoSQL database service that provides fast and predictable performance with seamless scalability. It allows you to create database tables that can store and retrieve any amount of data and serve any level of request traffic.
+
+10. **AWS Elastic Beanstalk:**
+    What is AWS Elastic Beanstalk primarily used for?
+    - A. To manage user access and encryption keys.
+    - B. To automatically manage the deployment of applications to the cloud.
+    - C. To provide a managed desktop computing service in the cloud.
+    - D. To facilitate direct, private connections between AWS and on-premises environments.
+   > **Answer: B**
+   > **Explanation:** AWS Elastic Beanstalk is an easy-to-use service for deploying and scaling web applications and services developed with Java, .NET, PHP, Node.js, Python, Ruby, Go, and Docker on familiar servers such as Apache, Nginx, Passenger, and IIS. You simply upload your code and Elastic Beanstalk automatically handles the deployment, from capacity provisioning, load balancing, auto-scaling to application health monitoring.
