@@ -49,3 +49,11 @@ if __name__ == "__main__":
 # path_arg: C:\\mpetrick\\repos\\DevNotes\\BeenThereSeenThat
 # Directories with space in their names: ['20221029_NeuroTechMUC Hackathon_Day0', '20221107_Die MachtDerKoerperspracheImBusiness', '20230412_Which_kernel_for_your_Embedded_Linux project']
 # PS C:\mpetrick\repos\codingWithGPT>
+
+# linux
+# python showAllFoldersWithSpaces.py /home/mpetrick/repos/DevNotes/BeenThereSeenThat/
+#
+# (venv) [mpetrick@marcel-precision3551 codingWithGPT]$ python showAllFoldersWithSpaces.py /home/mpetrick/repos/DevNotes/BeenThereSeenThat/
+# path_arg: /home/mpetrick/repos/DevNotes/BeenThereSeenThat/
+# Directories with weird (non "latin char nor arabic digits or underscore") in their names: ['20231018_Agilität_im_PMO_So_geht_PMO_Aufbau_und_Entwicklung_heute', '20230522_ChatGPT_fuer_HR_Marketing_und_Führungskraefte']
+# (venv) [mpetrick@marcel-precision3551 codingWithGPT]$
