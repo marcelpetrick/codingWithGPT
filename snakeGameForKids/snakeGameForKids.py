@@ -24,10 +24,19 @@ pygame.display.set_caption('Snake Game for my children')
 snake_block = 20
 snake_speed = 10
 
-# Define the snake
+# Rainbow color palette
+rainbow_colors = [
+    (255, 0, 127),  # Pink
+    (255, 255, 0),  # Yellow
+    (144, 238, 144),  # Light Green
+    # Add more colors as desired
+]
+
+# Function to draw the snake
 def our_snake(snake_block, snake_list):
-    for x in snake_list:
-        pygame.draw.rect(dis, black, [x[0], x[1], snake_block, snake_block])
+    for i, x in enumerate(snake_list):
+        color = rainbow_colors[i % len(rainbow_colors)]  # Cycle through the rainbow colors
+        pygame.draw.rect(dis, color, [x[0], x[1], snake_block, snake_block])
 
 # Main game loop
 def gameLoop():
