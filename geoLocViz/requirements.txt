@@ -1,1 +1,3 @@
 geopy
+matplotlib
+basemap
