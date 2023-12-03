@@ -1,0 +1,16 @@
+* 20230101 Stuttgart, Baden-Württemberg, Germany
+* 20230102 München, Bayern, Germany
+* 20230103 Potsdam, Brandenburg, Germany
+* 20230104 Bremen, Bremen, Germany
+* 20230105 Hamburg, Hamburg, Germany
+* 20230106 Wiesbaden, Hessen, Germany
+* 20230107 Schwerin, Mecklenburg-Vorpommern, Germany
+* 20230108 Hannover, Niedersachsen, Germany
+* 20230109 Düsseldorf, Nordrhein-Westfalen, Germany
+* 20230110 Mainz, Rheinland-Pfalz, Germany
+* 20230111 Saarbrücken, Saarland, Germany
+* 20230112 Dresden, Sachsen, Germany
+* 20230113 Magdeburg, Sachsen-Anhalt, Germany
+* 20230114 Kiel, Schleswig-Holstein, Germany
+* 20230115 Erfurt, Thüringen, Germany
+* 20230116 Berlin, Berlin, Germany

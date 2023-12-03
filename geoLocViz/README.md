@@ -46,3 +46,7 @@ The script will read the locations, geocode them, and plot them on a map saved a
 ## Contributions
 
 Contributions, issues, and feature requests are welcome. Feel free to check issues page if you want to contribute.
+
+## Example run with `bunderslaender_germany.md`:
+
+![](map.png)
