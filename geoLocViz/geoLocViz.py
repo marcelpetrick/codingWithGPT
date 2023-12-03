@@ -1,6 +1,7 @@
 import json
-from pathlib import Path
 import sys
+import re
+from pathlib import Path
 from geopy.exc import GeocoderTimedOut
 from geopy.geocoders import Photon
 import matplotlib.pyplot as plt
@@ -31,13 +32,16 @@ def get_location_coordinates(location_name, cache):
     otherwise querying the geolocation service.
     """
     if location_name in cache:
+        print(f"Cache hit for {location_name}")
         return cache[location_name]
 
+    print(f"Cache miss for {location_name}")
     geolocator = Photon(user_agent="measurements")
     try:
         location = geolocator.geocode(location_name)
         if location:
             cache[location_name] = (location.latitude, location.longitude)
+            save_cache(cache)  # Save cache immediately after adding new location
             return cache[location_name]
         else:
             return (None, None)
@@ -81,8 +85,6 @@ def plot_locations_on_map(locations, cache):
 
     plt.savefig("map.png", format='png', dpi=600)
 
-import re
-
 def parse_location_file(file_path):
     """
     Parse a file containing dates and locations, returning a list of locations.
@@ -98,7 +100,6 @@ def parse_location_file(file_path):
 
             locations.append(location)
     return locations
-
 
 def main(file_path=None):
     """
