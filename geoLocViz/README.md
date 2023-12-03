@@ -1,6 +1,6 @@
 # GeoLocViz
 
-GeoLocViz is a Python application designed for visualizing geographical locations on a 2D map. This tool takes a list of location names, converts them into latitude and longitude coordinates, and plots them on a world map. It features a caching mechanism to optimize repeated lookups and is ideal for mapping out a series of travel destinations, landmarks, or any set of locations specified in a text file.
+GeoLoc(ation)Viz(ualizer) is a Python application designed for visualizing geographical locations on a 2D map. This tool takes a list of location names, converts them into latitude and longitude coordinates, and plots them on a world map. It features a caching mechanism to optimize repeated lookups and is ideal for mapping out a series of travel destinations, landmarks, or any set of locations specified in a text file.
 
 ## Author
 
@@ -43,10 +43,10 @@ python geoLocViz.py [path_to_location_file]
 
 The script will read the locations, geocode them, and plot them on a map saved as map.png in the current directory.
 
+## Example output with `bundeslaender_germany.md`
+
+![](map.png)
+
 ## Contributions
 
 Contributions, issues, and feature requests are welcome. Feel free to check issues page if you want to contribute.
-
-## Example run with `bunderslaender_germany.md`:
-
-![](map.png)
