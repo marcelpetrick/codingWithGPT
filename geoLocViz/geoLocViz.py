@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import sys
 from geopy.exc import GeocoderTimedOut
 from geopy.geocoders import Photon
 import matplotlib.pyplot as plt
@@ -44,6 +45,9 @@ def get_location_coordinates(location_name, cache):
         return (None, None)
 
 def plot_locations_on_map(locations, cache):
+    """
+    Plot the given locations on a map and save it as a PNG file.
+    """
     lats, lons = [], []
     for location in locations:
         lat, lon = get_location_coordinates(location, cache)
@@ -77,12 +81,35 @@ def plot_locations_on_map(locations, cache):
 
     plt.savefig("map.png", format='png', dpi=600)
 
-def main():
+import re
+
+def parse_location_file(file_path):
+    """
+    Parse a file containing dates and locations, returning a list of locations.
+    """
+    locations = []
+    with open(file_path, 'r') as file:
+        for line in file:
+            # Remove the date and leading characters (first 10 characters)
+            location_with_extra = line[10:].strip()
+
+            # Remove additional info in parentheses and other special characters
+            location = re.sub(r"\(.*?\)|[/,]", "", location_with_extra).strip()
+
+            locations.append(location)
+    return locations
+
+
+def main(file_path=None):
+    """
+    Main function to load cache, parse locations from a file (if given),
+    plot locations on the map, and save the updated cache.
+    """
     # Load cache
     cache = load_cache()
 
     # Define locations
-    locations = ["Regensburg", "München", "Eibsee", "Zorneding", "Dresden Zwinger"]
+    locations = parse_location_file(file_path) if file_path else []
 
     # Plot locations
     plot_locations_on_map(locations, cache)
@@ -91,4 +118,8 @@ def main():
     save_cache(cache)
 
 if __name__ == "__main__":
-    main()
+    file_path = sys.argv[1] if len(sys.argv) > 1 else None
+    main(file_path)
+
+# call with:
+# python geoLocViz.py touristlocations_example.md
