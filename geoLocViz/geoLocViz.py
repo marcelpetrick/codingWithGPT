@@ -133,7 +133,8 @@ def parse_location_file(file_path):
             # Remove additional info in parentheses and other special characters
             location = re.sub(r"\(.*?\)|[/,]", "", location_with_extra).strip()
 
-            locations.append(location)
+            if len(location) > 0:
+                locations.append(location)
     return locations
 
 def main(file_path=None):
