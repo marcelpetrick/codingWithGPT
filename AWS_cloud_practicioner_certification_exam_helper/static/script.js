@@ -3,9 +3,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadQuestion() {
-    // Implement AJAX call to Flask backend to load a question
-    // Update the DOM with the question and options
+    fetch('/get_question')
+    .then(response => response.json())
+    .then(data => {
+        displayQuestion(data.question);
+    })
+    .catch(error => console.error('Error:', error));
 }
+
+function displayQuestion(question) {
+    // Implement the logic to display the question and options in the HTML
+    // For example:
+    document.getElementById('question').textContent = question.text;
+    // And similarly for options...
+}
+
 
 function submitAnswer(answer) {
     // Implement logic to submit answer and handle response

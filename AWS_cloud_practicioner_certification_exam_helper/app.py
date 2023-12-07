@@ -44,10 +44,29 @@ def index():
 @app.route('/get_question', methods=['GET'])
 def get_question():
     question = random.choice(questions)
-    return jsonify(question=question)
+    print(f"Question: {question['text']}")
+    # Send only the text and options to the client
+    client_question = {
+        'text': question['text'],
+        'options': question['options']
+    }
+    return jsonify(question=client_question)
+
 
 @app.route('/submit_answer', methods=['POST'])
 def submit_answer():
     data = request.json
-    # Logic to verify answer and return correctness and explanation
-    return jsonify(result=result, explanation=explanation)
+    submitted_answer = data['answer']
+    question_id = data['question_id']  # You need to send the question ID or text
+
+    # Find the question in the list
+    question = next((q for q in questions if q['text'] == question_id), None)
+
+    if question:
+        is_correct = submitted_answer == question['answer']
+        explanation = question['explanation']
+        result = {'is_correct': is_correct, 'explanation': explanation}
+    else:
+        result = {'error': 'Question not found'}
+
+    return jsonify(result)
