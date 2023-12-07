@@ -4,12 +4,37 @@ import random, json
 
 app = Flask(__name__)
 
-def load_questions():
-    with open('questions.txt', 'r') as file:
-        questions = [line.strip().split(';') for line in file]
+
+def parse_questions(file_path):
+    with open(file_path, 'r') as file:
+        content = file.read()
+
+    questions_blocks = content.split('\n\n')  # Split by double newline
+    questions = []
+
+    for block in questions_blocks:
+        lines = block.strip().split('\n')
+
+        if len(lines) < 8:
+            continue  # Skip blocks that don't have enough lines
+
+        question_text = lines[1]
+        options = lines[2:6]
+        correct_answer = lines[6].split(':')[-1].strip()[-1]  # More robust parsing
+        explanation = lines[7].split(':', 1)[-1].strip()
+
+        question = {
+            'text': question_text,
+            'options': options,
+            'answer': correct_answer,
+            'explanation': explanation
+        }
+        questions.append(question)
+
     return questions
 
-questions = load_questions()
+
+questions = parse_questions('questions.md')
 
 
 @app.route('/')
