@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadQuestion() {
+    console.log("Loading question");
     fetch('/get_question')
         .then(response => response.json())
         .then(data => {
@@ -12,6 +13,7 @@ function loadQuestion() {
 }
 
 function displayQuestion(question) {
+    console.log("Displaying question");
     // Display the question text
     document.getElementById('question').textContent = question.text;
 
@@ -29,7 +31,20 @@ function displayQuestion(question) {
     });
 }
 
-function displayFeedback(data) {
+function displayFeedback(data, selectedOptionButton) {
+    console.log("Displaying feedback");
+    // Add class to the selected option
+    selectedOptionButton.classList.add('selected');
+
+    // Find and mark the correct option
+    const options = document.getElementsByClassName('option');
+    Array.from(options).forEach(option => {
+        if (option.textContent === data.correct_answer) {
+            option.classList.add('correct');
+        }
+    });
+
+    // Display feedback
     const feedbackDiv = document.getElementById('feedback');
     feedbackDiv.innerHTML = `Your answer is ${data.is_correct ? 'correct' : 'incorrect'}.<br>Explanation: ${data.explanation}`;
 }
@@ -38,6 +53,7 @@ let correctAnswers = 0;
 let totalQuestions = 0;
 
 function updateStatistics(isCorrect) {
+    console.log("Updating statistics");
     totalQuestions++;
     if (isCorrect) {
         correctAnswers++;
@@ -49,22 +65,27 @@ function updateStatistics(isCorrect) {
 function submitAnswer(selectedOption, question) {
     console.log("Answer submitted:", selectedOption);
     fetch('/submit_answer', {
-        method: 'POST', headers: {
+        method: 'POST',
+        headers: {
             'Content-Type': 'application/json',
-        }, body: JSON.stringify({answer: selectedOption, questionText: question.text})
+        },
+        body: JSON.stringify({answer: selectedOption, questionText: question.text})
     })
-        .then(response => response.json())
-        .then(data => {
-            displayFeedback(data);
-            updateStatistics(data.is_correct);
-            setTimeout(loadQuestion, 3000); // Load next question after a delay
-        })
-        .catch(error => console.error('Error:', error));
+    .then(response => response.json())
+    .then(data => {
+        // Find the clicked button element
+        const selectedOptionButton = Array.from(document.getElementsByClassName('option')).find(button => button.textContent === selectedOption);
+        displayFeedback(data, selectedOptionButton);
+        updateStatistics(data.is_correct);
+        setTimeout(loadQuestion, 3000); // Load next question after a delay
+    })
+    .catch(error => console.error('Error:', error));
 }
+
 
 // Add event listeners for keypress or button click events
 document.addEventListener('keydown', (event) => {
-
+    console.log("Key pressed:", event.key);
     if (event.key === 'A' || event.key === 'S' || event.key === 'D' || event.key === 'F') {
         submitAnswer(event.key);
     }
