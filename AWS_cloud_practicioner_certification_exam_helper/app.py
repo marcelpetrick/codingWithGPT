@@ -57,10 +57,12 @@ def get_question():
 def submit_answer():
     data = request.json
     submitted_answer = data['answer']
-    question_id = data['question_id']  # You need to send the question ID or text
+    question_text = data['questionText']
+    print(f"Question text: {question_text}")
+    print(f"Submitted answer: {submitted_answer}")
 
     # Find the question in the list
-    question = next((q for q in questions if q['text'] == question_id), None)
+    question = next((q for q in questions if q['text'] == question_text), None)
 
     if question:
         is_correct = submitted_answer == question['answer']
@@ -69,4 +71,5 @@ def submit_answer():
     else:
         result = {'error': 'Question not found'}
 
-    return jsonify(result)
+    print(f"Result: {result}")
+    return jsonify(is_correct=is_correct, explanation=explanation)
