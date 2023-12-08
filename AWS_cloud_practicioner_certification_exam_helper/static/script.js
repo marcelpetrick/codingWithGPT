@@ -82,11 +82,24 @@ function submitAnswer(selectedOption, question) {
     .catch(error => console.error('Error:', error));
 }
 
-
-// Add event listeners for keypress or button click events
 document.addEventListener('keydown', (event) => {
     console.log("Key pressed:", event.key);
-    if (event.key === 'A' || event.key === 'S' || event.key === 'D' || event.key === 'F') {
-        submitAnswer(event.key);
+    const keyToOptionMap = { 'A': 0, 'a':0, 'S': 1, 's':1, 'D': 2, 'd': 2, 'F': 3, 'f':3 };
+    if (event.key in keyToOptionMap) {
+        const questionText = document.getElementById('question').textContent;
+        const optionsButtons = document.querySelectorAll('.option');
+        if (optionsButtons.length > keyToOptionMap[event.key]) {
+            const selectedOptionButton = optionsButtons[keyToOptionMap[event.key]];
+            const selectedOptionText = selectedOptionButton.textContent;
+            console.log("Selected option:", selectedOptionText);
+            submitAnswer(selectedOptionText, { text: questionText });
+        }
     }
 });
+
+window.addEventListener('keydown', (event) => {
+    console.log("window listener: Key pressed:", event.key);
+});
+
+
+console.log("Script loaded and running");
