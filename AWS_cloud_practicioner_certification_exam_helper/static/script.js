@@ -1,42 +1,47 @@
+// Event listener for DOM content load
 document.addEventListener('DOMContentLoaded', () => {
-    loadQuestion();
+    loadRandomQuestion();
 });
 
-function loadQuestion() {
+// Load and display a random question
+function loadRandomQuestion() {
     console.log("Loading question");
     fetch('/get_question')
         .then(response => response.json())
         .then(data => {
-            displayQuestion(data.question);
+            displayQuestionOnPage(data.question);
         })
         .catch(error => console.error('Error:', error));
 }
 
-function displayQuestion(question) {
+// Display a question and its options
+function displayQuestionOnPage(question) {
     console.log("Displaying question");
-    // Display the question text
     document.getElementById('question').textContent = question.text;
 
-    // Clear previous options
     const optionsDiv = document.getElementById('options');
     optionsDiv.innerHTML = '';
 
-    // Create and display options
     question.options.forEach((option, index) => {
-        const button = document.createElement('button');
-        button.textContent = option;
-        button.classList.add('option');
-        button.addEventListener('click', () => submitAnswer(option, question));
-        optionsDiv.appendChild(button);
+        const optionButton = createOptionButton(option, question);
+        optionsDiv.appendChild(optionButton);
     });
 }
 
+// Create an option button
+function createOptionButton(optionText, question) {
+    const button = document.createElement('button');
+    button.textContent = optionText;
+    button.classList.add('option');
+    button.addEventListener('click', () => submitAnswer(optionText, question));
+    return button;
+}
+
+// Display feedback for the submitted answer
 function displayFeedback(data, selectedOptionButton) {
     console.log("Displaying feedback");
-    // Add class to the selected option
     selectedOptionButton.classList.add('selected');
 
-    // Find and mark the correct option
     const options = document.getElementsByClassName('option');
     Array.from(options).forEach(option => {
         if (option.textContent === data.correct_answer) {
@@ -44,64 +49,59 @@ function displayFeedback(data, selectedOptionButton) {
         }
     });
 
-    // Display feedback
     const feedbackDiv = document.getElementById('feedback');
     feedbackDiv.innerHTML = `Your answer is ${data.is_correct ? 'correct' : 'incorrect'}.<br><br>Explanation: ${data.explanation}`;
 }
 
+// Update score statistics
 let correctAnswers = 0;
 let totalQuestions = 0;
 
-function updateStatistics(isCorrect) {
+function updateScoreStatistics(isCorrect) {
     console.log("Updating statistics");
     totalQuestions++;
     if (isCorrect) {
         correctAnswers++;
     }
-    const statsDiv = document.getElementById('stats'); // Make sure you have a stats div in your HTML
+    const statsDiv = document.getElementById('stats');
     statsDiv.textContent = `Score: ${correctAnswers} out of ${totalQuestions}`;
 }
 
+// Submit an answer and process the response
 function submitAnswer(selectedOption, question) {
     console.log("Answer submitted:", selectedOption);
     fetch('/submit_answer', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ answer: selectedOption, questionText: question.text })
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({answer: selectedOption, questionText: question.text})
     })
     .then(response => response.json())
     .then(data => {
-        // Find the clicked button element
-        const selectedOptionButton = Array.from(document.getElementsByClassName('option')).find(button => button.textContent === selectedOption);
+        const selectedOptionButton = findButtonByText(selectedOption);
         displayFeedback(data, selectedOptionButton);
-        updateStatistics(data.is_correct);
-        setTimeout(loadQuestion, 3000); // Load next question after a delay
+        updateScoreStatistics(data.is_correct);
+        setTimeout(loadRandomQuestion, 3000);
     })
     .catch(error => console.error('Error:', error));
 }
 
+// Find a button by its text content
+function findButtonByText(buttonText) {
+    return Array.from(document.getElementsByClassName('option')).find(button => button.textContent === buttonText);
+}
+
+// Event listener for keydown actions
 document.addEventListener('keydown', (event) => {
     console.log("Key pressed:", event.key);
-    //const keyToOptionMap = { 'A': 0, 'S': 1, 'D': 2, 'F': 3 };
-    const keyToOptionMap = { 'A': 0, 'a':0, 'S': 1, 's':1, 'D': 2, 'd': 2, 'F': 3, 'f':3 };
-    if (event.key.toUpperCase() in keyToOptionMap) {
+    const keyToOptionMap = { 'A': 0, 'a': 0, 'S': 1, 's': 1, 'D': 2, 'd': 2, 'F': 3, 'f': 3 };
+    if (keyToOptionMap.hasOwnProperty(event.key)) {
         const optionsButtons = document.querySelectorAll('.option');
-        if (optionsButtons.length > keyToOptionMap[event.key.toUpperCase()]) {
-            const selectedOptionButton = optionsButtons[keyToOptionMap[event.key.toUpperCase()]];
+        if (optionsButtons.length > keyToOptionMap[event.key]) {
+            const selectedOptionButton = optionsButtons[keyToOptionMap[event.key]];
             console.log("Selected option:", selectedOptionButton.textContent);
-            const selectedOptionText = selectedOptionButton.textContent;
-            console.log("Selected option text:", selectedOptionText);
-            submitAnswer(selectedOptionText, { text: document.getElementById('question').textContent });
+            submitAnswer(selectedOptionButton.textContent, { text: document.getElementById('question').textContent });
         }
     }
 });
-
-
-window.addEventListener('keydown', (event) => {
-    console.log("window listener: Key pressed:", event.key);
-});
-
 
 console.log("Script loaded and running");
