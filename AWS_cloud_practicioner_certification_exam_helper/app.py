@@ -4,7 +4,6 @@ import random, json
 
 app = Flask(__name__)
 
-
 def parse_questions(file_path):
     with open(file_path, 'r') as file:
         content = file.read()
@@ -19,7 +18,8 @@ def parse_questions(file_path):
             continue  # Skip blocks that don't have enough lines
 
         question_text = lines[1]
-        options = lines[2:6]
+        # Remove the leading "- " from each option
+        options = [line.strip()[2:] for line in lines[2:6]]
         correct_answer = lines[6].split(':')[-1].strip()[-1]  # More robust parsing
         explanation = lines[7].split(':', 1)[-1].strip()
 
@@ -32,6 +32,8 @@ def parse_questions(file_path):
         questions.append(question)
 
     return questions
+
+
 
 
 questions = parse_questions('questions.md')
@@ -57,19 +59,25 @@ def get_question():
 def submit_answer():
     data = request.json
     submitted_answer = data['answer']
+    print(f"Submitted answer: {submitted_answer}")
     question_text = data['questionText']
     print(f"Question text: {question_text}")
-    print(f"Submitted answer: {submitted_answer}")
 
     # Find the question in the list
     question = next((q for q in questions if q['text'] == question_text), None)
 
     if question:
-        is_correct = submitted_answer == question['answer']
+        # Extract the first character (A, B, C, or D) from the submitted answer
+        submitted_answer_char = submitted_answer.strip()[0].upper()
+        print(f"Submitted answer char: {submitted_answer_char}")
+
+        # Compare with the correct answer
+        is_correct = submitted_answer_char == question['answer']
+        print(f"Is correct: {is_correct}")
         explanation = question['explanation']
         result = {'is_correct': is_correct, 'explanation': explanation}
     else:
         result = {'error': 'Question not found'}
 
-    print(f"Result: {result}")
-    return jsonify(is_correct=is_correct, explanation=explanation)
+    print(f"result: {result}")
+    return jsonify(result)

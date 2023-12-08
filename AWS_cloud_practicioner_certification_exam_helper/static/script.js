@@ -46,7 +46,7 @@ function displayFeedback(data, selectedOptionButton) {
 
     // Display feedback
     const feedbackDiv = document.getElementById('feedback');
-    feedbackDiv.innerHTML = `Your answer is ${data.is_correct ? 'correct' : 'incorrect'}.<br>Explanation: ${data.explanation}`;
+    feedbackDiv.innerHTML = `Your answer is ${data.is_correct ? 'correct' : 'incorrect'}.<br><br>Explanation: ${data.explanation}`;
 }
 
 let correctAnswers = 0;
@@ -69,7 +69,7 @@ function submitAnswer(selectedOption, question) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({answer: selectedOption, questionText: question.text})
+        body: JSON.stringify({ answer: selectedOption, questionText: question.text })
     })
     .then(response => response.json())
     .then(data => {
@@ -84,18 +84,20 @@ function submitAnswer(selectedOption, question) {
 
 document.addEventListener('keydown', (event) => {
     console.log("Key pressed:", event.key);
+    //const keyToOptionMap = { 'A': 0, 'S': 1, 'D': 2, 'F': 3 };
     const keyToOptionMap = { 'A': 0, 'a':0, 'S': 1, 's':1, 'D': 2, 'd': 2, 'F': 3, 'f':3 };
-    if (event.key in keyToOptionMap) {
-        const questionText = document.getElementById('question').textContent;
+    if (event.key.toUpperCase() in keyToOptionMap) {
         const optionsButtons = document.querySelectorAll('.option');
-        if (optionsButtons.length > keyToOptionMap[event.key]) {
-            const selectedOptionButton = optionsButtons[keyToOptionMap[event.key]];
+        if (optionsButtons.length > keyToOptionMap[event.key.toUpperCase()]) {
+            const selectedOptionButton = optionsButtons[keyToOptionMap[event.key.toUpperCase()]];
+            console.log("Selected option:", selectedOptionButton.textContent);
             const selectedOptionText = selectedOptionButton.textContent;
-            console.log("Selected option:", selectedOptionText);
-            submitAnswer(selectedOptionText, { text: questionText });
+            console.log("Selected option text:", selectedOptionText);
+            submitAnswer(selectedOptionText, { text: document.getElementById('question').textContent });
         }
     }
 });
+
 
 window.addEventListener('keydown', (event) => {
     console.log("window listener: Key pressed:", event.key);
