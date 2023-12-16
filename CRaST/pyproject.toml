@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "CRaST"
+version = "0.0.1"
+description = "Completely Random Speed Test - A tool for automated internet speed testing."
+authors = ["Marcel Petrick <mail@marcelpetrick.it>"]
+license = "GPLv3.0"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.30.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
