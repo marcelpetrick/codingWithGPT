@@ -1,37 +1,43 @@
 import requests
 import time
 
-
 def download_file(url):
-    start_time = time.time() * 1000  # Current time in milliseconds
-    response = requests.get(url)
-    end_time = time.time() * 1000  # End time in milliseconds
+    """
+    Downloads a file from the specified URL and measures the download time and speed.
+    Prints the results in a single line with an ISO 8601 timestamp.
 
-    # Ensure the request was successful
-    if response.status_code == 200:
-        # Calculate file size in Megabytes (MB)
-        file_size = len(response.content) / (1024 * 1024)
+    Args:
+        url (str): The URL of the file to be downloaded.
+    """
+    try:
+        start_time = time.time()
+        response = requests.get(url)
+        end_time = time.time()
 
-        # Calculate the time taken for the download in seconds
-        download_time = (end_time - start_time) / 1000  # Convert milliseconds to seconds
+        if response.status_code == 200:
+            file_size = len(response.content) / (1024 * 1024)  # File size in MB
+            download_time = end_time - start_time  # Time in seconds
+            download_speed = (file_size * 8) / download_time  # Speed in Mbps
 
-        # Calculate download speed in Mbps (Megabits per second)
-        # 1 byte = 8 bits, and 1 MB = 8 Mb
-        download_speed = (file_size * 8) / download_time
+            # ISO 8601 Time Format: HH:MM:SS
+            current_time = time.strftime("%H:%M:%S")
 
-        print(f"Downloaded a file of size {file_size:.2f} MB in {download_time:.2f} seconds")
-        print(f"Download Speed: {download_speed:.2f} Mbps")
-    else:
-        print(f"Failed to download the file. Status code: {response.status_code}")
-
+            print(f"{current_time} | File Size: {file_size:.2f} MB | Time: {download_time:.2f} s | Speed: {download_speed:.2f} Mbps")
+        else:
+            print(f"{time.strftime('%H:%M:%S')} | Failed to download file. Status: {response.status_code}")
+    except requests.RequestException as e:
+        print(f"{time.strftime('%H:%M:%S')} | Error: {e}")
 
 def main():
-    url = "https://random-data-api.com/api/v2/users?size=10"  # URL of the file to download
+    """
+    Main function for downloading a file at regular intervals and logging the download speed.
+    """
+    #url = "https://random-data-api.com/api/v2/users?size=100" # URL of the file to be downloaded - sadly only 0.08 MB
+    url = "https://archive.org/download/4-mlinux-32.0-core/grub2-boot.iso" # 7.7 MB
 
     while True:
         download_file(url)
-        time.sleep(10)  # Sleep for 10 seconds before downloading again
-
+        time.sleep(10)  # Wait 10 seconds before next download
 
 if __name__ == "__main__":
     main()
