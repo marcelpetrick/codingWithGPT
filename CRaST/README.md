@@ -1,5 +1,5 @@
-## What is CRAaST?
-CRAaST (Completely Random Speed Test) is a Python tool for automated internet speed testing. It downloads a specified file at regular intervals and logs the download speed.
+## What is CRaST?
+CRaST (Completely Random Speed Test) is a Python tool for automated internet speed testing. It downloads a specified file at regular intervals and logs the download speed.
 
 ## Key Features
 - Automatic download of a pre-defined file at 10-second intervals.
@@ -16,7 +16,12 @@ CRAaST (Completely Random Speed Test) is a Python tool for automated internet sp
 1. Ensure Python 3.x is installed on your system.
 2. Install the `requests` library:
 ```bash
-pip install requests
+pip install -r requirements.txt
+```
+or via toml:
+```bash
+pip install poetry
+poetry install
 ```
    
 ### Configuration
@@ -28,7 +33,7 @@ pip install requests
 - Navigate to the directory containing the script.
 - Run the script:
 ```bash
-python craast.py
+python CRaST.py
 ```
 
 ### Output
