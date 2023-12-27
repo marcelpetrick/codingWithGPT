@@ -10,8 +10,10 @@ def clone_all_repos(credentials_file):
     username = credentials['username']
     token = credentials['token']
 
-    # Initial API Endpoint
-    url = f"https://api.github.com/users/{username}/repos?per_page=100"
+    # Updated API Endpoint to include private repositories
+    # If this one is used, then it will list just public repos of the specific name!
+    # url = f"https://api.github.com/users/{username}/repos?per_page=100"
+    url = f"https://api.github.com/user/repos?per_page=100"
 
     headers = {
         'Authorization': f'token {token}',
