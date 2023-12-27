@@ -46,5 +46,29 @@ python clone_all_repos.py "github_credentials.json"
 ```
 This will clone all the repositories associated with the provided GitHub account into the current directory.
 
+## Example output
+```bash
+------------ Cloning daily_alarm_2k ------------
+Already up to date.
+Updated repository: daily_alarm_2k
+
+------------ Cloning DeepLearning.ai ------------
+Already up to date.
+Updated repository: DeepLearning.ai
+
+------------ Cloning DevNotes ------------
+Cloning into '/home/mpetrick/output_motherOfAllGitsV2/DevNotes'...
+remote: Enumerating objects: 3956, done.
+remote: Counting objects: 100% (661/661), done.
+remote: Compressing objects: 100% (350/350), done.
+remote: Total 3956 (delta 276), reused 605 (delta 242), pack-reused 3295
+Receiving objects: 100% (3956/3956), 425.94 MiB | 23.64 MiB/s, done.
+Resolving deltas: 100% (1819/1819), done.
+Updating files: 100% (1063/1063), done.
+Cloned repository: DevNotes
+..
+```
+
+
 ## Support
 For support, contact me at mail@marcelpetrick.it
