@@ -1,6 +1,30 @@
-import requests
+import os
 import subprocess
+import requests
 import json
+
+
+def clone_or_update_repo(repo_url, repo_name, token):
+    if os.path.isdir(repo_name):
+        # Change to the repo directory
+        os.chdir(repo_name)
+
+        # Pull the latest changes
+        try:
+            subprocess.run(["git", "pull"], check=True)
+            print(f"Updated repository: {repo_name}")
+        except subprocess.CalledProcessError as e:
+            print(f"Error updating {repo_name}: {e}")
+
+        # Change back to the original directory
+        os.chdir("..")
+    else:
+        # Clone the repository
+        try:
+            subprocess.run(["git", "clone", repo_url], check=True)
+            print(f"Cloned repository: {repo_name}")
+        except subprocess.CalledProcessError as e:
+            print(f"Error cloning {repo_name}: {e}")
 
 
 def clone_all_repos(credentials_file):
@@ -27,17 +51,11 @@ def clone_all_repos(credentials_file):
             for repo in repos:
                 clone_url = repo['clone_url']
                 print(f"------------ Cloning {repo['name']} ------------")
-                try:
-                    if repo['private']:
-                        print("! private repo !")
-                        clone_url = clone_url.replace('https://', f'https://{token}@')
+                if repo['private']:
+                    clone_url = clone_url.replace('https://', f'https://{token}@')
+                    print("! private repo !")
+                clone_or_update_repo(clone_url, repo['name'], token)
 
-                    subprocess.run(["git", "clone", clone_url])
-                    print(f"Cloned {repo['name']}")
-                except Exception as e:
-                    print(f"Error cloning {repo['name']}: {e}")
-
-            # Check for the 'next' page link
             if 'next' in response.links:
                 url = response.links['next']['url']
             else:
