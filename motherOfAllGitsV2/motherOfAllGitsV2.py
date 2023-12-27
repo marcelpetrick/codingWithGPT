@@ -4,42 +4,44 @@ import json
 
 
 def clone_all_repos(credentials_file):
-    # Reading credentials from the JSON file
     with open(credentials_file, 'r') as file:
         credentials = json.load(file)
 
     username = credentials['username']
     token = credentials['token']
 
-    # Endpoint to list GitHub repos for a user
-    url = f"https://api.github.com/users/{username}/repos"
+    # Initial API Endpoint
+    url = f"https://api.github.com/users/{username}/repos?per_page=100"
 
-    # Adding token for authentication
     headers = {
         'Authorization': f'token {token}',
         'Accept': 'application/vnd.github.v3+json'
     }
 
-    # Fetching the repositories
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        repos = response.json()
-        for repo in repos:
-            # Cloning each repository
-            clone_url = repo['clone_url']
-            try:
-                # Replacing 'https://' with 'https://token@' in the clone URL for private repos
-                if repo['private']:
-                    clone_url = clone_url.replace('https://', f'https://{token}@')
+    while url:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            repos = response.json()
+            for repo in repos:
+                clone_url = repo['clone_url']
+                print(f"------------ Cloning {repo['name']} ------------")
+                try:
+                    if repo['private']:
+                        print("! private repo !")
+                        clone_url = clone_url.replace('https://', f'https://{token}@')
 
-                subprocess.run(["git", "clone", clone_url])
-                print(f"Cloned {repo['name']}")
-            except Exception as e:
-                print(f"Error cloning {repo['name']}: {e}")
-    else:
-        print(f"Failed to fetch repositories: {response.status_code}")
+                    subprocess.run(["git", "clone", clone_url])
+                    print(f"Cloned {repo['name']}")
+                except Exception as e:
+                    print(f"Error cloning {repo['name']}: {e}")
 
-# Example usage
-# clone_all_repos("github_credentials.json")
+            # Check for the 'next' page link
+            if 'next' in response.links:
+                url = response.links['next']['url']
+            else:
+                url = None
+        else:
+            print(f"Failed to fetch repositories: {response.status_code}")
+            break
 
-# Note: Replace "github_credentials.json" with the path to your actual JSON file containing your GitHub credentials.
+clone_all_repos("github_credentials.json")
