@@ -62,7 +62,7 @@ def clone_all_repos(credentials_file, output_path="."):
                 print(f"------------ Cloning {repo['name']} ------------")
                 if repo['private']:
                     clone_url = clone_url.replace('https://', f'https://{token}@')
-                    print("! private repo !")
+                    print("Note: private repository")
                 clone_or_update_repo(clone_url, repo['name'], token, output_path)
                 print("")  # newline as separator
 
