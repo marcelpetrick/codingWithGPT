@@ -39,7 +39,8 @@ def main():
     if args.tests:
         unittest.main(argv=['first-arg-is-ignored'], exit=False)
     elif args.date:
-        day, month = map(int, args.date.split('.'))
+        date_str = args.date.strip('.')  # Remove any trailing periods
+        day, month = map(int, date_str.split('.'))
         specified_date = datetime(datetime.now().year, month, day)
         print(f"{year_progress(specified_date):.1f}%")
     else:
