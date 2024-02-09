@@ -42,9 +42,7 @@ def send_base64_image_to_openai(base64_image: str, api_key: str) -> None:
     #print(f"Response: {response.json()}")
     return response.json()
 
-#--------------------
-
-
+# ----------------------------
 
 class ImageScanner:
   def __init__(self, directory_path: str):
@@ -64,7 +62,7 @@ class ImageScanner:
     except Exception as e:
       print(f"Error scanning directory {self.directory_path}: {e}")
 
-  def resize_and_convert_images(self) -> None:
+  def resize_and_convert_images_and_process(self) -> None:
     """
     Resizes each image where the longest side is at most 1500px, converts to base64, and prints it.
     """
@@ -98,16 +96,15 @@ if __name__ == "__main__":
   scanner = ImageScanner(directory_path)
   scanner.scan_for_images()
   # check result with: https://base64.guru/converter/decode/image
-  scanner.resize_and_convert_images()
+  scanner.resize_and_convert_images_and_process()
 
-# ---------
+# ----------------------------
+
 # result:
 # (venv) [mpetrick@marcel-precision3551 SalesSlipScanner]$ python3 salesSlipScanner.py
-# {'id': 'chatcmpl-8qUU2VewcVher85jjuiofq0kB30pG', 'object': 'chat.completion', 'created': 1707520926, 'model': 'gpt-4-1106-vision-preview', 'usage': {'prompt_tokens': 838, 'completion_tokens': 3, 'total_tokens': 841}, 'choices': [{'message': {'role': 'assistant', 'content': '10,93'}, 'finish_reason': 'stop', 'index': 0}]}
-# {'id': 'chatcmpl-8qUUE8qnpxSXleSDlyT8xJtRrgmD5', 'object': 'chat.completion', 'created': 1707520938, 'model': 'gpt-4-1106-vision-preview', 'usage': {'prompt_tokens': 838, 'completion_tokens': 3, 'total_tokens': 841}, 'choices': [{'message': {'role': 'assistant', 'content': '79.49'}, 'finish_reason': 'stop', 'index': 0}]}
-# {'id': 'chatcmpl-8qUUJPr8NwVK3W8FTRCDCF7WJFmKc', 'object': 'chat.completion', 'created': 1707520943, 'model': 'gpt-4-1106-vision-preview', 'usage': {'prompt_tokens': 838, 'completion_tokens': 3, 'total_tokens': 841}, 'choices': [{'message': {'role': 'assistant', 'content': '28.41'}, 'finish_reason': 'stop', 'index': 0}]}
+# File: test_images/slip2_1093.jpg, Content: 10,93
+# File: test_images/slip0_7949.jpg, Content: 79,49
+# File: test_images/slip1_2841.jpg, Content: 28,41
+# (venv) [mpetrick@marcel-precision3551 SalesSlipScanner]$
 #
 # So it works :)
-#
-# TODO: parse the "content" and print the given file-name and the found content.
-#

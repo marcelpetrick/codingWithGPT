@@ -1,23 +1,42 @@
-# Sales Slip Scanner
+# Sales Slip Sum Extractor
+
+![](meme.png)
 
 ## Overview
-A Python 3 application leveraging OpenAI's computer vision to extract the paid sum from sales slips. An ambitious approach to automate the process of reading and interpreting sales receipt totals.
+This Python 3 application is designed to automate the extraction of payment totals from sales slips. It leverages OpenAI's advanced computer vision capabilities to scan, identify, and interpret the total amount paid on German sales slips for groceries or gas. This project represents an efficient and innovative approach to processing sales slips, utilizing AI to extract critical financial information.
 
 ## Prerequisites
-- Python 3.x
-- OpenAI API Key
-
+* Python 3.x
+* OpenAI API Key (charge your billing up front!)
+* An internet connection for API requests
 
 ## Setup
-1. Clone the repo.
-2. Install dependencies: `pip install -r requirements.txt`
-3. Configure OpenAI API key: `export OPENAI_API_KEY='your_key'`
+* Clone the repository to your local machine.
+* Install the necessary dependencies by running: `pip install -r requirements.txt` from the command line in the project directory.
+* Set your OpenAI API key as an environment variable: `export OPENAI_API_KEY='your_api_key_here'`
+* Place the images you want to process in the `test_images` directory. 
 
 ## Usage
-TBD
+To use the application, execute the following command in your terminal from the project directory:
+```bash
+python salesSlipScanner.py
+```
+
+## Output
+The program processes each image file in the specified directory, resizing the image, converting it to a base64-encoded string, and then sending it to OpenAI for analysis. The expected output for each processed image is printed to the console in the following format:
+```
+File: path_to_image.jpg, Content: extracted_sum
+```
+For example:
+```
+File: test_images/slip2_1093.jpg, Content: 10,93
+File: test_images/slip0_7949.jpg, Content: 79,49
+File: test_images/slip1_2841.jpg, Content: 28,41
+```
+As the interested reader may have noticed, the given file-names state the expected sum in the image. This is to allow for a quick check of the program's accuracy. Yes, this is not covered by unit-tests ;)
 
 ## License
 GPL-3.0 License
 
-## author
+##Author
 Marcel Petrick - mail@marcelpetrick.it
