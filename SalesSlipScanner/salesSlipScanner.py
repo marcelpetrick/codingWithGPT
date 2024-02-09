@@ -1,31 +1,44 @@
-# from openai import OpenAI
-#
-# # OPENAI_API_KEY must be set
-# client = OpenAI()
-#
-# response = client.chat.completions.create(
-#   model="gpt-4-vision-preview",
-#   messages=[
-#     {
-#       "role": "user",
-#       "content": [
-#         {"type": "text", "text": "What’s in this image?"},
-#         {
-#           "type": "image_url",
-#           "image_url": {
-#             "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
-#           },
-#         },
-#       ],
-#     }
-#   ],
-#   max_tokens=300,
-# )
-#
-# print(response.choices[0])
-#
+import requests
 
-# -------------
+def send_base64_image_to_openai(base64_image: str, api_key: str) -> None:
+    """
+    Sends a base64-encoded image to OpenAI and prints the result.
+
+    Args:
+    - base64_image (str): The base64-encoded image string.
+    - api_key (str): Your OpenAI API key.
+    """
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+
+    payload = {
+        "model": "gpt-4-vision-preview",
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "What is the sum to pay in the given sales slip? It is a german sales slip for groceries or gas. Search for someethhing like `Summe` or `zu zahlen`. Just return the sum in format Euro.cent. No other return text in the return. If no number was found, return NaN."
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}"
+                        }
+                    }
+                ]
+            }
+        ],
+        "max_tokens": 300
+    }
+
+    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+    print(response.json())
+
+#--------------------
 
 import os
 import base64
@@ -66,7 +79,10 @@ class ImageScanner:
             resized_img.save(temp_file, format="JPEG")
           with open("temp_resized_image.jpg", "rb") as temp_file:
             base64_encoded_img = base64.b64encode(temp_file.read())
-            print(base64_encoded_img.decode('utf-8'))
+            #print(base64_encoded_img.decode('utf-8'))
+            api_key = os.getenv("OPENAI_API_KEY")
+            send_base64_image_to_openai(base64_encoded_img.decode('utf-8'), api_key)
+
 
       except Exception as e:
         print(f"Error processing image {image_path}: {e}")
@@ -79,3 +95,15 @@ if __name__ == "__main__":
   scanner.scan_for_images()
   # check result with: https://base64.guru/converter/decode/image
   scanner.resize_and_convert_images()
+
+# ---------
+# result:
+# (venv) [mpetrick@marcel-precision3551 SalesSlipScanner]$ python3 salesSlipScanner.py
+# {'id': 'chatcmpl-8qUU2VewcVher85jjuiofq0kB30pG', 'object': 'chat.completion', 'created': 1707520926, 'model': 'gpt-4-1106-vision-preview', 'usage': {'prompt_tokens': 838, 'completion_tokens': 3, 'total_tokens': 841}, 'choices': [{'message': {'role': 'assistant', 'content': '10,93'}, 'finish_reason': 'stop', 'index': 0}]}
+# {'id': 'chatcmpl-8qUUE8qnpxSXleSDlyT8xJtRrgmD5', 'object': 'chat.completion', 'created': 1707520938, 'model': 'gpt-4-1106-vision-preview', 'usage': {'prompt_tokens': 838, 'completion_tokens': 3, 'total_tokens': 841}, 'choices': [{'message': {'role': 'assistant', 'content': '79.49'}, 'finish_reason': 'stop', 'index': 0}]}
+# {'id': 'chatcmpl-8qUUJPr8NwVK3W8FTRCDCF7WJFmKc', 'object': 'chat.completion', 'created': 1707520943, 'model': 'gpt-4-1106-vision-preview', 'usage': {'prompt_tokens': 838, 'completion_tokens': 3, 'total_tokens': 841}, 'choices': [{'message': {'role': 'assistant', 'content': '28.41'}, 'finish_reason': 'stop', 'index': 0}]}
+#
+# So it works :)
+#
+# TODO: parse the "content" and print the given file-name and the found content.
+#
