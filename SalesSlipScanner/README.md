@@ -2,6 +2,12 @@
 
 ![](meme.png)
 
+## Why?
+I'm a lazy person. I don't want to type in the sum of my grocery shopping manually. I want to take a picture of the sales slip and let the computer do the work for me.  
+Just kidding. The goal was to see how well OpenAI's GPT-3 can handle OCR tasks. And it's doing a great job!  
+To be honest: using the OpenAI API is overkill for such a task. Because a simple OCR library like Tesseract would be sufficient.  
+I spent 1 hour of time (quite good return of investment) for the development and 15 cent for OpenAI's API-usage.
+
 ## Overview
 This Python 3 application is designed to automate the extraction of payment totals from sales slips. It leverages OpenAI's advanced computer vision capabilities to scan, identify, and interpret the total amount paid on German sales slips for groceries or gas. This project represents an efficient and innovative approach to processing sales slips, utilizing AI to extract critical financial information.
 
@@ -38,5 +44,5 @@ As the interested reader may have noticed, the given file-names state the expect
 ## License
 GPL-3.0 License
 
-##Author
+## Author
 Marcel Petrick - mail@marcelpetrick.it
