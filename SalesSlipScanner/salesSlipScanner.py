@@ -1,4 +1,7 @@
 import requests
+import os
+import base64
+from PIL import Image
 
 def send_base64_image_to_openai(base64_image: str, api_key: str) -> None:
     """
@@ -21,7 +24,7 @@ def send_base64_image_to_openai(base64_image: str, api_key: str) -> None:
                 "content": [
                     {
                         "type": "text",
-                        "text": "What is the sum to pay in the given sales slip? It is a german sales slip for groceries or gas. Search for someethhing like `Summe` or `zu zahlen`. Just return the sum in format Euro.cent. No other return text in the return. If no number was found, return NaN."
+                        "text": "What is the sum to pay in the given sales slip? It is a german sales slip for groceries or gas. Search for someethhing like `Summe` or `zu zahlen`. Just return the sum in format `Euro Comma Cent`. No currency character. No other return text in the response. If no number was found, return NaN."
                     },
                     {
                         "type": "image_url",
@@ -36,13 +39,12 @@ def send_base64_image_to_openai(base64_image: str, api_key: str) -> None:
     }
 
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-    print(response.json())
+    #print(f"Response: {response.json()}")
+    return response.json()
 
 #--------------------
 
-import os
-import base64
-from PIL import Image
+
 
 class ImageScanner:
   def __init__(self, directory_path: str):
@@ -81,8 +83,10 @@ class ImageScanner:
             base64_encoded_img = base64.b64encode(temp_file.read())
             #print(base64_encoded_img.decode('utf-8'))
             api_key = os.getenv("OPENAI_API_KEY")
-            send_base64_image_to_openai(base64_encoded_img.decode('utf-8'), api_key)
-
+            resonse_json = send_base64_image_to_openai(base64_encoded_img.decode('utf-8'), api_key)
+            # Accessing and printing the "content"
+            content = resonse_json['choices'][0]['message']['content']
+            print(f"File: {image_path}, Content: {content}")
 
       except Exception as e:
         print(f"Error processing image {image_path}: {e}")

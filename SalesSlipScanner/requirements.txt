@@ -1,2 +1,2 @@
-openai
-Pillow>=8.0
+Pillow>=10.0
+requests>=2.31
