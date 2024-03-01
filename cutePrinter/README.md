@@ -11,6 +11,8 @@ This application provides a simple GUI to generate QR codes from text input and 
 - List all available network printers in a dropdown menu.
 - Print the displayed QR code to the selected printer.
 
+![](cutePrinter.png)
+
 ## Setup
 
 ### Requirements
