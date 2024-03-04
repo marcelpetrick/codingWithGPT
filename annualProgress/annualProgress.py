@@ -77,8 +77,8 @@ class TestYearProgressCalculator(unittest.TestCase):
 
         The test checks if the calculated progress for January 3rd is approximately 1%.
         """
-        self.assertAlmostEqual(self.calculator.calculate_progress(datetime(2023, 1, 3)), 0.82, delta=0.05)
-        self.assertAlmostEqual(self.calculator.calculate_progress(datetime(2024, 1, 3)), 0.81, delta=0.05)
+        self.assertAlmostEqual(self.calculator.calculate_progress(datetime(2023, 1, 3)), 0.5479, delta=0.005)
+        self.assertAlmostEqual(self.calculator.calculate_progress(datetime(2024, 1, 3)), 0.5464, delta=0.005)
 
     def test_february_29_leap_year(self):
         """
