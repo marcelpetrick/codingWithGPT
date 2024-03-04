@@ -10,19 +10,14 @@
 # I also don't have mpv or any other player installed. just use what can be taken from python or pip.
 # pip install pygame
 
-import sys
+
 import pygame
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton
 import yt_dlp
 import urllib.request
 import re
 import sys
-import webbrowser
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QTableView, QHeaderView, QAbstractItemView, QScrollBar
-from PyQt5.QtCore import Qt, QAbstractTableModel, QSize
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
-
-
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QTableView, QHeaderView, QAbstractItemView
+from PyQt5.QtCore import Qt, QAbstractTableModel
 # player solution without external vlc or ffmpeg
 # pip install moviepy --user
 import moviepy.editor as mp
