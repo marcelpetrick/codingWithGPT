@@ -1,5 +1,5 @@
 # Write me a python program, which generates output for stdout. It should be called "configurableLoremIpsum".
-# Startable with "python configurableLoremIpsum.py --rate==10 --line==1024" and then print out 1024 characters every
+# Start-able with "python configurableLoremIpsum.py --rate==10 --line==1024" and then print out 1024 characters every
 # 10 seconds. Until interrupted. if no parameters are given, then it should print out the help page.
 #
 # Write program with class and sphinx documentation and comments. also take care of pep8.
@@ -42,8 +42,8 @@ class ConfigurableLoremIpsum:
 
 def main():
     parser = argparse.ArgumentParser(description="Generate and output Lorem Ipsum text at a configurable rate and length.")
-    parser.add_argument('--rate', type=int, help='Rate at which text should be output, in milliseconds.', default=None)
-    parser.add_argument('--line', type=int, help='Length of the text to be generated, in characters.', default=None)
+    parser.add_argument('--rate', type=int, help='Rate at which text should be output, in milliseconds.', default=100)
+    parser.add_argument('--line', type=int, help='Length of the text to be generated, in characters.', default=1024)
 
     args = parser.parse_args()
 
