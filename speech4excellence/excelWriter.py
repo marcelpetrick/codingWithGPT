@@ -37,6 +37,17 @@ class ExcelWriter:
         """
         return [(input_list[i], input_list[i + 1]) for i in range(0, len(input_list) - 1, 2)]
 
+    def insert_text(self, text):
+        """
+        Splits the text by newline and inserts each line into a new row in the Excel sheet.
+        """
+        lines = text.strip().split('\n')  # Splitting the text by newline characters
+        row = 1
+        for line in lines:
+            self.sheet.cell(row=row, column=1, value=line)
+            row += 1  # Move to the next row
+        self.workbook.save(self.filename)
+
 # Example usage:
 if __name__ == "__main__":
     input_list = ['Artist1', 'Title1', 'Artist2', 'Title2', 'Artist3', 'Title3']

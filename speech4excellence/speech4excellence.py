@@ -121,6 +121,8 @@ class MainWindow(QWidget):
         # Assume the ExcelWriter class has an `insert_text` method
         try:
             excel_writer = ExcelWriter(excel_filename)
+            print(f"Writing transcription to {excel_filename}")
+            print(f"transcription_text: {transcription_text}")
             excel_writer.insert_text(transcription_text)
             print(f"Transcription written to {excel_filename}")
         except Exception as e:
