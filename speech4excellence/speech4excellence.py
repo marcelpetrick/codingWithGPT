@@ -1,11 +1,12 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel, QTextEdit
 from PyQt5.QtCore import QThread, pyqtSignal
 import pyaudio
 import wave
 from pydub import AudioSegment
 import audioop
+from audioTranscriber import AudioTranscriber
 
 class AudioRecorder(QThread):
     update_timecode = pyqtSignal(str)
@@ -55,8 +56,9 @@ class AudioRecorder(QThread):
 
 
 class MainWindow(QWidget):
-    def __init__(self):
+    def __init__(self, transcriber):
         super().__init__()
+        self.transcriber = transcriber  # The AudioTranscriber instance
         self.recorder = AudioRecorder()
         self.initUI()
 
@@ -76,12 +78,19 @@ class MainWindow(QWidget):
         self.recordButton.clicked.connect(self.toggleRecording)
         self.layout.addWidget(self.recordButton)
 
-        self.recorder.update_amplitude.connect(self.updateAmplitude)
+        self.transcribeButton = QPushButton('Transcribe')
+        self.transcribeButton.clicked.connect(self.transcribeAudio)
+        self.layout.addWidget(self.transcribeButton)
 
+        self.transcriptionPreview = QTextEdit()
+        self.transcriptionPreview.setReadOnly(True)
+        self.layout.addWidget(self.transcriptionPreview)
+
+        self.recorder.update_amplitude.connect(self.updateAmplitude)
         self.recorder.update_timecode.connect(self.updateTimecode)
 
         self.setLayout(self.layout)
-        self.setWindowTitle('Audio Recorder')
+        self.setWindowTitle('Audio Recorder and Transcriber')
         self.show()
 
     def updateAmplitude(self, rms):
@@ -106,7 +115,23 @@ class MainWindow(QWidget):
     def updateTimecode(self, timecode):
         self.timecodeLabel.setText(timecode)
 
+    def transcribeAudio(self):
+        """Transcribe the recorded audio and display the text."""
+        filename = self.filenameLineEdit.text()
+        if not os.path.exists(filename):
+            self.transcriptionPreview.setText("File not found. Please record something first.")
+            return
+        try:
+            transcription = self.transcriber.transcribe(filename)
+            self.transcriptionPreview.setText(transcription)
+        except Exception as e:
+            self.transcriptionPreview.setText(f"Error during transcription: {e}")
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = MainWindow()
+    api_key = os.getenv("OPENAI_API_KEY")
+    if api_key is None:
+        raise EnvironmentError("OPENAI_API_KEY environment variable not set.")
+    transcriber = AudioTranscriber(api_key)
+    ex = MainWindow(transcriber)
     sys.exit(app.exec_())
