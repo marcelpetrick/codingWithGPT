@@ -1,4 +1,5 @@
 PyQt5
 PyAudio
 pydub
-audioop
+#audioop
+openai
