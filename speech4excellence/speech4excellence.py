@@ -1,12 +1,13 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel, QTextEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel, QTextEdit, QFrame
 from PyQt5.QtCore import QThread, pyqtSignal
 import pyaudio
 import wave
 from pydub import AudioSegment
 import audioop
 from audioTranscriber import AudioTranscriber
+from excelWriter import ExcelWriter
 
 class AudioRecorder(QThread):
     update_timecode = pyqtSignal(str)
@@ -78,13 +79,30 @@ class MainWindow(QWidget):
         self.recordButton.clicked.connect(self.toggleRecording)
         self.layout.addWidget(self.recordButton)
 
+        self.divider0 = QFrame()
+        self.divider0.setFrameShape(QFrame.HLine)
+        self.divider0.setFrameShadow(QFrame.Sunken)
+        self.layout.addWidget(self.divider0)
+
         self.transcribeButton = QPushButton('Transcribe')
         self.transcribeButton.clicked.connect(self.transcribeAudio)
         self.layout.addWidget(self.transcribeButton)
 
         self.transcriptionPreview = QTextEdit()
-        self.transcriptionPreview.setReadOnly(True)
+        self.transcriptionPreview.setReadOnly(False)
         self.layout.addWidget(self.transcriptionPreview)
+
+        self.divider1 = QFrame()
+        self.divider1.setFrameShape(QFrame.HLine)
+        self.divider0.setFrameShadow(QFrame.Sunken)
+        self.layout.addWidget(self.divider1)
+
+        self.excelFilenameLineEdit = QLineEdit('transcription.xlsx')
+        self.layout.addWidget(self.excelFilenameLineEdit)
+
+        self.writeExcelButton = QPushButton('Write to Excel')
+        self.writeExcelButton.clicked.connect(self.writeToExcel)
+        self.layout.addWidget(self.writeExcelButton)
 
         self.recorder.update_amplitude.connect(self.updateAmplitude)
         self.recorder.update_timecode.connect(self.updateTimecode)
@@ -92,6 +110,21 @@ class MainWindow(QWidget):
         self.setLayout(self.layout)
         self.setWindowTitle('Audio Recorder and Transcriber')
         self.show()
+
+    def writeToExcel(self):
+        """Writes the content of the transcription preview to the specified Excel file."""
+        excel_filename = self.excelFilenameLineEdit.text()
+        transcription_text = self.transcriptionPreview.toPlainText()
+        if not excel_filename.endswith('.xlsx'):
+            excel_filename += '.xlsx'  # Ensure the filename has the correct extension
+
+        # Assume the ExcelWriter class has an `insert_text` method
+        try:
+            excel_writer = ExcelWriter(excel_filename)
+            excel_writer.insert_text(transcription_text)
+            print(f"Transcription written to {excel_filename}")
+        except Exception as e:
+            print(f"Error writing to Excel: {e}")
 
     def updateAmplitude(self, rms):
         self.amplitudeLabel.setText(f'Amplitude: {rms}')

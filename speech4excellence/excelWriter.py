@@ -30,16 +30,16 @@ class ExcelWriter:
 
         self.workbook.save(self.filename)
 
-def bundle_as_pairs(input_list):
-    """
-    Bundles a list of strings into pairs. Assumes the list length is even.
-    If the list length is odd, the last element is ignored.
-    """
-    return [(input_list[i], input_list[i + 1]) for i in range(0, len(input_list) - 1, 2)]
+    def bundle_as_pairs(self, input_list):
+        """
+        Bundles a list of strings into pairs. Assumes the list length is even.
+        If the list length is odd, the last element is ignored.
+        """
+        return [(input_list[i], input_list[i + 1]) for i in range(0, len(input_list) - 1, 2)]
 
 # Example usage:
 if __name__ == "__main__":
     input_list = ['Artist1', 'Title1', 'Artist2', 'Title2', 'Artist3', 'Title3']
-    pairs = bundle_as_pairs(input_list)
     excel_writer = ExcelWriter('example.xlsx')
+    pairs = excel_writer.bundle_as_pairs(input_list)
     excel_writer.insert_pairs(pairs)
