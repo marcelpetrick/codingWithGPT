@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel, QTextEdit, QFrame
 from audioTranscriber import AudioTranscriber
 from excelWriter import ExcelWriter
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, Qt
 import pyaudio
 import wave
 import audioop
@@ -97,6 +97,7 @@ class MainWindow(QWidget):
         self.divider0.setFrameShape(QFrame.HLine)
         self.divider0.setFrameShadow(QFrame.Sunken)
         self.layout.addWidget(self.divider0)
+        self.divider0.setObjectName("line")
 
         self.transcribeButton = QPushButton('Transcribe')
         self.transcribeButton.clicked.connect(self.transcribeAudio)
@@ -108,8 +109,9 @@ class MainWindow(QWidget):
 
         self.divider1 = QFrame()
         self.divider1.setFrameShape(QFrame.HLine)
-        self.divider0.setFrameShadow(QFrame.Sunken)
+        self.divider1.setFrameShadow(QFrame.Sunken)
         self.layout.addWidget(self.divider1)
+        self.divider1.setObjectName("line")
 
         self.excelFilenameLineEdit = QLineEdit('transcription.xlsx')
         self.layout.addWidget(self.excelFilenameLineEdit)
@@ -123,6 +125,42 @@ class MainWindow(QWidget):
 
         self.setLayout(self.layout)
         self.setWindowTitle('Audio Recorder and Transcriber')
+
+        # Set the window to be half-transparent
+        self.setWindowOpacity(0.8)
+
+        # Apply a violet color palette tint to the window
+        self.setStyleSheet("""
+            QWidget {
+                background-color: rgba(148, 0, 211, 0.4); /* Violet background with slight transparency */
+                color: #FFFFFF; /* White text color */
+            }
+            QPushButton {
+                background-color: rgba(138, 43, 226, 0.6); /* Button background color */
+                color: #FFFFFF; /* White text color */
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: rgba(255, 255, 255, 0.8); /* Slightly transparent white border */
+                padding: 4px;
+            }
+            QPushButton:hover {
+                background-color: rgba(138, 43, 226, 0.8); /* Darker on hover */
+            }
+            QPushButton:pressed {
+                background-color: rgba(138, 43, 226, 1.0); /* Even darker when pressed */
+            }
+            QLineEdit, QTextEdit {
+                border-radius: 5px;
+                background-color: gray;
+            }
+            QFrame#line {
+                background-color: cyan; /* Cyan color for the divider */
+            }
+        """)
+
+        self.setAttribute(Qt.WA_TranslucentBackground)  # Enable background transparency
+        #self.setWindowFlag(Qt.FramelessWindowHint)  # Remove title bar
         self.show()
 
     def writeToExcel(self):
