@@ -5,9 +5,11 @@ from PyQt5.QtCore import QThread, pyqtSignal
 import pyaudio
 import wave
 from pydub import AudioSegment
+import audioop
 
 class AudioRecorder(QThread):
     update_timecode = pyqtSignal(str)
+    update_amplitude = pyqtSignal(float)  # New signal for amplitude
 
     def __init__(self):
         super().__init__()
@@ -26,8 +28,10 @@ class AudioRecorder(QThread):
                         frames_per_buffer=1024)
 
         while self.is_recording:
-            data = stream.read(1024)
+            data = stream.read(1024, exception_on_overflow=False)
             self.frames.append(data)
+            rms = audioop.rms(data, 2)  # Calculate RMS of the data
+            self.update_amplitude.emit(rms)  # Emit the RMS value
 
         stream.stop_stream()
         stream.close()
@@ -62,6 +66,9 @@ class MainWindow(QWidget):
         self.timecodeLabel = QLabel('00:00:00')
         self.layout.addWidget(self.timecodeLabel)
 
+        self.amplitudeLabel = QLabel('Amplitude: 0')
+        self.layout.addWidget(self.amplitudeLabel)
+
         self.filenameLineEdit = QLineEdit('recording.mp3')
         self.layout.addWidget(self.filenameLineEdit)
 
@@ -69,11 +76,16 @@ class MainWindow(QWidget):
         self.recordButton.clicked.connect(self.toggleRecording)
         self.layout.addWidget(self.recordButton)
 
+        self.recorder.update_amplitude.connect(self.updateAmplitude)
+
         self.recorder.update_timecode.connect(self.updateTimecode)
 
         self.setLayout(self.layout)
         self.setWindowTitle('Audio Recorder')
         self.show()
+
+    def updateAmplitude(self, rms):
+        self.amplitudeLabel.setText(f'Amplitude: {rms}')
 
     def toggleRecording(self):
         if self.recorder.is_recording:
