@@ -9,6 +9,7 @@ import wave
 import audioop
 from pydub import AudioSegment
 import time
+from PyQt5.QtGui import QIcon
 
 class AudioRecorder(QThread):
     update_timecode = pyqtSignal(str)
@@ -124,7 +125,7 @@ class MainWindow(QWidget):
         self.recorder.update_timecode.connect(self.updateTimecode)
 
         self.setLayout(self.layout)
-        self.setWindowTitle('Audio Recorder and Transcriber')
+        self.setWindowTitle('speech4excellence')
 
         # Set the window to be half-transparent
         self.setWindowOpacity(0.8)
@@ -161,6 +162,10 @@ class MainWindow(QWidget):
 
         self.setAttribute(Qt.WA_TranslucentBackground)  # Enable background transparency
         #self.setWindowFlag(Qt.FramelessWindowHint)  # Remove title bar
+
+        # Set the window icon
+        self.setWindowIcon(QIcon('icon.png'))
+
         self.show()
 
     def writeToExcel(self):
