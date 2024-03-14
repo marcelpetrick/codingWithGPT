@@ -1,13 +1,14 @@
 import sys
 import os
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel, QTextEdit, QFrame
+from audioTranscriber import AudioTranscriber
+from excelWriter import ExcelWriter
 from PyQt5.QtCore import QThread, pyqtSignal
 import pyaudio
 import wave
-from pydub import AudioSegment
 import audioop
-from audioTranscriber import AudioTranscriber
-from excelWriter import ExcelWriter
+from pydub import AudioSegment
+import time
 
 class AudioRecorder(QThread):
     update_timecode = pyqtSignal(str)
@@ -29,11 +30,18 @@ class AudioRecorder(QThread):
                         input=True,
                         frames_per_buffer=1024)
 
+        start_time = time.time()  # Start time of recording
+
         while self.is_recording:
             data = stream.read(1024, exception_on_overflow=False)
             self.frames.append(data)
             rms = audioop.rms(data, 2)  # Calculate RMS of the data
             self.update_amplitude.emit(rms)  # Emit the RMS value
+
+            # Calculate and emit the timecode
+            elapsed_time = time.time() - start_time  # Elapsed time in seconds
+            time_str = self.format_time(elapsed_time)
+            self.update_timecode.emit(time_str)
 
         stream.stop_stream()
         stream.close()
@@ -54,6 +62,12 @@ class AudioRecorder(QThread):
         sound = AudioSegment.from_wav(filename)
         sound.export(filename.replace('.wav', '.mp3'), format='mp3')
         os.remove(filename)  # Remove the temporary WAV file
+
+    def format_time(self, seconds):
+        """Formats elapsed time from seconds to a string format (H:MM:SS)."""
+        hours, remainder = divmod(int(seconds), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return f'{hours:02}:{minutes:02}:{seconds:02}'
 
 
 class MainWindow(QWidget):

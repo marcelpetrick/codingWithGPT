@@ -1,6 +1,5 @@
 PyQt5
 PyAudio
 pydub
-#audioop
 openai
 openpyxl
