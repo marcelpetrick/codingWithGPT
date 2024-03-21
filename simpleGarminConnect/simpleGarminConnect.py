@@ -6,37 +6,51 @@ from garminconnect import (
     GarminConnectAuthenticationError,
 )
 
-# Function to load credentials from JSON file
+
 def load_credentials(filename='credentials.json'):
-    with open(filename, 'r') as file:
-        credentials = json.load(file)
-    return credentials
+    """
+    Loads Garmin Connect account credentials from a specified JSON file.
 
-try:
-    # Load credentials
-    credentials = load_credentials()
-    email = credentials['email']
-    password = credentials['password']
+    :param filename: String, the path to the JSON file containing the credentials.
+    :return: Dictionary with 'email' and 'password' keys.
+    """
+    try:
+        with open(filename, 'r') as file:
+            credentials = json.load(file)
+        return credentials
+    except FileNotFoundError:
+        print("Credentials file not found. Please ensure the file is in the correct directory.")
+        exit(1)
+    except json.JSONDecodeError:
+        print("Error decoding JSON. Please check the file format.")
+        exit(1)
 
-    # Initialize Garmin client with your credentials
-    client = Garmin(email, password)
-    client.login()
 
-    # Fetch your user profile
-    user_profile = client.get_user_profile()
-    print(user_profile)
+def main():
+    """
+    Main function to log into Garmin Connect and fetch user profile information.
+    """
+    try:
+        # Load credentials
+        credentials = load_credentials()
+        email = credentials['email']
+        password = credentials['password']
 
-    # You can also fetch other data like activities, heart rate, steps, etc.
-    # activities = client.get_activities(0,1) # Gets the most recent activity
-    # print(activities)
+        # Initialize Garmin client with credentials
+        client = Garmin(email, password)
+        client.login()
 
-except (
-    GarminConnectConnectionError,
-    GarminConnectAuthenticationError,
-    GarminConnectTooManyRequestsError,
-) as err:
-    print(f"Error occurred during Garmin Connect Client process: {err}")
-except FileNotFoundError:
-    print("Credentials file not found. Please ensure the file is in the correct directory.")
-except KeyError:
-    print("Invalid format of credentials file. Please check the email and password keys.")
+        # Fetch and print user profile in a readable format
+        user_profile = client.get_user_profile()
+        print(json.dumps(user_profile, indent=4, sort_keys=True))
+
+    except (GarminConnectConnectionError,
+            GarminConnectAuthenticationError,
+            GarminConnectTooManyRequestsError) as err:
+        print(f"Error occurred during Garmin Connect Client process: {err}")
+    except KeyError:
+        print("Invalid format of credentials file. Please check the email and password keys.")
+
+
+if __name__ == "__main__":
+    main()
