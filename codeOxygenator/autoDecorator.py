@@ -2,7 +2,6 @@ import os
 import time
 import requests
 
-
 class AutoDecorator:
     def __init__(self):
         self.api_key = os.environ.get("OPENAI_API_KEY")
@@ -36,25 +35,23 @@ class AutoDecorator:
         }
         print("headers: ", headers)
 
-        prompt = ("You are a master technical writer. You got the task to write doxygen-comments "
-                  "for the given file. Analyze it and check what language it is, but keep this info to yourself. Write me proper "
-                  "doxygen comments for each class, method, and everything. Cover the whole public "
-                  "interface. Write a 'brief', all 'params' and 'returns'. Use the proper doxygen syntax. Return the transformed code, nothing else. No additional output.")
+        prompt = (
+            "Add Doxygen comments to a given codebase, focusing on classes, methods, and public interfaces. Provide a brief description, parameters, and return values using Doxygen syntax. The output should only include the original code augmented with these comments, ensuring all original lines, includes, imports, and defines remain unchanged. Avoid enclosing comment boxes or markdown-comment blocks and do not address issues other than documentation.")
 
         payload = {
-            "model": "gpt-4",
+            "model": "gpt-4-0125-preview", # latest 20240402
             #"prompt": f"{prompt}\n\n{content}",
             #"response_format": {"type": "json_object"},
                "messages": [
                   {
                     "role": "system",
                     "content": f"{prompt}",
-                  },
-                  {
+                },
+                {
                     "role": "user",
                     "content": f"{content}",
-                  }
-                ],
+                }
+            ],
             "max_tokens": 4096,
             #"temperature": 0.5,
             #"top_p": 1.0,
@@ -72,7 +69,7 @@ class AutoDecorator:
             response.raise_for_status()  # This will raise an exception for HTTP error responses
             print("-----------------response.json()-----------------")
             print(response.json()['choices'][0])
-            print("----------------- now try to parse-----------------")
+            print("----------------- now parse-----------------")
             generated_text = response.json()['choices'][0]['message']['content']
             return generated_text
         except requests.exceptions.RequestException as e:
