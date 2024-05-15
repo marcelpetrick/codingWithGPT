@@ -5,7 +5,7 @@ from garminconnect import (
     GarminConnectTooManyRequestsError,
     GarminConnectAuthenticationError,
 )
-
+import datetime
 
 def load_credentials(filename='credentials.json'):
     """
@@ -24,9 +24,6 @@ def load_credentials(filename='credentials.json'):
     except json.JSONDecodeError:
         print("Error decoding JSON. Please check the file format.")
         exit(1)
-
-
-import datetime
 
 
 def fetch_running_activities(client):
