@@ -1,0 +1,208 @@
+Reading data...
+Processing data...
+Printing data...
+------------------------------
+Difficult Situations: Solutions for Managers: 66 minutes
+Delivering Employee Feedback: 27 minutes
+Social Success at Work: 18 minutes
+Overcoming Your Fear of Public Speaking: 19 minutes
+Just Ask: Todd Dewett on Management and Leadership: 75 minutes
+Making More Impact as a Middle Manager: 27 minutes
+Fail Better: Using Mistakes to Improve Performance: 57 minutes
+The Secret to Better Decisions: Stop Hoarding Chips: 47 minutes
+AWS: Deployment, Provisioning, and Automation: 324 minutes
+Introduction to Disciplined Agile: 59 minutes
+How to Stay Goal-Focused: 41 minutes
+Get It Done: Complete Projects that Matter with Seth Godin: 36 minutes
+Complete Confidence in Minutes: Weekly: 65 minutes
+Insights on Cloud Computing with Lynn Langit: 24 minutes
+Dealing with Difficult Clients in B2B Sales: 64 minutes
+Understanding the Psychology of Money: 38 minutes
+The Link between Evolutionary Psychology and Better Management: 44 minutes
+Mastering Self-Motivation: 53 minutes
+Having Difficult Conversations: 63 minutes
+Pricing Strategy Explained: 92 minutes
+Transitioning from Technical Professional to Manager: 57 minutes
+Domain Driven Design (DDD) – Grundlagen: 51 minutes
+Answering Tough Questions As A Leader: 27 minutes
+Nano Tips for Using AI in the Job Search with Sho Dewan: 5 minutes
+Einführung in die Softwarearchitektur 4: Architekturdokumentation: 235 minutes
+Project Management Foundations: Procurement: 76 minutes
+Becoming More Memorable and Persuasive: 20 minutes
+External Communication Skills for Leaders: 46 minutes
+How to Push Back at Work (and Look Good Doing It): 40 minutes
+8 Ways to Remain Calm on a Sales Call: 25 minutes
+Organizing Your Remote Office for Maximum Productivity: 26 minutes
+Overcome The Productivity Perception Gap as a Manager: 23 minutes
+Maximizing Your Learning and Development Outcomes: 37 minutes
+Beginner Sales Nano Tips with Miles Croft: 7 minutes
+Einführung in die Softwarearchitektur 3: Architekturbewertung: 189 minutes
+High-Stakes Communication: 64 minutes
+Einführung in die Softwarearchitektur 2: Architekturmuster: 152 minutes
+Developing Adaptability as a Manager: 30 minutes
+Practical Influencing Techniques: 170 minutes
+Daniel Pink on Motivation: 31 minutes
+Decision-Making Strategies: 47 minutes
+Acting Decisively: 39 minutes
+Von Ohnmacht zu Macht: Kontrolle übernehmen: 59 minutes
+Bad Boss: Dealing with a Difficult Manager: 79 minutes
+Tech on the Go: From Software Developer to Architect: 52 minutes
+Sustainable Software Architecture: 69 minutes
+Job Interview Tips for Project Managers: 34 minutes
+Strategies for Negotiation Nano Tips with Chris Croft: 8 minutes
+OpenAI API: Speech: 29 minutes
+Why Projects Fail and How to Improve Their Success: 52 minutes
+Communicating about Culturally Sensitive Issues: 32 minutes
+How to Become a Project Management Entrepreneur: 29 minutes
+Thriving as a Project Manager in the Age of AI: 49 minutes
+AI Show: Applied AI - Computer Vision and Optical Character Recognition (OCR): 15 minutes
+Mindfulness: A Critical Skill for Project Managers: 38 minutes
+Defining and Achieving Professional Goals: 27 minutes
+AI Show: Deep Dive into Responsible AI Dashboard and Scorecard: 12 minutes
+Emotional Intelligence Nano Tips with Selena Rezvani: 16 minutes
+Body Language Secrets for Powerful Presentations: 12 minutes
+AI Show: Responsible AI Mitigations and Tracker: 18 minutes
+Certified Associate in Project Management (CAPM)® Exam Tips: 69 minutes
+Nano Tips for Using ChatGPT for Business with Rachel Woods: 11 minutes
+Get Ready for Generative AI: 5 minutes
+How to Advocate for Yourself in Your Job Search and Career: 19 minutes
+Communication Skills for Modern Management: 63 minutes
+Managing Stress for Positive Change: 53 minutes
+Managing New Managers: 20 minutes
+Managing Your Anxiety While Presenting: 25 minutes
+OpenAI API: Vision: 30 minutes
+Generative AI for Product Managers: 24 minutes
+Practice Exam 3 for AWS Cloud Practitioner (CLF-C02): 4 minutes
+OpenAI API: Building Assistants: 34 minutes
+AI Show: Azure OpenAI in AI Builder: 19 minutes
+AI Show: Meta Llama 2 Foundational Model with Prompt Flow: 17 minutes
+Change Management: Roadmap to Execution: 34 minutes
+Communicating with Diplomacy and Tact: 64 minutes
+Practice Exam 2 for AWS Cloud Practitioner (CLF-C02): 4 minutes
+Practice Exam 1 for AWS Cloud Practitioner (CLF-C02): 4 minutes
+The Power of Accurate Prompting with Anthropic’s Claude: 21 minutes
+AI Show: Building NLP models with Azure ML AutoML: 13 minutes
+AI Show: How to Draw Anything with Azure AI and Stable Diffusion: 23 minutes
+11 Inactions that Ruin a Leader&amp;#39;s Reputation: 49 minutes
+How to Handle Conflict and Escalations Before They Turn Legal: 38 minutes
+Exploring AIOps: 18 minutes
+Learning Kubernetes: 86 minutes
+Controlling ChatGPT with Custom Instructions or API System Messages: 14 minutes
+Generative AI for Business Leaders: 57 minutes
+AI Show: Medical Imaging with Azure Machine Learning: 22 minutes
+Leading Your Team Through Change: 21 minutes
+Nano Tips to Stand Out as an Introvert with Lorraine Lee: 10 minutes
+OpenAI API: Function Calling: 17 minutes
+Leading In Every Direction: 43 minutes
+Five Fails a Day with Caroline A. Wanga: 50 minutes
+Body Language for Leaders and Managers: 49 minutes
+Adopting the Habits of Elite Performers: 26 minutes
+OpenAI API: Moderation: 14 minutes
+Systems Thinking: 34 minutes
+Coaching Yourself and Your Team from Uncertainty to Action: 31 minutes
+Managing Temporary and Contract Employees: 50 minutes
+Adaptive Leadership for VUCA Challenges: 32 minutes
+Becoming an AI-First Product Leader: 32 minutes
+Overcoming Resistance: A Leadership Change Management Model for DEI: 44 minutes
+How to Manage High-Stakes Conflict: 17 minutes
+The Three Pillars of Effective Communication: 25 minutes
+Stand Out as a Power Performer at Work: 31 minutes
+How to Think Big: 32 minutes
+Performance Management: Conducting Performance Reviews: 28 minutes
+Creating a Great Place to Work for All: 18 minutes
+Eight Ways You Block Your Success: 40 minutes
+Building Skills to Become a Powerhouse Negotiator: 14 minutes
+How to Set Boundaries and Protect Your Time: 21 minutes
+Collaborative Leadership: 35 minutes
+Developing Your Emotional Intelligence: 42 minutes
+AI Challenges and Opportunities for Leadership: 39 minutes
+Nano Tips for Creating a More Effective Relationship with Your Manager with Allison Peck: 16 minutes
+Three Tips for Managing Egos and Difficult Emotions: 23 minutes
+The Neuroscience of Office Politics and Team Leadership: 13 minutes
+Working More Effectively with Different Personalities: 10 minutes
+Unlearning Silence: 14 minutes
+Mastering the Eight Paradoxes of Effective Leaders: 27 minutes
+AWS Essential Training for Developers: 248 minutes
+Communicating in Times of Change: 51 minutes
+Management Essentials: 81 minutes
+AWS Certified Cloud Practitioner (CLF-C01) Cert Prep: 3 Core Services: 85 minutes
+Nano Tips for Digital Networking with Diana YK Chan: 5 minutes
+How to Master Your Executive Presence: 24 minutes
+Working with High-Conflict People as a Manager: 44 minutes
+Nano Tips to Speak Up in Meetings with Shadé Zahrai: 8 minutes
+Curiosity Flywheels: How to Create Great Ideas: 22 minutes
+20 Habits of Executive Leadership: 64 minutes
+Amplifying Your Message Through Powerful Framing and Storytelling: 28 minutes
+Articulating Your Value: 35 minutes
+Developing Business Partnerships: 54 minutes
+How to Own a Room: 54 minutes
+How to Set Goals When Everything Feels Like a Priority: 15 minutes
+Preparing Yourself for Change: 28 minutes
+AWS Essential Training for Architects (2019): 304 minutes
+Resume Tips for Leaders and Managers: 36 minutes
+How to Motivate Yourself to Do What’s Most Important: 17 minutes
+AWS Certified Cloud Practitioner (CLF-C01) Cert Prep: 4 Billing and Pricing: 44 minutes
+Interpersonal Communication Nano Tips with Selena Rezvani: 14 minutes
+AWS Certified Cloud Practitioner (CLF-C01) Cert Prep: 2 Security: 51 minutes
+AWS Certified Cloud Practitioner (CLF-C01) Cert Prep: 1 Cloud Concepts: 67 minutes
+Get Promoted Faster: Grow Your Fan Club: 25 minutes
+LinkedIn Creator Posting Strategy: 27 minutes
+Banish Your Inner Critic to Unleash Creativity: 62 minutes
+Strategies to Learn and Upskill More Effectively: 60 minutes
+Pitching Yourself for Opportunity: 29 minutes
+Time Management Fundamentals: 107 minutes
+Improving Your Conflict Competence: 46 minutes
+Chief Technology Officer Career Guide: 153 minutes
+Persuading Others: 30 minutes
+Developing Cross-Cultural Intelligence (2016): 66 minutes
+Mistakes to Avoid When Resolving Conflict: 39 minutes
+GPT-4 Foundations: Building AI-Powered Apps: 62 minutes
+How to Proactively Manage Conflict as an Employee: 26 minutes
+Introduction to Quantum Computing: 84 minutes
+Communicating with Executives: 30 minutes
+Get Promoted Faster: Act Like a Leader: 23 minutes
+Micro-Presentations: Saying More in Less Time: 57 minutes
+Strategic Thinking: 36 minutes
+How to Present and Stay on Point: 19 minutes
+Decision Intelligence: 85 minutes
+Project Management Skills for Leaders: 36 minutes
+Memorization and Rehearsal Tips for Public Speaking: 13 minutes
+Negotiation Foundations: 65 minutes
+Software Development Life Cycle (SDLC): 94 minutes
+Job Interviewing for Leaders and Managers: 50 minutes
+Managing Project Stakeholders: 23 minutes
+Quick Scripts for Difficult Conversations: 17 minutes
+Software Is Eating Your Car: 24 minutes
+Project Management: Solving Common Project Problems: 65 minutes
+Implementing a Vulnerability Management Lifecycle: 42 minutes
+Starting a Memorable Conversation: 29 minutes
+Change Management Foundations: 45 minutes
+Project Management: Preventing Scope Creep: 33 minutes
+Presenting to Senior Executives: 49 minutes
+Nano Tips for Handling Difficult Work Situations with Tiffany Uman: 13 minutes
+Speaking Confidently and Effectively: 22 minutes
+Pushing Past Your Prior Limits: 19 minutes
+Cert Prep: PMI Agile Certified Practitioner (PMI-ACP)®: 114 minutes
+Six Sigma: White Belt: 56 minutes
+How to Speak So People Want to Listen: 34 minutes
+Docker for Developers: 75 minutes
+How to Be Both Assertive and Likable: 27 minutes
+How to Prepare for Your Negotiations: 16 minutes
+Agile Project Leadership: 41 minutes
+Managing Introverts: 27 minutes
+How to Inspire and Develop Your Direct Reports: 28 minutes
+Learning Amazon Web Services (AWS) for Developers: 85 minutes
+How to Confidently Negotiate Your Salary: 33 minutes
+Communication for Product Managers: 47 minutes
+Mastering Self-Leadership: 26 minutes
+Be the Manager People Won&amp;#39;t Leave: 27 minutes
+Embracing Conflict as a Gift: 29 minutes
+Cert Prep: Scrum Master: 86 minutes
+Scrum: Advanced (2017): 62 minutes
+Refresh Your Workplace Social Skills: 46 minutes
+Building Your Visibility as a Leader: 39 minutes
+The Six Morning Habits of High Performers: 23 minutes
+------------------------------
+Preparing accumulation...
+
+Total time: 9009 minutes
