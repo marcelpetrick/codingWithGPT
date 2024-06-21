@@ -1,5 +1,5 @@
 # linkedinLearningEvaluator
-# ingest a given file (as first param from command line). default shall be "inputData.txt". parse the file for all titles and also extract the run time length. normalize the values to minutes.
+# ingest a given file (as first param from command line). default shall be "learningHistory.txt". parse the file for all titles and also extract the run time length. normalize the values to minutes.
 # print then a list of tuples "title: time". als give me the sum of all times in minutes as output to the commandline (stdout). add for each step some status output like "reading data", "processing data", "preparing accumulation", "printing".
 # make the code PEP8-compatible and robust and well documented (Sphynx.) assume you are guide van rossum, the python master mind. Write pythonic code!
 # let me give you some example text for the structure of the input data:
@@ -93,23 +93,40 @@ def calculate_total_time(course_list):
     return total_time
 
 
-def main(filename='inputData.txt'):
+def main(filename='learningHistory.txt'):
     """
     Main function to process the input file and print the course titles and durations.
 
     Args:
-        filename (str, optional): The name of the file to read. Defaults to 'inputData.txt'.
+        filename (str, optional): The name of the file to read. Defaults to 'learningHistory.txt'.
     """
     course_list = parse_input_file(filename)
 
     print("Printing data...")
+    print("------------------------------")
     for title, time in course_list:
         print(f"{title}: {time} minutes")
-
+    print("------------------------------")
     total_time = calculate_total_time(course_list)
     print(f"\nTotal time: {total_time} minutes")
 
 
 if __name__ == '__main__':
-    filename = sys.argv[1] if len(sys.argv) > 1 else 'inputData.txt'
+    filename = sys.argv[1] if len(sys.argv) > 1 else 'learningHistory.txt'
     main(filename)
+
+
+#---------------
+# Not bad for seven minutes of "coding":
+#
+# ..
+# Cert Prep: Scrum Master: 86 minutes
+# Scrum: Advanced (2017): 62 minutes
+# Refresh Your Workplace Social Skills: 46 minutes
+# Building Your Visibility as a Leader: 39 minutes
+# The Six Morning Habits of High Performers: 23 minutes
+# ------------------------------
+# Preparing accumulation...
+#
+# Total time: 9009 minutes
+# (venv) [mpetrick@mpetrick-precision3551 linkedinLearningEvaluator]$
