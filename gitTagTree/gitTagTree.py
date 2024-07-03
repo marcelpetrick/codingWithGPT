@@ -7,7 +7,8 @@ from collections import defaultdict
 def generate_mermaid_syntax(repo_path):
     repo = git.Repo(repo_path)
 
-    tags = repo.tags
+    # Filter tags that start with "v"
+    tags = [tag for tag in repo.tags if tag.name.startswith("v")]
     branches_with_tags = defaultdict(list)
 
     # Collect all branches that have tags
