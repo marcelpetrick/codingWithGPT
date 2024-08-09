@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Block Movement Game</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .demo {
+            background-color: #fff;
+            margin: 20px auto;
+            max-width: 1000px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .demo-header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 15px 20px;
+            font-size: 20px;
+        }
+        .demo-content {
+            padding: 20px;
+        }
+        #canvas {
+            margin: 0 auto;
+            display: block;
+            background-color: #000000; /* Black background */
+        }
+    </style>
+    <script src="https://ryanking13.github.io/pyodide-pygame-demo/dist/pyodide.js"></script>
+</head>
+<body>
+
+    <script type="text/javascript">
+        const curloc = document.location.href;
+        const curdir = curloc.substring(0, curloc.lastIndexOf('/'));
+
+        async function main(){
+          let pyodide = await loadPyodide();
+          await pyodide.loadPackage(["pygame-ce"], { checkIntegrity: false })
+          canvas = document.getElementById("canvas");
+          pyodide.canvas.setCanvas2D(canvas);
+
+          pyodide.runPythonAsync(`
+import asyncio
+import pygame
+
+# Initialize Pygame
+pygame.init()
+
+# Set up the drawing window
+screen = pygame.display.set_mode((800, 600))
+pygame.display.set_caption("Block Movement Game")
+
+# Define constants
+block_size = 50
+block_color = (255, 0, 0)
+background_color = (0, 0, 0)
+screen_width, screen_height = screen.get_size()
+block_speed = 5
+
+# Initial block position
+block_x = screen_width // 2 - block_size // 2
+block_y = screen_height // 2 - block_size // 2
+
+# Movement direction
+move_x = 0
+move_y = 0
+
+async def main():
+    global block_x, block_y, move_x, move_y
+    clock = pygame.time.Clock()
+    running = True
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    move_x = -block_speed
+                    move_y = 0
+                elif event.key == pygame.K_RIGHT:
+                    move_x = block_speed
+                    move_y = 0
+                elif event.key == pygame.K_UP:
+                    move_x = 0
+                    move_y = -block_speed
+                elif event.key == pygame.K_DOWN:
+                    move_x = 0
+                    move_y = block_speed
+
+        # Update block position
+        block_x += move_x
+        block_y += move_y
+
+        # Boundary checks
+        block_x = max(0, min(block_x, screen_width - block_size))
+        block_y = max(0, min(block_y, screen_height - block_size))
+
+        # Fill the background
+        screen.fill(background_color)
+
+        # Draw the block
+        pygame.draw.rect(screen, block_color, (block_x, block_y, block_size, block_size))
+
+        # Flip the display
+        pygame.display.flip()
+
+        # Cap the frame rate
+        clock.tick(30)
+
+        await asyncio.sleep(0)
+
+    pygame.quit()
+
+main()
+  `)
+        }
+
+        main()
+      </script>
+
+<div class="demo">
+    <div class="demo-header">pygame.examples.simpleBlockmover</div>
+    <div class="demo-content">
+        <canvas id="canvas"></canvas>
+    </div>
+</div>
+
+</body>
+</html>
