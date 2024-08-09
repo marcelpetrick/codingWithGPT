@@ -1,145 +1,155 @@
-# Goal is to have a running python-app for browsrs, something which is self.-contained and can bedelivered by a static file server. Testing for the card-game-idea. Becaus eI think I am more flexibile with pygame than by getting to know now another (web-) framework.
-
 import pygame
 import sys
+import random
 
-# Initialize Pygame
-pygame.init()
-
-# Constants
+# Constants for screen dimensions and colors
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
-CARD_WIDTH, CARD_HEIGHT = 100, 150
 BACKGROUND_COLOR = (34, 139, 34)  # Green background
-CARD_COLOR = (255, 255, 255)  # White card
-FPS = 30
-
-# Set up the display
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Card Game")
-
-
-# Load Card Images (Placeholder rectangles for simplicity)
-def create_card_image(color):
-    card_image = pygame.Surface((CARD_WIDTH, CARD_HEIGHT))
-    card_image.fill(color)
-    return card_image
+SNAKE_COLOR = (0, 255, 0)  # Green snake
+FRUIT_COLOR = (255, 0, 0)  # Red fruit
+FONT_COLOR = (255, 255, 255)  # White text
+SNAKE_SIZE = 10
+FPS = 15
 
 
-cards = [create_card_image(CARD_COLOR) for _ in range(5)]
+class Game:
+    """Main game class that handles game phases, event handling, and rendering."""
 
-# Initial positions for cards
-card_positions = [(50 + i * (CARD_WIDTH + 10), 50) for i in range(len(cards))]
+    def __init__(self):
+        """Initialize the game, set up the screen, clock, font, and initial game state."""
+        pygame.init()
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        pygame.display.set_caption("Snake Game")
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font(None, 36)
+        self.phase = "WELCOME"  # Initial phase is the welcome screen
+        self.snake = Snake()
+        self.fruit = Fruit()
+        self.score = 0
 
+    def run(self):
+        """Main loop to run the game, handling events, updating game state, and rendering."""
+        while True:
+            self.handle_events()
+            self.update()
+            self.render()
+            pygame.display.flip()
+            self.clock.tick(FPS)
 
-# Game Phases
-class GamePhase:
-    DRAW = 'Draw'
-    PLAY = 'Play'
-    EVALUATE = 'Evaluate'
-    DISCARD = 'Discard'
-    BUY = 'Buy'
-
-
-# Initial Game State
-current_phase = GamePhase.DRAW
-current_player = 1  # Assume a single player for simplicity
-
-
-# Main Game Loop
-def main():
-    global current_phase
-    clock = pygame.time.Clock()
-    selected_card = None
-    offset_x = offset_y = 0
-
-    while True:
+    def handle_events(self):
+        """Handle user input and game events."""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif self.phase == "WELCOME" and event.type == pygame.MOUSEBUTTONDOWN:
+                self.phase = "PLAYING"  # Start the game when the user clicks on the welcome screen
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:  # Left mouse button
-                    if current_phase == GamePhase.PLAY:
-                        for i, pos in enumerate(card_positions):
-                            rect = pygame.Rect(pos, (CARD_WIDTH, CARD_HEIGHT))
-                            if rect.collidepoint(event.pos):
-                                selected_card = i
-                                offset_x = pos[0] - event.pos[0]
-                                offset_y = pos[1] - event.pos[1]
-                                break
+    def update(self):
+        """Update the game state based on the current phase."""
+        if self.phase == "PLAYING":
+            self.snake.update()
+            if self.snake.check_collision(self.fruit.position):
+                self.score += 1
+                self.snake.grow()
+                self.fruit.reposition(self.snake)
+                if self.score >= 3:
+                    self.phase = "GAME_OVER"  # End the game after eating 3 fruits
 
-            elif event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:  # Left mouse button
-                    selected_card = None
+    def render(self):
+        """Render the current state of the game to the screen."""
+        self.screen.fill(BACKGROUND_COLOR)
+        if self.phase == "WELCOME":
+            self.render_welcome_screen()
+        elif self.phase == "PLAYING":
+            self.snake.draw(self.screen)
+            self.fruit.draw(self.screen)
+            self.render_score()
+        elif self.phase == "GAME_OVER":
+            self.render_game_over_screen()
 
-            elif event.type == pygame.MOUSEMOTION:
-                if selected_card is not None:
-                    card_positions[selected_card] = (event.pos[0] + offset_x, event.pos[1] + offset_y)
+    def render_welcome_screen(self):
+        """Render the welcome screen."""
+        welcome_text = self.font.render("Welcome to the Snake Game!", True, FONT_COLOR)
+        instruction_text = self.font.render("Click to Start", True, FONT_COLOR)
+        self.screen.blit(welcome_text, ((SCREEN_WIDTH - welcome_text.get_width()) // 2, SCREEN_HEIGHT // 2 - 50))
+        self.screen.blit(instruction_text,
+                         ((SCREEN_WIDTH - instruction_text.get_width()) // 2, SCREEN_HEIGHT // 2 + 10))
 
-        # Drawing
-        screen.fill(BACKGROUND_COLOR)
-        for i, pos in enumerate(card_positions):
-            screen.blit(cards[i], pos)
+    def render_score(self):
+        """Render the current score on the screen."""
+        score_text = self.font.render(f"Score: {self.score}", True, FONT_COLOR)
+        self.screen.blit(score_text, (SCREEN_WIDTH - score_text.get_width() - 10, 10))
 
-        # Display current phase
+    def render_game_over_screen(self):
+        """Render the game over screen."""
+        game_over_text = self.font.render("Game Over", True, FONT_COLOR)
+        final_score_text = self.font.render(f"Final Score: {self.score}", True, FONT_COLOR)
+        self.screen.blit(game_over_text, ((SCREEN_WIDTH - game_over_text.get_width()) // 2, SCREEN_HEIGHT // 2 - 50))
+        self.screen.blit(final_score_text,
+                         ((SCREEN_WIDTH - final_score_text.get_width()) // 2, SCREEN_HEIGHT // 2 + 10))
+
+
+class Snake:
+    """Class representing the snake in the game."""
+
+    def __init__(self):
+        """Initialize the snake with a starting position."""
+        self.body = [(100, 100)]  # Starting position
+        self.direction = (0, 0)  # Initial direction (not used since snake follows mouse)
+
+    def update(self):
+        """Update the snake's position to follow the mouse."""
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        new_head = (mouse_x // SNAKE_SIZE * SNAKE_SIZE, mouse_y // SNAKE_SIZE * SNAKE_SIZE)
+        if new_head != self.body[0]:
+            self.body.insert(0, new_head)
+            self.body.pop()  # Remove the last segment unless the snake has eaten a fruit
+
+    def grow(self):
+        """Grow the snake by adding a new segment."""
+        self.body.append(self.body[-1])  # Append a segment at the snake's tail
+
+    def draw(self, screen):
+        """Draw the snake on the screen."""
+        for segment in self.body:
+            pygame.draw.rect(screen, SNAKE_COLOR, (*segment, SNAKE_SIZE, SNAKE_SIZE))
+
+    def check_collision(self, position):
+        """Check if the snake's head has collided with a given position (e.g., the fruit)."""
+        return self.body[0] == position
+
+
+class Fruit:
+    """Class representing the fruit in the game."""
+
+    def __init__(self):
+        """Initialize the fruit at a random position."""
+        self.position = self.random_position()
+
+    def random_position(self):
+        """Generate a random position for the fruit on the grid."""
+        return (random.randint(0, (SCREEN_WIDTH - SNAKE_SIZE) // SNAKE_SIZE) * SNAKE_SIZE,
+                random.randint(0, (SCREEN_HEIGHT - SNAKE_SIZE) // SNAKE_SIZE) * SNAKE_SIZE)
+
+    def reposition(self, snake):
+        """Reposition the fruit, ensuring it doesn't appear on the snake's body."""
+        while True:
+            self.position = self.random_position()
+            if self.position not in snake.body:
+                break  # Ensure fruit does not spawn on the snake
+
+    def draw(self, screen):
+        """Draw the fruit on the screen."""
         font = pygame.font.Font(None, 36)
-        text = font.render(f"Phase: {current_phase}", True, (255, 255, 255))
-        screen.blit(text, (10, 10))
-
-        pygame.display.flip()
-        clock.tick(FPS)
-
-        # Phase management
-        manage_phases()
-
-
-def manage_phases():
-    global current_phase
-    if current_phase == GamePhase.DRAW:
-        draw_phase()
-    elif current_phase == GamePhase.PLAY:
-        play_phase()
-    elif current_phase == GamePhase.EVALUATE:
-        evaluate_phase()
-    elif current_phase == GamePhase.DISCARD:
-        discard_phase()
-    elif current_phase == GamePhase.BUY:
-        buy_phase()
-
-
-def draw_phase():
-    global current_phase
-    # Logic for drawing cards (not implemented for simplicity)
-    print("Drawing cards...")
-    current_phase = GamePhase.PLAY
-
-
-def play_phase():
-    # Logic for playing cards (handled in the main event loop)
-    pass
-
-
-def evaluate_phase():
-    global current_phase
-    # Logic for evaluating card effects
-    print("Evaluating effects...")
-    current_phase = GamePhase.DISCARD
-
-
-def discard_phase():
-    global current_phase
-    # Logic for discarding cards
-    print("Discarding cards...")
-    current_phase = GamePhase.BUY
-
-
-def buy_phase():
-    global current_phase
-    # Logic for buying cards
-    print("Buying cards...")
-    current_phase = GamePhase.DRAW
+        screen.blit(font.render("@", True, FRUIT_COLOR), self.position)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        game = Game()
+        game.run()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        pygame.quit()
+        sys.exit()
