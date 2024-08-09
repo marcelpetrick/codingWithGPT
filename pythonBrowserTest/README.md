@@ -2,6 +2,10 @@
 
 **change of plans**: pygbag and pygame did not work well, because pygame can't draw, so tried pyodide ... this works .. so just run the `index.htm` (serving by Github pages is still wip) manually in your browser.
 
+Check this: [on Github pages](https://marcelpetrick.github.io/codingWithGPT/pythonBrowserTest/)
+
+------------------------------------
+
 ## Project Overview
 
 This project is a simple test to demonstrate running a Pygame application in a web browser using `pygbag`. The goal is to explore the capabilities of Pygame when deployed as a web application. This project is intended for educational and experimental purposes.
