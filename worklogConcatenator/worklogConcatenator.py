@@ -1,9 +1,29 @@
 import os
 import sys
-from pathlib import Path
+
+def read_file_content(file_path: str) -> str:
+    """
+    Reads the content of a file, attempting to decode it using UTF-8 first,
+    and falling back to ISO-8859-1 if UTF-8 fails.
+
+    Args:
+        file_path (str): The path to the file to be read.
+
+    Returns:
+        str: The content of the file.
+
+    Raises:
+        Exception: If the file cannot be read.
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
+    except UnicodeDecodeError:
+        with open(file_path, 'r', encoding='ISO-8859-1') as file:
+            return file.read()
 
 
-def merge_markdown_files(directory: str, output_file: str = "concatenated.md") -> None:
+def merge_markdown_files(directory: str, output_file: str = "concatenatedOutput.md") -> None:
     """
     Merges the content of all markdown (.md) files in the given directory into a single file.
 
@@ -33,16 +53,15 @@ def merge_markdown_files(directory: str, output_file: str = "concatenated.md") -
                 file_path = os.path.join(directory, file_name)
 
                 # Read the content of the markdown file
-                with open(file_path, 'r') as input_fp:
-                    content = input_fp.read()
+                content = read_file_content(file_path)
 
                 # Write to the output file
-                output_fp.write("--------------------\n")
+                output_fp.write("---------------------------------------------\n")
                 output_fp.write(f"{file_name}\n\n")
                 output_fp.write(content + "\n\n")
 
                 # Update counters
-                total_bytes += len(content)
+                total_bytes += len(content.encode('utf-8'))
                 file_count += 1
 
         # Print the results to stdout
@@ -64,6 +83,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
+
 
 # -----------
 # $ python worklogConcatenator.py /home/mpetrick/Desktop/dailyLogs_copy/
