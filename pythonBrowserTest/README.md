@@ -55,7 +55,7 @@ Navigate to `http://localhost:8000` in your web browser to view the game.
 ## Author
 
 This project was created by mail@marcelpetrick.it.  
-It serves as a test and demonstration of running Pygame applications in the browser.
+It serves as a test and demonstration of running `pygame` applications in the browser.
 
 ## Purpose
 
