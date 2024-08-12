@@ -1,8 +1,13 @@
 # Pygame Browser Test
 
-**change of plans**: pygbag and pygame did not work well, because pygame can't draw, so tried pyodide ... this works .. so just run the `index.htm` (serving by Github pages is still wip) manually in your browser.
+## Change of plans
+pygbag and pygame did not work well, because pygame can't draw, so tried pyodide ... this works .. so just run the `index.htm` (serving by Github pages is still wip) manually in your browser.
 
-Check this: [on Github pages](https://marcelpetrick.github.io/codingWithGPT/pythonBrowserTest/)
+Deployment with Github pages: [Github pages](https://marcelpetrick.github.io/codingWithGPT/pythonBrowserTest/)
+
+Further development will continue at: [https://github.com/marcelpetrick/4-7-8-breathing-python-browser-prototype](https://github.com/marcelpetrick/4-7-8-breathing-python-browser-prototype)
+
+**tl;dr:** using `pygbag` did not work out!
 
 ------------------------------------
 
