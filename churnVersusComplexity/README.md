@@ -1,4 +1,4 @@
-# Helper to analyze and visualize churn versus complexity` for a git-project
+# Helper to analyze and visualize `churn versus complexity` for a git-project
 
 ## How to Run the Script
 
@@ -63,6 +63,8 @@ ui/LabeledDelegate.qml: 3 changes, Cognitive Complexity: 20
 ```
 
 Additionally, a scatter plot will be displayed, and a high-resolution version will be saved to `churnVsComplexity.png`.
+
+![](churnVsComplexity.png)
 
 ## Complexity Metrics
 
