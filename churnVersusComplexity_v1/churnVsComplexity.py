@@ -3,6 +3,7 @@ import sys
 import argparse
 from collections import defaultdict
 from pathlib import Path
+import matplotlib.pyplot as plt
 
 def get_git_log(path=".", ncommits=20):
     """
@@ -102,6 +103,7 @@ def calculate_qml_complexity(file_path: str) -> int:
 def print_changes(changes, path=".", rate_qml_differently=False):
     """
     Print the changes in a human-readable format, sorted by the number of changes (most to least).
+    Also collect data for generating a scatter plot of churn vs complexity.
     """
     if not changes:
         print("No changes detected.")
@@ -110,6 +112,10 @@ def print_changes(changes, path=".", rate_qml_differently=False):
     # Sort the changes by the number of changes in descending order
     sorted_changes = sorted(changes.items(), key=lambda item: item[1], reverse=False)
 
+    churn_values = []
+    complexity_values = []
+    file_names = []
+
     print("File changes summary (sorted by most changes):")
     for file, change_count in sorted_changes:
         if rate_qml_differently and file.endswith(".qml"):
@@ -117,6 +123,66 @@ def print_changes(changes, path=".", rate_qml_differently=False):
         else:
             complexity = calculate_cognitive_complexity(str(Path(path) / file))
         print(f"{file}: {change_count} changes, Cognitive Complexity: {complexity}")
+
+        # Collect data for plotting
+        churn_values.append(change_count)
+        complexity_values.append(complexity)
+        file_names.append(Path(file).name)
+
+    # Generate the plot
+    generate_churn_vs_complexity_plot(churn_values, complexity_values, file_names)
+
+
+def generate_churn_vs_complexity_plot(churn_values, complexity_values, file_names):
+    """
+    Generate and save a scatter plot of churn vs complexity.
+    :param churn_values: List of churn values (number of changes per file)
+    :param complexity_values: List of complexity values for each file
+    :param file_names: List of file names (without path)
+    """
+    plt.figure(figsize=(10, 6))
+    plt.scatter(churn_values, complexity_values, color='red', picker=True)
+
+    # Add file names as labels for each point
+    for i, file_name in enumerate(file_names):
+        plt.text(churn_values[i] + 0.1, complexity_values[i], file_name, fontsize=8, ha='left', va='center')
+
+    plt.xlabel("Churn (Number of Changes)")
+    plt.ylabel("Cognitive Complexity")
+    plt.title("Churn vs Cognitive Complexity")
+    plt.grid(True)
+    plt.tight_layout()
+
+    # Interactive zooming functionality
+    def on_pick(event):
+        ind = event.ind[0]
+        print(f"Selected File: {file_names[ind]}, Churn: {churn_values[ind]}, Complexity: {complexity_values[ind]}")
+
+    def on_zoom(event):
+        ax = plt.gca()
+        if event.button == 'up':
+            scale_factor = 1.1
+        elif event.button == 'down':
+            scale_factor = 0.9
+        else:
+            return
+
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+
+        ax.set_xlim([x * scale_factor for x in xlim])
+        ax.set_ylim([y * scale_factor for y in ylim])
+        plt.draw()
+
+    fig = plt.gcf()
+    fig.canvas.mpl_connect('pick_event', on_pick)
+    fig.canvas.mpl_connect('scroll_event', on_zoom)
+
+    # Save the plot to a file before displaying to ensure it is fully generated
+    plt.savefig("churnVsComplexity.png", dpi=300)
+
+    # Show the plot
+    plt.show()
 
 
 def parse_arguments():
