@@ -2,6 +2,7 @@ import subprocess
 import sys
 import argparse
 from collections import defaultdict
+from pathlib import Path
 
 def get_git_log(path=".", ncommits=20):
     """
@@ -65,7 +66,40 @@ def calculate_cognitive_complexity(file_path: str) -> int:
     return complexity
 
 
-def print_changes(changes, path="."):
+def calculate_qml_complexity(file_path: str) -> int:
+    """
+    Calculate cognitive complexity of the given QML file.
+    :param file_path: Path to the file
+    :return: Cognitive complexity value
+    """
+    complexity = 0
+    nesting_level = 0
+
+    try:
+        with open(file_path, "r") as file:
+            for line in file:
+                stripped_line = line.strip()
+                # Increase complexity for QML elements
+                if any(keyword in stripped_line for keyword in ("Rectangle", "Button", "Text", "ListView", "Column", "Row")):
+                    complexity += 1 + nesting_level
+                # Count property bindings and signals
+                if ":" in stripped_line and not stripped_line.endswith("{"):
+                    complexity += 1
+                if "on" in stripped_line and stripped_line.endswith(":"):
+                    complexity += 2  # Handlers are slightly more complex
+                # Handle nesting level
+                if stripped_line.endswith("{"):
+                    nesting_level += 1
+                if stripped_line == "}":
+                    nesting_level = max(nesting_level - 1, 0)
+    except Exception as e:
+        print(f"Warning: Could not read {file_path} for QML complexity: {e}", file=sys.stderr)
+        return 0
+
+    return complexity
+
+
+def print_changes(changes, path=".", rate_qml_differently=False):
     """
     Print the changes in a human-readable format, sorted by the number of changes (most to least).
     """
@@ -78,13 +112,16 @@ def print_changes(changes, path="."):
 
     print("File changes summary (sorted by most changes):")
     for file, change_count in sorted_changes:
-        complexity = calculate_cognitive_complexity(f"{path}/{file}")
+        if rate_qml_differently and file.endswith(".qml"):
+            complexity = calculate_qml_complexity(str(Path(path) / file))
+        else:
+            complexity = calculate_cognitive_complexity(str(Path(path) / file))
         print(f"{file}: {change_count} changes, Cognitive Complexity: {complexity}")
 
 
 def parse_arguments():
     """
-    Parse command line arguments for path and ncommits.
+    Parse command line arguments for path, ncommits, and rate_qml_differently.
     """
     parser = argparse.ArgumentParser(
         description="Script to check the number of file changes in the last N git commits."
@@ -101,6 +138,11 @@ def parse_arguments():
         default=20,
         help="Number of last commits to check (default is 20)."
     )
+    parser.add_argument(
+        "--rateQmlDifferently",
+        action='store_true',
+        help="If set, use a different complexity metric for QML files."
+    )
 
     return parser.parse_args()
 
@@ -113,13 +155,13 @@ def main():
     changes = get_changes_by_file(args.path, args.ncommits)
 
     # Print the changes
-    print_changes(changes, args.path)
+    print_changes(changes, args.path, args.rateQmlDifferently)
 
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         # If no arguments are provided, show usage information
-        print("Usage: python3 script_name.py --path=<path_to_git_repo> --ncommits=<number_of_commits>")
-        print("Example: python3 script_name.py --path=/home/user/myrepo --ncommits=10")
+        print("Usage: python3 script_name.py --path=<path_to_git_repo> --ncommits=<number_of_commits> [--rateQmlDifferently]")
+        print("Example: python3 script_name.py --path=/home/user/myrepo --ncommits=10 --rateQmlDifferently")
     else:
         main()
