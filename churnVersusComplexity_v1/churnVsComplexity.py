@@ -3,7 +3,6 @@ import sys
 import argparse
 from collections import defaultdict
 
-
 def get_git_log(path=".", ncommits=20):
     """
     Get the last ncommits and the files changed in them.
@@ -38,7 +37,35 @@ def get_changes_by_file(path=".", ncommits=20):
     return file_changes
 
 
-def print_changes(changes):
+def calculate_cognitive_complexity(file_path: str) -> int:
+    """
+    Calculate cognitive complexity of the given file.
+    :param file_path: Path to the file
+    :return: Cognitive complexity value
+    """
+    complexity = 0
+    nesting_level = 0
+
+    try:
+        with open(file_path, "r") as file:
+            for line in file:
+                stripped_line = line.strip()
+                # Increase complexity for control flow structures
+                if any(keyword in stripped_line for keyword in ("if", "for", "while", "else", "elif", "switch", "case")):
+                    complexity += 1 + nesting_level
+                # Handle nesting level
+                if "{" in stripped_line or stripped_line.endswith(":"):
+                    nesting_level += 1
+                if "}" in stripped_line:
+                    nesting_level = max(nesting_level - 1, 0)
+    except Exception as e:
+        print(f"Warning: Could not read {file_path} for cognitive complexity: {e}", file=sys.stderr)
+        return 0
+
+    return complexity
+
+
+def print_changes(changes, path="."):
     """
     Print the changes in a human-readable format, sorted by the number of changes (most to least).
     """
@@ -51,7 +78,8 @@ def print_changes(changes):
 
     print("File changes summary (sorted by most changes):")
     for file, change_count in sorted_changes:
-        print(f"{file}: {change_count} changes")
+        complexity = calculate_cognitive_complexity(f"{path}/{file}")
+        print(f"{file}: {change_count} changes, Cognitive Complexity: {complexity}")
 
 
 def parse_arguments():
@@ -85,7 +113,7 @@ def main():
     changes = get_changes_by_file(args.path, args.ncommits)
 
     # Print the changes
-    print_changes(changes)
+    print_changes(changes, args.path)
 
 
 if __name__ == "__main__":
