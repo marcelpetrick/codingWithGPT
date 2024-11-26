@@ -1,0 +1,2 @@
+linkedin-api  # Replace with the actual version you're using
+configparser  # Standard library for reading INI files (if using older Python versions)
