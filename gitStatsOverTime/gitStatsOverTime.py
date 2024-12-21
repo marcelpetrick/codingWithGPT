@@ -14,52 +14,63 @@ import sys
 import subprocess
 from collections import defaultdict
 
+
 def get_acronym(name: str) -> str:
     """
     Given a full name (e.g., 'Alice Horn'),
-    return the acronym: first letter of first name + last letter of last name.
+    return the acronym: first letter of the first name + first letter of the last name.
+
     Example:
-        'Alice Horn' -> 'An'  (A + n)
-        'Bob Carter' -> 'Br'  (B + r)
+        'Alice Horn' -> 'AH'
+        'Bob Carter' -> 'BC'
+
     This function handles names with multiple spaces but assumes at least one.
     """
-    return name # disbaled for now - result not fitting: Marcel Petrick MK???
-
     name_parts = name.strip().split()
-    if len(name_parts) == 0:
-        return "??"
+    if not name_parts:
+        return "??"  # Return a fallback if no name is given
+
     first_name = name_parts[0]
     last_name = name_parts[-1]
-    # Avoid index errors if the last name is only 1 character
-    if len(last_name) == 1:
-        # If last name is a single char, just use it
-        return first_name[0].upper() + last_name.upper()
-    return first_name[0].upper() + last_name[-1].upper()
+
+    return first_name[0].upper() + last_name[0].upper()
+
+def usage_and_exit():
+    print(f"Usage: {sys.argv[0]} /path/to/repo [--month]")
+    sys.exit(1)
 
 def main():
+    if len(sys.argv) < 2:
+        usage_and_exit()
+
+    # Check if --month is given
+    monthly_mode = False
+    if '--month' in sys.argv:
+        monthly_mode = True
+        # Remove it so the remaining arguments make sense
+        sys.argv.remove('--month')
+
+    # After removing --month if present, we expect exactly 2 arguments: script and repo path
     if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} /path/to/repo")
-        sys.exit(1)
+        usage_and_exit()
 
     repo_path = sys.argv[1]
 
-    # Prepare a dictionary to count commits per day for each acronym
-    # Structure: { 'YYYY-MM-DD': { 'ACRONYM': count, ... }, ... }
+    # Data structure to collect commits by day (or month)
+    # Structure: { dateKey: { 'ACRONYM': count, ... }, ... }
+    # where dateKey is either 'YYYY-MM-DD' or 'YYYY-MM' (if --month is used)
     daily_commits = defaultdict(lambda: defaultdict(int))
 
-    # Get the git log, using mailmap if available
-    #   Format:   %aN (author name, using mailmap),
-    #             %ad (author date, in short format: YYYY-MM-DD)
-    # The separator is a tab to make it easy to split.
+    # Gather git log data
     try:
         git_log_output = subprocess.check_output(
             [
                 "git",
                 "-C", repo_path,
                 "log",
-                "--use-mailmap",
-                "--pretty=format:%aN\t%ad",
-                "--date=short",
+                "--use-mailmap",            # respects .mailmap
+                "--pretty=format:%aN\t%ad", # Author name + commit date
+                "--date=short",            # date in YYYY-MM-DD format
             ],
             text=True
         )
@@ -67,27 +78,35 @@ def main():
         print("Error calling git:", e)
         sys.exit(1)
 
+    # Process each commit line
     for line in git_log_output.splitlines():
-        # Each line: "Author Name<TAB>YYYY-MM-DD"
+        # Format: "Author Name\tYYYY-MM-DD"
         parts = line.split("\t")
         if len(parts) != 2:
-            # skip malformed lines (unlikely in normal usage)
             continue
         author_name, commit_date = parts
         acronym = get_acronym(author_name)
-        daily_commits[commit_date][acronym] += 1
 
-    # Sort the days chronologically
-    sorted_days = sorted(daily_commits.keys())
+        # Determine key (by day or by month)
+        if monthly_mode:
+            # e.g. '2024-12' for monthly aggregation
+            date_key = commit_date[:7]
+        else:
+            # e.g. '2024-12-13' for daily aggregation
+            date_key = commit_date
 
-    # Print the results in the desired format
-    # Example: 2024-12-13: AH 1, BC 2
-    for day in sorted_days:
-        # For each acronym, show 'ACRONYM count'
-        # Sort the acronyms so we have deterministic output
-        day_commits_sorted = sorted(daily_commits[day].items())
-        day_commit_str = ", ".join(f"{acronym} {count}" for acronym, count in day_commits_sorted)
-        print(f"{day}: {day_commit_str}")
+        daily_commits[date_key][acronym] += 1
+
+    # Sort the date keys (either YYYY-MM-DD or YYYY-MM)
+    sorted_dates = sorted(daily_commits.keys())
+
+    # Print results
+    # Example for daily mode: 2024-12-13: AH 1, BC 2
+    # Example for monthly mode: 2024-12: AH 1, BC 2
+    for date_key in sorted_dates:
+        commits_sorted = sorted(daily_commits[date_key].items())
+        commit_str = ", ".join(f"{acronym} {count}" for acronym, count in commits_sorted)
+        print(f"{date_key}: {commit_str}")
 
 if __name__ == "__main__":
     main()
