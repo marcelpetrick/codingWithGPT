@@ -1,0 +1,3 @@
+pyusb
+pygame
+numpy

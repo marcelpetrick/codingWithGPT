@@ -1,4 +1,4 @@
-# programmable usb hub (RSHTECH RSH-A13-5)
+# Programmable usb hub (RSHTECH RSH-A13-5)
 
 Control USB Hub Ports with Python and `uhubctl`.
 
