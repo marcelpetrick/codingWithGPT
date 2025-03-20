@@ -1,0 +1,8 @@
+geopandas==0.14.3
+pandas==2.2.1
+numpy==1.26.4
+matplotlib==3.8.3
+scipy==1.12.0
+contextily==1.4.0
+shapely==2.0.3
+pyproj==3.6.1
