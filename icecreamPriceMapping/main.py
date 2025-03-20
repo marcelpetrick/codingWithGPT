@@ -63,10 +63,19 @@ def plot_heatmap(bayern_map, gdf, xx, yy, grid_z):
     )
     print("### Plotting Bayern borders")
     bayern_map.boundary.plot(ax=ax, color='black', linewidth=1.5)
-    print("### Plotting original data points")
-    gdf.plot(ax=ax, color='black', markersize=50, marker='o', label='Data points')
+    print("### Plotting original data points with color mapped to price")
+    gdf.plot(
+        ax=ax,
+        column='price',
+        cmap=cmap,
+        markersize=50,
+        marker='o',
+        label='Data points',
+        legend=True,
+        legend_kwds={'label': "Price (€)", 'shrink': 0.6}
+    )
     print("### Adding basemap tiles")
-    ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)  # Replaced Stamen with OpenStreetMap
+    ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
     print("### Adding colorbar and labels")
     cbar = plt.colorbar(heatmap, ax=ax, shrink=0.7)
     cbar.set_label('Ice Cream Price (€)')
@@ -75,6 +84,9 @@ def plot_heatmap(bayern_map, gdf, xx, yy, grid_z):
     plt.ylabel('Latitude')
     plt.legend()
     plt.tight_layout()
+    output_file = "heatmap_bayern.png"
+    print(f"### Saving plot to {output_file}")
+    plt.savefig(output_file, dpi=300)
     print("### Displaying plot")
     plt.show()
 
