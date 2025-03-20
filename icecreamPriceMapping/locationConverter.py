@@ -1,4 +1,3 @@
-import pandas as pd
 from geopy.geocoders import Nominatim
 from geopy.extra.rate_limiter import RateLimiter
 
@@ -16,29 +15,16 @@ towns = [
     "Augsburg", "Günzburg", "Friedberg", "Memmingen", "Aichach", "Lindau", "Neu-Ulm", "Lauingen"
 ]
 
-# Initialize geolocator with valid user agent
-geolocator = Nominatim(user_agent="your_unique_user_agent_here")
+# Initialize geolocator with a valid, descriptive user agent
+geolocator = Nominatim(user_agent="icecream_price_mapper_example@gmail.com")
 
-# RateLimiter to avoid hitting the server too quickly (1 second delay)
+# RateLimiter to ensure requests don't exceed API limits
 geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1, error_wait_seconds=10)
 
-# Function to get GPS coordinates safely
-def get_gps_location(city):
-    location = geocode(f"{city}, Germany")
-    return (location.latitude, location.longitude) if location else (None, None)
-
-# Fetch GPS locations with error handling
-gps_locations = [get_gps_location(city) for city in towns]
-
-# Create DataFrame
-df_locations = pd.DataFrame({
-    "City": towns,
-    "Latitude": [loc[0] for loc in gps_locations],
-    "Longitude": [loc[1] for loc in gps_locations]
-})
-
-# Display DataFrame
-print(df_locations)
-
-# Optional: save to CSV
-df_locations.to_csv("city_gps_coordinates.csv", index=False)
+# Get and immediately print GPS coordinates for each town
+for town in towns:
+    location = geocode(f"{town}, Germany")
+    if location:
+        print(f"{town};{location.latitude};{location.longitude}")
+    else:
+        print(f"{town};None;None")
