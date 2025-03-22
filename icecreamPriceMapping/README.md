@@ -17,10 +17,7 @@ Idea to vibecode a tool which can map that textual list to some visual represent
 ![](heatmap_bayern.png)
 
 ## todo list
-* fix the `requirements.txt`
-  * remove the version-info
-  * minimize it - should have too many entries
-* fix the doubled scale at the right side
+* all done for now
 
 ## note
 Code for this `tool` is GPL-v3.0.  
