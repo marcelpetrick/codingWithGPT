@@ -52,17 +52,26 @@ def interpolate_data(gdf, bayern_map):
 def plot_heatmap(bayern_map, gdf, xx, yy, grid_z):
     print("### Starting plot generation")
     fig, ax = plt.subplots(figsize=(12, 12))
+
     print("### Plotting heatmap")
-    cmap = plt.colormaps.get_cmap('RdYlGn_r')  # Updated per Matplotlib deprecation
+    cmap = plt.colormaps.get_cmap('RdYlGn_r')
+
+    vmin = gdf['price'].min()
+    vmax = gdf['price'].max()
+
     heatmap = ax.imshow(
         grid_z.T,
         extent=(xx.min(), xx.max(), yy.min(), yy.max()),
         origin='lower',
         cmap=cmap,
-        alpha=0.6
+        alpha=0.6,
+        vmin=vmin,
+        vmax=vmax
     )
+
     print("### Plotting Bayern borders")
     bayern_map.boundary.plot(ax=ax, color='black', linewidth=1.5)
+
     print("### Plotting original data points with color mapped to price")
     gdf.plot(
         ax=ax,
@@ -71,18 +80,24 @@ def plot_heatmap(bayern_map, gdf, xx, yy, grid_z):
         markersize=50,
         marker='o',
         label='Data points',
-        legend=True,
-        legend_kwds={'label': "Price (€)", 'shrink': 0.6}
+        vmin=vmin,
+        vmax=vmax
     )
+
     print("### Adding basemap tiles")
     ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
+
     print("### Adding colorbar and labels")
     cbar = plt.colorbar(heatmap, ax=ax, shrink=0.7)
     cbar.set_label('Ice Cream Price (€)')
+
     plt.title('Ice Cream Prices Heatmap in Bayern')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
-    plt.legend()
+
+    print("### Adding legend")
+    ax.legend()
+
     plt.tight_layout()
     output_file = "heatmap_bayern.png"
     print(f"### Saving plot to {output_file}")
