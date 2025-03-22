@@ -14,7 +14,12 @@ Idea to vibecode a tool which can map that textual list to some visual represent
 42 minutes with several interruptions for the initial PoC - then 30 min to fix several bugs in computation and display.
 
 ## result
+### heatmap
 ![](heatmap_bayern.png)
+
+### city dots
+Since this is hardly readable - here a version with proper map.
+![](bayern_dots.png)
 
 ## todo list
 * all done for now
