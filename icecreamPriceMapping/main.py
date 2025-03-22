@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 from shapely.geometry import Point
 import contextily as ctx
+import matplotlib.ticker as mticker
+from pyproj import Transformer
 
 def load_bayern_shapefile(filepath):
     print("### Loading Bayern shapefile")
@@ -49,8 +51,20 @@ def interpolate_data(gdf, bayern_map):
     grid_z = griddata(points, values, (xx, yy), method='cubic')
     return xx, yy, grid_z
 
+def convert_grid_to_latlon(xx, yy):
+    print("### Converting grid coordinates from EPSG:3857 to EPSG:4326")
+    transformer = Transformer.from_crs("EPSG:3857", "EPSG:4326", always_xy=True)
+    lon, lat = transformer.transform(xx, yy)
+    return lon, lat
+
 def plot_heatmap(bayern_map, gdf, xx, yy, grid_z):
     print("### Starting plot generation")
+
+    # Convert grid to lat/lon for plotting
+    lon, lat = convert_grid_to_latlon(xx, yy)
+    bayern_map_latlon = bayern_map.to_crs(epsg=4326)
+    gdf_latlon = gdf.to_crs(epsg=4326)
+
     fig, ax = plt.subplots(figsize=(12, 12))
 
     print("### Plotting heatmap")
@@ -61,7 +75,7 @@ def plot_heatmap(bayern_map, gdf, xx, yy, grid_z):
 
     heatmap = ax.imshow(
         grid_z.T,
-        extent=(xx.min(), xx.max(), yy.min(), yy.max()),
+        extent=(lon.min(), lon.max(), lat.min(), lat.max()),
         origin='lower',
         cmap=cmap,
         alpha=0.6,
@@ -69,11 +83,11 @@ def plot_heatmap(bayern_map, gdf, xx, yy, grid_z):
         vmax=vmax
     )
 
-    print("### Plotting Bayern borders")
-    bayern_map.boundary.plot(ax=ax, color='black', linewidth=1.5)
+    print("### Plotting Bayern borders in lat/lon")
+    bayern_map_latlon.boundary.plot(ax=ax, color='black', linewidth=1.5)
 
-    print("### Plotting original data points with color mapped to price")
-    gdf.plot(
+    print("### Plotting original data points in lat/lon")
+    gdf_latlon.plot(
         ax=ax,
         column='price',
         cmap=cmap,
@@ -84,16 +98,18 @@ def plot_heatmap(bayern_map, gdf, xx, yy, grid_z):
         vmax=vmax
     )
 
-    print("### Adding basemap tiles")
-    ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
-
     print("### Adding colorbar and labels")
     cbar = plt.colorbar(heatmap, ax=ax, shrink=0.7)
     cbar.set_label('Ice Cream Price (€)')
 
     plt.title('Ice Cream Prices Heatmap in Bayern')
-    plt.xlabel('Longitude')
-    plt.ylabel('Latitude')
+
+    print("### Formatting axis tick labels for lat/lon")
+    ax.set_xlabel('Longitude (°)')
+    ax.set_ylabel('Latitude (°)')
+
+    ax.xaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f'{x:.4f}'))
+    ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda y, _: f'{y:.4f}'))
 
     print("### Adding legend")
     ax.legend()

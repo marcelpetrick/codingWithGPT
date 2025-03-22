@@ -11,7 +11,7 @@ Idea to vibecode a tool which can map that textual list to some visual represent
 * vibecode program to display the data on a map (heatmap?) of the outline of Bavaria. With interpolation inbetween. Scaled colors orange/red for high prices to green for low prices? With scale at the side?
 
 ## effort
-42 minutes with several interruptions
+42 minutes with several interruptions for the initial PoC - then 30 min to fix several bugs in computation and display.
 
 ## result
 ![](heatmap_bayern.png)
