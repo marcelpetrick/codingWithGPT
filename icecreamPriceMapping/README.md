@@ -14,6 +14,34 @@ Idea to vibecode a tool which can map that textual list to some visual represent
 42 minutes with several interruptions for the initial PoC - then 30 min to fix several bugs in computation and display.
 
 ## result
+### output of one run - ~5s on the current machine
+```sh
+python main.py                                                                                             ✔  icecreamPriceMapping  
+### Starting Heatmap Generation Process
+### Loading Bayern shapefile
+### No CRS found for Bayern shapefile. Setting CRS to EPSG:4326 (WGS84).
+### Reprojecting Bayern map to EPSG:3857
+### Loading input CSV data
+### Cleaning price data
+### Dropping rows with missing lat/lon/price
+### Creating GeoDataFrame from data
+### Reprojecting GeoDataFrame to EPSG:3857
+### Preparing interpolation grid
+### Extracting coordinates and price values
+### Filtering valid data points
+### Performing cubic interpolation
+### Starting plot generation
+### Converting grid coordinates from EPSG:3857 to EPSG:4326
+### Plotting heatmap
+### Plotting Bayern borders in lat/lon
+### Plotting original data points in lat/lon
+### Adding colorbar and labels
+### Formatting axis tick labels for lat/lon
+### Adding legend
+### Saving plot to heatmap_bayern.png
+### Displaying plot
+### Heatmap Generation Completed
+```
 ### heatmap
 ![](heatmap_bayern.png)
 
