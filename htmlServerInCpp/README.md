@@ -8,5 +8,10 @@
 mkdir build
 cd build
 cmake ..
-make
+make -j12
+```
+
+## run - sudo needed to bind the port
+```sh
+sudo ./marcelpetrick.it.webserver
 ```
