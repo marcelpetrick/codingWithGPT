@@ -25,3 +25,9 @@ make -j12
 ```sh
 sudo ./marcelpetrick.it.webserver
 ```
+
+## base64 encoder online to convert whatever page you want to display
+See https://www.base64encode.org/
+
+## last remarks
+Works as expected. Of course, the major part of the links are dead, because they are relative. But the homepage was re-created 1:1. So now I am a #fullstackdeveloper, lol.
