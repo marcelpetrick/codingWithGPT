@@ -34,25 +34,37 @@ def slice_image(image_path, overlap_percent=DEFAULT_OVERLAP_PERCENT):
     :return: List of PIL.Image slices.
     """
     image = Image.open(image_path)
-    width, height = image.size
+    original_width, original_height = image.size
 
-    if width > A4_WIDTH_PX:
-        raise ValueError("Image width exceeds A4 width at 300 DPI. Please resize manually.")
+    # Calculate scale factor to match A4 width
+    scale_factor = A4_WIDTH_PX / original_width
+    new_width = A4_WIDTH_PX
+    new_height = int(original_height * scale_factor)
+
+    # Resize image proportionally
+    resized_image = image.resize((new_width, new_height), Image.LANCZOS)
 
     overlap_px = int(A4_HEIGHT_PX * (overlap_percent / 100))
     step = A4_HEIGHT_PX - overlap_px
 
     slices = []
-    for top in range(0, height, step):
-        bottom = min(top + A4_HEIGHT_PX, height)
-        slice_img = image.crop((0, top, width, bottom))
+    top = 0
+    while top < new_height:
+        bottom = min(top + A4_HEIGHT_PX, new_height)
+        slice_img = resized_image.crop((0, top, new_width, bottom))
+
         # Create a blank A4-sized white canvas
         canvas = Image.new("RGB", (A4_WIDTH_PX, A4_HEIGHT_PX), "white")
-        offset_x = (A4_WIDTH_PX - width) // 2
-        canvas.paste(slice_img, (offset_x, 0))
+
+        # Paste the slice vertically centered
+        paste_y = (A4_HEIGHT_PX - slice_img.height) // 2 if slice_img.height < A4_HEIGHT_PX else 0
+
+        canvas.paste(slice_img, (0, paste_y))
         slices.append(canvas)
-        if bottom == height:
+
+        if bottom == new_height:
             break
+        top += step
 
     return slices
 
