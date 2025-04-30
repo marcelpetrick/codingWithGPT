@@ -25,23 +25,23 @@ A4_HEIGHT_PX = int(11.69 * DPI)
 # Default overlap in percentage
 DEFAULT_OVERLAP_PERCENT = 5
 
-def slice_image(image_path, overlap_percent=DEFAULT_OVERLAP_PERCENT):
+def slice_image(image_path, overlap_percent=DEFAULT_OVERLAP_PERCENT, save_parts=False, output_dir="slices"):
     """
     Slice a tall image vertically to fit A4 pages with overlap.
 
     :param image_path: Path to the input image file.
     :param overlap_percent: Percentage of vertical overlap between slices.
+    :param save_parts: If True, saves each slice as an image file.
+    :param output_dir: Directory to save slices if save_parts is True.
     :return: List of PIL.Image slices.
     """
     image = Image.open(image_path)
     original_width, original_height = image.size
 
-    # Calculate scale factor to match A4 width
+    # Resize image to A4 width while maintaining aspect ratio
     scale_factor = A4_WIDTH_PX / original_width
     new_width = A4_WIDTH_PX
     new_height = int(original_height * scale_factor)
-
-    # Resize image proportionally
     resized_image = image.resize((new_width, new_height), Image.LANCZOS)
 
     overlap_px = int(A4_HEIGHT_PX * (overlap_percent / 100))
@@ -49,18 +49,31 @@ def slice_image(image_path, overlap_percent=DEFAULT_OVERLAP_PERCENT):
 
     slices = []
     top = 0
+    slice_index = 1
+
+    if save_parts:
+        os.makedirs(output_dir, exist_ok=True)
+
     while top < new_height:
-        bottom = min(top + A4_HEIGHT_PX, new_height)
+        bottom = top + A4_HEIGHT_PX
+        if bottom > new_height:
+            bottom = new_height
+            top = max(0, bottom - A4_HEIGHT_PX)  # Adjust top for final page
+
         slice_img = resized_image.crop((0, top, new_width, bottom))
 
-        # Create a blank A4-sized white canvas
+        # Paste onto blank A4-sized white canvas
         canvas = Image.new("RGB", (A4_WIDTH_PX, A4_HEIGHT_PX), "white")
-
-        # Paste the slice vertically centered
         paste_y = (A4_HEIGHT_PX - slice_img.height) // 2 if slice_img.height < A4_HEIGHT_PX else 0
-
         canvas.paste(slice_img, (0, paste_y))
         slices.append(canvas)
+
+        # Optionally save the slice
+        if save_parts:
+            filename = os.path.join(output_dir, f"slice_{slice_index:03d}.jpg")
+            canvas.save(filename, "JPEG")
+            print(f"Saved {filename}")
+            slice_index += 1
 
         if bottom == new_height:
             break
@@ -99,7 +112,7 @@ def main():
         sys.exit(1)
 
     try:
-        slices = slice_image(image_path)
+        slices = slice_image(image_path, save_parts=True)
         output_pdf_path = os.path.splitext(image_path)[0] + "_sliced.pdf"
         images_to_pdf(slices, output_pdf_path)
         print(f"PDF saved to {output_pdf_path}")
