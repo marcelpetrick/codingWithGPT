@@ -23,7 +23,7 @@ A4_WIDTH_PX = int(8.27 * DPI)
 A4_HEIGHT_PX = int(11.69 * DPI)
 
 # Default overlap in percentage
-DEFAULT_OVERLAP_PERCENT = 5
+DEFAULT_OVERLAP_PERCENT = 10
 
 def slice_image(image_path, overlap_percent=DEFAULT_OVERLAP_PERCENT, save_parts=False, output_dir="slices"):
     """
@@ -81,6 +81,8 @@ def slice_image(image_path, overlap_percent=DEFAULT_OVERLAP_PERCENT, save_parts=
 
     return slices
 
+import tempfile
+
 def images_to_pdf(images, output_path):
     """
     Save a list of PIL.Image objects to a multi-page PDF.
@@ -89,13 +91,23 @@ def images_to_pdf(images, output_path):
     :param output_path: Path to the output PDF file.
     """
     pdf = FPDF(unit="pt", format=[A4_WIDTH_PT, A4_HEIGHT_PT])
-    for img in images:
-        pdf.add_page()
-        temp_path = "_temp_page.jpg"
-        img.save(temp_path, "JPEG")
-        pdf.image(temp_path, x=0, y=0, w=A4_WIDTH_PT, h=A4_HEIGHT_PT)
-        os.remove(temp_path)
-    pdf.output(output_path)
+    temp_files = []
+
+    try:
+        for idx, img in enumerate(images):
+            pdf.add_page()
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
+                img.save(tmp.name, "JPEG")
+                pdf.image(tmp.name, x=0, y=0, w=A4_WIDTH_PT, h=A4_HEIGHT_PT)
+                temp_files.append(tmp.name)
+        pdf.output(output_path)
+    finally:
+        # Clean up all temp files
+        for path in temp_files:
+            try:
+                os.remove(path)
+            except Exception:
+                pass
 
 def main():
     """
