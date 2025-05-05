@@ -52,7 +52,7 @@ python main.py your-image.jpg
 You can modify the following constants for different behavior:
 
 * `DPI`: Default is 300 for print quality
-* `DEFAULT_OVERLAP_PERCENT`: Adjust overlap between A4 slices (default: 10%)
+* `DEFAULT_OVERLAP_PERCENT`: Adjust overlap between A4 slices (default: 5%)
 
 ## 📁 Output
 

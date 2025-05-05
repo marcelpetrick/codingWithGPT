@@ -23,7 +23,7 @@ A4_WIDTH_PX = int(8.27 * DPI)
 A4_HEIGHT_PX = int(11.69 * DPI)
 
 # Default overlap in percentage
-DEFAULT_OVERLAP_PERCENT = 10
+DEFAULT_OVERLAP_PERCENT = 5
 
 def slice_image(image_path, overlap_percent=DEFAULT_OVERLAP_PERCENT, save_parts=False, output_dir="slices"):
     """
