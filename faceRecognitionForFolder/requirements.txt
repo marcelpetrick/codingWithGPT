@@ -1,1 +1,5 @@
 face_recognition
+face_recognition_models
+dlib
+tqdm
+setuptools

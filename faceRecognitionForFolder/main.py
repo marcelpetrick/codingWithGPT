@@ -2,11 +2,26 @@ import face_recognition
 from pathlib import Path
 import shutil
 from tqdm import tqdm
+import multiprocessing as mp
 
 REFERENCE_IMAGE_PATH = Path("/home/mpetrick/Desktop/private/me_cropped.jpg")
 IMAGES_FOLDER = Path("/home/mpetrick/Downloads/20250526_HTech_Ortus_pictures/HTECHxHPE_EMEA1/")
 OUTPUT_FOLDER = Path("/home/mpetrick/Downloads/20250526_HTech_Ortus_pictures/HTECHxHPE_EMEA1/meFiltered")
 TOLERANCE = 0.5  # Adjust for stricter or looser matching
+CORES = 12  # Number of parallel processes
+
+def process_image(args):
+    image_path, reference_encoding, tolerance = args
+    try:
+        unknown_image = face_recognition.load_image_file(image_path)
+        unknown_encodings = face_recognition.face_encodings(unknown_image)
+        for unknown_encoding in unknown_encodings:
+            match = face_recognition.compare_faces([reference_encoding], unknown_encoding, tolerance=tolerance)[0]
+            if match:
+                return (image_path, True, None)
+        return (image_path, False, None)
+    except Exception as e:
+        return (image_path, False, str(e))
 
 def main():
     OUTPUT_FOLDER.mkdir(exist_ok=True)
@@ -19,38 +34,34 @@ def main():
         return
     reference_encoding = reference_encodings[0]
 
-    # Gather images to process
     image_files = [
         img for img in IMAGES_FOLDER.iterdir()
         if img.is_file() and img.suffix.lower() in {".jpg", ".jpeg", ".png"}
     ]
-
     total_images = len(image_files)
+    print(f"Processing {total_images} images using {CORES} cores...")
+
     matches = 0
     errors = 0
 
-    print(f"Processing {total_images} images...")
+    # Prepare arguments for each image
+    args = [(img, reference_encoding, TOLERANCE) for img in image_files]
 
-    for image_path in tqdm(image_files, desc="Scanning images", unit="img"):
-        try:
-            unknown_image = face_recognition.load_image_file(image_path)
-            unknown_encodings = face_recognition.face_encodings(unknown_image)
-            found = False
-            for unknown_encoding in unknown_encodings:
-                match = face_recognition.compare_faces(
-                    [reference_encoding], unknown_encoding, tolerance=TOLERANCE
-                )[0]
-                if match:
-                    print(f"✔️ Match: {image_path.name}")
-                    shutil.copy(image_path, OUTPUT_FOLDER / image_path.name)
-                    matches += 1
-                    found = True
-                    break  # Only need one matching face per image
-            if not found:
+    # Use multiprocessing pool
+    with mp.Pool(CORES) as pool:
+        results = []
+        for result in tqdm(pool.imap_unordered(process_image, args), total=total_images, desc="Scanning images", unit="img"):
+            results.append(result)
+            image_path, match, error = result
+            if error:
+                print(f"⚠️ Error ({image_path.name}): {error}")
+                errors += 1
+            elif match:
+                print(f"✔️ Match: {image_path.name}")
+                shutil.copy(image_path, OUTPUT_FOLDER / image_path.name)
+                matches += 1
+            else:
                 print(f"✖️ No match: {image_path.name}")
-        except Exception as e:
-            print(f"⚠️ Error ({image_path.name}): {e}")
-            errors += 1
 
     print(f"\nDone! Processed {total_images} images.")
     print(f"Matches found: {matches}")
