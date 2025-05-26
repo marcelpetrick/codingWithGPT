@@ -1,6 +1,7 @@
 import face_recognition
 from pathlib import Path
 import shutil
+from tqdm import tqdm
 
 REFERENCE_IMAGE_PATH = Path("/home/mpetrick/Desktop/private/me_cropped.jpg")
 IMAGES_FOLDER = Path("/home/mpetrick/Downloads/20250526_HTech_Ortus_pictures/HTECHxHPE_EMEA1/")
@@ -18,22 +19,42 @@ def main():
         return
     reference_encoding = reference_encodings[0]
 
-    # Iterate through all images in folder
-    for image_path in IMAGES_FOLDER.iterdir():
-        if image_path.is_file() and image_path.suffix.lower() in {".jpg", ".jpeg", ".png"}:
-            try:
-                unknown_image = face_recognition.load_image_file(image_path)
-                unknown_encodings = face_recognition.face_encodings(unknown_image)
-                for unknown_encoding in unknown_encodings:
-                    match = face_recognition.compare_faces(
-                        [reference_encoding], unknown_encoding, tolerance=TOLERANCE
-                    )[0]
-                    if match:
-                        print(f"Match found: {image_path.name}")
-                        shutil.copy(image_path, OUTPUT_FOLDER / image_path.name)
-                        break  # Don't need to check other faces in the same image
-            except Exception as e:
-                print(f"Could not process {image_path.name}: {e}")
+    # Gather images to process
+    image_files = [
+        img for img in IMAGES_FOLDER.iterdir()
+        if img.is_file() and img.suffix.lower() in {".jpg", ".jpeg", ".png"}
+    ]
+
+    total_images = len(image_files)
+    matches = 0
+    errors = 0
+
+    print(f"Processing {total_images} images...")
+
+    for image_path in tqdm(image_files, desc="Scanning images", unit="img"):
+        try:
+            unknown_image = face_recognition.load_image_file(image_path)
+            unknown_encodings = face_recognition.face_encodings(unknown_image)
+            found = False
+            for unknown_encoding in unknown_encodings:
+                match = face_recognition.compare_faces(
+                    [reference_encoding], unknown_encoding, tolerance=TOLERANCE
+                )[0]
+                if match:
+                    print(f"✔️ Match: {image_path.name}")
+                    shutil.copy(image_path, OUTPUT_FOLDER / image_path.name)
+                    matches += 1
+                    found = True
+                    break  # Only need one matching face per image
+            if not found:
+                print(f"✖️ No match: {image_path.name}")
+        except Exception as e:
+            print(f"⚠️ Error ({image_path.name}): {e}")
+            errors += 1
+
+    print(f"\nDone! Processed {total_images} images.")
+    print(f"Matches found: {matches}")
+    print(f"Errors: {errors}")
 
 if __name__ == "__main__":
     main()
