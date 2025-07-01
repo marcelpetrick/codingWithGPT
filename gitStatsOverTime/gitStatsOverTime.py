@@ -129,11 +129,16 @@ def main():
     #    Example: 2024-12-13: 5: ▒▒▒▒▒
     # 2) Otherwise, we list the author acronyms and counts.
     if bars_mode:
+        # First find the max total count to compute padding
+        max_commit_count = max(sum(daily_commits[date].values()) for date in sorted_dates)
+        max_width = len(str(max_commit_count))
+
         for date_key in sorted_dates:
             # Sum all commits for that date key
             total_count = sum(daily_commits[date_key].values())
+            count_str = str(total_count).rjust(max_width)
             bar_str = "▒" * total_count
-            print(f"{date_key}: {total_count}: {bar_str}")
+            print(f"{date_key}: {count_str}: {bar_str}")
     else:
         for date_key in sorted_dates:
             commits_sorted = sorted(daily_commits[date_key].items())
