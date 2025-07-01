@@ -34,5 +34,5 @@ $ python3 gitStatsOverTime.py ../ --bars --month
 2025-07:  1: ▒
 ```
 
-## Rendered with some poplar sheet-editor
+## Rendered with some popular sheet-editor
 ![](OverviewCommitsPerMonthExampleProject.png)
