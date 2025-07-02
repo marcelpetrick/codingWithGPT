@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Math Racing Game</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
+
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+        #track { position: relative; height: 200px; background: #ccc; margin: 20px; border: 2px solid #333; }
+        .car { position: absolute; width: 50px; height: 50px; top: 30px; transition: left 0.3s ease; }
+        #player-car { top: 30px; background: red; }
+        #ai-car { top: 100px; background: blue; }
+        #question-area { background: white; padding: 10px; text-align: center; }
+        .answer-btn { margin: 5px; padding: 10px 20px; font-size: 18px; }
+    </style>
+</head>
+<body onload="brython()">
+    <h1 style="text-align: center;">Math Race</h1>
+    <div id="track">
+        <div id="player-car" class="car"></div>
+        <div id="ai-car" class="car"></div>
+    </div>
+    <div id="question-area">
+        <div id="question">Loading question...</div>
+        <div id="answers"></div>
+    </div>
+
+    <script type="text/python">
+from browser import document, html, timer
+import random
+
+# Config
+NUM_QUESTIONS = 10
+AI_INTERVAL_MS = 3000  # AI moves every 3 seconds
+CAR_STEP_PX = 50
+
+# State
+question_count = 0
+player_position = 0
+ai_position = 0
+
+# DOM Elements
+question_div = document["question"]
+answers_div = document["answers"]
+player_car = document["player-car"]
+ai_car = document["ai-car"]
+
+def move_car(car, position):
+    car.style.left = f"{position * CAR_STEP_PX}px"
+
+def generate_question():
+    global correct_answer
+    op = random.choice(["+", "-"])
+    a = random.randint(0, 20)
+    b = random.randint(0, 20)
+    if op == "-" and b > a:
+        a, b = b, a
+    correct_answer = eval(f"{a} {op} {b}")
+    if correct_answer > 20:
+        return generate_question()  # Retry
+    question_div.text = f"{a} {op} {b} = ?"
+    create_answers(correct_answer)
+
+def create_answers(correct):
+    answers_div.clear()
+    options = [correct]
+    while len(options) < 3:
+        wrong = random.randint(0, 20)
+        if wrong not in options:
+            options.append(wrong)
+    random.shuffle(options)
+    for opt in options:
+        btn = html.BUTTON(str(opt), Class="answer-btn")
+        btn.bind("click", lambda ev, val=opt: check_answer(val))
+        answers_div <= btn
+
+def check_answer(selected):
+    global question_count, player_position
+    if selected == correct_answer:
+        question_count += 1
+        player_position += 1
+        move_car(player_car, player_position)
+        if question_count >= NUM_QUESTIONS:
+            end_game("You Win! \U0001F389")
+        else:
+            generate_question()
+    else:
+        generate_question()  # Try again
+
+def ai_move():
+    global ai_position
+    ai_position += 1
+    move_car(ai_car, ai_position)
+    if ai_position >= NUM_QUESTIONS:
+        end_game("You Lose! \U0001F622")
+        return
+
+def end_game(msg):
+    question_div.text = msg
+    answers_div.clear()
+    timer.clear_interval(ai_timer)
+
+# Initialize
+generate_question()
+ai_timer = timer.set_interval(ai_move, AI_INTERVAL_MS)
+    </script>
+</body>
+</html>
