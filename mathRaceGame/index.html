@@ -54,17 +54,36 @@
             font-size: 18px;
             cursor: pointer;
         }
+        #settings {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #countdown {
+            font-size: 48px;
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body onload="brython()">
     <h1 style="text-align: center;">Math Race</h1>
+
+    <div id="settings">
+        <label>Number of Questions (5–100): <input id="num-questions" type="number" min="5" max="100" value="10"></label>
+        <label>AI Speed (ms, 1000–10000): <input id="ai-speed" type="number" min="1000" max="10000" value="3000"></label>
+        <button id="start-btn">Start Game</button>
+    </div>
+
+    <div id="countdown"></div>
+
     <div id="track">
         <div id="player-car" class="car"></div>
         <div id="ai-car" class="car"></div>
         <div id="finish-line"></div>
     </div>
+
     <div id="question-area">
-        <div id="question">Loading question...</div>
+        <div id="question"></div>
         <div id="answers"></div>
     </div>
 
@@ -72,16 +91,17 @@
 from browser import document, html, timer
 import random
 
-# Configuration
+# Game Variables
 NUM_QUESTIONS = 10
-CAR_STEP_PX = None
-AI_INTERVAL_MS = 3000  # milliseconds
+AI_INTERVAL_MS = 3000
+CAR_STEP_PX = 0
 
-# Game State
 question_count = 0
 player_position = 0
 ai_position = 0
 correct_answer = None
+ai_timer = None
+countdown_timer = None
 
 # DOM Elements
 question_div = document["question"]
@@ -89,14 +109,11 @@ answers_div = document["answers"]
 player_car = document["player-car"]
 ai_car = document["ai-car"]
 track_div = document["track"]
+countdown_div = document["countdown"]
 
-# Calculate CAR_STEP_PX based on track width and number of questions
-track_width_px = track_div.offsetWidth
-car_width_px = player_car.offsetWidth
-CAR_STEP_PX = (track_width_px - car_width_px - 10) / NUM_QUESTIONS  # minus some margin
-
-def move_car(car_element, steps):
-    car_element.style.left = f"{steps * CAR_STEP_PX}px"
+# Utility Functions
+def move_car(car, steps):
+    car.style.left = f"{steps * CAR_STEP_PX}px"
 
 def generate_question():
     global correct_answer
@@ -117,15 +134,14 @@ def create_answer_buttons(correct):
     answers_div.clear()
     options = set([correct])
     while len(options) < 3:
-        fake = random.randint(0, 20)
-        options.add(fake)
-    shuffled = list(options)
-    random.shuffle(shuffled)
-
-    for val in shuffled:
-        button = html.BUTTON(str(val), Class="answer-btn")
-        button.bind("click", lambda ev, v=val: check_answer(v))
-        answers_div <= button
+        val = random.randint(0, 20)
+        options.add(val)
+    opt_list = list(options)
+    random.shuffle(opt_list)
+    for val in opt_list:
+        btn = html.BUTTON(str(val), Class="answer-btn")
+        btn.bind("click", lambda ev, v=val: check_answer(v))
+        answers_div <= btn
 
 def check_answer(selected):
     global question_count, player_position
@@ -147,14 +163,55 @@ def ai_move():
     if ai_position >= NUM_QUESTIONS:
         end_game("You Lose! 😢")
 
-def end_game(message):
-    question_div.text = message
+def end_game(msg):
+    question_div.text = msg
     answers_div.clear()
-    timer.clear_interval(ai_timer)
+    if ai_timer:
+        timer.clear_interval(ai_timer)
 
-# Start the game
-generate_question()
-ai_timer = timer.set_interval(ai_move, AI_INTERVAL_MS)
+def reset_game():
+    global question_count, player_position, ai_position
+    question_count = 0
+    player_position = 0
+    ai_position = 0
+    move_car(player_car, 0)
+    move_car(ai_car, 0)
+
+def start_game():
+    global NUM_QUESTIONS, AI_INTERVAL_MS, CAR_STEP_PX, ai_timer
+
+    NUM_QUESTIONS = int(document["num-questions"].value)
+    AI_INTERVAL_MS = int(document["ai-speed"].value)
+
+    track_width = track_div.offsetWidth
+    car_width = player_car.offsetWidth
+    CAR_STEP_PX = (track_width - car_width - 10) / NUM_QUESTIONS
+
+    reset_game()
+    generate_question()
+    ai_timer = timer.set_interval(ai_move, AI_INTERVAL_MS)
+
+def start_countdown():
+    countdown_div.text = "3"
+    step = ["2", "1", "Go!"]
+
+    def update():
+        if step:
+            countdown_div.text = step.pop(0)
+        else:
+            countdown_div.text = ""
+            timer.clear_interval(countdown_timer)
+            start_game()
+
+    global countdown_timer
+    countdown_timer = timer.set_interval(update, 1000)
+
+def on_start_click(event):
+    end_game("")
+    countdown_div.text = "3"
+    start_countdown()
+
+document["start-btn"].bind("click", on_start_click)
     </script>
 </body>
 </html>
