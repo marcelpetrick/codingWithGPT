@@ -109,6 +109,7 @@ import random
 
 # Game Variables
 NUM_QUESTIONS = 10
+wrong_count = 0
 AI_INTERVAL_MS = 3000
 CAR_STEP_PX = 0
 
@@ -161,7 +162,7 @@ def create_answer_buttons(correct):
         answers_div <= btn
 
 def check_answer(selected):
-    global question_count, player_position
+    global question_count, wrong_count, player_position
     if selected == correct_answer:
         question_count += 1
         player_position += 1
@@ -171,6 +172,7 @@ def check_answer(selected):
         else:
             generate_question()
     else:
+        wrong_count += 1
         generate_question()
 
 def ai_move():
@@ -181,20 +183,22 @@ def ai_move():
         end_game("You Lose! 😢")
 
 def end_game(msg):
-    global question_count
+    global question_count, wrong_count
     question_div.style.display = "block"
-    total_attempts = question_count + ai_position
     correct = question_count
-    wrong = total_attempts - correct
+    wrong = wrong_count
+    total_attempts = correct + wrong
     percent = int((correct / total_attempts) * 100) if total_attempts > 0 else 0
-    question_div.text = msg + f"{total_attempts} questions, {wrong} wrong, {correct} correct. That means {percent}% of the input was correct."
+    question_div.text = msg + "\n\n" + f"{total_attempts} questions, {wrong} wrong, {correct} correct. That means {percent}% of the input was correct."
     answers_div.clear()
     if ai_timer:
         timer.clear_interval(ai_timer)
 
 def reset_game():
+    global question_count, wrong_count
     global question_count, player_position, ai_position
     question_count = 0
+    wrong_count = 0
     player_position = 0
     ai_position = 0
     move_car(player_car, 0)
