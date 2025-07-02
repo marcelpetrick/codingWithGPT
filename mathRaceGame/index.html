@@ -78,6 +78,7 @@
             margin-top: 10px;
         }
     </style>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏁</text></svg>">
 </head>
 <body onload="brython()">
     <h1 style="text-align: center;">🎉🏁 Math Race Game 🏁🎉</h1>
@@ -180,7 +181,13 @@ def ai_move():
         end_game("You Lose! 😢")
 
 def end_game(msg):
-    question_div.text = msg
+    global question_count
+    question_div.style.display = "block"
+    total_attempts = question_count + ai_position
+    correct = question_count
+    wrong = total_attempts - correct
+    percent = int((correct / total_attempts) * 100) if total_attempts > 0 else 0
+    question_div.text = msg + f"{total_attempts} questions, {wrong} wrong, {correct} correct. That means {percent}% of the input was correct."
     answers_div.clear()
     if ai_timer:
         timer.clear_interval(ai_timer)
