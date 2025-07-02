@@ -25,6 +25,10 @@
             width: 50px;
             height: 50px;
             transition: left 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
         }
         #player-car {
             top: 30px;
@@ -66,19 +70,20 @@
     </style>
 </head>
 <body onload="brython()">
-    <h1 style="text-align: center;">Math Race</h1>
+    <h1 style="text-align: center;">🎉🏁 Math Race Game 🏁🎉</h1>
 
     <div id="settings">
         <label>Number of Questions (5–100): <input id="num-questions" type="number" min="5" max="100" value="10"></label>
         <label>AI Speed (ms, 1000–10000): <input id="ai-speed" type="number" min="1000" max="10000" value="3000"></label>
+        <label>Car Color: <input id="car-color" type="color" value="#ff0000"></label>
         <button id="start-btn">Start Game</button>
     </div>
 
     <div id="countdown"></div>
 
     <div id="track">
-        <div id="player-car" class="car"></div>
-        <div id="ai-car" class="car"></div>
+        <div id="player-car" class="car">🧑‍✈️</div>
+        <div id="ai-car" class="car">🤖</div>
         <div id="finish-line"></div>
     </div>
 
@@ -182,6 +187,7 @@ def start_game():
 
     NUM_QUESTIONS = int(document["num-questions"].value)
     AI_INTERVAL_MS = int(document["ai-speed"].value)
+    player_car.style.backgroundColor = document["car-color"].value
 
     track_width = track_div.offsetWidth
     car_width = player_car.offsetWidth
