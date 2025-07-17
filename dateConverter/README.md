@@ -28,9 +28,9 @@ Ensure you have Python 3.10 or later installed. This app uses only standard Pyth
 ### Steps
 1. Save the script to a file, for example: `main.py`
 2. Open a terminal and run:
-   ```bash
-   python main
-   ```
+```bash
+python main.py
+```
 3. The application window will open. Paste dates into the top field. The converted dates will appear below automatically.
 
 ---
@@ -38,3 +38,9 @@ Ensure you have Python 3.10 or later installed. This app uses only standard Pyth
 No installation of external libraries is required.
 
 ![](dateConverter.png)
+
+### Testing
+If you want to exectue the builtin unit-tests, run:
+```bash
+python main.py --tests
+```

@@ -2,19 +2,11 @@ import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
 import re
+import sys
+import unittest
 
 
 def convert_date_us_to_german(date_str: str) -> str:
-    """
-    Converts a date string from US format (e.g. 6/25/2025) to German format (DD.MM.YYYY).
-    Handles malformed or irregular formats gracefully.
-
-    Args:
-        date_str (str): A date string in US format.
-
-    Returns:
-        str: Converted date string in German format, or original string if conversion fails.
-    """
     match = re.match(r"(\d{1,2})/(\d{1,2})/(\d{4})", date_str.strip())
     if match:
         month, day, year = match.groups()
@@ -27,15 +19,6 @@ def convert_date_us_to_german(date_str: str) -> str:
 
 
 def process_dates(input_text: str) -> str:
-    """
-    Processes input text line by line and converts date formats.
-
-    Args:
-        input_text (str): Multiline string containing dates.
-
-    Returns:
-        str: Converted multiline string with dates in German format.
-    """
     lines = input_text.strip().splitlines()
     return "\n".join(convert_date_us_to_german(line) for line in lines)
 
@@ -43,10 +26,8 @@ def process_dates(input_text: str) -> str:
 class DateConverterApp(tk.Tk):
     def __init__(self):
         super().__init__()
-
         self.title("US to German Date Converter")
         self.geometry("600x800")
-
         self.create_widgets()
         self.bind_events()
 
@@ -108,6 +89,27 @@ class DateConverterApp(tk.Tk):
         return 'break'
 
 
+class TestDateConversion(unittest.TestCase):
+    def test_valid_dates(self):
+        self.assertEqual(convert_date_us_to_german("6/25/2025"), "25.06.2025")
+        self.assertEqual(convert_date_us_to_german("12/1/2020"), "01.12.2020")
+
+    def test_invalid_format(self):
+        self.assertEqual(convert_date_us_to_german("2025-06-25"), "2025-06-25")
+        self.assertEqual(convert_date_us_to_german("random text"), "random text")
+
+    def test_invalid_date(self):
+        self.assertEqual(convert_date_us_to_german("2/30/2025"), "2/30/2025")  # Invalid date
+
+    def test_process_dates(self):
+        input_data = "6/25/2025\n2/30/2025\nhello"
+        expected_output = "25.06.2025\n2/30/2025\nhello"
+        self.assertEqual(process_dates(input_data), expected_output)
+
+
 if __name__ == "__main__":
-    app = DateConverterApp()
-    app.mainloop()
+    if "--tests" in sys.argv:
+        unittest.main(argv=[sys.argv[0]])
+    else:
+        app = DateConverterApp()
+        app.mainloop()
