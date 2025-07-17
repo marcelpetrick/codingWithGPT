@@ -65,6 +65,18 @@ class DateConverterApp(tk.Tk):
 
     def bind_events(self):
         self.text_input.bind("<KeyRelease>", lambda event: self.convert_dates())
+        self.text_input.bind("<Control-a>", self.select_all)
+        self.text_input.bind("<Control-A>", self.select_all)
+        self.text_input.bind("<Control-c>", self.copy)
+        self.text_input.bind("<Control-C>", self.copy)
+        self.text_input.bind("<Control-x>", self.cut)
+        self.text_input.bind("<Control-X>", self.cut)
+        self.text_input.bind("<Delete>", lambda e: self.text_input.delete("sel.first", "sel.last") if self.text_input.tag_ranges("sel") else None)
+
+        self.text_output.bind("<Control-a>", self.select_all)
+        self.text_output.bind("<Control-A>", self.select_all)
+        self.text_output.bind("<Control-c>", self.copy)
+        self.text_output.bind("<Control-C>", self.copy)
 
     def convert_dates(self):
         input_data = self.text_input.get("1.0", tk.END)
@@ -72,7 +84,28 @@ class DateConverterApp(tk.Tk):
         self.text_output.config(state=tk.NORMAL)
         self.text_output.delete("1.0", tk.END)
         self.text_output.insert(tk.END, output_data)
-        self.text_output.config(state=tk.NORMAL)  # Keep it editable so content can be copied
+        self.text_output.config(state=tk.NORMAL)
+
+    def select_all(self, event):
+        widget = event.widget
+        widget.tag_add(tk.SEL, "1.0", tk.END)
+        widget.mark_set(tk.INSERT, "1.0")
+        widget.see(tk.INSERT)
+        return 'break'
+
+    def copy(self, event):
+        try:
+            event.widget.event_generate("<<Copy>>")
+        except tk.TclError:
+            pass
+        return 'break'
+
+    def cut(self, event):
+        try:
+            event.widget.event_generate("<<Cut>>")
+        except tk.TclError:
+            pass
+        return 'break'
 
 
 if __name__ == "__main__":
