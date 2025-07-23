@@ -1,14 +1,22 @@
 #!/bin/zsh
 
+# Use first argument as path, or default to current dir
+search_path="${1:-.}"
+
+# Expand to full path
+search_path=$(realpath "$search_path")
+
+echo "Searching for .venv directories under: $search_path"
+
 # Find all .venv directories
-venvs=($(find . -type d -name .venv))
+venvs=($(find "$search_path" -type d -name .venv))
 
 if [[ ${#venvs[@]} -eq 0 ]]; then
   echo "No .venv directories found."
   exit 0
 fi
 
-echo "Found the following .venv directories with their sizes:"
+echo "\nFound the following .venv directories with their sizes:"
 total_size=0
 
 for venv in "${venvs[@]}"; do
@@ -31,7 +39,7 @@ if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
     rm -rf "$venv"
     echo "Deleted: $venv"
   done
-  echo "All .venv directories deleted."
+  echo "\nAll .venv directories deleted."
 else
-  echo "Aborted. No directories were deleted."
+  echo "\nAborted. No directories were deleted."
 fi
