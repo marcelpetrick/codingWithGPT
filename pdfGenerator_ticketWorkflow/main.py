@@ -1,25 +1,48 @@
-#!/usr/bin/env python3
-import argparse
-from pathlib import Path
-
 from reportlab.pdfgen import canvas
-from reportlab.lib.colors import HexColor, white
+from reportlab.lib.colors import HexColor, white, black
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+import os
 
-# -----------------------------
-# Defaults
-# -----------------------------
-DEFAULT_W = 1080
-DEFAULT_H = 1080
-DEFAULT_OUTPUT = "ticket_workflow_slides_v2.pdf"
+W = H = 1080
+OUTPUT_PATH = "/mnt/data/ticket_workflow_slides_v2.pdf"
 
 # Colors
 PINK = HexColor("#FF00CC")
 VIOLET = HexColor("#7A00FF")
 NEON_GREEN = HexColor("#39FF14")
 
-# Example slides (shortened for brevity)
+# Try to register a funny font
+def try_register_funny_font():
+    font_candidates = [
+        ("ComicSansMS", [
+            "/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS.ttf",
+            "/usr/share/fonts/truetype/comic.ttf",
+            "/usr/share/fonts/truetype/microsoft/Comic_Sans_MS.ttf",
+            "/Library/Fonts/Comic Sans MS.ttf",
+            os.path.expanduser("~/Library/Fonts/Comic Sans MS.ttf"),
+        ]),
+        ("ComicNeue-Bold", [
+            "/usr/share/fonts/truetype/comicneue/ComicNeue-Bold.ttf",
+            "/usr/share/fonts/TTF/ComicNeue-Bold.ttf"
+        ]),
+        ("Chilanka", ["/usr/share/fonts/truetype/malayalam/Chilanka-Regular.ttf"]),
+        ("DejaVuSans", ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]),
+    ]
+    for name, paths in font_candidates:
+        for p in paths:
+            if os.path.exists(p):
+                try:
+                    pdfmetrics.registerFont(TTFont(name, p))
+                    return name
+                except:
+                    pass
+    return "Helvetica"
+
+FONT_NAME = try_register_funny_font()
+FONT_BOLD = FONT_NAME
+
+# Slide data
 slides = [
     {"title": "1) Grundprinzip: Alles ist ein Ticket",
      "bullets": [
@@ -31,10 +54,49 @@ slides = [
          "Pflicht: Beschreibung, Anforderungen, Erwartung, techn. Details.",
          "Tickets mit unklaren Anforderungen werden nicht gestartet."
      ]},
+    {"title": "3) Aufwand & Planung",
+     "bullets": [
+         "Jedes Ticket: 3-Punkt-Aufwandsschätzung + Due Date.",
+         "Diese Daten ermöglichen realistische Planung in Sprints/Milestones."
+     ]},
+    {"title": "4) Ticket-Pflege",
+     "bullets": [
+         "Änderungen dokumentieren: Kommentare, neue Infos → Ticket-Update.",
+         "Scope-Änderungen = neue Schätzung (nicht „still“ weitermachen)."
+     ]},
+    {"title": "5) Verantwortlichkeiten",
+     "bullets": [
+         "Jedes Ticket hat eine*n klare*n Verantwortliche*n.",
+         "Dev-Team trägt die Durchführungsverantwortung, Stakeholder geben Input."
+     ]},
+    {"title": "6) Milestones als Container",
+     "bullets": [
+         "Tickets werden Milestones zugeordnet (Start- & Enddatum).",
+         "Scope eines Milestones bleibt fix während des Sprints; Änderungen nur im Notfall."
+     ]},
+    {"title": "7) Umgang mit Überlauf",
+     "bullets": [
+         "Nicht fertig? Prüfen: Restsplit in neues Ticket (Ausnahme) oder verschieben.",
+         "Ziel: Planbarkeit statt Überraschungen."
+     ]},
+    {"title": "8) Merge Requests & Tickets",
+     "bullets": [
+         "MR immer mit Ticket verknüpft („Closes #123“).",
+         "Optimal: 1 MR pro Ticket, MR-Text referenziert Ticketnummer."
+     ]},
+    {"title": "9) Ticket-Abschluss",
+     "bullets": [
+         "Schließen erst, wenn alle Anforderungen erfüllt.",
+         "DoD: Requirements erfüllt, Tests/Docs ok, MR gemerged."
+     ]},
+    {"title": "10) Effizienz & Taktung",
+     "bullets": [
+         "Milestones ≥ 2 Wochen – kürzere bedeuten Overhead.",
+         "Fokus auf Planbarkeit, Sichtbarkeit, Zuverlässigkeit für Stakeholder."
+     ]},
 ]
 
-
-def draw_background(c: canvas.Canvas, idx: int, W: int, H: int) -> None:
+def draw_background(c, idx):
     if idx % 2 == 0:
         bg1, bg2 = PINK, NEON_GREEN
     else:
@@ -43,13 +105,12 @@ def draw_background(c: canvas.Canvas, idx: int, W: int, H: int) -> None:
     c.rect(0, 0, W, H, fill=1, stroke=0)
     c.setFillColor(bg2)
     c.saveState()
-    c.translate(W * 0.2, -H * 0.1)
+    c.translate(W*0.2, -H*0.1)
     c.rotate(35)
-    c.rect(0, 0, W * 1.2, H * 0.5, fill=1, stroke=0)
+    c.rect(0, 0, W*1.2, H*0.5, fill=1, stroke=0)
     c.restoreState()
 
-
-def fit_text_lines(text: str, font_name: str, font_size: int, max_width: float) -> list[str]:
+def fit_text_lines(text, font_name, font_size, max_width):
     words = text.split()
     lines, cur = [], ""
     for w in words:
@@ -64,19 +125,18 @@ def fit_text_lines(text: str, font_name: str, font_size: int, max_width: float) 
         lines.append(cur)
     return lines
 
-
-def draw_slide(c: canvas.Canvas, idx: int, title: str, bullets: list[str], W: int, H: int) -> None:
+def draw_slide(c, idx, title, bullets):
     text_color = white
-    draw_background(c, idx, W, H)
+    draw_background(c, idx)
 
-    # Title
+    # Title lower: start 20% below top (≈ H - 0.2H)
     title_size = 60
-    c.setFont("Helvetica-Bold", title_size)
+    c.setFont(FONT_BOLD, title_size)
     c.setFillColor(text_color)
     title_max_width = W - 160
-    title_lines = fit_text_lines(title, "Helvetica-Bold", title_size, title_max_width)
+    title_lines = fit_text_lines(title, FONT_BOLD, title_size, title_max_width)
 
-    y = H - (H * 0.2)
+    y = H - (H*0.2)
     for line in title_lines:
         c.drawString(80, y, line)
         y -= title_size * 1.1
@@ -84,12 +144,12 @@ def draw_slide(c: canvas.Canvas, idx: int, title: str, bullets: list[str], W: in
     # Bullets
     y -= 40
     bullet_font_size = 34
-    c.setFont("Helvetica", bullet_font_size)
+    c.setFont(FONT_NAME, bullet_font_size)
     bullet_box_width = W - 160
 
     for b in bullets:
         y -= 24
-        lines = fit_text_lines("• " + b, "Helvetica", bullet_font_size, bullet_box_width)
+        lines = fit_text_lines("• " + b, FONT_NAME, bullet_font_size, bullet_box_width)
         for line in lines:
             c.drawString(80, y, line)
             y -= bullet_font_size * 1.15
@@ -97,43 +157,13 @@ def draw_slide(c: canvas.Canvas, idx: int, title: str, bullets: list[str], W: in
 
     # Footer page number
     c.setFillColor(text_color)
-    c.setFont("Helvetica", 18)
-    c.drawRightString(W - 30, 30, f"{idx + 1}/{len(slides)}")
+    c.setFont(FONT_NAME, 18)
+    c.drawRightString(W - 30, 30, f"{idx+1}/10")
 
+c = canvas.Canvas(OUTPUT_PATH, pagesize=(W, H))
+for i, slide in enumerate(slides):
+    draw_slide(c, i, slide["title"], slide["bullets"])
+    c.showPage()
+c.save()
 
-# -----------------------------
-# CLI / main
-# -----------------------------
-def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Generate the ticket workflow slides PDF.")
-    p.add_argument(
-        "--out",
-        type=str,
-        default=DEFAULT_OUTPUT,
-        help="Output PDF filename or path (default: ticket_workflow_slides_v2.pdf)",
-    )
-    p.add_argument("--width", type=int, default=DEFAULT_W, help="Page width in points (default: 1080)")
-    p.add_argument("--height", type=int, default=DEFAULT_H, help="Page height in points (default: 1080)")
-    return p.parse_args()
-
-
-def main() -> None:
-    args = parse_args()
-    W, H = int(args.width), int(args.height)
-
-    out_path = Path(args.out)
-    if out_path.is_dir():
-        out_path = out_path / DEFAULT_OUTPUT
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-
-    c = canvas.Canvas(str(out_path), pagesize=(W, H))
-    for i, slide in enumerate(slides):
-        draw_slide(c, i, slide["title"], slide["bullets"], W, H)
-        c.showPage()
-    c.save()
-
-    print(f"Wrote {out_path.resolve()}")
-
-
-if __name__ == "__main__":
-    main()
+OUTPUT_PATH
