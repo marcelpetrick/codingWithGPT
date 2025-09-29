@@ -22,7 +22,7 @@ pygame.display.set_caption('Snake Game for my children')
 
 # Set the snake block size and speed
 snake_block = 20
-snake_speed = 5 # todo. 5 instad of 10 makes the snake initially slowre, but this is reset wrongly, there should be static initial values as vars, not numbers
+snake_speed = 5 # todo. 5 instead of 10 makes the snake initially slower, but this is reset wrongly, there should be static initial values as vars, not numbers
 
 # Rainbow color palette
 rainbow_colors = [

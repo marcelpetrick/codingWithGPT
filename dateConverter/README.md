@@ -40,7 +40,7 @@ No installation of external libraries is required.
 ![](dateConverter.png)
 
 ### Testing
-If you want to exectue the builtin unit-tests, run:
+If you want to execute the builtin unit-tests, run:
 ```bash
 python main.py --tests
 ```

@@ -1,4 +1,4 @@
-# needed a replacement for the suggested, but not working options: why not do a stupid request and parese the resutling page?
+# needed a replacement for the suggested, but not working options: why not do a stupid request and parese the resulting page?
 # Taken fron https://codefather.tech/blog/youtube-search-python/ and expanded.
 def directSearch(input):
     import urllib.request

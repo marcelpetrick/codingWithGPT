@@ -3,7 +3,7 @@
 # Great. For illustration purposes create me a python script which uses matplotlib or similar to create a 2d chart
 # with lots of colors which maps all the technqiues versus usability (one axis) and safety(second axis).
 #
-# the labels overlap. this is not readable. make it human readable. mabye with some lines going to the data-point to the text label?
+# the labels overlap. this is not readable. make it human readable. maybe with some lines going to the data-point to the text label?
 
 import matplotlib.pyplot as plt
 

@@ -1,6 +1,6 @@
 # linkedinLearningEvaluator
 # ingest a given file (as first param from command line). default shall be "learningHistory.txt". parse the file for all titles and also extract the run time length. normalize the values to minutes.
-# print then a list of tuples "title: time". als give me the sum of all times in minutes as output to the commandline (stdout). add for each step some status output like "reading data", "processing data", "preparing accumulation", "printing".
+# print then a list of tuples "title: time". also give me the sum of all times in minutes as output to the commandline (stdout). add for each step some status output like "reading data", "processing data", "preparing accumulation", "printing".
 # make the code PEP8-compatible and robust and well documented (Sphynx.) assume you are guide van rossum, the python master mind. Write pythonic code!
 # let me give you some example text for the structure of the input data:
 
