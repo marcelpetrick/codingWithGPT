@@ -1,0 +1,90 @@
+Working in: /home/mpetrick/repos/codingWithGPT/recordingTranscriberTimestamped/2025-09-30 11-38-31_chunks
+1) Extracting audio (mono CBR MP3)...
+   ffmpeg → audio_cbr.mp3
+ffmpeg version n7.1.1 Copyright (c) 2000-2025 the FFmpeg developers
+  built with gcc 15.1.1 (GCC) 20250425
+  configuration: --prefix=/usr --disable-debug --disable-static --disable-stripping --enable-amf --enable-avisynth --enable-cuda-llvm --enable-lto --enable-fontconfig --enable-frei0r --enable-gmp --enable-gnutls --enable-gpl --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libdav1d --enable-libdrm --enable-libdvdnav --enable-libdvdread --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgsm --enable-libharfbuzz --enable-libiec61883 --enable-libjack --enable-libjxl --enable-libmodplug --enable-libmp3lame --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libplacebo --enable-libpulse --enable-librav1e --enable-librsvg --enable-librubberband --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtheora --enable-libv4l2 --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpl --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxcb --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-nvdec --enable-nvenc --enable-opencl --enable-opengl --enable-shared --enable-vapoursynth --enable-version3 --enable-vulkan
+  libavutil      59. 39.100 / 59. 39.100
+  libavcodec     61. 19.101 / 61. 19.101
+  libavformat    61.  7.100 / 61.  7.100
+  libavdevice    61.  3.100 / 61.  3.100
+  libavfilter    10.  4.100 / 10.  4.100
+  libswscale      8.  3.100 /  8.  3.100
+  libswresample   5.  3.100 /  5.  3.100
+  libpostproc    58.  3.100 / 58.  3.100
+Input #0, matroska,webm, from '/home/mpetrick/repos/codingWithGPT/recordingTranscriberTimestamped/2025-09-30 11-38-31.mkv':
+  Metadata:
+    ENCODER         : Lavf61.7.100
+  Duration: 00:42:09.77, start: 0.000000, bitrate: 247 kb/s
+  Stream #0:0: Video: h264 (High), yuv420p(tv, bt709, progressive), 1920x1080 [SAR 1:1 DAR 16:9], 30 fps, 30 tbr, 1k tbn
+      Metadata:
+        DURATION        : 00:42:09.766000000
+  Stream #0:1: Audio: aac (LC), 48000 Hz, stereo, fltp
+      Metadata:
+        title           : simple_aac_recording0
+        DURATION        : 00:42:09.706000000
+Stream mapping:
+  Stream #0:1 -> #0:0 (aac (native) -> mp3 (libmp3lame))
+Press [q] to stop, [?] for help
+Output #0, mp3, to '/home/mpetrick/repos/codingWithGPT/recordingTranscriberTimestamped/2025-09-30 11-38-31_chunks/audio_cbr.mp3':
+  Metadata:
+    TSSE            : Lavf61.7.100
+  Stream #0:0: Audio: mp3, 16000 Hz, mono, fltp, 64 kb/s
+      Metadata:
+        title           : simple_aac_recording0
+        DURATION        : 00:42:09.706000000
+        encoder         : Lavc61.19.101 libmp3lame
+size=    1024KiB time=00:02:20.54 bitrate=  59.7kbits/s speed= 281x    size=    2048KiB time=00:04:42.53 bitrate=  59.4kbits/s speed= 282x    size=    3072KiB time=00:07:04.91 bitrate=  59.2kbits/s speed= 283x    size=    4352KiB time=00:09:27.57 bitrate=  62.8kbits/s speed= 284x    size=    5376KiB time=00:11:48.48 bitrate=  62.2kbits/s speed= 283x    size=    6400KiB time=00:14:11.33 bitrate=  61.6kbits/s speed= 284x    size=    7680KiB time=00:16:35.94 bitrate=  63.2kbits/s speed= 285x    size=    8704KiB time=00:18:59.11 bitrate=  62.6kbits/s speed= 285x    size=    9984KiB time=00:21:18.72 bitrate=  64.0kbits/s speed= 284x    size=   11008KiB time=00:23:39.41 bitrate=  63.5kbits/s speed= 284x    size=   12032KiB time=00:25:59.66 bitrate=  63.2kbits/s speed= 284x    size=   13056KiB time=00:28:18.33 bitrate=  63.0kbits/s speed= 283x    size=   14336KiB time=00:30:35.21 bitrate=  64.0kbits/s speed= 282x    size=   15360KiB time=00:32:51.43 bitrate=  63.8kbits/s speed= 282x    size=   16384KiB time=00:35:08.16 bitrate=  63.7kbits/s speed= 281x    size=   17664KiB time=00:37:53.22 bitrate=  63.7kbits/s speed= 284x    size=   18944KiB time=00:40:37.85 bitrate=  63.7kbits/s speed= 287x    [out#0/mp3 @ 0x55eda66b5e00] video:0KiB audio:19764KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.001640%
+size=   19764KiB time=00:42:09.70 bitrate=  64.0kbits/s speed= 287x    
+2) Probing audio to compute chunk size...
+   Duration: 2529.79s, Bitrate: 64.0 kbps, Chunk ≈ 655s (~5 MiB)
+3) Splitting audio into chunks...
+   ffmpeg segment → /home/mpetrick/repos/codingWithGPT/recordingTranscriberTimestamped/2025-09-30 11-38-31_chunks/segments_raw/seg_%05d.mp3
+ffmpeg version n7.1.1 Copyright (c) 2000-2025 the FFmpeg developers
+  built with gcc 15.1.1 (GCC) 20250425
+  configuration: --prefix=/usr --disable-debug --disable-static --disable-stripping --enable-amf --enable-avisynth --enable-cuda-llvm --enable-lto --enable-fontconfig --enable-frei0r --enable-gmp --enable-gnutls --enable-gpl --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libdav1d --enable-libdrm --enable-libdvdnav --enable-libdvdread --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgsm --enable-libharfbuzz --enable-libiec61883 --enable-libjack --enable-libjxl --enable-libmodplug --enable-libmp3lame --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libplacebo --enable-libpulse --enable-librav1e --enable-librsvg --enable-librubberband --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtheora --enable-libv4l2 --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpl --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxcb --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-nvdec --enable-nvenc --enable-opencl --enable-opengl --enable-shared --enable-vapoursynth --enable-version3 --enable-vulkan
+  libavutil      59. 39.100 / 59. 39.100
+  libavcodec     61. 19.101 / 61. 19.101
+  libavformat    61.  7.100 / 61.  7.100
+  libavdevice    61.  3.100 / 61.  3.100
+  libavfilter    10.  4.100 / 10.  4.100
+  libswscale      8.  3.100 /  8.  3.100
+  libswresample   5.  3.100 /  5.  3.100
+  libpostproc    58.  3.100 / 58.  3.100
+Input #0, mp3, from '/home/mpetrick/repos/codingWithGPT/recordingTranscriberTimestamped/2025-09-30 11-38-31_chunks/audio_cbr.mp3':
+  Metadata:
+    encoder         : Lavf61.7.100
+  Duration: 00:42:09.79, start: 0.069063, bitrate: 64 kb/s
+  Stream #0:0: Audio: mp3 (mp3float), 16000 Hz, mono, fltp, 64 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (copy)
+[segment @ 0x55e6439f0100] Opening '/home/mpetrick/repos/codingWithGPT/recordingTranscriberTimestamped/2025-09-30 11-38-31_chunks/segments_raw/seg_00000.mp3' for writing
+Output #0, segment, to '/home/mpetrick/repos/codingWithGPT/recordingTranscriberTimestamped/2025-09-30 11-38-31_chunks/segments_raw/seg_%05d.mp3':
+  Metadata:
+    encoder         : Lavf61.7.100
+  Stream #0:0: Audio: mp3, 16000 Hz, mono, fltp, 64 kb/s
+Press [q] to stop, [?] for help
+[segment @ 0x55e6439f0100] Opening '/home/mpetrick/repos/codingWithGPT/recordingTranscriberTimestamped/2025-09-30 11-38-31_chunks/segments_raw/seg_00001.mp3' for writing
+[segment @ 0x55e6439f0100] Opening '/home/mpetrick/repos/codingWithGPT/recordingTranscriberTimestamped/2025-09-30 11-38-31_chunks/segments_raw/seg_00002.mp3' for writing
+[segment @ 0x55e6439f0100] Opening '/home/mpetrick/repos/codingWithGPT/recordingTranscriberTimestamped/2025-09-30 11-38-31_chunks/segments_raw/seg_00003.mp3' for writing
+[out#0/segment @ 0x55e6439f0000] video:0KiB audio:19764KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+size=N/A time=00:42:09.72 bitrate=N/A speed=1.35e+04x    
+4) Renaming chunks with timestamps in filename...
+   chunk_[00-00-00.000]_[00-10-55.000].mp3 [00:00:00.000 → 00:10:55.000]
+   chunk_[00-10-55.000]_[00-21-50.000].mp3 [00:10:55.000 → 00:21:50.000]
+   chunk_[00-21-50.000]_[00-32-45.000].mp3 [00:21:50.000 → 00:32:45.000]
+   chunk_[00-32-45.000]_[00-42-09.792].mp3 [00:32:45.000 → 00:42:09.792]
+5) Transcribing chunks → transcription.md ...
+   Loading transcription model (first time may download weights)...
+➡️  Transcribing chunk 1/4: chunk_[00-00-00.000]_[00-10-55.000].mp3 [00:00:00.000 → 00:10:55.000] ...
+✅  Done chunk_[00-00-00.000]_[00-10-55.000].mp3
+➡️  Transcribing chunk 2/4: chunk_[00-10-55.000]_[00-21-50.000].mp3 [00:10:55.000 → 00:21:50.000] ...
+✅  Done chunk_[00-10-55.000]_[00-21-50.000].mp3
+➡️  Transcribing chunk 3/4: chunk_[00-21-50.000]_[00-32-45.000].mp3 [00:21:50.000 → 00:32:45.000] ...
+✅  Done chunk_[00-21-50.000]_[00-32-45.000].mp3
+➡️  Transcribing chunk 4/4: chunk_[00-32-45.000]_[00-42-09.792].mp3 [00:32:45.000 → 00:42:09.792] ...
+✅  Done chunk_[00-32-45.000]_[00-42-09.792].mp3
+
+Done.
+- Chunks: /home/mpetrick/repos/codingWithGPT/recordingTranscriberTimestamped/2025-09-30 11-38-31_chunks/chunks
+- Transcription: /home/mpetrick/repos/codingWithGPT/recordingTranscriberTimestamped/2025-09-30 11-38-31_chunks/transcription.md
