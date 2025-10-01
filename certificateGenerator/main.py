@@ -192,9 +192,9 @@ def generate_certificate(
     draw_logo(c, w/2, h - 5.8*cm, logo_size, primary, accent)
 
     # Header text
-    draw_centered_text(c, title, w/2, h - 8.2*cm, font_heading, 28, primary)
+    draw_centered_text(c, title, w/2, h - 10*cm, font_heading, 28, primary)
     if issuer:
-        draw_centered_text(c, f"Issued by {issuer}", w/2, h - 9.4*cm, font_body, 12, Color(0,0,0,0.7))
+        draw_centered_text(c, f"Issued by {issuer}", w/2, h - 11*cm, font_body, 12, Color(0,0,0,0.7))
 
     # Recipient name
     draw_centered_text(c, name, w/2, h/2 + 0.7*cm, font_heading, 36, black)
