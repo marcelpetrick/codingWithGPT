@@ -14,6 +14,8 @@ It reads data (title, issuer, names, colors, etc.) from an INI configuration fil
 - Customizable **colors, title, subtitle, issuer, date**.
 - Optional support for **Unicode fonts** (e.g., names with accents).
 
+![](result.png)
+
 ---
 
 ## Requirements
