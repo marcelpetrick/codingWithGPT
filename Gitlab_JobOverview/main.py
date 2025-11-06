@@ -3,16 +3,17 @@
 gitlab-jobs-now.py
 List running and queued (pending) CI jobs across all projects accessible to the current user (non-admin).
 
+Progress options:
+  --progress               Show per-project start/finish updates (stderr).
+  --heartbeat-secs N       Periodic "still working..." (stderr), default 8, 0 disables.
+
 Usage:
-  python gitlab-jobs-now.py \
+  python3 main.py \
     --base-url https://git.example.com \
     --token $GITLAB_TOKEN \
     --format table \
     --concurrency 8 \
-    --projects "group/proj1 group/proj2"
-
-Exit codes:
-  0 on success, 1 on fatal error.
+    --progress
 """
 
 import argparse
@@ -36,17 +37,13 @@ PRINT_LOCK = threading.Lock()
 # ----------------------------- Utilities -----------------------------
 
 def iso_to_dt(s: Optional[str]) -> Optional[datetime]:
-    """Parse GitLab ISO8601 timestamps to aware datetime (UTC)."""
     if not s:
         return None
-    # GitLab returns e.g. '2025-11-06T09:51:20.123Z' or with timezone offset.
-    # Normalize 'Z' to '+00:00' for fromisoformat.
     try:
         if s.endswith('Z'):
             s = s.replace('Z', '+00:00')
         return datetime.fromisoformat(s).astimezone(timezone.utc)
     except Exception:
-        # Fallback crude parse
         try:
             return datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc)
         except Exception:
@@ -56,7 +53,6 @@ def iso_to_dt(s: Optional[str]) -> Optional[datetime]:
                 return None
 
 def human_td(dt: timedelta) -> str:
-    """Human-friendly timedelta like '3m12s'."""
     if dt.total_seconds() < 0:
         dt = -dt
     seconds = int(dt.total_seconds())
@@ -78,20 +74,19 @@ def safe_get(d: Dict[str, Any], *keys, default=None):
 
 def err(msg: str):
     with PRINT_LOCK:
-        print(msg, file=sys.stderr)
+        print(msg, file=sys.stderr, flush=True)
 
 # ------------------------- GitLab helpers ----------------------------
 
 def build_client(base_url: str, token: Optional[str], verbose: bool) -> gitlab.Gitlab:
     gl = gitlab.Gitlab(url=base_url, private_token=token)
-    gl.auth()  # will raise if invalid
+    gl.auth()
     if verbose:
         me = gl.user
         err(f"Authenticated as: {me.username} ({me.name})")
     return gl
 
 def iter_projects(gl: gitlab.Gitlab, include_archived: bool, limit: Optional[int], only_paths: Optional[set], verbose: bool):
-    """Yield accessible projects (membership=True)."""
     count = 0
     try:
         for proj in gl.projects.list(
@@ -120,17 +115,11 @@ def fetch_jobs_for_project(
     backoff: float = 1.0,
     verbose: bool = False,
 ) -> Tuple[str, str, List[Dict[str, Any]]]:
-    """
-    Return (project_id, project_path, jobs[]) where each job is a dict with normalized fields.
-    Handles lack of permissions per project.
-    """
     path = getattr(proj, "path_with_namespace", str(proj.id))
     web_url = getattr(proj, "web_url", None)
     jobs: List[Dict[str, Any]] = []
 
     def _list_with_scope(scope_value: str) -> List[Any]:
-        # Some python-gitlab versions accept a list for scope, some don't.
-        # We'll call once per scope for max compatibility.
         attempts = 0
         while True:
             attempts += 1
@@ -138,7 +127,6 @@ def fetch_jobs_for_project(
                 return proj.jobs.list(scope=scope_value, per_page=100, all=True)
             except gitlab.exceptions.GitlabHttpError as e:
                 if e.response_code == 429 and attempts <= 3:
-                    # Backoff on rate-limit
                     time.sleep(backoff * attempts)
                     continue
                 raise
@@ -151,12 +139,10 @@ def fetch_jobs_for_project(
             for j in _list_with_scope("pending"):
                 jobs.append(j)
     except gitlab.exceptions.GitlabAuthenticationError:
-        # Token lacks permission entirely
         if verbose:
             err(f"[auth] No access to jobs for {path}")
         return str(proj.id), path, []
     except gitlab.exceptions.GitlabHttpError as e:
-        # 403 or others: skip but report if verbose
         if verbose:
             err(f"[{path}] HTTP error fetching jobs: {e} (code {e.response_code})")
         return str(proj.id), path, []
@@ -205,10 +191,8 @@ def fetch_jobs_for_project(
             }
         )
 
-    # Sort by status then time
     status_order = {"running": 0, "pending": 1}
     normalized.sort(key=lambda x: (status_order.get(x["status"], 99), x.get("stage") or "", x.get("name") or ""))
-
     return str(proj.id), path, normalized
 
 # --------------------------- Output ----------------------------------
@@ -275,6 +259,27 @@ def print_csv(items: List[Dict[str, Any]]):
     for j in items:
         writer.writerow({k: j.get(k) for k in fieldnames})
 
+# -------------------------- Progress/Heartbeat -----------------------
+
+def start_heartbeat(total: int, counter, interval_secs: int):
+    """
+    Prints a periodic 'still working...' line to stderr until counter.done == total.
+    Returns (thread, stop_event).
+    """
+    stop_event = threading.Event()
+
+    def _beat():
+        start = time.time()
+        while not stop_event.wait(timeout=interval_secs if interval_secs > 0 else 1e9):
+            done = counter["done"]
+            elapsed = human_td(timedelta(seconds=int(time.time() - start)))
+            err(f"[heartbeat] still working… {done}/{total} projects done (elapsed {elapsed})")
+
+    t = threading.Thread(target=_beat, name="heartbeat", daemon=True)
+    if interval_secs > 0:
+        t.start()
+    return t, stop_event
+
 # ----------------------------- Main ----------------------------------
 
 def main():
@@ -289,6 +294,8 @@ def main():
     parser.add_argument("--format", choices=["table","json","csv"], default="table", help="Output format")
     parser.add_argument("--concurrency", type=int, default=8, help="Parallel project fetchers (default: 8)")
     parser.add_argument("--verbose", action="store_true", help="Verbose logging to stderr")
+    parser.add_argument("--progress", action="store_true", help="Show per-project progress (stderr)")
+    parser.add_argument("--heartbeat-secs", type=int, default=8, help="Periodic 'still working...' to stderr (0 disables)")
     args = parser.parse_args()
 
     if not args.base_url:
@@ -304,40 +311,65 @@ def main():
         err(f"Failed to authenticate to GitLab: {e}")
         sys.exit(1)
 
-    # Who am I (for header)
     username = getattr(gl.user, "username", "unknown")
-
     only_paths = set(args.projects.split()) if args.projects.strip() else None
 
-    # Discover projects
     if args.verbose:
-        err("Enumerating projects...")
+        err("Enumerating projects…")
     try:
-        projects = list(iter_projects(gl, args.include_archived, args.max_projects, only_paths, args.verbose))
+        projects_list = list(iter_projects(gl, args.include_archived, args.max_projects, only_paths, args.verbose))
     except Exception:
         sys.exit(1)
-    if args.verbose:
-        err(f"Found {len(projects)} projects to scan")
 
-    # Fetch jobs concurrently
+    total = len(projects_list)
+    if args.verbose or args.progress:
+        err(f"Found {total} projects to scan (concurrency={max(1, args.concurrency)})")
+
+    # index projects so we can show [i/N]
+    indexed_projects = [(i + 1, p) for i, p in enumerate(projects_list)]
+
+    # Progress counters & heartbeat
+    counter = {"done": 0}
+    hb_thread, hb_stop = start_heartbeat(total, counter, args.heartbeat_secs)
+
     grouped: Dict[str, List[Dict[str, Any]]] = {}
     all_items: List[Dict[str, Any]] = []
 
-    with ThreadPoolExecutor(max_workers=max(1, args.concurrency)) as executor:
-        future_map = {
-            executor.submit(fetch_jobs_for_project, p, True, True, 1.0, args.verbose): p
-            for p in projects
-        }
-        for fut in as_completed(future_map):
-            p = future_map[fut]
-            try:
-                proj_id, path, jobs = fut.result()
-            except Exception as e:
-                if args.verbose:
-                    err(f"[{getattr(p, 'path_with_namespace', p.id)}] unexpected error: {e}")
-                continue
-            grouped[path] = jobs
-            all_items.extend(jobs)
+    def worker(idx: int, proj):
+        path = getattr(proj, "path_with_namespace", str(proj.id))
+        if args.progress:
+            err(f"[{idx}/{total}] scanning {path} …")
+        proj_id, path, jobs = fetch_jobs_for_project(proj, True, True, 1.0, args.verbose)
+        running = sum(1 for j in jobs if j["status"] == "running")
+        pending = sum(1 for j in jobs if j["status"] == "pending")
+        if args.progress:
+            mark = "✓" if jobs or True else "-"
+            err(f"[{idx}/{total}] {mark} {path}: running={running} pending={pending}")
+        return proj_id, path, jobs
+
+    try:
+        with ThreadPoolExecutor(max_workers=max(1, args.concurrency)) as executor:
+            future_map = {
+                executor.submit(worker, idx, p): (idx, p)
+                for idx, p in indexed_projects
+            }
+            for fut in as_completed(future_map):
+                idx, p = future_map[fut]
+                try:
+                    proj_id, path, jobs = fut.result()
+                except Exception as e:
+                    if args.verbose or args.progress:
+                        err(f"[{idx}/{total}] {getattr(p, 'path_with_namespace', p.id)} failed: {e}")
+                    counter["done"] += 1
+                    continue
+                grouped[path] = jobs
+                all_items.extend(jobs)
+                counter["done"] += 1
+    finally:
+        hb_stop.set()
+        # give the heartbeat thread a moment to exit cleanly
+        if hb_thread.is_alive():
+            hb_thread.join(timeout=1)
 
     # Output
     if args.format == "table":
