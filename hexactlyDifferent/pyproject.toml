@@ -1,0 +1,22 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+branch = true
+source = ["."]
+omit = [
+  "tests/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+fail_under = 0
+
+[project.optional-dependencies]
+test = [
+  "pytest",
+  "coverage",
+  "pytest-cov",
+]
