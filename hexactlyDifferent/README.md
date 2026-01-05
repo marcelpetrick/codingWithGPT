@@ -199,6 +199,29 @@ SUPPRESSED_ERASED: differences detected but all are FF<->00 only (suppressed_byt
 * `2`: CLI usage error (invalid arguments/options)
 * `3`: parsing/validation error, or unified range exceeds `--max-size`
 
+## Testing
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -U pip
+python -m pip install pytest coverage pytest-cov
+```
+
+Invoke with:
+`pytest -v`
+
+### Coverage
+
+```
+COVERAGE_PROCESS_START=.coveragerc pytest
+coverage combine
+coverage html
+coverage report -m
+```
+
+Check directory  `htmlcov` for the output.
+
 ## License
 
 This project is licensed under the **GNU General Public License v3.0 (GPLv3)**.

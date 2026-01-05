@@ -4,15 +4,17 @@ addopts = "-q"
 
 [tool.coverage.run]
 branch = true
+parallel = true
 source = ["."]
-omit = [
-  "tests/*",
-]
+omit = ["tests/*"]
+concurrency = ["multiprocessing"]
 
 [tool.coverage.report]
 show_missing = true
 skip_empty = true
-fail_under = 0
+
+[tool.coverage.html]
+directory = "htmlcov"
 
 [project.optional-dependencies]
 test = [
