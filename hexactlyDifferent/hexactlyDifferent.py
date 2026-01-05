@@ -23,6 +23,22 @@ Where diff markers is a string of length N (block width), with '^' where bytes d
 
 Block width:
   - default 16, supports 8 or 16.
+
+Adds:
+  --suppressErased
+    Treat FF<->00 differences as “erased-marker noise” for purposes of reporting/exit code.
+    - If enabled and ALL differences are only FF<->00, then:
+        * print a decision message to stdout
+        * exit 0
+    - If enabled and there are other differences:
+        * print only lines containing non-suppressed differences
+        * exit 1
+           * ALSO print the suppressed diff lines to stdout (so you can see where)
+
+Notes (per your domain rules):
+  - 0xFF may mean “erased / unused”
+  - 0x00 always means “explicitly programmed”
+  This option is intentionally narrow: it suppresses only the specific FF<->00 pair.
 """
 
 from __future__ import annotations
@@ -61,10 +77,7 @@ def _hex_to_int(h: str, file_path: str, line_no: int) -> int:
 
 
 def _parse_record(line: str, file_path: str, line_no: int) -> Tuple[int, int, int, bytes, int]:
-    """
-    Returns: (byte_count, address16, record_type, data_bytes, checksum)
-    """
-    s = line.strip()  # tolerate extraneous whitespace in input lines
+    s = line.strip()
     if not s:
         raise IntelHexParseError("Empty line is not a valid Intel HEX record.", file_path, line_no)
     if not s.startswith(":"):
@@ -96,7 +109,6 @@ def _parse_record(line: str, file_path: str, line_no: int) -> Tuple[int, int, in
     except ValueError:
         raise IntelHexParseError("Data field contains non-hex characters.", file_path, line_no)
 
-    # Checksum: sum(all bytes including checksum) % 256 == 0
     total = byte_count + ((address16 >> 8) & 0xFF) + (address16 & 0xFF) + record_type + sum(data) + checksum
     if (total & 0xFF) != 0:
         raise IntelHexParseError(
@@ -113,15 +125,6 @@ def parse_intel_hex(
     *,
     verbose: int = 0,
 ) -> Tuple[Dict[int, int], Optional[int], Optional[int], int, int]:
-    """
-    Parse Intel HEX file into:
-      - memory_map: absolute_address -> byte_value (0..255)
-      - min_addr, max_addr over all data bytes (None if no data)
-      - records_processed, bytes_mapped
-
-    Supported record types: 00, 01, 02, 04.
-    Overlaps: last write wins; warning with -v.
-    """
     memory: Dict[int, int] = {}
     origins: Dict[int, WriteOrigin] = {}
 
@@ -136,13 +139,12 @@ def parse_intel_hex(
             for line_no, line in enumerate(f, start=1):
                 line = line.rstrip("\n")
                 if not line.strip():
-                    # tolerate blank lines
                     continue
 
                 byte_count, addr16, rectype, data, _ck = _parse_record(line, file_path, line_no)
                 records += 1
 
-                if rectype == 0x00:  # Data
+                if rectype == 0x00:
                     abs_start = base + addr16
                     for i, b in enumerate(data):
                         a = abs_start + i
@@ -162,16 +164,16 @@ def parse_intel_hex(
                         if max_addr is None or a > max_addr:
                             max_addr = a
 
-                elif rectype == 0x01:  # EOF
+                elif rectype == 0x01:
                     break
 
-                elif rectype == 0x04:  # Extended Linear Address
+                elif rectype == 0x04:
                     if byte_count != 2:
                         raise IntelHexParseError("Type 04 record must have byte count 2.", file_path, line_no)
                     upper = (data[0] << 8) | data[1]
                     base = upper << 16
 
-                elif rectype == 0x02:  # Extended Segment Address
+                elif rectype == 0x02:
                     if byte_count != 2:
                         raise IntelHexParseError("Type 02 record must have byte count 2.", file_path, line_no)
                     seg = (data[0] << 8) | data[1]
@@ -226,7 +228,6 @@ def derive_output_path(src_file: str) -> str:
 
 
 def mandatory_header_lines(source_path: str, lowest: int, highest: int, size: int) -> List[str]:
-    # Exactly 4 lines; content begins at line 5
     return [
         "# UNIFIED_MEMORY_LAYOUT v1",
         f"# SOURCE {source_path}",
@@ -247,7 +248,6 @@ def dump_unified_layout(
     def to_ascii(b: int) -> str:
         return chr(b) if 0x20 <= b <= 0x7E else "."
 
-    # Remove existing output first
     try:
         if os.path.exists(out_path):
             os.remove(out_path)
@@ -261,7 +261,6 @@ def dump_unified_layout(
         for line in header:
             w.write(line + "\n")
 
-        # Content starts at line 5: no blank line inserted
         for offset in range(0, size, width):
             addr = lowest + offset
             chunk = layout[offset : offset + width]
@@ -283,44 +282,70 @@ def _hex_bytes(chunk: bytes, width: int) -> str:
     return s
 
 
+def _is_ff00_pair(a: int, b: int) -> bool:
+    return (a == 0xFF and b == 0x00) or (a == 0x00 and b == 0xFF)
+
+
 def diff_and_print(
     layout_a: bytearray,
     layout_b: bytearray,
     *,
     lowest: int,
     width: int,
-) -> Tuple[int, int]:
+    suppress_erased: bool,
+    print_suppressed_only_lines: bool,
+) -> Tuple[int, int, int, int]:
     """
-    Prints differing lines only.
+    Prints differing lines.
 
-    Returns: (diff_bytes_total, diff_lines_total)
+    If suppress_erased is True:
+      - Normally prints only lines that have at least one non-suppressed difference.
+      - If print_suppressed_only_lines is True, also prints lines that contain only suppressed diffs.
+
+    Returns:
+      (total_diff_bytes, suppressed_ff00_bytes, reported_diff_bytes, printed_lines)
     """
     if len(layout_a) != len(layout_b):
-        # Should not happen, but keep deterministic failure mode
         raise RuntimeError("Internal error: unified layouts have different lengths.")
 
     size = len(layout_a)
-    diff_bytes_total = 0
-    diff_lines_total = 0
+    total_diff_bytes = 0
+    suppressed_ff00_bytes = 0
+    reported_diff_bytes = 0
+    printed_lines = 0
 
     for offset in range(0, size, width):
         a_chunk = bytes(layout_a[offset : offset + width])
         b_chunk = bytes(layout_b[offset : offset + width])
-
-        # Fast check: if identical block, skip
         if a_chunk == b_chunk:
             continue
 
-        # Determine per-byte differences for this block
-        markers = []
-        for i in range(len(a_chunk)):
-            if a_chunk[i] != b_chunk[i]:
-                markers.append("^")
-                diff_bytes_total += 1
-            else:
-                markers.append(".")
+        markers: List[str] = []
+        line_has_reportable = False
+        line_has_suppressed = False
 
-        diff_lines_total += 1
+        for i in range(len(a_chunk)):
+            if a_chunk[i] == b_chunk[i]:
+                markers.append(".")
+                continue
+
+            total_diff_bytes += 1
+
+            if suppress_erased and _is_ff00_pair(a_chunk[i], b_chunk[i]):
+                suppressed_ff00_bytes += 1
+                line_has_suppressed = True
+                markers.append("~")  # mark suppressed diffs explicitly
+            else:
+                line_has_reportable = True
+                reported_diff_bytes += 1
+                markers.append("^")
+
+        # printing rules
+        if suppress_erased:
+            if not line_has_reportable and not (print_suppressed_only_lines and line_has_suppressed):
+                continue
+
+        printed_lines += 1
         addr = lowest + offset
 
         a_hex = _hex_bytes(a_chunk, width)
@@ -328,12 +353,10 @@ def diff_and_print(
         a_ascii = _ascii_of_chunk(a_chunk)
         b_ascii = _ascii_of_chunk(b_chunk)
 
-        # markers length should be width; pad if last line shorter
         if len(a_chunk) < width:
             markers.extend(" " * (width - len(a_chunk)))
 
         marker_str = "".join(markers)
-
         print(
             f"0x{addr:08X}: "
             f"{a_hex}  |{a_ascii}|   "
@@ -341,7 +364,7 @@ def diff_and_print(
             f"{marker_str}"
         )
 
-    return diff_bytes_total, diff_lines_total
+    return total_diff_bytes, suppressed_ff00_bytes, reported_diff_bytes, printed_lines
 
 
 def parse_hex_byte(s: str) -> int:
@@ -366,6 +389,11 @@ def main(argv: List[str]) -> int:
     ap.add_argument("--max-size", type=int, default=1048576, help="Maximum unified range size in bytes (default: 1048576).")
     ap.add_argument("--fill-byte", default="FF", help="Fill byte for gaps (default: FF).")
     ap.add_argument("--block-width", type=int, default=16, choices=[8, 16], help="Bytes per line (8 or 16). Default: 16.")
+    ap.add_argument(
+        "--suppressErased",
+        action="store_true",
+        help="Suppress FF<->00 differences; if all diffs are only FF<->00, exit 0 and still show the diff.",
+    )
     ap.add_argument("-v", "--verbose", action="count", default=0, help="Increase diagnostics (-v, -vv).")
     args = ap.parse_args(argv)
 
@@ -409,7 +437,7 @@ def main(argv: List[str]) -> int:
         layout_a = build_unified_layout(mem_a, lowest, highest, fill_byte=fill_byte)
         layout_b = build_unified_layout(mem_b, lowest, highest, fill_byte=fill_byte)
 
-        # Dump both unified layouts
+        # Dump both unified layouts (always)
         out_a = derive_output_path(args.file_a)
         out_b = derive_output_path(args.file_b)
         dump_unified_layout(out_a, layout_a, source_path=args.file_a, lowest=lowest, highest=highest, width=args.block_width)
@@ -424,12 +452,45 @@ def main(argv: List[str]) -> int:
             print("IDENTICAL")
             return EXIT_OK
 
-        # Differences: print all differing lines with content
-        diff_bytes, diff_lines = diff_and_print(layout_a, layout_b, lowest=lowest, width=args.block_width)
+        # First pass: print only reportable lines (or also suppressed-only lines if we end up suppressing everything)
+        total_diff, suppressed_ff00, reported_diff, printed_lines = diff_and_print(
+            layout_a,
+            layout_b,
+            lowest=lowest,
+            width=args.block_width,
+            suppress_erased=args.suppressErased,
+            print_suppressed_only_lines=False,
+        )
 
-        # Minimal summary (kept on stderr to preserve "diff lines with content" on stdout)
+        if args.suppressErased and total_diff > 0 and reported_diff == 0:
+            # In this case, we suppressed everything; now show those suppressed-only lines too.
+            print("SUPPRESSED_DIFF_LINES:")
+            _total2, _supp2, _rep2, _lines2 = diff_and_print(
+                layout_a,
+                layout_b,
+                lowest=lowest,
+                width=args.block_width,
+                suppress_erased=True,
+                print_suppressed_only_lines=True,
+            )
+            print(
+                f"SUPPRESSED_ERASED: differences detected but all are FF<->00 only "
+                f"(suppressed_bytes={suppressed_ff00}). Treating as IDENTICAL."
+            )
+            return EXIT_OK
+
         if args.verbose >= 1:
-            print(f"INFO: Diff: differing_bytes={diff_bytes}, differing_lines={diff_lines}", file=sys.stderr)
+            if args.suppressErased:
+                print(
+                    f"INFO: Diff: total_diff_bytes={total_diff}, suppressed_ff00_bytes={suppressed_ff00}, "
+                    f"reported_diff_bytes={reported_diff}, printed_lines={printed_lines}",
+                    file=sys.stderr,
+                )
+            else:
+                print(
+                    f"INFO: Diff: differing_bytes={total_diff}, printed_lines={printed_lines}",
+                    file=sys.stderr,
+                )
 
         return EXIT_DIFF_FOUND
 
