@@ -1,33 +1,28 @@
 #!/usr/bin/env python3
 """
-ILITEK Intel HEX helper: unify BOTH inputs and dump BOTH unified layouts as text.
+ILITEK Intel HEX: unify BOTH inputs, dump BOTH, then diff the unified layouts.
 
 Behavior:
-  1) Reads exactly two Intel HEX file paths (A and B).
-  2) Parses both, discovers unified bounds [lowest, highest] across BOTH.
-  3) Enforces max unified size (default 1 MiB).
-  4) Builds unified random-access layouts for BOTH files using the same fill byte.
-  5) Dumps BOTH layouts to:
+  1) Read exactly two Intel HEX file paths (A and B).
+  2) Parse both (types 00/01/02/04), strict checksum validation.
+  3) Discover unified bounds [lowest, highest] across BOTH.
+  4) Enforce max unified size (default 1 MiB).
+  5) Build unified layouts for BOTH using the same fill byte.
+  6) Dump BOTH to:
        <file_a_basename>.unified.txt
        <file_b_basename>.unified.txt
+     - If output exists, remove first.
+     - Header is mandatory, exactly 4 lines; content begins at line 5.
+  7) Diff the unified layouts (address-based, NOT text diff):
+     - If identical: print "IDENTICAL" to stdout and exit 0.
+     - If different: print all differing lines (hex-editor style) to stdout and exit 1.
 
-Output file rules:
-  - If an output file already exists, it is removed before writing.
-  - Header is mandatory and is exactly 4 lines.
-  - Content starts at line 5 (no blank lines inserted before content).
+Diff output format (per differing line):
+  0xAAAAAAAA: <A hex bytes>  |<A ASCII>|   <B hex bytes>  |<B ASCII>|   <diff markers>
+Where diff markers is a string of length N (block width), with '^' where bytes differ, '.' otherwise.
 
-Intel HEX record types supported:
-  - 00: Data
-  - 01: End Of File
-  - 02: Extended Segment Address (base = value << 4)
-  - 04: Extended Linear Address  (base = value << 16)
-
-Validation:
-  - Strict record parsing and checksum validation.
-  - Errors include file name and line number.
-  - Overlaps: last write wins; warning with -v.
-
-This script is the "unify and dump" precursor step; diffing/reporting comes later.
+Block width:
+  - default 16, supports 8 or 16.
 """
 
 from __future__ import annotations
@@ -40,6 +35,7 @@ from typing import Dict, List, Optional, Tuple
 
 
 EXIT_OK = 0
+EXIT_DIFF_FOUND = 1
 EXIT_USAGE_ERROR = 2
 EXIT_PARSE_OR_RANGE_ERROR = 3
 
@@ -80,7 +76,6 @@ def _parse_record(line: str, file_path: str, line_no: int) -> Tuple[int, int, in
     if len(payload) % 2 != 0:
         raise IntelHexParseError("Record has odd number of hex characters.", file_path, line_no)
 
-    # ll aaaa tt [dd...] cc
     byte_count = _hex_to_int(payload[0:2], file_path, line_no)
     address16 = _hex_to_int(payload[2:6], file_path, line_no)
     record_type = _hex_to_int(payload[6:8], file_path, line_no)
@@ -124,6 +119,7 @@ def parse_intel_hex(
       - min_addr, max_addr over all data bytes (None if no data)
       - records_processed, bytes_mapped
 
+    Supported record types: 00, 01, 02, 04.
     Overlaps: last write wins; warning with -v.
     """
     memory: Dict[int, int] = {}
@@ -222,11 +218,15 @@ def build_unified_layout(
     return buf
 
 
+def derive_output_path(src_file: str) -> str:
+    base, ext = os.path.splitext(src_file)
+    if ext.lower() == ".hex":
+        return base + ".unified.txt"
+    return src_file + ".unified.txt"
+
+
 def mandatory_header_lines(source_path: str, lowest: int, highest: int, size: int) -> List[str]:
-    """
-    Mandatory header: exactly 4 lines.
-    Content begins at line 5.
-    """
+    # Exactly 4 lines; content begins at line 5
     return [
         "# UNIFIED_MEMORY_LAYOUT v1",
         f"# SOURCE {source_path}",
@@ -242,7 +242,7 @@ def dump_unified_layout(
     source_path: str,
     lowest: int,
     highest: int,
-    width: int = 16,
+    width: int,
 ) -> None:
     def to_ascii(b: int) -> str:
         return chr(b) if 0x20 <= b <= 0x7E else "."
@@ -258,11 +258,10 @@ def dump_unified_layout(
     header = mandatory_header_lines(source_path, lowest, highest, size)
 
     with open(out_path, "w", encoding="utf-8", newline="\n") as w:
-        # Lines 1-4: mandatory header
         for line in header:
             w.write(line + "\n")
 
-        # Line 5 onward: content (no extra blank line)
+        # Content starts at line 5: no blank line inserted
         for offset in range(0, size, width):
             addr = lowest + offset
             chunk = layout[offset : offset + width]
@@ -273,11 +272,76 @@ def dump_unified_layout(
             w.write(f"0x{addr:08X}: {hex_bytes}  |{ascii_col}|\n")
 
 
-def derive_output_path(src_file: str) -> str:
-    base, ext = os.path.splitext(src_file)
-    if ext.lower() == ".hex":
-        return base + ".unified.txt"
-    return src_file + ".unified.txt"
+def _ascii_of_chunk(chunk: bytes) -> str:
+    return "".join(chr(b) if 0x20 <= b <= 0x7E else "." for b in chunk)
+
+
+def _hex_bytes(chunk: bytes, width: int) -> str:
+    s = " ".join(f"{b:02X}" for b in chunk)
+    if len(chunk) < width:
+        s += "   " * (width - len(chunk))
+    return s
+
+
+def diff_and_print(
+    layout_a: bytearray,
+    layout_b: bytearray,
+    *,
+    lowest: int,
+    width: int,
+) -> Tuple[int, int]:
+    """
+    Prints differing lines only.
+
+    Returns: (diff_bytes_total, diff_lines_total)
+    """
+    if len(layout_a) != len(layout_b):
+        # Should not happen, but keep deterministic failure mode
+        raise RuntimeError("Internal error: unified layouts have different lengths.")
+
+    size = len(layout_a)
+    diff_bytes_total = 0
+    diff_lines_total = 0
+
+    for offset in range(0, size, width):
+        a_chunk = bytes(layout_a[offset : offset + width])
+        b_chunk = bytes(layout_b[offset : offset + width])
+
+        # Fast check: if identical block, skip
+        if a_chunk == b_chunk:
+            continue
+
+        # Determine per-byte differences for this block
+        markers = []
+        for i in range(len(a_chunk)):
+            if a_chunk[i] != b_chunk[i]:
+                markers.append("^")
+                diff_bytes_total += 1
+            else:
+                markers.append(".")
+
+        diff_lines_total += 1
+        addr = lowest + offset
+
+        a_hex = _hex_bytes(a_chunk, width)
+        b_hex = _hex_bytes(b_chunk, width)
+        a_ascii = _ascii_of_chunk(a_chunk)
+        b_ascii = _ascii_of_chunk(b_chunk)
+
+        # markers length should be width; pad if last line shorter
+        if len(a_chunk) < width:
+            markers.extend(" " * (width - len(a_chunk)))
+
+        marker_str = "".join(markers)
+
+        print(
+            f"0x{addr:08X}: "
+            f"{a_hex}  |{a_ascii}|   "
+            f"{b_hex}  |{b_ascii}|   "
+            f"{marker_str}"
+        )
+
+    return diff_bytes_total, diff_lines_total
 
 
 def parse_hex_byte(s: str) -> int:
@@ -295,13 +359,13 @@ def parse_hex_byte(s: str) -> int:
 def main(argv: List[str]) -> int:
     ap = argparse.ArgumentParser(
         prog="hexactlyDifferent.py",
-        description="Unify BOTH Intel HEX inputs into an address-based layout and dump BOTH as .unified.txt.",
+        description="Unify BOTH Intel HEX inputs into address-based layouts, dump BOTH, then diff them.",
     )
     ap.add_argument("file_a", help="Path to file A (Intel HEX).")
     ap.add_argument("file_b", help="Path to file B (Intel HEX).")
     ap.add_argument("--max-size", type=int, default=1048576, help="Maximum unified range size in bytes (default: 1048576).")
     ap.add_argument("--fill-byte", default="FF", help="Fill byte for gaps (default: FF).")
-    ap.add_argument("--block-width", type=int, default=16, choices=[8, 16], help="Bytes per output line (8 or 16). Default: 16.")
+    ap.add_argument("--block-width", type=int, default=16, choices=[8, 16], help="Bytes per line (8 or 16). Default: 16.")
     ap.add_argument("-v", "--verbose", action="count", default=0, help="Increase diagnostics (-v, -vv).")
     args = ap.parse_args(argv)
 
@@ -345,9 +409,9 @@ def main(argv: List[str]) -> int:
         layout_a = build_unified_layout(mem_a, lowest, highest, fill_byte=fill_byte)
         layout_b = build_unified_layout(mem_b, lowest, highest, fill_byte=fill_byte)
 
+        # Dump both unified layouts
         out_a = derive_output_path(args.file_a)
         out_b = derive_output_path(args.file_b)
-
         dump_unified_layout(out_a, layout_a, source_path=args.file_a, lowest=lowest, highest=highest, width=args.block_width)
         dump_unified_layout(out_b, layout_b, source_path=args.file_b, lowest=lowest, highest=highest, width=args.block_width)
 
@@ -355,7 +419,19 @@ def main(argv: List[str]) -> int:
             print(f"INFO: Wrote unified dump for A to: {out_a}", file=sys.stderr)
             print(f"INFO: Wrote unified dump for B to: {out_b}", file=sys.stderr)
 
-        return EXIT_OK
+        # Diff in-memory layouts
+        if layout_a == layout_b:
+            print("IDENTICAL")
+            return EXIT_OK
+
+        # Differences: print all differing lines with content
+        diff_bytes, diff_lines = diff_and_print(layout_a, layout_b, lowest=lowest, width=args.block_width)
+
+        # Minimal summary (kept on stderr to preserve "diff lines with content" on stdout)
+        if args.verbose >= 1:
+            print(f"INFO: Diff: differing_bytes={diff_bytes}, differing_lines={diff_lines}", file=sys.stderr)
+
+        return EXIT_DIFF_FOUND
 
     except IntelHexParseError as e:
         print(f"ERROR: {e}", file=sys.stderr)
