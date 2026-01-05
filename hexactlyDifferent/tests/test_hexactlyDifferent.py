@@ -1,24 +1,34 @@
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parents[1] / "hexactlyDifferent.py"
-
-
-def _write_hex(path: Path, lines: list[str]) -> None:
-    """Write ASCII Intel HEX lines to a file with trailing newline."""
-    path.write_text("\n".join(lines) + "\n", encoding="ascii")
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _run(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
-    """Run the script with subprocess and capture output."""
+    env = os.environ.copy()
+
+    # Ensure repo root is importable so Python can find sitecustomize.py in subprocesses
+    env["PYTHONPATH"] = str(REPO_ROOT) + (
+        os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else ""
+    )
+
+    # Ensure subprocess coverage auto-start is enabled (inherited or default)
+    env["COVERAGE_PROCESS_START"] = env.get("COVERAGE_PROCESS_START", ".coveragerc")
+
     return subprocess.run(
         [sys.executable, str(SCRIPT), *args],
         capture_output=True,
         text=True,
         cwd=cwd,
+        env=env,
     )
 
+def _write_hex(path: Path, lines: list[str]) -> None:
+    """Write ASCII Intel HEX lines to a file with trailing newline."""
+    path.write_text("\n".join(lines) + "\n", encoding="ascii")
 
 def test_identical_inputs_print_identical_and_exit_0(tmp_path: Path) -> None:
     # One data byte at 0x0000: 0xAA, checksum 0x55
