@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """
-ILITEK Intel HEX helper (step 1): unified memory layout dump for file A.
+ILITEK Intel HEX helper: unify BOTH inputs and dump BOTH unified layouts as text.
 
-This script:
-  1) reads two Intel HEX file paths (A and B),
-  2) parses both to discover the unified address range [lowest, highest] across BOTH inputs,
-  3) constructs a unified, random-access layout for file A over that range (gaps filled),
-  4) writes a human-readable hex+ASCII dump to: <file_a_basename>.unified.txt
+Behavior:
+  1) Reads exactly two Intel HEX file paths (A and B).
+  2) Parses both, discovers unified bounds [lowest, highest] across BOTH.
+  3) Enforces max unified size (default 1 MiB).
+  4) Builds unified random-access layouts for BOTH files using the same fill byte.
+  5) Dumps BOTH layouts to:
+       <file_a_basename>.unified.txt
+       <file_b_basename>.unified.txt
+
+Output file rules:
+  - If an output file already exists, it is removed before writing.
+  - Header is mandatory and is exactly 4 lines.
+  - Content starts at line 5 (no blank lines inserted before content).
 
 Intel HEX record types supported:
   - 00: Data
@@ -15,16 +23,11 @@ Intel HEX record types supported:
   - 04: Extended Linear Address  (base = value << 16)
 
 Validation:
-  - Syntax validation and checksum validation (strict).
-  - Clear errors include file name + line number.
+  - Strict record parsing and checksum validation.
+  - Errors include file name and line number.
+  - Overlaps: last write wins; warning with -v.
 
-Policy:
-  - Overlaps: last write wins (deterministic). Overlap warnings are available via -v.
-
-Default limits:
-  - max unified range size: 1 MiB
-  - fill byte: 0xFF
-  - dump width: 16 bytes per line
+This script is the "unify and dump" precursor step; diffing/reporting comes later.
 """
 
 from __future__ import annotations
@@ -33,10 +36,10 @@ import argparse
 import os
 import sys
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 
-EXIT_OK_NO_DIFFS = 0  # not used yet, but kept for eventual tool alignment
+EXIT_OK = 0
 EXIT_USAGE_ERROR = 2
 EXIT_PARSE_OR_RANGE_ERROR = 3
 
@@ -65,7 +68,7 @@ def _parse_record(line: str, file_path: str, line_no: int) -> Tuple[int, int, in
     """
     Returns: (byte_count, address16, record_type, data_bytes, checksum)
     """
-    s = line.strip()  # tolerate trailing/leading whitespace per REQ-DIF-005
+    s = line.strip()  # tolerate extraneous whitespace in input lines
     if not s:
         raise IntelHexParseError("Empty line is not a valid Intel HEX record.", file_path, line_no)
     if not s.startswith(":"):
@@ -77,7 +80,7 @@ def _parse_record(line: str, file_path: str, line_no: int) -> Tuple[int, int, in
     if len(payload) % 2 != 0:
         raise IntelHexParseError("Record has odd number of hex characters.", file_path, line_no)
 
-    # Fields: ll aaaa tt [dd...] cc
+    # ll aaaa tt [dd...] cc
     byte_count = _hex_to_int(payload[0:2], file_path, line_no)
     address16 = _hex_to_int(payload[2:6], file_path, line_no)
     record_type = _hex_to_int(payload[6:8], file_path, line_no)
@@ -98,7 +101,7 @@ def _parse_record(line: str, file_path: str, line_no: int) -> Tuple[int, int, in
     except ValueError:
         raise IntelHexParseError("Data field contains non-hex characters.", file_path, line_no)
 
-    # Checksum validation: sum of all bytes including checksum must be 0 (mod 256)
+    # Checksum: sum(all bytes including checksum) % 256 == 0
     total = byte_count + ((address16 >> 8) & 0xFF) + (address16 & 0xFF) + record_type + sum(data) + checksum
     if (total & 0xFF) != 0:
         raise IntelHexParseError(
@@ -121,12 +124,12 @@ def parse_intel_hex(
       - min_addr, max_addr over all data bytes (None if no data)
       - records_processed, bytes_mapped
 
-    Overlaps: last write wins; if verbose, prints warnings to stderr.
+    Overlaps: last write wins; warning with -v.
     """
     memory: Dict[int, int] = {}
     origins: Dict[int, WriteOrigin] = {}
 
-    base = 0  # absolute base derived from type 02/04 records
+    base = 0
     min_addr: Optional[int] = None
     max_addr: Optional[int] = None
     records = 0
@@ -137,14 +140,13 @@ def parse_intel_hex(
             for line_no, line in enumerate(f, start=1):
                 line = line.rstrip("\n")
                 if not line.strip():
-                    # Accept blank lines as a tolerance choice (common in some exports).
-                    # If you want strict Intel HEX only, change this to error.
+                    # tolerate blank lines
                     continue
 
                 byte_count, addr16, rectype, data, _ck = _parse_record(line, file_path, line_no)
                 records += 1
 
-                if rectype == 0x00:  # data
+                if rectype == 0x00:  # Data
                     abs_start = base + addr16
                     for i, b in enumerate(data):
                         a = abs_start + i
@@ -165,28 +167,21 @@ def parse_intel_hex(
                             max_addr = a
 
                 elif rectype == 0x01:  # EOF
-                    # EOF should have byte_count == 0, but we rely on checksum+length already.
                     break
 
-                elif rectype == 0x04:  # extended linear address
+                elif rectype == 0x04:  # Extended Linear Address
                     if byte_count != 2:
-                        raise IntelHexParseError(
-                            "Type 04 record must have byte count 2.", file_path, line_no
-                        )
+                        raise IntelHexParseError("Type 04 record must have byte count 2.", file_path, line_no)
                     upper = (data[0] << 8) | data[1]
                     base = upper << 16
 
-                elif rectype == 0x02:  # extended segment address
+                elif rectype == 0x02:  # Extended Segment Address
                     if byte_count != 2:
-                        raise IntelHexParseError(
-                            "Type 02 record must have byte count 2.", file_path, line_no
-                        )
+                        raise IntelHexParseError("Type 02 record must have byte count 2.", file_path, line_no)
                     seg = (data[0] << 8) | data[1]
                     base = seg << 4
 
                 else:
-                    # For this step, ignore other record types (they are out of scope for minimum support).
-                    # We still parsed+validated them at record level including checksum.
                     if verbose >= 2:
                         print(
                             f"INFO: Ignoring unsupported record type 0x{rectype:02X} at {file_path}:{line_no}",
@@ -227,10 +222,24 @@ def build_unified_layout(
     return buf
 
 
+def mandatory_header_lines(source_path: str, lowest: int, highest: int, size: int) -> List[str]:
+    """
+    Mandatory header: exactly 4 lines.
+    Content begins at line 5.
+    """
+    return [
+        "# UNIFIED_MEMORY_LAYOUT v1",
+        f"# SOURCE {source_path}",
+        f"# RANGE 0x{lowest:08X} 0x{highest:08X} SIZE {size}",
+        "# FORMAT: 0xAAAAAAAA: <hex bytes>  |<ASCII>|   (CONTENT_STARTS_AT_LINE 5)",
+    ]
+
+
 def dump_unified_layout(
     out_path: str,
     layout: bytearray,
     *,
+    source_path: str,
     lowest: int,
     highest: int,
     width: int = 16,
@@ -238,29 +247,37 @@ def dump_unified_layout(
     def to_ascii(b: int) -> str:
         return chr(b) if 0x20 <= b <= 0x7E else "."
 
-    with open(out_path, "w", encoding="utf-8", newline="\n") as w:
-        size = len(layout)
-        w.write(f"# Unified memory layout dump (file A)\n")
-        w.write(f"# Range: 0x{lowest:08X} - 0x{highest:08X} (size {size} bytes)\n")
-        w.write(f"# Format per line: <address>: <hex bytes>  |<ASCII>|\n\n")
+    # Remove existing output first
+    try:
+        if os.path.exists(out_path):
+            os.remove(out_path)
+    except OSError as e:
+        raise RuntimeError(f"Failed to remove existing output file {out_path!r}: {e}") from e
 
+    size = len(layout)
+    header = mandatory_header_lines(source_path, lowest, highest, size)
+
+    with open(out_path, "w", encoding="utf-8", newline="\n") as w:
+        # Lines 1-4: mandatory header
+        for line in header:
+            w.write(line + "\n")
+
+        # Line 5 onward: content (no extra blank line)
         for offset in range(0, size, width):
             addr = lowest + offset
             chunk = layout[offset : offset + width]
             hex_bytes = " ".join(f"{b:02X}" for b in chunk)
-            # pad hex column for last line
             if len(chunk) < width:
                 hex_bytes += "   " * (width - len(chunk))
-
             ascii_col = "".join(to_ascii(b) for b in chunk)
             w.write(f"0x{addr:08X}: {hex_bytes}  |{ascii_col}|\n")
 
 
-def derive_output_path(file_a: str) -> str:
-    base, ext = os.path.splitext(file_a)
+def derive_output_path(src_file: str) -> str:
+    base, ext = os.path.splitext(src_file)
     if ext.lower() == ".hex":
         return base + ".unified.txt"
-    return file_a + ".unified.txt"
+    return src_file + ".unified.txt"
 
 
 def parse_hex_byte(s: str) -> int:
@@ -277,16 +294,15 @@ def parse_hex_byte(s: str) -> int:
 
 def main(argv: List[str]) -> int:
     ap = argparse.ArgumentParser(
-        prog="hex_unified_dump.py",
-        description="Step 1: Read two Intel HEX paths, compute unified bounds, dump unified layout for file A.",
+        prog="hexactlyDifferent.py",
+        description="Unify BOTH Intel HEX inputs into an address-based layout and dump BOTH as .unified.txt.",
     )
     ap.add_argument("file_a", help="Path to file A (Intel HEX).")
-    ap.add_argument("file_b", help="Path to file B (Intel HEX). Used only for unified bound discovery.")
+    ap.add_argument("file_b", help="Path to file B (Intel HEX).")
     ap.add_argument("--max-size", type=int, default=1048576, help="Maximum unified range size in bytes (default: 1048576).")
     ap.add_argument("--fill-byte", default="FF", help="Fill byte for gaps (default: FF).")
     ap.add_argument("--block-width", type=int, default=16, choices=[8, 16], help="Bytes per output line (8 or 16). Default: 16.")
     ap.add_argument("-v", "--verbose", action="count", default=0, help="Increase diagnostics (-v, -vv).")
-
     args = ap.parse_args(argv)
 
     try:
@@ -327,19 +343,27 @@ def main(argv: List[str]) -> int:
             return EXIT_PARSE_OR_RANGE_ERROR
 
         layout_a = build_unified_layout(mem_a, lowest, highest, fill_byte=fill_byte)
-        out_path = derive_output_path(args.file_a)
-        dump_unified_layout(out_path, layout_a, lowest=lowest, highest=highest, width=args.block_width)
+        layout_b = build_unified_layout(mem_b, lowest, highest, fill_byte=fill_byte)
+
+        out_a = derive_output_path(args.file_a)
+        out_b = derive_output_path(args.file_b)
+
+        dump_unified_layout(out_a, layout_a, source_path=args.file_a, lowest=lowest, highest=highest, width=args.block_width)
+        dump_unified_layout(out_b, layout_b, source_path=args.file_b, lowest=lowest, highest=highest, width=args.block_width)
 
         if args.verbose >= 1:
-            print(f"INFO: Wrote unified dump for A to: {out_path}", file=sys.stderr)
+            print(f"INFO: Wrote unified dump for A to: {out_a}", file=sys.stderr)
+            print(f"INFO: Wrote unified dump for B to: {out_b}", file=sys.stderr)
 
-        return EXIT_OK_NO_DIFFS
+        return EXIT_OK
 
     except IntelHexParseError as e:
-        # Parsing/validation error with context
         print(f"ERROR: {e}", file=sys.stderr)
         return EXIT_PARSE_OR_RANGE_ERROR
     except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return EXIT_PARSE_OR_RANGE_ERROR
+    except RuntimeError as e:
         print(f"ERROR: {e}", file=sys.stderr)
         return EXIT_PARSE_OR_RANGE_ERROR
 
