@@ -1,0 +1,1 @@
+Create a single-page app in a single HTML file with the following requirements: - Name: Virtual Drum Kit - Goal: Play a drum kit using keyboard or clicks. - Features: Multiple drum sounds, record and playback mode. - The UI should be music-studio themed & drum set featured; the pads should be large enough to tap on mobile.
