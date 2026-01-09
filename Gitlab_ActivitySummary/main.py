@@ -261,7 +261,7 @@ def iter_user_events(
     # These are known in many GitLab versions, but not universal.
     # We keep them as date-only (YYYY-MM-DD) in accordance with GitLab conventions.
     after_date = window.start.date().isoformat()
-    before_date = (window.end - timedelta(seconds=1)).date().isoformat()
+    before_date = window.end.date().isoformat()
 
     # Try to pass after/before; if python-gitlab rejects them, we retry without.
     def _list_events(extra: Dict[str, Any]) -> Iterable[Any]:
@@ -270,20 +270,19 @@ def iter_user_events(
     for attempt in (1, 2):
         try:
             extra = dict(params)
-            extra.update({"after": after_date, "before": before_date})
+            extra.update({"after": after_date})
             events_iter = _list_events(extra)
             if verbose:
-                eprint(f"Listing events with server-side filter after={after_date} before={before_date}")
+                eprint(f"Listing events with server-side filter after={after_date} (no before)")
             break
         except TypeError:
             if attempt == 2:
                 raise
             if verbose:
-                eprint("Events API does not accept after/before in this environment; using client-side filtering only.")
+                eprint("Events API does not accept after; using client-side filtering only.")
             events_iter = _list_events(params)
             break
         except Exception as ex:
-            # Some environments reject params with a GitLab error rather than TypeError.
             if verbose:
                 eprint(f"Server-side filter attempt failed ({ex}); using client-side filtering only.")
             events_iter = _list_events(params)
