@@ -1,117 +1,229 @@
-awesome — here’s a tight plan to get this done. after you review, I’ll turn it into code.
+# PLAN.md — GitLab Activity Stream → Daily Chunks (LLM-compatible stdout)
 
-# Plan: “show running & queued CI jobs across all projects I can access (non-admin)”
+## 1) Objective
 
-## 1) Approach & constraints
+Build a Python 3 CLI tool that:
 
-* Use the **python-gitlab** SDK (not admin). Auth with a **Personal Access Token** that has `read_api` scope.
-* Because you’re not admin, we **can’t** hit instance-wide job endpoints; we’ll **iterate projects you can access** and query jobs per project.
-* “Jobs” = CI jobs created by pipelines; we care about **statuses `running` and `pending`** (queued).
+1. Authenticates to GitLab using a **Personal Access Token** (PAT).
+2. Fetches **activity stream events** for a target user (default: current authenticated user; optionally by `--user mpetrick`).
+3. Restricts events to a requested time window:
 
-> We can mirror the pagination/timeouts/verbosity style you already use in your GitLab scripts so it feels familiar. Your existing tools paginate via headers and print clean, human-readable blocks — we’ll keep the same vibes. 
+   * If `--start` and/or `--end` are provided: use those.
+   * Otherwise default to **last 10 days** (rolling window).
+4. Buckets events into **1-day chunks** aligned to **UTC day boundaries** (00:00:00 → 23:59:59).
+5. Prints to **stdout** in a stable, LLM-friendly schema so you can post-process later.
 
-## 2) Inputs & configuration
+Non-goals:
 
-* `GITLAB_URL` (e.g. `https://git.example.com`)
-* `GITLAB_TOKEN` (or `--token` CLI flag)
-* Optional CLI flags:
-
-  * `--include-archived` (default: false)
-  * `--projects "path1 path2 …"` (limit to a subset)
-  * `--max-projects N` (quick runs)
-  * `--format table|json|csv` (default: table)
-  * `--verbose`
-  * `--concurrency N` (default: 8)
-
-## 3) Project discovery (non-admin)
-
-* `gl.projects.list(membership=True, archived=False, iterator=True, per_page=100)`.
-* If `--projects` is given, filter to those `path_with_namespace`.
-* Handle per-project 403s (some groups may still deny job reads).
-
-## 4) Fetch jobs per project
-
-For each project:
-
-* Call `project.jobs.list(scope=['running','pending'], per_page=100, all=True)`
-  (If the SDK version doesn’t accept a list for `scope`, call twice, once for each.)
-* For each job, capture:
-
-  * `id`, `name`, `stage`, `status`, `ref`, `tag`, `created_at`, `started_at`, `queued_duration`, `duration`, `user`, `runner`
-  * `pipeline` (`id`, `iid`)
-  * Build a **web URL** as: `{project.web_url}/-/jobs/{job.id}`
-
-## 5) Performance & robustness
-
-* Use a bounded **ThreadPool** (e.g. `concurrent.futures.ThreadPoolExecutor(max_workers=concurrency)`) to fetch projects in parallel.
-* Respect pagination; catch/transparently report HTTP errors (401/403/429).
-* Optional light **rate-limit backoff** on `429 Retry-After`.
-
-## 6) Output (human-readable first)
-
-Default **table** grouped by project, then status:
-
-```
-=======================================================================
-Running & Queued Jobs (now)
-Account: <your-username>   Host: <GITLAB_URL>   Projects scanned: 57
-=======================================================================
-
-project-a/backend
------------------
-RUNNING (2)
-  #128374  build-linux     stage: build   ref: main   since: 3m12s   URL: …
-  #128375  unit-tests      stage: test    ref: main   since: 1m02s   URL: …
-PENDING (1)
-  #128376  e2e-tests       stage: test    ref: main   queued: 45s    URL: …
-
-project-b/frontend
-------------------
-PENDING (3)
-  #99218   build           stage: build   ref: feature/auth  queued: 2m04s  URL: …
-  …
------------------------------------------------------------------------
-TOTALS: running=12  pending=31  across 19/57 projects with active jobs
-```
-
-Other formats:
-
-* `--json` returns a stable schema (easy to pipe to jq).
-* `--csv` for spreadsheets (columns: project, job_id, status, …).
-
-## 7) CLI shape
-
-```
-gitlab-jobs-now.py \
-  --base-url https://git.example.com \
-  [--token $GITLAB_TOKEN] \
-  [--projects "group/proj1 group/proj2"] \
-  [--include-archived] \
-  [--format table|json|csv] \
-  [--concurrency 8] \
-  [--verbose]
-```
-
-## 8) Edge cases we’ll cover
-
-* Some projects hidden or lacking job read rights → warn & continue.
-* Empty result (no running/pending anywhere) → print a friendly “none found” with totals.
-* Very old GitLab versions missing `queued_duration` → fall back to “created_at → now”.
-* Archived projects excluded unless `--include-archived`.
-* Large accounts: cap projects with `--max-projects` for quick checks.
-
-## 9) Testing plan
-
-* Smoke test on your instance with one group.
-* Simulate permission errors (use a project you can view but not its jobs).
-* Compare counts vs GitLab UI filters (Jobs → Running / Pending).
-
-## 10) Nice-to-haves (later)
-
-* `--since` window and `--runner <name>` filter.
-* Colorized TTY output.
-* Per-project totals and an overall “queue age p95”.
+* No LLM invocation inside the tool.
+* No database; this is a fetch-and-print pipeline stage.
 
 ---
 
-If this plan looks good, I’ll implement it with **python-gitlab**, plus a tiny compatibility layer to keep the same pagination/verbosity flavor you used in your existing scripts. 
+## 2) Inputs and Configuration
+
+### Required
+
+* `--base-url` (or env `GITLAB_URL` / `CI_SERVER_URL`)
+* `--token` (or env `GITLAB_TOKEN`)
+
+### Optional (time window)
+
+* `--start <ISO8601>`: start time inclusive (e.g. `2026-01-01T00:00:00Z`)
+* `--end <ISO8601>`: end time exclusive or inclusive (define and document; recommended: **exclusive** end for clean bucketing)
+* Default: `end = now(UTC)`, `start = end - 10 days`
+
+### Optional (user selection)
+
+* `--user <username>` (default: authenticated user’s username)
+
+  * Example: `--user mpetrick`
+* `--user-id <int>` (optional override if username lookup is ambiguous; may be added as a robustness feature)
+
+### Output format
+
+* `--format llm-md|json` (default: `llm-md`)
+
+  * `llm-md`: markdown blocks per day, with bullet items (easy ingestion)
+  * `json`: structured list grouped by day (best for programmatic post-processing)
+
+### Operational controls (carry over from existing style)
+
+* `--verbose` (stderr logging)
+* `--concurrency N` (optional; probably not needed unless we enrich events per project)
+* `--progress` and `--heartbeat-secs N` (optional; likely not necessary_jobs-style not required, but keep pattern consistent)
+
+---
+
+## 3) Data Source: GitLab Activity Stream
+
+### Approach
+
+* Use `python-gitlab` for authentication and API calls.
+* Fetch events from the **user activity endpoint** (GitLab exposes “events” per user).
+* When `--user` is provided:
+
+  * Resolve username → user object (ID), then fetch events for that user.
+* When not provided:
+
+  * Use `gl.user` (current user) and fetch its events.
+
+### Pagination / Limits
+
+* Use iterator-style listing or `page/per_page` loops.
+* Stop fetching once events are older than `--start` (since results are typically reverse chronological).
+
+### Filtering
+
+* Server-side: if GitLab supports `after` / `before` params for events, use them.
+* Client-side: always re-check event timestamps to enforce `[start, end)`.
+
+---
+
+## 4) Timestamp Handling and Day Bucketing
+
+### Normalization
+
+* Parse all times as timezone-aware.
+* Convert everything to **UTC** internally.
+
+### Bucket definition
+
+* A day bucket is `[YYYY-MM-DDT00:00:00Z, YYYY-MM-DDT23:59:59Z]`
+* Implementation should use half-open intervals for correctness:
+
+  * bucket range: `[day_start, next_day_start)`
+  * global range: `[start, end)` (recommended)
+
+### Output ordering
+
+* Days in ascending order (oldest → newest) to support incremental summarization.
+* Events inside each day sorted by timestamp ascending (or keep original order; document choice).
+
+---
+
+## 5) Event Normalization (Stable Schema)
+
+GitLab events vary by action type. Normalize each event into a consistent dict with:
+
+* `event_id`
+* `created_at` (ISO8601 UTC)
+* `author` (username, name, id when available)
+* `action_name` (or similar GitLab field)
+* `target_type` (Issue/MergeRequest/PushEvent/etc.)
+* `target_title` (best effort)
+* `target_iid` / `target_id` (if present)
+* `project`:
+
+  * `path_with_namespace` (if available)
+  * `web_url` (optional)
+* `url` (best effort deep link; if not directly provided, construct if possible)
+* `raw` (optional, behind `--include-raw`; otherwise omit to keep output compact)
+
+This yields stable, LLM-friendly outputs regardless of event kind.
+
+---
+
+## 6) Output Design (stdout)
+
+### Default: `--format llm-md`
+
+Print one block per day:
+
+* Header line with day and window:
+
+  * `## 2026-01-09 (UTC)`
+  * `Window: 2026-01-09T00:00:00Z — 2026-01-10T00:00:00Z`
+* Then events as bullet lines with minimal but informative fields:
+
+  * `- 14:32:10Z | MergeRequest | opened | group/proj | !123 Add caching | <url>`
+  * `- 15:07:44Z | Issue | commented | group/proj | #456 Fix flaky test | <url>`
+
+Include a short per-day summary footer:
+
+* `Count: 17 events`
+
+### Alternative: `--format json`
+
+Emit a JSON object like:
+
+```json
+{
+  "meta": { "user": "mpetrick", "start": "...", "end": "...", "timezone": "UTC" },
+  "days": [
+    {
+      "date": "2026-01-09",
+      "start": "...",
+      "end": "...",
+      "count": 17,
+      "events": [ { ...normalized event... } ]
+    }
+  ]
+}
+```
+
+---
+
+## 7) Error Handling and Robustness
+
+* Missing token / base-url → immediate error with actionable message.
+* Authentication errors → fail fast.
+* Username lookup failures → print clear error; suggest `--user-id`.
+* Rate limiting (HTTP 429) → exponential backoff similar to existing code.
+* Partial permissions (some events may reference projects you can’t read deeply) → still print the event; do not enrich further.
+
+---
+
+## 8) CLI Examples
+
+### Default last 10 days for current user
+
+```bash
+python3 main.py --base-url https://git.example.com --token "$GITLAB_TOKEN"
+```
+
+### Explicit user + explicit window
+
+```bash
+python3 main.py \
+  --base-url https://git.example.com \
+  --token "$GITLAB_TOKEN" \
+  --user mpetrick \
+  --start 2026-01-01T00:00:00Z \
+  --end   2026-01-11T00:00:00Z \
+  --format llm-md
+```
+
+### JSON output for programmatic processing
+
+```bash
+python3 main.py --base-url ... --token ... --format json > activity.json
+```
+
+---
+
+## 9) Implementation Steps
+
+1. Refactor/replace `main.py` purpose: jobs → events.
+2. Keep reusable utilities:
+
+   * `iso_to_dt`, stderr logger, heartbeat/progress patterns (optional)
+3. Implement:
+
+   * `build_client()`
+   * `resolve_user(gl, username)` → user object
+   * `iter_events(gl, user_id, start, end)` with pagination and time cutoff
+   * `bucket_events_by_day(events, start, end)` producing ordered day blocks
+   * `render_llm_md(days)` and `render_json(days)`
+4. Update README with new behavior and examples.
+5. Ensure output is stable and free of ANSI or non-deterministic ordering.
+
+---
+
+## 10) Testing Plan
+
+* Smoke test: run with default window, confirm non-empty output.
+* Validate day bucketing: craft start/end that straddle midnight UTC.
+* Compare a known day’s activity with GitLab UI “Activity” page.
+* Test rate limiting handling (if possible) by reducing per_page and increasing calls.
+* Verify that missing `--user` uses authenticated user.

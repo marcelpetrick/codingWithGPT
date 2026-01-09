@@ -1,383 +1,659 @@
 #!/usr/bin/env python3
 """
-gitlab-jobs-now.py
-List running and queued (pending) CI jobs across all projects accessible to the current user (non-admin).
+gitlab-activity-daily.py
 
-Progress options:
-  --progress               Show per-project start/finish updates (stderr).
-  --heartbeat-secs N       Periodic "still working..." (stderr), default 8, 0 disables.
+Fetch a GitLab user's Activity Stream ("events") for a given time window,
+bucket the events into UTC day blocks (00:00–24:00), and print to stdout in an
+LLM-friendly format (Markdown) or structured JSON.
 
-Usage:
-  python3 main.py \
-    --base-url https://git.example.com \
-    --token $GITLAB_TOKEN \
-    --format table \
-    --concurrency 8 \
-    --progress
+This script is intentionally designed as a data-extraction stage you can pipe
+into later processing (e.g., LLM summarization).
+
+Features
+--------
+- Auth via Personal Access Token (PAT) using python-gitlab
+- User selection:
+  - Default: current authenticated user
+  - Optional: --user <username>
+- Time window:
+  - --start / --end (ISO-8601)
+  - Default: last 10 days ending "now" (UTC)
+- Output:
+  - --format llm-md (default): Markdown blocks per day
+  - --format json: grouped JSON object
+
+Notes on time handling
+----------------------
+- All timestamps are normalized to UTC.
+- Buckets are UTC calendar days: [YYYY-MM-DD 00:00:00Z, next-day 00:00:00Z).
+
+Compatibility
+-------------
+GitLab and python-gitlab versions differ in which query parameters the Events API
+accepts (e.g., "after", "before"). This script attempts server-side filtering when
+possible and always enforces the window client-side.
+
+Example
+-------
+python3 main.py \
+  --base-url https://git.example.com \
+  --token "$GITLAB_TOKEN" \
+  --user mpetrick \
+  --start 2026-01-01T00:00:00Z \
+  --end   2026-01-11T00:00:00Z \
+  --format llm-md
 """
 
+from __future__ import annotations
+
 import argparse
-import csv
+import json
 import os
 import sys
 import time
 import threading
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timezone, timedelta
+from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 try:
-    import gitlab
-except ImportError:
-    print("This script requires 'python-gitlab'. Install it with: pip install python-gitlab", file=sys.stderr)
-    sys.exit(1)
+    import gitlab  # type: ignore
+except ImportError:  # pragma: no cover
+    print(
+        "This script requires 'python-gitlab'. Install it with: pip install python-gitlab",
+        file=sys.stderr,
+    )
+    raise
+
 
 PRINT_LOCK = threading.Lock()
 
-# ----------------------------- Utilities -----------------------------
 
-def iso_to_dt(s: Optional[str]) -> Optional[datetime]:
-    if not s:
+def eprint(msg: str) -> None:
+    """Print a message to stderr in a thread-safe manner."""
+    with PRINT_LOCK:
+        print(msg, file=sys.stderr, flush=True)
+
+
+def die(msg: str, code: int = 2) -> None:
+    """Exit the program with an error message."""
+    eprint(msg)
+    raise SystemExit(code)
+
+
+def safe_get(d: Dict[str, Any], *keys: str, default: Any = None) -> Any:
+    """
+    Safely traverse nested dicts.
+
+    Parameters
+    ----------
+    d:
+        Root dictionary.
+    *keys:
+        Path of keys to traverse.
+    default:
+        Value returned if any key is missing.
+
+    Returns
+    -------
+    Any
+        The nested value, or default.
+    """
+    cur: Any = d
+    for k in keys:
+        if not isinstance(cur, dict):
+            return default
+        cur = cur.get(k)
+        if cur is None:
+            return default
+    return cur
+
+
+def parse_iso8601(value: Optional[str]) -> Optional[datetime]:
+    """
+    Parse an ISO-8601 datetime into a timezone-aware UTC datetime.
+
+    Accepts timestamps ending in 'Z' and offsets like '+01:00'.
+
+    Returns None if parsing fails.
+    """
+    if not value:
         return None
-    try:
-        if s.endswith('Z'):
-            s = s.replace('Z', '+00:00')
-        return datetime.fromisoformat(s).astimezone(timezone.utc)
-    except Exception:
-        try:
-            return datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc)
-        except Exception:
-            try:
-                return datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
-            except Exception:
-                return None
 
-def human_td(dt: timedelta) -> str:
-    if dt.total_seconds() < 0:
-        dt = -dt
-    seconds = int(dt.total_seconds())
-    parts = []
-    for unit, div in (('d', 86400), ('h', 3600), ('m', 60)):
+    s = value.strip()
+    try:
+        if s.endswith("Z"):
+            s = s[:-1] + "+00:00"
+        dt = datetime.fromisoformat(s)
+        if dt.tzinfo is None:
+            # Treat naive input as UTC to avoid ambiguity.
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc)
+    except Exception:
+        return None
+
+
+def fmt_utc(dt: datetime) -> str:
+    """Format a datetime as ISO-8601 in UTC with 'Z' suffix."""
+    return dt.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def day_start_utc(dt: datetime) -> datetime:
+    """Return the UTC day start (00:00:00) for the date of dt."""
+    u = dt.astimezone(timezone.utc)
+    return datetime(u.year, u.month, u.day, 0, 0, 0, tzinfo=timezone.utc)
+
+
+def human_td(delta: timedelta) -> str:
+    """Render a timedelta into a short human-friendly string."""
+    seconds = int(abs(delta.total_seconds()))
+    parts: List[str] = []
+    for unit, div in (("d", 86400), ("h", 3600), ("m", 60)):
         if seconds >= div:
             parts.append(f"{seconds // div}{unit}")
             seconds %= div
     parts.append(f"{seconds}s")
     return "".join(parts)
 
-def safe_get(d: Dict[str, Any], *keys, default=None):
-    cur = d
-    for k in keys:
-        if cur is None:
-            return default
-        cur = cur.get(k)
-    return cur if cur is not None else default
 
-def err(msg: str):
-    with PRINT_LOCK:
-        print(msg, file=sys.stderr, flush=True)
+@dataclass(frozen=True)
+class TimeWindow:
+    """A half-open time window [start, end) in UTC."""
+    start: datetime
+    end: datetime
 
-# ------------------------- GitLab helpers ----------------------------
+    def validate(self) -> None:
+        """Validate window integrity."""
+        if self.start.tzinfo is None or self.end.tzinfo is None:
+            raise ValueError("TimeWindow must be timezone-aware.")
+        if self.end <= self.start:
+            raise ValueError("End must be after start.")
 
-def build_client(base_url: str, token: Optional[str], verbose: bool) -> gitlab.Gitlab:
+    def contains(self, dt: datetime) -> bool:
+        """Return True if dt is in [start, end)."""
+        u = dt.astimezone(timezone.utc)
+        return self.start <= u < self.end
+
+
+def build_client(base_url: str, token: str, verbose: bool = False) -> "gitlab.Gitlab":
+    """
+    Authenticate and return a python-gitlab client.
+
+    Parameters
+    ----------
+    base_url:
+        GitLab instance URL, e.g. https://git.example.com
+    token:
+        Personal Access Token.
+    verbose:
+        Whether to log details to stderr.
+
+    Returns
+    -------
+    gitlab.Gitlab
+        Authenticated client.
+    """
     gl = gitlab.Gitlab(url=base_url, private_token=token)
     gl.auth()
+
     if verbose:
         me = gl.user
-        err(f"Authenticated as: {me.username} ({me.name})")
+        eprint(f"Authenticated as: {getattr(me, 'username', '?')} ({getattr(me, 'name', '?')})")
+
     return gl
 
-def iter_projects(gl: gitlab.Gitlab, include_archived: bool, limit: Optional[int], only_paths: Optional[set], verbose: bool):
-    count = 0
-    try:
-        for proj in gl.projects.list(
-            membership=True,
-            archived=include_archived,
-            iterator=True,
-            per_page=100,
-            order_by="last_activity_at",
-            sort="desc",
-        ):
-            path = proj.path_with_namespace
-            if only_paths and path not in only_paths:
-                continue
-            yield proj
-            count += 1
-            if limit and count >= limit:
-                break
-    except gitlab.GitlabListError as e:
-        err(f"Error listing projects: {e}")
-        raise
 
-def fetch_jobs_for_project(
-    proj,
-    want_running: bool = True,
-    want_pending: bool = True,
-    backoff: float = 1.0,
+def resolve_user(gl: "gitlab.Gitlab", username: Optional[str], verbose: bool = False) -> Tuple[int, str, str]:
+    """
+    Resolve the target user.
+
+    If username is None, use the authenticated user. Otherwise look up by username.
+
+    Returns
+    -------
+    (user_id, username, display_name)
+    """
+    if not username:
+        me = gl.user
+        uid = int(getattr(me, "id"))
+        uname = str(getattr(me, "username", "unknown"))
+        name = str(getattr(me, "name", uname))
+        if verbose:
+            eprint(f"Using current user: {uname} (id={uid})")
+        return uid, uname, name
+
+    # Lookup by username. python-gitlab supports list(username=...).
+    users = gl.users.list(username=username)  # type: ignore[attr-defined]
+    if not users:
+        die(f"User not found for --user '{username}'. Consider verifying the username or adding a user-id option.")
+    u = users[0]
+    uid = int(getattr(u, "id"))
+    uname = str(getattr(u, "username", username))
+    name = str(getattr(u, "name", uname))
+    if verbose:
+        eprint(f"Resolved user: {uname} (id={uid})")
+    return uid, uname, name
+
+
+def iter_user_events(
+    gl: "gitlab.Gitlab",
+    user_id: int,
+    window: TimeWindow,
     verbose: bool = False,
-) -> Tuple[str, str, List[Dict[str, Any]]]:
-    path = getattr(proj, "path_with_namespace", str(proj.id))
-    web_url = getattr(proj, "web_url", None)
-    jobs: List[Dict[str, Any]] = []
+) -> Iterable[Dict[str, Any]]:
+    """
+    Iterate raw event dicts for the given user, best-effort applying server-side filtering.
 
-    def _list_with_scope(scope_value: str) -> List[Any]:
-        attempts = 0
-        while True:
-            attempts += 1
-            try:
-                return proj.jobs.list(scope=scope_value, per_page=100, all=True)
-            except gitlab.exceptions.GitlabHttpError as e:
-                if e.response_code == 429 and attempts <= 3:
-                    time.sleep(backoff * attempts)
-                    continue
+    The GitLab Events API frequently returns events in reverse chronological order.
+    We stop early once we are clearly past the start boundary (based on created_at).
+
+    Yields
+    ------
+    Dict[str, Any]
+        Raw event attributes from python-gitlab.
+    """
+    user = gl.users.get(user_id)  # type: ignore[attr-defined]
+
+    # Attempt server-side time filtering if supported by the target GitLab/python-gitlab combo.
+    # If not supported, fall back to client-side filtering only.
+    params: Dict[str, Any] = {"per_page": 100, "iterator": True}
+
+    # These are known in many GitLab versions, but not universal.
+    # We keep them as date-only (YYYY-MM-DD) in accordance with GitLab conventions.
+    after_date = window.start.date().isoformat()
+    before_date = (window.end - timedelta(seconds=1)).date().isoformat()
+
+    # Try to pass after/before; if python-gitlab rejects them, we retry without.
+    def _list_events(extra: Dict[str, Any]) -> Iterable[Any]:
+        return user.events.list(**extra)  # type: ignore[no-any-return]
+
+    for attempt in (1, 2):
+        try:
+            extra = dict(params)
+            extra.update({"after": after_date, "before": before_date})
+            events_iter = _list_events(extra)
+            if verbose:
+                eprint(f"Listing events with server-side filter after={after_date} before={before_date}")
+            break
+        except TypeError:
+            if attempt == 2:
                 raise
+            if verbose:
+                eprint("Events API does not accept after/before in this environment; using client-side filtering only.")
+            events_iter = _list_events(params)
+            break
+        except Exception as ex:
+            # Some environments reject params with a GitLab error rather than TypeError.
+            if verbose:
+                eprint(f"Server-side filter attempt failed ({ex}); using client-side filtering only.")
+            events_iter = _list_events(params)
+            break
 
-    try:
-        if want_running:
-            for j in _list_with_scope("running"):
-                jobs.append(j)
-        if want_pending:
-            for j in _list_with_scope("pending"):
-                jobs.append(j)
-    except gitlab.exceptions.GitlabAuthenticationError:
-        if verbose:
-            err(f"[auth] No access to jobs for {path}")
-        return str(proj.id), path, []
-    except gitlab.exceptions.GitlabHttpError as e:
-        if verbose:
-            err(f"[{path}] HTTP error fetching jobs: {e} (code {e.response_code})")
-        return str(proj.id), path, []
+    # Client-side enforce time window and stop early if possible.
+    # Many GitLab instances return newest first; if so we can stop once created_at < window.start.
+    saw_any = False
+    newest_first_assumed = True
 
-    normalized: List[Dict[str, Any]] = []
-    now = datetime.now(timezone.utc)
-    for j in jobs:
-        jd = j._attrs if hasattr(j, "_attrs") else dict(j)
-        status = jd.get("status")
-        started_at = iso_to_dt(jd.get("started_at"))
-        created_at = iso_to_dt(jd.get("created_at"))
-        queued_duration = jd.get("queued_duration")
-        if queued_duration is None and created_at and status == "pending":
-            queued_duration = (now - created_at).total_seconds()
-        since = None
-        if started_at and status == "running":
-            since = now - started_at
+    for ev in events_iter:
+        saw_any = True
+        raw = ev._attrs if hasattr(ev, "_attrs") else dict(ev)  # type: ignore[arg-type]
+        created = parse_iso8601(raw.get("created_at"))
 
-        user_name = safe_get(jd, "user", "name") or safe_get(jd, "user", "username")
-        runner_desc = safe_get(jd, "runner", "description") or safe_get(jd, "runner", "id")
-        pipeline = jd.get("pipeline") or {}
-        pipe_id = pipeline.get("id")
-        pipe_iid = pipeline.get("iid")
-
-        normalized.append(
-            {
-                "project_id": str(proj.id),
-                "project_path": path,
-                "project_web_url": web_url,
-                "job_id": jd.get("id"),
-                "name": jd.get("name"),
-                "stage": jd.get("stage"),
-                "status": status,
-                "ref": jd.get("ref"),
-                "tag": jd.get("tag"),
-                "created_at": created_at.isoformat() if created_at else None,
-                "started_at": started_at.isoformat() if started_at else None,
-                "since": human_td(since) if since else None,
-                "queued_seconds": int(queued_duration) if queued_duration is not None else None,
-                "queued_human": human_td(timedelta(seconds=int(queued_duration))) if queued_duration is not None else None,
-                "pipeline_id": pipe_id,
-                "pipeline_iid": pipe_iid,
-                "user": user_name,
-                "runner": runner_desc,
-                "job_url": f"{web_url}/-/jobs/{jd.get('id')}" if web_url and jd.get("id") else None,
-            }
-        )
-
-    status_order = {"running": 0, "pending": 1}
-    normalized.sort(key=lambda x: (status_order.get(x["status"], 99), x.get("stage") or "", x.get("name") or ""))
-    return str(proj.id), path, normalized
-
-# --------------------------- Output ----------------------------------
-
-def print_table(grouped: Dict[str, List[Dict[str, Any]]], base_url: str, username: str):
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    projects_scanned = len(grouped)
-    projects_with_jobs = sum(1 for jobs in grouped.values() if jobs)
-    total_running = sum(1 for jobs in grouped.values() for j in jobs if j["status"] == "running")
-    total_pending = sum(1 for jobs in grouped.values() for j in jobs if j["status"] == "pending")
-
-    line = "=" * 72
-    print(line)
-    print(f"Running & Queued Jobs (as of {now})")
-    print(f"Account: {username}    Host: {base_url}    Projects scanned: {projects_scanned}")
-    print(line)
-
-    if total_running == 0 and total_pending == 0:
-        print("No running or pending jobs found across your accessible projects.")
-        return
-
-    for path in sorted(grouped.keys()):
-        jobs = grouped[path]
-        if not jobs:
+        if not created:
+            # If there's no timestamp, yield it (rare) but it won't bucket nicely.
+            yield raw
             continue
+
+        created_u = created.astimezone(timezone.utc)
+
+        # Enforce [start, end)
+        if created_u < window.start:
+            if newest_first_assumed:
+                # We are past the range; stop early.
+                break
+            continue
+        if created_u >= window.end:
+            # Too new (should be rare if "end=now"), skip it.
+            continue
+
+        yield raw
+
+    if verbose and not saw_any:
+        eprint("No events returned by API call (empty stream or insufficient permissions).")
+
+
+def normalize_event(raw: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Normalize a GitLab event payload into a stable schema.
+
+    Parameters
+    ----------
+    raw:
+        Raw event dict from python-gitlab.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Normalized event.
+    """
+    created = parse_iso8601(raw.get("created_at"))
+    created_s = fmt_utc(created) if created else None
+
+    author_username = safe_get(raw, "author", "username", default=None)
+    author_name = safe_get(raw, "author", "name", default=None)
+    author_id = safe_get(raw, "author", "id", default=None)
+
+    project_id = safe_get(raw, "project_id", default=None) or safe_get(raw, "project", "id", default=None)
+    project_path = safe_get(raw, "project", "path_with_namespace", default=None) or safe_get(raw, "project", "path", default=None)
+
+    # GitLab events fields vary; try common ones.
+    action_name = raw.get("action_name") or raw.get("action") or raw.get("push_action") or raw.get("event_type")
+    target_type = raw.get("target_type") or raw.get("object_kind")
+    target_title = raw.get("target_title") or raw.get("note") or raw.get("title") or raw.get("target_name")
+    target_id = raw.get("target_id") or raw.get("id")  # target_id is common; fallback id is imperfect
+    target_iid = raw.get("target_iid")
+
+    # Some events include a target URL or noteable URL; keep best effort.
+    url = raw.get("url") or raw.get("target_url") or raw.get("noteable_url") or safe_get(raw, "target", "web_url", default=None)
+
+    return {
+        "event_id": raw.get("id"),
+        "created_at": created_s,
+        "author": {"id": author_id, "username": author_username, "name": author_name},
+        "action": action_name,
+        "target": {
+            "type": target_type,
+            "id": target_id,
+            "iid": target_iid,
+            "title": target_title,
+        },
+        "project": {
+            "id": project_id,
+            "path_with_namespace": project_path,
+        },
+        "url": url,
+    }
+
+
+def bucket_by_day(
+    events: List[Dict[str, Any]],
+    window: TimeWindow,
+) -> List[Dict[str, Any]]:
+    """
+    Bucket normalized events into UTC day blocks within the given window.
+
+    Returns a list of day objects:
+      {
+        "date": "YYYY-MM-DD",
+        "start": "...Z",
+        "end": "...Z",
+        "count": N,
+        "events": [...]
+      }
+    """
+    window.validate()
+
+    # Build all day buckets covering the window
+    first_day = day_start_utc(window.start)
+    last_day = day_start_utc(window.end - timedelta(microseconds=1))
+
+    buckets: Dict[str, Dict[str, Any]] = {}
+
+    d = first_day
+    while d <= last_day:
+        nxt = d + timedelta(days=1)
+        key = d.date().isoformat()
+        buckets[key] = {
+            "date": key,
+            "start": fmt_utc(d),
+            "end": fmt_utc(nxt),
+            "count": 0,
+            "events": [],
+        }
+        d = nxt
+
+    # Assign events to buckets
+    for ev in events:
+        created = parse_iso8601(ev.get("created_at"))
+        if not created:
+            # If no timestamp, skip bucketing (or attach to a special bucket).
+            continue
+        if not window.contains(created):
+            continue
+        key = created.astimezone(timezone.utc).date().isoformat()
+        bucket = buckets.get(key)
+        if bucket is None:
+            continue
+        bucket["events"].append(ev)
+
+    # Sort events within each bucket by created_at ascending for chronological readability
+    for b in buckets.values():
+        b["events"].sort(key=lambda x: x.get("created_at") or "")
+
+        b["count"] = len(b["events"])
+
+    # Return buckets in ascending date order
+    return [buckets[k] for k in sorted(buckets.keys())]
+
+
+def render_llm_md(meta: Dict[str, Any], days: List[Dict[str, Any]]) -> None:
+    """
+    Render day buckets as LLM-friendly Markdown to stdout.
+    """
+    print("# GitLab Activity Stream (Daily Buckets)")
+    print()
+    print(f"- User: {meta.get('user_username')} ({meta.get('user_name')})")
+    print(f"- Host: {meta.get('base_url')}")
+    print(f"- Window (UTC): {meta.get('start')} — {meta.get('end')}")
+    print(f"- Generated at (UTC): {meta.get('generated_at')}")
+    print()
+
+    for day in days:
+        print(f"## {day['date']} (UTC)")
+        print(f"Window: {day['start']} — {day['end']}")
+        if day["count"] == 0:
+            print()
+            print("_No events._")
+            print()
+            continue
+
         print()
-        print(path)
-        print("-" * len(path))
+        for ev in day["events"]:
+            created = ev.get("created_at") or ""
+            t = ""
+            if created.endswith("Z") and "T" in created:
+                t = created.split("T", 1)[1].replace("Z", "Z")
+            action = ev.get("action") or "-"
+            target = ev.get("target") or {}
+            target_type = target.get("type") or "-"
+            title = (target.get("title") or "").strip()
+            project = ev.get("project") or {}
+            proj = project.get("path_with_namespace") or "-"
+            url = ev.get("url") or ""
 
-        running = [j for j in jobs if j["status"] == "running"]
-        pending = [j for j in jobs if j["status"] == "pending"]
+            # A concise, stable line for LLM ingestion:
+            # - HH:MM:SSZ | TargetType | action | project/path | title | url
+            # Truncate title lightly to keep lines manageable.
+            if len(title) > 180:
+                title = title[:177] + "..."
+            print(f"- {t:>9} | {target_type} | {action} | {proj} | {title} | {url}")
 
-        def _print_group(title: str, rows: List[Dict[str, Any]]):
-            print(f"{title} ({len(rows)})")
-            for j in rows:
-                id_str = f"#{j['job_id']:>7}" if isinstance(j["job_id"], int) else f"#{j['job_id']}"
-                since_or_q = f"since: {j['since']}" if j["status"] == "running" else (f"queued: {j['queued_human']}" if j["queued_human"] else "")
-                url = j["job_url"] or ""
-                print(
-                    f"  {id_str}  {j['name']:<18}  stage: {j['stage'] or '-':<10}  "
-                    f"ref: {j['ref'] or '-':<20}  {since_or_q:<12}  URL: {url}"
-                )
+        print()
+        print(f"Count: {day['count']}")
+        print()
 
-        if running:
-            _print_group("RUNNING", running)
-        if pending:
-            _print_group("PENDING", pending)
 
-    print("-" * 71)
-    print(f"TOTALS: running={total_running}  pending={total_pending}  across {projects_with_jobs}/{projects_scanned} projects with active jobs")
-
-def print_json(items: List[Dict[str, Any]]):
-    import json
-    print(json.dumps(items, indent=2, sort_keys=False, default=str))
-
-def print_csv(items: List[Dict[str, Any]]):
-    fieldnames = [
-        "project_path","project_id","job_id","status","name","stage","ref","tag",
-        "user","runner","pipeline_id","pipeline_iid",
-        "created_at","started_at","queued_seconds","job_url"
-    ]
-    writer = csv.DictWriter(sys.stdout, fieldnames=fieldnames)
-    writer.writeheader()
-    for j in items:
-        writer.writerow({k: j.get(k) for k in fieldnames})
-
-# -------------------------- Progress/Heartbeat -----------------------
-
-def start_heartbeat(total: int, counter, interval_secs: int):
+def render_json(meta: Dict[str, Any], days: List[Dict[str, Any]]) -> None:
     """
-    Prints a periodic 'still working...' line to stderr until counter.done == total.
-    Returns (thread, stop_event).
+    Render the full result as JSON to stdout.
     """
-    stop_event = threading.Event()
+    out = {"meta": meta, "days": days}
+    print(json.dumps(out, indent=2, sort_keys=False))
 
-    def _beat():
-        start = time.time()
-        while not stop_event.wait(timeout=interval_secs if interval_secs > 0 else 1e9):
-            done = counter["done"]
-            elapsed = human_td(timedelta(seconds=int(time.time() - start)))
-            err(f"[heartbeat] still working… {done}/{total} projects done (elapsed {elapsed})")
 
-    t = threading.Thread(target=_beat, name="heartbeat", daemon=True)
-    if interval_secs > 0:
-        t.start()
-    return t, stop_event
+def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
+    """Parse CLI arguments."""
+    p = argparse.ArgumentParser(
+        description="Fetch GitLab user activity events and bucket into UTC day blocks.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
-# ----------------------------- Main ----------------------------------
+    p.add_argument(
+        "--base-url",
+        default=os.environ.get("GITLAB_URL") or os.environ.get("CI_SERVER_URL"),
+        help="GitLab base URL, e.g. https://git.example.com (env: GITLAB_URL or CI_SERVER_URL)",
+    )
+    p.add_argument(
+        "--token",
+        default=os.environ.get("GITLAB_TOKEN"),
+        help="Personal Access Token (env: GITLAB_TOKEN)",
+    )
+    p.add_argument(
+        "--user",
+        default=None,
+        help="GitLab username (default: current authenticated user)",
+    )
 
-def main():
-    parser = argparse.ArgumentParser(description="List running and queued GitLab CI jobs across accessible projects.")
-    parser.add_argument("--base-url", required=False, default=os.environ.get("GITLAB_URL") or os.environ.get("CI_SERVER_URL"),
-                        help="GitLab base URL, e.g. https://git.example.com (env: GITLAB_URL)")
-    parser.add_argument("--token", required=False, default=os.environ.get("GITLAB_TOKEN"),
-                        help="Personal Access Token with read_api scope (env: GITLAB_TOKEN)")
-    parser.add_argument("--include-archived", action="store_true", help="Include archived projects (default: false)")
-    parser.add_argument("--projects", default="", help="Space-separated list of path_with_namespace to restrict scan")
-    parser.add_argument("--max-projects", type=int, default=None, help="Limit number of projects scanned")
-    parser.add_argument("--format", choices=["table","json","csv"], default="table", help="Output format")
-    parser.add_argument("--concurrency", type=int, default=8, help="Parallel project fetchers (default: 8)")
-    parser.add_argument("--verbose", action="store_true", help="Verbose logging to stderr")
-    parser.add_argument("--progress", action="store_true", help="Show per-project progress (stderr)")
-    parser.add_argument("--heartbeat-secs", type=int, default=8, help="Periodic 'still working...' to stderr (0 disables)")
-    args = parser.parse_args()
+    p.add_argument(
+        "--start",
+        default=None,
+        help="Start time (ISO-8601). If omitted, defaults to end - 10 days.",
+    )
+    p.add_argument(
+        "--end",
+        default=None,
+        help="End time (ISO-8601). If omitted, defaults to now (UTC).",
+    )
+    p.add_argument(
+        "--days",
+        type=int,
+        default=10,
+        help="Default lookback in days if --start/--end are not provided (used with end=now).",
+    )
+
+    p.add_argument(
+        "--format",
+        choices=["llm-md", "json"],
+        default="llm-md",
+        help="Output format",
+    )
+    p.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Verbose logging to stderr",
+    )
+
+    # Optional heartbeat similar to your existing pattern (kept minimal).
+    p.add_argument(
+        "--heartbeat-secs",
+        type=int,
+        default=0,
+        help="If >0, periodically print 'still working' to stderr.",
+    )
+
+    return p.parse_args(argv)
+
+
+def start_heartbeat(interval_secs: int) -> threading.Event:
+    """
+    Start a heartbeat thread that prints periodically to stderr.
+    Returns the stop event.
+
+    This is intentionally simple: it is helpful if the GitLab instance is slow.
+    """
+    stop = threading.Event()
+    if interval_secs <= 0:
+        return stop
+
+    start_ts = time.time()
+
+    def _run() -> None:
+        while not stop.wait(timeout=interval_secs):
+            elapsed = human_td(timedelta(seconds=int(time.time() - start_ts)))
+            eprint(f"[heartbeat] still working… elapsed {elapsed}")
+
+    t = threading.Thread(target=_run, name="heartbeat", daemon=True)
+    t.start()
+    return stop
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    """Program entry point."""
+    args = parse_args(argv)
 
     if not args.base_url:
-        err("Error: --base-url or GITLAB_URL must be provided.")
-        sys.exit(1)
+        die("Error: --base-url or GITLAB_URL/CI_SERVER_URL must be provided.")
     if not args.token:
-        err("Error: --token or GITLAB_TOKEN must be provided.")
-        sys.exit(1)
+        die("Error: --token or GITLAB_TOKEN must be provided.")
+
+    # Resolve window
+    end = parse_iso8601(args.end) if args.end else datetime.now(timezone.utc)
+    if end.tzinfo is None:
+        end = end.replace(tzinfo=timezone.utc)
+    end = end.astimezone(timezone.utc).replace(microsecond=0)
+
+    start = parse_iso8601(args.start) if args.start else None
+    if start is None:
+        start = end - timedelta(days=max(1, int(args.days)))
+    if start.tzinfo is None:
+        start = start.replace(tzinfo=timezone.utc)
+    start = start.astimezone(timezone.utc).replace(microsecond=0)
+
+    window = TimeWindow(start=start, end=end)
+    try:
+        window.validate()
+    except ValueError as ex:
+        die(f"Invalid time window: {ex}")
+
+    stop_hb = start_heartbeat(int(args.heartbeat_secs))
 
     try:
-        gl = build_client(args.base_url, args.token, args.verbose)
-    except Exception as e:
-        err(f"Failed to authenticate to GitLab: {e}")
-        sys.exit(1)
+        gl = build_client(args.base_url, args.token, verbose=args.verbose)
+        user_id, user_username, user_name = resolve_user(gl, args.user, verbose=args.verbose)
 
-    username = getattr(gl.user, "username", "unknown")
-    only_paths = set(args.projects.split()) if args.projects.strip() else None
+        raw_events: List[Dict[str, Any]] = []
+        for raw in iter_user_events(gl, user_id, window, verbose=args.verbose):
+            raw_events.append(raw)
 
-    if args.verbose:
-        err("Enumerating projects…")
-    try:
-        projects_list = list(iter_projects(gl, args.include_archived, args.max_projects, only_paths, args.verbose))
-    except Exception:
-        sys.exit(1)
+        # Normalize & enforce window again on normalized created_at (defensive)
+        normalized: List[Dict[str, Any]] = []
+        for r in raw_events:
+            ev = normalize_event(r)
+            created = parse_iso8601(ev.get("created_at"))
+            if created and window.contains(created):
+                normalized.append(ev)
 
-    total = len(projects_list)
-    if args.verbose or args.progress:
-        err(f"Found {total} projects to scan (concurrency={max(1, args.concurrency)})")
+        # Sort globally by created_at ascending for stable output
+        normalized.sort(key=lambda x: x.get("created_at") or "")
 
-    # index projects so we can show [i/N]
-    indexed_projects = [(i + 1, p) for i, p in enumerate(projects_list)]
+        days = bucket_by_day(normalized, window)
 
-    # Progress counters & heartbeat
-    counter = {"done": 0}
-    hb_thread, hb_stop = start_heartbeat(total, counter, args.heartbeat_secs)
+        meta = {
+            "base_url": args.base_url,
+            "user_id": user_id,
+            "user_username": user_username,
+            "user_name": user_name,
+            "start": fmt_utc(window.start),
+            "end": fmt_utc(window.end),
+            "timezone": "UTC",
+            "generated_at": fmt_utc(datetime.now(timezone.utc)),
+            "format": args.format,
+        }
 
-    grouped: Dict[str, List[Dict[str, Any]]] = {}
-    all_items: List[Dict[str, Any]] = []
+        if args.format == "json":
+            render_json(meta, days)
+        else:
+            render_llm_md(meta, days)
 
-    def worker(idx: int, proj):
-        path = getattr(proj, "path_with_namespace", str(proj.id))
-        if args.progress:
-            err(f"[{idx}/{total}] scanning {path} …")
-        proj_id, path, jobs = fetch_jobs_for_project(proj, True, True, 1.0, args.verbose)
-        running = sum(1 for j in jobs if j["status"] == "running")
-        pending = sum(1 for j in jobs if j["status"] == "pending")
-        if args.progress:
-            mark = "✓" if jobs or True else "-"
-            err(f"[{idx}/{total}] {mark} {path}: running={running} pending={pending}")
-        return proj_id, path, jobs
+        return 0
 
-    try:
-        with ThreadPoolExecutor(max_workers=max(1, args.concurrency)) as executor:
-            future_map = {
-                executor.submit(worker, idx, p): (idx, p)
-                for idx, p in indexed_projects
-            }
-            for fut in as_completed(future_map):
-                idx, p = future_map[fut]
-                try:
-                    proj_id, path, jobs = fut.result()
-                except Exception as e:
-                    if args.verbose or args.progress:
-                        err(f"[{idx}/{total}] {getattr(p, 'path_with_namespace', p.id)} failed: {e}")
-                    counter["done"] += 1
-                    continue
-                grouped[path] = jobs
-                all_items.extend(jobs)
-                counter["done"] += 1
+    except gitlab.exceptions.GitlabAuthenticationError as ex:
+        die(f"Authentication failed: {ex}", code=1)
+    except gitlab.exceptions.GitlabHttpError as ex:
+        die(f"GitLab HTTP error: {ex}", code=1)
     finally:
-        hb_stop.set()
-        # give the heartbeat thread a moment to exit cleanly
-        if hb_thread.is_alive():
-            hb_thread.join(timeout=1)
+        stop_hb.set()
 
-    # Output
-    if args.format == "table":
-        print_table(grouped, args.base_url, username)
-    elif args.format == "json":
-        print_json(all_items)
-    else:
-        print_csv(all_items)
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
