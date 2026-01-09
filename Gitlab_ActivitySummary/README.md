@@ -70,9 +70,7 @@ Count: 2
 
 Each day is emitted as a clearly delimited block, making it straightforward to feed intoAG (retrieval-augmented generation) or summarization pipelines.
 
-
-
-![](Gitlab_JobOverview.png)
+![](example_output.png)
 
 ---
 
