@@ -1,5 +1,39 @@
 ## What
 
+
+---------------
+
+Example calls
+
+Milestone URL (your “new idea” flow):
+
+export GITLAB_URL="https://git.example.com"
+export GITLAB_TOKEN="...PAT..."
+
+python3 main.py \
+  --milestone-url "https://git.example.com/group/project/-/milestones/12" \
+  --output burndown.png
+
+
+Explicit project + milestone IID:
+
+python3 main.py \
+  --project "group/project" \
+  --milestone-iid 12 \
+  --output burndown.png
+
+
+Bigger/smaller output:
+
+python3 main.py \
+  --milestone-url "https://git.data-modul.com/research/wheelondisplay_medical2026/-/milestones/1" \
+  --output burndown_4k.png \
+  --width 3840 --height 2160 --dpi 200
+
+
+
+---------------
+
 Create a **daily, UTC-aligned overview of a GitLab user’s activity stream** (events) for a given time window.
 The script fetches all activities for a user (default: the authenticated user), buckets them into **1-day blocks (00:00–24:00 UTC)**, and prints the result to **stdout** in an LLM-friendly format or structured JSON.
 
