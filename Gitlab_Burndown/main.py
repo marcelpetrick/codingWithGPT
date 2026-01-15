@@ -145,6 +145,15 @@ def clamp_nonneg(x: int) -> int:
     return x if x >= 0 else 0
 
 
+def fmt_hours_from_seconds(sec: int) -> str:
+    # Always hours as base unit (human-readable).
+    return f"{seconds_to_hours(float(sec)):.2f}h"
+
+
+def fmt_hours(x: float) -> str:
+    return f"{x:.2f}h"
+
+
 @dataclass(frozen=True)
 class MilestoneRef:
     project_path: str
@@ -279,9 +288,7 @@ def fetch_milestone_and_issues(
     milestone = resolve_milestone_by_iid(project, milestone_iid)
 
     issues = list(
-        safe_iter(
-            project.issues.list(milestone=milestone.title, all=True, iterator=True)
-        )
+        safe_iter(project.issues.list(milestone=milestone.title, all=True, iterator=True))
     )
 
     if verbose:
@@ -437,6 +444,58 @@ def collect_issue_timeline(project: Any, issue: Any, verbose: bool = False) -> I
     )
     tl.sort()
     return tl
+
+
+def log_issue_time_changes(tl: IssueTimeline) -> None:
+    """
+    Verbose: log the currently found time-related 'changes' for a ticket in human-readable
+    format (hours base unit). This logs the reconstructed events list as-is.
+    """
+    print(
+        f"[verbose] Issue #{tl.issue_iid}: {tl.title}",
+        file=sys.stderr,
+        flush=True,
+    )
+    if tl.web_url:
+        print(f"[verbose]   url: {tl.web_url}", file=sys.stderr, flush=True)
+
+    any_time_events = False
+    for ev in tl.events:
+        if ev.kind not in ("estimate_set", "spent_set", "spent_add", "spent_sub"):
+            continue
+        any_time_events = True
+        ts = ev.at.astimezone(UTC).isoformat().replace("+00:00", "Z")
+        if ev.kind == "estimate_set":
+            sec = int(ev.value)
+            print(
+                f"[verbose]   {ts}  estimate_set  -> {fmt_hours_from_seconds(sec)}",
+                file=sys.stderr,
+                flush=True,
+            )
+        elif ev.kind == "spent_set":
+            sec = int(ev.value)
+            print(
+                f"[verbose]   {ts}  spent_set     -> {fmt_hours_from_seconds(sec)}",
+                file=sys.stderr,
+                flush=True,
+            )
+        elif ev.kind == "spent_add":
+            sec = int(ev.value)
+            print(
+                f"[verbose]   {ts}  spent_add     +  {fmt_hours_from_seconds(sec)}",
+                file=sys.stderr,
+                flush=True,
+            )
+        elif ev.kind == "spent_sub":
+            sec = int(ev.value)
+            print(
+                f"[verbose]   {ts}  spent_sub     -  {fmt_hours_from_seconds(sec)}",
+                file=sys.stderr,
+                flush=True,
+            )
+
+    if not any_time_events:
+        print(f"[verbose]   (no time change events found)", file=sys.stderr, flush=True)
 
 
 def compute_daily_burndown_and_totals(
@@ -646,9 +705,28 @@ def main(argv: Optional[List[str]] = None) -> int:
     timelines: List[IssueTimeline] = []
     for iss in issues:
         full = project.issues.get(iss.iid)
-        timelines.append(collect_issue_timeline(project, full, verbose=args.verbose))
+        tl = collect_issue_timeline(project, full, verbose=args.verbose)
+        timelines.append(tl)
+        if args.verbose:
+            log_issue_time_changes(tl)
 
     days, remaining_hours, estimate_hours, spent_hours = compute_daily_burndown_and_totals(timelines, start_d, end_d)
+
+    if args.verbose:
+        ideal_start = remaining_hours[0] if remaining_hours else 0.0
+        n = max(1, len(days) - 1)
+        ideal = [ideal_start * (1 - i / n) for i in range(len(days))]
+
+        print("[verbose] Daily accumulated totals (UTC day buckets):", file=sys.stderr, flush=True)
+        for i, d in enumerate(days):
+            print(
+                f"[verbose]   {d.isoformat()}  "
+                f"estimate_sum={fmt_hours(estimate_hours[i])}  "
+                f"spent_sum={fmt_hours(spent_hours[i])}  "
+                f"ideal={fmt_hours(ideal[i])}",
+                file=sys.stderr,
+                flush=True,
+            )
 
     ms_title = str(getattr(milestone, "title", f"Milestone {milestone_iid}"))
     chart_title = f"Burndown — {project_path} — {ms_title}"
