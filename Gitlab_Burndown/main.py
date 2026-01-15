@@ -32,12 +32,14 @@ What it does
     * start = earliest issue created_at (UTC date)
     * end   = max(today, latest issue updated_at) (UTC date)
 - Fetches all issues currently assigned to the milestone.
-- Reconstructs daily totals (UTC day buckets):
-    remaining = sum over issues of:
-        0 if closed (as-of that day)
-        else max(estimate_seconds - spent_seconds, 0)
-- Uses system notes to track estimate/spent changes over time.
-- Uses resource_state_events (if accessible) to track close/reopen over time; falls back to closed_at.
+- Reconstructs per-issue timelines from:
+    * seeded baseline from issue.time_stats (time_estimate, total_time_spent) at issue.created_at
+    * system notes tracking estimate/spent changes over time
+    * resource_state_events (if accessible) to track close/reopen over time; fallback to closed_at
+- Aggregates daily totals (UTC day buckets), per your clarified algorithm:
+    * estimate_total(day) = sum of estimates as-of day
+    * spent_total(day)    = sum of spent as-of day
+    * remaining(day)      = sum of max(estimate - spent, 0) for open issues; 0 for closed issues
 
 Outputs
 -------
@@ -48,6 +50,7 @@ Limitations (explicit)
 ----------------------
 - Uses issues currently in the milestone; historical add/remove scope changes are not reliably reconstructed.
 - Time tracking parsing depends on GitLab system note phrasing (generally stable, but not guaranteed).
+- If an instance hides system notes or truncates note history, the reconstruction will rely more on seeded time_stats.
 """
 
 from __future__ import annotations
@@ -136,6 +139,10 @@ def parse_duration_to_seconds(text: str) -> Optional[int]:
 
 def seconds_to_hours(sec: float) -> float:
     return sec / 3600.0
+
+
+def clamp_nonneg(x: int) -> int:
+    return x if x >= 0 else 0
 
 
 @dataclass(frozen=True)
@@ -238,13 +245,11 @@ def resolve_project(gl: "gitlab.Gitlab", project_path: str, verbose: bool = Fals
         if getattr(ex, "response_code", None) != 404:
             raise
 
-    # Fallback search
     needle = project_path.split("/")[-1]
     candidates = gl.projects.list(search=needle, simple=True, all=True, iterator=True)
     for p in safe_iter(candidates):
         pwn = getattr(p, "path_with_namespace", None)
         if pwn and str(pwn) == project_path:
-            # Refetch full project by id for consistency
             return gl.projects.get(getattr(p, "id"))
     die(f"Project not found or not accessible: {project_path}")
 
@@ -257,7 +262,6 @@ def resolve_milestone_by_iid(project: Any, milestone_iid: int) -> Any:
     for ms in safe_iter(project.milestones.list(all=True, iterator=True)):
         try:
             if int(getattr(ms, "iid")) == int(milestone_iid):
-                # Fetch full milestone object by ID to ensure fields are present
                 ms_id = int(getattr(ms, "id"))
                 return project.milestones.get(ms_id)
         except Exception:
@@ -282,7 +286,11 @@ def fetch_milestone_and_issues(
 
     if verbose:
         print(f"[info] Project: {project_path}", file=sys.stderr, flush=True)
-        print(f"[info] Milestone: iid={milestone_iid} — {milestone.title}", file=sys.stderr, flush=True)
+        print(
+            f"[info] Milestone: iid={milestone_iid} — {milestone.title}",
+            file=sys.stderr,
+            flush=True,
+        )
         print(f"[info] Issues fetched: {len(issues)}", file=sys.stderr, flush=True)
 
     return milestone, issues, project
@@ -333,6 +341,23 @@ def collect_issue_timeline(project: Any, issue: Any, verbose: bool = False) -> I
     created_at = parse_iso8601(getattr(issue, "created_at", None)) or datetime.now(UTC)
 
     events: List[ChangeEvent] = []
+
+    # Seed baseline from current time_stats (so we do not "start at 0" if notes are missing).
+    try:
+        ts = getattr(issue, "time_stats", None) or {}
+        seed_est = int(ts.get("time_estimate") or 0)
+        seed_spent = int(ts.get("total_time_spent") or 0)
+        if seed_est:
+            events.append(ChangeEvent(at=created_at, kind="estimate_set", value=seed_est))
+        if seed_spent:
+            events.append(ChangeEvent(at=created_at, kind="spent_set", value=seed_spent))
+    except Exception as ex:
+        if verbose:
+            print(
+                f"[warn] Could not seed time_stats for issue #{iid}: {ex}",
+                file=sys.stderr,
+                flush=True,
+            )
 
     try:
         notes = list(safe_iter(issue.notes.list(all=True, iterator=True)))
@@ -388,6 +413,7 @@ def collect_issue_timeline(project: Any, issue: Any, verbose: bool = False) -> I
                     events.append(ChangeEvent(at=created, kind="spent_sub", value=sec))
             break
 
+    # Issue state over time (close/reopen)
     try:
         rse = list(safe_iter(issue.resource_state_events.list(all=True, iterator=True)))
         for ev in rse:
@@ -413,20 +439,29 @@ def collect_issue_timeline(project: Any, issue: Any, verbose: bool = False) -> I
     return tl
 
 
-def compute_daily_burndown(
+def compute_daily_burndown_and_totals(
     timelines: List[IssueTimeline],
     start_d: date,
     end_d: date,
-) -> Tuple[List[date], List[float], List[float]]:
+) -> Tuple[List[date], List[float], List[float], List[float]]:
+    """
+    Returns:
+      days,
+      remaining_hours (derived; 0 for closed issues),
+      estimate_hours (scope total),
+      spent_hours
+    """
     days = daterange_inclusive(start_d, end_d)
     remaining_hours: List[float] = []
-    scope_hours: List[float] = []
+    estimate_hours: List[float] = []
+    spent_hours: List[float] = []
 
     for d in days:
         cutoff = day_start_utc(d) + timedelta(days=1)
 
+        total_est_sec = 0
+        total_spent_sec = 0
         total_remaining_sec = 0
-        total_scope_sec = 0
 
         for tl in timelines:
             est = 0
@@ -443,28 +478,34 @@ def compute_daily_burndown(
                 elif ev.kind == "spent_add":
                     spent += int(ev.value)
                 elif ev.kind == "spent_sub":
-                    spent -= int(ev.value)
-                    if spent < 0:
-                        spent = 0
+                    spent = clamp_nonneg(spent - int(ev.value))
                 elif ev.kind == "state":
                     state = str(ev.value)
 
-            total_scope_sec += max(est, 0)
+            est = clamp_nonneg(est)
+            spent = clamp_nonneg(spent)
+
+            total_est_sec += est
+            total_spent_sec += spent
+
+            # Derived remaining (Jira-style: closed issues count as 0 remaining)
             if state == "closed":
                 total_remaining_sec += 0
             else:
-                total_remaining_sec += max(est - spent, 0)
+                total_remaining_sec += clamp_nonneg(est - spent)
 
         remaining_hours.append(seconds_to_hours(total_remaining_sec))
-        scope_hours.append(seconds_to_hours(total_scope_sec))
+        estimate_hours.append(seconds_to_hours(total_est_sec))
+        spent_hours.append(seconds_to_hours(total_spent_sec))
 
-    return days, remaining_hours, scope_hours
+    return days, remaining_hours, estimate_hours, spent_hours
 
 
 def render_png(
     days: List[date],
     remaining_hours: List[float],
-    scope_hours: List[float],
+    estimate_hours: List[float],
+    spent_hours: List[float],
     title: str,
     output_path: str,
     width_px: int,
@@ -479,6 +520,7 @@ def render_png(
     C_TEXT = "#FFFFFF"
     C_REMAIN = "#55FFFF"
     C_IDEAL = "#FF55FF"
+    C_SPENT = "#55FF55"
     C_SCOPE = "#FFFF55"
 
     figsize = (width_px / dpi, height_px / dpi)
@@ -495,7 +537,8 @@ def render_png(
 
     ax.step(x, remaining_hours, where="post", linewidth=3.0, label="Remaining", color=C_REMAIN)
     ax.plot(x, ideal, linewidth=2.0, linestyle="--", label="Ideal", color=C_IDEAL)
-    ax.plot(x, scope_hours, linewidth=2.0, linestyle=":", label="Scope (est.)", color=C_SCOPE)
+    ax.plot(x, spent_hours, linewidth=2.0, linestyle="-.", label="Spent", color=C_SPENT)
+    ax.plot(x, estimate_hours, linewidth=2.0, linestyle=":", label="Estimate (scope)", color=C_SCOPE)
 
     ax.set_title(title, color=C_TEXT, fontsize=20, fontfamily="DejaVu Sans Mono", pad=16)
     ax.set_xlabel("Day (UTC)", color=C_TEXT, fontsize=14, fontfamily="DejaVu Sans Mono", labelpad=10)
@@ -545,7 +588,7 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         "--base-url",
         default=os.environ.get("GITLAB_URL") or os.environ.get("CI_SERVER_URL"),
         help="GitLab base URL, e.g. https://git.example.com (env: GITLAB_URL or CI_SERVER_URL). "
-             "Not required if --milestone-url is used.",
+        "Not required if --milestone-url is used.",
     )
     p.add_argument(
         "--token",
@@ -605,7 +648,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         full = project.issues.get(iss.iid)
         timelines.append(collect_issue_timeline(project, full, verbose=args.verbose))
 
-    days, remaining_hours, scope_hours = compute_daily_burndown(timelines, start_d, end_d)
+    days, remaining_hours, estimate_hours, spent_hours = compute_daily_burndown_and_totals(timelines, start_d, end_d)
 
     ms_title = str(getattr(milestone, "title", f"Milestone {milestone_iid}"))
     chart_title = f"Burndown — {project_path} — {ms_title}"
@@ -613,7 +656,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     render_png(
         days=days,
         remaining_hours=remaining_hours,
-        scope_hours=scope_hours,
+        estimate_hours=estimate_hours,
+        spent_hours=spent_hours,
         title=chart_title,
         output_path=args.output,
         width_px=int(args.width),
@@ -628,6 +672,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     if remaining_hours:
         print(f"remaining_hours_start: {remaining_hours[0]:.2f}")
         print(f"remaining_hours_end:   {remaining_hours[-1]:.2f}")
+    if estimate_hours:
+        print(f"estimate_hours_start:  {estimate_hours[0]:.2f}")
+        print(f"estimate_hours_end:    {estimate_hours[-1]:.2f}")
+    if spent_hours:
+        print(f"spent_hours_start:     {spent_hours[0]:.2f}")
+        print(f"spent_hours_end:       {spent_hours[-1]:.2f}")
     print(f"png: {args.output}")
 
     return 0

@@ -30,7 +30,26 @@ python3 main.py \
   --output burndown_4k.png \
   --width 3840 --height 2160 --dpi 200
 
+---------------
+    ~/repos/codingWithGPT/Gitlab_Burndown    master ⇡2 *6 !2  python3 main.py \                                                                                                                     ✔  6s   Gitlab_Burndown  
+  --milestone-url "https://git.data-modul.com/research/wheelondisplay_medical2026/-/milestones/1" \
+  --output burndown_4k.png \
+  --width 3840 --height 2160 --dpi 200 --verbose
 
+[info] Project: research/wheelondisplay_medical2026
+[info] Milestone: iid=1 — Implementation
+[info] Issues fetched: 13
+[info] Base URL: https://git.data-modul.com
+[info] Horizon: 2026-01-09 → 2026-01-27 (UTC dates)
+project: research/wheelondisplay_medical2026
+milestone: 1 — Implementation
+horizon_utc: 2026-01-09 .. 2026-01-27 (inclusive)
+issues: 13
+estimated_hours_end: 122.00
+spent_hours_end:     52.00
+remaining_hours_end: 70.00
+png: burndown_4k.png
+    ~/repos/codingWithGPT/Gitlab_Burndown    master ⇡2 *6 !2     
 
 ---------------
 
