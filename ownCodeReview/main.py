@@ -38,11 +38,7 @@ Act as an expert reviewer for GCC-built C++/Qt (QML) on embedded + desktop Linux
 
 Return:
 
-Top 10 critical issues (ranked) with exact fixes.
-
-Cross-compile + deployment red flags: sysroot/toolchain, host contamination, pkg-config, install layout, RPATH, Qt plugins/QML imports/qt.conf.
-
-One-hour patch list: smallest changes to reduce crash risk and deployment failures fastest.
+Top 5 critical issues (ranked) with exact fixes.
 
 Be direct; include corrected snippets.
 """
