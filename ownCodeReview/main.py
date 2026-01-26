@@ -335,31 +335,75 @@ def http_json(
 
 
 def pick_model(host: str, explicit_model: Optional[str], http_cfg: HttpConfig, verbose: bool) -> str:
-    if explicit_model:
-        log(f"[ollama] Using explicit model: {explicit_model}", verbose)
-        return explicit_model
-
-    env_model = os.environ.get("OLLAMA_MODEL", "").strip()
-    if env_model:
-        log(f"[ollama] Using model from OLLAMA_MODEL: {env_model}", verbose)
-        return env_model
-
+    """
+    Always tries to list all available Ollama models to stdout.
+    Selection priority:
+      1) explicit_model (arg --model)
+      2) $OLLAMA_MODEL
+      3) any model containing 'coder' (case-insensitive); if multiple, random choice
+      4) fallback to first model from /api/tags
+    """
     tags_url = host.rstrip("/") + TAGS_PATH
-    data = http_json(tags_url, payload=None, cfg=http_cfg, verbose=verbose)
-    models = data.get("models") or []
-    if not models:
+
+    # Determine preferred override (but still try to list models first)
+    override = None
+    if explicit_model:
+        override = explicit_model.strip()
+        log(f"[ollama] Using explicit model override: {override}", verbose)
+    else:
+        env_model = os.environ.get("OLLAMA_MODEL", "").strip()
+        if env_model:
+            override = env_model
+            log(f"[ollama] Using model override from OLLAMA_MODEL: {override}", verbose)
+
+    models_data = None
+    names: List[str] = []
+
+    # Always try to fetch and print available models (best-effort if override is set)
+    try:
+        models_data = http_json(tags_url, payload=None, cfg=http_cfg, verbose=verbose)
+        models = models_data.get("models") or []
+        names = [m.get("name") for m in models if isinstance(m, dict) and m.get("name")]
+
+        # Print to STDOUT as requested
+        sys.stdout.write("Available Ollama models (/api/tags):\n")
+        if names:
+            for i, n in enumerate(names, start=1):
+                sys.stdout.write(f"  {i:2d}. {n}\n")
+        else:
+            sys.stdout.write("  (none returned)\n")
+        sys.stdout.flush()
+
+    except Exception as e:
+        # If user specified a model, don't hard-fail just because listing failed.
+        # Otherwise, we do need tags to pick something.
+        if override:
+            sys.stdout.write(
+                "Available Ollama models (/api/tags):\n"
+                f"  (failed to query {tags_url}: {e})\n"
+            )
+            sys.stdout.flush()
+            return override
+        raise
+
+    # If we have an override and tags were reachable, keep using the override.
+    if override:
+        return override
+
+    if not names:
         raise RuntimeError(
-            f"No models found at {tags_url}. "
-            "Pull a model on the Ollama server and retry."
+            f"No models found at {tags_url}. Pull a model on the Ollama server and retry."
         )
 
-    first = models[0]
-    name = first.get("name")
-    if not name:
-        raise RuntimeError(f"Unexpected /api/tags response format: {data}")
+    coder_matches = [n for n in names if "coder" in n.lower()]
+    if coder_matches:
+        chosen = random.choice(coder_matches) if len(coder_matches) > 1 else coder_matches[0]
+        log(f"[ollama] Auto-selected 'coder' model: {chosen}", verbose)
+        return chosen
 
-    log(f"[ollama] Auto-selected model from /api/tags: {name}", verbose)
-    return name
+    chosen = names[0]
+    log(f"[ollama] No 'coder' model found; falling back to first model: {chosen}", verbose)
+    return chosen
 
 
 def ollama_generate(host: str, model: str, prompt: str, http_cfg: HttpConfig, verbose: bool) -> str:
