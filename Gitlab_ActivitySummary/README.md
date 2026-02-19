@@ -68,7 +68,7 @@ Window: 2026-01-09T00:00:00Z — 2026-01-10T00:00:00Z
 Count: 2
 ```
 
-Each day is emitted as a clearly delimited block, making it straightforward to feed intoAG (retrieval-augmented generation) or summarization pipelines.
+Each day is emitted as a clearly delimited block, making it straightforward to feed into RAG (retrieval-augmented generation) or summarization pipelines.
 
 ![](example_output.png)
 
@@ -106,4 +106,3 @@ Each day is emitted as a clearly delimited block, making it straightforward to f
 
 ## Copyright
 GPLv3; mail@marcelpetrick.it; zero warranty
-
