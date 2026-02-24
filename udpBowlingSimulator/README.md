@@ -98,6 +98,65 @@ python main.py 127.0.0.1 7766
 
 ---
 
+## A full run with demo-game mode
+
+```
+    ~/repos/codingWithGPT/udpBowlingSimulator    master *6 !1 ?4  python3 main.py 127.0.0.1 7766                                                                                                                                                                              ✔ 
+UDP sender -> 127.0.0.1:7766
+Type 'help' for commands. Ctrl+C to quit.
+what to send? > demo-game
+[demo-game] Players: 1) Will  2) Risk
+[demo-game] Delay: 0.35s per packet
+
+[demo-game] Frame 01 | Will -> 4, 5, 0
+-> sent 75 bytes: {"player":"Will","turn":0,"first_score":4,"second_score":5,"third_score":0}
+[demo-game] Frame 01 | Risk -> 1, 5, 0
+-> sent 75 bytes: {"player":"Risk","turn":0,"first_score":1,"second_score":5,"third_score":0}
+[demo-game] Frame 02 | Will -> 7, 2, 0
+-> sent 75 bytes: {"player":"Will","turn":1,"first_score":7,"second_score":2,"third_score":0}
+[demo-game] Frame 02 | Risk -> 5, 3, 0
+-> sent 75 bytes: {"player":"Risk","turn":1,"first_score":5,"second_score":3,"third_score":0}
+[demo-game] Frame 03 | Will -> 4, 1, 0
+-> sent 75 bytes: {"player":"Will","turn":2,"first_score":4,"second_score":1,"third_score":0}
+[demo-game] Frame 03 | Risk -> 6, 0, 0
+-> sent 75 bytes: {"player":"Risk","turn":2,"first_score":6,"second_score":0,"third_score":0}
+[demo-game] Frame 04 | Will -> 8, 0, 0
+-> sent 75 bytes: {"player":"Will","turn":3,"first_score":8,"second_score":0,"third_score":0}
+[demo-game] Frame 04 | Risk -> 9, 1, 0
+-> sent 75 bytes: {"player":"Risk","turn":3,"first_score":9,"second_score":1,"third_score":0}
+[demo-game] Frame 05 | Will -> 1, 5, 0
+-> sent 75 bytes: {"player":"Will","turn":4,"first_score":1,"second_score":5,"third_score":0}
+[demo-game] Frame 05 | Risk -> 3, 1, 0
+-> sent 75 bytes: {"player":"Risk","turn":4,"first_score":3,"second_score":1,"third_score":0}
+[demo-game] Frame 06 | Will -> 1, 0, 0
+-> sent 75 bytes: {"player":"Will","turn":5,"first_score":1,"second_score":0,"third_score":0}
+[demo-game] Frame 06 | Risk -> 2, 6, 0
+-> sent 75 bytes: {"player":"Risk","turn":5,"first_score":2,"second_score":6,"third_score":0}
+[demo-game] Frame 07 | Will -> 7, 3, 0
+-> sent 75 bytes: {"player":"Will","turn":6,"first_score":7,"second_score":3,"third_score":0}
+[demo-game] Frame 07 | Risk -> 5, 2, 0
+-> sent 75 bytes: {"player":"Risk","turn":6,"first_score":5,"second_score":2,"third_score":0}
+[demo-game] Frame 08 | Will -> 5, 1, 0
+-> sent 75 bytes: {"player":"Will","turn":7,"first_score":5,"second_score":1,"third_score":0}
+[demo-game] Frame 08 | Risk -> 8, 2, 0
+-> sent 75 bytes: {"player":"Risk","turn":7,"first_score":8,"second_score":2,"third_score":0}
+[demo-game] Frame 09 | Will -> 5, 5, 0
+-> sent 75 bytes: {"player":"Will","turn":8,"first_score":5,"second_score":5,"third_score":0}
+[demo-game] Frame 09 | Risk -> 5, 2, 0
+-> sent 75 bytes: {"player":"Risk","turn":8,"first_score":5,"second_score":2,"third_score":0}
+[demo-game] Frame 10 | Will -> 0, 5, 0
+-> sent 75 bytes: {"player":"Will","turn":9,"first_score":0,"second_score":5,"third_score":0}
+[demo-game] Frame 10 | Risk -> 8, 2, 2
+-> sent 75 bytes: {"player":"Risk","turn":9,"first_score":8,"second_score":2,"third_score":2}
+
+[demo-game] Finished full game for both players.
+what to send? > exit
+bye.
+    ~/repos/codingWithGPT/udpBowlingSimulator    master *6 !1 ?4         
+```
+
+---
+
 ## 💬 Interactive Commands
 
 ```
@@ -190,40 +249,3 @@ or type:
 ```
 quit
 ```
-
----
-
-## 🧰 Development Notes
-
-* Uses `socket.AF_INET` + `SOCK_DGRAM`
-* Sends compact JSON (no whitespace)
-* No blocking network operations
-* Safe to run multiple instances
-
----
-
-## 📄 License
-
-MIT (or match your project license)
-
----
-
-## Recommended `.gitignore` addition
-
-```
-.venv/
-__pycache__/
-```
-
----
-
-## Optional: auto-activation helper (Linux/macOS)
-
-If you use this often:
-
-```bash
-echo "source .venv/bin/activate" > .envrc
-```
-
-(with `direnv`)
-

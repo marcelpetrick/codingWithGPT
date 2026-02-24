@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import json
+import random
 import socket
 import sys
+import time
 from pathlib import Path
 
 DEFAULT_HOST = "127.0.0.1"
@@ -21,11 +23,17 @@ Commands:
   demo-will
       Sends a few packets like your will_*.json examples.
 
+  demo-game [delay_seconds] [seed]
+      Simulate a full 10-frame bowling game for TWO random players and send
+      updates step-by-step (alternating players each frame).
+      - delay_seconds: float (default 0.35)
+      - seed: int (optional; makes results deterministic)
+
   help
   quit | exit
 
 Notes:
-- Your Qt receiver expects keys: player, turn, first_score, second_score, third_score
+- Receiver expects keys: player, turn, first_score, second_score, third_score
 - turn is the frame index (0..9) in your model.
 - Ctrl+C exits cleanly.
 """
@@ -36,6 +44,12 @@ def parse_int(s: str, name: str) -> int:
     except ValueError:
         raise ValueError(f"{name} must be an integer, got: {s!r}")
 
+def parse_float(s: str, name: str) -> float:
+    try:
+        return float(s)
+    except ValueError:
+        raise ValueError(f"{name} must be a number, got: {s!r}")
+
 def send_bytes(sock: socket.socket, addr, data: bytes) -> None:
     sock.sendto(data, addr)
     preview = data.decode("utf-8", errors="replace")
@@ -44,23 +58,108 @@ def send_bytes(sock: socket.socket, addr, data: bytes) -> None:
     print(f"-> sent {len(data)} bytes: {preview}")
 
 def send_obj(sock: socket.socket, addr, obj: dict) -> None:
-    # Compact JSON; Qt's QJsonDocument::fromJson() is fine with this.
     data = json.dumps(obj, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
     send_bytes(sock, addr, data)
 
 def validate_payload(obj: dict) -> None:
-    # Minimal validation to catch the typical mismatch early
     required = ["player", "turn", "first_score", "second_score", "third_score"]
     missing = [k for k in required if k not in obj]
     if missing:
         raise ValueError(f"missing keys: {missing}. Expected {required}")
     if not isinstance(obj["player"], str) or not obj["player"]:
         raise ValueError("player must be a non-empty string")
-    # turn/score fields can be int-like; we accept and let Qt clamp defaults if needed
-    # but we enforce turn range here because your model rejects >9.
     turn = int(obj["turn"])
     if turn < 0 or turn > 9:
         raise ValueError("turn must be in range 0..9")
+
+# ---------------- Demo game generation ----------------
+
+_FIRST_NAMES = [
+    "Will", "Mia", "Noah", "Lena", "Omar", "Zoe", "Kai", "Nora",
+    "Ben", "Ivy", "Theo", "Eli", "Ada", "Mila", "Sam", "Lea"
+]
+_LAST_NAMES = [
+    "Fischer", "Novak", "Klein", "Rossi", "Nguyen", "Ito", "Garcia", "Khan",
+    "Meyer", "Dubois", "Silva", "Nowak", "Schmidt", "Bauer", "Lopez", "Sato"
+]
+
+def random_player_name(rng: random.Random) -> str:
+    return f"{rng.choice(_FIRST_NAMES)} {rng.choice(_LAST_NAMES)}"
+
+def gen_frame_scores(rng: random.Random, frame_index: int) -> tuple[int, int, int]:
+    """
+    Returns (first, second, third) for a frame.
+    Simple bowling rules:
+    - Frames 0..8: strike => second=0, third=0; else second in 0..(10-first)
+    - Frame 9: if strike or spare => allow third roll
+    """
+    if frame_index < 9:
+        first = rng.randint(0, 10)
+        if first == 10:
+            return 10, 0, 0
+        second = rng.randint(0, 10 - first)
+        return first, second, 0
+
+    # 10th frame
+    first = rng.randint(0, 10)
+    if first == 10:
+        # strike: second is 0..10, third is 0..10 (simplified; common enough for UI demo)
+        second = rng.randint(0, 10)
+        third = rng.randint(0, 10)
+        return first, second, third
+
+    second = rng.randint(0, 10 - first)
+    if first + second == 10:
+        # spare: allow one more ball
+        third = rng.randint(0, 10)
+        return first, second, third
+
+    return first, second, 0
+
+def run_demo_game(sock: socket.socket, addr, delay_s: float = 0.35, seed: int | None = None) -> None:
+    rng = random.Random(seed)
+
+    # Fixed player names
+    p1 = "Will"
+    p2 = "Risk"
+
+    print(f"[demo-game] Players: 1) {p1}  2) {p2}")
+    if seed is not None:
+        print(f"[demo-game] Seed: {seed}")
+    print(f"[demo-game] Delay: {delay_s:.2f}s per packet\n")
+
+    # Pre-generate a full game (10 frames) for each player
+    game = {
+        p1: [gen_frame_scores(rng, f) for f in range(10)],
+        p2: [gen_frame_scores(rng, f) for f in range(10)],
+    }
+
+    # Send step-by-step: alternate players per frame
+    for frame in range(10):
+        for player in (p1, p2):
+            first, second, third = game[player][frame]
+
+            packet = {
+                "player": player,
+                "turn": frame,
+                "first_score": first,
+                "second_score": second,
+                "third_score": third,
+            }
+
+            validate_payload(packet)
+
+            print(
+                f"[demo-game] Frame {frame+1:02d} | {player:<4} -> "
+                f"{first}, {second}, {third}"
+            )
+
+            send_obj(sock, addr, packet)
+            time.sleep(delay_s)
+
+    print("\n[demo-game] Finished full game for both players.")
+
+# ---------------- CLI ----------------
 
 def main() -> int:
     host = DEFAULT_HOST
@@ -139,7 +238,6 @@ def main() -> int:
                     continue
 
                 data = path.read_bytes()
-                # Optional sanity check: ensure file contains a JSON object the receiver expects
                 try:
                     obj = json.loads(data.decode("utf-8"))
                     if not isinstance(obj, dict):
@@ -175,6 +273,22 @@ def main() -> int:
                 ]
                 for p in demo_packets:
                     send_obj(sock, addr, p)
+                continue
+
+            if cmd == "demo-game":
+                parts = rest[0].split() if rest else []
+                delay_s = 0.35
+                seed = None
+                try:
+                    if len(parts) >= 1:
+                        delay_s = parse_float(parts[0], "delay_seconds")
+                    if len(parts) >= 2:
+                        seed = parse_int(parts[1], "seed")
+                except ValueError as e:
+                    print(f"error: {e}")
+                    continue
+
+                run_demo_game(sock, addr, delay_s=delay_s, seed=seed)
                 continue
 
             print(f"unknown command: {cmd!r}. type 'help'.")
