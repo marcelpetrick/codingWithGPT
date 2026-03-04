@@ -34,3 +34,16 @@ zsh: IOT instruction (core dumped)  python main.py
 ```
 
 ![](screenshot.png)
+
+
+## persisted settings for user-choices
+```
+   ~/.config/realtimeLocalVoiceTranscriptionWithUI  pwd                                                                                            ✔ 
+/home/mpetrick/.config/realtimeLocalVoiceTranscriptionWithUI
+    ~/.config/realtimeLocalVoiceTranscriptionWithUI  ls -lah                                                                                        ✔ 
+total 12K
+drwxr-xr-x  2 mpetrick mpetrick 4.0K Mar  4 16:34 .
+drwxrwxrwx 67 mpetrick mpetrick 4.0K Mar  4 16:34 ..
+-rw-r--r--  1 mpetrick mpetrick  147 Mar  4 16:34 settings.ini
+    ~/.config/realtimeLocalVoiceTranscriptionWithUI     
+```
