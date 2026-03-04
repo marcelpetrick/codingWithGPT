@@ -42,6 +42,31 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._controller = TranscriptionController(self)
 
+        # Persistent settings (INI file via QSettings)
+        config_dir = Path(
+            QtCore.QStandardPaths.writableLocation(
+                QtCore.QStandardPaths.StandardLocation.AppConfigLocation
+            )
+        )
+        try:
+            config_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            # If config dir creation fails, QSettings will still try to create the file later.
+            pass
+        self._settings_path = config_dir / "settings.ini"
+        self._settings = QtCore.QSettings(
+            str(self._settings_path), QtCore.QSettings.Format.IniFormat
+        )
+
+        # Cached values loaded from settings (used during UI init)
+        self._saved_model_dir: str = self._settings.value("model/model_dir", "", type=str)
+        try:
+            self._saved_device_index: int = int(
+                self._settings.value("audio/device_index", -1)
+            )
+        except Exception:
+            self._saved_device_index = -1
+
         # Widgets
         self.model_path_edit = QtWidgets.QLineEdit()
         self.model_browse_btn = QtWidgets.QPushButton("Browse…")
@@ -99,6 +124,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.start_btn.clicked.connect(self._on_start_clicked)
         self.stop_btn.clicked.connect(self._on_stop_clicked)
 
+        # Persist user choices
+        self.model_path_edit.editingFinished.connect(self._save_model_dir)
+        self.device_combo.currentIndexChanged.connect(self._on_device_changed)
+
         # Controller signals
         self._controller.partial_text.connect(self._set_partial)
         self._controller.final_text.connect(self._append_final)
@@ -106,7 +135,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._controller.fatal_error.connect(self._on_fatal)
         self._controller.running_changed.connect(self._set_running_state)
 
-        # Initialize defaults
+        # Initialize defaults (restore persisted choices first)
         self._populate_devices()
         self._init_default_model_path()
 
@@ -126,11 +155,24 @@ class MainWindow(QtWidgets.QMainWindow):
     # --------------------------- UI init ---------------------------
 
     def _init_default_model_path(self) -> None:
+        # 1) Prefer persisted model dir (if still valid)
+        saved = (self._saved_model_dir or "").strip()
+        if saved:
+            sp = Path(saved).expanduser()
+            if sp.is_dir():
+                _info(f"Restoring persisted model path: {sp}")
+                self.model_path_edit.setText(str(sp))
+                self.start_btn.setEnabled(True)
+                return
+            _warn(f"Persisted model path no longer exists: {sp}")
+
+        # 2) Fall back to auto-detected default
         mp = default_model_path()
         if mp:
             _info(f"Using default model path: {mp}")
             self.model_path_edit.setText(str(mp))
             self.start_btn.setEnabled(True)
+            # Don't overwrite a user's previous choice unless they change it.
         else:
             _warn("No default Vosk model found. Set VOSK_MODEL_PATH or put a model in ./model.")
             self.status_label.setText("No model dir found. Set VOSK_MODEL_PATH or put a model in ./model.")
@@ -139,19 +181,59 @@ class MainWindow(QtWidgets.QMainWindow):
     def _populate_devices(self) -> None:
         _info("Refreshing microphone device list")
 
-        current = self.device_combo.currentData()
-        self.device_combo.clear()
-        self.device_combo.addItem("Default input device", -1)
+        # Prefer the currently selected device; otherwise fall back to persisted choice.
+        preferred = self.device_combo.currentData()
+        if preferred is None:
+            preferred = self._saved_device_index
 
-        for idx, label in list_input_devices():
-            self.device_combo.addItem(label, idx)
+        self.device_combo.blockSignals(True)
+        try:
+            self.device_combo.clear()
+            self.device_combo.addItem("Default input device", -1)
 
-        if current is not None:
-            i = self.device_combo.findData(current)
+            for idx, label in list_input_devices():
+                self.device_combo.addItem(label, idx)
+
+            i = self.device_combo.findData(preferred)
             if i >= 0:
                 self.device_combo.setCurrentIndex(i)
+            else:
+                # If the saved device no longer exists, fall back to default.
+                self.device_combo.setCurrentIndex(0)
+        finally:
+            self.device_combo.blockSignals(False)
 
-    # --------------------------- User actions ---------------------------
+    # --------------------------- Persistence ---------------------------
+
+    def _save_model_dir(self) -> None:
+        """Persist the currently entered model directory to the INI file."""
+        model_dir = self.model_path_edit.text().strip()
+        if not model_dir:
+            return
+        self._settings.setValue("model/model_dir", model_dir)
+        self._settings.sync()
+        self._saved_model_dir = model_dir
+        _info(f"Persisted model path to settings: {model_dir}")
+
+    def _save_device_index(self, device_index: int) -> None:
+        """Persist the selected input device index to the INI file."""
+        self._settings.setValue("audio/device_index", int(device_index))
+        self._settings.sync()
+        self._saved_device_index = int(device_index)
+        _info(f"Persisted device index to settings: {device_index}")
+
+    @QtCore.pyqtSlot(int)
+    def _on_device_changed(self, _: int) -> None:
+        """Handle device selection changes (stdout + persistence)."""
+        device_index = int(self.device_combo.currentData() or -1)
+        device_label = self.device_combo.currentText()
+
+        # Explicit stdout output as requested (in addition to internal logging)
+        print(f"Selected input device: {device_label} (device_index={device_index})", flush=True)
+
+        self._save_device_index(device_index)
+
+# --------------------------- User actions ---------------------------
 
     def _browse_model_dir(self) -> None:
         _info("User opened model directory dialog")
@@ -160,6 +242,7 @@ class MainWindow(QtWidgets.QMainWindow):
             _info(f"User selected model directory: {d}")
             self.model_path_edit.setText(d)
             self.start_btn.setEnabled(True)
+            self._save_model_dir()
 
     def _on_start_clicked(self) -> None:
         _info("User pressed START recording")
@@ -179,6 +262,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         device_index = int(self.device_combo.currentData() or -1)
         _info(f"Starting transcription (device_index={device_index})")
+
+        # Persist the last used values
+        self._save_model_dir()
+        self._save_device_index(device_index)
 
         self._controller.start(model_dir=model_dir, device_index=device_index)
 
