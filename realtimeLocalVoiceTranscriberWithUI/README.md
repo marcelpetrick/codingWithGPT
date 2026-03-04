@@ -32,3 +32,5 @@
 [INFO] Final transcription: for
 zsh: IOT instruction (core dumped)  python main.py
 ```
+
+![](screenshot.png)
