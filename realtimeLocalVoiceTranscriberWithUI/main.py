@@ -48,27 +48,18 @@ except Exception as exc:  # pragma: no cover
 # --------------------------- Utilities ---------------------------
 
 def _warn(msg: str) -> None:
-    """Print a warning to stdout."""
     print(f"[WARN] {msg}", flush=True)
 
 
 def _err(msg: str) -> None:
-    """Print an error to stdout."""
     print(f"[ERROR] {msg}", flush=True)
 
 
 def _info(msg: str) -> None:
-    """Print info to stdout."""
     print(f"[INFO] {msg}", flush=True)
 
 
 def _default_model_path() -> Optional[Path]:
-    """
-    /**
-     * @brief Determine a sensible default Vosk model directory.
-     * @return Path to model directory, or None if not found.
-     */
-    """
     env = os.environ.get("VOSK_MODEL_PATH", "").strip()
     candidates: List[Path] = []
     if env:
@@ -82,11 +73,7 @@ def _default_model_path() -> Optional[Path]:
 
 
 def list_input_devices() -> List[Tuple[int, str]]:
-    """
-    /**
-     * @brief List available audio *input* devices as (device_index, display_name).
-     */
-    """
+    _info("Querying audio input devices")
     out: List[Tuple[int, str]] = []
     try:
         devices = sd.query_devices()
@@ -104,6 +91,7 @@ def list_input_devices() -> List[Tuple[int, str]]:
                 out.append((idx, label))
     except Exception as exc:
         _warn(f"Could not query input devices: {exc}")
+    _info(f"Found {len(out)} input devices")
     return out
 
 
@@ -111,36 +99,17 @@ def list_input_devices() -> List[Tuple[int, str]]:
 
 @dataclass(frozen=True)
 class AudioConfig:
-    """
-    /**
-     * @brief Audio capture configuration.
-     */
-    """
     samplerate: int = 16000
     channels: int = 1
     dtype: str = "int16"
-    blocksize: int = 8000  # ~0.5s at 16kHz (int16 mono -> 16000 samples/sec)
+    blocksize: int = 8000
 
 
 class TranscriberWorker(QtCore.QObject):
-    """
-    /**
-     * @brief Worker that captures audio from microphone and transcribes with Vosk.
-     *
-     * Threading model:
-     *  - This QObject is moved to a dedicated QThread.
-     *  - It manages a sounddevice RawInputStream callback feeding a queue.
-     *  - The worker loop consumes bytes and calls Vosk recognizer incrementally.
-     */
-    """
 
-    # Emitted frequently with partial results.
     partial_text = QtCore.pyqtSignal(str)
-    # Emitted on finalized segments.
     final_text = QtCore.pyqtSignal(str)
-    # Status updates for UI (running/stopped/errors).
     status = QtCore.pyqtSignal(str)
-    # Emitted if an unrecoverable error occurs.
     fatal_error = QtCore.pyqtSignal(str)
 
     def __init__(self) -> None:
@@ -154,30 +123,30 @@ class TranscriberWorker(QtCore.QObject):
 
     @QtCore.pyqtSlot(str, int)
     def start(self, model_dir: str, device_index: int) -> None:
-        """
-        /**
-         * @brief Start audio capture + streaming transcription.
-         * @param model_dir Path to Vosk model directory.
-         * @param device_index sounddevice device index to use (or -1 for default).
-         */
-        """
+
+        _info(f"Worker start requested (device_index={device_index})")
+
         if self._stream is not None:
             self.status.emit("Already running.")
+            _warn("Worker already running")
             return
 
         self._stop_event.clear()
-        SetLogLevel(-1)  # keep Vosk quieter; we handle messaging ourselves.
+        SetLogLevel(-1)
 
         try:
             model_path = Path(model_dir).expanduser().resolve()
             if not model_path.is_dir():
                 raise FileNotFoundError(f"Model dir not found: {model_path}")
 
+            _info(f"Loading Vosk model from: {model_path}")
             self.status.emit(f"Loading model: {model_path}")
+
             self._model = Model(str(model_path))
+            _info("Model successfully loaded")
 
             self._recognizer = KaldiRecognizer(self._model, self._cfg.samplerate)
-            # More readable partial results (still may be noisy):
+
             try:
                 self._recognizer.SetWords(True)
             except Exception:
@@ -190,25 +159,25 @@ class TranscriberWorker(QtCore.QObject):
             self._cleanup()
             return
 
-    def _audio_callback(indata, frames: int, time_info, status) -> None:
-        """PortAudio callback; keep it fast and exception-safe."""
-        if status:
-            _warn(f"Audio callback status: {status}")
-        if self._stop_event.is_set():
-            return
+        def _audio_callback(indata, frames: int, time_info, status) -> None:
+            if status:
+                _warn(f"Audio callback status: {status}")
+            if self._stop_event.is_set():
+                return
+
+            try:
+                data = bytes(indata)
+                self._audio_q.put_nowait(data)
+            except queue.Full:
+                _warn("Audio queue full; dropping audio chunk.")
+            except Exception as exc:
+                _warn(f"Audio callback error: {exc}")
 
         try:
-            # Force conversion to true bytes (fixes cffi buffer incompatibility)
-            data = bytes(indata)
-            self._audio_q.put_nowait(data)
-        except queue.Full:
-            _warn("Audio queue full; dropping audio chunk.")
-        except Exception as exc:
-            _warn(f"Audio callback error: {exc}")
-
-        try:
-            # device=None uses default; sounddevice expects device index or None.
             device = None if device_index < 0 else device_index
+
+            _info(f"Opening microphone stream (device={device})")
+
             self._stream = sd.RawInputStream(
                 samplerate=self._cfg.samplerate,
                 blocksize=self._cfg.blocksize,
@@ -217,8 +186,13 @@ class TranscriberWorker(QtCore.QObject):
                 channels=self._cfg.channels,
                 callback=_audio_callback,
             )
+
             self._stream.start()
+
+            _info("Audio stream started")
+
             self.status.emit("Recording… (offline transcription running)")
+
         except Exception as exc:
             msg = f"Failed to start audio stream: {exc}"
             _err(msg)
@@ -226,28 +200,20 @@ class TranscriberWorker(QtCore.QObject):
             self._cleanup()
             return
 
-        # Main worker loop (still inside QThread context)
         try:
             self._run_loop()
         finally:
+            _info("Worker stopping")
             self._cleanup()
             self.status.emit("Stopped.")
 
     @QtCore.pyqtSlot()
     def stop(self) -> None:
-        """
-        /**
-         * @brief Request stop. The worker loop will exit shortly.
-         */
-        """
+        _info("Worker stop requested")
         self._stop_event.set()
 
     def _run_loop(self) -> None:
-        """
-        /**
-         * @brief Consume audio from queue and feed Vosk recognizer.
-         */
-        """
+
         if self._recognizer is None:
             raise RuntimeError("Recognizer not initialized.")
 
@@ -262,44 +228,55 @@ class TranscriberWorker(QtCore.QObject):
             try:
                 if not isinstance(chunk, (bytes, bytearray)):
                     chunk = bytes(chunk)
+
                 accepted = self._recognizer.AcceptWaveform(chunk)
+
                 if accepted:
                     res = json.loads(self._recognizer.Result() or "{}")
                     text = (res.get("text") or "").strip()
+
                     if text:
+                        _info(f"Final transcription: {text}")
                         self.final_text.emit(text)
+
                 else:
-                    # Throttle partial updates a bit to keep UI smooth.
                     now = time.time()
+
                     if now - last_partial_emit >= 0.10:
                         pres = json.loads(self._recognizer.PartialResult() or "{}")
                         ptxt = (pres.get("partial") or "").strip()
+
+                        if ptxt:
+                            _info(f"Partial transcription: {ptxt}")
+
                         self.partial_text.emit(ptxt)
                         last_partial_emit = now
+
             except Exception as exc:
                 _warn(f"Transcription error (continuing): {exc}")
 
-        # Flush final result when stopping.
         try:
             res = json.loads(self._recognizer.FinalResult() or "{}")
             text = (res.get("text") or "").strip()
+
             if text:
+                _info(f"Final transcription after stop: {text}")
                 self.final_text.emit(text)
+
         except Exception as exc:
             _warn(f"Finalization error: {exc}")
 
     def _cleanup(self) -> None:
-        """
-        /**
-         * @brief Cleanup stream and state safely.
-         */
-        """
+
+        _info("Cleaning up audio/transcription resources")
+
         try:
             if self._stream is not None:
                 try:
                     self._stream.stop()
                 except Exception:
                     pass
+
                 try:
                     self._stream.close()
                 except Exception:
@@ -308,7 +285,7 @@ class TranscriberWorker(QtCore.QObject):
             self._stream = None
             self._recognizer = None
             self._model = None
-            # Drain queue
+
             try:
                 while True:
                     self._audio_q.get_nowait()
@@ -319,21 +296,18 @@ class TranscriberWorker(QtCore.QObject):
 # --------------------------- GUI ---------------------------
 
 class MainWindow(QtWidgets.QMainWindow):
-    """
-    /**
-     * @brief Main application window.
-     */
-    """
 
     def __init__(self) -> None:
         super().__init__()
+
+        _info("Initializing main window")
+
         self.setWindowTitle("Offline Transcription (Vosk + PyQt6)")
         self.resize(900, 600)
 
         self._thread: Optional[QtCore.QThread] = None
         self._worker: Optional[TranscriberWorker] = None
 
-        # Widgets
         self.model_path_edit = QtWidgets.QLineEdit()
         self.model_browse_btn = QtWidgets.QPushButton("Browse…")
 
@@ -353,9 +327,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.text_out = QtWidgets.QPlainTextEdit()
         self.text_out.setReadOnly(True)
-        self.text_out.setPlaceholderText("Final transcription will appear here…")
 
-        # Layout
         top = QtWidgets.QWidget()
         self.setCentralWidget(top)
         layout = QtWidgets.QVBoxLayout(top)
@@ -384,54 +356,59 @@ class MainWindow(QtWidgets.QMainWindow):
         layout.addWidget(self.text_out, 1)
         layout.addWidget(self.status_label)
 
-        # Signals
         self.model_browse_btn.clicked.connect(self._browse_model_dir)
         self.refresh_devices_btn.clicked.connect(self._populate_devices)
         self.start_btn.clicked.connect(self._start)
         self.stop_btn.clicked.connect(self._stop)
 
-        # Initialize
         self._populate_devices()
+
         mp = _default_model_path()
         if mp:
+            _info(f"Using default model path: {mp}")
             self.model_path_edit.setText(str(mp))
         else:
-            _warn("No default Vosk model found. Set VOSK_MODEL_PATH or place a model in ./model")
-            self.status_label.setText("No model dir found. Set VOSK_MODEL_PATH or put a model in ./model.")
-            self.start_btn.setEnabled(False)
+            _warn("No default Vosk model found.")
 
-        # If devices list empty, still allow default (-1) option.
         if self.device_combo.count() == 0:
             self.device_combo.addItem("Default input device", -1)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
-        """
-        /**
-         * @brief Ensure worker is stopped before exiting.
-         */
-        """
+
+        _info("Application window closing")
+
         try:
             self._stop()
         except Exception as exc:
             _warn(f"Error during shutdown: {exc}")
+
         super().closeEvent(event)
 
     def _browse_model_dir(self) -> None:
-        d = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Vosk model directory")
+        _info("User opened model directory dialog")
+
+        d = QtWidgets.QFileDialog.getExistingDirectory(
+            self, "Select Vosk model directory"
+        )
+
         if d:
+            _info(f"User selected model directory: {d}")
             self.model_path_edit.setText(d)
             self.start_btn.setEnabled(True)
 
     def _populate_devices(self) -> None:
+        _info("Refreshing microphone device list")
+
         current_data = self.device_combo.currentData()
+
         self.device_combo.clear()
         self.device_combo.addItem("Default input device", -1)
 
         devices = list_input_devices()
+
         for idx, label in devices:
             self.device_combo.addItem(label, idx)
 
-        # Try to restore selection
         if current_data is not None:
             i = self.device_combo.findData(current_data)
             if i >= 0:
@@ -443,24 +420,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.text_out.appendPlainText(text)
 
     def _set_partial(self, text: str) -> None:
-        # Show nothing if empty to reduce clutter
         self.partial_label.setText(text or "")
 
     def _set_status(self, text: str) -> None:
         self.status_label.setText(text)
 
     def _on_fatal(self, msg: str) -> None:
+        _err(f"Fatal worker error: {msg}")
         self._set_status(msg)
         self._stop_ui_only()
 
     def _start(self) -> None:
+
+        _info("User pressed START recording")
+
         model_dir = self.model_path_edit.text().strip()
+
         if not model_dir:
             self._set_status("Please select a Vosk model directory.")
             self.start_btn.setEnabled(False)
             return
 
         model_path = Path(model_dir).expanduser()
+
         if not model_path.is_dir():
             self._set_status(f"Model dir does not exist: {model_path}")
             _err(f"Model dir does not exist: {model_path}")
@@ -472,22 +454,23 @@ class MainWindow(QtWidgets.QMainWindow):
 
         device_index = int(self.device_combo.currentData() or -1)
 
-        # Set up worker thread
+        _info(f"Starting worker thread (device_index={device_index})")
+
         self._thread = QtCore.QThread(self)
         self._worker = TranscriberWorker()
         self._worker.moveToThread(self._thread)
 
-        # Wire signals
-        self._thread.started.connect(lambda: self._worker.start(model_dir, device_index))  # type: ignore[union-attr]
-        self._worker.partial_text.connect(self._set_partial)  # type: ignore[union-attr]
-        self._worker.final_text.connect(self._append_final)  # type: ignore[union-attr]
-        self._worker.status.connect(self._set_status)  # type: ignore[union-attr]
-        self._worker.fatal_error.connect(self._on_fatal)  # type: ignore[union-attr]
+        self._thread.started.connect(
+            lambda: self._worker.start(model_dir, device_index)
+        )
 
-        # Ensure cleanup
+        self._worker.partial_text.connect(self._set_partial)
+        self._worker.final_text.connect(self._append_final)
+        self._worker.status.connect(self._set_status)
+        self._worker.fatal_error.connect(self._on_fatal)
+
         self._thread.finished.connect(self._thread.deleteLater)
 
-        # UI state
         self.start_btn.setEnabled(False)
         self.stop_btn.setEnabled(True)
         self.device_combo.setEnabled(False)
@@ -498,11 +481,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._thread.start()
 
     def _stop(self) -> None:
-        """
-        /**
-         * @brief Stop transcription and join worker thread safely.
-         */
-        """
+
+        _info("User pressed STOP recording")
+
         if self._worker is not None:
             try:
                 self._worker.stop()
@@ -510,8 +491,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 _warn(f"Failed to request stop: {exc}")
 
         if self._thread is not None:
-            # Give the worker a moment to exit cleanly.
             self._thread.quit()
+
             if not self._thread.wait(2500):
                 _warn("Worker thread did not exit in time; terminating.")
                 self._thread.terminate()
@@ -520,7 +501,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._stop_ui_only()
 
     def _stop_ui_only(self) -> None:
-        # Reset UI + references
+
+        _info("Resetting UI after stop")
+
         self.start_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
         self.device_combo.setEnabled(True)
@@ -537,20 +520,21 @@ class MainWindow(QtWidgets.QMainWindow):
 # --------------------------- Entrypoint ---------------------------
 
 def main() -> int:
-    """
-    /**
-     * @brief Application entrypoint.
-     */
-    """
-    # Defensive: ensure sounddevice can initialize PortAudio
+
+    _info("Starting application")
+
     try:
         sd.default.reset()
     except Exception as exc:
         _warn(f"Audio backend init warning: {exc}")
 
     app = QtWidgets.QApplication(sys.argv)
+
     w = MainWindow()
     w.show()
+
+    _info("GUI started")
+
     return app.exec()
 
 
