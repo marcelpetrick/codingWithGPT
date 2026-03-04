@@ -45,6 +45,11 @@ except Exception as exc:  # pragma: no cover
     raise
 
 
+# --------------------------- Version ---------------------------
+
+APP_VERSION = "0.1.0"  # SemVer, update manually as needed
+
+
 # --------------------------- Utilities ---------------------------
 
 def _warn(msg: str) -> None:
@@ -302,7 +307,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         _info("Initializing main window")
 
-        self.setWindowTitle("Offline Transcription (Vosk + PyQt6)")
+        self.setWindowTitle(f"Offline Transcription (Vosk + PyQt6) v{APP_VERSION}")
         self.resize(900, 600)
 
         self._thread: Optional[QtCore.QThread] = None
@@ -521,7 +526,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 def main() -> int:
 
-    _info("Starting application")
+    _info(f"Starting application (version {APP_VERSION})")
 
     try:
         sd.default.reset()

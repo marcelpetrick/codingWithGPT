@@ -4,7 +4,7 @@
 ## test run with version 0.1.0
 ```
  python main.py          ✔  realtimeLocalVoiceTranscriberWithUI  
-[INFO] Starting application
+[INFO] Starting application (version 0.1.0)
 [INFO] Initializing main window
 [INFO] Refreshing microphone device list
 [INFO] Querying audio input devices
