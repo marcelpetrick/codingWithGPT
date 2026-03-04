@@ -41,6 +41,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.resize(900, 600)
 
         self._controller = TranscriptionController(self)
+        self._running: bool = False  # authoritative UI state
 
         # Persistent settings (INI file via QSettings)
         config_dir = Path(
@@ -51,8 +52,8 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             config_dir.mkdir(parents=True, exist_ok=True)
         except Exception:
-            # If config dir creation fails, QSettings will still try to create the file later.
             pass
+
         self._settings_path = config_dir / "settings.ini"
         self._settings = QtCore.QSettings(
             str(self._settings_path), QtCore.QSettings.Format.IniFormat
@@ -78,6 +79,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.stop_btn = QtWidgets.QPushButton("Stop")
         self.stop_btn.setEnabled(False)
 
+        # NEW: Clear button (only usable when not running)
+        self.clear_btn = QtWidgets.QPushButton("Clear")
+        self.clear_btn.setEnabled(True)
+
+        # NEW: Busy indicator for slow model loading / start
+        self.busy_bar = QtWidgets.QProgressBar()
+        self.busy_bar.setRange(0, 0)  # indeterminate
+        self.busy_bar.setTextVisible(False)
+        self.busy_bar.setVisible(False)
+
         self.status_label = QtWidgets.QLabel("Ready.")
         self.status_label.setWordWrap(True)
 
@@ -85,8 +96,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.partial_label.setStyleSheet("font-style: italic;")
         self.partial_label.setWordWrap(True)
 
+        # NEW: Make final field editable (but we will toggle readOnly while running)
         self.text_out = QtWidgets.QPlainTextEdit()
-        self.text_out.setReadOnly(True)
+        self.text_out.setReadOnly(False)
         self.text_out.setPlaceholderText("Final transcription will appear here…")
 
         # Layout
@@ -109,7 +121,9 @@ class MainWindow(QtWidgets.QMainWindow):
         btn_row = QtWidgets.QHBoxLayout()
         btn_row.addWidget(self.start_btn)
         btn_row.addWidget(self.stop_btn)
+        btn_row.addWidget(self.clear_btn)
         btn_row.addStretch(1)
+        btn_row.addWidget(self.busy_bar)
         layout.addLayout(btn_row)
 
         layout.addWidget(QtWidgets.QLabel("Partial:"))
@@ -123,6 +137,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.refresh_devices_btn.clicked.connect(self._populate_devices)
         self.start_btn.clicked.connect(self._on_start_clicked)
         self.stop_btn.clicked.connect(self._on_stop_clicked)
+
+        # NEW: clear final text
+        self.clear_btn.clicked.connect(self._on_clear_clicked)
 
         # Persist user choices
         self.model_path_edit.editingFinished.connect(self._save_model_dir)
@@ -138,6 +155,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # Initialize defaults (restore persisted choices first)
         self._populate_devices()
         self._init_default_model_path()
+
+        # Initial UI state rules
+        self._apply_editability_rules()
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         """
@@ -172,7 +192,6 @@ class MainWindow(QtWidgets.QMainWindow):
             _info(f"Using default model path: {mp}")
             self.model_path_edit.setText(str(mp))
             self.start_btn.setEnabled(True)
-            # Don't overwrite a user's previous choice unless they change it.
         else:
             _warn("No default Vosk model found. Set VOSK_MODEL_PATH or put a model in ./model.")
             self.status_label.setText("No model dir found. Set VOSK_MODEL_PATH or put a model in ./model.")
@@ -181,7 +200,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def _populate_devices(self) -> None:
         _info("Refreshing microphone device list")
 
-        # Prefer the currently selected device; otherwise fall back to persisted choice.
         preferred = self.device_combo.currentData()
         if preferred is None:
             preferred = self._saved_device_index
@@ -198,7 +216,6 @@ class MainWindow(QtWidgets.QMainWindow):
             if i >= 0:
                 self.device_combo.setCurrentIndex(i)
             else:
-                # If the saved device no longer exists, fall back to default.
                 self.device_combo.setCurrentIndex(0)
         finally:
             self.device_combo.blockSignals(False)
@@ -206,7 +223,6 @@ class MainWindow(QtWidgets.QMainWindow):
     # --------------------------- Persistence ---------------------------
 
     def _save_model_dir(self) -> None:
-        """Persist the currently entered model directory to the INI file."""
         model_dir = self.model_path_edit.text().strip()
         if not model_dir:
             return
@@ -216,7 +232,6 @@ class MainWindow(QtWidgets.QMainWindow):
         _info(f"Persisted model path to settings: {model_dir}")
 
     def _save_device_index(self, device_index: int) -> None:
-        """Persist the selected input device index to the INI file."""
         self._settings.setValue("audio/device_index", int(device_index))
         self._settings.sync()
         self._saved_device_index = int(device_index)
@@ -224,16 +239,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(int)
     def _on_device_changed(self, _: int) -> None:
-        """Handle device selection changes (stdout + persistence)."""
         device_index = int(self.device_combo.currentData() or -1)
         device_label = self.device_combo.currentText()
-
-        # Explicit stdout output as requested (in addition to internal logging)
         print(f"Selected input device: {device_label} (device_index={device_index})", flush=True)
-
         self._save_device_index(device_index)
 
-# --------------------------- User actions ---------------------------
+    # --------------------------- User actions ---------------------------
 
     def _browse_model_dir(self) -> None:
         _info("User opened model directory dialog")
@@ -267,16 +278,31 @@ class MainWindow(QtWidgets.QMainWindow):
         self._save_model_dir()
         self._save_device_index(device_index)
 
+        # Immediate UX feedback: disable Start right away and show busy indicator.
+        # Actual running state will be confirmed by running_changed/status signals.
+        self.start_btn.setEnabled(False)
+        self._set_busy(True, "Starting… loading model")
+
         self._controller.start(model_dir=model_dir, device_index=device_index)
 
     def _on_stop_clicked(self) -> None:
         _info("User pressed STOP recording")
         self._controller.stop()
 
+    def _on_clear_clicked(self) -> None:
+        # Only allowed when not recording
+        if self._running:
+            return
+        self.text_out.clear()
+        self._set_status("Cleared.")
+        self.partial_label.setText("")
+
     # --------------------------- UI updates ---------------------------
 
     @QtCore.pyqtSlot(bool)
     def _set_running_state(self, running: bool) -> None:
+        self._running = bool(running)
+
         # Enable/disable controls depending on state.
         self.start_btn.setEnabled(not running)
         self.stop_btn.setEnabled(running)
@@ -286,13 +312,23 @@ class MainWindow(QtWidgets.QMainWindow):
         self.model_path_edit.setEnabled(not running)
         self.model_browse_btn.setEnabled(not running)
 
+        # NEW: Clear + editability only when NOT running
+        self.clear_btn.setEnabled(not running)
+        self._apply_editability_rules()
+
         if not running:
             self._set_partial("")
+            self._set_busy(False, "Ready.")
+
+    def _apply_editability_rules(self) -> None:
+        # editable ONLY when not recording
+        self.text_out.setReadOnly(self._running)
 
     @QtCore.pyqtSlot(str)
     def _append_final(self, text: str) -> None:
         if not text:
             return
+        # While recording, keep the caret at end and append; users can edit later.
         self.text_out.appendPlainText(text)
 
     @QtCore.pyqtSlot(str)
@@ -301,11 +337,37 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def _set_status(self, text: str) -> None:
-        self.status_label.setText(text)
+        # If model loading takes time, worker emits "Loading model: ..."
+        # Reflect it and show busy indicator.
+        t = (text or "").strip()
+        self.status_label.setText(t if t else "")
+
+        low = t.lower()
+        if ("loading model" in low) or ("loading" in low and "model" in low):
+            self._set_busy(True, t)
+        elif ("recording" in low) or ("offline transcription running" in low):
+            # recording started; we can drop "loading" indicator
+            self._set_busy(False, t)
+        elif ("stopped" in low):
+            self._set_busy(False, t)
+
+    def _set_busy(self, busy: bool, status_text: Optional[str] = None) -> None:
+        self.busy_bar.setVisible(bool(busy))
+        # Busy cursor gives immediate feedback during slow model loads
+        if busy:
+            QtWidgets.QApplication.setOverrideCursor(
+                QtGui.QCursor(QtCore.Qt.CursorShape.BusyCursor)
+            )
+        else:
+            QtWidgets.QApplication.restoreOverrideCursor()
+
+        if status_text is not None:
+            self.status_label.setText(status_text)
 
     @QtCore.pyqtSlot(str)
     def _on_fatal(self, msg: str) -> None:
         _err(f"Fatal worker error: {msg}")
         self._set_status(msg)
+        self._set_busy(False, msg)
         # Ensure UI recovers even on worker failure.
         self._set_running_state(False)

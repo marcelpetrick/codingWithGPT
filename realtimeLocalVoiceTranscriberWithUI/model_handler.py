@@ -36,7 +36,7 @@ except Exception as exc:  # pragma: no cover
 
 # --------------------------- Version ---------------------------
 
-APP_VERSION = "0.1.4"  # SemVer; update manually as needed.
+APP_VERSION = "0.1.5"  # SemVer; update manually as needed.
 
 
 # --------------------------- Logging ---------------------------
