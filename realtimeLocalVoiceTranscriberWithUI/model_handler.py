@@ -36,7 +36,7 @@ except Exception as exc:  # pragma: no cover
 
 # --------------------------- Version ---------------------------
 
-APP_VERSION = "0.1.3"  # SemVer; update manually as needed.
+APP_VERSION = "0.1.4"  # SemVer; update manually as needed.
 
 
 # --------------------------- Logging ---------------------------
@@ -350,7 +350,7 @@ class TranscriptionController(QtCore.QObject):
     fatal_error = QtCore.pyqtSignal(str)
     running_changed = QtCore.pyqtSignal(bool)
 
-    # NEW: used to invoke worker.run() in the worker thread (queued)
+    # used to invoke worker.run() in the worker thread (queued)
     start_requested = QtCore.pyqtSignal(str, int)
 
     def __init__(self, parent: Optional[QtCore.QObject] = None) -> None:
@@ -360,9 +360,17 @@ class TranscriptionController(QtCore.QObject):
 
         self._stop_timer: Optional[QtCore.QTimer] = None
         self._stop_deadline: float = 0.0
+        self._finalized_stop: bool = False
 
     def is_running(self) -> bool:
-        return self._thread is not None and self._thread.isRunning()
+        t = self._thread
+        if t is None:
+            return False
+        try:
+            return t.isRunning()
+        except RuntimeError:
+            # Underlying C++ object already deleted
+            return False
 
     def start(self, model_dir: str, device_index: int) -> None:
         """
@@ -373,6 +381,12 @@ class TranscriptionController(QtCore.QObject):
         if self._thread is not None:
             _warn("Controller: start requested while already running; ignoring.")
             return
+
+        # ensure any stale stop timer state is cleared
+        if self._stop_timer is not None and self._stop_timer.isActive():
+            self._stop_timer.stop()
+
+        self._finalized_stop = False
 
         _info(f"Controller: starting (device_index={device_index})")
 
@@ -394,13 +408,16 @@ class TranscriptionController(QtCore.QObject):
             self.fatal_error, type=QtCore.Qt.ConnectionType.QueuedConnection
         )
 
-        # NEW: start worker.run() via queued invocation into the worker thread
-        # (A direct Python call from GUI thread will block the UI event loop.)
+        # Start worker.run() via queued invocation into the worker thread
         self.start_requested.connect(
             self._worker.run,
             type=QtCore.Qt.ConnectionType.QueuedConnection,
         )
 
+        # When the thread finishes, finalize stop (Qt-native Option C)
+        self._thread.finished.connect(self._on_thread_finished)
+
+        # It's fine to deleteLater; we guard against touching deleted objects.
         self._thread.finished.connect(self._thread.deleteLater)
 
         self._thread.start()
@@ -427,6 +444,7 @@ class TranscriptionController(QtCore.QObject):
             except Exception as exc:
                 _warn(f"Controller: failed to request worker stop: {exc}")
 
+        # Ask the thread event loop to exit; worker should naturally stop shortly.
         try:
             self._thread.quit()
         except Exception:
@@ -437,16 +455,38 @@ class TranscriptionController(QtCore.QObject):
             self._stop_timer.setInterval(50)
             self._stop_timer.timeout.connect(self._poll_stop)
 
+        # watchdog deadline (fallback)
         self._stop_deadline = time.monotonic() + 2.5
         self._stop_timer.start()
 
+    @QtCore.pyqtSlot()
+    def _on_thread_finished(self) -> None:
+        # Normal completion path: stop polling and finalize exactly once.
+        if self._stop_timer is not None and self._stop_timer.isActive():
+            self._stop_timer.stop()
+        self._finalize_stop()
+
     def _poll_stop(self) -> None:
-        if self._thread is None:
-            if self._stop_timer is not None:
+        # Fallback watchdog: never crash if QThread object was deleted.
+        if self._finalized_stop:
+            if self._stop_timer is not None and self._stop_timer.isActive():
                 self._stop_timer.stop()
             return
 
-        if not self._thread.isRunning():
+        t = self._thread
+        if t is None:
+            if self._stop_timer is not None:
+                self._stop_timer.stop()
+            self._finalize_stop()
+            return
+
+        try:
+            running = t.isRunning()
+        except RuntimeError:
+            # underlying C++ object deleted (this was your crash)
+            running = False
+
+        if not running:
             _info("Controller: worker thread stopped cleanly")
             if self._stop_timer is not None:
                 self._stop_timer.stop()
@@ -456,11 +496,11 @@ class TranscriptionController(QtCore.QObject):
         if time.monotonic() >= self._stop_deadline:
             _warn("Controller: worker thread did not exit in time; terminating.")
             try:
-                self._thread.terminate()
+                t.terminate()
             except Exception as exc:
                 _warn(f"Controller: terminate failed: {exc}")
             try:
-                self._thread.wait(1000)
+                t.wait(1000)
             except Exception:
                 pass
             if self._stop_timer is not None:
@@ -468,6 +508,18 @@ class TranscriptionController(QtCore.QObject):
             self._finalize_stop()
 
     def _finalize_stop(self) -> None:
+        # Must be idempotent; can be called by finished-signal or watchdog.
+        if self._finalized_stop:
+            return
+        self._finalized_stop = True
+
+        # Disconnect start_requested from the old worker to avoid stacking connections on restart.
+        if self._worker is not None:
+            try:
+                self.start_requested.disconnect(self._worker.run)
+            except Exception:
+                pass
+
         self._worker = None
         self._thread = None
         self.running_changed.emit(False)
