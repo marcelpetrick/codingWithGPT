@@ -36,7 +36,7 @@ except Exception as exc:  # pragma: no cover
 
 # --------------------------- Version ---------------------------
 
-APP_VERSION = "0.1.2"  # SemVer; update manually as needed.
+APP_VERSION = "0.1.3"  # SemVer; update manually as needed.
 
 
 # --------------------------- Logging ---------------------------
@@ -350,6 +350,9 @@ class TranscriptionController(QtCore.QObject):
     fatal_error = QtCore.pyqtSignal(str)
     running_changed = QtCore.pyqtSignal(bool)
 
+    # NEW: used to invoke worker.run() in the worker thread (queued)
+    start_requested = QtCore.pyqtSignal(str, int)
+
     def __init__(self, parent: Optional[QtCore.QObject] = None) -> None:
         super().__init__(parent)
         self._thread: Optional[QtCore.QThread] = None
@@ -391,14 +394,19 @@ class TranscriptionController(QtCore.QObject):
             self.fatal_error, type=QtCore.Qt.ConnectionType.QueuedConnection
         )
 
+        # NEW: start worker.run() via queued invocation into the worker thread
+        # (A direct Python call from GUI thread will block the UI event loop.)
+        self.start_requested.connect(
+            self._worker.run,
+            type=QtCore.Qt.ConnectionType.QueuedConnection,
+        )
+
         self._thread.finished.connect(self._thread.deleteLater)
 
         self._thread.start()
 
-        # Ensure the worker run method executes in its own thread.
-        QtCore.QTimer.singleShot(
-            0, lambda: self._worker.run(model_dir, device_index)  # type: ignore[union-attr]
-        )
+        # Kick off worker after thread event loop is running
+        self.start_requested.emit(model_dir, device_index)
 
         self.running_changed.emit(True)
 
