@@ -1,0 +1,4 @@
+PyQt6>=6.6
+sounddevice>=0.4.6
+vosk>=0.3.45
+numpy>=1.26
