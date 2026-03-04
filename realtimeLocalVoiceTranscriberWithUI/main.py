@@ -190,17 +190,21 @@ class TranscriberWorker(QtCore.QObject):
             self._cleanup()
             return
 
-        def _audio_callback(indata: bytes, frames: int, time_info, status) -> None:
-            # Called from PortAudio thread — must be fast, no Qt here.
-            if status:
-                # status can include under/overflows
-                _warn(f"Audio callback status: {status}")
-            if self._stop_event.is_set():
-                return
-            try:
-                self._audio_q.put_nowait(indata)
-            except queue.Full:
-                _warn("Audio queue full; dropping audio chunk.")
+    def _audio_callback(indata, frames: int, time_info, status) -> None:
+        """PortAudio callback; keep it fast and exception-safe."""
+        if status:
+            _warn(f"Audio callback status: {status}")
+        if self._stop_event.is_set():
+            return
+
+        try:
+            # Force conversion to true bytes (fixes cffi buffer incompatibility)
+            data = bytes(indata)
+            self._audio_q.put_nowait(data)
+        except queue.Full:
+            _warn("Audio queue full; dropping audio chunk.")
+        except Exception as exc:
+            _warn(f"Audio callback error: {exc}")
 
         try:
             # device=None uses default; sounddevice expects device index or None.
@@ -256,6 +260,8 @@ class TranscriberWorker(QtCore.QObject):
                 continue
 
             try:
+                if not isinstance(chunk, (bytes, bytearray)):
+                    chunk = bytes(chunk)
                 accepted = self._recognizer.AcceptWaveform(chunk)
                 if accepted:
                     res = json.loads(self._recognizer.Result() or "{}")
