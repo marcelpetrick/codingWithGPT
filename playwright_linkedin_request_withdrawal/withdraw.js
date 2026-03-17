@@ -1,147 +1,150 @@
 const { chromium } = require('playwright');
 
 const MAX_WITHDRAWALS = 10;
-const MIN_DELAY = 1000;
-const MAX_DELAY = 3000;
-
-// ---------- utilities ----------
 
 function log(msg, meta = {}) {
   const ts = new Date().toISOString();
-  console.log(`[${ts}] ${msg}`, Object.keys(meta).length ? meta : '');
+  console.log(`[${ts}] ${msg}`, meta);
 }
 
-function randomDelay(min = MIN_DELAY, max = MAX_DELAY) {
+function randomDelay(min = 1000, max = 3000) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-async function sleep(page, label = 'sleep') {
+async function sleep(page, label = '') {
   const delay = randomDelay();
-  log(`Sleeping (${label})`, { delay });
+  log(`sleep ${label}`, { delay });
   await page.waitForTimeout(delay);
 }
 
-// ---------- core actions ----------
+// ---------- CORE ----------
 
-async function waitForLogin(page) {
-  log('Opening login page');
-  await page.goto('https://www.linkedin.com/login');
+async function waitForPageReady(page) {
+  log('Waiting for invitation list');
 
-  log('Waiting for manual login (press ENTER)');
-  await new Promise(resolve => process.stdin.once('data', resolve));
+  // Wait for list container (stable anchor)
+  await page.waitForSelector('text=Manage invitations', { timeout: 15000 });
 
-  log('Login confirmed');
+  // Force render
+  await page.mouse.wheel(0, 2000);
+  await page.waitForTimeout(1500);
+
+  // Now wait for actual withdraw button via raw DOM
+  await page.waitForFunction(() => {
+    return [...document.querySelectorAll('button')]
+      .some(btn =>
+        btn.innerText.includes('Withdraw') ||
+        btn.innerText.includes('Zurückziehen')
+      );
+  }, { timeout: 15000 });
+
+  log('Invitation list ready');
 }
 
-async function navigateToInvites(page) {
-  log('Navigating to sent invitations page');
-  await page.goto('https://www.linkedin.com/mynetwork/invitation-manager/sent/');
-  await page.waitForLoadState('networkidle');
+async function findWithdrawButtons(page) {
+  const buttons = await page.locator('button');
 
-  log('Page loaded');
-}
+  const filtered = [];
 
-async function getWithdrawButtons(page) {
-  const locator = page.locator(
-    'button:has-text("Withdraw"), button:has-text("Zurückziehen")'
-  );
+  const count = await buttons.count();
 
-  const count = await locator.count();
-  log('Detected withdraw buttons', { count });
+  for (let i = 0; i < count; i++) {
+    const btn = buttons.nth(i);
+    const text = await btn.innerText().catch(() => '');
 
-  return { locator, count };
-}
+    if (text.includes('Withdraw') || text.includes('Zurückziehen')) {
+      filtered.push(btn);
+    }
+  }
 
-async function clickWithdraw(page, buttonLocator) {
-  log('Clicking withdraw button');
+  log('Filtered withdraw buttons', { found: filtered.length });
 
-  await buttonLocator.scrollIntoViewIfNeeded();
-  await buttonLocator.click();
-
-  await sleep(page, 'after withdraw click');
-
-  // confirm modal
-  const confirm = page.locator(
-    'button:has-text("Withdraw"), button:has-text("Zurückziehen")'
-  ).last();
-
-  log('Confirming withdrawal');
-
-  await confirm.click();
-
-  await sleep(page, 'after confirm');
+  return filtered;
 }
 
 async function withdrawOne(page) {
-  const { locator, count } = await getWithdrawButtons(page);
+  const buttons = await findWithdrawButtons(page);
 
-  if (count === 0) {
+  if (buttons.length === 0) {
     log('No withdraw buttons found');
     return false;
   }
 
-  const btn = locator.first();
+  const btn = buttons[0];
 
   try {
-    await clickWithdraw(page, btn);
+    log('Click withdraw');
+
+    await btn.scrollIntoViewIfNeeded();
+    await btn.click();
+
+    await sleep(page, 'after click');
+
+    // confirm button (same label, appears last)
+    const confirmButtons = await findWithdrawButtons(page);
+
+    const confirm = confirmButtons[confirmButtons.length - 1];
+
+    log('Click confirm');
+
+    await confirm.click();
+
+    await sleep(page, 'after confirm');
+
     return true;
+
   } catch (err) {
-    log('Withdrawal failed', { error: err.message });
+    log('Withdraw failed', { error: err.message });
     return false;
   }
 }
 
-// ---------- main control flow ----------
+// ---------- MAIN ----------
 
 (async () => {
-  log('Launching browser');
-
   const browser = await chromium.launch({
     headless: false,
+    slowMo: 200
   });
 
   const context = await browser.newContext();
   const page = await context.newPage();
 
   try {
-    await waitForLogin(page);
-    await navigateToInvites(page);
+    log('Opening login');
+    await page.goto('https://www.linkedin.com/login');
 
-    let successCount = 0;
-    let attempts = 0;
+    log('Login manually, then press ENTER');
+    await new Promise(resolve => process.stdin.once('data', resolve));
 
-    while (successCount < MAX_WITHDRAWALS) {
-      attempts++;
+    log('Go to sent invites');
+    await page.goto('https://www.linkedin.com/mynetwork/invitation-manager/sent/');
 
-      log('Withdrawal attempt', { attempt: attempts, successCount });
+    await waitForPageReady(page);
 
-      const success = await withdrawOne(page);
+    let success = 0;
 
-      if (!success) {
-        log('Stopping: no more actionable items or repeated failure');
-        break;
+    while (success < MAX_WITHDRAWALS) {
+      log('Attempt', { success });
+
+      const ok = await withdrawOne(page);
+
+      if (!ok) break;
+
+      success++;
+
+      await page.mouse.wheel(0, 1200);
+      await sleep(page, 'between');
+
+      if (success % 5 === 0) {
+        log('Cooldown');
+        await page.waitForTimeout(5000);
       }
-
-      successCount++;
-
-      log('Withdrawal successful', { successCount });
-
-      await sleep(page, 'between iterations');
-
-      // light scroll to trigger lazy loading
-      await page.mouse.wheel(0, 1500);
     }
 
-    log('Run complete', {
-      totalAttempts: attempts,
-      successfulWithdrawals: successCount,
-      maxAllowed: MAX_WITHDRAWALS,
-    });
+    log('Done', { success });
 
   } catch (err) {
     log('Fatal error', { error: err.message });
   }
-
-  // keep browser open for inspection
-  log('Script finished (browser left open)');
 })();
