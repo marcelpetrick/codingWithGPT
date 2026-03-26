@@ -20,11 +20,23 @@ python3 -m pip install -r requirements.txt
 ---
 
 ## tl;dr
-```
+
+```bash
 python3 main.py \
   --base-url https://git.data-modul.com \
   --token "$GITLAB_TOKEN" \
   --user mpetrick \
+  --start 2026-01-01T00:00:00Z \
+  --end 2026-12-31T23:59:59Z \
+  --format llm-md --verbose > mpetrick_2026.txt
+```
+
+```bash
+# Same call using numeric user ID (works for blocked users)
+python3 main.py \
+  --base-url https://git.data-modul.com \
+  --token "$GITLAB_TOKEN" \
+  --user-id 17 \
   --start 2026-01-01T00:00:00Z \
   --end 2026-12-31T23:59:59Z \
   --format llm-md --verbose > mpetrick_2026.txt
@@ -38,12 +50,23 @@ Default behavior (current user, last 10 days, Markdown output):
 python main.py --base-url https://git.example.com
 ```
 
-Explicit user and explicit time window:
+Using username (default approach):
 
 ```bash
 python main.py \
   --base-url https://git.example.com \
   --user mpetrick \
+  --start 2026-01-01T00:00:00Z \
+  --end   2026-01-11T00:00:00Z \
+  --format llm-md
+```
+
+Using numeric user ID (e.g. for blocked or non-searchable users):
+
+```bash
+python main.py \
+  --base-url https://git.example.com \
+  --user-id 17 \
   --start 2026-01-01T00:00:00Z \
   --end   2026-01-11T00:00:00Z \
   --format llm-md
@@ -95,6 +118,14 @@ Each day is emitted as a clearly delimited block, making it straightforward to f
 
   * Default: activity of the authenticated user.
   * Use `--user <username>` to fetch events for another user (must be visible to you).
+  * Use `--user-id <id>` to fetch events by numeric user ID.
+
+    This is particularly useful when:
+    * the user is **blocked**
+    * the user is **not returned by username search**
+    * the instance restricts visibility of users
+
+  * `--user` and `--user-id` are **mutually exclusive**.
 
 * **Time window**:
 
@@ -109,6 +140,9 @@ Each day is emitted as a clearly delimited block, making it straightforward to f
 
 * **Rate limits**:
   The script paginates through the GitLab Events API and stops early once events fall outside the requested window. A simple heartbeat option is included for slow instances.
+
+* **Blocked users**:
+  GitLab may not return blocked users via username lookup. In such cases, use `--user-id` to access their events directly.
 
 * **Non-admin usage**:
   Works without admin rights; only accesses events visible to the authenticated user.

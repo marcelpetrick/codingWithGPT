@@ -15,6 +15,7 @@ Features
 - User selection:
   - Default: current authenticated user
   - Optional: --user <username>
+  - Optional: --user-id <id>
 - Time window:
   - --start / --end (ISO-8601)
   - Default: last 10 days ending "now" (UTC)
@@ -203,17 +204,24 @@ def build_client(base_url: str, token: str, verbose: bool = False) -> "gitlab.Gi
     return gl
 
 
-def resolve_user(gl: "gitlab.Gitlab", username: Optional[str], verbose: bool = False) -> Tuple[int, str, str]:
+def resolve_user(
+    gl: "gitlab.Gitlab",
+    username: Optional[str],
+    user_id: Optional[int],
+    verbose: bool = False,
+) -> Tuple[int, str, str]:
     """
     Resolve the target user.
 
-    If username is None, use the authenticated user. Otherwise look up by username.
+    If neither username nor user_id is provided, use the authenticated user.
+    If user_id is provided, fetch the user directly by ID.
+    Otherwise look up by username.
 
     Returns
     -------
     (user_id, username, display_name)
     """
-    if not username:
+    if user_id is None and not username:
         me = gl.user
         uid = int(getattr(me, "id"))
         uname = str(getattr(me, "username", "unknown"))
@@ -222,10 +230,19 @@ def resolve_user(gl: "gitlab.Gitlab", username: Optional[str], verbose: bool = F
             eprint(f"Using current user: {uname} (id={uid})")
         return uid, uname, name
 
+    if user_id is not None:
+        u = gl.users.get(user_id)  # type: ignore[attr-defined]
+        uid = int(getattr(u, "id"))
+        uname = str(getattr(u, "username", str(uid)))
+        name = str(getattr(u, "name", uname))
+        if verbose:
+            eprint(f"Resolved user by id: {uname} (id={uid})")
+        return uid, uname, name
+
     # Lookup by username. python-gitlab supports list(username=...).
     users = gl.users.list(username=username)  # type: ignore[attr-defined]
     if not users:
-        die(f"User not found for --user '{username}'. Consider verifying the username or adding a user-id option.")
+        die(f"User not found for --user '{username}'.")
     u = users[0]
     uid = int(getattr(u, "id"))
     uname = str(getattr(u, "username", username))
@@ -512,6 +529,12 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         default=None,
         help="GitLab username (default: current authenticated user)",
     )
+    p.add_argument(
+        "--user-id",
+        type=int,
+        default=None,
+        help="GitLab user ID (bypass username lookup)",
+    )
 
     p.add_argument(
         "--start",
@@ -607,8 +630,16 @@ def main(argv: Optional[List[str]] = None) -> int:
     stop_hb = start_heartbeat(int(args.heartbeat_secs))
 
     try:
+        if args.user and args.user_id is not None:
+            die("Error: provide either --user or --user-id, not both.")
+
         gl = build_client(args.base_url, args.token, verbose=args.verbose)
-        user_id, user_username, user_name = resolve_user(gl, args.user, verbose=args.verbose)
+        user_id, user_username, user_name = resolve_user(
+            gl,
+            args.user,
+            args.user_id,
+            verbose=args.verbose,
+        )
 
         raw_events: List[Dict[str, Any]] = []
         for raw in iter_user_events(gl, user_id, window, verbose=args.verbose):
