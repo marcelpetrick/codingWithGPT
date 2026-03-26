@@ -20,46 +20,49 @@ async function sleep(page, label = '') {
 // ---------- CORE ----------
 
 async function waitForPageReady(page) {
-  log('Waiting for invitation list');
+  log('Waiting for invitation list (robust mode)');
 
-  // Wait for list container (stable anchor)
+  // Wait for main container
   await page.waitForSelector('text=Manage invitations', { timeout: 15000 });
 
   // Force render
   await page.mouse.wheel(0, 2000);
   await page.waitForTimeout(1500);
 
-  // Now wait for actual withdraw button via raw DOM
+  // Wait until ANY visible button contains withdraw text
   await page.waitForFunction(() => {
-    return [...document.querySelectorAll('button')]
-      .some(btn =>
-        btn.innerText.includes('Withdraw') ||
-        btn.innerText.includes('Zurückziehen')
-      );
+    const buttons = Array.from(document.querySelectorAll('button'));
+
+    return buttons.some(btn => {
+      const text = btn.textContent || '';
+      return text.includes('Withdraw') || text.includes('Zurückziehen');
+    });
   }, { timeout: 15000 });
 
   log('Invitation list ready');
 }
 
 async function findWithdrawButtons(page) {
-  const buttons = await page.locator('button');
+  const buttons = page.locator('button');
 
-  const filtered = [];
-
+  const result = [];
   const count = await buttons.count();
 
   for (let i = 0; i < count; i++) {
     const btn = buttons.nth(i);
-    const text = await btn.innerText().catch(() => '');
+
+    const text = await btn.textContent().catch(() => '');
+
+    if (!text) continue;
 
     if (text.includes('Withdraw') || text.includes('Zurückziehen')) {
-      filtered.push(btn);
+      result.push(btn);
     }
   }
 
-  log('Filtered withdraw buttons', { found: filtered.length });
+  log('Filtered withdraw buttons', { found: result.length });
 
-  return filtered;
+  return result;
 }
 
 async function withdrawOne(page) {
