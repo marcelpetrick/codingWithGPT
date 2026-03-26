@@ -19,7 +19,18 @@ python3 -m pip install -r requirements.txt
 
 ---
 
-## Example call
+## tl;dr
+```
+python3 main.py \
+  --base-url https://git.data-modul.com \
+  --token "$GITLAB_TOKEN" \
+  --user mpetrick \
+  --start 2026-01-01T00:00:00Z \
+  --end 2026-12-31T23:59:59Z \
+  --format llm-md --verbose > mpetrick_2026.txt
+```
+
+## Example call - in detail
 
 Default behavior (current user, last 10 days, Markdown output):
 
