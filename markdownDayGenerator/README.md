@@ -1,6 +1,6 @@
 # markdownDayGenerator
 
-Generates a reversed list of dates in markdown bullet format with trailingspace (e.g., `* 20250831 `) for use in a daily success journal.
+Generates a reversed list of dates in markdown bullet format with one trailing space (e.g., `* 20250831 `) for use in a daily success journal.
 
 ## Purpose
 
@@ -8,7 +8,7 @@ I use this to prep the date headings in my daily success journal.
 
 ## Usage
 
-```bash
+```sh
 python3 markdownDayGenerator.py [--month YYYYMM] [--tests]
 ```
 
@@ -22,6 +22,9 @@ python3 markdownDayGenerator.py [--month YYYYMM] [--tests]
 
 ### Example
 
-```bash
+```sh
 python3 markdownDayGenerator.py --month 202507
 ```
+
+## License
+GPLv3; author mail@marcelpetrick.it
