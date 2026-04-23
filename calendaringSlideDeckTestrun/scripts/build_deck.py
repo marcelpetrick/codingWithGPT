@@ -12,74 +12,101 @@ WIDTH, HEIGHT = 1080, 1350
 MARGIN = 86
 FOOTER = "solutions; not code"
 
-PAPER = colors.HexColor("#F2F7EF")
-PAPER_2 = colors.HexColor("#E5F0E3")
-GRID = colors.HexColor("#D5E4D1")
-INK = colors.HexColor("#18372E")
-MUTED = colors.HexColor("#4D6A5E")
-DEEP = colors.HexColor("#24483C")
+PAPER = colors.HexColor("#F3F8EF")
+PAPER_DARK = colors.HexColor("#DDEBDA")
+GRID = colors.HexColor("#D5E5D0")
+INK = colors.HexColor("#143A2E")
+MUTED = colors.HexColor("#4E6F60")
+DEEP = colors.HexColor("#173F32")
+LEAF = colors.HexColor("#679C72")
 SAGE = colors.HexColor("#AFCDB4")
 MINT = colors.HexColor("#CFE4D0")
-LEAF = colors.HexColor("#6B9F78")
 WHITE = colors.HexColor("#FFFFFA")
 
 
 SLIDES = [
     {
-        "kicker": "Software teams",
-        "title": "Calendars are team APIs",
-        "body": "They expose when people can talk, when focus should be protected, and when stakeholders get predictable access.",
-        "bullets": [
-            "When can we talk?",
-            "When should we not interrupt?",
-            "When do stakeholders get access?",
+        "kicker": "Hook",
+        "title": "Most teams use calendars wrong",
+        "accent": DEEP,
+        "lines": [
+            ("body", "They optimize for availability."),
+            ("body", "Not output."),
+            ("gap", ""),
+            ("body", "So work gets shredded:"),
+            ("bullet", "Constant interruptions"),
+            ("bullet", "Fragmented build time"),
+            ("bullet", "Slow decisions"),
+            ("strong", "Use calendars as a boundary system."),
         ],
-        "accent": LEAF,
-        "kind": "cover",
     },
     {
-        "num": "01",
+        "kicker": "01",
         "title": "Protect build time",
-        "body": "Architecture, debugging, reviews, and delivery need uninterrupted blocks. If deep work is not scheduled, it gets consumed.",
-        "bullets": [
-            "Reserve focus blocks before the week fills up",
-            "Keep them visible, not overly detailed",
-            "Treat them as real commitments",
-        ],
         "accent": LEAF,
+        "lines": [
+            ("body", "Deep work will not protect itself."),
+            ("bullet", "Block 09:00-11:00 daily as Focus"),
+            ("bullet", "Decline meetings in that window"),
+            ("bullet", "Label it: Focus - build/debug/review"),
+            ("script", "Script:"),
+            ("quote", '"Can we move this? I keep mornings for build work."'),
+            ("reality", "Reality: people will push back. Hold the line."),
+        ],
     },
     {
-        "num": "02",
+        "kicker": "02",
         "title": "Make collaboration predictable",
-        "body": "The goal is not no meetings. The goal is fewer surprise interruptions and clearer windows for conversation.",
-        "bullets": [
-            "Cluster team syncs into agreed windows",
-            "Use office hours for ad-hoc technical questions",
-            "Prefer async when no decision is needed",
+        "accent": colors.HexColor("#719F7A"),
+        "lines": [
+            ("body", "The goal is not fewer conversations."),
+            ("body", "The goal is fewer surprise interruptions."),
+            ("script", "If you are an IC:"),
+            ("bullet", "Propose afternoon sync windows"),
+            ("bullet", "Avoid ad-hoc calls"),
+            ("script", "If you are a lead:"),
+            ("bullet", "Batch meetings into 2-3 blocks"),
+            ("bullet", "Protect the rest"),
         ],
-        "accent": colors.HexColor("#7DAE87"),
     },
     {
-        "num": "03",
+        "kicker": "03",
         "title": "Give stakeholders clear access",
-        "body": "Stakeholders should not have to chase the team. They also should not fragment every developer's day.",
-        "bullets": [
-            "Offer recurring stakeholder windows",
-            "Share realistic review and decision availability",
-            "Route urgent topics through one escalation path",
+        "accent": colors.HexColor("#7FAE87"),
+        "lines": [
+            ("body", "Stakeholders will interrupt."),
+            ("body", "Unless you define access first."),
+            ("bullet", "Set two weekly review windows"),
+            ("bullet", "Share them openly"),
+            ("example", "Example: Tue/Thu 14:00-16:00"),
+            ("strong", "Everything else: async, backlog, or one escalation path."),
         ],
-        "accent": colors.HexColor("#88B893"),
     },
     {
-        "num": "04",
-        "title": "Make boundaries explicit",
-        "body": "A good calendar creates trust: available means available, focus means focus, and emergencies stay rare.",
-        "bullets": [
-            "Use clear labels: Focus, Review, Pairing, Stakeholder Sync",
-            "Mark focus time as busy",
-            "Make collaboration possible without sacrificing focus",
+        "kicker": "04",
+        "title": "Make boundaries enforceable",
+        "accent": colors.HexColor("#5F916C"),
+        "lines": [
+            ("body", "A calendar only works if the team respects it."),
+            ("bullet", "Focus = no meetings"),
+            ("bullet", "Busy = not available"),
+            ("bullet", "Free = okay to book"),
+            ("bullet", "Emergencies = rare"),
+            ("strong", "If everything flexes, nothing works."),
         ],
-        "accent": colors.HexColor("#679973"),
+    },
+    {
+        "kicker": "CTA",
+        "title": "Try this tomorrow",
+        "accent": DEEP,
+        "lines": [
+            ("body", "Do not redesign the whole org."),
+            ("body", "Change one visible habit."),
+            ("bullet", "Block one Focus window"),
+            ("bullet", "Add one stakeholder window"),
+            ("bullet", "Ask your team to respect both"),
+            ("cta", 'Comment "calendar" if you want the template.'),
+        ],
     },
 ]
 
@@ -112,11 +139,12 @@ def wrap_to_width(value, font, size, max_width):
 def text(c, value, x, y, size, font="NotoSans", color=INK, leading=None, max_width=None):
     c.setFont(font, size)
     c.setFillColor(color)
+    step = leading or size * 1.22
+
     if max_width is None:
         c.drawString(x, y, value)
-        return y - (leading or size * 1.2)
+        return y - step
 
-    step = leading or size * 1.22
     for paragraph in value.split("\n"):
         for line in wrap_to_width(paragraph, font, size, max_width) or [""]:
             c.drawString(x, y, line)
@@ -125,36 +153,36 @@ def text(c, value, x, y, size, font="NotoSans", color=INK, leading=None, max_wid
 
 
 def pill(c, label, x, y, fill, txt=WHITE):
-    width = max(230, pdfmetrics.stringWidth(label.upper(), "NotoSans-Bold", 17) + 54)
+    width = max(140, pdfmetrics.stringWidth(label.upper(), "NotoSans-Bold", 18) + 58)
     c.setFillColor(fill)
     c.roundRect(x, y - 34, width, 52, 24, stroke=0, fill=1)
-    text(c, label.upper(), x + 27, y - 16, 17, "NotoSans-Bold", txt)
+    text(c, label.upper(), x + 29, y - 16, 18, "NotoSans-Bold", txt)
 
 
 def draw_background(c, accent):
     c.setFillColor(PAPER)
     c.rect(0, 0, WIDTH, HEIGHT, stroke=0, fill=1)
 
-    c.setFillColor(PAPER_2)
-    c.circle(912, 1185, 260, stroke=0, fill=1)
-    c.setFillColor(colors.Color(0.69, 0.80, 0.70, alpha=0.48))
-    c.circle(1016, 1268, 112, stroke=0, fill=1)
-
     c.setStrokeColor(GRID)
     c.setLineWidth(2)
-    for x in range(135, 980, 132):
+    for x in range(135, 1000, 132):
         c.line(x, 190, x, 1136)
     for y in range(238, 1110, 132):
         c.line(100, y, 980, y)
 
-    c.setFillColor(colors.Color(1, 1, 1, alpha=0.34))
-    for i in range(5):
-        c.roundRect(700 + i * 44, 1078 - i * 40, 154, 18, 9, stroke=0, fill=1)
+    c.setFillColor(PAPER_DARK)
+    c.circle(940, 1190, 246, stroke=0, fill=1)
+    c.setFillColor(MINT)
+    c.circle(1016, 1266, 104, stroke=0, fill=1)
+
+    c.setFillColor(colors.Color(1, 1, 1, alpha=0.42))
+    for i in range(4):
+        c.roundRect(712 + i * 42, 1078 - i * 42, 150, 18, 9, stroke=0, fill=1)
 
     c.setFillColor(accent)
-    c.roundRect(912, 184, 86, 86, 24, stroke=0, fill=1)
-    c.setFillColor(MINT)
-    c.roundRect(820, 215, 58, 58, 18, stroke=0, fill=1)
+    c.roundRect(902, 190, 96, 96, 25, stroke=0, fill=1)
+    c.setFillColor(SAGE)
+    c.roundRect(802, 224, 62, 62, 18, stroke=0, fill=1)
 
 
 def draw_footer(c, idx):
@@ -164,59 +192,63 @@ def draw_footer(c, idx):
     text(c, FOOTER, WIDTH - 356, 69, 19, "NotoSans-Bold", DEEP)
 
 
-def draw_calendar_panel(c, accent, x, y, w=338, h=300):
-    c.setFillColor(WHITE)
-    c.roundRect(x, y, w, h, 34, stroke=0, fill=1)
-    c.setFillColor(MINT)
-    c.roundRect(x, y + h - 78, w, 78, 34, stroke=0, fill=1)
-    c.setFillColor(accent)
-    c.roundRect(x + 36, y + h - 50, 142, 22, 11, stroke=0, fill=1)
+def draw_line(c, kind, value, x, y, accent):
+    if kind == "gap":
+        return y - 16
 
-    c.setStrokeColor(GRID)
-    c.setLineWidth(2)
-    for i in range(1, 4):
-        c.line(x + 38, y + 54 + i * 46, x + w - 38, y + 54 + i * 46)
-    for i in range(1, 4):
-        c.line(x + 40 + i * 64, y + 46, x + 40 + i * 64, y + h - 104)
-
-    c.setFillColor(accent)
-    c.roundRect(x + 72, y + 138, 126, 38, 14, stroke=0, fill=1)
-    c.setFillColor(DEEP)
-    c.roundRect(x + 216, y + 88, 62, 38, 14, stroke=0, fill=1)
-
-
-def draw_bullets(c, bullets, x, y, accent, max_width=770):
-    for bullet in bullets:
+    if kind == "bullet":
         c.setFillColor(accent)
         c.roundRect(x, y - 17, 20, 20, 8, stroke=0, fill=1)
-        y = text(c, bullet, x + 44, y - 3, 29, "NotoSans-Bold", INK, leading=37, max_width=max_width)
-        y -= 28
-    return y
+        return text(c, value, x + 48, y - 3, 30, "NotoSans-Bold", INK, leading=38, max_width=820) - 20
+
+    if kind == "script":
+        return text(c, value.upper(), x, y, 19, "NotoSans-Bold", accent, leading=30, max_width=820) - 6
+
+    if kind == "quote":
+        return text(c, value, x, y, 30, "NotoSerif-Bold", INK, leading=40, max_width=850) - 18
+
+    if kind == "example":
+        c.setFillColor(MINT)
+        c.roundRect(x - 22, y - 35, 780, 58, 22, stroke=0, fill=1)
+        return text(c, value, x, y - 14, 28, "NotoSans-Bold", INK, leading=36, max_width=730) - 22
+
+    if kind == "reality":
+        c.setFillColor(PAPER_DARK)
+        c.roundRect(x - 22, y - 35, 850, 62, 22, stroke=0, fill=1)
+        return text(c, value, x, y - 14, 27, "NotoSans-Bold", DEEP, leading=35, max_width=800) - 24
+
+    if kind == "cta":
+        c.setFillColor(accent)
+        c.roundRect(x - 22, y - 46, 858, 78, 27, stroke=0, fill=1)
+        return text(c, value, x, y - 18, 31, "NotoSans-Bold", WHITE, leading=38, max_width=810) - 26
+
+    if kind == "strong":
+        return text(c, value, x, y, 34, "NotoSans-Bold", DEEP, leading=43, max_width=860) - 22
+
+    return text(c, value, x, y, 33, "NotoSans-Bold", MUTED, leading=42, max_width=860) - 12
 
 
-def render_cover(c, slide, idx):
+def render_slide(c, slide, idx):
     accent = slide["accent"]
     draw_background(c, accent)
-    pill(c, slide["kicker"], MARGIN, 1172, DEEP)
-    text(c, slide["title"], MARGIN, 1010, 86, "NotoSerif-Bold", INK, leading=90, max_width=760)
-    text(c, slide["body"], MARGIN, 768, 35, "NotoSans-Bold", MUTED, leading=45, max_width=620)
-    draw_bullets(c, slide["bullets"], MARGIN, 575, accent, max_width=790)
-    draw_calendar_panel(c, accent, 716, 782, 292, 260)
-    text(c, "5 slides for teams that need both flow and focus", MARGIN, 238, 30, "NotoSans-Bold", accent, max_width=780)
-    draw_footer(c, idx)
-    c.showPage()
+    pill(c, slide["kicker"], MARGIN, 1172, accent)
 
+    title_size = 80 if idx == 1 else 72
+    title_end = text(
+        c,
+        slide["title"],
+        MARGIN,
+        1010,
+        title_size,
+        "NotoSerif-Bold",
+        INK,
+        leading=title_size * 1.08,
+        max_width=790,
+    )
+    y = title_end - 38
+    for kind, value in slide["lines"]:
+        y = draw_line(c, kind, value, MARGIN, y, accent)
 
-def render_factor(c, slide, idx):
-    accent = slide["accent"]
-    draw_background(c, accent)
-    pill(c, slide["num"], MARGIN, 1172, accent)
-    title_end = text(c, slide["title"], MARGIN, 1002, 68, "NotoSerif-Bold", INK, leading=74, max_width=600)
-    body_y = min(802, title_end - 14)
-    body_end = text(c, slide["body"], MARGIN, body_y, 33, "NotoSans-Bold", MUTED, leading=43, max_width=790)
-    bullet_y = min(604, body_end - 34)
-    draw_bullets(c, slide["bullets"], MARGIN, bullet_y, accent, max_width=800)
-    draw_calendar_panel(c, accent, 722, 916, 286, 246)
     draw_footer(c, idx)
     c.showPage()
 
@@ -226,13 +258,10 @@ def main():
     OUT.parent.mkdir(parents=True, exist_ok=True)
     (OUT.parent / "previews").mkdir(exist_ok=True)
     c = canvas.Canvas(str(OUT), pagesize=(WIDTH, HEIGHT))
-    c.setTitle("Calendars Are Team APIs")
+    c.setTitle("Most Teams Use Calendars Wrong")
     c.setAuthor("codingWithGPT test run")
     for idx, slide in enumerate(SLIDES, 1):
-        if slide.get("kind") == "cover":
-            render_cover(c, slide, idx)
-        else:
-            render_factor(c, slide, idx)
+        render_slide(c, slide, idx)
     c.save()
     print(OUT)
 

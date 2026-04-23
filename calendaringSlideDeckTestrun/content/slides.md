@@ -1,56 +1,83 @@
-# Calendars Are Team APIs
+# Most Teams Use Calendars Wrong
 
-For software teams, calendars are not admin.
-They are the interface between focus work, team collaboration, and external stakeholders.
+They optimize for availability.
+Not output.
 
-- When can we talk?
-- When should we not interrupt?
-- When do stakeholders get predictable access?
+So work gets shredded:
+
+- Constant interruptions
+- Fragmented build time
+- Slow decisions
+
+Use calendars as a boundary system.
 
 ---
 
 # 1. Protect Build Time
 
-Deep work is where architecture, debugging, reviews, and delivery happen.
-If it is not blocked, it gets consumed.
+Deep work will not protect itself.
 
-- Reserve focus blocks before the week fills up
-- Keep them visible, but not overly detailed
-- Treat them as real commitments, not optional placeholders
+- Block 09:00-11:00 daily as Focus
+- Decline meetings in that window
+- Label it: Focus - build/debug/review
+
+Script:
+"Can we move this? I keep mornings for build work."
+
+Reality:
+People will push back. Hold the line.
 
 ---
 
 # 2. Make Collaboration Predictable
 
-Software work still needs conversation.
-The goal is not "no meetings".
+The goal is not fewer conversations.
 The goal is fewer surprise interruptions.
 
-- Cluster team syncs into agreed windows
-- Use office hours for ad-hoc technical questions
-- Prefer async updates when no decision is needed
+If you are an IC:
+- Propose afternoon sync windows
+- Avoid ad-hoc calls
+
+If you are a lead:
+- Batch meetings into 2-3 blocks
+- Protect the rest
 
 ---
 
 # 3. Give Stakeholders Clear Access
 
-External stakeholders should not have to chase the team.
-They also should not be able to fragment every developer's day.
+Stakeholders will interrupt.
+Unless you define access first.
 
-- Offer recurring stakeholder windows
-- Share realistic availability for reviews and decisions
-- Route urgent topics through an agreed escalation path
+- Set two weekly review windows
+- Share them openly
+- Example: Tue/Thu 14:00-16:00
+
+Everything else:
+async, backlog, or one escalation path.
 
 ---
 
-# 4. Make Boundaries Explicit
+# 4. Make Boundaries Enforceable
 
-A good calendar creates trust.
-It shows when someone is available, when they are focusing, and when interruption is appropriate.
+A calendar only works if the team respects it.
 
-- Use clear labels: Focus, Review, Pairing, Stakeholder Sync
-- Mark focus time as busy
-- Keep emergency channels explicit and rare
+- Focus = no meetings
+- Busy = not available
+- Free = okay to book
+- Emergencies = rare
 
-Calendaring done right is not about being busy.
-It is about making collaboration possible without sacrificing focus.
+If everything flexes, nothing works.
+
+---
+
+# Try This Tomorrow
+
+Do not redesign the whole org.
+Change one visible habit.
+
+- Block one Focus window
+- Add one stakeholder window
+- Ask your team to respect both
+
+Comment "calendar" if you want the template.

@@ -1,20 +1,34 @@
-Calendaring is not admin work. It is how teams make time visible.
+Most engineering teams use calendars backwards.
 
-When a calendar is kept clean, people no longer have to guess when you are available, when you need focus, or what is actually important this week.
+They optimize for availability.
+Not output.
 
-The five habits that make it work:
+That is how you get:
 
-1. Show real availability.
-2. Protect focus time like a meeting.
-3. Make collaboration easier across teams and time zones.
-4. Turn priorities into time blocks.
-5. Reduce back-and-forth and mental load.
+1. Constant interruptions.
+2. Fragmented build time.
+3. Stakeholders chasing people directly.
+4. Meetings creeping back into every open slot.
+5. Focus time that exists in theory, but not in practice.
 
-The tool matters less than the behavior: one calendar, clear event names, honest availability, and a weekly review.
+The fix is not "no meetings".
+The fix is a clearer operating system:
 
-Calendaring done right is not about being busy.
-It is about making work easier to coordinate.
+- Focus windows that are treated as real commitments.
+- Collaboration windows where teams can talk.
+- Stakeholder windows for reviews and decisions.
+- Explicit rules for what "busy", "focus", and "urgent" mean.
 
-What is one calendar habit your team should use more consistently?
+Try one small change tomorrow:
 
-#productivity #collaboration #calendaring #focusTime #teamwork
+Block 09:00-11:00 as Focus.
+Decline meetings in that window.
+Use the script:
+"Can we move this? I keep mornings for build work."
+
+Calendars are not admin.
+They are boundaries made visible.
+
+Comment "calendar" if you want the template.
+
+#softwareengineering #engineeringmanagement #productivity #collaboration #focusTime

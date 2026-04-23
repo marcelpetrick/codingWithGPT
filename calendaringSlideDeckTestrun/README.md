@@ -1,6 +1,6 @@
 # LinkedIn Calendaring Carousel
 
-Test-run carousel about calendaring for software teams: protecting focus time, keeping collaboration possible, and giving external stakeholders predictable access without fragmenting developer days.
+Test-run carousel about calendaring for software teams: using calendars as visible boundaries for focus, collaboration, and stakeholder access.
 
 ## Output
 
