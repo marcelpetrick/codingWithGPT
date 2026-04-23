@@ -1,76 +1,69 @@
-# Calendaring Is Team Infrastructure
+# Calendars Are Team APIs
 
-It is not just where meetings live.
-It is how people understand availability, priorities, and protected time.
+For software teams, calendars are not admin.
+They are the interface between focus work, team collaboration, and external stakeholders.
 
----
+Use them to answer one question clearly:
 
-# 1. Availability
-
-Make your working rhythm visible.
-
-- Fewer "quick question" scheduling pings
-- Faster decisions about when to meet
-- Less ambiguity across time zones
+- When can we talk?
+- When should we not interrupt?
+- When do stakeholders get predictable access?
 
 ---
 
-# 2. Focus Time
+# 1. Protect Build Time
 
-Quiet time only works when it is visible.
+Deep work is where architecture, debugging, reviews, and delivery happen.
+If it is not blocked, it gets consumed.
 
-- Block deep work before your week fills up
-- Treat focus blocks with meeting-level respect
-- Show "busy" without explaining every detail
-
----
-
-# 3. Collaboration
-
-Calendars reduce coordination friction.
-
-- Shared visibility creates better timing
-- Teams respect constraints earlier
-- Meetings land when energy and context fit
+- Reserve focus blocks before the week fills up
+- Keep them visible, but not overly detailed
+- Treat them as real commitments, not optional placeholders
 
 ---
 
-# 4. Prioritization
+# 2. Make Collaboration Predictable
 
-Your calendar reveals what you actually value.
+Software work still needs conversation.
+The goal is not "no meetings".
+The goal is fewer surprise interruptions.
 
-- Important work gets reserved space
-- Reactive work stops owning the day
-- Weekly reviews keep plans honest
-
----
-
-# 5. Efficiency
-
-A clean calendar lowers cognitive load.
-
-- Less back-and-forth
-- More predictable workflows
-- Fewer forgotten commitments
+- Cluster team syncs into agreed windows
+- Use office hours for ad-hoc technical questions
+- Prefer async updates when no decision is needed
 
 ---
 
-# A 5-Minute Setup
+# 3. Give Stakeholders Clear Access
 
-- Keep one reliable source of truth
-- Use clear event names
-- Block focus time first
-- Share availability settings
-- Review the next week every Friday
+External stakeholders should not have to chase the team.
+They also should not be able to fragment every developer's day.
+
+- Offer recurring stakeholder windows
+- Share realistic availability for reviews and decisions
+- Route urgent topics through an agreed escalation path
 
 ---
 
-# Calendaring Done Right
+# 4. Signal Boundaries Without Disappearing
 
-Not busier. Clearer.
+A good calendar creates trust.
+It shows when someone is available, when they are focusing, and when interruption is appropriate.
 
-Make time visible.
-Protect quiet work.
-Coordinate with less friction.
+- Use clear labels: Focus, Review, Pairing, Stakeholder Sync
+- Mark focus time as busy
+- Keep emergency channels explicit and rare
 
-Save this for your next weekly reset.
+---
+
+# 5. Agree on Calendar Hygiene
+
+Calendaring only works when the team treats it as a shared operating system.
+Small habits reduce friction fast.
+
+- One reliable source of truth
+- No-meeting blocks for core engineering time
+- Weekly review of capacity, deadlines, and stakeholder touchpoints
+
+Calendaring done right is not about being busy.
+It is about making collaboration possible without sacrificing focus.
