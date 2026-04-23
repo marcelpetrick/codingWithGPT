@@ -3,8 +3,6 @@
 For software teams, calendars are not admin.
 They are the interface between focus work, team collaboration, and external stakeholders.
 
-Use them to answer one question clearly:
-
 - When can we talk?
 - When should we not interrupt?
 - When do stakeholders get predictable access?
@@ -45,7 +43,7 @@ They also should not be able to fragment every developer's day.
 
 ---
 
-# 4. Signal Boundaries Without Disappearing
+# 4. Make Boundaries Explicit
 
 A good calendar creates trust.
 It shows when someone is available, when they are focusing, and when interruption is appropriate.
@@ -53,17 +51,6 @@ It shows when someone is available, when they are focusing, and when interruptio
 - Use clear labels: Focus, Review, Pairing, Stakeholder Sync
 - Mark focus time as busy
 - Keep emergency channels explicit and rare
-
----
-
-# 5. Agree on Calendar Hygiene
-
-Calendaring only works when the team treats it as a shared operating system.
-Small habits reduce friction fast.
-
-- One reliable source of truth
-- No-meeting blocks for core engineering time
-- Weekly review of capacity, deadlines, and stakeholder touchpoints
 
 Calendaring done right is not about being busy.
 It is about making collaboration possible without sacrificing focus.

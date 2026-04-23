@@ -1,6 +1,6 @@
 # LinkedIn Calendaring Carousel
 
-Test-run carousel about why calendaring matters for collaboration, focus time, availability, prioritization, and efficiency.
+Test-run carousel about calendaring for software teams: protecting focus time, keeping collaboration possible, and giving external stakeholders predictable access without fragmenting developer days.
 
 ## Output
 
