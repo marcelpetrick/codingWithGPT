@@ -37,7 +37,6 @@ HALL_RE = re.compile(r"^Hall\s+(.+?)\s*/\s*(.+)$")
 @dataclass
 class Vendor:
     name: str
-    halls: list[str] = field(default_factory=list)
     organization_types: list[str] = field(default_factory=list)
     countries: list[str] = field(default_factory=list)
 
@@ -87,7 +86,6 @@ def parse_vendors(raw_text: str) -> list[Vendor]:
     def finish_current() -> None:
         nonlocal current
         if current is not None:
-            current.halls = dedupe_preserve_order(current.halls)
             current.organization_types = dedupe_preserve_order(current.organization_types)
             current.countries = dedupe_preserve_order(current.countries)
             vendors.append(current)
@@ -97,8 +95,6 @@ def parse_vendors(raw_text: str) -> list[Vendor]:
         if HALL_RE.match(line):
             if current is None:
                 current = start_vendor_from_pending()
-            if current is not None:
-                current.halls.append(line)
             continue
 
         if line in ORGANIZATION_TYPES:
@@ -137,13 +133,11 @@ def merge_duplicate_vendors(vendors: list[Vendor]) -> list[Vendor]:
         if key not in merged:
             merged[key] = Vendor(name=vendor.name)
         merged_vendor = merged[key]
-        merged_vendor.halls.extend(vendor.halls)
         merged_vendor.organization_types.extend(vendor.organization_types)
         merged_vendor.countries.extend(vendor.countries)
 
     result = []
     for key, vendor in merged.items():
-        vendor.halls = dedupe_preserve_order(vendor.halls)
         vendor.organization_types = dedupe_preserve_order(vendor.organization_types)
         vendor.countries = dedupe_preserve_order(vendor.countries)
         result.append(vendor)
@@ -176,19 +170,18 @@ def render_markdown(vendors: list[Vendor], source_name: str) -> str:
         "",
         "## Vendors",
         "",
-        "| Vendor | Hall / Booth | Organization Type | Country |",
-        "| --- | --- | --- | --- |",
+        "| Vendor | Organization Type | Country |",
+        "| --- | --- | --- |",
     ]
 
     for vendor in vendors:
-        halls = ", ".join(vendor.halls) if vendor.halls else "Unspecified"
         organization_types = ", ".join(vendor.organization_types) if vendor.organization_types else "Unspecified"
         countries = ", ".join(vendor.countries) if vendor.countries else "Unspecified"
         lines.append(
             "| "
             + " | ".join(
                 markdown_escape(value)
-                for value in [vendor.name, halls, organization_types, countries]
+                for value in [vendor.name, organization_types, countries]
             )
             + " |"
         )
