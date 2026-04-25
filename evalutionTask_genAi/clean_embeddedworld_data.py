@@ -12,6 +12,7 @@ from pathlib import Path
 
 DEFAULT_INPUT = Path("Embeddedworld_exhibitors_sw_germany_2026.md")
 DEFAULT_OUTPUT = Path("cleaned_data.md")
+RESEARCH_OUTPUT_DIR = Path("output")
 
 COUNTRIES = {"Germany"}
 NOISE_LINES = {
@@ -32,6 +33,7 @@ ORGANIZATION_TYPES = {
     "Supplier",
 }
 HALL_RE = re.compile(r"^Hall\s+(.+?)\s*/\s*(.+)$")
+HIRING_FIT_RE = re.compile(r"^\*\*Hiring fit:\*\*\s*(.+)$", re.MULTILINE)
 
 
 @dataclass
@@ -58,6 +60,21 @@ def dedupe_preserve_order(values: list[str]) -> list[str]:
 
 def markdown_escape(value: str) -> str:
     return value.replace("|", r"\|")
+
+
+def company_output_path(company_name: str) -> Path:
+    safe_name = re.sub(r'[<>:"/\\|?*]+', "_", company_name).strip()
+    return RESEARCH_OUTPUT_DIR / f"{safe_name}.md"
+
+
+def hiring_fit_for(company_name: str) -> str:
+    output_path = company_output_path(company_name)
+    if not output_path.exists():
+        return "Pending"
+    match = HIRING_FIT_RE.search(output_path.read_text(encoding="utf-8"))
+    if not match:
+        return "Needs review"
+    return match.group(1).strip()
 
 
 def clean_lines(raw_text: str) -> list[str]:
@@ -170,18 +187,19 @@ def render_markdown(vendors: list[Vendor], source_name: str) -> str:
         "",
         "## Vendors",
         "",
-        "| Vendor | Organization Type | Country |",
-        "| --- | --- | --- |",
+        "| Vendor | Organization Type | Country | Hiring Fit |",
+        "| --- | --- | --- | --- |",
     ]
 
     for vendor in vendors:
         organization_types = ", ".join(vendor.organization_types) if vendor.organization_types else "Unspecified"
         countries = ", ".join(vendor.countries) if vendor.countries else "Unspecified"
+        hiring_fit = hiring_fit_for(vendor.name)
         lines.append(
             "| "
             + " | ".join(
                 markdown_escape(value)
-                for value in [vendor.name, organization_types, countries]
+                for value in [vendor.name, organization_types, countries, hiring_fit]
             )
             + " |"
         )
