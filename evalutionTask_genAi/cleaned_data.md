@@ -50,48 +50,48 @@ Source: `Embeddedworld_exhibitors_sw_germany_2026.md`
 | ELATEC GmbH | Manufacturer | Germany | Yes - strong RFID/access-control niche with excellent employer reviews and solid growth signals. |
 | Elevake GmbH - EPCB24 | Unspecified | Germany | Maybe - practical PCB assembly and elevator electronics niche, but very small and too little employer data. |
 | Embedded AI | Other | Germany | Yes - attractive AI/embedded algorithm niche with visible hiring and solid self-described culture, but independent review data is limited. |
-| embedded data GmbH | Service | Germany | Pending |
-| Embedded Systems Academy GmbH | Unspecified | Germany | Pending |
-| Embedded Wizard (TARA Systems) | Other | Germany | Pending |
-| Emenda GmbH - SciTools | Reseller / Wholesale | Germany | Pending |
-| emlix GmbH | Unspecified | Germany | Pending |
-| emnify | Service | Germany | Pending |
-| emotas embedded communication GmbH | Research & Development | Germany | Pending |
-| Endrich Bauelemente Vertriebs GmbH | Unspecified | Germany | Pending |
-| esd electronics gmbh | Manufacturer | Germany | Pending |
-| ETAS GmbH | Supplier | Germany | Pending |
-| EtherCAT Technology Group | Association / Authority / Other organisation | Germany | Pending |
-| EXTRA Computer GmbH | Manufacturer | Germany | Pending |
-| Farnell GmbH | Distributor | Germany | Pending |
-| Ferrous Systems GmbH | Service | Germany | Pending |
-| Filancore GmbH | Service | Germany | Pending |
-| FlowCAD | Distributor | Germany | Pending |
-| FORTEC GROUP | Manufacturer | Germany | Pending |
-| Franz Binder GmbH & Co. Elektrische Bauelemente KG | Manufacturer | Germany | Pending |
-| Fraunhofer Gesellschaft e.V. | Research & Development | Germany | Pending |
-| Fraunhofer ITWM | Research & Development | Germany | Pending |
-| GigaDevice Semiconductor Inc. | Manufacturer | Germany | Pending |
-| GitLab | Manufacturer | Germany | Pending |
-| Green Hills Software | Supplier | Germany | Pending |
-| GroupAlarm // cubos Internet GmbH | Service | Germany | Pending |
-| hexDEV GmbH | Start-up | Germany | Pending |
-| HighTec EDV-Systeme GmbH | Unspecified | Germany | Pending |
-| Hilscher G. f. Systemautomation mbH | Manufacturer | Germany | Pending |
-| Hitex GmbH | Service | Germany | Pending |
-| IBV - Echtzeit- und Embedded | Service | Germany | Pending |
-| iCOGNIZE GmbH | Manufacturer | Germany | Pending |
-| Ignitarium GmbH | Consulting | Germany | Pending |
-| ilbers GmbH | Service | Germany | Pending |
-| IMACS GmbH | Manufacturer | Germany | Pending |
-| IMST GmbH | Research & Development | Germany | Pending |
-| Incari GmbH | Service | Germany | Pending |
-| Infineon Technologies AG | Manufacturer | Germany | Pending |
-| int2code | Service | Germany | Pending |
-| ioncentric GmbH | Manufacturer | Germany | Pending |
-| ITK Engineering GmbH | Service | Germany | Pending |
-| KAMAKA Electronic Bauelemente Vertriebs GmbH | Distributor | Germany | Pending |
-| KARO electronics GmbH | Manufacturer | Germany | Pending |
-| kessler engineering GmbH | Service | Germany | Pending |
+| embedded data GmbH | Service | Germany | Maybe - attractive industrial IoT technology and positive reviews, but very small company scale limits management-role fit. |
+| Embedded Systems Academy GmbH | Unspecified | Germany | Maybe - deep CANopen niche, but likely too small and opaque for most hiring searches. |
+| Embedded Wizard (TARA Systems) | Other | Germany | Yes - Munich-based embedded GUI software specialist with a strong product niche, though company size is modest. |
+| Emenda GmbH - SciTools | Reseller / Wholesale | Germany | Maybe - relevant software-quality tooling business with Munich presence, but local employer data is limited. |
+| emlix GmbH | Unspecified | Germany | Yes - strong industrial Embedded Linux specialist with remote/Munich options and a clear security lifecycle niche. |
+| emnify | Service | Germany | Maybe - strong cloud-native IoT connectivity business, but reviews show communication and stability concerns. |
+| emotas embedded communication GmbH | Research & Development | Germany | Maybe - excellent industrial communication niche, but very small company and limited employer-review evidence. |
+| Endrich Bauelemente Vertriebs GmbH | Unspecified | Germany | Maybe - stable family-owned electronics distributor, but more FAE/sales/product-management fit than software engineering. |
+| esd electronics gmbh | Manufacturer | Germany | Maybe - strong industrial communication technology, but small employer-review sample is mixed. |
+| ETAS GmbH | Supplier | Germany | Yes - major automotive software employer with strong market relevance and generally good reviews, though senior-management signals are mixed. |
+| EtherCAT Technology Group | Association / Authority / Other organisation | Germany | No - important industrial-automation network, but it is a small nonprofit standards group rather than a normal software engineering employer. |
+| EXTRA Computer GmbH | Manufacturer | Germany | Maybe - stable German industrial/IT hardware business, but mixed recent employer reviews and limited software-management fit. |
+| Farnell GmbH | Distributor | Germany | Maybe - strong Avnet-owned electronics distributor with hybrid/career resources, but software engineering management roles are likely limited in Germany. |
+| Ferrous Systems GmbH | Service | Germany | Yes - excellent modern embedded/software niche around Rust, safety-critical tooling, and consulting, with small-company caveats. |
+| Filancore GmbH | Service | Germany | Maybe - strong IoT identity/security niche, but very small team and limited independent employer evidence. |
+| FlowCAD | Distributor | Germany | Maybe - strong Munich-area EDA specialist, but small scale and mostly sales/support/services rather than larger software engineering management. |
+| FORTEC GROUP | Manufacturer | Germany | Maybe - financially established Munich-area electronics group with good reviews, but recent revenue contraction and limited pure software scope. |
+| Franz Binder GmbH & Co. Elektrische Bauelemente KG | Manufacturer | Germany | Maybe - strong connector manufacturer, but mainly hardware/manufacturing and reviews show mixed leadership/pay signals. |
+| Fraunhofer Gesellschaft e.V. | Research & Development | Germany | Maybe - excellent technical mission and Munich headquarters, but institute-dependent leadership and public-sector constraints matter. |
+| Fraunhofer ITWM | Research & Development | Germany | Maybe - excellent applied math/software research environment, but location is Kaiserslautern and career structure is research-institute specific. |
+| GigaDevice Semiconductor Inc. | Manufacturer | Germany | Maybe - fast-growing semiconductor company, but Germany role scope and culture visibility are limited. |
+| GitLab | Manufacturer | Germany | Yes - strong remote-first software platform company with excellent compensation signals, but management culture should be checked carefully. |
+| Green Hills Software | Supplier | Germany | Maybe - excellent safety-critical embedded software niche, but Germany footprint is small and management-culture signals are mixed. |
+| GroupAlarm // cubos Internet GmbH | Service | Germany | Maybe - meaningful crisis-communication SaaS, but small company scale and limited public employer data. |
+| hexDEV GmbH | Start-up | Germany | Maybe - technically interesting embedded IoT/Linux startup, but too small for most software engineering management roles. |
+| HighTec EDV-Systeme GmbH | Unspecified | Germany | Maybe - strong embedded compiler/toolchain niche, but employer reviews are contradictory and should be checked carefully. |
+| Hilscher G. f. Systemautomation mbH | Manufacturer | Germany | Yes - strong industrial communication product company with relevant embedded software, chips, and IIoT scope. |
+| Hitex GmbH | Service | Germany | Yes - focused embedded safety/security employer with long history and strong software/tooling relevance. |
+| IBV - Echtzeit- und Embedded | Service | Germany | Maybe - strong Augsburg embedded software specialist, but small size limits management-role breadth. |
+| iCOGNIZE GmbH | Manufacturer | Germany | Maybe - interesting biometrics and embedded security niche, but very small company and weak employer-review sample. |
+| Ignitarium GmbH | Consulting | Germany | Maybe - strong embedded/semiconductor engineering platform with Munich presence, but local management scope and compensation need careful checking. |
+| ilbers GmbH | Service | Germany | Maybe - deep embedded Linux and virtualization expertise, but small-company opacity and limited employer data. |
+| IMACS GmbH | Manufacturer | Germany | Maybe - solid embedded controller development/manufacturing specialist, but likely more product/project leadership than larger software management. |
+| IMST GmbH | Research & Development | Germany | Maybe - strong RF, wireless, chip-design and embedded research/development specialist, but not Munich/Bavaria local. |
+| Incari GmbH | Service | Germany | Maybe - attractive HMI software product, but startup scale and Berlin location make Munich management fit weaker. |
+| Infineon Technologies AG | Manufacturer | Germany | Yes - top-tier Munich semiconductor employer with strong software/embedded management scope, despite current semiconductor-cycle pressure. |
+| int2code | Service | Germany | Maybe - Regensburg embedded software specialist with relevant automotive/avionics work, but small team size limits management depth. |
+| ioncentric GmbH | Manufacturer | Germany | Maybe - attractive battery-passport and edge-IoT startup theme, but it is extremely early stage. |
+| ITK Engineering GmbH | Service | Germany | Yes - strong engineering-services employer with Bavaria/Munich access, good reviews, and real software leadership opportunities. |
+| KAMAKA Electronic Bauelemente Vertriebs GmbH | Distributor | Germany | Maybe - stable electronics distributor in high-reliability niches, but not a strong software engineering management target. |
+| KARO electronics GmbH | Manufacturer | Germany | Maybe - solid embedded module and EMS company, but employer reviews are weak and it is not Munich/Bavaria local. |
+| kessler engineering GmbH | Service | Germany | Maybe - small embedded/engineering specialist; useful technical niche but limited public data and likely limited management scale. |
 | Kienzle Components GmbH | Manufacturer | Germany | Pending |
 | Kontron Europe GmbH | Manufacturer | Germany | Pending |
 | Linumiz GmbH | Research & Development | Germany | Pending |
