@@ -92,33 +92,33 @@ Source: `Embeddedworld_exhibitors_sw_germany_2026.md`
 | KAMAKA Electronic Bauelemente Vertriebs GmbH | Distributor | Germany | Maybe - stable electronics distributor in high-reliability niches, but not a strong software engineering management target. |
 | KARO electronics GmbH | Manufacturer | Germany | Maybe - solid embedded module and EMS company, but employer reviews are weak and it is not Munich/Bavaria local. |
 | kessler engineering GmbH | Service | Germany | Maybe - small embedded/engineering specialist; useful technical niche but limited public data and likely limited management scale. |
-| Kienzle Components GmbH | Manufacturer | Germany | Pending |
-| Kontron Europe GmbH | Manufacturer | Germany | Pending |
-| Linumiz GmbH | Research & Development | Germany | Pending |
-| Linutronix GmbH | Service | Germany | Pending |
-| m2m Germany GmbH | Supplier | Germany | Pending |
-| MathWorks | Manufacturer | Germany | Pending |
-| Metirionic GmbH | Service | Germany | Pending |
-| MEV Elektronik Service GmbH | Reseller / Wholesale | Germany | Pending |
-| Miray Software | Manufacturer | Germany | Pending |
-| MVTec Software GmbH | Manufacturer | Germany | Pending |
-| NewTec GmbH | Service | Germany | Pending |
-| Open Source Automation Development Lab (OSADL) eG | Service | Germany | Pending |
-| OpenSynergy GmbH | Supplier | Germany | Pending |
-| PEAK-System Technik GmbH | Manufacturer | Germany | Pending |
-| Peeriot GmbH | Start-up | Germany | Pending |
-| Pengutronix e.K. | Service | Germany | Pending |
-| Perzeptron GmbH | Service | Germany | Pending |
-| Phytec Messtechnik GmbH | Manufacturer | Germany | Pending |
-| PiNTeam GmbH | Service | Germany | Pending |
-| PLS GmbH | Manufacturer | Germany | Pending |
-| Preventics GmbH | Research & Development | Germany | Pending |
-| QNX | Unspecified | Germany | Pending |
-| Qorix GmbH | Manufacturer | Germany | Pending |
-| Quantum-Systems GmbH | Manufacturer | Germany | Pending |
-| RAFI Group | Manufacturer | Germany | Pending |
-| RedMimicry GmbH | Start-up | Germany | Pending |
-| Renesas Electronics | Manufacturer | Germany | Pending |
+| Kienzle Components GmbH | Manufacturer | Germany | Maybe - established component distributor, but weak software engineering manager relevance and limited employer data. |
+| Kontron Europe GmbH | Manufacturer | Germany | Yes - major Bavaria-rooted embedded computing employer with real software/IoT management scope, though hardware-cycle pressure should be checked. |
+| Linumiz GmbH | Research & Development | Germany | Maybe - excellent open-source embedded Linux/Zephyr niche, but very small German team and limited management scale. |
+| Linutronix GmbH | Service | Germany | Yes - elite real-time Linux employer with Bosch backing and deep embedded software credibility, but small team and location constraints. |
+| m2m Germany GmbH | Supplier | Germany | Maybe - relevant IoT/connectivity supplier, but employer reviews show pay and recent recommendation concerns. |
+| MathWorks | Manufacturer | Germany | Yes - excellent engineering-software employer with strong culture and Germany signal, though remote flexibility and career speed can be limited. |
+| Metirionic GmbH | Service | Germany | Maybe - strong wireless positioning software niche, but small Dresden company and limited employer-review data. |
+| MEV Elektronik Service GmbH | Reseller / Wholesale | Germany | Maybe - very good employer reviews for an electronics distributor, but software engineering management fit is limited. |
+| Miray Software | Manufacturer | Germany | Maybe - Munich software product company, but public employer and scale data are thin. |
+| MVTec Software GmbH | Manufacturer | Germany | Yes - one of the strongest Munich software targets: real product engineering, machine vision, good reviews, and local leadership roles. |
+| NewTec GmbH | Service | Germany | Yes - strong safety/security embedded engineering employer in southern Germany with real leadership scope. |
+| Open Source Automation Development Lab (OSADL) eG | Service | Germany | Maybe - excellent industrial open-source network, but probably too small/nonprofit-like for standard engineering manager hiring. |
+| OpenSynergy GmbH | Supplier | Germany | Maybe - strong embedded Bluetooth/automotive software product, but Berlin location and recent employee-contraction estimates need checking. |
+| PEAK-System Technik GmbH | Manufacturer | Germany | Maybe - strong CAN/fieldbus embedded hardware niche, but small scale and Darmstadt location limit Munich management fit. |
+| Peeriot GmbH | Start-up | Germany | Maybe - exciting remote-first Rust/industrial IoT startup, but still pre-launch and higher risk. |
+| Pengutronix e.K. | Service | Germany | Yes - excellent embedded Linux specialist with strong open-source credibility, though likely hands-on and Hildesheim-based. |
+| Perzeptron GmbH | Service | Germany | Maybe - relevant project/resource-management software and consulting, but not a strong embedded software management target. |
+| Phytec Messtechnik GmbH | Manufacturer | Germany | Maybe - strong embedded SOM manufacturer, but reviews show communication/pay concerns and it is not Munich/Bavaria local. |
+| PiNTeam GmbH | Service | Germany | Yes - Garching/Munich automotive embedded software employer with real local relevance, though consulting/customer pressure should be checked. |
+| PLS GmbH | Manufacturer | Germany | Maybe - strong embedded debugger/tooling niche, but public employer data is limited. |
+| Preventics GmbH | Research & Development | Germany | Maybe - attractive safety engineering niche, but founded in 2025 and still very small. |
+| QNX | Unspecified | Germany | Yes - excellent safety-critical embedded software brand, but Germany-specific roles depend on BlackBerry QNX hiring footprint. |
+| Qorix GmbH | Manufacturer | Germany | Yes - Munich-based automotive middleware company with strong SDV relevance and significant team scale. |
+| Quantum-Systems GmbH | Manufacturer | Germany | Yes - one of the strongest Munich-area growth targets, with real software/AI/robotics management scope and high execution pressure. |
+| RAFI Group | Manufacturer | Germany | Maybe - excellent HMI/EMS manufacturer with strong reviews, but software management fit depends on the specific role. |
+| RedMimicry GmbH | Start-up | Germany | Maybe - very interesting cybersecurity product startup, but tiny and Berlin-based. |
+| Renesas Electronics | Manufacturer | Germany | Maybe - major embedded semiconductor employer, but Germany software management fit depends heavily on local site and business unit. |
 | SECOR Chips & Library GmbH (SECOR Group GmbH) | Start-up | Germany | Pending |
 | SEGGER Microcontroller GmbH | Manufacturer | Germany | Pending |
 | Shelly DACH GmbH | Unspecified | Germany | Pending |
