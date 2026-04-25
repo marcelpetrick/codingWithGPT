@@ -119,20 +119,20 @@ Source: `Embeddedworld_exhibitors_sw_germany_2026.md`
 | RAFI Group | Manufacturer | Germany | Maybe - excellent HMI/EMS manufacturer with strong reviews, but software management fit depends on the specific role. |
 | RedMimicry GmbH | Start-up | Germany | Maybe - very interesting cybersecurity product startup, but tiny and Berlin-based. |
 | Renesas Electronics | Manufacturer | Germany | Maybe - major embedded semiconductor employer, but Germany software management fit depends heavily on local site and business unit. |
-| SECOR Chips & Library GmbH (SECOR Group GmbH) | Start-up | Germany | Pending |
-| SEGGER Microcontroller GmbH | Manufacturer | Germany | Pending |
-| Shelly DACH GmbH | Unspecified | Germany | Pending |
-| Siemens AG PNO PI | Unspecified | Germany | Pending |
-| Siemens EDA Booth PAVE360 and Electronics Systems Design | Supplier | Germany | Pending |
-| Silitics GmbH | Start-up | Germany | Pending |
-| Slint | Supplier | Germany | Pending |
-| sodge IT GmbH | Service | Germany | Pending |
-| Solectrix GmbH | Service | Germany | Pending |
-| Sontheim Industrie Elektronik GmbH | Manufacturer | Germany | Pending |
-| SSV SOFTWARE SYSTEMS GmbH | Manufacturer | Germany | Pending |
-| STACKFORCE GmbH | Service | Germany | Pending |
-| STEMMER IMAGING AG | Reseller / Wholesale | Germany | Pending |
-| Swosh | Manufacturer | Germany | Pending |
+| SECOR Chips & Library GmbH (SECOR Group GmbH) | Start-up | Germany | Maybe - Munich SDV/supply-chain startup with relevant ideas, but very early and small. |
+| SEGGER Microcontroller GmbH | Manufacturer | Germany | Yes - excellent embedded tools/software company with strong reviews, but not Munich/Bavaria local. |
+| Shelly DACH GmbH | Unspecified | Germany | Maybe - strong smart-home/IoT brand presence, but DACH entity appears more commercial than software engineering. |
+| Siemens AG PNO PI | Unspecified | Germany | Yes - very strong Munich/Bavaria management target inside a large automation company, but team selection matters. |
+| Siemens EDA Booth PAVE360 and Electronics Systems Design | Supplier | Germany | Yes - strong industrial software/EDA platform with Munich access and high management relevance. |
+| Silitics GmbH | Start-up | Germany | Maybe - technically attractive embedded Linux/Rust/OTA niche, but very small and limited employer data. |
+| Slint | Supplier | Germany | Maybe - very attractive Rust/C++ embedded UI toolkit, but tiny Berlin startup scale limits manager-role fit. |
+| sodge IT GmbH | Service | Germany | Maybe - focused embedded/security software house, but small Balingen team and limited public review data. |
+| Solectrix GmbH | Service | Germany | Yes - solid Nuremberg embedded systems employer with good reviews and Bavaria relevance. |
+| Sontheim Industrie Elektronik GmbH | Manufacturer | Germany | Maybe - Bavaria embedded/industrial electronics company, but reviews and pay signals are mixed. |
+| SSV SOFTWARE SYSTEMS GmbH | Manufacturer | Germany | Maybe - established IIoT/embedded Linux specialist, but small Hannover company and limited management scale. |
+| STACKFORCE GmbH | Service | Germany | Maybe - strong IoT protocol-stack specialist, but small scale and non-Munich location. |
+| STEMMER IMAGING AG | Reseller / Wholesale | Germany | Maybe - strong machine-vision company with Bavaria roots, but recent revenue/employee contraction makes diligence important. |
+| Swosh | Manufacturer | Germany | Maybe - interesting Vector-powered embedded cloud tooling, but it appears to be a product/brand rather than an independent employer. |
 | Synopsys | Other | Germany | Yes - top-tier EDA and simulation employer with strong German reviews, though post-Ansys integration and restructuring are real risks. |
 | SYS TEC electronic AG | Unspecified | Germany | Maybe - relevant embedded hardware/software work, but employer reviews show meaningful culture and career-development risk. |
 | SYSGO – Embedding Innovations | Service | Germany | Yes - strong safety-critical embedded niche, Thales backing, and very good German employer reviews. |
