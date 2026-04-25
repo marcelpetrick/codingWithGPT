@@ -26,30 +26,30 @@ Source: `Embeddedworld_exhibitors_sw_germany_2026.md`
 | Avnet Abacus Avnet EMG GmbH | Unspecified | Germany | Maybe - strong global distributor, but cyclical market and mixed German employer reviews. |
 | Bavarian Chip-Design-Center | Research & Development | Germany | Maybe - excellent chip-design mission, but hiring is likely through Fraunhofer/university partners rather than BCDC itself. |
 | BRESSNER Technology GmbH | Service | Germany | Maybe - relevant industrial hardware portfolio and decent benefits, but culture reviews are only moderate. |
-| BTC Embedded Systems AG | Manufacturer | Germany | Pending |
-| Capgemini | Unspecified | Germany | Pending |
-| Celonis | Unspecified | Germany | Pending |
-| CELUS GmbH | Start-up | Germany | Pending |
-| Christ Electronic Systems GmbH | Manufacturer | Germany | Pending |
-| CODESYS GmbH A member of the CODESYS Group | Manufacturer | Germany | Pending |
-| congatec GmbH | Manufacturer | Germany | Pending |
-| d.stream engineering | Service | Germany | Pending |
-| DATA MODUL AG | Manufacturer | Germany | Pending |
-| DELTA COMPONENTS GmbH | Manufacturer | Germany | Pending |
-| DH electronics GmbH | Unspecified | Germany | Pending |
-| Digi International GmbH | Manufacturer | Germany | Pending |
-| DISPLAY VISIONS GmbH | Manufacturer | Germany | Pending |
-| DLogic EUROPE GmbH | Manufacturer | Germany | Pending |
-| Dream Chip Technologies GmbH | Service | Germany | Pending |
-| dSPACE GmbH | Manufacturer | Germany | Pending |
-| E4You e.V. | Unspecified | Germany | Pending |
-| EBE sensors + motion | Manufacturer | Germany | Pending |
-| EBV Elektronik GmbH & Co. KG | Unspecified | Germany | Pending |
-| ECOS Technology GmbH | Manufacturer | Germany | Pending |
-| EFCO Electronics GmbH | Manufacturer | Germany | Pending |
-| ELATEC GmbH | Manufacturer | Germany | Pending |
-| Elevake GmbH - EPCB24 | Unspecified | Germany | Pending |
-| Embedded AI | Other | Germany | Pending |
+| BTC Embedded Systems AG | Manufacturer | Germany | Yes - excellent embedded safety tooling niche, strong automotive relevance, and very strong German employer reviews. |
+| Capgemini | Unspecified | Germany | Maybe - broad engineering career platform and strong finances, but consulting bench risk and current restructuring make role/team selection critical. |
+| Celonis | Unspecified | Germany | Maybe - strong German software scale-up and market position, but workload and management-pressure signals need careful checking. |
+| CELUS GmbH | Start-up | Germany | Yes - strong electronics-design automation niche with good growth signals, with normal startup-stage risk. |
+| Christ Electronic Systems GmbH | Manufacturer | Germany | Maybe - relevant HMI and industrial embedded products, but reviews are mixed and salary/career signals need checking. |
+| CODESYS GmbH A member of the CODESYS Group | Manufacturer | Germany | Yes - leading industrial automation software niche with excellent German employer reviews. |
+| congatec GmbH | Manufacturer | Germany | Maybe - excellent embedded computing market fit, but employer reviews raise leadership, salary, and working-condition concerns. |
+| d.stream engineering | Service | Germany | Maybe - highly relevant DSP, embedded vision, and SoC work, but very small team and little independent employer-review data. |
+| DATA MODUL AG | Manufacturer | Germany | No - strong embedded/display business, but recent employer-review signals are too weak for a confident hiring recommendation. |
+| DELTA COMPONENTS GmbH | Manufacturer | Germany | Maybe - relevant embedded hardware work, but the company is small and public employer-review data is very limited. |
+| DH electronics GmbH | Unspecified | Germany | Yes - focused embedded systems work with positive small-company employer signals and good flexibility benefits. |
+| Digi International GmbH | Manufacturer | Germany | Yes - strong public IoT/connectivity company with solid employer reviews, though career progression should be checked. |
+| DISPLAY VISIONS GmbH | Manufacturer | Germany | Maybe - solid small industrial-display specialist, but independent employer data is too thin for a strong recommendation. |
+| DLogic EUROPE GmbH | Manufacturer | Germany | Maybe - relevant rugged touch-display products, but very small footprint and almost no independent employer data. |
+| Dream Chip Technologies GmbH | Service | Germany | Maybe - very strong semiconductor and embedded technology fit, but culture data is mixed and Tessolve integration should be checked. |
+| dSPACE GmbH | Manufacturer | Germany | Yes - excellent automotive validation and embedded tooling employer with strong reviews, though salary and career paths should be checked. |
+| E4You e.V. | Unspecified | Germany | No - useful embedded network, but not a normal direct employer for applicants. |
+| EBE sensors + motion | Manufacturer | Germany | Yes - stable sensor and mechatronics manufacturer with explicit flexibility, benefits, and long-tenure signals. |
+| EBV Elektronik GmbH & Co. KG | Unspecified | Germany | Maybe - strong semiconductor-distribution platform under Avnet, but German reviews show communication and career-development concerns. |
+| ECOS Technology GmbH | Manufacturer | Germany | Yes - strong industrial cybersecurity niche with very good employer-review signals. |
+| EFCO Electronics GmbH | Manufacturer | Germany | Maybe - relevant industrial PC and HMI portfolio, but German employer data is too small for a strong recommendation. |
+| ELATEC GmbH | Manufacturer | Germany | Yes - strong RFID/access-control niche with excellent employer reviews and solid growth signals. |
+| Elevake GmbH - EPCB24 | Unspecified | Germany | Maybe - practical PCB assembly and elevator electronics niche, but very small and too little employer data. |
+| Embedded AI | Other | Germany | Yes - attractive AI/embedded algorithm niche with visible hiring and solid self-described culture, but independent review data is limited. |
 | embedded data GmbH | Service | Germany | Pending |
 | Embedded Systems Academy GmbH | Unspecified | Germany | Pending |
 | Embedded Wizard (TARA Systems) | Other | Germany | Pending |
