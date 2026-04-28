@@ -2,6 +2,16 @@
 
 This is a Qt 5.15 C++ desktop application that discovers printers and lets the user submit a simple test page to a selected configured printer. It builds on Linux and Windows with CMake.
 
+## Quick Start
+
+Build and run natively on Linux:
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+./build/QtPrinterFinderExample
+```
+
 The UI provides:
 
 - A **Detect network printers** button.
@@ -17,7 +27,8 @@ Discovery combines multiple sources:
 Qt can reliably print to configured system queues. On Windows, `QPrinterInfo` reports printers known to Windows, including configured network printers. On Linux, CUPS queues are also queried for device URIs. DNS-SD-only printers are listed so the user can see network-advertised devices, but they must be added to the operating system or CUPS before Qt can submit a print job to them.
 
 
-## Current state when built with MXE (cross platform on Linux for Win11):
+## Current state when cross-built with MXE on Linux for Windows 11:
+
 ![](docs/currentState.png)
 
 ## Requirements
@@ -56,8 +67,25 @@ Press **Detect network printers** to populate the table. Select an installed pri
 This repository includes a MinGW/Qt 5 toolchain file and verification script for building a Windows 11 executable from Linux:
 
 ```sh
+sudo ./setup-windows-toolchain.sh
+```
+
+After the toolchain exists, rebuild and redeploy the Windows app with:
+
+```sh
+MXE_PREFIX=/opt/mxe \
+WINDOWS_MINGW_TRIPLET=x86_64-w64-mingw32.shared \
+WINDOWS_MINGW_BIN=/opt/mxe/usr/bin \
 ./scripts/verify-windows-toolchain.sh
 ```
+
+The Windows deployment bundle is created in:
+
+```text
+dist/windows
+```
+
+Copy the complete `dist/windows` directory to Windows, not only the `.exe`. The folder contains the application, Qt DLLs, MinGW runtime DLLs, Qt plugins such as `platforms/qwindows.dll` and `printsupport/windowsprintersupport.dll`, and transitive dependencies such as OpenSSL, zlib, ICU, and PCRE.
 
 See [docs/windows-crosscompile.md](docs/windows-crosscompile.md) for the required Windows-target Qt prefix, MXE environment variables, build commands, and deployment bundle details.
 
@@ -69,8 +97,45 @@ There is no single Qt 5.15 API that guarantees discovery of every possible print
 
 On Linux, installing CUPS client tools improves configured queue details:
 
+Manjaro/Arch:
+
+```sh
+sudo pacman -S --needed cups
+```
+
+Debian/Ubuntu:
+
 ```sh
 sudo apt install cups-client
 ```
 
 Package names vary by distribution.
+
+## Known Limitations
+
+DNS-SD discovery can list advertised IPP/IPPS network printers, but Qt can only submit print jobs to printers configured as operating-system print queues. Add a discovered printer to Windows or CUPS before using **Print test page**.
+
+## Troubleshooting
+
+If Windows reports a missing DLL, regenerate the deployment bundle and copy the full folder again:
+
+```sh
+MXE_PREFIX=/opt/mxe \
+WINDOWS_MINGW_TRIPLET=x86_64-w64-mingw32.shared \
+WINDOWS_MINGW_BIN=/opt/mxe/usr/bin \
+./scripts/verify-windows-toolchain.sh
+```
+
+Generated directories can be deleted and rebuilt:
+
+```sh
+rm -rf build build-win dist
+```
+
+## Author
+
+Marcel Petrick <mail@marcelpetrick.it>
+
+## License
+
+GPLv3. See [LICENSE](LICENSE) for license terms.
