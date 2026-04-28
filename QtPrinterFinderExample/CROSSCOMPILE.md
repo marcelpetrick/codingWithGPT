@@ -44,6 +44,12 @@ export WINDOWS_MINGW_TRIPLET=x86_64-w64-mingw32.shared
 export WINDOWS_MINGW_BIN=$MXE_PREFIX/usr/bin
 ```
 
+With MXE, the Windows Qt 5 prefix is:
+
+```text
+$MXE_PREFIX/usr/$WINDOWS_MINGW_TRIPLET/qt5
+```
+
 If you built or unpacked Windows Qt somewhere else, use:
 
 ```sh

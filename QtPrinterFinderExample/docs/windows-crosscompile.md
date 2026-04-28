@@ -21,7 +21,7 @@ export WINDOWS_MINGW_BIN=$MXE_PREFIX/usr/bin
 The script then expects Qt here:
 
 ```text
-$MXE_PREFIX/usr/$WINDOWS_MINGW_TRIPLET/lib/cmake/Qt5/Qt5Config.cmake
+$MXE_PREFIX/usr/$WINDOWS_MINGW_TRIPLET/qt5/lib/cmake/Qt5/Qt5Config.cmake
 ```
 
 ### Custom Windows Qt Prefix

@@ -8,7 +8,7 @@ build_dir="${WINDOWS_BUILD_DIR:-$repo_root/build-win}"
 deploy_dir="${WINDOWS_DEPLOY_DIR:-$repo_root/dist/windows}"
 
 if [[ -n "${MXE_PREFIX:-}" && -z "${WINDOWS_QT_PREFIX:-}" ]]; then
-    qt_prefix="$MXE_PREFIX/usr/$triplet"
+    qt_prefix="$MXE_PREFIX/usr/$triplet/qt5"
 else
     qt_prefix="${WINDOWS_QT_PREFIX:-}"
 fi
@@ -75,6 +75,8 @@ Typical MXE shape:
   export MXE_PREFIX=/opt/mxe
   export WINDOWS_MINGW_TRIPLET=x86_64-w64-mingw32.shared
   export WINDOWS_MINGW_BIN=\$MXE_PREFIX/usr/bin
+  # Qt is then expected at:
+  # \$MXE_PREFIX/usr/\$WINDOWS_MINGW_TRIPLET/qt5
 
 Typical custom Qt shape:
   export WINDOWS_QT_PREFIX=/opt/qt-windows-5.15/x86_64-w64-mingw32

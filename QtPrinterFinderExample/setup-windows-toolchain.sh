@@ -90,7 +90,8 @@ fi
 
 step "Build/check Windows Qt 5 with MXE"
 ok "parallel build jobs: $JOBS"
-QT_CONFIG="$MXE_PREFIX/usr/$TRIPLET/lib/cmake/Qt5/Qt5Config.cmake"
+QT_PREFIX="$MXE_PREFIX/usr/$TRIPLET/qt5"
+QT_CONFIG="$QT_PREFIX/lib/cmake/Qt5/Qt5Config.cmake"
 if [[ -f "$QT_CONFIG" ]]; then
     ok "Windows Qt found: $QT_CONFIG"
 else
@@ -104,12 +105,14 @@ step "Run project verifier"
 export MXE_PREFIX
 export WINDOWS_MINGW_TRIPLET="$TRIPLET"
 export WINDOWS_MINGW_BIN="$MXE_PREFIX/usr/bin"
+export WINDOWS_QT_PREFIX="$QT_PREFIX"
 
 if run sudo -u "$ORIGINAL_USER" env \
     HOME="$ORIGINAL_HOME" \
     MXE_PREFIX="$MXE_PREFIX" \
     WINDOWS_MINGW_TRIPLET="$WINDOWS_MINGW_TRIPLET" \
     WINDOWS_MINGW_BIN="$WINDOWS_MINGW_BIN" \
+    WINDOWS_QT_PREFIX="$WINDOWS_QT_PREFIX" \
     "$ROOT/scripts/verify-windows-toolchain.sh"; then
     ok "Windows toolchain, build, and deployment verified"
 else

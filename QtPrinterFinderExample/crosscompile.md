@@ -33,6 +33,12 @@ export WINDOWS_MINGW_TRIPLET=x86_64-w64-mingw32.shared
 export WINDOWS_MINGW_BIN=$MXE_PREFIX/usr/bin
 ```
 
+For MXE, Windows Qt 5 is expected below:
+
+```bash
+$MXE_PREFIX/usr/$WINDOWS_MINGW_TRIPLET/qt5
+```
+
 Then rerun:
 
 ```bash

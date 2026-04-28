@@ -7,9 +7,14 @@ deploy_dir="${2:-$repo_root/dist/windows}"
 triplet="${WINDOWS_MINGW_TRIPLET:-x86_64-w64-mingw32}"
 
 if [[ -n "${MXE_PREFIX:-}" && -z "${WINDOWS_QT_PREFIX:-}" ]]; then
-    qt_prefix="$MXE_PREFIX/usr/$triplet"
+    qt_prefix="$MXE_PREFIX/usr/$triplet/qt5"
 else
     qt_prefix="${WINDOWS_QT_PREFIX:-}"
+fi
+
+target_prefix=""
+if [[ -n "${MXE_PREFIX:-}" ]]; then
+    target_prefix="$MXE_PREFIX/usr/$triplet"
 fi
 
 exe="$build_dir/QtPrinterFinderExample.exe"
@@ -29,10 +34,14 @@ cp "$exe" "$deploy_dir/"
 copy_first_found() {
     local name="$1"
     local found=""
-    while IFS= read -r candidate; do
-        found="$candidate"
-        break
-    done < <(find "$qt_prefix" -type f -name "$name" 2>/dev/null)
+    for prefix in "$qt_prefix" "$target_prefix"; do
+        [[ -n "$prefix" && -d "$prefix" ]] || continue
+        while IFS= read -r candidate; do
+            found="$candidate"
+            break
+        done < <(find "$prefix" -type f -name "$name" 2>/dev/null)
+        [[ -n "$found" ]] && break
+    done
 
     if [[ -n "$found" ]]; then
         cp "$found" "$deploy_dir/"
