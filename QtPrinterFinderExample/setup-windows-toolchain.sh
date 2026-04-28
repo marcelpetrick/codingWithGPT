@@ -52,6 +52,7 @@ run pacman -S --needed \
     intltool \
     lzip \
     python-mako \
+    python-setuptools \
     ruby \
     unzip
 
