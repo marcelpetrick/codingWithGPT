@@ -4,6 +4,7 @@ set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MXE_PREFIX="${MXE_PREFIX:-/opt/mxe}"
 TRIPLET="${WINDOWS_MINGW_TRIPLET:-x86_64-w64-mingw32.shared}"
+JOBS="${JOBS:-$(nproc)}"
 
 ok() { printf '\033[32mok\033[0m: %s\n' "$*"; }
 warn() { printf '\033[33mwarn\033[0m: %s\n' "$*"; }
@@ -87,6 +88,7 @@ if [[ -d "$MXE_PREFIX/mxe" ]]; then
 fi
 
 step "Build/check Windows Qt 5 with MXE"
+ok "parallel build jobs: $JOBS"
 QT_CONFIG="$MXE_PREFIX/usr/$TRIPLET/lib/cmake/Qt5/Qt5Config.cmake"
 if [[ -f "$QT_CONFIG" ]]; then
     ok "Windows Qt found: $QT_CONFIG"
@@ -94,7 +96,7 @@ else
     warn "Windows Qt not found; building MXE qtbase for $TRIPLET"
     warn "this can take a long time and may fail until system dependencies are installed"
     warn "MXE compiler wrappers such as $TRIPLET-g++ are created by this build"
-    run sudo -u "$ORIGINAL_USER" env HOME="$ORIGINAL_HOME" make -C "$MXE_PREFIX" MXE_TARGETS="$TRIPLET" qtbase || missing=1
+    run sudo -u "$ORIGINAL_USER" env HOME="$ORIGINAL_HOME" make -C "$MXE_PREFIX" MXE_TARGETS="$TRIPLET" JOBS="$JOBS" qtbase || missing=1
 fi
 
 step "Run project verifier"
