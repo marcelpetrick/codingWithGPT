@@ -135,3 +135,35 @@ Then install/build MXE Qt and rerun:
 ```sh
 ./scripts/verify-windows-toolchain.sh
 ```
+
+## 8. Free Disk Space
+
+The MXE checkout and build tree can become large. On this host `/opt/mxe` was about `1.5G` after the first setup attempt.
+
+To remove MXE completely:
+
+```sh
+sudo rm -rf /opt/mxe
+```
+
+This is safe for the repository because `/opt/mxe` is external generated toolchain state. Removing it means the Windows cross-toolchain and Windows Qt build must be recreated later:
+
+```sh
+sudo ./setup-windows-toolchain.sh
+```
+
+If you want to keep the MXE checkout but remove downloaded packages and logs:
+
+```sh
+rm -rf /opt/mxe/pkg /opt/mxe/log
+```
+
+On this host that smaller cleanup was about `137M`.
+
+Project-local generated directories are also safe to delete when present:
+
+```sh
+rm -rf build build-win dist
+```
+
+Those directories contain local Linux builds, Windows cross-build output, and deployment bundles. They can be regenerated with the normal build or verification commands.
