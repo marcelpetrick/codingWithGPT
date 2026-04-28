@@ -16,6 +16,10 @@ Discovery combines multiple sources:
 
 Qt can reliably print to configured system queues. On Windows, `QPrinterInfo` reports printers known to Windows, including configured network printers. On Linux, CUPS queues are also queried for device URIs. DNS-SD-only printers are listed so the user can see network-advertised devices, but they must be added to the operating system or CUPS before Qt can submit a print job to them.
 
+
+## Current state when built with MXE (cross platform on Linux for Win11):
+![](docs/currentState.png)
+
 ## Requirements
 
 - CMake 3.16 or newer.
