@@ -47,6 +47,16 @@ cmake --build build
 
 Press **Detect network printers** to populate the table. Select an installed printer and press **Print test page** to submit a simple Qt-rendered test page.
 
+## Windows Cross-Build
+
+This repository includes a MinGW/Qt 5 toolchain file and verification script for building a Windows 11 executable from Linux:
+
+```sh
+./scripts/verify-windows-toolchain.sh
+```
+
+See [docs/windows-crosscompile.md](docs/windows-crosscompile.md) for the required Windows-target Qt prefix, MXE environment variables, build commands, and deployment bundle details.
+
 ## Platform Notes
 
 `QPrinterInfo` is the cross-platform API used by the app. It exposes printer name, description, location, make/model, state, default status, and whether the printer is remote/networked. Qt recommends using `availablePrinterNames()` and then resolving individual printers with `printerInfo(name)`, because creating full printer info objects for every printer can take time when remote printers are involved.

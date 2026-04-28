@@ -32,3 +32,10 @@ target_link_libraries(QtPrinterFinderExample PRIVATE
     Qt5::PrintSupport
     Qt5::Widgets
 )
+
+if(WIN32)
+    set_target_properties(QtPrinterFinderExample PROPERTIES WIN32_EXECUTABLE TRUE)
+    if(TARGET Qt5::WinMain)
+        target_link_libraries(QtPrinterFinderExample PRIVATE Qt5::WinMain)
+    endif()
+endif()
