@@ -69,6 +69,23 @@ else
 fi
 run chown -R "$ORIGINAL_USER:$ORIGINAL_USER" "$MXE_PREFIX"
 
+# If MXE was moved from /opt to /home, a mistaken rerun can leave the ccache
+# wrapper directory inside a nested MXE checkout. The generated compiler
+# symlinks still point at $MXE_PREFIX/.ccache/bin/ccache, so repair that before
+# CMake-based MXE packages try to configure.
+if [[ ! -e "$MXE_PREFIX/.ccache/bin/ccache" && -e "$MXE_PREFIX/mxe/.ccache/bin/ccache" ]]; then
+    warn "repairing nested MXE ccache directory left by a previous move"
+    run mv "$MXE_PREFIX/mxe/.ccache" "$MXE_PREFIX/.ccache"
+    run chown -R "$ORIGINAL_USER:$ORIGINAL_USER" "$MXE_PREFIX/.ccache"
+fi
+
+# Keep the nested tree for now because it may contain useful diagnostics while
+# the build is still being fixed, but tell the user how to reclaim the space.
+if [[ -d "$MXE_PREFIX/mxe" ]]; then
+    warn "nested MXE tree found at $MXE_PREFIX/mxe"
+    warn "after this build succeeds, remove it to free space: sudo rm -rf '$MXE_PREFIX/mxe'"
+fi
+
 step "Build/check Windows Qt 5 with MXE"
 QT_CONFIG="$MXE_PREFIX/usr/$TRIPLET/lib/cmake/Qt5/Qt5Config.cmake"
 if [[ -f "$QT_CONFIG" ]]; then
