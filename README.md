@@ -4,6 +4,12 @@ This repository serves as an incubator and playground to explore how quickly I c
 The majority of the ideas here originate from my seemingly endless bucket list of things I’ve always wanted to create or improve.  
 Once a package becomes functional and ready for announcement, it is moved into its own dedicated repository.
 
+**Author: Marcel Petrick <mail@marcelpetrick.it>**
+
+**Note: projected is generated with AI.**
+
+**License: GPLv3 or later. See `LICENSE`.**
+
 ## Languages Used
 
 - **Python**: 88.8%
