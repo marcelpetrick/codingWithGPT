@@ -5,6 +5,8 @@ Shows what the library looks like out of the box: gradient backgrounds, semi-tra
 glassmorphism card, accent-coloured buttons with glow shadows, a live status label, and a
 styled slider — all in plain C with CMake.
 
+![](currentState.png)
+
 ## Purpose
 
 Reference starting point for LVGL on a Linux desktop using the SDL2 backend.  
