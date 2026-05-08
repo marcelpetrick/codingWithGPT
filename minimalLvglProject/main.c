@@ -63,10 +63,10 @@ int main(void)
 
     lv_init();
     lv_display_t* disp = lv_sdl_window_create(WIN_W, WIN_H);
+    lv_sdl_window_set_title(disp, "LVGL Demo");
     lv_sdl_mouse_create();
     lv_sdl_mousewheel_create();
     lv_sdl_keyboard_create();
-    (void)disp;
 
     /* ── Screen: deep-space vertical gradient ──────────────────────────── */
     lv_obj_t* scr = lv_screen_active();
