@@ -13,8 +13,10 @@ My recommendation if you trust the pool-rule analysis in
 
 ### 1. Team with the top scorer  → **🇫🇷 France**
 
-- France has the deepest attack (Mbappé + Dembélé + Kolo Muani).
-  Mbappé alone is enough to make this defensible.
+- France has the deepest attack (Mbappé + Dembélé reigning Ballon d'Or
+  + Olise + Doué + Cherki + Barcola + Thuram + Mateta). Mbappé alone
+  is enough to make this defensible. **Note**: Kolo Muani left out of
+  final squad (14 May) — Mateta preferred. Camavinga also left out.
 - Alternatives:
   - Spain (Yamal/Oyarzabal) — depressed by Yamal injury risk
   - Argentina (Messi/Álvarez) — single-striker dependency

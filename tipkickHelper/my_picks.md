@@ -49,9 +49,11 @@ See [`strategy.md`](strategy.md) for the full reasoning.
 
 ### 1) Top-scorer team → **France** ✅
 
-Locked under Strategy A. Mbappé + Dembélé + Kolo Muani is the deepest
+Locked under Strategy A. Mbappé + Dembélé (reigning Ballon d'Or) +
+Olise + Doué + Cherki + Barcola + Thuram + Mateta is the deepest
 attack in the field; France also has the easiest group, so volume of
-goals is likely.
+goals is likely. (Note: Kolo Muani was *cut* on 14 May — Mateta in;
+doesn't change the pick.)
 
 ### 2) Four semi-finalists → **France, Spain, Argentina, Brazil** ✅
 
@@ -107,7 +109,7 @@ easier bracket side. The single safest pick in the bonus set.
 - [ ] Switzerland – Qatar → `2–0`
 
 ### Group C
-- [ ] Brazil – Haiti → `3–0`
+- [ ] Brazil – Haiti → `2–0`  _(trimmed from 3–0 on 2026-05-19: Brazil squad weakened — Rodrygo/Militão/Estêvão out)_
 - [ ] Morocco – Scotland → `1–1`
 - [ ] Brazil – Morocco → `1–1` _(the highlight!)_
 - [ ] Haiti – Scotland → `1–2`
@@ -123,7 +125,7 @@ easier bracket side. The single safest pick in the bonus set.
 - [ ] Paraguay – Australia → `1–1`
 
 ### Group E
-- [ ] Germany – Curaçao → `3–0`
+- [ ] Germany – Curaçao → `2–0`  _(trimmed from 3–0 on 2026-05-19: Gnabry out, Musiala fitness watch)_
 - [ ] Ecuador – Côte d'Ivoire → `1–1`
 - [ ] Germany – Ecuador → `2–0`
 - [ ] Curaçao – Côte d'Ivoire → `0–2`
@@ -147,9 +149,9 @@ easier bracket side. The single safest pick in the bonus set.
 - [ ] NZ – Egypt → `0–2`
 
 ### Group H
-- [ ] Spain – Cabo Verde → `3–0`
+- [ ] Spain – Cabo Verde → `2–0`  _(trimmed from 3–0 on 2026-05-19: Yamal out per latest news)_
 - [ ] Saudi Arabia – Uruguay → `0–2`
-- [ ] Spain – Saudi Arabia → `3–0`
+- [ ] Spain – Saudi Arabia → `2–0`  _(trimmed from 3–0: Yamal doubtful)_
 - [ ] Cabo Verde – Uruguay → `0–2`
 - [ ] Spain – Uruguay → `1–1`
 - [ ] Cabo Verde – Saudi Arabia → `1–1`

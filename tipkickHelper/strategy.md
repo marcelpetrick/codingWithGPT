@@ -1,5 +1,26 @@
 # Strategy — How to actually play this pool
 
+## Rule clarification — 2026-05-19
+
+The user pasted the verbatim Kicktipp Spielregeln page. Confirmed:
+
+- Scoring is **flat 2 / 3 / 4** (tendency / GD / exact) — as originally
+  documented.
+- Tipps are **90-minute results** (no ET, no penalties) — group AND
+  knockout.
+- Tip lock: **1 minute before kickoff**.
+- Bonus picks: **4 pts each, order doesn't matter**.
+- **Tie-break = number of matchday wins (Spieltagssiege)** — *new*
+  vs the previous note that said "kicktipp.de placement system".
+
+The tie-break clarification is the only material change. Implication:
+pure chalk rarely wins a single matchday outright (the matchday winner
+usually nailed an upset or two), so under perfect Strategy A you'll
+land **mid-table on tie-break** if you're equal on points. The
+locked Strategy A still holds for the *primary* goal (top-5 cash-out)
+because tie-break only matters in ties, but it shaves a sliver off
+the 1st-place equity. Documented; no strategy change.
+
 ## The pool sizing math
 
 Assume **50 participants** (the user's best current estimate). Each

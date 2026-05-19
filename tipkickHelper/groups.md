@@ -35,11 +35,12 @@ Top 2 of each group + 8 best 3rd-placed teams → Round of 32.
 ## Group C — *Group of mild Death (Brazil's path)*
 | Team | Tier | Note |
 | --- | --- | --- |
-| 🇧🇷 Brazil ★★★ | Ancelotti era | Heavy favorite |
+| 🇧🇷 Brazil ★★★ | Ancelotti era; **Rodrygo + Militão + Estêvão OUT injured**; Neymar IN |
 | 🇲🇦 Morocco ★★ | 2022 semi-finalists | Regragui still in charge |
 | 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland ★ | Set-piece grit | |
 | 🇭🇹 Haiti 💤 | Surprise qualifier | |
 **Likely top 2**: Brazil, Morocco. Brazil vs Morocco is a 2022 QF rematch.
+Brazil's depleted squad makes the 1–1 vs Morocco even more plausible.
 
 ---
 
@@ -57,11 +58,12 @@ Top 2 of each group + 8 best 3rd-placed teams → Round of 32.
 ## Group E
 | Team | Tier | Note |
 | --- | --- | --- |
-| 🇩🇪 Germany ★★★ | Nagelsmann's project; better than 2022/2024 |
+| 🇩🇪 Germany ★★★ | Nagelsmann's project; **Gnabry OUT**, Musiala fitness watch, Ter Stegen unlikely |
 | 🇪🇨 Ecuador ★★ | Young, well-drilled, qualified comfortably |
 | 🇨🇮 Côte d'Ivoire ★★ | 2023 AFCON champions |
 | 🇨🇼 Curaçao 💤 | Cinderella qualifier |
-**Likely top 2**: Germany, Ecuador.
+**Likely top 2**: Germany, Ecuador. Group winner pick stays Germany —
+class gap absorbs the absences.
 
 ---
 
@@ -90,7 +92,7 @@ Top 2 of each group + 8 best 3rd-placed teams → Round of 32.
 ## Group H — Spain's group
 | Team | Tier | Note |
 | --- | --- | --- |
-| 🇪🇸 Spain ★★★ | Euro 2024 champs; tournament favorites |
+| 🇪🇸 Spain ★★★ | Euro 2024 champs; **Yamal misses opener vs CPV, doubtful for KSA**, targeting Uruguay return |
 | 🇺🇾 Uruguay ★★★ | Bielsa, real outside title shot |
 | 🇸🇦 Saudi Arabia ★ | Renard's Arabia, slow rebuild |
 | 🇨🇻 Cabo Verde 💤 | First-time qualifier; underrated |

@@ -31,6 +31,35 @@ Compiled 2026-05-15.
 - [FourFourTwo — France squad](https://www.fourfourtwo.com/team/france-world-cup-2026-squad)
 - [Wikipedia — 2026 FIFA World Cup squads](https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_squads)
 
+## News update — 2026-05-19
+
+### Squad announcements & cuts
+
+- [ESPN — France squad: Camavinga, Kolo Muani miss out](https://www.espn.com/soccer/story/_/id/48771039/france-2026-world-cup-squad-mbappe-camavinga-kolo-muani-dembele)
+- [beIN — Deschamps unveils France squad](https://www.beinsports.com/en-us/soccer/fifa-world-cup-2026/articles/didier-deschamps-announces-france-s-official-squad-for-the-2026-fifa-world-cup-2026-05-14)
+- [Khelnow — Brazil 26-man squad ft. Neymar & Vinicius](https://khelnow.com/football/world-football-brazil-fifa-world-cup-squad-202605)
+- [Khelnow — Top 5 left out of Brazil squad (Rodrygo, Militão)](https://khelnow.com/football/world-football-brazil-players-left-out-squad-fifa-world-cup-202605)
+- [FIFA — Brazil squad announcement (Ancelotti)](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/brazil-squad-announcement-carlo-ancelotti)
+- [ESPN — Squad lists tracker, all 48 teams](https://www.espn.com/soccer/story/_/id/48757621/2026-world-cup-squad-lists-players-announced-all-48-teams)
+- [Al Jazeera — World Cup 2026 squad deadlines & dates](https://www.aljazeera.com/sports/2026/5/8/world-cup-2026-squad-deadlines-key-dates-team-lists-final-announcements)
+- [FIFA World Cup News — preliminary squads / injuries / dates](https://www.fifaworldcupnews.com/fifa-world-cup-2026-preliminary-squads/)
+
+### Injuries
+
+- [ESPN — 2026 World Cup injuries tracker](https://www.espn.com/soccer/story/_/id/48572979/2026-fifa-world-cup-injuries-tracker-which-stars-miss-latest-info)
+- [beIN — Yamal will miss Spain WC opener (18 May)](https://www.beinsports.com/en-us/soccer/fifa-world-cup-2026/articles/lamine-yamal-could-miss-spain-s-world-cup-2026-debut-what-injury-he-has-and-when-he-might-return-2026-05-18)
+- [Yahoo — Yamal to miss Spain opener vs Cape Verde](https://sports.yahoo.com/articles/lamine-yamal-miss-spains-world-150220299.html)
+- [FOX — Yamal injury update: how many matches could he miss](https://www.foxsports.com/stories/soccer/lamine-yamal-injury-update-how-many-world-cup-matches-could-he-miss-spain)
+- [beIN — de la Fuente preliminary squad (Spain)](https://www.beinsports.com/en-us/soccer/fifa-world-cup-2026/articles/luis-de-la-fuente-defines-spain-s-preliminary-world-cup-squad-injuries-doubts-and-an-almost-untouchable-core-2026-05-12)
+- [Al Jazeera — Argentina 55-man squad incl. Messi](https://www.aljazeera.com/sports/2026/5/12/will-messi-play-argentina-answer-fan-queries-in-55-man-world-cup-squad)
+- [World Soccer Talk — Gnabry confirmed out for Germany](https://worldsoccertalk.com/amp/news/2026-fifa-world-cup-heartbreak-for-germany-as-serge-gnabry-confirms-injury-blow-who-could-julian-nagelsmann-take-as-his-replacement/)
+- [Bundesliga.com — Germany line-up options 2026 WC](https://www.bundesliga.com/en/bundesliga/news/how-will-germany-line-up-havertz-musiala-wirtz-nagelsmann-world-cup-2026-28807)
+
+### Pre-tournament friendlies & build-up
+
+- [Fantasy Football Scout — full friendly schedule](https://www.fantasyfootballscout.co.uk/2026/05/16/world-cup-2026-pre-tournament-friendlies-full-schedule)
+- [FIFA — 10 friendlies to watch](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/ten-international-friendlies-to-watch)
+
 ## USMNT specifically
 
 - [ESPN — Pochettino: "no one is safe"](https://www.espn.com/soccer/story/_/id/46967026/usa-world-cup-2026-mauricio-pochettino-roster-pulisic-adams)
