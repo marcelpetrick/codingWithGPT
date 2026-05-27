@@ -28,19 +28,23 @@ python3 convert.py --input <input-dir> [--output <output-dir>] [--verbose]
 |------|-------|-------------|
 | `--input <path>` | `-i` | Directory containing source audio files (**required**) |
 | `--output <path>` | `-o` | Destination directory (default: `./output/` in the current working directory) |
-| `--verbose` | `-v` | Show detailed step-by-step progress including ffmpeg commands |
+| `--parallel <N>` | `-p` | Number of simultaneous conversions (default: CPU core count; `1` = sequential) |
+| `--verbose` | `-v` | Show detailed step-by-step progress (output may interleave in parallel mode) |
 
 ### Examples
 
 ```bash
-# Minimal — output goes to ./output/
+# Minimal — output goes to ./output/, all cores used
 python3 convert.py --input ./input
 
 # Custom output directory
 python3 convert.py --input ./input --output ~/Music/converted
 
-# Verbose mode — shows every step
-python3 convert.py --input ./input --output ./output --verbose
+# Limit to 2 parallel conversions
+python3 convert.py --input ./input --parallel 2
+
+# Sequential (one at a time), verbose
+python3 convert.py --input ./input --parallel 1 --verbose
 ```
 
 ## What it does

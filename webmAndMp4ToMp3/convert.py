@@ -2,8 +2,11 @@
 """Convert .m4a, .m4b, .webm, and .mp4 audio files to high-quality MP3 with ID3 tags."""
 
 import argparse
+import os
 import subprocess
 import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 try:
@@ -19,15 +22,17 @@ except ImportError:
 
 SUPPORTED_EXTENSIONS = {'.m4a', '.m4b', '.webm', '.mp4'}
 
+_path_lock = threading.Lock()  # serialise unique_path checks across threads
 
-def log(msg: str, verbose: bool) -> None:
+
+def log(msg: str, verbose: bool, prefix: str = '') -> None:
     if verbose:
-        print(msg)
+        print(f"[{prefix}] {msg}" if prefix else msg)
 
 
-def read_metadata(path: Path, verbose: bool) -> dict:
+def read_metadata(path: Path, verbose: bool, prefix: str = '') -> dict:
     """Return a dict of tag-name -> string value from any mutagen-readable file."""
-    log(f"  Reading metadata ...", verbose)
+    log("Reading metadata ...", verbose, prefix)
     try:
         audio = MutagenFile(str(path), easy=True)
         if audio is None:
@@ -48,10 +53,10 @@ def read_metadata(path: Path, verbose: bool) -> dict:
             val = audio.get(easy_key)
             if val:
                 meta[out_key] = str(val[0]).strip()
-        log(f"  Metadata: {meta}", verbose)
+        log(f"Metadata: {meta}", verbose, prefix)
         return meta
     except Exception as exc:
-        log(f"  Warning: could not read metadata: {exc}", verbose)
+        log(f"Warning: could not read metadata: {exc}", verbose, prefix)
         return {}
 
 
@@ -82,9 +87,9 @@ def unique_path(directory: Path, stem: str, suffix: str = '.mp3') -> Path:
     return candidate
 
 
-def write_id3(mp3_path: Path, meta: dict, verbose: bool) -> None:
+def write_id3(mp3_path: Path, meta: dict, verbose: bool, prefix: str = '') -> None:
     """Write ID3v2.3 tags to the output MP3 via mutagen."""
-    log("  Writing ID3 tags ...", verbose)
+    log("Writing ID3 tags ...", verbose, prefix)
     try:
         try:
             tags = ID3(str(mp3_path))
@@ -105,27 +110,29 @@ def write_id3(mp3_path: Path, meta: dict, verbose: bool) -> None:
         for key, (frame_id, maker) in mapping.items():
             if key in meta:
                 tags[frame_id] = maker(meta[key])
-                log(f"    {frame_id}: {meta[key]}", verbose)
+                log(f"  {frame_id}: {meta[key]}", verbose, prefix)
 
         tags.save(str(mp3_path), v2_version=3)
-        log("  ID3 tags written.", verbose)
+        log("ID3 tags written.", verbose, prefix)
     except Exception as exc:
-        log(f"  Warning: could not write ID3 tags: {exc}", verbose)
+        log(f"Warning: could not write ID3 tags: {exc}", verbose, prefix)
 
 
 def convert_file(source: Path, output_dir: Path, verbose: bool) -> bool:
     """Convert one file to MP3. Returns True on success."""
-    meta        = read_metadata(source, verbose)
-    stem        = output_stem(source, meta)
-    output_path = unique_path(output_dir, stem)
+    prefix = source.name
 
-    log(f"  Output: {output_path.name}", verbose)
-    log("  Running ffmpeg (libmp3lame VBR V0, ~245 kbps avg) ...", verbose)
+    meta = read_metadata(source, verbose, prefix)
+    stem = output_stem(source, meta)
 
-    # -q:a 0 = LAME VBR quality 0 (highest, ~245 kbps avg)
-    # -map_metadata 0 = copy all source metadata streams
-    # -id3v2_version 3 = write ID3v2.3 (widest compatibility)
-    # -loglevel: warning in normal mode, info in verbose
+    # Allocate output path under a lock to avoid races in parallel mode
+    with _path_lock:
+        output_path = unique_path(output_dir, stem)
+        output_path.touch()  # reserve the slot immediately
+
+    log(f"Output: {output_path.name}", verbose, prefix)
+    log("Running ffmpeg (libmp3lame VBR V0, ~245 kbps avg) ...", verbose, prefix)
+
     loglevel = 'info' if verbose else 'warning'
     cmd = [
         'ffmpeg',
@@ -139,20 +146,20 @@ def convert_file(source: Path, output_dir: Path, verbose: bool) -> bool:
         '-y',
         str(output_path),
     ]
-    log(f"  Command: {' '.join(cmd)}", verbose)
+    log(f"Command: {' '.join(cmd)}", verbose, prefix)
 
     result = subprocess.run(cmd, text=True, capture_output=not verbose)
 
     if result.returncode != 0:
-        print(f"  ERROR: ffmpeg failed (exit {result.returncode})")
+        output_path.unlink(missing_ok=True)  # release reserved slot
+        print(f"ERROR [{prefix}]: ffmpeg failed (exit {result.returncode})")
         if not verbose and result.stderr:
             print(result.stderr.strip())
         return False
 
-    # Second pass: guarantee ID3 tags are present and correctly typed
-    write_id3(output_path, meta, verbose)
+    write_id3(output_path, meta, verbose, prefix)
 
-    print(f"  -> {output_path.name}")
+    print(f"  done  {output_path.name}")
     return True
 
 
@@ -166,8 +173,14 @@ def main() -> None:
     parser.add_argument('--output', '-o',
                         help='Output directory (default: <cwd>/output/)')
     parser.add_argument('--verbose', '-v', action='store_true',
-                        help='Show detailed step-by-step progress')
+                        help='Show detailed step-by-step progress (output may interleave in parallel mode)')
+    parser.add_argument('--parallel', '-p', type=int, default=os.cpu_count(),
+                        metavar='N',
+                        help=f'Number of parallel conversions (default: {os.cpu_count()}, set 1 for sequential)')
     args = parser.parse_args()
+
+    if args.parallel < 1:
+        parser.error('--parallel must be at least 1')
 
     input_dir = Path(args.input).expanduser().resolve()
     if not input_dir.is_dir():
@@ -178,8 +191,11 @@ def main() -> None:
                  else Path.cwd() / 'output'
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Input  : {input_dir}")
-    print(f"Output : {output_dir}")
+    workers = min(args.parallel, os.cpu_count() or 1)
+
+    print(f"Input    : {input_dir}")
+    print(f"Output   : {output_dir}")
+    print(f"Workers  : {workers}")
 
     files = sorted(
         f for f in input_dir.iterdir()
@@ -190,15 +206,25 @@ def main() -> None:
         print(f"No supported files ({', '.join(SUPPORTED_EXTENSIONS)}) found in {input_dir}")
         sys.exit(0)
 
-    print(f"Found  : {len(files)} file(s)\n")
+    print(f"Found    : {len(files)} file(s)\n")
 
     success = failed = 0
-    for idx, source in enumerate(files, 1):
-        print(f"[{idx}/{len(files)}] {source.name}")
-        if convert_file(source, output_dir, args.verbose):
-            success += 1
-        else:
-            failed += 1
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = {
+            pool.submit(convert_file, source, output_dir, args.verbose): source
+            for source in files
+        }
+        for future in as_completed(futures):
+            source = futures[future]
+            try:
+                ok = future.result()
+            except Exception as exc:
+                print(f"ERROR [{source.name}]: {exc}")
+                ok = False
+            if ok:
+                success += 1
+            else:
+                failed += 1
 
     print(f"\n{'─' * 50}")
     print(f"Converted : {success}   Failed : {failed}")
