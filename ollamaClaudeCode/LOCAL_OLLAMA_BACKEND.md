@@ -124,7 +124,7 @@ Not usable for interactive sessions until a larger VRAM GPU is available.
 Add to `~/.zshrc`:
 
 ```shell
-alias claude-ol-local='ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model qwen2.5-coder:7b'
+alias claude-ol-local='ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model qwen2.5-coder:7b-ctx32k'
 ```
 
 Reload:
@@ -144,7 +144,7 @@ You now have three commands:
 ## Usage
 
 ```shell
-# Start a session (qwen2.5-coder:7b is the default)
+# Start a session — uses qwen2.5-coder:7b-ctx32k (32k context, coding-tuned)
 claude-ol-local
 
 # Non-interactive / headless
@@ -154,7 +154,7 @@ claude-ol-local -p "explain this function"
 claude-ol-local --model deepseek-coder:1.3b
 
 # Inline without alias
-ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model qwen2.5-coder:7b
+ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model qwen2.5-coder:7b-ctx32k
 ```
 
 ## Verify local server
@@ -172,17 +172,44 @@ for m in json.load(sys.stdin)["models"]:
     print(f"{m[\"name\"]:30s}  {vram}/{total} GB in VRAM")'
 ```
 
-## Context length note
+## Context window — why it matters
 
-These models use their default context windows (typically 8k–32k). Claude Code
-recommends ≥64k but works fine for most tasks at smaller context. If you hit
-limits, create a custom model on the server:
+Ollama defaults `qwen2.5-coder:7b` to **4096 tokens**. Claude Code's own system
+prompt (tool definitions, instructions, permissions) is ~2–3k tokens. At 4096 total,
+almost no room remains for actual conversation — the model can't see its full
+role and starts outputting raw JSON tool calls as plain text instead of executing
+them properly.
+
+The `qwen2.5-coder:7b-ctx32k` custom model raises this to 32k, which is enough
+for the full system prompt plus a meaningful working session.
+
+How it was created:
 
 ```shell
-# Example: boost qwen3.5:4b to 32k context
-cat > /tmp/Modelfile <<'EOF'
-FROM qwen3.5:4b
+cat > /tmp/Modelfile-coder7b <<'EOF'
+FROM qwen2.5-coder:7b
 PARAMETER num_ctx 32768
 EOF
-ollama create qwen3.5:4b-ctx32k -f /tmp/Modelfile
+ollama create qwen2.5-coder:7b-ctx32k -f /tmp/Modelfile-coder7b
 ```
+
+## Known limitations
+
+### qwen3.5:4b — thinking mode breaks Claude Code
+
+`qwen3.5:4b` silently consumes all output tokens on internal reasoning
+(`<think>` blocks) before writing any visible response. Through the
+Anthropic-compatible API there is no way to pass `think: false` at the
+protocol level — so the model generates nothing useful. It is not suitable
+as a Claude Code backend until Ollama exposes a Modelfile parameter to
+disable thinking.
+
+### Tool use format
+
+Open-source models are not trained on Anthropic's exact tool use protocol.
+With a small context window (4096) the full tool definitions don't fit and
+the model outputs raw JSON strings instead of structured API responses. The
+32k context model (`qwen2.5-coder:7b-ctx32k`) resolves the context issue.
+Remaining misbehaviour is a model-level limitation; models specifically
+validated for Claude Code (e.g. `qwen3.5` from Ollama's recommended list)
+may handle this better once the thinking-mode issue is resolved.
