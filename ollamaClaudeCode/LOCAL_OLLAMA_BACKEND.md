@@ -13,6 +13,34 @@ no network dependency.
 
 ---
 
+## Benchmark — run 4 (2026-05-28, +qwen2.5-coder:7b)
+
+Ollama 0.24.0 — 5 models. New: `qwen2.5-coder:7b` (Alibaba coding model,
+Q4_K_M, 4.7 GB on disk).
+
+| Rank | Model | Time | Speed | VRAM | Load | Notes |
+|---|---|---|---|---|---|---|
+| 1 | `deepseek-coder:1.3b` | 7.4s | 104.3 tok/s | 4.92 GB fully | 4366ms | Fastest, basic output |
+| 2 | **`qwen2.5-coder:7b`** | **11.9s** | **29.7 tok/s** | **4.92 GB fully** | **1447ms** | **New best: speed + quality** |
+| 3 | `qwen3.5:4b` | 16.9s | 22.1 tok/s | fully | 2981ms | Good general model |
+| 4 | `mrthp/omnicoder2:latest` | 17.6s | 18.7 tok/s | 6.95 / 8.37 GB | 133ms | Verbose, split VRAM |
+| 5 | `qwen3.6:27b-q4_K_M` | 121s | 2.8 tok/s | 7.6 / 23.7 GB | 11788ms | Too slow, VRAM overflow |
+
+### qwen2.5-coder:7b evaluation
+
+- **Speed:** 29.7 tok/s — faster than `qwen3.5:4b` (22.1) despite having more parameters
+- **VRAM:** 4.92 / 4.92 GB — fully in VRAM with ~3 GB headroom remaining
+- **Load time:** 1447ms
+- **Output style:** direct — opened immediately with a code block, no prose preamble
+- **Output quality:** correct sieve implementation, proper `List[int]` type hint,
+  clean docstring, efficient loop structure, and included a self-test function
+
+**Verdict: new primary recommendation.** Best quality-per-second of all tested
+models. Coding-specific architecture, fully in VRAM, faster and better output
+than `qwen3.5:4b`.
+
+---
+
 ## Benchmark — run 3 (2026-05-28, +omnicoder2)
 
 Ollama 0.24.0 — 4 models. New: `mrthp/omnicoder2:latest` (9B Qwen3.5-based
@@ -29,16 +57,11 @@ coding model, Q4_K_M, 5.7 GB).
 
 - **Speed:** 18.7 tok/s — similar to `qwen3.5:4b`, slightly slower despite being 9B
 - **VRAM:** 6.95 / 8.37 GB — mostly GPU-bound, minimal spillover (~1.4 GB to CPU RAM)
-- **Load time:** 133ms — fastest of all models (already warm or very fast to load)
-- **Output style:** verbose — used all 300 tokens writing a prose explanation of
-  the algorithm before reaching any code. For an interactive Claude Code session
-  where the model needs to respond to structured tool calls concisely, this is a
-  drawback. `qwen3.5:4b` jumped directly to a code block.
+- **Load time:** 133ms
+- **Output style:** verbose — used all 300 tokens writing a prose explanation
+  before reaching any code. Drawback for Claude Code tool-call loops.
 
-**Verdict:** omnicoder2 is not an improvement over `qwen3.5:4b` for Claude Code
-use. Same speed tier, more parameters, but a wordier output style that wastes
-context on explanations. Worth re-evaluating if the system prompt can be tuned to
-suppress verbose responses.
+**Verdict:** not recommended over `qwen3.5:4b`.
 
 ---
 
@@ -81,20 +104,18 @@ Ollama 0.23.2 — 11 models, all completed fully on GPU.
 
 ## Recommended models for coding (current)
 
-**Primary: `qwen3.5:4b`** — fully fits in VRAM, 22 tok/s, outputs code directly
-without preamble. ~17s per 300-token response.
+**Primary: `qwen2.5-coder:7b`** — best overall. Fully in VRAM (4.92 GB), 29.7 tok/s,
+~12s per 300-token response. Coding-specific architecture produces clean, correct
+code with proper type hints — no prose preamble wasting context.
 
-**Fast alternative: `deepseek-coder:1.3b`** — purpose-built for code, 104 tok/s,
-sub-8s responses. Use for quick iteration, simple completions, or when you want
-near-instant turnaround.
+**Fast fallback: `deepseek-coder:1.3b`** — 104 tok/s, sub-8s. Use when you need
+near-instant turnaround for simple completions or quick edits.
 
-**`mrthp/omnicoder2`** — same speed tier as `qwen3.5:4b` but spends tokens on
-prose explanations before writing code. Not recommended over `qwen3.5:4b` for
-Claude Code use under current conditions.
+**`qwen3.5:4b`** — solid general model, slower than `qwen2.5-coder:7b` at 22 tok/s.
+Useful if a task is not purely code-focused.
 
-**Avoid: `qwen3.6:27b-q4_K_M`** — exceeds VRAM. Runs split GPU+CPU at 2.8 tok/s
-(~2 min per response). Not usable for interactive sessions until a larger VRAM
-GPU is available.
+**Avoid: `qwen3.6:27b-q4_K_M`** — exceeds VRAM. Runs split GPU+CPU at 2.8 tok/s.
+Not usable for interactive sessions until a larger VRAM GPU is available.
 
 ---
 
@@ -123,17 +144,17 @@ You now have three commands:
 ## Usage
 
 ```shell
-# Best quality (recommended)
-claude-ol-local --model qwen3.5:4b
+# Best quality — recommended primary
+claude-ol-local --model qwen2.5-coder:7b
 
-# Fastest for coding
+# Fastest for simple tasks
 claude-ol-local --model deepseek-coder:1.3b
 
 # Non-interactive / headless
-claude-ol-local --model qwen3.5:4b -p "explain this function"
+claude-ol-local --model qwen2.5-coder:7b -p "explain this function"
 
 # Inline without alias
-ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model qwen3.5:4b
+ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model qwen2.5-coder:7b
 ```
 
 ## Verify local server
