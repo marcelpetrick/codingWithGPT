@@ -124,7 +124,7 @@ Not usable for interactive sessions until a larger VRAM GPU is available.
 Add to `~/.zshrc`:
 
 ```shell
-alias claude-ol-local='ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude'
+alias claude-ol-local='ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model qwen2.5-coder:7b'
 ```
 
 Reload:
@@ -144,14 +144,14 @@ You now have three commands:
 ## Usage
 
 ```shell
-# Best quality — recommended primary
-claude-ol-local --model qwen2.5-coder:7b
-
-# Fastest for simple tasks
-claude-ol-local --model deepseek-coder:1.3b
+# Start a session (qwen2.5-coder:7b is the default)
+claude-ol-local
 
 # Non-interactive / headless
-claude-ol-local --model qwen2.5-coder:7b -p "explain this function"
+claude-ol-local -p "explain this function"
+
+# Override to the fast model for simple tasks
+claude-ol-local --model deepseek-coder:1.3b
 
 # Inline without alias
 ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model qwen2.5-coder:7b
