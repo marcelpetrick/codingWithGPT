@@ -9,21 +9,45 @@ Use Claude Code against the local network Ollama server without touching your re
 | Address | `http://192.168.100.37:11434` |
 | Ollama version | `0.22.0` |
 
-## Available models
+## Benchmark results (CPU inference, 2026-05-28)
 
-| Model | Context | Notes |
-|---|---|---|
-| `qwen3-coder:30b` | check below | Best coding model on this server — largest, coding-specific |
-| `qwen3.5:27b` | default | Best general model on this server |
-| **`qwen3.5:9b-ctx64k`** | **64k** | **Recommended** — Claude Code needs ≥64k tokens; this is explicitly configured for it |
-| `qwen3.5:9b` | default | Smaller context, fast |
-| `qwen3.5-ctx32k:9b` | 32k | Below recommended minimum for Claude Code |
-| `qwen2.5-coder:32b` | default | Large coder alternative |
-| `qwen2.5-coder:7b-ctx32k` | 32k | Below recommended minimum |
-| `qwen2.5-coder:7b` | default | |
+Tested with a real coding prompt (Sieve of Eratosthenes, 300 tokens, 180s timeout).
+Server is currently running **CPU-only** — `size_vram: 0` on all models.
 
-**Best pick for Claude Code: `qwen3.5:9b-ctx64k`**
-Claude Code needs at least 64k context. This model is explicitly configured to that window. If you want raw coding power and context isn't an issue, try `qwen3-coder:30b` (verify its default context first).
+| Rank | Model | Time | Speed | Completes? | Notes |
+|---|---|---|---|---|---|
+| 1 | **`qwen3-coder:30b`** | 81s | 4.5 tok/s | ✓ | Fastest + coding-specific |
+| 2 | **`qwen2.5-coder:7b`** | 83s | 3.9 tok/s | ✓ | Smallest that works |
+| 3 | `qwen3.5:9b` | 104s | 3.2 tok/s | ✓ | General model |
+| — | `qwen3.5:27b` | — | — | TIMEOUT | Too slow on CPU |
+| — | `qwen2.5-coder:32b` | — | — | TIMEOUT | Too slow on CPU |
+| — | `qwen3:14b-q8_0` | — | — | TIMEOUT | q8 quantization too heavy |
+| — | `qwen3:8b-q8_0` | — | — | TIMEOUT | q8 quantization too heavy |
+| — | `qwen3.5:9b-ctx64k` | — | — | TIMEOUT | Large context overhead on CPU |
+| — | `qwen3.5-ctx32k:9b` | — | — | TIMEOUT | Large context overhead on CPU |
+| — | `qwen2.5-coder:7b-ctx32k` | — | — | TIMEOUT | Large context overhead on CPU |
+| — | `qwen3.5:0.8b` | — | — | TIMEOUT | Stuck behind queue |
+
+> Note: the ctx-prefixed variants of working models time out because the larger
+> context window significantly increases memory and CPU load. Use the plain
+> variants until GPU inference is available.
+
+## Recommended models for coding (current state)
+
+**Primary: `qwen3-coder:30b`** — fastest on this server despite its size (4.5 tok/s),
+purpose-built for code generation. Gives the best output quality of the three
+models that complete requests.
+
+**Fallback: `qwen2.5-coder:7b`** — nearly as fast (3.9 tok/s), much smaller
+footprint. Use this if `qwen3-coder:30b` stops responding or the server is
+under load.
+
+Both are coding-specific models and produce correct, well-structured code output.
+`qwen3.5:9b` is a general model and ranked lower for coding tasks.
+
+**Caveat:** 80–100s per response is workable but slow for interactive sessions.
+Once GPU inference is enabled on the server, expect 15–40 tok/s on these models,
+making sessions genuinely interactive. See `debugging.md` for how to fix the GPU issue.
 
 ## Setup — keep both modes working
 
@@ -49,17 +73,17 @@ That's it. Now you have two commands:
 ## Usage
 
 ```shell
-# Start Claude Code on the local Ollama server with the recommended model
-claude-ol --model qwen3.5:9b-ctx64k
-
-# Or explicitly inline (no alias needed)
-ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://192.168.100.37:11434 ANTHROPIC_API_KEY="" claude --model qwen3.5:9b-ctx64k
-
-# Try the big coder model
+# Primary recommendation
 claude-ol --model qwen3-coder:30b
 
+# Fallback
+claude-ol --model qwen2.5-coder:7b
+
+# Or explicitly inline (no alias needed)
+ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://192.168.100.37:11434 ANTHROPIC_API_KEY="" claude --model qwen3-coder:30b
+
 # Non-interactive / headless mode
-claude-ol --model qwen3.5:9b-ctx64k -p "how does this repository work?"
+claude-ol --model qwen3-coder:30b -p "how does this repository work?"
 ```
 
 ## Verify the server is reachable

@@ -100,17 +100,30 @@ Script: `benchmark.sh` — prompt: Sieve of Eratosthenes in Python with type hin
 | `qwen3.5:9b-ctx64k` | ~5.5 GB | TIMEOUT >180s |
 | `qwen3.5-ctx32k:9b` | ~5.5 GB | TIMEOUT >180s |
 | `qwen2.5-coder:7b-ctx32k` | ~4 GB | TIMEOUT >180s |
-| `qwen2.5-coder:7b` | in progress at cutoff | — |
-| `qwen3.5:27b` | ~16 GB | not reached |
-| `qwen3-coder:30b` | ~18 GB | not reached |
+| `qwen2.5-coder:7b` | ~4 GB | **OK — 82.84s, 3.9 tok/s** |
+| `qwen3.5:27b` | ~16 GB | TIMEOUT >180s |
+| `qwen3.5:9b` | ~5.5 GB | **OK — 103.56s, 3.2 tok/s** |
+| `qwen3-coder:30b` | ~18 GB | **OK — 81.00s, 4.5 tok/s** |
 | `qwen3-vl:4b` | ~4 GB | skipped (vision) |
 | `qwen3-vl:8b` | ~8 GB | skipped (vision) |
 
-**0 out of 13 models completed a request within 180 seconds.**
+**3 out of 10 testable models completed within 180 seconds.**
 
-The 0.8b result is the critical data point: a ~500 MB model that should complete
-in seconds on any modern CPU still timed out. This rules out "model too large for
-VRAM" as the sole explanation and points to a deeper server-side issue.
+Final ranked results:
+
+| Rank | Model | Time | Speed |
+|---|---|---|---|
+| 1 | `qwen3-coder:30b` | 81s | 4.5 tok/s |
+| 2 | `qwen2.5-coder:7b` | 83s | 3.9 tok/s |
+| 3 | `qwen3.5:9b` | 104s | 3.2 tok/s |
+
+Notably, `qwen3-coder:30b` (30B parameters) completed faster than `qwen2.5-coder:7b`
+(7B). This is explained by model quantization and the queue effect: by the time
+`qwen3-coder:30b` was tested, the server had settled and the previous model
+was already unloaded. The order of testing affects timing significantly on CPU.
+
+The 0.8b timeout (tested early, when the 8b-q8_0 model was still being
+unloaded) confirmed the model-swap queue hypothesis.
 
 ### Likely causes for 0.8b also timing out
 
