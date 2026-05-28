@@ -8,41 +8,63 @@ no network dependency.
 | | |
 |---|---|
 | Address | `http://localhost:11434` |
-| Ollama version | `0.23.2` |
-| Inference | GPU (size_vram > 0 on all models) |
+| Ollama version | `0.24.0` |
+| Inference | GPU (fully for small models; split GPU/CPU for 27b) |
 
-## Benchmark results (2026-05-28)
+---
 
-Same prompt as network server benchmark: Sieve of Eratosthenes in Python with
-type hints, 300 tokens, 120s timeout. **All 11 models completed on GPU.**
+## Benchmark — run 2 (2026-05-28, current models)
 
-| Rank | Model | Time | Speed | Load time | Notes |
+Ollama 0.24.0 — 3 models available. Same prompt: Sieve of Eratosthenes in
+Python with type hints, 300 tokens.
+
+| Rank | Model | Time | Speed | VRAM used | Load | Notes |
+|---|---|---|---|---|---|---|
+| 1 | **`deepseek-coder:1.3b`** | 7.4s | **104.3 tok/s** | fully in VRAM | 4366ms | Coding-specific, fastest |
+| 2 | **`qwen3.5:4b`** | 16.9s | **22.1 tok/s** | fully in VRAM | 2981ms | Best quality of fast models |
+| 3 | `qwen3.6:27b-q4_K_M` | 121s | 2.8 tok/s | 7.6 / 23.7 GB | 11788ms | Split GPU+CPU — too slow for interactive use |
+
+`qwen3.6:27b` exceeds available VRAM: only 7.6 GB of its 23.7 GB fits on GPU,
+the rest runs from system RAM on CPU. That's why it drops to 2.8 tok/s despite
+being locally present.
+
+---
+
+## Benchmark — run 1 (2026-05-28, earlier model set)
+
+Ollama 0.23.2 — 11 models, all completed fully on GPU.
+
+| Rank | Model | Time | Speed | Load | Notes |
 |---|---|---|---|---|---|
 | 1 | `qwen2.5:0.5b` | 3.9s | 138.2 tok/s | 1490ms | General, very small |
 | 2 | `gemma3:270m` | 3.3s | 137.9 tok/s | 1146ms | Tiny, general |
-| 3 | `deepseek-coder:1.3b` | 2.9s | 104.7 tok/s | **67ms** | Coding-specific, fastest load |
-| 4 | `deepseek-r1:1.5b` | 7.8s | 99.0 tok/s | 4455ms | Reasoning model (thinks before answering) |
+| 3 | `deepseek-coder:1.3b` | 2.9s | 104.7 tok/s | 67ms | Coding-specific |
+| 4 | `deepseek-r1:1.5b` | 7.8s | 99.0 tok/s | 4455ms | Reasoning model |
 | 5 | `llama3.2:1b` | 5.0s | 94.1 tok/s | 1542ms | General |
-| 6 | **`qwen2.5-coder:1.5b`** | 5.9s | **87.8 tok/s** | 2169ms | **Coding-specific, recommended** |
+| 6 | `qwen2.5-coder:1.5b` | 5.9s | 87.8 tok/s | 2169ms | Coding-specific |
 | 7 | `gemma2:2b` | 8.5s | 75.7 tok/s | 4098ms | General |
 | 8 | `gemma3:1b` | 7.1s | 69.2 tok/s | 2507ms | General |
 | 9 | `qwen2.5:1.5b` | 6.3s | 66.5 tok/s | 1505ms | General |
 | 10 | `qwen3.5:0.8b` | 7.4s | 61.8 tok/s | 2365ms | General |
-| 11 | **`qwen3.5:4b`** | 18.6s | **22.1 tok/s** | 4789ms | **Best quality, recommended** |
+| 11 | `qwen3.5:4b` | 18.6s | 22.1 tok/s | 4789ms | Best quality |
 
-## Recommended models for coding
+---
 
-**Primary: `qwen3.5:4b`** — highest parameter count and most recent architecture
-on this machine. Produces the most coherent, complete code. Slower (22 tok/s) but
-still interactive at ~20s per 300-token response.
+## Recommended models for coding (current)
 
-**Fast alternative: `qwen2.5-coder:1.5b`** — purpose-built for coding, nearly 4×
-faster (88 tok/s), sub-6s responses. Use when you want quick turnaround for
-simpler tasks or when iterating fast.
+**Primary: `qwen3.5:4b`** — fully fits in VRAM, 22 tok/s, produces the most
+coherent and complete code of the models that run at interactive speed. ~17s
+per 300-token response.
 
-Avoid for coding: `qwen2.5:0.5b` and `gemma3:270m` are fastest but too small
-to handle complex code reliably. `deepseek-r1:1.5b` uses chain-of-thought
-reasoning (slow effective output for coding loops).
+**Fast alternative: `deepseek-coder:1.3b`** — purpose-built for code, 104 tok/s,
+sub-8s responses. Use for quick iteration, simple completions, or when you want
+near-instant turnaround.
+
+**Avoid: `qwen3.6:27b-q4_K_M`** — model exceeds VRAM capacity. Runs split
+between GPU and CPU, resulting in 2.8 tok/s (~2 min per response). Not usable
+for interactive Claude Code sessions until a larger VRAM GPU is available.
+
+---
 
 ## Setup — claude-ol-local alias
 
@@ -69,11 +91,11 @@ You now have three commands:
 ## Usage
 
 ```shell
-# Best quality
+# Best quality (recommended)
 claude-ol-local --model qwen3.5:4b
 
 # Fastest for coding
-claude-ol-local --model qwen2.5-coder:1.5b
+claude-ol-local --model deepseek-coder:1.3b
 
 # Non-interactive / headless
 claude-ol-local --model qwen3.5:4b -p "explain this function"
@@ -86,11 +108,15 @@ ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_
 
 ```shell
 curl http://localhost:11434/api/version
-# → {"version":"0.23.2"}
+# → {"version":"0.24.0"}
 
-# Check GPU is being used (size_vram should be > 0 when a model is loaded)
+# Check GPU usage — size_vram should equal (or be close to) size for small models
 curl http://localhost:11434/api/ps | python3 -c \
-  'import json,sys; [print(m["name"], "vram:", m["size_vram"]) for m in json.load(sys.stdin)["models"]]'
+  'import json,sys
+for m in json.load(sys.stdin)["models"]:
+    total = round(m["size"]/1e9, 1)
+    vram  = round(m["size_vram"]/1e9, 1)
+    print(f"{m[\"name\"]:30s}  {vram}/{total} GB in VRAM")'
 ```
 
 ## Context length note
@@ -101,7 +127,7 @@ limits, create a custom model on the server:
 
 ```shell
 # Example: boost qwen3.5:4b to 32k context
-cat > /tmp/Modelfile <<EOF
+cat > /tmp/Modelfile <<'EOF'
 FROM qwen3.5:4b
 PARAMETER num_ctx 32768
 EOF
