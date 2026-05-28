@@ -13,7 +13,36 @@ no network dependency.
 
 ---
 
-## Benchmark — run 2 (2026-05-28, current models)
+## Benchmark — run 3 (2026-05-28, +omnicoder2)
+
+Ollama 0.24.0 — 4 models. New: `mrthp/omnicoder2:latest` (9B Qwen3.5-based
+coding model, Q4_K_M, 5.7 GB).
+
+| Rank | Model | Time | Speed | VRAM | Load | Notes |
+|---|---|---|---|---|---|---|
+| 1 | **`deepseek-coder:1.3b`** | 7.4s | **104.3 tok/s** | fully | 4366ms | Coding-specific, fastest |
+| 2 | **`qwen3.5:4b`** | 16.9s | **22.1 tok/s** | fully | 2981ms | Best balance, direct output |
+| 3 | `mrthp/omnicoder2:latest` | 17.6s | 18.7 tok/s | 6.95 / 8.37 GB | 133ms | 9B coding model, verbose style |
+| 4 | `qwen3.6:27b-q4_K_M` | 121s | 2.8 tok/s | 7.6 / 23.7 GB | 11788ms | Too slow — heavy VRAM overflow |
+
+### omnicoder2 evaluation
+
+- **Speed:** 18.7 tok/s — similar to `qwen3.5:4b`, slightly slower despite being 9B
+- **VRAM:** 6.95 / 8.37 GB — mostly GPU-bound, minimal spillover (~1.4 GB to CPU RAM)
+- **Load time:** 133ms — fastest of all models (already warm or very fast to load)
+- **Output style:** verbose — used all 300 tokens writing a prose explanation of
+  the algorithm before reaching any code. For an interactive Claude Code session
+  where the model needs to respond to structured tool calls concisely, this is a
+  drawback. `qwen3.5:4b` jumped directly to a code block.
+
+**Verdict:** omnicoder2 is not an improvement over `qwen3.5:4b` for Claude Code
+use. Same speed tier, more parameters, but a wordier output style that wastes
+context on explanations. Worth re-evaluating if the system prompt can be tuned to
+suppress verbose responses.
+
+---
+
+## Benchmark — run 2 (2026-05-28, 3 models)
 
 Ollama 0.24.0 — 3 models available. Same prompt: Sieve of Eratosthenes in
 Python with type hints, 300 tokens.
@@ -52,17 +81,20 @@ Ollama 0.23.2 — 11 models, all completed fully on GPU.
 
 ## Recommended models for coding (current)
 
-**Primary: `qwen3.5:4b`** — fully fits in VRAM, 22 tok/s, produces the most
-coherent and complete code of the models that run at interactive speed. ~17s
-per 300-token response.
+**Primary: `qwen3.5:4b`** — fully fits in VRAM, 22 tok/s, outputs code directly
+without preamble. ~17s per 300-token response.
 
 **Fast alternative: `deepseek-coder:1.3b`** — purpose-built for code, 104 tok/s,
 sub-8s responses. Use for quick iteration, simple completions, or when you want
 near-instant turnaround.
 
-**Avoid: `qwen3.6:27b-q4_K_M`** — model exceeds VRAM capacity. Runs split
-between GPU and CPU, resulting in 2.8 tok/s (~2 min per response). Not usable
-for interactive Claude Code sessions until a larger VRAM GPU is available.
+**`mrthp/omnicoder2`** — same speed tier as `qwen3.5:4b` but spends tokens on
+prose explanations before writing code. Not recommended over `qwen3.5:4b` for
+Claude Code use under current conditions.
+
+**Avoid: `qwen3.6:27b-q4_K_M`** — exceeds VRAM. Runs split GPU+CPU at 2.8 tok/s
+(~2 min per response). Not usable for interactive sessions until a larger VRAM
+GPU is available.
 
 ---
 
