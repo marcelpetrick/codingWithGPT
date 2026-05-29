@@ -73,6 +73,7 @@ run_cmake() {
     local cmake_args="-DCMAKE_BUILD_TYPE=Release ${options}"
 
     print_step "Configure with CMake ${options:-[default]}"
+    mkdir -p "${BUILD_DIR}"
     cd "${BUILD_DIR}"
     cmake ${cmake_args} .. 2>&1 | grep -v "^-- " | grep -v "^$" || true
     print_success "Configure complete"
@@ -81,6 +82,7 @@ run_cmake() {
 # Build the project
 run_make() {
     print_step "Build with make"
+    mkdir -p "${BUILD_DIR}"
     cd "${BUILD_DIR}"
     make -j"$(nproc)" 2>&1 | grep -v "^$" || true
     print_success "Build complete"
@@ -89,6 +91,7 @@ run_make() {
 # Run the executable
 run_app() {
     print_step "Run application"
+    mkdir -p "${BUILD_DIR}"
     cd "${BUILD_DIR}"
     ./app 2>&1
 }
