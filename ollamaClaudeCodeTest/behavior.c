@@ -26,7 +26,6 @@
 
 #ifdef ENABLE_PERFORMANCE
 #define PERF_ENABLED 1
-#define APP_NAME_PERF "PerformanceDemo"
 #else
 #define PERF_ENABLED 0
 #endif
@@ -127,7 +126,7 @@ static bool sec_validate_input(const char *input, int max_len) {
 int main(int argc, char *argv[]) {
     int result = 0;
 
-    const char *app_name = PERF_ENABLED ? APP_NAME_PERF : APP_NAME;
+    const char *app_name = PERF_ENABLED ? "PerformanceDemo" : APP_NAME;
     LOG("Application started: %s v%s", app_name, VERSION_STRING);
     DEBUG("Debug mode enabled");
     DEBUG("Performance tracking enabled");
