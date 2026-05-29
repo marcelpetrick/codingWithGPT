@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 /*
@@ -54,38 +53,36 @@
 /* Performance tracking (conditionally compiled) */
 #ifdef PERF_ENABLED
 #include <time.h>
+
+/* Perf tracking struct - reused across PERF_START/PERF_END */
 typedef struct {
     clock_t start;
     clock_t end;
     char name[256];
 } perf_t;
 
+static perf_t perf_buffer;
+
 #define PERF_START(name) perf_start(name, __func__)
 #define PERF_END(name) perf_end(name, __func__)
 #define PERF_REPORT() perf_report()
 
 static void perf_start(const char *name, const char *func) {
-    perf_t *p = malloc(sizeof(perf_t));
-    if (p) {
-        p->start = clock();
-        strncpy(p->name, name, 255);
-        p->name[255] = '\0';
-        DEBUG("Performance tracking started: %s (func: %s)", p->name, func);
-    }
+    perf_buffer.start = clock();
+    strncpy(perf_buffer.name, name, 255);
+    perf_buffer.name[255] = '\0';
+    DEBUG("Performance tracking started: %s (func: %s)", perf_buffer.name, func);
 }
 
 static void perf_end(const char *name, const char *func) {
-    perf_t *p = NULL;
-    if (PERF_ENABLED && name) {
-        p = (perf_t*)malloc(sizeof(perf_t));
-        if (p) {
-            p->end = clock();
-            p->name[255] = '\0';
-            printf("[PERF] %s: %fms (func: %s)", p->name,
-                   ((double)(p->end - p->start)) / CLOCKS_PER_SEC * 1000.0,
-                   func);
-            free(p);
-        }
+    perf_t *p = &perf_buffer;
+    if (name) {
+        p->end = clock();
+        strncpy(p->name, name, 255);
+        p->name[255] = '\0';
+        printf("[PERF] %s: %fms (func: %s)", p->name,
+               ((double)(p->end - p->start)) / CLOCKS_PER_SEC * 1000.0,
+               func);
     }
 }
 
@@ -156,7 +153,8 @@ int main(int argc, char *argv[]) {
 
     /* Demo memory operation with bounds checking */
     char buffer[64];
-    strcpy(buffer, test_input);
+    strncpy(buffer, test_input, sizeof(buffer) - 1);
+    buffer[sizeof(buffer) - 1] = '\0';  /* Ensure null termination */
     LOG("Buffer copied successfully");
     DEBUG("Buffer contents: [%s]", buffer);
 

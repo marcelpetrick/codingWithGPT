@@ -47,37 +47,11 @@ elseif(FLAVOR_DEBUG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DFLAVOR_DEBUG=1")
 endif()
 
-# Apply individual feature flags
-if(ENABLE_DEBUG)
-    add_definitions(-DDEBUG_BUILD)
-    set(ENABLE_LOGGING ON)
-endif()
-
-if(ENABLE_LOGGING)
-    add_definitions(-DENABLE_LOGGING)
-endif()
-
-if(ENABLE_PERFORMANCE)
-    add_definitions(-DENABLE_PERFORMANCE)
-endif()
-
-if(ENABLE_SECURITY)
-    add_definitions(-DENABLE_SECURITY)
-endif()
-
-# Sanitizers (if enabled)
-if(ENABLE_SANITIZERS)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address,undefined -fno-omit-frame-pointer")
-endif()
-
-# Include directories
-include_directories(${CMAKE_SOURCE_DIR}/include)
+# Note: CMake options are automatically converted to -D<NAME> defines
+# No need for explicit add_definitions() - they happen implicitly
 
 # Executable
 add_executable(behavior behavior.c)
-
-# Link libraries (none required for this demo)
-# target_link_libraries(behavior PRIVATE ...)
 
 # Set executable properties
 set_target_properties(behavior PROPERTIES

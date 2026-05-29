@@ -182,10 +182,6 @@ A: By default, it's at `build/bin/behavior`. You can change this in CMake.
 ### Q: What does `cmake ..` mean?
 A: It runs CMake in the parent directory to find `CMakeLists.txt`.
 
-### Q: Can I build with Visual Studio?
-A: Yes! On Windows, use the GUI: "Generate Visual Studio project files" then open
-the `.sln` file in Visual Studio.
-
 ## Troubleshooting
 
 ### "CMake Error: CMAKE_C_COMPILER not set"
