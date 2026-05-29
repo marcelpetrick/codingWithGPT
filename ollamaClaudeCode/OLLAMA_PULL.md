@@ -49,13 +49,14 @@ server via `OLLAMA_HOST`. Write the Modelfile to disk first.
 
 ## Status (2026-05-29)
 
-| Model | Pulled | ctx32k created | Inference tested | Tool use tested |
-|---|---|---|---|---|
-| `mistral-nemo:12b` | ✓ | ✓ | pending | pending |
-| `codestral:22b` | ✓ | ✓ | pending | pending |
+| Model | Pulled | Variant created | Speed | VRAM | Tool use |
+|---|---|---|---|---|---|
+| `mistral-nemo:12b` | ✓ | `ctx20k` ✓ | 46.5 tok/s | 11.47 GB fully GPU | **✓ works** |
+| `codestral:22b` | ✓ | `ctx32k` ✓ | 10.1 tok/s | always split | **✗ broken** |
 
-Both models pulled successfully. Inference testing blocked by a server-side
-keepalive issue — see "Model-swap lockout" below.
+`mistral-nemo:12b-ctx20k` is confirmed working with Claude Code. `codestral:22b`
+fails tool-use (stop_reason=None, empty response) and is permanently split-VRAM
+on a 12 GB GPU — not recommended.
 
 ## Model-swap lockout — known server issue
 
@@ -155,6 +156,7 @@ Anthropic's tool-use protocol (same failure mode as `qwen2.5-coder`).
 |---|---|---|
 | `qwen3.5:9b-ctx64k` | ✓ | yes |
 | `qwen3.5:4b-ctx32k` | ✓ | yes |
-| `qwen2.5-coder:7b-ctx32k` | ✗ | yes — broken |
-| `mistral-nemo:12b` | likely ✓ | pending |
-| `codestral:22b` | uncertain | pending |
+| `mistral-nemo:12b` | ✓ | yes |
+| `mistral-nemo:12b-ctx20k` | ✓ | yes |
+| `qwen2.5-coder:7b-ctx32k` | ✗ | yes — broken (raw JSON text) |
+| `codestral:22b` | ✗ | yes — broken (stop_reason=None) |
