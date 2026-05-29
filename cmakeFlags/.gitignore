@@ -1,0 +1,27 @@
+# CMake build directories (any name pattern)
+build*/
+cmake-build-*/
+out/
+
+# CMake internal files if accidentally generated in-source
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+install_manifest.txt
+CTestTestfile.cmake
+_deps/
+
+# Compiled output
+*.o
+*.a
+*.so
+*.so.*
+*.dylib
+chimera
+
+# Ninja
+.ninja_deps
+.ninja_log
+build.ninja
+rules.ninja
