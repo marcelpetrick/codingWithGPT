@@ -34,6 +34,34 @@ compatibility cannot — it is a training-level property of the model.
 
 ---
 
+## Benchmark — run 3 (2026-05-29, +mistral-nemo + codestral)
+
+Ollama 0.24.0 — 20 models (added `mistral-nemo:12b`, `codestral:22b` and their
+ctx32k variants). Only 1 model completed — all others chained-timeout.
+
+**Root cause:** the 4 new models (codestral:22b-ctx32k, mistral-nemo:12b-ctx32k,
+codestral:22b, mistral-nemo:12b) each triggered a model-swap from the previously
+loaded `qwen3.5:9b-ctx64k`. Each swap took >180s (cold load from disk into VRAM),
+each timeout left Ollama mid-swap, and every subsequent model queued behind the
+stuck swap. Once the queue cleared, `qwen3.5:9b-ctx64k` — already resident in
+VRAM — completed at 45.6 tok/s. Everything after it joined a new queue backlog.
+
+| Model | Result | Notes |
+|---|---|---|
+| `codestral:22b-ctx32k` | TIMEOUT | First load, cold disk read, triggered model swap |
+| `mistral-nemo:12b-ctx32k` | TIMEOUT | Queued behind stuck swap |
+| `codestral:22b` | TIMEOUT | Same queue |
+| `mistral-nemo:12b` | TIMEOUT | Same queue |
+| `qwen3.5:9b-ctx64k` | **OK — 45.6 tok/s** | Already in VRAM — no swap needed |
+| all others | TIMEOUT | Queued after qwen3.5 exhausted its slot |
+
+After the run, `qwen3.5:9b-ctx64k` remained locked in VRAM (11.48 GB) with
+`keep_alive` not expiring. Subsequent isolated tests of mistral-nemo and
+codestral timed out at 240s. Server requires Ollama service restart to recover.
+See `OLLAMA_PULL.md` for recovery procedure and retest instructions.
+
+---
+
 ## Benchmark — run 2 (2026-05-29, GPU enabled)
 
 Ollama 0.24.0 — GPU now active. 16 models, 3 skipped (vision/embedding).
