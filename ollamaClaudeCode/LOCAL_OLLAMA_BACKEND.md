@@ -13,109 +13,95 @@ no network dependency.
 
 ---
 
+## Tool-use compatibility — critical
+
+Not all models work with Claude Code. Claude Code relies on structured `tool_use`
+API response blocks. Two model families behave differently:
+
+| Model family | Tool use | Notes |
+|---|---|---|
+| `qwen2.5-coder` | **broken** | Outputs raw JSON text instead of `tool_use` blocks |
+| `qwen3.5` | **works** | Returns proper `tool_use` blocks via Ollama's Anthropic API |
+
+Verified by direct `/v1/messages` API test:
+
+```shell
+# qwen2.5-coder:7b-ctx32k → stop_reason: end_turn, text: raw JSON  ✗
+# qwen3.5:4b              → stop_reason: tool_use, TOOL_USE block   ✓
+```
+
+**Use only `qwen3.5` models.** Tool-use compatibility is a training-level property —
+it cannot be fixed by changing context windows or quantization.
+
+---
+
 ## Benchmark — run 4 (2026-05-28, +qwen2.5-coder:7b)
 
-Ollama 0.24.0 — 5 models. New: `qwen2.5-coder:7b` (Alibaba coding model,
-Q4_K_M, 4.7 GB on disk).
+Ollama 0.24.0 — 5 models. Speed reference only — tool-use compatibility was
+not yet verified at this point.
 
 | Rank | Model | Time | Speed | VRAM | Load | Notes |
 |---|---|---|---|---|---|---|
-| 1 | `deepseek-coder:1.3b` | 7.4s | 104.3 tok/s | 4.92 GB fully | 4366ms | Fastest, basic output |
-| 2 | **`qwen2.5-coder:7b`** | **11.9s** | **29.7 tok/s** | **4.92 GB fully** | **1447ms** | **New best: speed + quality** |
-| 3 | `qwen3.5:4b` | 16.9s | 22.1 tok/s | fully | 2981ms | Good general model |
-| 4 | `mrthp/omnicoder2:latest` | 17.6s | 18.7 tok/s | 6.95 / 8.37 GB | 133ms | Verbose, split VRAM |
+| 1 | `deepseek-coder:1.3b` | 7.4s | 104.3 tok/s | 4.92 GB fully | 4366ms | Fast but tool use untested |
+| 2 | `qwen2.5-coder:7b` | 11.9s | 29.7 tok/s | 4.92 GB fully | 1447ms | Tool use broken (see above) |
+| 3 | `qwen3.5:4b` | 16.9s | 22.1 tok/s | fully | 2981ms | Tool use works ✓ |
+| 4 | `mrthp/omnicoder2:latest` | 17.6s | 18.7 tok/s | 6.95 / 8.37 GB | 133ms | Tool use untested |
 | 5 | `qwen3.6:27b-q4_K_M` | 121s | 2.8 tok/s | 7.6 / 23.7 GB | 11788ms | Too slow, VRAM overflow |
-
-### qwen2.5-coder:7b evaluation
-
-- **Speed:** 29.7 tok/s — faster than `qwen3.5:4b` (22.1) despite having more parameters
-- **VRAM:** 4.92 / 4.92 GB — fully in VRAM with ~3 GB headroom remaining
-- **Load time:** 1447ms
-- **Output style:** direct — opened immediately with a code block, no prose preamble
-- **Output quality:** correct sieve implementation, proper `List[int]` type hint,
-  clean docstring, efficient loop structure, and included a self-test function
-
-**Verdict: new primary recommendation.** Best quality-per-second of all tested
-models. Coding-specific architecture, fully in VRAM, faster and better output
-than `qwen3.5:4b`.
 
 ---
 
 ## Benchmark — run 3 (2026-05-28, +omnicoder2)
 
-Ollama 0.24.0 — 4 models. New: `mrthp/omnicoder2:latest` (9B Qwen3.5-based
-coding model, Q4_K_M, 5.7 GB).
-
 | Rank | Model | Time | Speed | VRAM | Load | Notes |
 |---|---|---|---|---|---|---|
-| 1 | **`deepseek-coder:1.3b`** | 7.4s | **104.3 tok/s** | fully | 4366ms | Coding-specific, fastest |
-| 2 | **`qwen3.5:4b`** | 16.9s | **22.1 tok/s** | fully | 2981ms | Best balance, direct output |
-| 3 | `mrthp/omnicoder2:latest` | 17.6s | 18.7 tok/s | 6.95 / 8.37 GB | 133ms | 9B coding model, verbose style |
-| 4 | `qwen3.6:27b-q4_K_M` | 121s | 2.8 tok/s | 7.6 / 23.7 GB | 11788ms | Too slow — heavy VRAM overflow |
-
-### omnicoder2 evaluation
-
-- **Speed:** 18.7 tok/s — similar to `qwen3.5:4b`, slightly slower despite being 9B
-- **VRAM:** 6.95 / 8.37 GB — mostly GPU-bound, minimal spillover (~1.4 GB to CPU RAM)
-- **Load time:** 133ms
-- **Output style:** verbose — used all 300 tokens writing a prose explanation
-  before reaching any code. Drawback for Claude Code tool-call loops.
-
-**Verdict:** not recommended over `qwen3.5:4b`.
+| 1 | `deepseek-coder:1.3b` | 7.4s | 104.3 tok/s | fully | 4366ms | |
+| 2 | `qwen3.5:4b` | 16.9s | 22.1 tok/s | fully | 2981ms | |
+| 3 | `mrthp/omnicoder2:latest` | 17.6s | 18.7 tok/s | 6.95 / 8.37 GB | 133ms | Verbose style |
+| 4 | `qwen3.6:27b-q4_K_M` | 121s | 2.8 tok/s | 7.6 / 23.7 GB | 11788ms | Too slow |
 
 ---
 
 ## Benchmark — run 2 (2026-05-28, 3 models)
 
-Ollama 0.24.0 — 3 models available. Same prompt: Sieve of Eratosthenes in
-Python with type hints, 300 tokens.
-
-| Rank | Model | Time | Speed | VRAM used | Load | Notes |
-|---|---|---|---|---|---|---|
-| 1 | **`deepseek-coder:1.3b`** | 7.4s | **104.3 tok/s** | fully in VRAM | 4366ms | Coding-specific, fastest |
-| 2 | **`qwen3.5:4b`** | 16.9s | **22.1 tok/s** | fully in VRAM | 2981ms | Best quality of fast models |
-| 3 | `qwen3.6:27b-q4_K_M` | 121s | 2.8 tok/s | 7.6 / 23.7 GB | 11788ms | Split GPU+CPU — too slow for interactive use |
-
-`qwen3.6:27b` exceeds available VRAM: only 7.6 GB of its 23.7 GB fits on GPU,
-the rest runs from system RAM on CPU. That's why it drops to 2.8 tok/s despite
-being locally present.
+| Rank | Model | Time | Speed | VRAM | Load |
+|---|---|---|---|---|---|
+| 1 | `deepseek-coder:1.3b` | 7.4s | 104.3 tok/s | fully | 4366ms |
+| 2 | `qwen3.5:4b` | 16.9s | 22.1 tok/s | fully | 2981ms |
+| 3 | `qwen3.6:27b-q4_K_M` | 121s | 2.8 tok/s | 7.6 / 23.7 GB | 11788ms |
 
 ---
 
-## Benchmark — run 1 (2026-05-28, earlier model set)
+## Benchmark — run 1 (2026-05-28, earlier model set, Ollama 0.23.2)
 
-Ollama 0.23.2 — 11 models, all completed fully on GPU.
+11 models, all fully on GPU.
 
-| Rank | Model | Time | Speed | Load | Notes |
-|---|---|---|---|---|---|
-| 1 | `qwen2.5:0.5b` | 3.9s | 138.2 tok/s | 1490ms | General, very small |
-| 2 | `gemma3:270m` | 3.3s | 137.9 tok/s | 1146ms | Tiny, general |
-| 3 | `deepseek-coder:1.3b` | 2.9s | 104.7 tok/s | 67ms | Coding-specific |
-| 4 | `deepseek-r1:1.5b` | 7.8s | 99.0 tok/s | 4455ms | Reasoning model |
-| 5 | `llama3.2:1b` | 5.0s | 94.1 tok/s | 1542ms | General |
-| 6 | `qwen2.5-coder:1.5b` | 5.9s | 87.8 tok/s | 2169ms | Coding-specific |
-| 7 | `gemma2:2b` | 8.5s | 75.7 tok/s | 4098ms | General |
-| 8 | `gemma3:1b` | 7.1s | 69.2 tok/s | 2507ms | General |
-| 9 | `qwen2.5:1.5b` | 6.3s | 66.5 tok/s | 1505ms | General |
-| 10 | `qwen3.5:0.8b` | 7.4s | 61.8 tok/s | 2365ms | General |
-| 11 | `qwen3.5:4b` | 18.6s | 22.1 tok/s | 4789ms | Best quality |
+| Rank | Model | Time | Speed | Load |
+|---|---|---|---|---|
+| 1 | `qwen2.5:0.5b` | 3.9s | 138.2 tok/s | 1490ms |
+| 2 | `gemma3:270m` | 3.3s | 137.9 tok/s | 1146ms |
+| 3 | `deepseek-coder:1.3b` | 2.9s | 104.7 tok/s | 67ms |
+| 4 | `deepseek-r1:1.5b` | 7.8s | 99.0 tok/s | 4455ms |
+| 5 | `llama3.2:1b` | 5.0s | 94.1 tok/s | 1542ms |
+| 6 | `qwen2.5-coder:1.5b` | 5.9s | 87.8 tok/s | 2169ms |
+| 7 | `gemma2:2b` | 8.5s | 75.7 tok/s | 4098ms |
+| 8 | `gemma3:1b` | 7.1s | 69.2 tok/s | 2507ms |
+| 9 | `qwen2.5:1.5b` | 6.3s | 66.5 tok/s | 1505ms |
+| 10 | `qwen3.5:0.8b` | 7.4s | 61.8 tok/s | 2365ms |
+| 11 | `qwen3.5:4b` | 18.6s | 22.1 tok/s | 4789ms |
 
 ---
 
 ## Recommended models for coding (current)
 
-**Primary: `qwen2.5-coder:7b`** — best overall. Fully in VRAM (4.92 GB), 29.7 tok/s,
-~12s per 300-token response. Coding-specific architecture produces clean, correct
-code with proper type hints — no prose preamble wasting context.
+**Primary: `qwen3.5:4b-ctx32k`** — verified tool-use support, fully in VRAM (~3.5 GB),
+22 tok/s. 32k context baked in via custom Modelfile. Best choice for interactive
+Claude Code sessions on this machine.
 
-**Fast fallback: `deepseek-coder:1.3b`** — 104 tok/s, sub-8s. Use when you need
-near-instant turnaround for simple completions or quick edits.
+**Fast fallback: `deepseek-coder:1.3b`** — 104 tok/s but tool-use compatibility
+not verified. Use only if you need raw text completions or quick non-tool tasks.
 
-**`qwen3.5:4b`** — solid general model, slower than `qwen2.5-coder:7b` at 22 tok/s.
-Useful if a task is not purely code-focused.
-
-**Avoid: `qwen3.6:27b-q4_K_M`** — exceeds VRAM. Runs split GPU+CPU at 2.8 tok/s.
-Not usable for interactive sessions until a larger VRAM GPU is available.
+**Avoid: `qwen2.5-coder:7b-ctx32k`** — fast but tool use is broken. The model
+outputs tool calls as raw JSON text rather than structured API response blocks.
 
 ---
 
@@ -124,7 +110,7 @@ Not usable for interactive sessions until a larger VRAM GPU is available.
 Add to `~/.zshrc`:
 
 ```shell
-alias claude-ol-local='ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model qwen2.5-coder:7b-ctx32k'
+alias claude-ol-local='ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model qwen3.5:4b-ctx32k'
 ```
 
 Reload:
@@ -138,23 +124,20 @@ You now have three commands:
 | Command | Backend | Use when |
 |---|---|---|
 | `claude` | Anthropic API | Full capability, internet required |
-| `claude-ol` | Network Ollama (192.168.100.37) | Network server (currently CPU-only, slow) |
-| `claude-ol-local` | Local Ollama (localhost) | Local GPU, fast, offline |
+| `claude-ol` | Network Ollama (192.168.100.37) | Network server, 9b model |
+| `claude-ol-local` | Local Ollama (localhost) | Local GPU, offline |
 
 ## Usage
 
 ```shell
-# Start a session — uses qwen2.5-coder:7b-ctx32k (32k context, coding-tuned)
+# Start a session — uses qwen3.5:4b-ctx32k
 claude-ol-local
 
-# Non-interactive / headless
+# Headless
 claude-ol-local -p "explain this function"
 
-# Override to the fast model for simple tasks
-claude-ol-local --model deepseek-coder:1.3b
-
 # Inline without alias
-ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model qwen2.5-coder:7b-ctx32k
+ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_API_KEY="" claude --model qwen3.5:4b-ctx32k
 ```
 
 ## Verify local server
@@ -163,7 +146,7 @@ ANTHROPIC_AUTH_TOKEN=ollama ANTHROPIC_BASE_URL=http://localhost:11434 ANTHROPIC_
 curl http://localhost:11434/api/version
 # → {"version":"0.24.0"}
 
-# Check GPU usage — size_vram should equal (or be close to) size for small models
+# Check GPU usage
 curl http://localhost:11434/api/ps | python3 -c \
   'import json,sys
 for m in json.load(sys.stdin)["models"]:
@@ -174,42 +157,40 @@ for m in json.load(sys.stdin)["models"]:
 
 ## Context window — why it matters
 
-Ollama defaults `qwen2.5-coder:7b` to **4096 tokens**. Claude Code's own system
-prompt (tool definitions, instructions, permissions) is ~2–3k tokens. At 4096 total,
-almost no room remains for actual conversation — the model can't see its full
-role and starts outputting raw JSON tool calls as plain text instead of executing
-them properly.
+Ollama defaults all models to **4096 tokens**. Claude Code's own system prompt
+(tool definitions, instructions, permissions) is ~2–3k tokens. At 4096 total,
+almost no room remains for actual conversation.
 
-The `qwen2.5-coder:7b-ctx32k` custom model raises this to 32k, which is enough
-for the full system prompt plus a meaningful working session.
+The `qwen3.5:4b-ctx32k` custom model raises this to 32k.
 
 How it was created:
 
 ```shell
-cat > /tmp/Modelfile-coder7b <<'EOF'
-FROM qwen2.5-coder:7b
+cat > /tmp/Modelfile-qwen35-4b <<'EOF'
+FROM qwen3.5:4b
 PARAMETER num_ctx 32768
 EOF
-ollama create qwen2.5-coder:7b-ctx32k -f /tmp/Modelfile-coder7b
+ollama create qwen3.5:4b-ctx32k -f /tmp/Modelfile-qwen35-4b
 ```
 
 ## Known limitations
 
-### qwen3.5:4b — thinking mode breaks Claude Code
+### qwen2.5-coder family — tool use broken
 
-`qwen3.5:4b` silently consumes all output tokens on internal reasoning
-(`<think>` blocks) before writing any visible response. Through the
-Anthropic-compatible API there is no way to pass `think: false` at the
-protocol level — so the model generates nothing useful. It is not suitable
-as a Claude Code backend until Ollama exposes a Modelfile parameter to
-disable thinking.
+`qwen2.5-coder:7b` (and all variants including the ctx32k custom model) outputs
+tool calls as raw JSON text strings instead of structured `tool_use` API blocks.
+This is a training-level limitation — no context window change fixes it. Claude
+Code shows the JSON in the terminal and stalls.
 
-### Tool use format
+### qwen3.5 thinking mode — not a problem via Anthropic API
 
-Open-source models are not trained on Anthropic's exact tool use protocol.
-With a small context window (4096) the full tool definitions don't fit and
-the model outputs raw JSON strings instead of structured API responses. The
-32k context model (`qwen2.5-coder:7b-ctx32k`) resolves the context issue.
-Remaining misbehaviour is a model-level limitation; models specifically
-validated for Claude Code (e.g. `qwen3.5` from Ollama's recommended list)
-may handle this better once the thinking-mode issue is resolved.
+The qwen3.5 series uses internal reasoning (`<think>` blocks). When accessed via
+Ollama's Anthropic-compatible API (`/v1/messages`), thinking tokens appear as a
+separate `thinking` content block and do not interfere with the `tool_use` response.
+This is only a problem when using the raw `/api/generate` endpoint (where thinking
+tokens and visible output share the same token budget).
+
+### qwen3.6:27b-q4_K_M — VRAM overflow + very slow
+
+Exceeds available VRAM. Runs split GPU+CPU at 2.8 tok/s. Not usable for
+interactive sessions until a larger VRAM GPU is available.
