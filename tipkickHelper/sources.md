@@ -16,12 +16,19 @@ Compiled 2026-05-15.
 ## Betting odds and power rankings
 
 - [ESPN — Power rankings, 30 days out](https://www.espn.com/soccer/story/_/id/48677225/fifa-world-cup-power-rankings-spain-brazil-germany-england-argentina)
-- [FOX Sports — 2026 WC odds: France, Spain co-favorites](https://www.foxsports.com/stories/soccer/world-cup-2026-champion-odds)
+- [FOX Sports — 2026 WC champion odds (updated May 29)](https://www.foxsports.com/stories/soccer/world-cup-2026-champion-odds)
 - [VegasInsider — World Cup odds](https://www.vegasinsider.com/soccer/odds/world-cup/)
 - [Yahoo Sports — Odds for all 48 teams](https://sports.yahoo.com/soccer/betting/article/2026-world-cup-odds-for-all-48-teams-to-win-the-title-200221552.html)
-- [Polymarket — 2026 World Cup winner market](https://polymarket.com/event/2026-fifa-world-cup-winner-595)
-- [CBS Sports — complete betting guide](https://www.cbssports.com/betting/news/world-cup-odds/)
+- [Polymarket — 2026 World Cup winner market](https://polymarket.com/event/world-cup-winner)
+- [CBS Sports — complete betting guide (June 2026)](https://www.cbssports.com/betting/news/world-cup-odds/)
 - [Goal.com — power rankings](https://www.goal.com/en/lists/2026-world-cup-power-rankings/blt047305a4117d1161)
+- [Covers.com — WC odds & win probability (Kalshi, June 1)](https://www.covers.com/world-cup/odds)
+- [ESPN — championship & group odds, all teams](https://www.espn.com/espn/betting/story/_/id/48386952/espn-soccer-futbol-world-cup-betting-odds-championship-groups)
+
+## Golden Boot odds (2026-06-02)
+
+- [Flashscore — Golden Boot odds & predictions](https://www.flashscore.com/news/soccer-world-championship-world-cup-2026-golden-boot-odds-predictions-best-bets/d4F2WgbL/)
+- [The Scotsman — Golden Boot odds incl. Haaland, Kane](https://www.scotsman.com/sport/football/international/world-cup-2026-golden-boot-odds-who-is-favourite-to-be-top-scorer-including-mctominay-mcginn-haaland-odds-8648338)
 
 ## Team-specific reporting
 
@@ -87,3 +94,50 @@ Compiled 2026-05-15.
 - [Sky Sports — World Cup home advantage](https://www.skysports.com/football/news/13956/11392096/world-cup-home-advantage-how-the-hosts-have-fared-and-why-there-is-hope-for-russia)
 - [World Cup Local Time — 90 years of host nation history](https://worldcuplocaltime.com/world-cup-host-nations-performance-history/)
 - [Sports Illustrated — worst host nations ranked](https://www.si.com/soccer/worst-performing-world-cup-host-nations-ranked)
+
+## Research update — 2026-06-02 (subagent fan-out)
+
+### Odds & prediction markets
+- [Polymarket — World Cup Winner](https://polymarket.com/event/world-cup-winner)
+- [FOX Sports — 2026 WC champion odds](https://www.foxsports.com/stories/soccer/world-cup-2026-champion-odds)
+- [CBS Sports — complete betting guide](https://www.cbssports.com/betting/news/world-cup-odds/)
+- [Covers.com — WC odds & win probability (Kalshi)](https://www.covers.com/world-cup/odds)
+- [ESPN — championship & group odds](https://www.espn.com/espn/betting/story/_/id/48386952/espn-soccer-futbol-world-cup-betting-odds-championship-groups)
+- [Flashscore — Golden Boot odds (Mbappé +600, Kane +700, Haaland +1400)](https://www.flashscore.com/news/soccer-world-championship-world-cup-2026-golden-boot-odds-predictions-best-bets/d4F2WgbL/)
+
+### Squad & injury news
+- [ESPN — Spain WC 2026 squad (no Real Madrid players)](https://www.espn.com/soccer/story/_/id/48870392/spain-world-cup-2026-squad-confirmed-lamine-yamal-stars-no-real-madrid-players)
+- [ESPN — Yamal hamstring, feared missing WC](https://www.espn.com/soccer/story/_/id/48930567/lamine-yamal-spain-fifa-world-cup-barcelona)
+- [DraftKings Network — Saliba injury update June 1](https://dknetwork.draftkings.com/2026/06/01/william-saliba-injury-update-could-france-star-miss-the-world-cup/)
+- [Athlon Sports — Mbappé injury scare before WC](https://athlonsports.com/soccer/france-kylian-mbappe-injury-scare-before-world-cup-2026)
+- [Al Jazeera — Neymar to miss Brazil WC opener (calf)](https://www.aljazeera.com/sports/2026/5/28/neymar-out-of-brazil-world-cup-opener-due-to-calf-injury)
+- [ESPN — Ancelotti: no regrets taking injured Neymar](https://www.espn.com/soccer/story/_/id/48922562/brazil-carlo-ancelotti-neymar-injury-2026-world-cup)
+- [World Soccer Talk — Neuer return headlines Germany squad](https://worldsoccertalk.com/amp/world-cup/manuel-neuers-stunning-return-headlines-germanys-2026-world-cup-squad-and-serge-gnabry-misses-out-as-julian-nagelsmann-balances-experience-and-heartbreak/)
+- [FIFA.com — Gnabry confirmed out of WC](https://www.fifa.com/en/articles/serge-gnabry-miss-world-cup)
+- [ESPN — Messi to lead Argentina at 6th WC](https://www.espn.com/soccer/story/_/id/48904313/lionel-messi-argentina-2026-world-cup-squad)
+- [World Soccer Talk — Romero's WC prospects brighten](https://worldsoccertalk.com/news/cristian-romeros-world-cup-2026-prospects-brighten-after-injury-update-on-argentina-and-tottenham-star/)
+- [World Soccer Talk — Martínez eases WC fears](https://worldsoccertalk.com/news/argentina-star-dibu-martinez-eases-2026-world-cup-fears-after-positive-injury-update/)
+- [FIFA.com — Portugal squad (Ronaldo, 6th WC)](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/cristiano-ronaldo-roberto-martinez-portugal-squad-announcement)
+- [Sports Mole — WC 2026 injury watch (Yamal, Saliba, etc.)](https://www.sportsmole.co.uk/football/england/world-cup/feature/world-cup-2026-injury-watch-yamal-saliba-livramento-seven-players-battling-fitness-concerns-ahead-of-the-tournament_598546.html)
+- [Yahoo Sports — WC 2026 live news tracker](https://sports.yahoo.com/soccer/live/2026-world-cup-news-live-tracker-squad-announcements-injuries-key-storylines-and-latest-updates-200000056.html)
+
+### Pre-tournament friendlies (2026-06-02 results)
+- [World Soccer Talk — France 2–1 Brazil (Mbappé, Upamecano red)](https://worldsoccertalk.com/news/brazil-vs-france-live-updates-minute-by-minute-coverage-of-2026-international-friendly/)
+- [OneFootball — Germany 4–0 Finland (Undav brace)](https://onefootball.com/en/news/deniz-undav-allays-injury-fears-after-germany-beat-finland-4-0-42952444)
+- [Al Jazeera — Brazil 6–2 Panama (Vinícius, Maracaña)](https://www.aljazeera.com/sports/2026/6/1/vinicius-brings-maracana-curtain-raiser-to-life-as-brazil-rout-panama-6-2)
+- [CBS Sports — USA 3–2 Senegal (Pulisic ends 5-month drought)](https://www.cbssports.com/soccer/news/usmnt-vs-senegal-score-live-updates-world-cup-usa-soccer/live/)
+- [CBS Sports — Portugal 2–0 USA](https://www.cbssports.com/soccer/news/usmnt-vs-portugal-score-live-updates-usa-world-cup-squad-2026/live/)
+- [MLS Soccer — Canada 2–0 Uzbekistan](https://www.mlssoccer.com/news/osorio-nelson-lead-canada-to-win-over-uzbekistan-in-pre-world-cup-friendly)
+- [England Football — England 0–1 Japan](https://www.englandfootball.com/england/mens-senior-team/fixtures-results/2025-26/internationals/england-v-japan-international-match-tuesday-31-march-2026-match-centre)
+- [Football365 — WC 2026 warm-up fixture list & results](https://www.football365.com/news/world-cup-2026-warm-up-friendly-fixtures-results-kick-off-times-what-tv-channel)
+
+### Group analysis & predictions
+- [Yahoo Sports — group winner predictions](https://sports.yahoo.com/soccer/betting/article/2026-world-cup-picking-winners-runners-up-for-all-12-groups-160333478.html)
+- [RotoWire — team projections (goals, points, odds)](https://www.rotowire.com/soccer/article/2026-world-cup-team-projections-goals-points-odds-for-all-48-teams-114402)
+- [ESPN — favorites most likely to crash out](https://www.espn.com/soccer/story/_/id/48875206/ranked-world-cup-2026-favorites-most-likely-crash-out)
+- [Yahoo Sports — teams most vulnerable to early exit](https://sports.yahoo.com/soccer/article/which-world-cup-teams-are-most-vulnerable-to-an-early-exit-the-danger-facing-us-and-mexico-180713878.html)
+- [Complex — 10 potential group-stage upsets](https://www.complex.com/sports/a/jamie-barton/2026-world-cup-draw-10-potential-group-stage-upsets)
+- [Sky Sports — Group G guide (Belgium)](https://www.skysports.com/football/news/12098/13543098/world-cup-2026-group-g-guide-fixtures-schedule-standings-and-odds-for-belgium-egypt-iran-and-new-zealand)
+- [Sky Sports — Group I guide (France, Norway)](https://www.skysports.com/football/news/12098/13543102/world-cup-2026-group-i-guide-fixtures-schedule-standings-and-odds-for-france-senegal-iraq-and-norway)
+- [Sky Sports — Group K guide (Portugal, Colombia)](https://www.skysports.com/football/news/12040/13543106/world-cup-2026-group-k-guide-fixtures-schedule-standings-and-odds-for-portugal-dr-congo-uzbekistan-and-colombia)
+- [FOX Sports — dark horses: Norway, Colombia, Morocco, Japan](https://www.foxsports.com/stories/soccer/world-cup-dark-horse-underdog-norway-colombia-morocco-japan)

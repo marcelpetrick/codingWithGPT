@@ -35,12 +35,14 @@ Top 2 of each group + 8 best 3rd-placed teams → Round of 32.
 ## Group C — *Group of mild Death (Brazil's path)*
 | Team | Tier | Note |
 | --- | --- | --- |
-| 🇧🇷 Brazil ★★★ | Ancelotti era; **Rodrygo + Militão + Estêvão OUT injured**; Neymar IN |
+| 🇧🇷 Brazil ★★★ | Ancelotti era; **Rodrygo + Militão + Estêvão OUT**; **Neymar grade-2 calf strain — likely misses opener** |
 | 🇲🇦 Morocco ★★ | 2022 semi-finalists | Regragui still in charge |
 | 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland ★ | Set-piece grit | |
 | 🇭🇹 Haiti 💤 | Surprise qualifier | |
-**Likely top 2**: Brazil, Morocco. Brazil vs Morocco is a 2022 QF rematch.
-Brazil's depleted squad makes the 1–1 vs Morocco even more plausible.
+**Likely top 2**: Brazil, Morocco. Brazil vs Morocco (June 13) is the 2022 QF
+rematch — **Neymar almost certainly absent**. Brazil won 6–2 vs Panama in prep
+but Morocco are a different proposition. **Pick 1–1 holds.** Brazil should
+still win the group but this is not comfortable.
 
 ---
 
@@ -100,14 +102,20 @@ class gap absorbs the absences.
 
 ---
 
-## Group I — France's group
+## Group I — France's group (*actual Group of Death*)
 | Team | Tier | Note |
 | --- | --- | --- |
-| 🇫🇷 France ★★★ | Deschamps' final dance; tournament co-favorite |
-| 🇸🇳 Senegal ★★ | Pape Thiaw era; tactical, good players |
-| 🇳🇴 Norway ★★ | Haaland + Ødegaard make them dangerous |
+| 🇫🇷 France ★★★ | Deschamps' final dance; **Saliba doubtful opener, Mbappé not 100%** |
+| 🇸🇳 Senegal ★★★ | Reigning AFCON champs; Mané, Sarr, Jackson; beat France 1–0 in 2002 groups |
+| 🇳🇴 Norway ★★★ | **8/8 unbeaten in qualifying; Haaland 16 qualifying goals; Ødegaard; never been to a WC (no baggage)** |
 | 🇮🇶 Iraq 💤 | Asian qualifier |
-**France likely walks**; Norway/Senegal scrap for 2nd.
+**Updated 2026-06-02**: This is the hardest group in the draw. France still win
+it (~65%), but Norway and Senegal are serious teams fighting for the same 2nd
+spot. France vs Norway (June 26 approx.) is a genuine danger game — your
+current 2–1 FRA pick there is aggressive; monitor Mbappé/Saliba status.
+France's opener vs Iraq (3–0 pick) is safe. France vs Senegal (2–0 pick) is
+at risk if Saliba/Mbappé aren't ready — consider trimming to 1–0 when
+Saliba's status is clearer (~June 12–14).
 
 ---
 
@@ -136,11 +144,14 @@ class gap absorbs the absences.
 ## Group L — England's group
 | Team | Tier | Note |
 | --- | --- | --- |
-| 🏴󠁧󠁢󠁥󠁮󠁧󠁿 England ★★★ | Tuchel's England, talent-rich, untested in tournament |
-| 🇭🇷 Croatia ★★★ | Modrić's farewell, still tournament-savvy |
+| 🏴󠁧󠁢󠁥󠁮󠁧󠁿 England ★★★ | Tuchel; **lost 0–1 to Japan at Wembley (March 31)** — first-ever loss to Asian opposition; attack looks blunt |
+| 🇭🇷 Croatia ★★★ | Modrić's farewell, still tournament-savvy; drew 0–0 vs Belgium (June 2) |
 | 🇬🇭 Ghana ★★ | Otto Addo back, dangerous when motivated |
 | 🇵🇦 Panama 💤 | |
-**England vs Croatia for 1st** is the standout matchday-3 fixture.
+**England vs Croatia for 1st** is the standout matchday-3 fixture. England
+group winner pick holds but their recent form is the biggest concern of any
+top-4 seed — Grealish, Ben White, Foden, Palmer all excluded. 1–0 vs Croatia
+pick is correct (low-scoring, attritional).
 
 ---
 

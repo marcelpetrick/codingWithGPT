@@ -88,6 +88,10 @@ For each new drop:
 See [`README.md`](README.md) for the canonical file index. If you add
 a new file, update both `README.md` and this `AGENTS.md`.
 
+Key files: [`pool_rules.md`](pool_rules.md) → [`strategy.md`](strategy.md) →
+[`model_picks.md`](model_picks.md) → [`my_picks.md`](my_picks.md).
+See [`explanation.md`](explanation.md) for the full process diagram.
+
 ## Out of scope
 
 - Don't generate code unless asked. This is a research/picks repo,

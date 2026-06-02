@@ -167,9 +167,9 @@ easier bracket side. The single safest pick in the bonus set.
 ### Group I
 - [ ] France – Iraq → `3–0`
 - [ ] Senegal – Norway → `1–1`
-- [ ] France – Senegal → `2–0`
+- [ ] France – Senegal → `2–0`  _(⚠️ WATCH 2026-06-02: Saliba doubtful, Mbappé not 100% — consider trimming to 1–0 if Saliba misses; confirm closer to kickoff ~June 14)_
 - [ ] Iraq – Norway → `0–2`
-- [ ] France – Norway → `2–1`
+- [ ] France – Norway → `2–1`  _(⚠️ Norway unbeaten in qualifying, Haaland 16 goals — aggressive pick; hold for now)_
 - [ ] Iraq – Senegal → `0–2`
 
 ### Group J

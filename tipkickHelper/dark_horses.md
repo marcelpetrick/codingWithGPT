@@ -63,12 +63,38 @@ Teams the market still under-rates relative to their realistic ceiling.
 - **Ceiling**: R16, possibly QF with a friendly draw.
 - More of a "spoiler" than a champion.
 
-## 🇪🇨 Ecuador — youngest team in the field
+## 🇳🇴 Norway — the most under-priced team in the draw *(added 2026-06-02)*
 
-- Average squad age ~24. Won't blow you away but qualified ahead of
-  Uruguay/Colombia in CONMEBOL.
-- **Group E with Germany** — can sneak 2nd if Germany over-rotate.
-- **Ceiling**: R16.
+- Haaland scored **16 goals in qualifying**; Ødegaard the creative engine.
+- **8/8 unbeaten throughout qualifying** — perfect record.
+- First World Cup in **28 years** — no psychological baggage from prior
+  tournament collapses.
+- At **+3500 (Polymarket 2.8 %)** — the markets have been slow to price this
+  in. Kalshi has them 2%, still a sleeper.
+- **Group I with France and Senegal** — the "Group of Death". Norway realistically
+  fight for 2nd behind France; if France rotate for game 3, Norway could top it.
+- **Ceiling**: R16 certain if they get through, QF plausible in an open bracket.
+- **Risk to your picks**: if Norway beat Senegal and draw/beat France, the Group I
+  picture scrambles. Your France 2–1 FRA vs Norway pick is a mild stretch.
+
+## 🇸🇳 Senegal — AFCON champions, under-rated *(added 2026-06-02)*
+
+- **Reigning AFCON champions** (2025 AFCON title under Pape Thiaw).
+- Sadio Mané + Ismaila Sarr + Nicolas Jackson. Deep, physical squad.
+- Beat France 1–0 in 2002 WC group stage opener at same venue type.
+- In Group I: fighting Norway for 2nd. Either can advance; Iraq is the only
+  giveaway. Watch Senegal vs Norway as the pivotal match for 2nd place.
+- **Ceiling**: R16 secure, QF if bracket is kind.
+
+## 🇪🇨 Ecuador — youngest team in the field *(upgraded 2026-06-02)*
+
+- Average squad age ~24. **Finished CONMEBOL qualifying above Brazil, Colombia
+  AND Uruguay** — an underrated achievement.
+- Moisés Caicedo, Willian Pacho, Piero Hincapié all at elite European clubs.
+- Complex.com lists Ecuador over Germany as a top-10 group upset candidate.
+- **Group E with Germany** — can absolutely sneak 2nd; Côte d'Ivoire is the
+  competition for that slot.
+- **Ceiling**: R16 (and a potential giant-killer if they top the group).
 
 ---
 

@@ -36,6 +36,7 @@ copy them in.
 | [`dark_horses.md`](dark_horses.md) | Morocco, Croatia, Uruguay, Colombia, Portugal |
 | [`model_picks.md`](model_picks.md) | My data-driven prediction — bonus picks, group winners, R32, R16, QF, SF, F, winner |
 | [`my_picks.md`](my_picks.md) | **YOUR pick sheet** — fill this in |
+| [`explanation.md`](explanation.md) | Mermaid diagrams: how the research process works end-to-end |
 | [`sources.md`](sources.md) | Links used as evidence |
 
 ## How to use this
