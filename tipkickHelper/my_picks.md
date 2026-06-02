@@ -38,12 +38,18 @@ Tip name idea: _(be creative — pool admin's request)_ → `___________`
 
 See [`strategy.md`](strategy.md) for the full reasoning.
 
-## ☐ Step 1 — Stake paid?
+## ✅ Step 1 — Registered (2026-06-02)
 
-- [ ] 10 € transferred to admin (deadline **09 Jun 2026, 23:59**)
-- [ ] Screenshot sent to admin with tipp name
-- [ ] Kicktipp group invite received
-- [ ] Confirmation e-mail activated (check spam folder if company e-mail)
+- [x] 10 € transferred to admin (deadline **09 Jun 2026, 23:59**)
+- [x] Screenshot sent to admin with tipp name
+- [x] Kicktipp group invite received
+- [x] Confirmation e-mail activated
+- [x] **Picks submitted in the Kicktipp app** (bonus + opening matches)
+
+> Registration done. Picks already entered in Kicktipp. This file is
+> now an archive of the locked picks — future edits should only happen
+> if a match's kickoff is still >1 min away and a forced deviation
+> applies (injury, suspension, weather).
 
 ---
 

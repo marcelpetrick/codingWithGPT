@@ -8,6 +8,10 @@ Canada, Mexico.
 > D.C. Pool entry deadline: **09 June 2026, 23:59**. Confirmed
 > **25 participants** (pool €250). Bonus picks lock at the opening
 > kickoff: **11 June 2026, 21:00 CET** (Mexico vs South Africa).
+>
+> **User status (2026-06-02): registered, paid, picks already submitted
+> in the Kicktipp app.** This repo is now in archive/monitor mode —
+> future edits only on forced deviations (injuries/suspensions).
 
 ## Where to put YOUR picks
 
@@ -24,7 +28,7 @@ copy them in.
 | --- | --- |
 | [`pool_rules.md`](pool_rules.md) | **The Kicktipp pool rules + strategy deductions** |
 | [`strategy.md`](strategy.md) | **Cash-out math at 25 participants + Strategy A vs B** |
-| [`CLAUDE.md`](CLAUDE.md) | Agent / workflow guide for future Claude Code sessions |
+| [`AGENTS.md`](AGENTS.md) | Agent / workflow guide for future agent sessions |
 | [`format.md`](format.md) | New 48-team / 12-group format, schedule, host venues |
 | [`groups.md`](groups.md) | All 12 groups A–L with quick reads per team |
 | [`favorites.md`](favorites.md) | Top 8 contenders, odds, coach, form, key risks |

@@ -1,10 +1,10 @@
-# CLAUDE.md — agent guide for this directory
+# AGENTS.md — agent guide for this directory
 
 You are helping the user win (or at least cash out in) the **DATA
 MODUL WM 2026** Kicktipp prediction pool for the FIFA World Cup 2026
 (USA / Canada / Mexico, 11 June – 19 July 2026).
 
-This file is loaded into every Claude Code session that runs in this
+This file is loaded into every agent session that runs in this
 directory. **Read it first.** Then read [`pool_rules.md`](pool_rules.md)
 and [`strategy.md`](strategy.md) so you know the scoring model.
 
@@ -76,7 +76,7 @@ For each new drop:
 
 ## Style
 
-- The user has set Claude Code to terse mode in their preferences.
+- The user prefers terse, decision-oriented agent responses.
 - Use markdown but don't be verbose. **Tables and bullet lists beat
   paragraphs.**
 - Mix dictation-friendly prose if you must — the user often dictates,
@@ -86,7 +86,7 @@ For each new drop:
 ## Files in this directory
 
 See [`README.md`](README.md) for the canonical file index. If you add
-a new file, update both `README.md` and this `CLAUDE.md`.
+a new file, update both `README.md` and this `AGENTS.md`.
 
 ## Out of scope
 
