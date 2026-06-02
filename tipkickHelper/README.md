@@ -4,9 +4,9 @@ Research notes and data-driven picks for the **DATA MODUL WM 2026**
 Kicktipp pool. Tournament runs **11 June – 19 July 2026** across USA,
 Canada, Mexico.
 
-> Status as of 2026-05-15. Final draw was held **5 Dec 2025**, Washington,
-> D.C. Squad announcements are rolling in this week.
-> Pool entry deadline: **09 June 2026**. Bonus picks lock at the opening
+> Status as of 2026-06-02. Final draw was held **5 Dec 2025**, Washington,
+> D.C. Pool entry deadline: **09 June 2026, 23:59**. Confirmed
+> **25 participants** (pool €250). Bonus picks lock at the opening
 > kickoff: **11 June 2026, 21:00 CET** (Mexico vs South Africa).
 
 ## Where to put YOUR picks
@@ -23,7 +23,7 @@ copy them in.
 | File | What's inside |
 | --- | --- |
 | [`pool_rules.md`](pool_rules.md) | **The Kicktipp pool rules + strategy deductions** |
-| [`strategy.md`](strategy.md) | **Cash-out math at 50 participants + Strategy A vs B** |
+| [`strategy.md`](strategy.md) | **Cash-out math at 25 participants + Strategy A vs B** |
 | [`CLAUDE.md`](CLAUDE.md) | Agent / workflow guide for future Claude Code sessions |
 | [`format.md`](format.md) | New 48-team / 12-group format, schedule, host venues |
 | [`groups.md`](groups.md) | All 12 groups A–L with quick reads per team |

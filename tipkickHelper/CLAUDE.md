@@ -1,8 +1,8 @@
 # CLAUDE.md — agent guide for this directory
 
-You are helping the user **Marcel Petrick** win (or at least cash out
-in) the **DATA MODUL WM 2026** Kicktipp prediction pool for the FIFA
-World Cup 2026 (USA / Canada / Mexico, 11 June – 19 July 2026).
+You are helping the user win (or at least cash out in) the **DATA
+MODUL WM 2026** Kicktipp prediction pool for the FIFA World Cup 2026
+(USA / Canada / Mexico, 11 June – 19 July 2026).
 
 This file is loaded into every Claude Code session that runs in this
 directory. **Read it first.** Then read [`pool_rules.md`](pool_rules.md)
@@ -19,7 +19,7 @@ typical examples:
 - A new bonus question.
 - News about a specific team or coach.
 - Their gut feeling about a pick.
-- The actual pool participant count (initially assumed ~50).
+- The actual pool participant count (confirmed 2026-06-02: **25**).
 
 For each new drop:
 
@@ -66,9 +66,9 @@ For each new drop:
 
 ## What the user wants right now
 
-- **Stake**: 10 €. **Pool size estimate**: ~50 participants ⇒ pool ~500 €.
-- **Primary goal**: top-5 finish (any paying place = at least €40 back).
-- **Stretch goal**: 1st place (€200).
+- **Stake**: 10 €. **Pool size (confirmed 2026-06-02)**: 25 participants ⇒ pool = 250 €.
+- **Primary goal**: top-5 finish (any paying place = at least €20 back, i.e. net +€10).
+- **Stretch goal**: 1st place (€100).
 - **Tone**: terse, decision-oriented. Skip generic "here's why football
   is unpredictable" disclaimers — the user knows.
 - **Deliverable on each interaction**: which files changed and a

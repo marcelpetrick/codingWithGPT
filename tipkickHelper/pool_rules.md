@@ -1,17 +1,20 @@
 # Pool Rules — DATA MODUL WM 2026 (Kicktipp)
 
-Source: admin e-mail from Marco Matthes Jiménez (Junior PM, DATA MODUL
-AG) **+** verbatim Kicktipp "Spielregeln" page (user paste 2026-05-19,
-confirmed).
+Source: pool admin e-mail **+** verbatim Kicktipp "Spielregeln" page
+(user paste 2026-05-19, confirmed). Participant count updated
+2026-06-02 from admin reminder e-mail.
 
 ## What & how
 
 - **Tournament**: 2026 FIFA World Cup in Mexico / USA / Canada.
 - **Platform**: Kicktipp group (link is sent by the admin after stake is paid).
 - **Stake**: 10 €.
-- **Registration deadline**: **09 June 2026** (send admin a screenshot
-  of the transfer + your "tipp name").
-- **External tippers are not allowed** — DATA MODUL only.
+- **Registration deadline**: **09 June 2026, 23:59** (send admin a
+  screenshot of the transfer + your "tipp name"). Confirmed via admin
+  reminder e-mail on 2026-06-02.
+- **External tippers are not allowed** — company-internal pool.
+- **Participant count (confirmed 2026-06-02)**: **25 tippers** ⇒
+  pool = 25 × 10 € = **250 €**.
 
 ## Visibility (Sichtbarkeit der Tipps)
 
@@ -96,8 +99,9 @@ wins on the days the chalk loses.
 
 ## E-mail gotcha
 
-If you use a `@data-modul.com` address, the Kicktipp confirmation may
-land in your **spam folder** — check there to activate the account.
+If you registered with a company e-mail address, the Kicktipp
+confirmation may land in your **spam folder** — check there to activate
+the account.
 
 ---
 
@@ -124,9 +128,11 @@ The pool format strongly shapes how I'd play:
 
 4. **Top 5 all get paid — but the gradient is steep.** 1st (40 %) vs
    5th (8 %) is a 5× difference. Risk-adjusted, mid-table is fine but
-   the win is a 5× payout. With ~10–30 colleagues entering, going
-   slightly contrarian on **one** high-leverage pick (e.g. champion or
-   one semi-finalist) is worth more than safe-chalk everywhere.
+   the win is a 5× payout. At the **confirmed 25 participants**, top-5
+   is top 20 % of the field — the cash-out floor is real (even 5th =
+   +€10 net), so safe chalk has positive EV. Going slightly contrarian
+   on **one** high-leverage pick (e.g. champion or one semi-finalist)
+   trades a bit of floor for meaningful upside on the 1st-place €100.
 
 5. **The four bonus picks should not all be chalk.** If you pick
    Spain/France/Argentina/Brazil semis + France champion + Spain top

@@ -1,4 +1,4 @@
-# My Picks — Marcel Petrick
+# My Picks
 
 > This is the **scratch sheet** for the DATA MODUL WM 2026 Kicktipp
 > pool. Final entry happens **inside the Kicktipp app**, but lock your
@@ -13,9 +13,11 @@ Tip name idea: _(be creative — pool admin's request)_ → `___________`
 
 ## Which strategy am I playing? 🔒 LOCKED
 
-**Locked on 2026-05-15 by Marcel: Strategy A — Safe / Cash Out.**
+**Locked 2026-05-15: Strategy A — Safe / Cash Out.**
+**Pool-size update 2026-06-02**: 25 participants confirmed (pool €250);
+5th place now nets +€10, lock reinforced.
 
-- [x] **Strategy A — Safe / Cash Out** (target: top 5, €40+ back).
+- [x] **Strategy A — Safe / Cash Out** (target: top 5 of 25; min €20 back / +€10 net).
       → Semi-finalists: France, Spain, Argentina, **Brazil**. Champion: France.
 - [ ] ~~Strategy B — Swing / Win It~~ (not chosen)
 
@@ -38,10 +40,10 @@ See [`strategy.md`](strategy.md) for the full reasoning.
 
 ## ☐ Step 1 — Stake paid?
 
-- [ ] 10 € transferred to admin
+- [ ] 10 € transferred to admin (deadline **09 Jun 2026, 23:59**)
 - [ ] Screenshot sent to admin with tipp name
 - [ ] Kicktipp group invite received
-- [ ] Confirmation e-mail activated (check spam if @data-modul.com)
+- [ ] Confirmation e-mail activated (check spam folder if company e-mail)
 
 ---
 
