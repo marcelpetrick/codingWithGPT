@@ -6,8 +6,8 @@
 
 set -e
 
-DEVICE=/dev/sda
-PARTITION=/dev/sda1
+DEVICE=/dev/mmcblk0
+PARTITION=/dev/mmcblk0p1
 MNT=/tmp/sdcard_bench
 TESTFILE=$MNT/bench_test.bin
 RESULT_DIR="$(cd "$(dirname "$0")" && pwd)"
