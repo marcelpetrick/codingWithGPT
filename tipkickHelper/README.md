@@ -4,14 +4,21 @@ Research notes and data-driven picks for the **DATA MODUL WM 2026**
 Kicktipp pool. Tournament runs **11 June – 19 July 2026** across USA,
 Canada, Mexico.
 
-> Status as of 2026-06-02. Final draw was held **5 Dec 2025**, Washington,
-> D.C. Pool entry deadline: **09 June 2026, 23:59**. Confirmed
-> **25 participants** (pool €250). Bonus picks lock at the opening
+> Status as of 2026-06-08 (3 days to kick-off). Final draw was held
+> **5 Dec 2025**, Washington, D.C. Pool entry deadline: **09 June 2026, 23:59**.
+> Confirmed **25 participants** (pool €250). Bonus picks lock at the opening
 > kickoff: **11 June 2026, 21:00 CET** (Mexico vs South Africa).
 >
 > **User status (2026-06-02): registered, paid, picks already submitted
-> in the Kicktipp app.** This repo is now in archive/monitor mode —
+> in the Kicktipp app.** This repo is in archive/monitor mode —
 > future edits only on forced deviations (injuries/suspensions).
+>
+> **Latest monitoring update (2026-06-08):** Saliba cleared, Mbappé managed
+> but tracking fine, Yamal improving, Messi rejoined partial group training,
+> Neymar still misses Brazil opener. Germany lost Lennart Karl (thigh) in
+> training; Ouédraogo replaces him. France lost 1–2 to Ivory Coast (rotated
+> side June 4). Germany beat USA 2–1 (June 6). France 2–0 Senegal pick
+> confirmed. No forced pick deviations required.
 
 ## Where to put YOUR picks
 

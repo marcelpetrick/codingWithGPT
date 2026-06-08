@@ -35,7 +35,7 @@ Top 2 of each group + 8 best 3rd-placed teams → Round of 32.
 ## Group C — *Group of mild Death (Brazil's path)*
 | Team | Tier | Note |
 | --- | --- | --- |
-| 🇧🇷 Brazil ★★★ | Ancelotti era; **Rodrygo + Militão + Estêvão OUT**; **Neymar grade-2 calf strain — likely misses opener** |
+| 🇧🇷 Brazil ★★★ | Ancelotti era; **Rodrygo + Militão + Estêvão OUT**; **Neymar grade-2 calf (May 17) — misses June 13 opener vs Morocco confirmed; targeting game 2** |
 | 🇲🇦 Morocco ★★ | 2022 semi-finalists | Regragui still in charge |
 | 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland ★ | Set-piece grit | |
 | 🇭🇹 Haiti 💤 | Surprise qualifier | |
@@ -60,7 +60,7 @@ still win the group but this is not comfortable.
 ## Group E
 | Team | Tier | Note |
 | --- | --- | --- |
-| 🇩🇪 Germany ★★★ | Nagelsmann's project; **Gnabry OUT**, Musiala fitness watch, Ter Stegen unlikely |
+| 🇩🇪 Germany ★★★ | Nagelsmann's project; **Gnabry OUT**, **Ter Stegen OUT** (Neuer returns), **Lennart Karl OUT** (thigh, training — replaced by Ouédraogo); beat USA 2–1 (June 6) — 8-match winning streak |
 | 🇪🇨 Ecuador ★★ | Young, well-drilled, qualified comfortably |
 | 🇨🇮 Côte d'Ivoire ★★ | 2023 AFCON champions |
 | 🇨🇼 Curaçao 💤 | Cinderella qualifier |
@@ -94,7 +94,7 @@ class gap absorbs the absences.
 ## Group H — Spain's group
 | Team | Tier | Note |
 | --- | --- | --- |
-| 🇪🇸 Spain ★★★ | Euro 2024 champs; **Yamal misses opener vs CPV, doubtful for KSA**, targeting Uruguay return |
+| 🇪🇸 Spain ★★★ | Euro 2024 champs; **Yamal improving** — coach expects him ready June 15; left out of Peru warmup as precaution; Nico Williams also resting |
 | 🇺🇾 Uruguay ★★★ | Bielsa, real outside title shot |
 | 🇸🇦 Saudi Arabia ★ | Renard's Arabia, slow rebuild |
 | 🇨🇻 Cabo Verde 💤 | First-time qualifier; underrated |
@@ -105,17 +105,16 @@ class gap absorbs the absences.
 ## Group I — France's group (*actual Group of Death*)
 | Team | Tier | Note |
 | --- | --- | --- |
-| 🇫🇷 France ★★★ | Deschamps' final dance; **Saliba doubtful opener, Mbappé not 100%** |
+| 🇫🇷 France ★★★ | Deschamps' final dance; **Saliba CLEARED (June 8)**, **Mbappé managed but targeting opener**; lost 1–2 Ivory Coast (June 4, rotated) |
 | 🇸🇳 Senegal ★★★ | Reigning AFCON champs; Mané, Sarr, Jackson; beat France 1–0 in 2002 groups |
 | 🇳🇴 Norway ★★★ | **8/8 unbeaten in qualifying; Haaland 16 qualifying goals; Ødegaard; never been to a WC (no baggage)** |
 | 🇮🇶 Iraq 💤 | Asian qualifier |
-**Updated 2026-06-02**: This is the hardest group in the draw. France still win
-it (~65%), but Norway and Senegal are serious teams fighting for the same 2nd
-spot. France vs Norway (June 26 approx.) is a genuine danger game — your
-current 2–1 FRA pick there is aggressive; monitor Mbappé/Saliba status.
-France's opener vs Iraq (3–0 pick) is safe. France vs Senegal (2–0 pick) is
-at risk if Saliba/Mbappé aren't ready — consider trimming to 1–0 when
-Saliba's status is clearer (~June 12–14).
+**Updated 2026-06-08**: This is the hardest group in the draw. France still win
+it (~65%). **Saliba cleared (June 8)**, Mbappé tracking fine. The 2–0 vs
+Senegal pick is reinstated to full confidence. France vs Norway (June 26
+approx.) — 2–1 FRA pick holds (Haaland scores, France wins late). The 3–0
+vs Iraq pick is safe. Key monitor: Saliba's minutes vs Northern Ireland
+(June 8) and how Mbappé comes through that game.
 
 ---
 
