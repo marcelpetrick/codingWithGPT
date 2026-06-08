@@ -133,7 +133,7 @@ easier bracket side. The single safest pick in the bonus set.
 - [ ] Paraguay – Australia → `1–1`
 
 ### Group E
-- [ ] Germany – Curaçao → `2–0`  _(trimmed from 3–0 on 2026-05-19: Gnabry out, Musiala fitness watch)_
+- [ ] Germany – Curaçao → `3–0`  _(restored from 2–0 on 2026-06-08: 8-match winning streak, form confirmed vs USA; Karl absence is bench-level only)_
 - [ ] Ecuador – Côte d'Ivoire → `1–1`
 - [ ] Germany – Ecuador → `2–0`
 - [ ] Curaçao – Côte d'Ivoire → `0–2`
