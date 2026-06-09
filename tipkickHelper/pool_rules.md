@@ -2,7 +2,7 @@
 
 Source: pool admin e-mail **+** verbatim Kicktipp "Spielregeln" page
 (user paste 2026-05-19, confirmed). Participant count updated
-2026-06-02 from admin reminder e-mail.
+2026-06-09 from user message.
 
 ## What & how
 
@@ -13,8 +13,8 @@ Source: pool admin e-mail **+** verbatim Kicktipp "Spielregeln" page
   screenshot of the transfer + your "tipp name"). Confirmed via admin
   reminder e-mail on 2026-06-02.
 - **External tippers are not allowed** — company-internal pool.
-- **Participant count (confirmed 2026-06-02)**: **25 tippers** ⇒
-  pool = 25 × 10 € = **250 €**.
+- **Participant count (updated 2026-06-09)**: **29 tippers** ⇒
+  pool = 29 × 10 € = **290 €**.
 
 ## Visibility (Sichtbarkeit der Tipps)
 
@@ -128,23 +128,21 @@ The pool format strongly shapes how I'd play:
 
 4. **Top 5 all get paid — but the gradient is steep.** 1st (40 %) vs
    5th (8 %) is a 5× difference. Risk-adjusted, mid-table is fine but
-   the win is a 5× payout. At the **confirmed 25 participants**, top-5
-   is top 20 % of the field — the cash-out floor is real (even 5th =
-   +€10 net), so safe chalk has positive EV. Going slightly contrarian
-   on **one** high-leverage pick (e.g. champion or one semi-finalist)
-   trades a bit of floor for meaningful upside on the 1st-place €100.
+   the win is a 5× payout. At the **updated 29 participants**, top-5
+   is top 17.2 % of the field — the cash-out floor is still real (even
+   5th = +€13.20 net), so safe chalk has positive EV. Under the locked
+   Strategy A, do not turn the bonus sheet contrarian just because the
+   pool grew from 25 to 29.
 
-5. **The four bonus picks should not all be chalk.** If you pick
-   Spain/France/Argentina/Brazil semis + France champion + Spain top
-   scorer, you'll match half the office. To outscore them, swap one
-   bonus pick for a justified contrarian (Portugal, Germany, or
-   England champion; Morocco/Croatia/Colombia semi-finalist).
+5. **Bonus picks stay chalk under Strategy A.** France/Spain/Argentina/
+   Brazil semis + France champion + France top-scorer team is not built
+   to beat everyone on bonus uniqueness; it is built to avoid donating
+   4-point bonus edges to the field.
 
 6. **Tie-break = matchday wins.** This rewards *occasional* sharp
    matchdays. Pure chalk every day rarely wins a matchday outright —
-   the matchday winner usually nails one or two upsets. Pair the
-   chalk floor with **one calculated swing pick per matchday** if you
-   care about the tie-break.
+   the matchday winner usually nails one or two upsets. Under Strategy A,
+   treat this as upside you may lose, not a reason to add forced swings.
 
 7. **Bonus is locked at 11 June 21:00 CET.** Lock your bonus picks
    based on final 26-man squads (last submissions due 01 June). No

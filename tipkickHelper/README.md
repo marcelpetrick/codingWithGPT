@@ -4,21 +4,20 @@ Research notes and data-driven picks for the **DATA MODUL WM 2026**
 Kicktipp pool. Tournament runs **11 June – 19 July 2026** across USA,
 Canada, Mexico.
 
-> Status as of 2026-06-08 (3 days to kick-off). Final draw was held
+> Status as of 2026-06-09 (2 days to kick-off). Final draw was held
 > **5 Dec 2025**, Washington, D.C. Pool entry deadline: **09 June 2026, 23:59**.
-> Confirmed **25 participants** (pool €250). Bonus picks lock at the opening
+> Confirmed **29 participants** (pool €290). Bonus picks lock at the opening
 > kickoff: **11 June 2026, 21:00 CET** (Mexico vs South Africa).
 >
 > **User status (2026-06-02): registered, paid, picks already submitted
 > in the Kicktipp app.** This repo is in archive/monitor mode —
 > future edits only on forced deviations (injuries/suspensions).
 >
-> **Latest monitoring update (2026-06-08):** Saliba cleared, Mbappé managed
-> but tracking fine, Yamal improving, Messi rejoined partial group training,
-> Neymar still misses Brazil opener. Germany lost Lennart Karl (thigh) in
-> training; Ouédraogo replaces him. France lost 1–2 to Ivory Coast (rotated
-> side June 4). Germany beat USA 2–1 (June 6). France 2–0 Senegal pick
-> confirmed. No forced pick deviations required.
+> **Latest monitoring update (2026-06-09):** 29 tippers confirmed. France
+> beat Northern Ireland 3–1; Mbappé played the full match and Saliba started.
+> Spain beat Peru 3–1 without Yamal/Nico Williams. June 9 Kalshi group market
+> makes Switzerland the Group B favorite over Canada, so the Group B bonus
+> default changes Canada → Switzerland.
 
 ## Where to put YOUR picks
 
@@ -34,7 +33,7 @@ copy them in.
 | File | What's inside |
 | --- | --- |
 | [`pool_rules.md`](pool_rules.md) | **The Kicktipp pool rules + strategy deductions** |
-| [`strategy.md`](strategy.md) | **Cash-out math at 25 participants + Strategy A vs B** |
+| [`strategy.md`](strategy.md) | **Cash-out math at 29 participants + Strategy A vs B** |
 | [`AGENTS.md`](AGENTS.md) | Agent / workflow guide for future agent sessions |
 | [`format.md`](format.md) | New 48-team / 12-group format, schedule, host venues |
 | [`groups.md`](groups.md) | All 12 groups A–L with quick reads per team |
@@ -57,7 +56,8 @@ copy them in.
    in the group stage (it changes the bracket math).
 4. Compare against [`model_picks.md`](model_picks.md) — the data-driven
    baseline including bonus picks and per-match scoreline heuristics.
-5. Adjust for your gut + any contrarian leverage.
+5. Adjust only for forced news (injury, suspension, weather) while
+   staying inside Strategy A.
 6. Write your final answers into [`my_picks.md`](my_picks.md), then copy
    them into the Kicktipp app.
 
@@ -71,6 +71,5 @@ an 83 % chance of *not* winning.
 
 Pool strategy here is shaped by the **5-place payout** (40/25/15/12/8 %)
 and the per-match 2/3/4 scoring — see [`pool_rules.md`](pool_rules.md)
-for the full deduction. Short version: default to **chalk** on most
-matches, save your contrarian energy for **one** bonus pick (champion
-or one semi-finalist) to leverage the 1st-place jackpot.
+for the full deduction. Short version: default to **chalk** and only
+change picks when new information changes the favorite.

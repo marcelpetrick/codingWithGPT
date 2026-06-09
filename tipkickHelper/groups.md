@@ -24,11 +24,12 @@ Top 2 of each group + 8 best 3rd-placed teams → Round of 32.
 ## Group B — Toronto / Vancouver
 | Team | Tier | Note |
 | --- | --- | --- |
-| 🇨🇦 Canada ★★★ | Host | Marsch, golden-gen (Davies, Buchanan, David) |
-| 🇨🇭 Switzerland ★★ | Steady tournament side | |
+| 🇨🇭 Switzerland ★★★ | Steady tournament side; Kalshi June 9 group favorite (55 %) |
+| 🇨🇦 Canada ★★ | Host; Marsch, golden-gen (Davies, Buchanan, David), but market now only 33 % to win group |
 | 🇶🇦 Qatar ★ | Asian champion | |
 | 🇧🇦 Bosnia ★ | Comeback story | |
-**Likely top 2**: Canada, Switzerland. Easiest group on paper.
+**Likely top 2**: Switzerland, Canada. Easiest group on paper, but
+Strategy A group-winner default is now **Switzerland**, not Canada.
 
 ---
 

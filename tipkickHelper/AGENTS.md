@@ -19,7 +19,7 @@ typical examples:
 - A new bonus question.
 - News about a specific team or coach.
 - Their gut feeling about a pick.
-- The actual pool participant count (confirmed 2026-06-02: **25**).
+- The actual pool participant count (updated 2026-06-09: **29**).
 
 For each new drop:
 
@@ -66,9 +66,9 @@ For each new drop:
 
 ## What the user wants right now
 
-- **Stake**: 10 €. **Pool size (confirmed 2026-06-02)**: 25 participants ⇒ pool = 250 €.
-- **Primary goal**: top-5 finish (any paying place = at least €20 back, i.e. net +€10).
-- **Stretch goal**: 1st place (€100).
+- **Stake**: 10 €. **Pool size (updated 2026-06-09)**: 29 participants ⇒ pool = 290 €.
+- **Primary goal**: top-5 finish (any paying place = at least €23.20 back, i.e. net +€13.20).
+- **Stretch goal**: 1st place (€116).
 - **Tone**: terse, decision-oriented. Skip generic "here's why football
   is unpredictable" disclaimers — the user knows.
 - **Deliverable on each interaction**: which files changed and a

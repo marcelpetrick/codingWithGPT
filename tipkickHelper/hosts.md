@@ -79,9 +79,11 @@ Group games in Toronto + Vancouver — friendly weather, big crowds.
 **Talent**: Alphonso Davies (LB → wing), Tajon Buchanan, Jonathan David
 (top-3 striker), Stephen Eustáquio. Real golden generation.
 
-**Verdict**: Top-2 in Group B is realistic. **R16 likely; QF is a
-stretch but achievable.** Canada is the **best home-advantage value
-play** because the market still under-rates them.
+**Verdict (updated 2026-06-09)**: Top-2 in Group B is realistic.
+**R16 likely; QF is a stretch but achievable.** Canada remains a live
+host-advantage team, but the June 9 group-winner market now favors
+Switzerland clearly (55 % vs Canada 33 %), so Canada is no longer the
+Strategy A group-winner default.
 
 ---
 
@@ -98,8 +100,8 @@ play** because the market still under-rates them.
 (These are my own subjective estimates; market is similar.)
 
 **My take**: No host wins this. But there's a non-trivial chance
-**one host reaches the semi-final**, and the market is mildly under-
-pricing **Canada** for "advance from group" / R16.
+**one host reaches the semi-final**. Canada is still playable for
+"advance from group" / R16, but not as the safe Group B winner pick.
 
 If you want a contrarian bonus pick: **Canada to reach the
 quarter-final** is worth thinking about.

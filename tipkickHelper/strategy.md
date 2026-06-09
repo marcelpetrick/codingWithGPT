@@ -23,27 +23,28 @@ the 1st-place equity. Documented; no strategy change.
 
 ## The pool sizing math
 
-**Confirmed 2026-06-02**: **25 participants**. Each pays €10 → **pool
-= €250**.
+**Updated 2026-06-09**: **29 participants**. Each pays €10 → **pool
+= €290**.
 
 | Place | Share | Payout | Net (after −€10 stake) |
 | --- | --- | --- | --- |
-| 1st | 40 % | €100 | **+€90** |
-| 2nd | 25 % | €62.50 | **+€52.50** |
-| 3rd | 15 % | €37.50 | **+€27.50** |
-| 4th | 12 % | €30 | **+€20** |
-| 5th | 8 % | €20 | **+€10** |
-| 6th–25th | 0 % | €0 | **−€10** |
+| 1st | 40 % | €116 | **+€106** |
+| 2nd | 25 % | €72.50 | **+€62.50** |
+| 3rd | 15 % | €43.50 | **+€33.50** |
+| 4th | 12 % | €34.80 | **+€24.80** |
+| 5th | 8 % | €23.20 | **+€13.20** |
+| 6th–29th | 0 % | €0 | **−€10** |
 
-**To cash out at all you need top-5 of 25** — i.e. the top **20 %**
-of the field. Even **5th place doubles the stake** (+€10 net). This
-is a much easier floor than the original 50-tipper assumption (top
-10 %), which raises the cash-out probability of pure chalk play.
+**To cash out at all you need top-5 of 29** — i.e. the top **17.2 %**
+of the field. Even **5th place more than doubles the stake** (+€13.20
+net). This is a little tougher than N=25, but still much easier than
+the original 50-tipper assumption (top 10 %), so pure chalk remains
+the correct cash-out line.
 
 ## What "cash out" probability actually requires
 
-At **N = 25** the bar is the top 20 %. An above-median diligent
-Kicktipp player should land top-5 of 25 roughly **55–65 %** of the
+At **N = 29** the bar is the top 17.2 %. An above-median diligent
+Kicktipp player should land top-5 of 29 roughly **50–60 %** of the
 time, because:
 
 - ~half the participants are casuals (random picks) — easy to beat.
@@ -51,16 +52,16 @@ time, because:
 - ~15 % are sharper than you on a given week.
 - ~10 % land lucky on a high-variance bonus pick.
 
-Out of 25, that's ~13 casuals + ~6 chalk-only + ~4 sharper + ~2
+Out of 29, that's ~15 casuals + ~7 chalk-only + ~4 sharper + ~3
 lucky-variance players. Your goal is to consistently outperform the
-~19 casuals + chalk-only players. The sharper minority is hard to
+~22 casuals + chalk-only players. The sharper minority is hard to
 beat reliably; ride variance.
 
 ## Two strategies — pick one before 11 June
 
 ### Strategy A — "Safe / Cash Out" (target: top 5)
 
-> The goal is **at least €20 back** (5th place at N=25) with high
+> The goal is **at least €23.20 back** (5th place at N=29) with high
 > probability — i.e. doubling the €10 stake. You give up some upside
 > at 1st place. Recommended if you mostly want not to lose your €10.
 
@@ -78,12 +79,12 @@ beat reliably; ride variance.
   scorelines historically cover ~55 % of all World Cup match outcomes.
   Picking 2–1 for the favorite is the highest-EV per-match scoreline.
 
-**Estimated finish range (at N=25)**: 2nd – 9th place (median ~5th).
-**Cash-out probability (at N=25)**: ~55–65 %.
+**Estimated finish range (at N=29)**: 2nd – 10th place (median ~5th/6th).
+**Cash-out probability (at N=29)**: ~50–60 %.
 
 ### Strategy B — "Swing / Win It" (target: 1st)
 
-> The goal is **€100** (1st place at N=25). You accept that you might
+> The goal is **€116** (1st place at N=29). You accept that you might
 > finish mid-table on most simulation runs in exchange for a real
 > chance at the big prize.
 
@@ -92,17 +93,17 @@ beat reliably; ride variance.
 - Match A's per-match scoreline play (chalk on tendency, modal
   scorelines) — **don't over-cleverize the group stage**.
 - Take **one** contrarian leverage bet — exactly one. Two examples
-  (counts scaled to **N=25**):
-  - **Champion = Portugal** (~+1000 implied 8 %; only ~1–2 of 25 will
+  (counts scaled to **N=29**):
+  - **Champion = Portugal** (~+1000 implied 10 %; only ~2–3 of 29 will
     pick this). Adds 4 bonus pts if right and big positional swing.
-  - **Semi-finalist swap: Brazil → Croatia or Morocco**. ~3–4 of 25
+  - **Semi-finalist swap: Brazil → Croatia or Morocco**. ~3–5 of 29
     will have Brazil; ≤2 will have Croatia/Morocco. If Croatia makes
     semis, you bank a 4-pt edge and a tiebreaker advantage.
 - Don't take *both* — the variance compounds and you tank your floor.
 
-**Estimated finish range (at N=25)**: 1st – 18th (bimodal).
-**Cash-out probability (at N=25)**: ~45–55 %.
-**1st-place probability (at N=25)**: ~8–12 % (vs. ~5–7 % under
+**Estimated finish range (at N=29)**: 1st – 20th (bimodal).
+**Cash-out probability (at N=29)**: ~40–50 %.
+**1st-place probability (at N=29)**: ~7–10 % (vs. ~4–6 % under
 Strategy A).
 
 ### Why not "all contrarian"?
@@ -119,22 +120,24 @@ as semis, win the big prize." Math says no:
 
 ## How participant count shifts the math
 
-**Confirmed**: **25 participants** (admin reminder, 2026-06-02). For
+**Updated**: **29 participants** (user message, 2026-06-09). For
 reference, here's how the threshold scales:
 
 | Participants | Top-5 = top X % | Strategy implication |
 | --- | --- | --- |
 | 13 | top 38 % | Below 13 even 5th place loses money. |
 | 20 | top 25 % | Safe play almost guaranteed cash-out. Go pure chalk. |
-| **25** | **top 20 %** | **Pure chalk has positive EV; one swing optional for the 1st-place lottery.** |
+| 25 | top 20 % | Pure chalk has positive EV; one swing optional for the 1st-place lottery. |
+| **29** | **top 17.2 %** | **Still Strategy A: pure chalk, only forced news-based changes.** |
 | 30 | top 17 % | Slight contrarian advantage; still mostly chalk. |
 | 50 | top 10 % | Recommended split: A or B. |
 | 80 | top 6 % | Strategy B (one swing pick) becomes mandatory. |
 | 100+ | top 5 % | Two swing picks become defensible — but tank floor. |
 
-**Note**: at N=25, 5th place = +€10 (doubles stake). The cash-out
-floor is now meaningful — Strategy A's "don't lose money" objective
-is achievable with high probability under pure chalk.
+**Note**: at N=29, 5th place = +€13.20. The cash-out floor is still
+meaningful — Strategy A's "don't lose money" objective remains
+achievable with pure chalk, but the field is now just large enough
+that wrong bonus favorites hurt more.
 
 ## Operational checklist
 
@@ -157,19 +160,20 @@ get our money back").
 The user chose Strategy A on 2026-05-15. This is the final strategy
 and will not be reconsidered.
 
-### Pool-size update — 2026-06-02 (does NOT unlock the strategy)
+### Pool-size update — 2026-06-09 (does NOT unlock the strategy)
 
-Confirmed N=25 (not the 50 assumed at locking time). The smaller pool
-makes Strategy A's cash-out *easier* (top 20 % instead of top 10 %),
-so the lock is reinforced, not weakened: 5th place now nets +€10,
-4th nets +€20 — pure chalk is comfortably positive EV. No reason to
-override the lock.
+Updated N=29 (not the 50 assumed at locking time). The smaller pool
+still makes Strategy A's cash-out *easier* than the original assumption
+(top 17.2 % instead of top 10 %), so the lock is reinforced, not
+weakened: 5th place now nets +€13.20, 4th nets +€24.80 — pure chalk
+is still positive EV. No reason to override the lock.
 
 **Locked picks (bonus, A-set)**:
 - Top-scorer team → **France**
 - Semi-finalists → **France, Spain, Argentina, Brazil**
 - Champion → **France**
-- Group winners → all 12 bookmaker favorites (see `my_picks.md`)
+- Group winners → all 12 market favorites (see `my_picks.md`; Group B
+  updated Canada → Switzerland on 2026-06-09)
 - Per-match scorelines → chalk favorite, modal scoreline (2–1, 1–0,
   2–0, 1–1) — see `my_picks.md` for the full group-stage scratch sheet
 

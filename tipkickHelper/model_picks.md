@@ -17,7 +17,7 @@ My recommendation if you trust the pool-rule analysis in
   + Olise + Doué + Cherki + Barcola + Thuram + Mateta). Mbappé alone
   is enough to make this defensible. **Note**: Kolo Muani left out of
   final squad (14 May) — Mateta preferred. Camavinga also left out.
-- Alternatives:
+- Alternatives if Strategy B were unlocked:
   - Spain (Yamal/Oyarzabal) — depressed by Yamal injury risk
   - Argentina (Messi/Álvarez) — single-striker dependency
   - Portugal (Ronaldo final dance + Leão)
@@ -26,11 +26,11 @@ My recommendation if you trust the pool-rule analysis in
 
 ### 2. Semi-finalists (pick 4)
 
-Recommended set: **France, Spain, Argentina, Croatia**.
+Recommended Strategy A set: **France, Spain, Argentina, Brazil**.
 
-- 3 chalk + 1 contrarian. Croatia has a 25–30 % implied semi chance
-  and very few colleagues will pick them.
-- Safer alternative: swap Croatia → Brazil (pure chalk, no edge).
+- Pure chalk, consistent with the locked cash-out strategy.
+- Contrarian alternative: swap Brazil → Croatia or Morocco — only if
+  playing Strategy B, which is not the chosen strategy.
 - Contrarian alternative: swap Argentina → Portugal — Portugal has a
   similar path and ~10 % of colleagues will pick them.
 
@@ -39,11 +39,11 @@ Recommended set: **France, Spain, Argentina, Croatia**.
 | Group | Pick | Reason |
 | --- | --- | --- |
 | A | 🇲🇽 Mexico | Home + altitude + easy group |
-| B | 🇨🇦 Canada | Easiest group in the tournament |
+| B | 🇨🇭 Switzerland | Kalshi June 9 group market: Switzerland 55 % vs Canada 33 % |
 | C | 🇧🇷 Brazil | Class gap over Morocco |
 | D | 🇺🇸 USA | Home crowd, weakest non-host group |
 | E | 🇩🇪 Germany | Light group |
-| F | 🇯🇵 Japan **(contrarian)** | More cohesive than Netherlands; really tight call — swap to NED for safety |
+| F | 🇳🇱 Netherlands | Market favorite; Japan is the contrarian alternative |
 | G | 🇧🇪 Belgium | Class over Egypt/Iran |
 | H | 🇪🇸 Spain | Beats Uruguay on GD probably |
 | I | 🇫🇷 France | Walkover |
@@ -60,8 +60,8 @@ correct = 32–40 pts.
   squad in the field.
 - Easier bracket side than Spain (avoids England until SF).
 - Cleaner injury picture than Spain.
-- **If you want one contrarian "swing for the fences" pick**: replace
-  with **Portugal** (+1000). 8 % implied is too cheap for that squad.
+- Strategy B note only: Portugal is the best contrarian champion if
+  playing for 1st, but that is not the chosen strategy.
 
 ---
 
@@ -138,17 +138,14 @@ Probable winners advance; expected upsets in **bold**.
 
 ## Champion: 🇫🇷 France
 
-If you want one **contrarian alt-script** to differentiate from the
-office crowd: champion = **Portugal**, with Argentina runner-up. This
-costs you ~9 % expected payout vs. France but multiplies your win
-probability among colleagues if Portugal does it.
+Strategy B alt-script only: champion = **Portugal**, with Argentina
+runner-up. Not used for the locked Strategy A sheet.
 
 ---
 
 ## How to use this
 
 1. Start by **copy-pasting these picks into [`my_picks.md`](my_picks.md)**.
-2. Then swap **at most 1–2 contrarian picks** that fit your gut.
-3. **Do not** go all-contrarian — the prize distribution rewards top 5,
-   not just 1st, and all-contrarian is high-variance for low expected payout.
+2. Change only when forced by fresh information that changes the favorite.
+3. Do not add contrarian picks under the locked Strategy A sheet.
 4. Lock the bonus picks before **11 June 2026, 21:00 CET**.

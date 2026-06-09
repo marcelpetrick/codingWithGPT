@@ -174,3 +174,18 @@ Compiled 2026-05-15.
 - [World Soccer Talk — Argentina 2–0 Honduras (June 6): Lautaro pen + Simeone; Messi rested](https://worldsoccertalk.com/world-cup/argentina-vs-honduras-live-updates-follow-the-2026-international-friendly-minute-by-minute/)
 - [ESPN — France vs Northern Ireland (June 8, Lille): Mbappé expected to start](https://www.espn.com/soccer/story/_/id/48982961/france-vs-northern-ireland-kickoff-how-watch-stats-team-news-international-friendly)
 - [Yahoo Sports — 2026 WC live news tracker (injuries, squad updates)](https://sports.yahoo.com/soccer/live/2026-world-cup-news-live-tracker-injuries-squads-storylines-and-updates-as-the-tournament-looms-200000653.html)
+
+## Research update — 2026-06-09 (2 days to kick-off)
+
+### Pool/admin
+- User message in chat (2026-06-09): participant count updated to **29**.
+
+### Odds & prediction markets (June 9)
+- [CBS Sports — Kalshi World Cup 2026 prices incl. winner, group, Golden Boot markets](https://new.cbssports.com/prediction/news/kalshi-world-cup-2026/)
+- [PredictMarketCap — 2026 FIFA World Cup Winner, Polymarket vs Kalshi](https://predictmarketcap.com/canonical/2026-fifa-world-cup-winner)
+
+### Pre-tournament friendlies and injury signals (June 8–9)
+- [Washington Post/AP — France 3–1 Northern Ireland, Olise hat-trick, Mbappé starts](https://www.washingtonpost.com/sports/soccer/2026/06/08/france-netherlands-world-cup-warmup/25f71dca-6381-11f1-bdd4-805ebb99a693_story.html)
+- [Real Madrid — Mbappé and Tchouaméni start in France 3–1 Northern Ireland](https://www.realmadrid.com/en-US/news/football/first-team/latest-news/mbappe-08-06-2026)
+- [Al Jazeera/Reuters — Spain 3–1 Peru final warm-up](https://www.aljazeera.com/amp/sports/2026/6/9/spain-cruise-past-peru-in-final-world-cup-2026-warm-up-match)
+- [ABC News/AP — Spain beat Peru despite Yamal, Nico Williams and Víctor Muñoz absences](https://abcnews.com/Sports/wireStory/spain-finalizes-world-cup-preparations-3-1-win-133702262)

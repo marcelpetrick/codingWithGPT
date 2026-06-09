@@ -14,10 +14,10 @@ Tip name idea: _(be creative — pool admin's request)_ → `___________`
 ## Which strategy am I playing? 🔒 LOCKED
 
 **Locked 2026-05-15: Strategy A — Safe / Cash Out.**
-**Pool-size update 2026-06-02**: 25 participants confirmed (pool €250);
-5th place now nets +€10, lock reinforced.
+**Pool-size update 2026-06-09**: 29 participants confirmed (pool €290);
+5th place now nets +€13.20, lock still reinforced.
 
-- [x] **Strategy A — Safe / Cash Out** (target: top 5 of 25; min €20 back / +€10 net).
+- [x] **Strategy A — Safe / Cash Out** (target: top 5 of 29; min €23.20 back / +€13.20 net).
       → Semi-finalists: France, Spain, Argentina, **Brazil**. Champion: France.
 - [ ] ~~Strategy B — Swing / Win It~~ (not chosen)
 
@@ -74,7 +74,7 @@ is fine, we don't lose ground here.
 | Group | Default pick | Your pick |
 | --- | --- | --- |
 | A | Mexico | `___` |
-| B | Canada | `___` |
+| B | Switzerland | `Switzerland` ✅ changed in Kicktipp 2026-06-09 |
 | C | Brazil | `___` |
 | D | USA | `___` |
 | E | Germany | `___` |
@@ -223,6 +223,6 @@ block at the top.
 Use this section only to log **forced** deviations (e.g. an injury
 that makes the default pick no longer the favorite).
 
-- [ ] _____
+- [x] 2026-06-09: Group B bonus default changed **Canada → Switzerland** after June 9 Kalshi group-winner market showed Switzerland 55 % vs Canada 33 %. This is a Strategy A chalk correction, not a contrarian deviation.
 - [ ] _____
 - [ ] _____

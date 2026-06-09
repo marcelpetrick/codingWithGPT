@@ -1,8 +1,7 @@
-# Title Favorites — Top 8 (as of 2026-06-08)
+# Title Favorites — Top 8 (as of 2026-06-09)
 
-Odds: DraftKings / FOX Sports; Polymarket/Kalshi probabilities as of
-June 8 (3 days to tournament). ESPN Power Rank from "30 days out" list.
-Polymarket total volume on the winner market: **~$1.7 billion**.
+Odds: DraftKings / FOX Sports baseline, with June 9 Kalshi + cross-platform
+checks layered in. ESPN Power Rank from "30 days out" list.
 
 | # | Team | DK Odds | Polymarket % | Kalshi % | Coach |
 | --- | --- | --- | --- | --- | --- |
@@ -14,6 +13,18 @@ Polymarket total volume on the winner market: **~$1.7 billion**.
 | 6 | 🇧🇷 Brazil | +900 | 8.0 % | 8.0 % | Carlo Ancelotti |
 | 7 | 🇩🇪 Germany | +1400 | 5.5 % | 5.0 % | Julian Nagelsmann |
 | 8 | 🇳🇱 Netherlands | +2200 | 4.0 % | 4.0 % | Ronald Koeman |
+
+**Market moves since June 8 → June 9:**
+- Spain now has a tiny edge over France on Kalshi (16.5 % vs 16.3 %)
+  and both sit ~16 % cross-platform. This is not enough to move the
+  locked France champion pick.
+- Portugal has firmed to ~10 %, level with or slightly ahead of England
+  on some platforms.
+- Brazil remains below the pre-injury tier (~8 %) but still the Strategy A
+  semi-finalist chalk over Croatia/Morocco.
+- The most actionable group-market change is **Group B: Switzerland 55 %
+  to win the group vs Canada 33 %** on Kalshi. Strategy A default changes
+  Canada → Switzerland.
 
 **Market moves since June 2 → June 8:**
 - Spain nudged ahead on sportsbooks (DK +450 vs France +475); Kalshi
@@ -48,25 +59,27 @@ Olise + Cherki + Barcola + Thuram + Mateta**. Proven tournament
 knowhow. Deschamps publicly declared this his last tournament —
 historically Deschamps-led teams over-perform in swansong years.
 Beat Brazil 2–1 (March, with 10 men!), 3–1 Colombia in pre-WC friendlies.
-**The case against (updated 2026-06-08)**:
+**The case against (updated 2026-06-09)**:
 - Surprise squad cuts: **Camavinga left out** (poor season form), **Kolo
   Muani left out** / **Ekitike OUT** (Achilles rupture, replaced by Mateta).
 - **William Saliba (CB)** — back injury post-UCL final (Arsenal lost to PSG).
   **✅ CLEARED June 8**: Deschamps confirmed "if he had to play tomorrow he
-  would play." Saliba on a managed programme; expected to play vs Northern
-  Ireland (June 8) for match sharpness. Targeting Senegal opener June 16.
+  would play." Saliba then started vs Northern Ireland on June 8.
 - **Kylian Mbappé** — semitendinosus muscle injury (left leg, late April).
   **Managed carefully**: played 45 min vs Ivory Coast June 4 (left at HT as
-  precaution). Expected to start vs Northern Ireland June 8 and lead the line.
-  Still being monitored but no longer a concern for the opener.
+  precaution). Started and played the full match vs Northern Ireland on
+  June 8. Still being monitored but no longer a concern for the opener.
 - **Friendly form concern**: France lost **1–2 to Ivory Coast** (June 4) in
   Nantes — Cherki opened, Doué + Amad scored in second half with a rotated
   side. First warm-up loss since pre-tournament form matters to Polymarket;
   market dipped 1 pt. Context: heavily rotated for the second half.
+- **Final warmup**: France **3–1 Northern Ireland** (June 8). Michael Olise
+  scored a hat-trick; Mbappé played 90. This strengthens the France
+  top-scorer team pick because the attack volume is broad, not Mbappé-only.
 - Group I is the "Group of Death": Senegal (AFCON champs, Mané/Jackson/Sarr)
   and Norway (Haaland 16 qualifying goals, 8/8 unbeaten) are not makeweights.
 **Group**: I (Senegal, Norway, Iraq).
-**Verdict**: ★★★★★ — Saliba cleared and Mbappé tracking fine; the June 4
+**Verdict**: ★★★★★ — Saliba cleared and Mbappé got 90 minutes; the June 4
 loss was with a half-strength side. Model favorite unchanged.
 
 ## 🇪🇸 Spain — Euro 2024 champs, "system" team
@@ -75,7 +88,7 @@ loss was with a half-strength side. Model favorite unchanged.
 Just two losses since start of 2023. Tactical clarity, deep central
 midfield (Pedri, Fabián, Zubimendi, Gavi), Yamal/Williams width.
 ESPN's PR #1.
-**The case against (updated 2026-06-08)**:
+**The case against (updated 2026-06-09)**:
 - **Lamine Yamal** — partial hamstring tear (April 22). **Status improving**:
   De la Fuente confirmed "he's doing good" and expects him ready for the June
   15 opener vs Cabo Verde. Deliberately left out of Spain's Peru warmup
@@ -83,6 +96,8 @@ ESPN's PR #1.
   in Chattanooga to continue rehabilitation. Coach: "If nothing changes he
   could be ready June 15, though not guaranteed he'll play." Day-to-day;
   targeting game 2 vs Saudi Arabia (June 20) as the safe milestone.
+- Spain beat Peru **3–1** on June 8 despite Yamal, Nico Williams and Víctor
+  Muñoz staying at the Tennessee base with injuries. No new injury reported.
 - **Fermín López (MF)** — fractured 5th metatarsal, surgery May 25. **Full
   tournament out**; not a starter loss but reduces midfield depth.
 - **Mikel Merino (MF)** — stress fracture foot since February. Still
