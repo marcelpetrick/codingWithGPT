@@ -133,8 +133,8 @@ easier bracket side. The single safest pick in the bonus set.
 - [ ] Paraguay – Australia → `1–1`
 
 ### Group E
-- [ ] Germany – Curaçao → `3–0`  _(restored from 2–0 on 2026-06-08: 8-match winning streak, form confirmed vs USA; Karl absence is bench-level only)_
-- [ ] Ecuador – Côte d'Ivoire → `1–1`
+- [x] Germany – Curaçao → `3–0`  _(restored from 2–0 on 2026-06-08: 8-match winning streak, form confirmed vs USA; Karl absence is bench-level only)_ ✅ entered 2026-06-13
+- [x] Ecuador – Côte d'Ivoire → `1–1` ✅ entered 2026-06-13
 - [ ] Germany – Ecuador → `2–0`
 - [ ] Curaçao – Côte d'Ivoire → `0–2`
 - [ ] Germany – Côte d'Ivoire → `2–1`
@@ -143,22 +143,22 @@ easier bracket side. The single safest pick in the bonus set.
 ### Group F
 - [ ] Netherlands – Tunisia → `2–0`
 - [ ] Japan – Sweden → `2–1`
-- [ ] Netherlands – Japan → `1–1`
-- [ ] Tunisia – Sweden → `1–2`
+- [x] Netherlands – Japan → `1–1` ✅ entered 2026-06-13
+- [x] Tunisia – Sweden → `1–2` ✅ entered 2026-06-13
 - [ ] Netherlands – Sweden → `2–1`
 - [ ] Tunisia – Japan → `0–2`
 
 ### Group G
 - [ ] Belgium – New Zealand → `3–0`
 - [ ] Egypt – Iran → `1–1`
-- [ ] Belgium – Egypt → `2–1`
-- [ ] NZ – Iran → `0–2`
+- [x] Belgium – Egypt → `2–1` ✅ entered 2026-06-13
+- [x] NZ – Iran → `0–2` ✅ entered 2026-06-13
 - [ ] Belgium – Iran → `2–1`
 - [ ] NZ – Egypt → `0–2`
 
 ### Group H
-- [ ] Spain – Cabo Verde → `2–0`  _(trimmed from 3–0 on 2026-05-19: Yamal out per latest news)_
-- [ ] Saudi Arabia – Uruguay → `0–2`
+- [x] Spain – Cabo Verde → `2–0`  _(trimmed from 3–0 on 2026-05-19: Yamal out per latest news)_ ✅ entered 2026-06-13
+- [x] Saudi Arabia – Uruguay → `0–2` ✅ entered 2026-06-13
 - [ ] Spain – Saudi Arabia → `2–0`  _(trimmed from 3–0: Yamal doubtful)_
 - [ ] Cabo Verde – Uruguay → `0–2`
 - [ ] Spain – Uruguay → `1–1`
