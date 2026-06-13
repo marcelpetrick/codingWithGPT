@@ -101,8 +101,8 @@ easier bracket side. The single safest pick in the bonus set.
 > close. Don't chase blowouts.
 
 ### Group A (matchdays in Mexico)
-- [ ] **Mexico – South Africa** (opener, 11 Jun 21:00 CET) → `2–0`
-- [ ] Korea Rep – Czechia → `1–1`
+- [x] **Mexico – South Africa** (opener, 11 Jun 21:00 CET) → `2–0` ✅ entered 2026-06-11
+- [x] Korea Rep – Czechia → `1–1` ✅ entered 2026-06-12
 - [ ] Mexico – Korea Rep → `1–1`
 - [ ] South Africa – Czechia → `1–0`
 - [ ] Mexico – Czechia → `2–0`
@@ -113,20 +113,20 @@ easier bracket side. The single safest pick in the bonus set.
 - [ ] Qatar – Bosnia → `1–1`
 - [ ] Canada – Qatar → `2–0`
 - [ ] Switzerland – Bosnia → `2–0`
-- [ ] Canada – Bosnia → `2–1`
-- [ ] Switzerland – Qatar → `2–0`
+- [x] Canada – Bosnia → `2–1` ✅ entered 2026-06-12
+- [x] Switzerland – Qatar → `2–0` ✅ entered 2026-06-13
 
 ### Group C
 - [ ] Brazil – Haiti → `2–0`  _(trimmed from 3–0 on 2026-05-19: Brazil squad weakened — Rodrygo/Militão/Estêvão out)_
 - [ ] Morocco – Scotland → `1–1`
-- [ ] Brazil – Morocco → `1–1` _(the highlight!)_
-- [ ] Haiti – Scotland → `1–2`
+- [x] Brazil – Morocco → `1–1` _(the highlight! Neymar officially OUT — Igor Thiago starts)_ ✅ entered 2026-06-13
+- [x] Haiti – Scotland → `1–2` ✅ entered 2026-06-13
 - [ ] Brazil – Scotland → `2–0`
 - [ ] Haiti – Morocco → `0–2`
 
 ### Group D
-- [ ] USA – Paraguay → `2–0`
-- [ ] Australia – Türkiye → `1–1`
+- [x] USA – Paraguay → `2–0` ✅ entered 2026-06-12
+- [x] Australia – Türkiye → `1–1` ✅ entered 2026-06-13
 - [ ] USA – Australia → `2–1`
 - [ ] Paraguay – Türkiye → `1–1`
 - [ ] USA – Türkiye → `2–1`
