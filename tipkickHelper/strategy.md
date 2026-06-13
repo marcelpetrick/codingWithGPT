@@ -204,3 +204,70 @@ Allowed:
 Not during this tournament. If after the World Cup you want to evaluate
 whether Strategy A or B was the better choice in hindsight, that's
 fine — but it's a post-mortem, not a live correction.
+
+---
+
+## In-tournament learnings — 2026-06-13 (after matchday 1)
+
+**Scoreboard after 4 matches: 10 / 16 pts (62.5 %)**
+
+| Match | Pick | Actual | Pts |
+|-------|------|--------|-----|
+| Mexico – South Africa | 2–0 | 2–0 ✅ | +4 exact |
+| Korea Rep – Czechia | 1–1 | 2–1 KOR ❌ | +0 tendency miss |
+| Canada – Bosnia | 1–1 | 1–1 ✅ | +4 exact |
+| USA – Paraguay | 2–0 USA | 4–1 USA ⚠️ | +2 tendency only |
+
+Two exact hits in four matches is a strong start. The Korea tendency
+miss and the USA margin undershoot both come from the same root cause:
+the scoreline pick was too conservative relative to the tier gap between
+the teams.
+
+### Calibration rule derived from matchday 1
+
+> **When `groups.md` marks a team ★★★ and the opponent ★ or 💤, the
+> default scoreline must be a WIN for the stronger side, not a draw (1–1).**
+> A 1–1 pick is only correct when both teams are genuinely ★★ or when
+> there is a specific reason for caginess (cagey tactical setup, neutral
+> venue with no crowd edge, must-draw dynamic).
+
+This is not a strategy change — it is a clarification of how to apply
+"chalk" correctly. The default scorelines from `model_picks.md` (2–1,
+1–0, 2–0, 1–1) stay the same; the lesson is which one to pick for a
+given tier pairing.
+
+### What to watch for in future picks
+
+These are forward-looking notes, not adjustments to already-submitted
+picks:
+
+1. **★★★ vs ★ / 💤 → pick the win, not the draw.** Korea–Czechia and
+   USA–Paraguay both showed the stronger side wins convincingly. When
+   the tier gap is this large, 1–1 is the wrong modal outcome. Default
+   to 2–0 or 1–0 for the favorite.
+
+2. **Home crowd boost is real and larger than assumed.** USA scored 4
+   vs Paraguay (picked 2–0). Mexico scored 2–0 comfortably at Azteca.
+   For remaining host-nation matches (USA vs Australia, USA vs Türkiye;
+   Mexico vs Korea, Mexico vs Czechia) lean toward a comfortable win
+   margin, not just a bare minimum.
+
+3. **★★ vs ★★ is where 1–1 earns its keep.** Canada–Bosnia 1–1 was the
+   correct call — both teams close in quality, no obvious crowd edge,
+   neither needing to attack. The draw is the right chalk for
+   genuinely balanced matchups.
+
+4. **Don't overcorrect after a tendency miss.** The Korea miss is 1 data
+   point. The risk is now picking wins too aggressively and getting the
+   tendency wrong the other way (e.g., calling a ★★★ team's win in a
+   match where they tactically hold back for MD3). Apply the calibration
+   rule with judgment, not mechanically.
+
+5. **Brazil–Morocco style 50/50 draws: hold the 1–1.** When the model
+   explicitly calls a match a "true 50/50" (equal tier, unknown lineup,
+   neutral venue), the 1–1 is the correct pick regardless of the MD1
+   lesson. The rule above applies to tier mismatches, not to balanced
+   clashes between top-20 sides.
+
+See [`StrategyReview20260613.md`](StrategyReview20260613.md) for the
+full matchday-1 breakdown.
