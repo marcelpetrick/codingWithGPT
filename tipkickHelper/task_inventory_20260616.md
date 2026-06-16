@@ -14,6 +14,16 @@ Cup 2026 prediction pool documents, using current match results through
 | 4 | Reconcile pick documents | Check `model_picks.md` and `my_picks.md` for necessary Strategy A changes after the results. | Pick-file updates only if favorites materially change; explicit note if `my_picks.md` changes. | Task 3; Strategy A lock. |
 | 5 | Repository-wide verification | Validate formatting, links, dates, and unresolved inconsistencies after edits. | Final status check and local commit. | Tasks 1-4. |
 
+## Execution Log
+
+| Task | Status | Notes |
+| --- | --- | --- |
+| 1 | Complete | Task inventory created and registered in `README.md` / `AGENTS.md`; committed as `cf2bf2f`. |
+| 2 | Complete | Results through 15 June verified and collected into `prediction_timeline.md`; scorer conflict for Qatar–Switzerland resolved to FIFA's Muheim own goal credit. |
+| 3 | Complete | `StrategyReview20260616.md` added with corrected 19/64 audit and Strategy A calibration findings. |
+| 4 | Complete | `pick_adjustment_watchlist.md` created; no scoreline changes made in `my_picks.md`, only locked-strategy wording cleanup. |
+| 5 | In progress | Final repo-wide check and final commit still outstanding. |
+
 ## Per-Task Breakdown
 
 ### Task 1 — Initialize review loop

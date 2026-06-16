@@ -1,6 +1,6 @@
 # Sources
 
-Compiled 2026-05-15.
+Compiled from 2026-05-15 through 2026-06-16.
 
 ## Format, schedule, and groups
 
@@ -189,3 +189,22 @@ Compiled 2026-05-15.
 - [Real Madrid — Mbappé and Tchouaméni start in France 3–1 Northern Ireland](https://www.realmadrid.com/en-US/news/football/first-team/latest-news/mbappe-08-06-2026)
 - [Al Jazeera/Reuters — Spain 3–1 Peru final warm-up](https://www.aljazeera.com/amp/sports/2026/6/9/spain-cruise-past-peru-in-final-world-cup-2026-warm-up-match)
 - [ABC News/AP — Spain beat Peru despite Yamal, Nico Williams and Víctor Muñoz absences](https://abcnews.com/Sports/wireStory/spain-finalizes-world-cup-preparations-3-1-win-133702262)
+
+## Results and performance audit — 2026-06-16
+
+- [ESPN — 2026 World Cup fixtures, results and schedule](https://www.espn.com/soccer/story/_/id/48939282/2026-fifa-world-cup-fixtures-results-match-schedule-group-stage-knockout-rounds-bracket)
+- [FIFA — Mexico 2–0 South Africa match report](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/mexico-south-africa-highlights-match-report)
+- [FIFA — Korea Republic 2–1 Czechia match report](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/korea-republic-czechia-highlights-match-report)
+- [FIFA — Canada 1–1 Bosnia and Herzegovina match report](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/canada-bosnia-and-herzegovina-highlights-match-report)
+- [FIFA — USA 4–1 Paraguay match report](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/usa-paraguay-highlights-match-report)
+- [FIFA — Qatar 1–1 Switzerland match report](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/qatar-switzerland-highlights-match-report)
+- [SBS — 14 June results recap: Qatar–Switzerland, Brazil–Morocco, Haiti–Scotland, Australia–Türkiye](https://www.sbs.com.au/news/article/fifa-world-cup-2026-results-june-14/e56hcdhvm)
+- [RotoWire — 14 June results recap: Germany, Netherlands/Japan, Côte d'Ivoire, Sweden](https://www.rotowire.com/soccer/article/germany-vs-curacao-netherlands-vs-japan-ivory-coast-vs-ecuador-sweden-vs-tunisia-results-scores-recap-2026-world-cup-june-14-118220)
+- [AP — Australia 2–0 Türkiye report](https://apnews.com/article/australia-turkey-score-690429346bffc3d906fb01005df38010)
+- [NBC Sports — 2026 World Cup group-stage standings](https://www.nbcsports.com/soccer/news/2026-world-cup-group-stage-table-full-standings-for-all-12-groups)
+- [Guardian — Belgium 1–1 Egypt live report](https://www.theguardian.com/football/live/2026/jun/15/belgium-v-egypt-world-cup-2026-live)
+- [Guardian — Saudi Arabia 1–1 Uruguay live report](https://www.theguardian.com/football/live/2026/jun/15/saudi-arabia-v-uruguay-world-cup-2026-live)
+- [ABC News/AP — Cabo Verde 0–0 Spain report](https://abcnews.com/Sports/wireStory/cape-verde-impressive-early-world-cup-debut-shuts-133896020)
+- [ESPN — Iran 2–2 New Zealand match page](https://www.espn.com/soccer/match/_/gameId/760427/new-zealand-iran)
+- [ESPN — Spain held by Cabo Verde, first major shock](https://global.espn.com/football/story/_/id/49073839/spain-held-64th-ranked-cape-verde-1st-major-world-cup-shock)
+- [ESPN — Belgium vs Egypt live report](https://www.espn.com/soccer/story/_/id/49073712/belgium-vs-egypt-live-world-cup-2026-updates-kevin-de-bruyne-takes-mohamed-salah-group-e-clash)

@@ -1,6 +1,14 @@
 # Strategy Review — 13 June 2026
 
-_Post-matchday-1 check. Quick read, ~5 min._
+_Post-matchday-1 check. Superseded for scoring by
+`StrategyReview20260616.md`._
+
+> Audit note added 2026-06-16: this file conflicts with current
+> `my_picks.md` on Canada – Bosnia. This report scored that match as a
+> 1–1 exact hit, but current `my_picks.md` records the submitted pick as
+> `2–1`. Use `StrategyReview20260616.md` / `prediction_timeline.md` as
+> the current scoring audit unless the Kicktipp app proves the submitted
+> pick was 1–1.
 
 ---
 
@@ -10,15 +18,17 @@ _Post-matchday-1 check. Quick read, ~5 min._
 |------|-------|---------|--------|--------|
 | Jun 11 | **Mexico – South Africa** | 2–0 MEX | **2–0 MEX** | ✅ **+4 (exact)** |
 | Jun 11 | **Korea Rep – Czechia** | 1–1 | **2–1 KOR** | ❌ +0 (tendency miss) |
-| Jun 12 | **Canada – Bosnia** | 1–1 | **1–1** | ✅ **+4 (exact)** |
+| Jun 12 | **Canada – Bosnia** | 2–1 CAN per current `my_picks.md` | **1–1** | ❌ +0 *(was previously logged here as 1–1 exact)* |
 | Jun 12 | **USA – Paraguay** | 2–0 USA | **4–1 USA** | ⚠️ +2 (tendency only) |
 
-**Tally after 4 matches: 10 pts / 16 possible (62.5 %)**
+**Conservative audited tally after 4 matches: 6 pts / 16 possible (37.5 %).**
+If the Kicktipp app proves Canada – Bosnia was actually submitted as
+1–1, restore the old 10 / 16 tally.
 
-Still to play today (Jun 13):
-- Qatar – Switzerland (Group B, 21:00 CET) → pick: **0–2 SUI**
-- Brazil – Morocco (Group C, 00:00 CET Jun 14) → pick: **1–1**
-- Haiti – Scotland (Group C, 03:00 CET Jun 14) → pick: **1–2 SCO**
+Follow-up results from that slate:
+- Qatar – Switzerland finished **1–1** → miss on `0–2 SUI`.
+- Brazil – Morocco finished **1–1** → exact hit.
+- Haiti – Scotland finished **0–1** → goal-difference hit on Scotland win.
 
 ---
 
@@ -27,8 +37,12 @@ Still to play today (Jun 13):
 **Mexico 2–0 South Africa: perfect call (+4).**
 The host-advantage + altitude analysis from `groups.md` and `model_picks.md` fired immediately. This is the opener bonus that can separate you from the pack — most casual tipsters guessed a more cautious 1–0 or threw in a 2–1.
 
-**Canada 1–1 Bosnia: exact call (+4).**
-The "easiest group on paper" read played out correctly. Canada aren't dominant enough at home to steamroll a competent Bosnia side, and the draw was the modal outcome. The Group B bonus pick switch to Switzerland on June 9 also looks smart — expect Switzerland 2–0 Qatar tonight to confirm.
+**Canada 1–1 Bosnia: model read was right, current pick audit is not.**
+The "easiest group on paper" read played out correctly. Canada were not
+dominant enough at home to steamroll a competent Bosnia side, and the
+draw was the modal outcome. But current `my_picks.md` says `2–1` was
+entered, so this cannot be counted as points unless the Kicktipp app
+shows a 1–1 submission.
 
 **Strategy A discipline held through injury chaos.**
 Kept cool through Neymar, Yamal, Saliba, Mbappé scare, Karl OUT. No panic deviations. The locked picks went in clean before the June 11 deadline.
@@ -49,15 +63,20 @@ Picked 2–0, got 4–1. Balogun scored twice (plus own goal + Reyna — US reco
 
 **Upcoming correction**: USA next face **Australia (pick: 2–1 USA)** and **Türkiye (pick: 2–1 USA)**. Given the USA's opening performance, **3–0** or **3–1** are more accurate projections — but under Strategy A, changing scorelines mid-matchday opens variance. Hold 2–1 for now; keep it as a mental note.
 
-### 3. Tonight's pivot match: Brazil–Morocco (pick: 1–1)
+### 3. Brazil–Morocco pivot match (pick: 1–1)
 
-The 1–1 call is still correct. Neymar is almost certainly absent for game 1, Militão and Estêvão are gone, and Morocco have Regragui's defensive organization intact. This is the most watched match tonight and the one where diverging from 1–1 would be the highest-variance play. **Hold the pick.**
+The 1–1 call was correct. Neymar was absent for game 1, Militão and
+Estêvão were gone, and Morocco had Regragui's defensive organization
+intact. Holding the draw was the right Strategy A play.
 
 ---
 
 ## Pool position context
 
-After 4 matches, 10 pts earned. 2 exact results means you've scored max points twice — this is exactly the kind of start Strategy A targets. The Korea miss is the only real blemish; it didn't come from a contrarian call, it came from under-aggressive scoreline selection on a clear favorite.
+After 4 matches, the conservative audit is **6 pts**. Mexico was an
+exact hit and USA banked tendency points, but Korea and Canada both
+miss under the current pick sheet. If the actual Kicktipp submission
+for Canada was 1–1, this paragraph reverts to the old 10-point read.
 
 **No strategy adjustments.** Still fully in line with Strategy A. The Korea lesson is a **scoreline calibration**, not a strategy drift:
 
@@ -71,10 +90,10 @@ The bonus picks (France champion, France top scorer, France/Spain/Argentina/Braz
 
 | Match | Pick | Status |
 |-------|------|--------|
-| Qatar – Switzerland | **0–2 SUI** | Tonight (21:00 CET) |
-| Brazil – Morocco | **1–1** | Tonight (00:00 CET) — HOLD |
-| Haiti – Scotland | **1–2 SCO** | Tonight (03:00 CET) |
+| Qatar – Switzerland | **0–2 SUI** | Played 1–1; miss |
+| Brazil – Morocco | **1–1** | Played 1–1; exact |
+| Haiti – Scotland | **1–2 SCO** | Played 0–1; +3 goal difference |
 
 ---
 
-_Written 2026-06-13. Next review after matchday-2 wrap (est. June 16–17)._
+_Written 2026-06-13. Scoring superseded by `StrategyReview20260616.md`._

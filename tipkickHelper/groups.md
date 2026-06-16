@@ -75,9 +75,11 @@ class gap absorbs the absences.
 | --- | --- | --- |
 | 🇳🇱 Netherlands ★★★ | Koeman, deep but inconsistent |
 | 🇯🇵 Japan ★★★ | Now genuinely a top-20 side, ruthless qualifier |
-| 🇸🇪 Sweden ★★ | Resurgent, snuck through play-offs |
+| 🇸🇪 Sweden ★★★ | Upgraded 2026-06-16 after 5–1 Tunisia opener; Isak/Gyökeres/Ayari attack looked real |
 | 🇹🇳 Tunisia ★ | |
-**Most balanced group**. Japan can win it. Sweden have a 3rd-place shot.
+**Most balanced group**. Sweden, Japan, and Netherlands all have top-two
+paths now. The pre-tournament Netherlands group-winner pick is the
+shakiest locked bonus group pick.
 
 ---
 
@@ -106,16 +108,15 @@ class gap absorbs the absences.
 ## Group I — France's group (*actual Group of Death*)
 | Team | Tier | Note |
 | --- | --- | --- |
-| 🇫🇷 France ★★★ | Deschamps' final dance; **Saliba CLEARED (June 8)**, **Mbappé managed but targeting opener**; lost 1–2 Ivory Coast (June 4, rotated) |
+| 🇫🇷 France ★★★ | Deschamps' final dance; **Saliba CLEARED (June 8)**, **Mbappé played 90 vs Northern Ireland**; lost 1–2 Ivory Coast (June 4, rotated) |
 | 🇸🇳 Senegal ★★★ | Reigning AFCON champs; Mané, Sarr, Jackson; beat France 1–0 in 2002 groups |
 | 🇳🇴 Norway ★★★ | **8/8 unbeaten in qualifying; Haaland 16 qualifying goals; Ødegaard; never been to a WC (no baggage)** |
 | 🇮🇶 Iraq 💤 | Asian qualifier |
-**Updated 2026-06-08**: This is the hardest group in the draw. France still win
-it (~65%). **Saliba cleared (June 8)**, Mbappé tracking fine. The 2–0 vs
-Senegal pick is reinstated to full confidence. France vs Norway (June 26
-approx.) — 2–1 FRA pick holds (Haaland scores, France wins late). The 3–0
-vs Iraq pick is safe. Key monitor: Saliba's minutes vs Northern Ireland
-(June 8) and how Mbappé comes through that game.
+**Updated 2026-06-16**: This is the hardest group in the draw. France
+still win it on talent, but this is not a walkover. Saliba was cleared
+and Mbappé came through the final warmup; the concern now is opponent
+quality, not France fitness. France vs Senegal should be treated as a
+controlled chalk pick, not an automatic multi-goal banker.
 
 ---
 
@@ -160,3 +161,21 @@ pick is correct (low-scoring, attritional).
 Likely beneficiaries of the "best 3rd-placed" lifeline:
 Australia/Türkiye, Côte d'Ivoire, Sweden, Egypt, Norway, Austria,
 Colombia (if 3rd), Croatia/Ghana, Korea Republic.
+
+---
+
+## In-tournament update — 2026-06-16
+
+Results through 15 June shifted several group reads without changing
+the locked Strategy A bonus sheet yet.
+
+| Group | Result signal | Pick impact |
+| --- | --- | --- |
+| A | Mexico beat South Africa 2–0; Korea came back to beat Czechia 2–1. | Mexico/Korea top-two read strengthened. Mexico – Korea no longer looks like a passive 1–1 by default. |
+| B | Canada 1–1 Bosnia; Qatar 1–1 Switzerland via stoppage-time equaliser. | Switzerland group-winner bonus weakened, but Canada also dropped points. No bonus change possible post-lock. |
+| C | Brazil 1–1 Morocco; Scotland 1–0 Haiti. | Brazil/Morocco draw call validated. Scotland are live for top two/third-place now. |
+| D | USA 4–1 Paraguay; Australia 2–0 Türkiye. | USA group-winner read strengthened, but Australia are upgraded and Türkiye downgraded. |
+| E | Germany 7–1 Curaçao; Côte d'Ivoire 1–0 Ecuador. | Germany confirmed; Côte d'Ivoire upgraded into the top-two fight. |
+| F | Netherlands 2–2 Japan; Sweden 5–1 Tunisia. | Sweden upgraded sharply; Japan still strong but Kubo knee status matters. Netherlands group-winner pick is less comfortable. |
+| G | Belgium 1–1 Egypt; Iran 2–2 New Zealand. | Group is flatter than expected. Belgium remain favorite on talent, but Egypt and New Zealand both showed enough threat to punish banker picks. |
+| H | Spain 0–0 Cabo Verde; Saudi Arabia 1–1 Uruguay. | Spain/Uruguay both stumbled. Spain still have the ceiling, but Group H is now open and GD assumptions are fragile. |

@@ -57,7 +57,11 @@ lucky-variance players. Your goal is to consistently outperform the
 ~22 casuals + chalk-only players. The sharper minority is hard to
 beat reliably; ride variance.
 
-## Two strategies — pick one before 11 June
+## Strategy choice — locked before 11 June
+
+This section is historical context. The choice has already been made:
+Strategy A was locked on 2026-05-15 and remains active through the
+final.
 
 ### Strategy A — "Safe / Cash Out" (target: top 5)
 
@@ -141,10 +145,10 @@ that wrong bonus favorites hurt more.
 
 ## Operational checklist
 
-- [ ] **By 09 Jun 2026, 23:59**: register, pay 10 €, send screenshot
+- [x] **By 09 Jun 2026, 23:59**: register, pay 10 €, send screenshot
       + tipp name to admin. Activate Kicktipp confirmation (check spam
       folder if you used a company e-mail address).
-- [ ] **By 11 Jun 2026, 21:00 CET**: lock bonus picks in Kicktipp.
+- [x] **By 11 Jun 2026, 21:00 CET**: lock bonus picks in Kicktipp.
 - [ ] **From 11 Jun 2026 daily**: enter each match's score in Kicktipp
       ≥1 min before kickoff. The app is more convenient than browser.
 - [ ] **Don't forget knockout-stage** picks: 32 + 16 + 8 + 4 + 1 + 1 = 62
@@ -196,8 +200,8 @@ Allowed:
   fixtures every day).
 - ✅ Adapting the **default pick** when info changes (injury, red-
   card suspension, weather) — but stay within the chalk philosophy.
-- ✅ Bringing in new info between now and 11 June and letting it
-  refine the bonus picks **before** lockout.
+- ✅ Bringing in new info for future per-match picks and applying it
+  before each match's 1-minute lockout.
 
 ### When you might reconsider
 
@@ -207,21 +211,26 @@ fine — but it's a post-mortem, not a live correction.
 
 ---
 
-## In-tournament learnings — 2026-06-13 (after matchday 1)
+## In-tournament learnings — 2026-06-13 (early audit, corrected 2026-06-16)
 
-**Scoreboard after 4 matches: 10 / 16 pts (62.5 %)**
+**Conservative scoreboard after 4 matches: 6 / 16 pts (37.5 %)**
+
+Audit correction 2026-06-16: the original version counted Canada –
+Bosnia as a 1–1 exact hit. Current `my_picks.md` records that match as
+`2–1` entered, so it is scored as a miss unless the Kicktipp app proves
+the submitted pick was 1–1.
 
 | Match | Pick | Actual | Pts |
 |-------|------|--------|-----|
 | Mexico – South Africa | 2–0 | 2–0 ✅ | +4 exact |
 | Korea Rep – Czechia | 1–1 | 2–1 KOR ❌ | +0 tendency miss |
-| Canada – Bosnia | 1–1 | 1–1 ✅ | +4 exact |
+| Canada – Bosnia | 2–1 CAN per current `my_picks.md` | 1–1 ❌ | +0 miss |
 | USA – Paraguay | 2–0 USA | 4–1 USA ⚠️ | +2 tendency only |
 
-Two exact hits in four matches is a strong start. The Korea tendency
-miss and the USA margin undershoot both come from the same root cause:
-the scoreline pick was too conservative relative to the tier gap between
-the teams.
+The Mexico exact hit was good, but the early audit is weaker than the
+first review claimed. Korea and USA still teach the same lesson:
+when a real tier gap exists, the scoreline pick was too conservative
+relative to the favorite's edge.
 
 ### Calibration rule derived from matchday 1
 
@@ -253,8 +262,9 @@ picks:
    margin, not just a bare minimum.
 
 3. **★★ vs ★★ is where 1–1 earns its keep.** Canada–Bosnia 1–1 was the
-   correct call — both teams close in quality, no obvious crowd edge,
-   neither needing to attack. The draw is the right chalk for
+   correct model read even though current `my_picks.md` says the
+   submitted pick was 2–1. Both teams were close in quality, with no
+   obvious enough edge to force a win. The draw is the right chalk for
    genuinely balanced matchups.
 
 4. **Don't overcorrect after a tendency miss.** The Korea miss is 1 data
@@ -270,4 +280,5 @@ picks:
    clashes between top-20 sides.
 
 See [`StrategyReview20260613.md`](StrategyReview20260613.md) for the
-full matchday-1 breakdown.
+original breakdown and [`StrategyReview20260616.md`](StrategyReview20260616.md)
+for the corrected audit.

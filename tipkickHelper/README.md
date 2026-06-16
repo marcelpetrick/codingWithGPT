@@ -4,29 +4,30 @@ Research notes and data-driven picks for the **DATA MODUL WM 2026**
 Kicktipp pool. Tournament runs **11 June – 19 July 2026** across USA,
 Canada, Mexico.
 
-> Status as of 2026-06-09 (2 days to kick-off). Final draw was held
-> **5 Dec 2025**, Washington, D.C. Pool entry deadline: **09 June 2026, 23:59**.
-> Confirmed **29 participants** (pool €290). Bonus picks lock at the opening
-> kickoff: **11 June 2026, 21:00 CET** (Mexico vs South Africa).
+> Status as of 2026-06-16. The tournament is live. Final draw was held
+> **5 Dec 2025**, Washington, D.C.; pool entry closed **09 June 2026,
+> 23:59**. Confirmed **29 participants** (pool €290). Bonus picks locked at
+> the opening kickoff: **11 June 2026, 21:00 CET** (Mexico vs South Africa).
 >
 > **User status (2026-06-02): registered, paid, picks already submitted
-> in the Kicktipp app.** This repo is in archive/monitor mode —
-> future edits only on forced deviations (injuries/suspensions).
+> in the Kicktipp app.** This repo is now in live audit/monitor mode:
+> score submitted picks, track forced news, and change future match
+> defaults only when Strategy A chalk materially changes.
 >
-> **Latest monitoring update (2026-06-09):** 29 tippers confirmed. France
-> beat Northern Ireland 3–1; Mbappé played the full match and Saliba started.
-> Spain beat Peru 3–1 without Yamal/Nico Williams. June 9 Kalshi group market
-> makes Switzerland the Group B favorite over Canada, so the Group B bonus
-> default changes Canada → Switzerland.
+> **Latest monitoring update (2026-06-16):** current audit through matches
+> played 15 June shows **19 / 64 pts** using the current `my_picks.md`
+> sheet. Group H and Group F are the most changed reads; Strategy A stays
+> locked.
 
-## Where to put YOUR picks
+## Live Pick Workflow
 
-Edit [`my_picks.md`](my_picks.md). That file is the only one meant to be
-filled in by you. Everything else is research, rules, and model output.
+Use [`my_picks.md`](my_picks.md) as the submitted-pick record. Do not
+rewrite it casually during the tournament. Use
+[`pick_adjustment_watchlist.md`](pick_adjustment_watchlist.md) to see
+which future lines need review before entry.
 
 The pool's actual entry happens **inside the Kicktipp app**, but
-`my_picks.md` is the scratch sheet to organise your picks before you
-copy them in.
+`my_picks.md` is the local audit sheet for what was or should be entered.
 
 ## File index
 
@@ -42,6 +43,10 @@ copy them in.
 | [`dark_horses.md`](dark_horses.md) | Morocco, Croatia, Uruguay, Colombia, Portugal |
 | [`model_picks.md`](model_picks.md) | My data-driven prediction — bonus picks, group winners, R32, R16, QF, SF, F, winner |
 | [`my_picks.md`](my_picks.md) | **YOUR pick sheet** — fill this in |
+| [`prediction_timeline.md`](prediction_timeline.md) | Chronological pick-vs-result audit through current results |
+| [`pick_adjustment_watchlist.md`](pick_adjustment_watchlist.md) | Current "review before entry" queue for future picks |
+| [`StrategyReview20260613.md`](StrategyReview20260613.md) | Superseded early in-tournament review; kept for audit history |
+| [`StrategyReview20260616.md`](StrategyReview20260616.md) | Dated performance review after matches through 15 June 2026 |
 | [`explanation.md`](explanation.md) | Mermaid diagrams: how the research process works end-to-end |
 | [`sources.md`](sources.md) | Links used as evidence |
 | [`task_inventory_20260616.md`](task_inventory_20260616.md) | Auditable task list for the 2026-06-16 review loop |
@@ -59,8 +64,9 @@ copy them in.
    baseline including bonus picks and per-match scoreline heuristics.
 5. Adjust only for forced news (injury, suspension, weather) while
    staying inside Strategy A.
-6. Write your final answers into [`my_picks.md`](my_picks.md), then copy
-   them into the Kicktipp app.
+6. When you paste your current Kicktipp state later, compare it against
+   [`pick_adjustment_watchlist.md`](pick_adjustment_watchlist.md) and
+   mark each line `OK`, `Review`, or `Off`.
 
 ## A note on "data-driven"
 

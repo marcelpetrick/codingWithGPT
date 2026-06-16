@@ -78,7 +78,7 @@ is fine, we don't lose ground here.
 | C | Brazil | `___` |
 | D | USA | `___` |
 | E | Germany | `___` |
-| F | Netherlands *(or Japan if contrarian)* | `___` |
+| F | Netherlands | `___` |
 | G | Belgium | `___` |
 | H | Spain | `___` |
 | I | France | `___` |

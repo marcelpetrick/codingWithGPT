@@ -92,6 +92,10 @@ Key files: [`pool_rules.md`](pool_rules.md) → [`strategy.md`](strategy.md) →
 [`model_picks.md`](model_picks.md) → [`my_picks.md`](my_picks.md).
 See [`explanation.md`](explanation.md) for the full process diagram.
 Review-loop audit files include [`task_inventory_20260616.md`](task_inventory_20260616.md).
+Live review outputs include [`prediction_timeline.md`](prediction_timeline.md)
+and dated `StrategyReviewYYYYMMDD.md` files. Use
+[`pick_adjustment_watchlist.md`](pick_adjustment_watchlist.md) as the
+comparison target when the user later pastes their current Kicktipp state.
 
 ## Out of scope
 

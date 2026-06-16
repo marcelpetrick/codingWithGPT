@@ -9,7 +9,7 @@ My recommendation if you trust the pool-rule analysis in
 > The point is to optimise expected payout in a 5-place pool, not to
 > be right about every match.
 
-## Bonus picks (lock by 11 June 2026, 21:00 CET)
+## Bonus picks (locked 11 June 2026, 21:00 CET)
 
 ### 1. Team with the top scorer  → **🇫🇷 France**
 
@@ -17,7 +17,7 @@ My recommendation if you trust the pool-rule analysis in
   + Olise + Doué + Cherki + Barcola + Thuram + Mateta). Mbappé alone
   is enough to make this defensible. **Note**: Kolo Muani left out of
   final squad (14 May) — Mateta preferred. Camavinga also left out.
-- Alternatives if Strategy B were unlocked:
+- Historical alternatives only; not active under locked Strategy A:
   - Spain (Yamal/Oyarzabal) — depressed by Yamal injury risk
   - Argentina (Messi/Álvarez) — single-striker dependency
   - Portugal (Ronaldo final dance + Leão)
@@ -29,10 +29,8 @@ My recommendation if you trust the pool-rule analysis in
 Recommended Strategy A set: **France, Spain, Argentina, Brazil**.
 
 - Pure chalk, consistent with the locked cash-out strategy.
-- Contrarian alternative: swap Brazil → Croatia or Morocco — only if
-  playing Strategy B, which is not the chosen strategy.
-- Contrarian alternative: swap Argentina → Portugal — Portugal has a
-  similar path and ~10 % of colleagues will pick them.
+- Non-active Strategy B alternatives were Brazil → Croatia/Morocco or
+  Argentina → Portugal. Do not use them in the locked sheet.
 
 ### 3. Group winners (one per group, A–L)
 
@@ -43,10 +41,10 @@ Recommended Strategy A set: **France, Spain, Argentina, Brazil**.
 | C | 🇧🇷 Brazil | Class gap over Morocco |
 | D | 🇺🇸 USA | Home crowd, weakest non-host group |
 | E | 🇩🇪 Germany | Light group |
-| F | 🇳🇱 Netherlands | Market favorite; Japan is the contrarian alternative |
+| F | 🇳🇱 Netherlands | Locked pre-tournament market favorite; Sweden's 5–1 opener now makes this the shakiest group-winner pick |
 | G | 🇧🇪 Belgium | Class over Egypt/Iran |
 | H | 🇪🇸 Spain | Beats Uruguay on GD probably |
-| I | 🇫🇷 France | Walkover |
+| I | 🇫🇷 France | Still the favorite, but Group I is a true group of death with Senegal and Norway |
 | J | 🇦🇷 Argentina | Defending champion |
 | K | 🇵🇹 Portugal | Edges Colombia |
 | L | 🏴󠁧󠁢󠁥󠁮󠁧󠁿 England | Beats Croatia on GD |
@@ -143,9 +141,11 @@ runner-up. Not used for the locked Strategy A sheet.
 
 ---
 
-## How to use this
+## How to use this during the tournament
 
-1. Start by **copy-pasting these picks into [`my_picks.md`](my_picks.md)**.
-2. Change only when forced by fresh information that changes the favorite.
-3. Do not add contrarian picks under the locked Strategy A sheet.
-4. Lock the bonus picks before **11 June 2026, 21:00 CET**.
+1. Treat bonus picks as locked history.
+2. Use `my_picks.md` as the submitted-pick record and
+   `pick_adjustment_watchlist.md` as the live review queue.
+3. Change future match defaults only when fresh information changes the
+   Strategy A favorite or materially changes the safest scoreline.
+4. Do not add contrarian picks under the locked Strategy A sheet.
