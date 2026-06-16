@@ -22,7 +22,7 @@ Cup 2026 prediction pool documents, using current match results through
 | 2 | Complete | Results through 15 June verified and collected into `prediction_timeline.md`; scorer conflict for Qatar–Switzerland resolved to FIFA's Muheim own goal credit. |
 | 3 | Complete | `StrategyReview20260616.md` added with corrected 19/64 audit and Strategy A calibration findings. |
 | 4 | Complete | `pick_adjustment_watchlist.md` created; no scoreline changes made in `my_picks.md`, only locked-strategy wording cleanup. |
-| 5 | In progress | Final repo-wide check and final commit still outstanding. |
+| 5 | Complete | Repo-wide checks passed: clean worktree after audit commit, `git diff --check` clean, stale-wording sweep clean except legitimate payout text. |
 
 ## Per-Task Breakdown
 
