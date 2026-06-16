@@ -20,6 +20,8 @@ Kicktipp 2 / 3 / 4 model from `pool_rules.md`.
 | Goal-difference hits | 1 |
 | Tendency-only hits | 4 |
 | Misses | 9 |
+| Pool position | 4th / 29 |
+| Gap to leader | 2 pts (leader 21, user 19) |
 
 ## Chronological Timeline
 

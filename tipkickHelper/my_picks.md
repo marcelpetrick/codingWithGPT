@@ -73,18 +73,18 @@ is fine, we don't lose ground here.
 
 | Group | Default pick | Your pick |
 | --- | --- | --- |
-| A | Mexico | `___` |
-| B | Switzerland | `Switzerland` ✅ changed in Kicktipp 2026-06-09 |
-| C | Brazil | `___` |
-| D | USA | `___` |
-| E | Germany | `___` |
-| F | Netherlands | `___` |
-| G | Belgium | `___` |
-| H | Spain | `___` |
-| I | France | `___` |
-| J | Argentina | `___` |
-| K | Portugal | `___` |
-| L | England | `___` |
+| A | Mexico | `Mexico` ✅ confirmed in Kicktipp screenshot 2026-06-16 |
+| B | Switzerland | `Switzerland` ✅ changed in Kicktipp 2026-06-09; confirmed 2026-06-16 |
+| C | Brazil | `Brazil` ✅ confirmed in Kicktipp screenshot 2026-06-16 |
+| D | USA | `USA` ✅ confirmed in Kicktipp screenshot 2026-06-16 |
+| E | Germany | `Germany` ✅ confirmed in Kicktipp screenshot 2026-06-16 |
+| F | Netherlands | `Netherlands` ✅ confirmed in Kicktipp screenshot 2026-06-16 |
+| G | Belgium | `Belgium` ✅ confirmed in Kicktipp screenshot 2026-06-16 |
+| H | Spain | `Spain` ✅ confirmed in Kicktipp screenshot 2026-06-16 |
+| I | France | `France` ✅ confirmed in Kicktipp screenshot 2026-06-16 |
+| J | Argentina | `Argentina` ✅ confirmed in Kicktipp screenshot 2026-06-16 |
+| K | Portugal | `Portugal` ✅ confirmed in Kicktipp screenshot 2026-06-16 |
+| L | England | `England` ✅ confirmed in Kicktipp screenshot 2026-06-16 |
 
 ### 4) World Champion → **France** ✅
 
@@ -99,6 +99,27 @@ easier bracket side. The single safest pick in the bonus set.
 > Strategy reminder (from [`pool_rules.md`](pool_rules.md)):
 > default to **2–1 / 1–0 / 2–0** for favorites; **1–1** when teams are
 > close. Don't chase blowouts.
+
+### Kicktipp screenshot reconciliation — 2026-06-16
+
+Screenshots `Screenshot_20260616_113905.png` and
+`Screenshot_20260616_113913.png` confirm Spieltag 1 and Spieltag 2
+entries match this file. `Screenshot_20260616_113927.png` confirms all
+bonus picks. `Screenshot_20260616_113920.png` shows Spieltag 3 still
+blank at screenshot time.
+
+### Spieltag 3 entry queue
+
+| Kicktipp date | Match | Recommended entry | Status |
+| --- | --- | --- | --- |
+| 16.06.26 20:59 | France – Senegal | `2–1` | Enter this; updated from old `2–0` default. |
+| 16.06.26 23:59 | Iraq – Norway | `0–2` | Enter this. |
+| 17.06.26 02:59 | Argentina – Algeria | `2–0` | Enter this. |
+| 17.06.26 05:59 | Austria – Jordan | `2–0` | Enter this. |
+| 17.06.26 18:59 | Portugal – DR Congo | `2–0` | Enter this. |
+| 17.06.26 21:59 | England – Croatia | `1–0` | Enter this. |
+| 18.06.26 00:59 | Ghana – Panama | `2–0` | Enter this. |
+| 18.06.26 03:59 | Uzbekistan – Colombia | `0–2` | Enter this. |
 
 ### Group A (matchdays in Mexico)
 - [x] **Mexico – South Africa** (opener, 11 Jun 21:00 CET) → `2–0` ✅ entered 2026-06-11
@@ -167,7 +188,7 @@ easier bracket side. The single safest pick in the bonus set.
 ### Group I
 - [ ] France – Iraq → `3–0`
 - [ ] Senegal – Norway → `1–1`
-- [ ] France – Senegal → `2–0`  _(✅ CONFIRMED 2026-06-08: Saliba cleared by Deschamps — "would play tomorrow if needed"; Mbappé managed but targeting opener. Hold 2–0.)_
+- [ ] France – Senegal → `2–1`  _(updated 2026-06-16 from 2–0: France still chalk, but Senegal/Group I strength makes one-goal win safer)_
 - [ ] Iraq – Norway → `0–2`
 - [ ] France – Norway → `2–1`  _(⚠️ Norway unbeaten in qualifying, Haaland 16 goals — aggressive pick; hold for now)_
 - [ ] Iraq – Senegal → `0–2`

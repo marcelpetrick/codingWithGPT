@@ -16,8 +16,9 @@ Canada, Mexico.
 >
 > **Latest monitoring update (2026-06-16):** current audit through matches
 > played 15 June shows **19 / 64 pts** using the current `my_picks.md`
-> sheet. Group H and Group F are the most changed reads; Strategy A stays
-> locked.
+> sheet. User-reported pool position: **4th of 29**, leader on **21 pts**
+> (gap: **2 pts**). Group H and Group F are the most changed reads;
+> Strategy A stays locked.
 
 ## Live Pick Workflow
 
@@ -50,6 +51,7 @@ The pool's actual entry happens **inside the Kicktipp app**, but
 | [`explanation.md`](explanation.md) | Mermaid diagrams: how the research process works end-to-end |
 | [`sources.md`](sources.md) | Links used as evidence |
 | [`task_inventory_20260616.md`](task_inventory_20260616.md) | Auditable task list for the 2026-06-16 review loop |
+| `Screenshot_20260616_*.png` | Kicktipp screenshots confirming Spieltag 1/2 entries, blank Spieltag 3, and bonus picks |
 
 ## How to use this
 

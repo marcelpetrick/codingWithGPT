@@ -13,6 +13,14 @@ matches were still upcoming in the ESPN schedule snapshot checked._
 | Jun 15 | 0 | 16 | Four favorite-win picks, four draws. |
 | **Total** | **19** | **64** | **29.7 % of max** |
 
+## Pool Position
+
+User-reported after the 16 audited matches: **4th of 29** with **19
+points**. First place has **21 points**, so the gap to the lead is
+only **2 points**. This is a strong Strategy A position: already inside
+the payout places, close enough to first, and not a reason to add
+variance.
+
 ## Findings
 
 1. **The old 2026-06-13 score is not auditable as written.**
@@ -84,7 +92,7 @@ contrarian scorelines. The actionable adjustment is narrower:
 
 ## Pick-File Decision
 
-No `my_picks.md` scoreline changes made in this pass. The next
-unentered picks need live lineup/market checks close to kickoff, but
-no favorite has flipped enough to force a Strategy A default change
-right now.
+After screenshot reconciliation, `my_picks.md` changes are limited to:
+bonus-pick confirmation from Kicktipp screenshots and France – Senegal
+`2–0` → `2–1` for Spieltag 3. This is a Strategy A calibration, not a
+strategy change.

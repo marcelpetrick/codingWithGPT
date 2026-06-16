@@ -96,6 +96,7 @@ Live review outputs include [`prediction_timeline.md`](prediction_timeline.md)
 and dated `StrategyReviewYYYYMMDD.md` files. Use
 [`pick_adjustment_watchlist.md`](pick_adjustment_watchlist.md) as the
 comparison target when the user later pastes their current Kicktipp state.
+Kicktipp screenshot evidence may be stored as `Screenshot_YYYYMMDD_*.png`.
 
 ## Out of scope
 

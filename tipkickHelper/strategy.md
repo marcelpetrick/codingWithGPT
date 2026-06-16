@@ -282,3 +282,18 @@ picks:
 See [`StrategyReview20260613.md`](StrategyReview20260613.md) for the
 original breakdown and [`StrategyReview20260616.md`](StrategyReview20260616.md)
 for the corrected audit.
+
+---
+
+## Pool position — 2026-06-16
+
+User-reported table state after 16 audited matches:
+
+| Rank | Points | Context |
+| --- | ---: | --- |
+| 1st | 21 | Current leader |
+| **4th** | **19** | User |
+
+Implication: Strategy A is working. The sheet is already in the top-5
+cash-out zone and only 2 points off the lead. Do not chase variance;
+keep refining future match picks inside the chalk framework.

@@ -192,6 +192,14 @@ Compiled from 2026-05-15 through 2026-06-16.
 
 ## Results and performance audit — 2026-06-16
 
+- User message in chat (2026-06-16): pool position **4th of 29** with
+  **19 pts**; leader has **21 pts**.
+- Local Kicktipp screenshots: `Screenshot_20260616_113905.png`,
+  `Screenshot_20260616_113913.png`, `Screenshot_20260616_113920.png`,
+  `Screenshot_20260616_113927.png`.
+- [CBS Sports — Group odds and June 16–17 schedule](https://www.cbssports.com/betting/news/how-to-bet-on-2026-world-cup-betting-guide-apps-odds-schedule-rosters-groups-offers-promo-codes/)
+- [DeFiRate — France vs Senegal prediction-market odds, France ~65.5 %](https://defirate.com/prediction-markets/world-cup-odds/france/)
+- [FOX Sports — updated knockout-advance odds after early group results](https://www.foxsports.com/stories/soccer/2026-world-cup-odds-teams-favored-advance-to-knockout-stage)
 - [ESPN — 2026 World Cup fixtures, results and schedule](https://www.espn.com/soccer/story/_/id/48939282/2026-fifa-world-cup-fixtures-results-match-schedule-group-stage-knockout-rounds-bracket)
 - [FIFA — Mexico 2–0 South Africa match report](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/mexico-south-africa-highlights-match-report)
 - [FIFA — Korea Republic 2–1 Czechia match report](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/korea-republic-czechia-highlights-match-report)

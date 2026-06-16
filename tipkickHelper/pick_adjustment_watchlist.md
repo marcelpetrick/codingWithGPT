@@ -17,10 +17,30 @@ lineup, market, or match context materially changes.
 | Group winners | Mexico, Switzerland, Brazil, USA, Germany, Netherlands, Belgium, Spain, France, Argentina, Portugal, England | Locked as bonus picks; several are wounded but not editable. |
 | Per-match style | Chalk tendency, modal scoreline | Still correct, but draw calibration needs tightening. |
 
+## Spieltag 3 Final Entries
+
+These are the entries to put into Kicktipp for the blank 3. Spieltag
+screenshot from 2026-06-16.
+
+| Kicktipp date | Match | Entry | Reason |
+| --- | --- | --- | --- |
+| 16.06.26 20:59 | France – Senegal | `2–1` | France are clear chalk, but Senegal are strong enough that `2–0` is too rich. |
+| 16.06.26 23:59 | Iraq – Norway | `0–2` | Norway/Haaland chalk; Iraq remain the group makeweight. |
+| 17.06.26 02:59 | Argentina – Algeria | `2–0` | Argentina strong favorite; controlled opener. |
+| 17.06.26 05:59 | Austria – Jordan | `2–0` | Austria quality/pressing edge over Jordan. |
+| 17.06.26 18:59 | Portugal – DR Congo | `2–0` | Portugal chalk, but no need to chase 3+. |
+| 17.06.26 21:59 | England – Croatia | `1–0` | Low-scoring top-side clash; Tuchel/England edge. |
+| 18.06.26 00:59 | Ghana – Panama | `2–0` | Ghana clear favorite over Panama. |
+| 18.06.26 03:59 | Uzbekistan – Colombia | `0–2` | Colombia chalk; Uzbekistan first-timer risk. |
+
 ## Immediate Review Queue
 
 These are the lines most likely to be "off" if your game-state picks
 still mirror the old sheet.
+
+Pool context after the first 16 audited matches: user is **4th of 29**
+on **19 pts**, leader **21 pts**. This is already a paying position;
+avoid forced variance.
 
 | Priority | Match / area | Current default in `my_picks.md` | Review stance | Why |
 | --- | --- | --- | --- | --- |
