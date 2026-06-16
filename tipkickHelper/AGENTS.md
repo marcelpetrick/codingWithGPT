@@ -91,6 +91,7 @@ a new file, update both `README.md` and this `AGENTS.md`.
 Key files: [`pool_rules.md`](pool_rules.md) → [`strategy.md`](strategy.md) →
 [`model_picks.md`](model_picks.md) → [`my_picks.md`](my_picks.md).
 See [`explanation.md`](explanation.md) for the full process diagram.
+Review-loop audit files include [`task_inventory_20260616.md`](task_inventory_20260616.md).
 
 ## Out of scope
 

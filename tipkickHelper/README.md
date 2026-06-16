@@ -44,6 +44,7 @@ copy them in.
 | [`my_picks.md`](my_picks.md) | **YOUR pick sheet** — fill this in |
 | [`explanation.md`](explanation.md) | Mermaid diagrams: how the research process works end-to-end |
 | [`sources.md`](sources.md) | Links used as evidence |
+| [`task_inventory_20260616.md`](task_inventory_20260616.md) | Auditable task list for the 2026-06-16 review loop |
 
 ## How to use this
 
