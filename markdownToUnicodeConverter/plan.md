@@ -1,4 +1,4 @@
-# Plan: Markdown → Unicode Converter ("Unicodown")
+# Plan: Markdown → Unicode Converter ("Boldemort")
 
 ## Goal
 A dependency-free Python CLI tool that reads Markdown-flavored inline styling
@@ -31,15 +31,15 @@ Alphanumeric Symbol characters, leaving all other text unchanged.
 ## Architecture
 
 ```
-unicodown/
-├── unicodown.py          # main entry point (CLI + convert logic)
+boldemort/
+├── boldemort.py          # main entry point (CLI + convert logic)
 ├── tests/
-│   └── test_unicodown.py # pytest test suite
+│   └── test_boldemort.py # pytest test suite
 ├── plan.md               # this file
 └── agents.md             # contributor conventions
 ```
 
-**Single-file core** (`unicodown.py`):
+**Single-file core** (`boldemort.py`):
 - `str.maketrans` translation tables (zero runtime deps)
 - `convert(text: str) -> str` — applies regexes in precedence order
 - `main()` — argparse for `[input]` and `-o/--output`
@@ -76,8 +76,8 @@ Regex application order (important to avoid double-substitution):
 
 1. [x] `plan.md` written
 2. [x] `agents.md` written
-3. [x] Implement `unicodown.py` (translation tables + regex converter + CLI)
-4. [x] Write `tests/test_unicodown.py`
+3. [x] Implement `boldemort.py` (translation tables + regex converter + CLI)
+4. [x] Write `tests/test_boldemort.py`
 5. [x] Run linters clean (mypy --strict + flake8)
 6. [x] Run tests clean (44/44)
 7. [x] `git init` + initial commit

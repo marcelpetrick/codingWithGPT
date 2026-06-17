@@ -1,4 +1,4 @@
-# Unicodown
+# Boldemort
 
 Convert inline Markdown styling to Unicode-styled characters — no dependencies, pure Python 3.
 
@@ -33,30 +33,30 @@ All other text is passed through unchanged. Block-level Markdown (headings, list
 ### Read from stdin, write to stdout
 
 ```bash
-echo '**Hello**, *world*!' | python3 unicodown.py
+echo '**Hello**, *world*!' | python3 boldemort.py
 # → 𝗛𝗲𝗹𝗹𝗼, 𝘸𝘰𝘳𝘭𝘥!
 ```
 
 ### Read from a file
 
 ```bash
-python3 unicodown.py input.md
+python3 boldemort.py input.md
 ```
 
 ### Write output to a file
 
 ```bash
-python3 unicodown.py input.md -o output.txt
+python3 boldemort.py input.md -o output.txt
 ```
 
 ### Pipe into clipboard (macOS / Linux)
 
 ```bash
 # macOS
-echo '**important**' | python3 unicodown.py | pbcopy
+echo '**important**' | python3 boldemort.py | pbcopy
 
 # Linux (xclip)
-echo '**important**' | python3 unicodown.py | xclip -selection clipboard
+echo '**important**' | python3 boldemort.py | xclip -selection clipboard
 ```
 
 ---
@@ -66,10 +66,10 @@ echo '**important**' | python3 unicodown.py | xclip -selection clipboard
 Copy the script somewhere on your `PATH`:
 
 ```bash
-cp unicodown.py ~/.local/bin/unicodown
-chmod +x ~/.local/bin/unicodown
+cp boldemort.py ~/.local/bin/boldemort
+chmod +x ~/.local/bin/boldemort
 
-echo '**done**' | unicodown
+echo '**done**' | boldemort
 ```
 
 ---
@@ -81,14 +81,14 @@ A complete sample document covering every supported style lives in
 rendered output:
 
 ```bash
-python3 unicodown.py testmaterial/test_input.md -o testmaterial/test_output.txt
+python3 boldemort.py testmaterial/test_input.md -o testmaterial/test_output.txt
 cat testmaterial/test_output.txt
 ```
 
 Or stream directly to your terminal:
 
 ```bash
-python3 unicodown.py testmaterial/test_input.md
+python3 boldemort.py testmaterial/test_input.md
 ```
 
 ### What the test file covers
@@ -123,8 +123,8 @@ A single *dangling asterisk with no close stays raw.
 ### Run linters
 
 ```bash
-python3 -m mypy --strict unicodown.py
-python3 -m flake8 unicodown.py tests/ --max-line-length=88
+python3 -m mypy --strict boldemort.py
+python3 -m flake8 boldemort.py tests/ --max-line-length=88
 ```
 
 ### Run tests

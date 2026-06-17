@@ -1,4 +1,4 @@
-"""Tests for unicodown.py — Markdown to Unicode converter."""
+"""Tests for boldemort.py — Markdown to Unicode converter."""
 
 import subprocess
 import sys
@@ -8,18 +8,18 @@ from pathlib import Path
 # Adjust path so we can import the top-level module directly.
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from unicodown import convert, _strike  # noqa: E402
+from boldemort import convert, _strike  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
-SCRIPT = str(Path(__file__).parent.parent / "unicodown.py")
+SCRIPT = str(Path(__file__).parent.parent / "boldemort.py")
 
 
 def run_cli(*args: str, stdin: str = "") -> tuple[int, str, str]:
-    """Run the unicodown CLI and return (returncode, stdout, stderr)."""
+    """Run the boldemort CLI and return (returncode, stdout, stderr)."""
     result = subprocess.run(
         [sys.executable, SCRIPT, *args],
         input=stdin,

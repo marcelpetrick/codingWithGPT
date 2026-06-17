@@ -12,10 +12,10 @@ Before every commit, run the full check suite:
 
 ```bash
 # Type checking
-mypy --strict unicodown.py
+mypy --strict boldemort.py
 
 # Style
-flake8 unicodown.py tests/
+flake8 boldemort.py tests/
 
 # Tests
 pytest tests/ -v

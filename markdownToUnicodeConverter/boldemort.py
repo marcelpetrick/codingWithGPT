@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unicodown — convert inline Markdown styling to Unicode styled characters."""
+"""Boldemort — convert inline Markdown styling to Unicode styled characters."""
 
 import argparse
 import re
@@ -115,7 +115,7 @@ def convert(text: str) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        prog="unicodown",
+        prog="boldemort",
         description=(
             "Convert inline Markdown styling (**bold**, *italic*, `mono`, "
             "~~strike~~) to Unicode-styled characters."
