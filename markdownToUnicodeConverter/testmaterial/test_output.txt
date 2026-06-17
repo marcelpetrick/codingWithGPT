@@ -1,0 +1,43 @@
+Welcome to the Unicodown test file.
+This document exercises every supported inline style.
+
+--- Bold ---
+
+Use 𝗱𝗼𝘂𝗯𝗹𝗲 𝗮𝘀𝘁𝗲𝗿𝗶𝘀𝗸𝘀 to make text bold.
+You can also use 𝗱𝗼𝘂𝗯𝗹𝗲 𝘂𝗻𝗱𝗲𝗿𝘀𝗰𝗼𝗿𝗲𝘀 for the same effect.
+Numbers go bold too: 𝟮𝟬𝟮𝟱 and 𝟰𝟮.
+Mixed content: 𝗛𝗲𝗹𝗹𝗼 𝗪𝗼𝗿𝗹𝗱 𝟭𝟮𝟯.
+
+--- Italic ---
+
+Use 𝘴𝘪𝘯𝘨𝘭𝘦 𝘢𝘴𝘵𝘦𝘳𝘪𝘴𝘬𝘴 to italicize.
+Or use 𝘴𝘪𝘯𝘨𝘭𝘦 𝘶𝘯𝘥𝘦𝘳𝘴𝘤𝘰𝘳𝘦𝘴 for the same result.
+A sentence: The 𝘲𝘶𝘪𝘤𝘬 𝘣𝘳𝘰𝘸𝘯 𝘧𝘰𝘹 jumps over the lazy dog.
+With underscores: The 𝘲𝘶𝘪𝘤𝘬 𝘣𝘳𝘰𝘸𝘯 𝘧𝘰𝘹 jumps over the lazy dog.
+
+--- Monospace ---
+
+Inline code uses 𝚋𝚊𝚌𝚔𝚝𝚒𝚌𝚔𝚜.
+A command example: run 𝚕𝚜 -𝚕𝚊 to list files.
+Variable names: set 𝙳𝙴𝙱𝚄𝙶=𝚝𝚛𝚞𝚎 before starting.
+Digits in mono: 𝚟𝟷.𝟸.𝟹 is the latest release.
+
+--- Strikethrough ---
+
+Use d̶o̶u̶b̶l̶e̶ ̶t̶i̶l̶d̶e̶s̶ to strike through text.
+This price was 1̶0̶0̶ ̶E̶U̶R̶ now only 49 EUR.
+Mistakes happen: I thought t̶h̶e̶ ̶m̶e̶e̶t̶i̶n̶g̶ ̶w̶a̶s̶ ̶M̶o̶n̶d̶a̶y̶ it is Tuesday.
+
+--- Mixed styles in one line ---
+
+𝗕𝗼𝗹𝗱, 𝘪𝘵𝘢𝘭𝘪𝘤, 𝚖𝚘𝚗𝚘, and s̶t̶r̶u̶c̶k̶ all on one line.
+You can have 𝗯𝗼𝗹𝗱 𝘄𝗼𝗿𝗱𝘀 next to 𝘪𝘵𝘢𝘭𝘪𝘤 𝘰𝘯𝘦𝘴 freely.
+Code snippet 𝚙𝚛𝚒𝚗𝚝("𝚑𝚎𝚕𝚕𝚘") alongside 𝗶𝗺𝗽𝗼𝗿𝘁𝗮𝗻𝘁 notes.
+
+--- Passthrough (must not be altered) ---
+
+Plain text with no markers stays exactly as-is.
+Prices like $100 and formulas like x*y are not touched.
+A single *dangling asterisk with no close stays raw.
+Same for a **dangling double with no close.
+An _underscore with no close is also left alone.
