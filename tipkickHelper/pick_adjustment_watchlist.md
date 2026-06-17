@@ -17,21 +17,44 @@ lineup, market, or match context materially changes.
 | Group winners | Mexico, Switzerland, Brazil, USA, Germany, Netherlands, Belgium, Spain, France, Argentina, Portugal, England | Locked as bonus picks; several are wounded but not editable. |
 | Per-match style | Chalk tendency, modal scoreline | Still correct, but draw calibration needs tightening. |
 
-## Spieltag 3 Final Entries
+## Spieltag 3 Entries — Status (updated 2026-06-17)
 
-These are the entries to put into Kicktipp for the blank 3. Spieltag
-screenshot from 2026-06-16.
+| Kicktipp date | Match | Entry | Result | Points |
+| --- | --- | --- | --- | --- |
+| 16.06.26 20:59 | France – Senegal | `2:1` ✅ locked | France 3–1 | +2 (tendency) |
+| 16.06.26 23:59 | Irak – Norwegen | `0:2` ✅ locked | Norway 4–1 | +2 (tendency) |
+| 17.06.26 02:59 | Argentinien – Algerien | `2:0` ✅ locked | Argentina 3–0 | +2 (tendency) |
+| 17.06.26 05:59 | Österreich – Jordanien | `2:0` ✅ locked | Austria 3–1 (GD+2) | **+3** (GD) |
+| 17.06.26 18:59 | Portugal – DR Kongo | `2:0` ⚡ enter now | pending | — |
+| 17.06.26 21:59 | England – Kroatien | `1:0` ⚡ enter today | pending | — |
+| 18.06.26 00:59 | Ghana – Panama | `2:0` | pending | — |
+| 18.06.26 03:59 | Usbekistan – Kolumbien | `0:2` | pending | — |
 
-| Kicktipp date | Match | Entry | Reason |
-| --- | --- | --- | --- |
-| 16.06.26 20:59 | France – Senegal | `2–1` | France are clear chalk, but Senegal are strong enough that `2–0` is too rich. |
-| 16.06.26 23:59 | Iraq – Norway | `0–2` | Norway/Haaland chalk; Iraq remain the group makeweight. |
-| 17.06.26 02:59 | Argentina – Algeria | `2–0` | Argentina strong favorite; controlled opener. |
-| 17.06.26 05:59 | Austria – Jordan | `2–0` | Austria quality/pressing edge over Jordan. |
-| 17.06.26 18:59 | Portugal – DR Congo | `2–0` | Portugal chalk, but no need to chase 3+. |
-| 17.06.26 21:59 | England – Croatia | `1–0` | Low-scoring top-side clash; Tuchel/England edge. |
-| 18.06.26 00:59 | Ghana – Panama | `2–0` | Ghana clear favorite over Panama. |
-| 18.06.26 03:59 | Uzbekistan – Colombia | `0–2` | Colombia chalk; Uzbekistan first-timer risk. |
+## Spieltag 4 Confirmed Entries (from 2026-06-17 analysis)
+
+| Kicktipp order | Enter | Status |
+| --- | --- | --- |
+| Tschechien – Südafrika | `1:0` | Czechia wins — RSA depleted |
+| Schweiz – Bosnien | `2:1` | Swiss win late |
+| Kanada – Katar | `2:0` | Canada home heavy fav |
+| Mexiko – Südkorea | `1:0` | Home altitude edge |
+| USA – Australien | `2:1` | USA home quality |
+| Schottland – Marokko | `0:1` | Morocco wins |
+| Brasilien – Haiti | `2:0` | Brazil react |
+| Türkei – Paraguay | `1:0` | Turkey quality edge |
+
+## Spieltag 5 Confirmed Entries (from 2026-06-17 analysis)
+
+| Kicktipp order | Enter | Status |
+| --- | --- | --- |
+| Niederlande – Schweden | `2:1` | Dutch quality edge |
+| Deutschland – Elfenbeinküste | `2:1` | Germany wins; CIV scores |
+| Ecuador – Curaçao | `2:0` | Ecuador massive fav |
+| Tunesien – Japan | `0:2` | Japan chalk |
+| Spanien – Saudi-Arabien | `2:0` | Spain must win |
+| Belgien – Iran | `2:1` | Belgium edge |
+| Uruguay – Kap Verde | `2:0` | Uruguay quality |
+| Neuseeland – Ägypten | `0:2` | Egypt/Salah |
 
 ## Immediate Review Queue
 

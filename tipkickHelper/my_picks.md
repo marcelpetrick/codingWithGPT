@@ -108,24 +108,68 @@ entries match this file. `Screenshot_20260616_113927.png` confirms all
 bonus picks. `Screenshot_20260616_113920.png` shows Spieltag 3 still
 blank at screenshot time.
 
+### Kicktipp screenshot reconciliation — 2026-06-17
+
+`Screenshot_20260617_102756.png` (Spieltag 3): first 4 matches locked
+with entered picks visible (2:1 / 0:2 / 2:0 / 2:0). Actual results
+confirmed via web: France **3–1** Senegal (pick 2–1 → tendency ✓ +2),
+Norway **4–1** Iraq (pick 0–2 → tendency ✓ +2), Argentina **3–0**
+Algeria (pick 2–0 → tendency ✓ +2), Austria **3–1** Jordan (pick 2–0 →
+GD +2 matches actual GD +2 → **+3**). Spieltag 3 first 4 = **9 pts**.
+Bottom 4 still blank — enter before respective lock times.
+
+`Screenshot_20260617_102803.png` (Spieltag 4): all 8 blank.
+`Screenshot_20260617_102809.png` (Spieltag 5): all 8 blank.
+
 ### Spieltag 3 entry queue
 
-| Kicktipp date | Match | Recommended entry | Status |
+| Kicktipp date | Match (Kicktipp order) | Entered pick | Result / Status |
 | --- | --- | --- | --- |
-| 16.06.26 20:59 | France – Senegal | `2–1` | Enter this; updated from old `2–0` default. |
-| 16.06.26 23:59 | Iraq – Norway | `0–2` | Enter this. |
-| 17.06.26 02:59 | Argentina – Algeria | `2–0` | Enter this. |
-| 17.06.26 05:59 | Austria – Jordan | `2–0` | Enter this. |
-| 17.06.26 18:59 | Portugal – DR Congo | `2–0` | Enter this. |
-| 17.06.26 21:59 | England – Croatia | `1–0` | Enter this. |
-| 18.06.26 00:59 | Ghana – Panama | `2–0` | Enter this. |
-| 18.06.26 03:59 | Uzbekistan – Colombia | `0–2` | Enter this. |
+| 16.06.26 20:59 | Frankreich – Senegal | `2:1` | ✅ Locked. Actual: France 3–1 (tendency ✓ +2) |
+| 16.06.26 23:59 | Irak – Norwegen | `0:2` | ✅ Locked. Actual: Norway 4–1 (tendency ✓ +2) |
+| 17.06.26 02:59 | Argentinien – Algerien | `2:0` | ✅ Locked. Actual: Argentina 3–0 (tendency ✓ +2) |
+| 17.06.26 05:59 | Österreich – Jordanien | `2:0` | ✅ Locked. Actual: Austria 3–1 (GD+2 ✓ **+3**) |
+| 17.06.26 18:59 | Portugal – DR Kongo | `2:0` | ⚡ URGENT — lock at 18:58 CET today |
+| 17.06.26 21:59 | England – Kroatien | `1:0` | ⚡ Enter before 21:58 CET today |
+| 18.06.26 00:59 | Ghana – Panama | `2:0` | Enter before 00:58 CET |
+| 18.06.26 03:59 | Usbekistan – Kolumbien | `0:2` | Enter before 03:58 CET |
+
+### Spieltag 4 entry queue
+
+All blank per `Screenshot_20260617_102803.png`. Enter in Kicktipp order
+shown below (left score = team listed first in Kicktipp).
+
+| Kicktipp date | Match (Kicktipp order) | Enter | Notes |
+| --- | --- | --- | --- |
+| 18.06.26 17:59 | Tschechien – Südafrika | `1:0` | Czechia wins — RSA had red cards, blanked in MD1; Czechia competitive vs Korea |
+| 18.06.26 20:59 | Schweiz – Bosnien | `2:1` | Swiss quality wins late; Bosnia will score (both conceded late in MD1) |
+| 18.06.26 23:59 | Kanada – Katar | `2:0` | Canada heavy home fav; Qatar outclassed despite drawing Switzerland |
+| 19.06.26 02:59 | Mexiko – Südkorea | `1:0` | Home altitude edge tips a genuine coin-flip; changed from 1–1 |
+| 19.06.26 20:59 | USA – Australien | `2:1` | USA home quality; Australia upgraded (2–0 vs Turkey) but USA better |
+| 19.06.26 23:59 | Schottland – Marokko | `0:1` | Morocco better side; Scotland beat only Haiti; one-goal Moroccan win |
+| 20.06.26 02:59 | Brasilien – Haiti | `2:0` | Brazil need reaction; Haiti tier mismatch |
+| 20.06.26 04:59 | Türkei – Paraguay | `1:0` | Turkey quality edge (Güler, Yıldız); both lost MD1; tight must-win game |
+
+### Spieltag 5 entry queue
+
+All blank per `Screenshot_20260617_102809.png`. Enter in Kicktipp order.
+
+| Kicktipp date | Match (Kicktipp order) | Enter | Notes |
+| --- | --- | --- | --- |
+| 20.06.26 18:59 | Niederlande – Schweden | `2:1` | Dutch quality edge; Sweden impressive but Netherlands have more talent |
+| 20.06.26 21:59 | Deutschland – Elfenbeinküste | `2:1` | Germany dominant; CIV pace will score once on the counter |
+| 21.06.26 01:59 | Ecuador – Curaçao | `2:0` | Ecuador massive fav; conservative — they couldn't score vs CIV in MD1 |
+| 21.06.26 05:59 | Tunesien – Japan | `0:2` | Japan chalk; Tunisia 1–5 to Sweden in MD1 |
+| 21.06.26 17:59 | Spanien – Saudi-Arabien | `2:0` | Spain desperate after 0–0; quality must show; no blowout chase |
+| 21.06.26 20:59 | Belgien – Iran | `2:1` | Belgium quality; Iran scored 2 vs NZ in MD1 so not shutting them out |
+| 21.06.26 23:59 | Uruguay – Kap Verde | `2:0` | Uruguay clear fav; Cape Verde held Spain 0–0 so not 3–0 |
+| 22.06.26 02:59 | Neuseeland – Ägypten | `0:2` | Egypt/Salah quality; NZ scored 2 vs Iran so respect their attack |
 
 ### Group A (matchdays in Mexico)
 - [x] **Mexico – South Africa** (opener, 11 Jun 21:00 CET) → `2–0` ✅ entered 2026-06-11
 - [x] Korea Rep – Czechia → `1–1` ✅ entered 2026-06-12
-- [ ] Mexico – Korea Rep → `1–1`
-- [ ] South Africa – Czechia → `1–0`
+- [ ] Mexico – Korea Rep → `1–0`  _(updated 2026-06-17: home altitude edge tips near coin-flip)_
+- [ ] South Africa – Czechia → `0–1`  _(updated 2026-06-17: Czechia wins; enter `1:0` in Kicktipp — RSA had red cards, blanked vs Mexico)_
 - [ ] Mexico – Czechia → `2–0`
 - [ ] South Africa – Korea Rep → `1–2`
 
@@ -133,7 +177,7 @@ blank at screenshot time.
 - [ ] Canada – Switzerland → `1–1`
 - [ ] Qatar – Bosnia → `1–1`
 - [ ] Canada – Qatar → `2–0`
-- [ ] Switzerland – Bosnia → `2–0`
+- [ ] Switzerland – Bosnia → `2–1`  _(updated 2026-06-17: Bosnia will score; Swiss quality wins it late)_
 - [x] Canada – Bosnia → `2–1` ✅ entered 2026-06-12
 - [x] Switzerland – Qatar → `2–0` ✅ entered 2026-06-13
 
@@ -142,6 +186,7 @@ blank at screenshot time.
 - [ ] Morocco – Scotland → `1–1`
 - [x] Brazil – Morocco → `1–1` _(the highlight! Neymar officially OUT — Igor Thiago starts)_ ✅ entered 2026-06-13
 - [x] Haiti – Scotland → `1–2` ✅ entered 2026-06-13
+- [ ] Morocco – Scotland → `1–0`  _(updated 2026-06-17: Morocco better side; Scotland only beat Haiti; enter `0:1` in Kicktipp when Scotland listed first)_
 - [ ] Brazil – Scotland → `2–0`
 - [ ] Haiti – Morocco → `0–2`
 
@@ -149,9 +194,9 @@ blank at screenshot time.
 - [x] USA – Paraguay → `2–0` ✅ entered 2026-06-12
 - [x] Australia – Türkiye → `1–1` ✅ entered 2026-06-13
 - [ ] USA – Australia → `2–1`
-- [ ] Paraguay – Türkiye → `1–1`
+- [ ] Paraguay – Türkiye → `0–1`  _(updated 2026-06-17: Turkey quality edge; enter `1:0` in Kicktipp when Turkey listed first)_
 - [ ] USA – Türkiye → `2–1`
-- [ ] Paraguay – Australia → `1–1`
+- [ ] Paraguay – Australia → `0–1`  _(updated 2026-06-17: Australia upgraded after 2–0 vs Turkey)_
 
 ### Group E
 - [x] Germany – Curaçao → `3–0`  _(restored from 2–0 on 2026-06-08: 8-match winning streak, form confirmed vs USA; Karl absence is bench-level only)_ ✅ entered 2026-06-13
@@ -186,34 +231,34 @@ blank at screenshot time.
 - [ ] Cabo Verde – Saudi Arabia → `1–1`
 
 ### Group I
-- [ ] France – Iraq → `3–0`
-- [ ] Senegal – Norway → `1–1`
-- [ ] France – Senegal → `2–1`  _(updated 2026-06-16 from 2–0: France still chalk, but Senegal/Group I strength makes one-goal win safer)_
-- [ ] Iraq – Norway → `0–2`
-- [ ] France – Norway → `2–1`  _(⚠️ Norway unbeaten in qualifying, Haaland 16 goals — aggressive pick; hold for now)_
+- [ ] France – Iraq → `2–0`  _(updated 2026-06-17: conservative — France labored in first half vs Senegal; avoid blowout pick)_
+- [ ] Senegal – Norway → `1–2`  _(updated 2026-06-17: Norway 4–1 Iraq shows real quality; Senegal lost 1–3 but competitive first half; Norway wins but Senegal score)_
+- [x] France – Senegal → `2–1` ✅ entered 2026-06-16; actual France 3–1 (tendency ✓ +2 pts)
+- [x] Iraq – Norway → `0–2` ✅ entered 2026-06-16; actual Norway 4–1 (tendency ✓ +2 pts)
+- [ ] France – Norway → `2–1`  _(⚠️ Norway 4–1 Iraq confirms Haaland threat; France won convincingly but first-half weakness is real; hold 2–1)_
 - [ ] Iraq – Senegal → `0–2`
 
 ### Group J
 - [ ] Argentina – Jordan → `3–0`
 - [ ] Algeria – Austria → `1–1`
-- [ ] Argentina – Algeria → `2–0`
-- [ ] Jordan – Austria → `0–2`
-- [ ] Argentina – Austria → `2–0`
-- [ ] Jordan – Algeria → `0–1`
+- [x] Argentina – Algeria → `2–0` ✅ entered 2026-06-17; actual Argentina 3–0 Messi hat-trick (tendency ✓ +2 pts)
+- [x] Jordan – Austria → `0–2` ✅ entered 2026-06-17; actual Austria 3–1 Jordan (GD +2 ✓ **+3 pts**)
+- [ ] Argentina – Austria → `2–1`  _(updated 2026-06-17: Austria 3–1 Jordan shows they compete; Rangnick press will score once)_
+- [ ] Jordan – Algeria → `0–2`  _(updated 2026-06-17: Algeria need points after 0–3 loss; quality through Mahrez/Amoura)_
 
 ### Group K
-- [ ] Portugal – DR Congo → `2–0`
-- [ ] Uzbekistan – Colombia → `0–2`
-- [ ] Portugal – Uzbekistan → `2–0`
-- [ ] DR Congo – Colombia → `0–2`
+- [ ] Portugal – DR Congo → `2–0`  _(Spieltag 3 — ⚡ enter today, lock 17.06 18:59 CET)_
+- [ ] Uzbekistan – Colombia → `0–2`  _(Spieltag 3 — enter 18.06 03:59 CET)_
+- [ ] Portugal – Uzbekistan → `3–0`  _(updated 2026-06-17: tier mismatch; Ronaldo motivated on final WC; safe 3-goal pick)_
+- [ ] DR Congo – Colombia → `1–2`  _(updated 2026-06-17: Colombia quality; but Wissa counter-attack pace means DR Congo score; enter Colombia wins)_
 - [ ] Portugal – Colombia → `1–1`
 - [ ] DR Congo – Uzbekistan → `1–1`
 
 ### Group L
 - [ ] England – Panama → `3–0`
 - [ ] Croatia – Ghana → `2–0`
-- [ ] England – Croatia → `1–0`
-- [ ] Panama – Ghana → `0–2`
+- [ ] England – Croatia → `1–0`  _(Spieltag 3 — ⚡ enter today, lock 17.06 21:59 CET)_
+- [ ] Panama – Ghana → `0–2`  _(Spieltag 3 — enter 18.06 00:59 CET)_
 - [ ] England – Ghana → `2–0`
 - [ ] Panama – Croatia → `0–2`
 

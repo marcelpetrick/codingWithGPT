@@ -179,3 +179,30 @@ the locked Strategy A bonus sheet yet.
 | F | Netherlands 2–2 Japan; Sweden 5–1 Tunisia. | Sweden upgraded sharply; Japan still strong but Kubo knee status matters. Netherlands group-winner pick is less comfortable. |
 | G | Belgium 1–1 Egypt; Iran 2–2 New Zealand. | Group is flatter than expected. Belgium remain favorite on talent, but Egypt and New Zealand both showed enough threat to punish banker picks. |
 | H | Spain 0–0 Cabo Verde; Saudi Arabia 1–1 Uruguay. | Spain/Uruguay both stumbled. Spain still have the ceiling, but Group H is now open and GD assumptions are fragile. |
+
+## In-tournament update — 2026-06-17
+
+Results from Spieltag 3 (Groups I, J first matches — 16–17 June).
+
+| Group | Result signal | Pick impact |
+| --- | --- | --- |
+| I | France 3–1 Senegal; Norway 4–1 Iraq. | Both favorites won convincingly. France sluggish in first half (zero shots) before Mbappé brace rescued it — pattern of slow starts must inform France future picks. Norway's 4–1 confirms Haaland is in form; Ødegaard and the press are real. France still group favorites but Norway are a genuine threat. Norway vs Senegal is the real second-place fight. |
+| J | Argentina 3–0 Algeria (Messi hat-trick, tying Klose all-time WC record of 16 goals); Austria 3–1 Jordan. | Argentina the class of the group. Messi hit-trick on his 200th cap, no defensive concerns. Austria 3–1 was impressive — Rangnick's press and Arnautovic off the bench worked. Austria are a real second-place contender. Argentina vs Austria becomes the group decider — **updated pick: Argentina 2–1 Austria** (respect Austria's attack). Algeria need to recover; Jordan out of contention. |
+| K | Portugal vs DR Congo (17 Jun 18:59 CET — still upcoming at time of update); Uzbekistan vs Colombia (17 Jun late — still upcoming). | Group K matchday 1 not yet played at time of this update. Portugal expected to win; Colombia expected to win. |
+| L | England vs Croatia (17 Jun 21:59 CET — still upcoming); Ghana vs Panama (18 Jun 00:59 CET — still upcoming). | Group L matchday 1 not yet played at time of this update. England expected to edge Croatia. |
+
+### Group I — updated tier table (post-MD1)
+| Team | Tier | MD1 form |
+| --- | --- | --- |
+| 🇫🇷 France ★★★ | — | Won 3–1 vs Senegal; Mbappé 2 goals but first half passive |
+| 🇳🇴 Norway ★★★ | Upgraded | Won 4–1 vs Iraq; Haaland brace; press + set pieces all worked |
+| 🇸🇳 Senegal ★★ | — | Lost 1–3 but hit the post, created chances; not dead |
+| 🇮🇶 Iraq 💤 | — | Lost 1–4; goalkeeper errors cost them |
+
+### Group J — updated tier table (post-MD1)
+| Team | Tier | MD1 form |
+| --- | --- | --- |
+| 🇦🇷 Argentina ★★★ | — | Won 3–0; Messi hat-trick; no defensive issues |
+| 🇦🇹 Austria ★★★ | Upgraded | Won 3–1 vs Jordan; press effective; Arnautovic impact sub |
+| 🇩🇿 Algeria ★ | Downgraded | Lost 0–3; no answer to Messi |
+| 🇯🇴 Jordan 💤 | — | Lost 1–3; one good goal (Olwan) but outclassed |
