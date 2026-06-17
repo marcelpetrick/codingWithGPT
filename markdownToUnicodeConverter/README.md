@@ -24,7 +24,25 @@ All other text is passed through unchanged. Block-level Markdown (headings, list
 ## Requirements
 
 - Python 3.9+
-- Zero runtime dependencies
+- Zero runtime dependencies — stdlib only
+
+---
+
+## Setup
+
+```bash
+git clone <repo-url>
+cd markdownToUnicodeConverter
+
+# Optional but recommended: create an isolated environment
+python3 -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
+
+# Install dev tools (linters + test runner)
+pip install -r requirements-dev.txt
+```
+
+That's it. `boldemort.py` has no install step — run it directly with `python3`.
 
 ---
 
@@ -119,6 +137,12 @@ A single *dangling asterisk with no close stays raw.
 ---
 
 ## Development
+
+### Install dev dependencies
+
+```bash
+pip install -r requirements-dev.txt
+```
 
 ### Run linters
 
