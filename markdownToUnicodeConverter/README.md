@@ -21,6 +21,30 @@ All other text is passed through unchanged. Block-level Markdown (headings, list
 
 ---
 
+## Quick start
+
+The fastest way to verify everything works:
+
+```bash
+bash localPipeline.sh
+```
+
+This creates a `.venv`, installs dev dependencies, runs mypy, flake8, and pytest,
+and prints a summary table:
+
+```
+..
+========== Boldemort Pipeline Summary ==========
+Virtualenv       : PASS .venv is available
+Dependencies     : PASS requirements-dev.txt installed
+mypy             : PASS 0 errors
+flake8           : PASS 0 violations
+pytest           : PASS 44 passed in 0.20s
+=================================================
+```
+
+---
+
 ## Requirements
 
 - Python 3.9+
