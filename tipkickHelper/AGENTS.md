@@ -3,7 +3,7 @@
 ## Context
 
 FIFA World Cup 2026 (USA/Canada/Mexico, 11 Jun – 19 Jul 2026).  
-29-participant office pool · €290 prize pot · stake €10.  
+35-participant office pool · €350 prize pot · stake €10.  
 Primary goal: top-5 finish (≥ €23.20 back). Stretch: 1st (€116).  
 **Strategy A locked 2026-05-15**: chalk/cash-out. No mid-tournament switches.  
 Semi-finalists: France, Spain, Argentina, Brazil. Champion: France.

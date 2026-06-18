@@ -14,10 +14,10 @@ Tip name idea: _(be creative — pool admin's request)_ → `___________`
 ## Which strategy am I playing? 🔒 LOCKED
 
 **Locked 2026-05-15: Strategy A — Safe / Cash Out.**
-**Pool-size update 2026-06-09**: 29 participants confirmed (pool €290);
-5th place now nets +€13.20, lock still reinforced.
+**Pool-size update 2026-06-18**: 35 participants confirmed (pool €350);
+5th place now nets +€18, lock reinforced further.
 
-- [x] **Strategy A — Safe / Cash Out** (target: top 5 of 29; min €23.20 back / +€13.20 net).
+- [x] **Strategy A — Safe / Cash Out** (target: top 5 of 35; min €28 back / +€18 net).
       → Semi-finalists: France, Spain, Argentina, **Brazil**. Champion: France.
 - [ ] ~~Strategy B — Swing / Win It~~ (not chosen)
 

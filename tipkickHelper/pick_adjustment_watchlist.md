@@ -78,6 +78,7 @@ still mirror the old sheet.
 
 Pool context: user was **4th of 29 on 19 pts** after 16 matches (2026-06-16).
 Running total now **38 pts** after Spieltag 3 full + Spieltag 4 first 3 matches (2026-06-18).
+**Pool updated 2026-06-18: 35 participants, €350 pot.** 5th place = +€18. 1st place = €140.
 Current pool position unknown — check Kicktipp app. This is already a paying position; avoid forced variance.
 
 | Priority | Match / area | Current default in `my_picks.md` | Review stance | Why |

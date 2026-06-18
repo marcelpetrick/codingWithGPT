@@ -6,7 +6,7 @@ Canada, Mexico.
 
 > Status as of 2026-06-16. The tournament is live. Final draw was held
 > **5 Dec 2025**, Washington, D.C.; pool entry closed **09 June 2026,
-> 23:59**. Confirmed **29 participants** (pool €290). Bonus picks locked at
+> 23:59**. Confirmed **35 participants** (pool €350). Bonus picks locked at
 > the opening kickoff: **11 June 2026, 21:00 CET** (Mexico vs South Africa).
 >
 > **User status (2026-06-02): registered, paid, picks already submitted
@@ -16,7 +16,7 @@ Canada, Mexico.
 >
 > **Latest monitoring update (2026-06-16):** current audit through matches
 > played 15 June shows **19 / 64 pts** using the current `my_picks.md`
-> sheet. User-reported pool position: **4th of 29**, leader on **21 pts**
+> sheet. User-reported pool position: **4th of 29** (as of 2026-06-16), leader on **21 pts**
 > (gap: **2 pts**). Group H and Group F are the most changed reads;
 > Strategy A stays locked.
 
@@ -35,7 +35,7 @@ The pool's actual entry happens **inside the Kicktipp app**, but
 | File | What's inside |
 | --- | --- |
 | [`pool_rules.md`](pool_rules.md) | **The Kicktipp pool rules + strategy deductions** |
-| [`strategy.md`](strategy.md) | **Cash-out math at 29 participants + Strategy A vs B** |
+| [`strategy.md`](strategy.md) | **Cash-out math at 35 participants + Strategy A vs B** |
 | [`AGENTS.md`](AGENTS.md) | Agent / workflow guide for future agent sessions |
 | [`format.md`](format.md) | New 48-team / 12-group format, schedule, host venues |
 | [`groups.md`](groups.md) | All 12 groups A–L with quick reads per team |

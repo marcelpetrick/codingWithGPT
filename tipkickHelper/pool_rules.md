@@ -13,8 +13,8 @@ Source: pool admin e-mail **+** verbatim Kicktipp "Spielregeln" page
   screenshot of the transfer + your "tipp name"). Confirmed via admin
   reminder e-mail on 2026-06-02.
 - **External tippers are not allowed** — company-internal pool.
-- **Participant count (updated 2026-06-09)**: **29 tippers** ⇒
-  pool = 29 × 10 € = **290 €**.
+- **Participant count (updated 2026-06-18)**: **35 tippers** ⇒
+  pool = 35 × 10 € = **350 €**.
 
 ## Visibility (Sichtbarkeit der Tipps)
 
@@ -128,11 +128,10 @@ The pool format strongly shapes how I'd play:
 
 4. **Top 5 all get paid — but the gradient is steep.** 1st (40 %) vs
    5th (8 %) is a 5× difference. Risk-adjusted, mid-table is fine but
-   the win is a 5× payout. At the **updated 29 participants**, top-5
-   is top 17.2 % of the field — the cash-out floor is still real (even
-   5th = +€13.20 net), so safe chalk has positive EV. Under the locked
-   Strategy A, do not turn the bonus sheet contrarian just because the
-   pool grew from 25 to 29.
+   the win is a 5× payout. At the **updated 35 participants**, top-5
+   is top 14.3 % of the field — the cash-out floor is real (5th = +€18
+   net), so safe chalk has positive EV. Under the locked Strategy A, do
+   not turn the bonus sheet contrarian just because the pool grew.
 
 5. **Bonus picks stay chalk under Strategy A.** France/Spain/Argentina/
    Brazil semis + France champion + France top-scorer team is not built

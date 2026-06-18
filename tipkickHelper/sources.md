@@ -179,6 +179,7 @@ Compiled from 2026-05-15 through 2026-06-16.
 
 ### Pool/admin
 - User message in chat (2026-06-09): participant count updated to **29**.
+- User message in chat (2026-06-18): participant count updated to **35** (pool €350).
 
 ### Odds & prediction markets (June 9)
 - [CBS Sports — Kalshi World Cup 2026 prices incl. winner, group, Golden Boot markets](https://new.cbssports.com/prediction/news/kalshi-world-cup-2026/)

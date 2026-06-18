@@ -105,8 +105,8 @@ flowchart TD
     LOCK --> NOSWITCH["No mid-tournament switches.\nPer-match picks adjust for injuries\nbut the playbook stays."]
 ```
 
-> Current pool: **29 participants** → Strategy A locked 2026-05-15 and
-> reinforced by the 2026-06-09 pool-size update.
+> Current pool: **35 participants** → Strategy A locked 2026-05-15 and
+> reinforced by pool-size updates (Jun 9: 29, Jun 18: 35).
 
 ---
 
