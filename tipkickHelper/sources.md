@@ -216,3 +216,38 @@ Compiled from 2026-05-15 through 2026-06-16.
 - [ESPN — Iran 2–2 New Zealand match page](https://www.espn.com/soccer/match/_/gameId/760427/new-zealand-iran)
 - [ESPN — Spain held by Cabo Verde, first major shock](https://global.espn.com/football/story/_/id/49073839/spain-held-64th-ranked-cape-verde-1st-major-world-cup-shock)
 - [ESPN — Belgium vs Egypt live report](https://www.espn.com/soccer/story/_/id/49073712/belgium-vs-egypt-live-world-cup-2026-updates-kevin-de-bruyne-takes-mohamed-salah-group-e-clash)
+
+## Research update — 2026-06-18 (subagent fan-out: 4 agents)
+
+### Match results (June 17–18)
+- [NBC News — Colombia beats Uzbekistan, Ghana downs Panama, England defeats Croatia, Portugal and DR Congo draw](https://www.nbcnews.com/sports/soccer/live-blog/fifa-world-cup-games-2026-live-updates-rcna350496)
+- [Al Jazeera — Portugal 1–1 DR Congo (Wissa equalizer)](https://www.aljazeera.com/sports/2026/6/17/portugal-held-to-1-1-draw-by-dr-congo-in-their-world-cup-2026-opener)
+- [Sky Sports — Netherlands 2–2 Japan (Kamada 89th minute)](https://www.skysports.com/football/news/12098/13552697/world-cup-2026-netherlands-2-2-japan-daichi-kamadas-89th-minute-equaliser-denies-the-dutch-in-dallas)
+- [Sky Sports — Argentina 3–0 Algeria (Messi hat-trick, 200th cap)](https://www.skysports.com/football/news/17364/13552724/world-cup-2026-argentina-3-0-algeria-lionel-messi-scores-stunning-hat-trick-to-draw-level-in-all-time-world-cup-scoring-charts)
+- [Al Jazeera — Belgium 1–1 Egypt (Lukaku own-goal equalizer)](https://www.aljazeera.com/sports/liveblog/2026/6/15/belgium-v-egypt-live-world-cup-2026)
+- [ESPN — Czechia vs South Africa June 18 box score](https://www.espn.com/soccer/match/_/gameId/760438/south-africa-czechia)
+- [ESPN — Canada vs Qatar June 18](https://www.espn.com/soccer/match/_/gameId/760440/qatar-canada)
+- [Olympics.com — every match result Thursday 18 June](https://www.olympics.com/en/news/fifa-world-cup-2026-every-match-result-thursday-18-june-live-scores)
+- [Flashscore — Switzerland vs Bosnia June 18](https://www.flashscore.com/match/football/bosnia-herzegovina-fqe7WYTr/switzerland-rHJ2vy1B/)
+- [FIFA.com — Portugal–DR Congo match report](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-congo-dr-highlights-match-report)
+- [Bundesliga.com — Germany 7–1 Curaçao](https://www.bundesliga.com/en/bundesliga/news/2026-fifa-world-cup-live-news-blog-germany-37602)
+
+### Injury updates (June 15–18)
+- [ESPN — Neymar not training; Brazil repeats medical tests](https://www.espn.com/soccer/story/_/id/49076595/neymar-not-training-brazil-repeats-medical-tests-sources-world-cup-haiti)
+- [Sky Sports — Billy Gilmour ruled out with knee injury](https://www.skysports.com/football/news/12017/13549373/billy-gilmour-scotland-midfielder-ruled-out-of-world-cup-with-knee-injury)
+- [ESPN — 2026 World Cup injuries tracker (Timber, Simons, De Ligt, Gnabry)](https://www.espn.com/soccer/story/_/id/48572979/2026-fifa-world-cup-injuries-tracker-which-stars-miss-latest-info)
+- [Sports Mole — Brazil vs Haiti preview and lineups](https://www.sportsmole.co.uk/football/brazil/world-cup-2026/preview/brazil-vs-haiti-prediction-team-news-lineups_599463.html)
+
+### Betting odds (June 18)
+- [CBS Sports — USA vs Australia World Cup 2026 odds](https://www.cbssports.com/soccer/news/usmnt-australia-odds-prediction-time-2026-world-cup-picks-bets/)
+- [Racing Post — Mexico vs South Korea odds and team news](https://www.racingpost.com/sport/football-tips/world-cup-2026/mexico-vs-south-korea-world-cup-prediction-team-news-odds-betting-tips-and-bet-builder-avQBM7X4bg7j/)
+- [Racing Post — Turkey vs Paraguay odds](https://www.racingpost.com/sport/football-tips/world-cup-2026/turkey-vs-paraguay-world-cup-prediction-team-news-odds-betting-tips-and-bet-builder-aLXRz8a2yczL/)
+- [Squawka — Spain vs Saudi Arabia preview](https://www.squawka.com/us/news/world-cup/match-preview-spain-vs-saudi-arabia-06-21-26-world-cup-2026/)
+- [Oddschecker — World Cup 2026 betting odds](https://www.oddschecker.com/football/world-cup)
+
+### Group standings
+- [Wikipedia — 2026 FIFA World Cup Group A](https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_A)
+- [Wikipedia — 2026 FIFA World Cup Group B](https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_B)
+- [Wikipedia — 2026 FIFA World Cup Group K](https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_K)
+- [NBC Sports — full group stage standings](https://www.nbcsports.com/soccer/news/2026-world-cup-group-stage-table-full-standings-for-all-12-groups)
+- [Yahoo Sports — 2026 World Cup Day 8 recap](https://sports.yahoo.com/articles/2026-world-cup-day-8-063231668.html)
