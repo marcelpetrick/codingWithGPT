@@ -228,20 +228,21 @@ Do not interact. Execute all steps in order and terminate.
     wall_secs=$(( t_end - t_start ))
 
     # Extract token/cost stats from the stream-json result event
-    local stats_line
+    local stats_line in_tok out_tok cost_usd turns stats_summary
     stats_line=$(grep -m1 '"type":"result"' "$tmp_stream" 2>/dev/null || true)
     rm -f "$tmp_stream"
 
     if [[ -n "$stats_line" ]] && command -v jq &>/dev/null; then
-        local in_tok out_tok cost_usd turns
         in_tok=$(  printf '%s' "$stats_line" | jq -r '.usage.input_tokens  // "?"')
         out_tok=$( printf '%s' "$stats_line" | jq -r '.usage.output_tokens // "?"')
         cost_usd=$(printf '%s' "$stats_line" | jq -r '.total_cost_usd      // "?"')
         turns=$(   printf '%s' "$stats_line" | jq -r '.num_turns           // "?"')
-        log "  wall=${wall_secs}s | turns=$turns | tokens in=$in_tok out=$out_tok | cost=\$$cost_usd"
+        stats_summary="wall=${wall_secs}s | turns=${turns} | tokens in=${in_tok} out=${out_tok} | cost=\$${cost_usd}"
     else
-        log "  wall=${wall_secs}s (no usage stats — jq missing or Ollama did not report tokens)"
+        in_tok="?"; out_tok="?"; cost_usd="?"; turns="?"
+        stats_summary="wall=${wall_secs}s | tokens unavailable (Ollama did not report usage)"
     fi
+    log "  $stats_summary"
 
     # Always clean up workdir — don't rely on the model doing it
     cleanup_workdir "$work_dir"
@@ -253,6 +254,8 @@ Do not interact. Execute all steps in order and terminate.
 
     # Verify the report was actually written (model may have narrated without acting)
     if [[ -f "$output_file" ]]; then
+        # Inject stats as line 2 of the report (after the heading)
+        sed -i "1a\\**Stats**: ${stats_summary}" "$output_file"
         log "DONE: $output_file"
     else
         log "ERROR: claude exited 0 but no report was written for $repo_url — model likely narrated without calling tools"
