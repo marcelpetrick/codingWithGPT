@@ -164,58 +164,52 @@ process_repo() {
         --verbose \
         --disallowed-tools "Agent" \
         -p "
-You are an automated code reviewer running in headless mode. Complete ALL steps without asking for confirmation. Do not ask clarifying questions — proceed immediately.
+You are an automated code reviewer. Execute all steps immediately without asking questions.
+
+STRICT OUTPUT RULES — violating these ruins the report:
+- Every field marked [MAX N words] must not exceed that limit. Stop. Move on.
+- Do not pad, repeat, or elaborate beyond the word limit.
+- Write the report file in one Write tool call, then stop.
 
 ## Task
-Review the repository: $repo_url
+Review: $repo_url
 
 ## Steps
 
-1. Clone the repository into: $work_dir
-   Use: git clone --depth 1 $repo_url $work_dir/repo
+1. Run: git clone --depth 1 $repo_url $work_dir/repo
 
-2. Explore the codebase:
-   - Identify languages, frameworks, and dependencies
-   - Note overall structure and entry points
+2. Explore: list files, read key source files to understand the codebase.
 
-3. Perform a thorough review focused on:
-   - Security vulnerabilities (injection, auth flaws, secrets in code, insecure deps)
-   - Architectural anti-patterns and design flaws
-   - Critical bugs and data integrity issues
-   - Dangerous or deprecated API usage
+3. Identify the 10 worst findings (security, bugs, architecture). Rank by severity.
 
-4. Select the 10 worst findings, ranked by severity.
+4. Write the report to: $output_file
 
-5. Write the report to: $output_file
+   Exact format — no deviations:
 
-   Use this exact format:
-
-   \`\`\`
    # Code Review: $repo_name
    **Repository**: $repo_url
    **Reviewed**: $(date -u '+%Y-%m-%dT%H:%M:%SZ')
    **Model**: $MODEL (Ollama)
 
    ## Summary
-   [2-3 sentences: what the project does, overall risk level, key concern]
+   [MAX 40 words: what the project does, overall risk level, biggest concern]
 
    ## Top 10 Findings
 
-   ### 1. [Short title] — CRITICAL|HIGH|MEDIUM|LOW
+   ### 1. [title max 8 words] — CRITICAL|HIGH|MEDIUM|LOW
    **File**: path/to/file.ext:line
-   **Description**: What is wrong and why it matters.
-   **Impact**: What an attacker or bug could cause.
-   **Fix**: Concrete recommendation.
+   **Description**: [MAX 25 words: what is wrong]
+   **Impact**: [MAX 20 words: consequence]
+   **Fix**: [MAX 20 words: recommendation]
 
-   [repeat for findings 2-10]
+   [repeat pattern exactly for findings 2 through 10]
 
    ## Quick Wins
-   [Bullet list of easy, low-risk improvements worth mentioning]
-   \`\`\`
+   [3-5 bullet points, each MAX 15 words]
 
-6. Print exactly: REVIEW COMPLETE: $output_file
+5. Print exactly: REVIEW COMPLETE: $output_file
 
-Do not interact. Execute all steps in order and terminate.
+Do not interact. Do not add extra text. Execute steps and terminate.
 " 2>&1 | tee -a "$LOG_FILE" | tee "$tmp_stream" | pretty_stream
     exit_code=${PIPESTATUS[0]}
     set -o errexit
@@ -252,8 +246,13 @@ Do not interact. Execute all steps in order and terminate.
 
     # Verify the report was actually written (model may have narrated without acting)
     if [[ -f "$output_file" ]]; then
-        # Inject stats as line 2 of the report (after the heading)
-        sed -i "1a\\**Stats**: ${stats_summary}" "$output_file"
+        # Inject stats as line 2 — python handles special chars that break sed
+        python3 -c "
+import sys
+lines = open(sys.argv[1]).readlines()
+lines.insert(1, '**Stats**: ' + sys.argv[2] + '\n')
+open(sys.argv[1], 'w').writelines(lines)
+" "$output_file" "$stats_summary"
         log "DONE: $output_file"
     else
         log "ERROR: claude exited 0 but no report was written for $repo_url — model likely narrated without calling tools"
