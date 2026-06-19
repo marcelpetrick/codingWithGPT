@@ -213,9 +213,7 @@ Review the repository: $repo_url
    [Bullet list of easy, low-risk improvements worth mentioning]
    \`\`\`
 
-6. After writing the report, delete $work_dir entirely to free disk space.
-
-7. Print exactly: REVIEW COMPLETE: $output_file
+6. Print exactly: REVIEW COMPLETE: $output_file
 
 Do not interact. Execute all steps in order and terminate.
 " 2>&1 | tee -a "$LOG_FILE" | tee "$tmp_stream" | pretty_stream
