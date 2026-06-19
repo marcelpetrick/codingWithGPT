@@ -11,6 +11,8 @@ POLL_INTERVAL="${POLL_INTERVAL:-10}"
 export ANTHROPIC_AUTH_TOKEN=ollama
 export ANTHROPIC_BASE_URL=http://192.168.100.37:11434
 export ANTHROPIC_API_KEY=""
+# Force all claude instances (including any subagents) to use the Ollama model
+export ANTHROPIC_MODEL="$MODEL"
 
 # ANSI colors — empty when stdout is not a terminal
 if [[ -t 1 ]]; then
@@ -160,6 +162,7 @@ process_repo() {
         --max-turns 40 \
         --output-format stream-json \
         --verbose \
+        --disallowed-tools "Agent" \
         -p "
 You are an automated code reviewer running in headless mode. Complete ALL steps without asking for confirmation. Do not ask clarifying questions — proceed immediately.
 
