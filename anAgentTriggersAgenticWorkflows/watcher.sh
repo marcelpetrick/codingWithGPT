@@ -102,12 +102,22 @@ Review the repository: $repo_url
 7. Print exactly: REVIEW COMPLETE: $output_file
 
 Do not interact. Execute all steps in order and terminate.
-" 2>&1 | tee -a "$LOG_FILE"; then
+" 2>&1 | tee -a "$LOG_FILE"
+    local exit_code=$?
+
+    # Always clean up workdir — don't rely on the model doing it
+    cleanup_workdir "$work_dir"
+
+    if [[ $exit_code -ne 0 ]]; then
+        log "ERROR: claude exited $exit_code for $repo_url"
+        return
+    fi
+
+    # Verify the report was actually written (model may have narrated without acting)
+    if [[ -f "$output_file" ]]; then
         log "DONE: $output_file"
     else
-        log "ERROR: claude exited non-zero for $repo_url"
-        # Still clean up even on failure
-        cleanup_workdir "$work_dir"
+        log "ERROR: claude exited 0 but no report was written for $repo_url — model likely narrated without calling tools"
     fi
 }
 
