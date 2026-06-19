@@ -139,7 +139,7 @@ process_repo() {
     timestamp=$(date +%Y%m%d_%H%M%S)
 
     local work_dir="$SCRIPT_DIR/workdir/${timestamp}_${repo_name}"
-    local output_file="$SCRIPT_DIR/review_${timestamp}_${repo_name}.md"
+    local output_file="$SCRIPT_DIR/review_${repo_name}.md"
     local tmp_stream
     tmp_stream=$(mktemp)
 
