@@ -159,6 +159,7 @@ process_repo() {
         --dangerously-skip-permissions \
         --max-turns 40 \
         --output-format stream-json \
+        --verbose \
         -p "
 You are an automated code reviewer running in headless mode. Complete ALL steps without asking for confirmation. Do not ask clarifying questions — proceed immediately.
 
