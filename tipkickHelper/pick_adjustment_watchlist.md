@@ -73,44 +73,53 @@ lineup, market, or match context materially changes.
 | ST5 (Jun 20–22) | 13 |
 | **Total** | **63** |
 
-## Spieltag 6 — ENTER NOW (Groups I/J/K/L MD2, June 22–23)
+## Spieltag 6 — ✅ ALL ENTERED 2026-06-22 (confirmed by user)
 
-| Lock (CET) | Kicktipp order | Enter | Notes |
+| Lock (CET) | Kicktipp shows | Entered | Notes |
 | --- | --- | --- | --- |
-| ~19:59 Jun 22 | Argentinien – Österreich | `2:1` | Argentina chalk; Austria 3-1 Jordan MD1 but Messi too strong |
-| ~23:59 Jun 22 | Frankreich – Irak | `2:0` | France massive fav; Iraq 0pts, worst team Group I |
-| ~05:59 Jun 23 | Senegal – Norwegen | `1:2` | Norway chalk (4-1 Iraq); Senegal competitive but outgunned |
-| ~07:59 Jun 23 | Jordanien – Algerien | `0:2` | Algeria need 3pts; Mahrez/Amoura quality; Jordan outclassed MD1 |
-| ~20:59 Jun 23 | Portugal – Usbekistan | `3:0` | Portugal must-win; Ronaldo motivated; tier mismatch |
-| ~23:59 Jun 23 | Kongo DR – Kolumbien | `1:2` | Colombia 3pts; Wissa pace = Congo score once |
-| ~02:59 Jun 24 | England – Ghana | `2:0` | England 4-2 MD1; Ghana 1-0; England chalk |
-| ~05:59 Jun 24 | Panama – Kroatien | `0:2` | Croatia quality; both must-win; Croatia edge |
+| 22.06.26 18:59 | Argentinien – Österreich | `2:1` ✅ | |
+| 22.06.26 22:59 | Frankreich – Irak | `2:0` ✅ | |
+| 23.06.26 01:59 | Norwegen – Senegal | `2:1` ✅ | Norway listed first in Kicktipp |
+| 23.06.26 04:59 | Jordanien – Algerien | `0:2` ✅ | |
+| 23.06.26 18:59 | Portugal – Usbekistan | `3:0` ✅ | |
+| 23.06.26 21:59 | England – Ghana | `2:0` ✅ | |
+| 24.06.26 00:59 | Panama – Kroatien | `0:2` ✅ | |
+| 24.06.26 03:59 | Kolumbien – DR Kongo | `2:1` ✅ | Colombia listed first in Kicktipp |
 
-## Spieltag 7 — ENTER ~June 25–26 (Groups A/B/C/D MD3)
+## Spieltag 7 — ✅ ALL ENTERED 2026-06-22 (Groups A/B/C MD3)
 
-| Kicktipp order | Enter | Confidence |
-| --- | --- | --- |
-| Mexiko – Tschechien | `2:0` | HIGH |
-| Südafrika – Südkorea | `1:2` | HIGH |
-| Kanada – Schweiz | `1:1` | MEDIUM |
-| Katar – Bosnien | `1:1` | LOW |
-| Brasilien – Schottland | `2:0` | HIGH |
-| Haiti – Marokko | `0:2` | HIGH |
-| USA – Türkei | `2:1` | HIGH |
-| Paraguay – Australien | `0:1` | MEDIUM |
+Note: Kicktipp shows 2 simultaneous matches per time slot. Group D MD3 is in ST8.
 
-## Spieltag 8 — ENTER ~June 26–27 (Groups E/F/G/H MD3)
+| Lock (CET) | Kicktipp shows | **Enter** | Confidence |
+| --- | --- | --- | --- |
+| 24.06.26 20:58 | Bosnien-Herzegowina – Katar | **`1:1`** | LOW |
+| 24.06.26 20:58 | Schweiz – Kanada | **`1:1`** | MEDIUM |
+| 24.06.26 23:58 | Marokko – Haiti | **`2:0`** | HIGH |
+| 24.06.26 23:58 | Schottland – Brasilien | **`0:2`** | HIGH |
+| 25.06.26 02:58 | Südafrika – Südkorea | **`1:2`** | HIGH |
+| 25.06.26 02:58 | Tschechien – Mexiko | **`0:2`** | HIGH |
 
-| Kicktipp order | Enter | Confidence |
-| --- | --- | --- |
-| Deutschland – Ecuador | `2:0` | HIGH |
-| Curaçao – Elfenbeinküste | `0:2` | HIGH |
-| Niederlande – Tunesien | `2:0` | HIGH |
-| Japan – Schweden | `2:1` | MEDIUM |
-| Belgien – Neuseeland | `2:0` | MEDIUM (adjusted from `3:0`) |
-| Ägypten – Iran | `1:1` | MEDIUM |
-| Spanien – Uruguay | `1:1` | MEDIUM |
-| Kap Verde – Saudi-Arabien | `1:1` | LOW-MEDIUM |
+## Spieltag 8 — ✅ ALL ENTERED 2026-06-22 (Groups D/E/F MD3)
+
+| Lock (CET) | Kicktipp shows | **Enter** | Confidence |
+| --- | --- | --- | --- |
+| 25.06.26 21:58 | Curaçao – Elfenbeinküste | **`0:2`** | HIGH |
+| 25.06.26 21:58 | Ecuador – Deutschland | **`0:2`** | HIGH |
+| 26.06.26 00:58 | Japan – Schweden | **`2:1`** | MEDIUM |
+| 26.06.26 00:58 | Tunesien – Niederlande | **`0:2`** | HIGH |
+| 26.06.26 03:58 | Paraguay – Australien | **`0:1`** | MEDIUM |
+| 26.06.26 03:58 | Türkei – USA | **`1:2`** | HIGH |
+
+## Spieltag 9 — ✅ ALL ENTERED 2026-06-22 (Groups G/H/I MD3)
+
+| Lock (CET) | Kicktipp shows | **Enter** | Confidence |
+| --- | --- | --- | --- |
+| 26.06.26 20:58 | Norwegen – Frankreich | **`1:2`** | MEDIUM (Norway pushes for 1st) |
+| 26.06.26 20:58 | Senegal – Irak | **`2:0`** | HIGH |
+| 27.06.26 01:58 | Uruguay – Spanien | **`1:1`** | MEDIUM (Spain draws = 1st; Uruguay must win) |
+| 27.06.26 01:58 | Kap Verde – Saudi-Arabien | **`1:1`** | LOW-MEDIUM |
+| 27.06.26 04:58 | Neuseeland – Belgien | **`0:2`** | MEDIUM (Belgium must win) |
+| 27.06.26 04:58 | Ägypten – Iran | **`1:1`** | MEDIUM |
 
 ## Pool status (2026-06-22)
 

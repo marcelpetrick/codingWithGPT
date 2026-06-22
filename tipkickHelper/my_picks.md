@@ -201,48 +201,59 @@ Spieltag 4 remaining = **12 pts**. **Full Spieltag 4 = 16 pts. Running total = 5
 | 22.06.26 02:59 | Neuseeland – Ägypten | `0:2` | ✅ Locked. Actual: **1–3** Egypt (GD=2 ✓) → **+3 pts** GD match |
 | **ST5 total** | | | **13 / 32** |
 
-### Spieltag 6 entry queue
+### Spieltag 6 entry queue — ✅ ALL ENTERED 2026-06-22
 
-Groups I/J/K/L MD2 — approx. June 22–23. **Lock times TBC — verify in Kicktipp app before each kick-off.**
+Kicktipp team order confirmed from Screenshot_20260622_135523.png. Picks saved by user 2026-06-22.
 
-| Kicktipp date (approx.) | Match (Kicktipp order) | Enter | Notes |
-| --- | --- | --- | --- |
-| ~22.06.26 20:59 | Frankreich – Irak | `2:0` | France dominant after 3–1 MD1; Iraq weakest team in Group I |
-| ~22.06.26 23:59 | Senegal – Norwegen | `1:2` | Norway chalk after 4–1 Iraq; Senegal will score (lost 1–3 but competitive) |
-| ~22.06.26 (TBC) | Argentinien – Österreich | `2:1` | Austria impressed 3–1 Jordan; Rangnick press will score once; Messi dangerous |
-| ~22.06.26 (TBC) | Jordanien – Algerien | `0:2` | Algeria need points after 0–3 loss; Mahrez/Amoura quality vs depleted Jordan |
-| ~23.06.26 (TBC) | Portugal – Usbekistan | `3:0` | Portugal must-win statement; Ronaldo motivated; Uzbekistan lost 1–3 Colombia |
-| ~23.06.26 (TBC) | Kongo DR – Kolumbien | `1:2` | Colombia Group K leaders (3 pts); Wissa pace = Congo score once |
-| ~23.06.26 (TBC) | England – Ghana | `2:0` | England 4–2 MD1; Ghana 1–0; England clear chalk |
-| ~23.06.26 (TBC) | Panama – Kroatien | `0:2` | Croatia quality; both lost MD1; Panama minnow |
-
-### Spieltag 7 entry queue (Groups A/B/C/D MD3, ~June 25–26)
-
-All simultaneous within each group. Enter before each group's joint kick-off time.
-
-| Kicktipp match | **Enter** | Group context |
+| Lock (CET) | Kicktipp shows | Entered | 
 | --- | --- | --- |
-| Mexiko – Tschechien | **`2:0`** | Mexico 6pts (qualified), Czechia 1pt. Rotation expected but class gap huge. |
-| Südafrika – Südkorea | **`1:2`** | Korea 3pts sealing 2nd. SA 1pt in desperation mode. Korea chalk. |
-| Kanada – Schweiz | **`1:1`** | Both 4pts, both through. Canada GD +6 vs Swiss +3. Cautious draw chalk. |
-| Katar – Bosnien | **`1:1`** | Both eliminated (1pt each). Low-motivation pride match. |
-| Brasilien – Schottland | **`2:0`** | Brazil 4pts (group 1st race with Morocco). Scotland 3pts must win. Brazil chalk. |
-| Haiti – Marokko | **`0:2`** | Haiti 0pts eliminated. Morocco 4pts needs win for group position. Tier mismatch. |
-| USA – Türkei | **`2:1`** | USA 6pts (qualified, rotates). Turkey 0pts. USA chalk; Turkey can score (Güler). |
-| Paraguay – Australien | **`0:1`** | Both 3pts. Australia GD=0 vs Paraguay GD=–2. Australia needs draw/win. |
+| 22.06.26 18:59 | Argentinien – Österreich | ✅ `2:1` |
+| 22.06.26 22:59 | Frankreich – Irak | ✅ `2:0` |
+| 23.06.26 01:59 | Norwegen – Senegal | ✅ `2:1` (Norway listed first) |
+| 23.06.26 04:59 | Jordanien – Algerien | ✅ `0:2` |
+| 23.06.26 18:59 | Portugal – Usbekistan | ✅ `3:0` |
+| 23.06.26 21:59 | England – Ghana | ✅ `2:0` |
+| 24.06.26 00:59 | Panama – Kroatien | ✅ `0:2` |
+| 24.06.26 03:59 | Kolumbien – DR Kongo | ✅ `2:1` (Colombia listed first) |
 
-### Spieltag 8 entry queue (Groups E/F/G/H MD3, ~June 26–27)
+### Spieltag 7 entry queue — ✅ ALL ENTERED 2026-06-22 (Groups A/B/C MD3)
 
-| Kicktipp match | **Enter** | Group context |
+Kicktipp team order from Screenshot_20260622_135529.png. Group D MD3 is in ST8.
+
+| Lock (CET) | Kicktipp shows | Entered |
 | --- | --- | --- |
-| Deutschland – Ecuador | **`2:0`** | Germany 6pts (qualified). Ecuador 1pt, 0 goals in 2 matches. Germany chalk. |
-| Curaçao – Elfenbeinküste | **`0:2`** | CIV 3pts must win for 2nd. Curaçao 1pt, 1 goal all tournament. CIV chalk. |
-| Niederlande – Tunesien | **`2:0`** | NL 4pts, Tunisia 0pts (eliminated). NL chalk; Tunisia tested by everyone. |
-| Japan – Schweden | **`2:1`** | Japan 4pts needs win. Sweden 3pts. Japan better tournament form. Japan chalk. |
-| Belgien – Neuseeland | **`2:0`** | Belgium 2pts must win and score goals. NZ 1pt. Belgium chalk (adjusted from `3:0`). |
-| Ägypten – Iran | **`1:1`** | Egypt 4pts likely rests/conserves. Iran 2pts needs win. Equilibrium draw. |
-| Spanien – Uruguay | **`1:1`** | Spain 4pts only needs draw for 1st. Uruguay 2pts must win. Spain won't overextend. |
-| Kap Verde – Saudi-Arabien | **`1:1`** | Cabo Verde 2pts (3rd-place lifeline). SA 1pt. Both motivated, balanced. |
+| 24.06.26 20:58 | Bosnien-Herzegowina – Katar | ✅ `1:1` |
+| 24.06.26 20:58 | Schweiz – Kanada | ✅ `1:1` |
+| 24.06.26 23:58 | Marokko – Haiti | ✅ `2:0` |
+| 24.06.26 23:58 | Schottland – Brasilien | ✅ `0:2` (Brazil wins, listed 2nd) |
+| 25.06.26 02:58 | Südafrika – Südkorea | ✅ `1:2` |
+| 25.06.26 02:58 | Tschechien – Mexiko | ✅ `0:2` (Mexico wins, listed 2nd) |
+
+### Spieltag 8 entry queue — ✅ ALL ENTERED 2026-06-22 (Groups D/E/F MD3)
+
+Kicktipp team order from Screenshot_20260622_135539.png.
+
+| Lock (CET) | Kicktipp shows | Entered |
+| --- | --- | --- |
+| 25.06.26 21:58 | Curaçao – Elfenbeinküste | ✅ `0:2` |
+| 25.06.26 21:58 | Ecuador – Deutschland | ✅ `0:2` (Germany wins, listed 2nd) |
+| 26.06.26 00:58 | Japan – Schweden | ✅ `2:1` |
+| 26.06.26 00:58 | Tunesien – Niederlande | ✅ `0:2` |
+| 26.06.26 03:58 | Paraguay – Australien | ✅ `0:1` |
+| 26.06.26 03:58 | Türkei – USA | ✅ `1:2` (USA wins, listed 2nd) |
+
+### Spieltag 9 entry queue — ✅ ALL ENTERED 2026-06-22 (Groups G/H/I MD3)
+
+Kicktipp team order from Screenshot_20260622_135607.png.
+
+| Lock (CET) | Kicktipp shows | Entered |
+| --- | --- | --- |
+| 26.06.26 20:58 | Norwegen – Frankreich | ✅ `1:2` (France wins, listed 2nd) |
+| 26.06.26 20:58 | Senegal – Irak | ✅ `2:0` |
+| 27.06.26 01:58 | Uruguay – Spanien | ✅ `1:1` |
+| 27.06.26 01:58 | Kap Verde – Saudi-Arabien | ✅ `1:1` |
+| 27.06.26 04:58 | Neuseeland – Belgien | ✅ `0:2` |
+| 27.06.26 04:58 | Ägypten – Iran | ✅ `1:1` |
 
 ### Group A (matchdays in Mexico)
 - [x] **Mexico – South Africa** (opener, 11 Jun 21:00 CET) → `2–0` ✅ entered 2026-06-11. Actual: 2-0 MEX → EXACT +4
