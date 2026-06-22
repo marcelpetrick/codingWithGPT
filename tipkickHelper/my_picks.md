@@ -130,11 +130,35 @@ Spieltag 3 final 4 confirmed results:
 - Colombia 3–1 Uzbekistan (pick 0:2 → **+2 pts**, tendency ✓)
 Spieltag 3 final 4 = **6 pts**. Full Spieltag 3 = **15 pts**.
 
-Spieltag 4 first 3 confirmed results:
-- Czechia 1–0 South Africa (pick 1:0 → **+4 pts EXACT**)
-- Switzerland 1–1 Bosnia (pick 2:1 → **0 pts**, wrong tendency)
-- Canada 1–1 Qatar (pick 2:0 → **0 pts**, wrong tendency — Davies doubtful with hamstring)
-Spieltag 4 first 3 = **4 pts**. Running total = **38 pts** (+ Mexico–Korea pending).
+### Results reconciliation — 2026-06-18 CORRECTED (via ESPN/FOX/FIFA.com confirmed 2026-06-22)
+
+> ⚠️ The 2026-06-18 review had three wrong ST4 results. Net correction = 0 pts (errors cancel out).
+
+- Czechia 1–1 South Africa (pick 1:0 → **0 pts**, wrong tendency — Mokoena pen 83')
+- Switzerland **4–1** Bosnia (pick 2:1 → **+2 pts**, tendency ✓ — four goals after 74th minute)
+- Canada **6–0** Qatar (pick 2:0 → **+2 pts**, tendency ✓ — David hat-trick)
+Corrected ST4 first 3 = **4 pts**. Running total = **38 pts** (+ Mexico–Korea pending — same total).
+
+### Results reconciliation — 2026-06-19/20 (Spieltag 4 remaining, confirmed 2026-06-22)
+
+- Mexico 1–0 South Korea (pick 1:0 → **+4 pts EXACT**)
+- USA 2–0 Australia (pick 2:1 → **+2 pts**, tendency ✓)
+- Scotland 0–1 Morocco (pick 0:1 → **+4 pts EXACT**)
+- Brazil 3–0 Haiti (pick 2:0 → **+2 pts**, tendency ✓)
+- Turkey 0–1 Paraguay (pick 1:0 Turkey → **0 pts**, Turkey LOST — wrong tendency)
+Spieltag 4 remaining = **12 pts**. **Full Spieltag 4 = 16 pts. Running total = 50 pts.**
+
+### Results reconciliation — 2026-06-20/21 (Spieltag 5, confirmed 2026-06-22)
+
+- Netherlands 5–1 Sweden (pick 2:1 NL → **+2 pts**, tendency ✓)
+- Germany 2–1 Ivory Coast (pick 2:1 → **+4 pts EXACT**)
+- Ecuador 0–0 Curaçao (pick 2:0 → **0 pts**, wrong tendency — draw)
+- Japan 4–0 Tunisia (pick 0:2 Japan → **+2 pts**, tendency ✓)
+- Spain 4–0 Saudi Arabia (pick 2:0 → **+2 pts**, tendency ✓)
+- Belgium 0–0 Iran (pick 2:1 Belgium → **0 pts**, wrong tendency — draw)
+- Uruguay 2–2 Cape Verde (pick 2:0 Uruguay → **0 pts**, wrong tendency — draw)
+- New Zealand 1–3 Egypt (pick 0:2 Egypt → **+3 pts**, GD=2 ✓)
+**Full Spieltag 5 = 13 pts. Running total = 63 pts.**
 
 ### Spieltag 3 entry queue
 
@@ -149,35 +173,33 @@ Spieltag 4 first 3 = **4 pts**. Running total = **38 pts** (+ Mexico–Korea pen
 | 18.06.26 00:59 | Ghana – Panama | `2:0` | ✅ Locked. Actual: Ghana 1–0 → tendency ✓ +2 |
 | 18.06.26 03:59 | Usbekistan – Kolumbien | `0:2` | ✅ Locked. Actual: Colombia 3–1 → tendency ✓ +2 |
 
-### Spieltag 4 entry queue
+### Spieltag 4 entry queue — COMPLETE (all 8 confirmed 2026-06-22)
 
-Updated 2026-06-18 after web confirmation of first 3 results.
-
-| Kicktipp date | Match (Kicktipp order) | Enter | Result / Status |
+| Kicktipp date | Match (Kicktipp order) | Pick | Result / Points |
 | --- | --- | --- | --- |
-| 18.06.26 17:59 | Tschechien – Südafrika | `1:0` | ✅ Locked. Actual: **Czechia 1–0** Krejci → **EXACT +4 pts** |
-| 18.06.26 20:59 | Schweiz – Bosnien | `2:1` | ✅ Locked. Actual: 1–1 (Embolo / Lukic) → 0 pts |
-| 18.06.26 23:59 | Kanada – Katar | `2:0` | ✅ Locked. Actual: 1–1 (Larin; Davies doubtful, hamstring) → 0 pts |
-| 19.06.26 02:59 | Mexiko – Südkorea | `1:0` | ⚡ URGENT — enter before ~03:00 CET Jun 19 (Montes suspended; home altitude) |
-| 19.06.26 20:59 | USA – Australien | `2:1` | USA -170; Australia 2–0 Turkey in MD1 but USA home quality |
-| 19.06.26 23:59 | Schottland – Marokko | `0:1` | Morocco -130; Gilmour OUT (knee); Morocco pick now even safer |
-| 20.06.26 02:59 | Brasilien – Haiti | `2:0` | Brazil -800; Neymar OUT (calf) but Haiti tier mismatch |
-| 20.06.26 04:59 | Türkei – Paraguay | `1:0` | Turkey ~+100 coin-flip; Güler/Yıldız quality edge; both must-win |
+| 18.06.26 17:59 | Tschechien – Südafrika | `1:0` | ✅ Locked. Actual: **1–1** (Sadilek 6', Mokoena pen 83') → **0 pts** ← wrong tendency |
+| 18.06.26 20:59 | Schweiz – Bosnien | `2:1` | ✅ Locked. Actual: **4–1** Switzerland (four goals after 74') → **+2 pts** tendency |
+| 18.06.26 23:59 | Kanada – Katar | `2:0` | ✅ Locked. Actual: **6–0** Canada (David hat-trick) → **+2 pts** tendency |
+| 18.06.26 (late) | Mexiko – Südkorea | `1:0` | ✅ Locked. Actual: **1–0** Mexico (Romo 50', Kim GK error) → **+4 pts EXACT** |
+| 19.06.26 20:59 | USA – Australien | `2:1` | ✅ Locked. Actual: **2–0** USA → **+2 pts** tendency |
+| 19.06.26 23:59 | Schottland – Marokko | `0:1` | ✅ Locked. Actual: **0–1** Morocco → **+4 pts EXACT** |
+| 20.06.26 02:59 | Brasilien – Haiti | `2:0` | ✅ Locked. Actual: **3–0** Brazil → **+2 pts** tendency |
+| 20.06.26 04:59 | Türkei – Paraguay | `1:0` Turkey | ✅ Locked. Actual: **0–1** Paraguay (Turkey LOST) → **0 pts** wrong tendency |
+| **ST4 total** | | | **16 / 32** |
 
-### Spieltag 5 entry queue
+### Spieltag 5 entry queue — COMPLETE (all 8 confirmed 2026-06-22)
 
-All blank per `Screenshot_20260617_102809.png`. Enter in Kicktipp order.
-
-| Kicktipp date | Match (Kicktipp order) | Enter | Notes |
+| Kicktipp date | Match (Kicktipp order) | Pick | Result / Points |
 | --- | --- | --- | --- |
-| 20.06.26 18:59 | Niederlande – Schweden | `2:1` | NL -150; Timber+Simons+De Ligt OUT but Dutch still chalk. Highest-risk ST5 pick. |
-| 20.06.26 21:59 | Deutschland – Elfenbeinküste | `2:1` | Germany -175; CIV beat Ecuador MD1; German dominance wins it |
-| 21.06.26 01:59 | Ecuador – Curaçao | `2:0` | Ecuador -550; conservative — Ecuador couldn't score vs CIV in MD1 |
-| 21.06.26 05:59 | Tunesien – Japan | `0:2` | Japan -150; Mitoma/Minamino OUT but Japan chalk; Tunisia 1–5 Sweden |
-| 21.06.26 17:59 | Spanien – Saudi-Arabien | `2:0` | Spain -900 to -1200; Yamal expected to START; Spain must-win after 0–0 |
-| 21.06.26 20:59 | Belgien – Iran | `2:1` | Belgium -235; Lukaku pushing to start; Iran scored 2 vs NZ |
-| 21.06.26 23:59 | Uruguay – Kap Verde | `2:0` | Uruguay -200; Cape Verde held Spain 0–0 — respect but Uruguay clear chalk |
-| 22.06.26 02:59 | Neuseeland – Ägypten | `0:2` | Egypt -138; Salah quality; NZ scored 2 vs Iran so not 3-0 |
+| 20.06.26 18:59 | Niederlande – Schweden | `2:1` | ✅ Locked. Actual: **5–1** NL → **+2 pts** tendency |
+| 20.06.26 21:59 | Deutschland – Elfenbeinküste | `2:1` | ✅ Locked. Actual: **2–1** Germany → **+4 pts EXACT** |
+| 21.06.26 01:59 | Ecuador – Curaçao | `2:0` | ✅ Locked. Actual: **0–0** draw → **0 pts** wrong tendency |
+| 21.06.26 05:59 | Tunesien – Japan | `0:2` | ✅ Locked. Actual: **0–4** Japan → **+2 pts** tendency |
+| 21.06.26 17:59 | Spanien – Saudi-Arabien | `2:0` | ✅ Locked. Actual: **4–0** Spain → **+2 pts** tendency |
+| 21.06.26 20:59 | Belgien – Iran | `2:1` | ✅ Locked. Actual: **0–0** draw → **0 pts** wrong tendency |
+| 21.06.26 23:59 | Uruguay – Kap Verde | `2:0` | ✅ Locked. Actual: **2–2** draw → **0 pts** wrong tendency |
+| 22.06.26 02:59 | Neuseeland – Ägypten | `0:2` | ✅ Locked. Actual: **1–3** Egypt (GD=2 ✓) → **+3 pts** GD match |
+| **ST5 total** | | | **13 / 32** |
 
 ### Spieltag 6 entry queue
 
@@ -194,21 +216,49 @@ Groups I/J/K/L MD2 — approx. June 22–23. **Lock times TBC — verify in Kick
 | ~23.06.26 (TBC) | England – Ghana | `2:0` | England 4–2 MD1; Ghana 1–0; England clear chalk |
 | ~23.06.26 (TBC) | Panama – Kroatien | `0:2` | Croatia quality; both lost MD1; Panama minnow |
 
+### Spieltag 7 entry queue (Groups A/B/C/D MD3, ~June 25–26)
+
+All simultaneous within each group. Enter before each group's joint kick-off time.
+
+| Kicktipp match | **Enter** | Group context |
+| --- | --- | --- |
+| Mexiko – Tschechien | **`2:0`** | Mexico 6pts (qualified), Czechia 1pt. Rotation expected but class gap huge. |
+| Südafrika – Südkorea | **`1:2`** | Korea 3pts sealing 2nd. SA 1pt in desperation mode. Korea chalk. |
+| Kanada – Schweiz | **`1:1`** | Both 4pts, both through. Canada GD +6 vs Swiss +3. Cautious draw chalk. |
+| Katar – Bosnien | **`1:1`** | Both eliminated (1pt each). Low-motivation pride match. |
+| Brasilien – Schottland | **`2:0`** | Brazil 4pts (group 1st race with Morocco). Scotland 3pts must win. Brazil chalk. |
+| Haiti – Marokko | **`0:2`** | Haiti 0pts eliminated. Morocco 4pts needs win for group position. Tier mismatch. |
+| USA – Türkei | **`2:1`** | USA 6pts (qualified, rotates). Turkey 0pts. USA chalk; Turkey can score (Güler). |
+| Paraguay – Australien | **`0:1`** | Both 3pts. Australia GD=0 vs Paraguay GD=–2. Australia needs draw/win. |
+
+### Spieltag 8 entry queue (Groups E/F/G/H MD3, ~June 26–27)
+
+| Kicktipp match | **Enter** | Group context |
+| --- | --- | --- |
+| Deutschland – Ecuador | **`2:0`** | Germany 6pts (qualified). Ecuador 1pt, 0 goals in 2 matches. Germany chalk. |
+| Curaçao – Elfenbeinküste | **`0:2`** | CIV 3pts must win for 2nd. Curaçao 1pt, 1 goal all tournament. CIV chalk. |
+| Niederlande – Tunesien | **`2:0`** | NL 4pts, Tunisia 0pts (eliminated). NL chalk; Tunisia tested by everyone. |
+| Japan – Schweden | **`2:1`** | Japan 4pts needs win. Sweden 3pts. Japan better tournament form. Japan chalk. |
+| Belgien – Neuseeland | **`2:0`** | Belgium 2pts must win and score goals. NZ 1pt. Belgium chalk (adjusted from `3:0`). |
+| Ägypten – Iran | **`1:1`** | Egypt 4pts likely rests/conserves. Iran 2pts needs win. Equilibrium draw. |
+| Spanien – Uruguay | **`1:1`** | Spain 4pts only needs draw for 1st. Uruguay 2pts must win. Spain won't overextend. |
+| Kap Verde – Saudi-Arabien | **`1:1`** | Cabo Verde 2pts (3rd-place lifeline). SA 1pt. Both motivated, balanced. |
+
 ### Group A (matchdays in Mexico)
-- [x] **Mexico – South Africa** (opener, 11 Jun 21:00 CET) → `2–0` ✅ entered 2026-06-11
-- [x] Korea Rep – Czechia → `1–1` ✅ entered 2026-06-12
-- [ ] Mexico – Korea Rep → `1–0`  _(⚡ URGENT — enter before ~03:00 CET Jun 19; Montes suspended)_
-- [x] South Africa – Czechia → `0–1` ✅ Locked. Actual: **Czechia 1–0** (Krejci) → EXACT +4 pts  _(2026-06-18)_
-- [ ] Mexico – Czechia → `2–0`
-- [ ] South Africa – Korea Rep → `1–2`
+- [x] **Mexico – South Africa** (opener, 11 Jun 21:00 CET) → `2–0` ✅ entered 2026-06-11. Actual: 2-0 MEX → EXACT +4
+- [x] Korea Rep – Czechia → `1–1` ✅ entered 2026-06-12. Actual: 2-1 KOR → 0 pts (wrong tendency)
+- [x] Mexico – Korea Rep → `1–0` ✅ Locked. Actual: **1–0** Mexico (Romo 50') → **EXACT +4 pts** _(2026-06-18)_
+- [x] South Africa – Czechia → `0–1` ✅ Locked. Actual: **1–1** (Sadilek, Mokoena pen) → **0 pts** ← wrong tendency _(corrected 2026-06-22)_
+- [ ] Mexico – Czechia → `2–0` _(ST7 — enter ~June 25)_
+- [ ] South Africa – Korea Rep → `1–2` _(ST7 — enter ~June 25)_
 
 ### Group B
-- [ ] Canada – Switzerland → `1–1`
-- [ ] Qatar – Bosnia → `1–1`
-- [x] Canada – Qatar → `2–0` ✅ Locked. Actual: **1–1** (Larin; Davies doubtful) → 0 pts  _(2026-06-18)_
-- [x] Switzerland – Bosnia → `2–1` ✅ Locked. Actual: **1–1** (Embolo / Lukic) → 0 pts  _(2026-06-18)_
-- [x] Canada – Bosnia → `2–1` ✅ entered 2026-06-12
-- [x] Switzerland – Qatar → `2–0` ✅ entered 2026-06-13
+- [ ] Canada – Switzerland → `1–1` _(ST7 — enter ~June 25)_
+- [ ] Qatar – Bosnia → `1–1` _(ST7 — enter ~June 25)_
+- [x] Canada – Qatar → `2–0` ✅ Locked. Actual: **6–0** Canada (David hat-trick) → **+2 pts** tendency _(corrected 2026-06-22)_
+- [x] Switzerland – Bosnia → `2–1` ✅ Locked. Actual: **4–1** Switzerland → **+2 pts** tendency _(corrected 2026-06-22)_
+- [x] Canada – Bosnia → `2–1` ✅ entered 2026-06-12. Actual: 1-1 → 0 pts (wrong tendency)
+- [x] Switzerland – Qatar → `2–0` ✅ entered 2026-06-13. Actual: 1-1 → 0 pts (wrong tendency)
 
 ### Group C
 - [ ] Brazil – Haiti → `2–0`  _(trimmed from 3–0 on 2026-05-19: Brazil squad weakened — Rodrygo/Militão/Estêvão out)_
@@ -219,45 +269,53 @@ Groups I/J/K/L MD2 — approx. June 22–23. **Lock times TBC — verify in Kick
 - [ ] Brazil – Scotland → `2–0`
 - [ ] Haiti – Morocco → `0–2`
 
+### Group C
+- [x] Brazil – Morocco → `1–1` ✅ entered 2026-06-13. Actual: 1-1 → EXACT +4
+- [x] Haiti – Scotland → `1–2` ✅ entered 2026-06-13. Actual: 0-1 SCO → GD match +3
+- [x] Morocco – Scotland → `1–0` ✅ Locked. Actual: **1–0** Morocco (Gilmour OUT) → **EXACT +4 pts** _(pick was 0:1 Morocco in Kicktipp with Scotland listed first)_
+- [x] Brazil – Haiti → `2–0` ✅ Locked. Actual: **3–0** Brazil → **+2 pts** tendency _(2026-06-20)_
+- [ ] Brazil – Scotland → `2–0` _(ST7 — ~June 25)_
+- [ ] Haiti – Morocco → `0–2` _(ST7 — ~June 25)_
+
 ### Group D
-- [x] USA – Paraguay → `2–0` ✅ entered 2026-06-12
-- [x] Australia – Türkiye → `1–1` ✅ entered 2026-06-13
-- [ ] USA – Australia → `2–1`
-- [ ] Paraguay – Türkiye → `0–1`  _(updated 2026-06-17: Turkey quality edge; enter `1:0` in Kicktipp when Turkey listed first)_
-- [ ] USA – Türkiye → `2–1`
-- [ ] Paraguay – Australia → `0–1`  _(updated 2026-06-17: Australia upgraded after 2–0 vs Turkey)_
+- [x] USA – Paraguay → `2–0` ✅ entered 2026-06-12. Actual: 4-1 USA → +2 tendency
+- [x] Australia – Türkiye → `1–1` ✅ entered 2026-06-13. Actual: 2-0 AUS → 0 pts (wrong tendency)
+- [x] USA – Australia → `2–1` ✅ Locked. Actual: **2–0** USA → **+2 pts** tendency _(2026-06-19)_
+- [x] Paraguay – Türkiye → `0–1` ✅ Locked. Actual: **1–0** Paraguay (Turkey LOST) — pick `0:1` meaning Turkey 0-1 Paraguay = **EXACT? Wait** — if Turkey is listed first as "Türkei – Paraguay" and pick is `1:0` Turkey, result is Turkey 0-1 Paraguay → **0 pts** wrong tendency. _(If listed as "Paraguay – Türkei" and pick is `0:1`, it's EXACT.)_ See ST4 queue for authoritative entry. → **+2 pts** if Paraguay listed first _(check Kicktipp)_
+- [ ] USA – Türkiye → `2–1` _(ST7 — USA rotates but chalk; ~June 25)_
+- [ ] Paraguay – Australia → `0–1` _(ST7 — Australia GD advantage; ~June 25)_
 
 ### Group E
-- [x] Germany – Curaçao → `3–0`  _(restored from 2–0 on 2026-06-08: 8-match winning streak, form confirmed vs USA; Karl absence is bench-level only)_ ✅ entered 2026-06-13
-- [x] Ecuador – Côte d'Ivoire → `1–1` ✅ entered 2026-06-13
-- [ ] Germany – Ecuador → `2–0`
-- [ ] Curaçao – Côte d'Ivoire → `0–2`
-- [ ] Germany – Côte d'Ivoire → `2–1`
-- [ ] Curaçao – Ecuador → `0–2`
+- [x] Germany – Curaçao → `3–0` ✅ entered 2026-06-13. Actual: 7-1 GER → +2 tendency
+- [x] Ecuador – Côte d'Ivoire → `1–1` ✅ entered 2026-06-13. Actual: 0-1 CIV → 0 pts (wrong tendency)
+- [x] Germany – Côte d'Ivoire → `2–1` ✅ Locked. Actual: **2–1** Germany → **+4 pts EXACT** _(ST5, 2026-06-20)_
+- [x] Ecuador – Curaçao → `2–0` ✅ Locked. Actual: **0–0** draw → **0 pts** wrong tendency _(ST5, 2026-06-21)_
+- [ ] Germany – Ecuador → `2–0` _(ST8 — ~June 26)_
+- [ ] Curaçao – Côte d'Ivoire → `0–2` _(ST8 — ~June 26)_
 
 ### Group F
-- [ ] Netherlands – Tunisia → `2–0`
-- [ ] Japan – Sweden → `2–1`
-- [x] Netherlands – Japan → `1–1` ✅ entered 2026-06-13
-- [x] Tunisia – Sweden → `1–2` ✅ entered 2026-06-13
-- [ ] Netherlands – Sweden → `2–1`
-- [ ] Tunisia – Japan → `0–2`
+- [x] Netherlands – Japan → `1–1` ✅ entered 2026-06-13. Actual: 2-2 → +2 tendency (draw)
+- [x] Tunisia – Sweden → `1–2` ✅ entered 2026-06-13. Actual: 1-5 SWE → +2 tendency
+- [x] Netherlands – Sweden → `2–1` ✅ Locked. Actual: **5–1** NL → **+2 pts** tendency _(ST5, 2026-06-20)_
+- [x] Tunisia – Japan → `0–2` ✅ Locked. Actual: **0–4** Japan → **+2 pts** tendency _(ST5, 2026-06-21)_
+- [ ] Netherlands – Tunisia → `2–0` _(ST8 — ~June 26)_
+- [ ] Japan – Sweden → `2–1` _(ST8 — ~June 26; Japan form better)_
 
 ### Group G
-- [ ] Belgium – New Zealand → `3–0`
-- [ ] Egypt – Iran → `1–1`
-- [x] Belgium – Egypt → `2–1` ✅ entered 2026-06-13
-- [x] NZ – Iran → `0–2` ✅ entered 2026-06-13
-- [ ] Belgium – Iran → `2–1`
-- [ ] NZ – Egypt → `0–2`
+- [x] Belgium – Egypt → `2–1` ✅ entered 2026-06-13. Actual: 1-1 → 0 pts (wrong tendency)
+- [x] NZ – Iran → `0–2` ✅ entered 2026-06-13. Actual: 2-2 → 0 pts (wrong tendency)
+- [x] Belgium – Iran → `2–1` ✅ Locked. Actual: **0–0** draw → **0 pts** wrong tendency _(ST5, 2026-06-21)_
+- [x] NZ – Egypt → `0–2` ✅ Locked. Actual: **1–3** Egypt (GD=2 match) → **+3 pts** _(ST5, 2026-06-22)_
+- [ ] Belgium – New Zealand → `2–0` _(ST8 — adjust from 3:0; Belgium needs win for any 2nd-place chance)_
+- [ ] Egypt – Iran → `1–1` _(ST8 — Egypt rests, Iran pushes; draw chalk)_
 
 ### Group H
-- [x] Spain – Cabo Verde → `2–0`  _(trimmed from 3–0 on 2026-05-19: Yamal out per latest news)_ ✅ entered 2026-06-13
-- [x] Saudi Arabia – Uruguay → `0–2` ✅ entered 2026-06-13
-- [ ] Spain – Saudi Arabia → `2–0`  _(trimmed from 3–0: Yamal doubtful)_
-- [ ] Cabo Verde – Uruguay → `0–2`
-- [ ] Spain – Uruguay → `1–1`
-- [ ] Cabo Verde – Saudi Arabia → `1–1`
+- [x] Spain – Cabo Verde → `2–0` ✅ entered 2026-06-13. Actual: 0-0 → 0 pts (wrong tendency)
+- [x] Saudi Arabia – Uruguay → `0–2` ✅ entered 2026-06-13. Actual: 1-1 → 0 pts (wrong tendency)
+- [x] Spain – Saudi Arabia → `2–0` ✅ Locked. Actual: **4–0** Spain → **+2 pts** tendency _(ST5, 2026-06-21)_
+- [x] Cabo Verde – Uruguay → `0–2` ✅ Locked. Actual: **2–2** draw → **0 pts** wrong tendency _(ST5, 2026-06-21)_
+- [ ] Spain – Uruguay → `1–1` _(ST8 — Spain needs draw for 1st, Uruguay must win; chalk draw)_
+- [ ] Cabo Verde – Saudi Arabia → `1–1` _(ST8 — both fighting for 3rd-place survival)_
 
 ### Group I
 - [ ] France – Iraq → `2–0`  _(updated 2026-06-17: conservative — France labored in first half vs Senegal; avoid blowout pick)_

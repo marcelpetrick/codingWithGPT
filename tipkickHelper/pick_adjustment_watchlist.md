@@ -1,4 +1,4 @@
-# Pick Adjustment Watchlist — 2026-06-16
+# Pick Adjustment Watchlist — 2026-06-22
 
 Purpose: keep `my_picks.md` stable while documenting which future picks
 need review before entry. Use this when the user later pastes the
@@ -17,7 +17,7 @@ lineup, market, or match context materially changes.
 | Group winners | Mexico, Switzerland, Brazil, USA, Germany, Netherlands, Belgium, Spain, France, Argentina, Portugal, England | Locked as bonus picks; several are wounded but not editable. |
 | Per-match style | Chalk tendency, modal scoreline | Still correct, but draw calibration needs tightening. |
 
-## Spieltag 3 Entries — Final (updated 2026-06-18)
+## Spieltag 3 Entries — Final
 
 | Kicktipp date | Match | Entry | Result | Points |
 | --- | --- | --- | --- | --- |
@@ -31,55 +31,93 @@ lineup, market, or match context materially changes.
 | 18.06.26 03:59 | Usbekistan – Kolumbien | `0:2` ✅ | Colombia 3–1 | +2 (tendency) |
 | **ST3 total** | | | | **15 / 32** |
 
-## Spieltag 4 — Results and Remaining (updated 2026-06-18)
+## Spieltag 4 — COMPLETE (confirmed 2026-06-22)
 
-| Kicktipp order | Entry | Result | Points |
+> ⚠️ Corrected vs 2026-06-18 review: Czechia–SA was 1-1 (not 1-0), Swiss–Bos was 4-1 (not 1-1), Canada–Qatar was 6-0 (not 1-1). Net correction = 0 pts.
+
+| Kicktipp order | Entry | Actual Result | Points |
 | --- | --- | --- | --- |
-| Tschechien – Südafrika | `1:0` ✅ | **Czechia 1–0** (Krejci) | **+4 EXACT** |
-| Schweiz – Bosnien | `2:1` ✅ | **1–1** (Embolo / Lukic) | **0** |
-| Kanada – Katar | `2:0` ✅ | **1–1** (Larin; Davies doubtful) | **0** |
-| Mexiko – Südkorea | `1:0` | ⚡ ENTER before ~03:00 CET Jun 19 | — |
-| USA – Australien | `2:1` | Enter Jun 19 afternoon (USA -170) | — |
-| Schottland – Marokko | `0:1` | Enter Jun 19 eve (Gilmour OUT; Morocco -130) | — |
-| Brasilien – Haiti | `2:0` | Enter Jun 19 night (Brazil -800; Neymar OUT) | — |
-| Türkei – Paraguay | `1:0` | Enter Jun 19 night (Turkey +100 coin-flip) | — |
-| **ST4 pts so far (3/8)** | | | **+4** |
+| Tschechien – Südafrika | `1:0` ✅ | **1–1** (Sadilek 6', Mokoena pen 83') | **0** ← wrong tendency |
+| Schweiz – Bosnien | `2:1` ✅ | **4–1** Switzerland (four goals after 74') | **+2** tendency |
+| Kanada – Katar | `2:0` ✅ | **6–0** Canada (David hat-trick) | **+2** tendency |
+| Mexiko – Südkorea | `1:0` ✅ | **1–0** Mexico (Romo 50') | **+4 EXACT** |
+| USA – Australien | `2:1` ✅ | **2–0** USA | **+2** tendency |
+| Schottland – Marokko | `0:1` ✅ | **0–1** Morocco | **+4 EXACT** |
+| Brasilien – Haiti | `2:0` ✅ | **3–0** Brazil | **+2** tendency |
+| Türkei – Paraguay | `1:0` ✅ | **0–1** Paraguay (Turkey LOST) | **0** wrong tendency |
+| **ST4 total** | | | **16 / 32** |
 
-## Spieltag 5 Confirmed Entries (updated 2026-06-18)
+## Spieltag 5 — COMPLETE (confirmed 2026-06-22)
 
-| Kicktipp order | Enter | Odds / Key note |
+| Kicktipp order | Entry | Actual Result | Points |
+| --- | --- | --- | --- |
+| Niederlande – Schweden | `2:1` ✅ | **5–1** Netherlands | **+2** tendency |
+| Deutschland – Elfenbeinküste | `2:1` ✅ | **2–1** Germany | **+4 EXACT** |
+| Ecuador – Curaçao | `2:0` ✅ | **0–0** draw | **0** wrong tendency |
+| Tunesien – Japan | `0:2` ✅ | **0–4** Japan | **+2** tendency |
+| Spanien – Saudi-Arabien | `2:0` ✅ | **4–0** Spain | **+2** tendency |
+| Belgien – Iran | `2:1` ✅ | **0–0** draw | **0** wrong tendency |
+| Uruguay – Kap Verde | `2:0` ✅ | **2–2** draw | **0** wrong tendency |
+| Neuseeland – Ägypten | `0:2` ✅ | **1–3** Egypt (GD=2 match) | **+3** GD |
+| **ST5 total** | | | **13 / 32** |
+
+## Running total (2026-06-22)
+
+| Spieltag | Pts |
+| --- | ---: |
+| ST1 (Jun 11–12) | 6 |
+| ST2 (Jun 13–15) | 13 |
+| Dead day (Jun 15) | 0 |
+| ST3 (Jun 16–18) | 15 |
+| ST4 (Jun 18–20) | 16 |
+| ST5 (Jun 20–22) | 13 |
+| **Total** | **63** |
+
+## Spieltag 6 — ENTER NOW (Groups I/J/K/L MD2, June 22–23)
+
+| Lock (CET) | Kicktipp order | Enter | Notes |
+| --- | --- | --- | --- |
+| ~19:59 Jun 22 | Argentinien – Österreich | `2:1` | Argentina chalk; Austria 3-1 Jordan MD1 but Messi too strong |
+| ~23:59 Jun 22 | Frankreich – Irak | `2:0` | France massive fav; Iraq 0pts, worst team Group I |
+| ~05:59 Jun 23 | Senegal – Norwegen | `1:2` | Norway chalk (4-1 Iraq); Senegal competitive but outgunned |
+| ~07:59 Jun 23 | Jordanien – Algerien | `0:2` | Algeria need 3pts; Mahrez/Amoura quality; Jordan outclassed MD1 |
+| ~20:59 Jun 23 | Portugal – Usbekistan | `3:0` | Portugal must-win; Ronaldo motivated; tier mismatch |
+| ~23:59 Jun 23 | Kongo DR – Kolumbien | `1:2` | Colombia 3pts; Wissa pace = Congo score once |
+| ~02:59 Jun 24 | England – Ghana | `2:0` | England 4-2 MD1; Ghana 1-0; England chalk |
+| ~05:59 Jun 24 | Panama – Kroatien | `0:2` | Croatia quality; both must-win; Croatia edge |
+
+## Spieltag 7 — ENTER ~June 25–26 (Groups A/B/C/D MD3)
+
+| Kicktipp order | Enter | Confidence |
 | --- | --- | --- |
-| Niederlande – Schweden | `2:1` | NL -150 ⚠️ Timber+Simons+De Ligt all OUT; Sweden 5–1 Tunisia. Highest-risk pick. Hold. |
-| Deutschland – Elfenbeinküste | `2:1` | Germany -175; CIV beat Ecuador in MD1; solid pick |
-| Ecuador – Curaçao | `2:0` | Ecuador -550; tier mismatch |
-| Tunesien – Japan | `0:2` | Japan -150; Mitoma/Minamino OUT but Japan chalk |
-| Spanien – Saudi-Arabien | `2:0` | Spain -900 to -1200; Yamal starting; must-win after 0–0 shock |
-| Belgien – Iran | `2:1` | Belgium -235; Lukaku pushing to start; Iran 2–2 NZ in MD1 |
-| Uruguay – Kap Verde | `2:0` | Uruguay -200; Cape Verde held Spain — respect but Uruguay chalk |
-| Neuseeland – Ägypten | `0:2` | Egypt -138; Salah; NZ scored 2 vs Iran |
+| Mexiko – Tschechien | `2:0` | HIGH |
+| Südafrika – Südkorea | `1:2` | HIGH |
+| Kanada – Schweiz | `1:1` | MEDIUM |
+| Katar – Bosnien | `1:1` | LOW |
+| Brasilien – Schottland | `2:0` | HIGH |
+| Haiti – Marokko | `0:2` | HIGH |
+| USA – Türkei | `2:1` | HIGH |
+| Paraguay – Australien | `0:1` | MEDIUM |
 
-## Spieltag 6 Confirmed Entries (Groups I/J/K/L MD2, approx. Jun 22–23)
+## Spieltag 8 — ENTER ~June 26–27 (Groups E/F/G/H MD3)
 
-| Kicktipp order | Enter | Notes |
+| Kicktipp order | Enter | Confidence |
 | --- | --- | --- |
-| Frankreich – Irak | `2:0` | France massive fav; Iraq worst team in Group I |
-| Senegal – Norwegen | `1:2` | Norway chalk after 4–1; Senegal competitive |
-| Argentinien – Österreich | `2:1` | Austria surprised 3–1 Jordan; Argentina still clear chalk |
-| Jordanien – Algerien | `0:2` | Algeria need pts; Mahrez/Amoura quality |
-| Portugal – Usbekistan | `3:0` | Must-win; Ronaldo motivated; Uzbekistan weakest in group |
-| Kongo DR – Kolumbien | `1:2` | Colombia leading (3 pts); Wissa pace → Congo score once |
-| England – Ghana | `2:0` | England 4–2 MD1; chalk |
-| Panama – Kroatien | `0:2` | Croatia quality; both lost MD1 |
+| Deutschland – Ecuador | `2:0` | HIGH |
+| Curaçao – Elfenbeinküste | `0:2` | HIGH |
+| Niederlande – Tunesien | `2:0` | HIGH |
+| Japan – Schweden | `2:1` | MEDIUM |
+| Belgien – Neuseeland | `2:0` | MEDIUM (adjusted from `3:0`) |
+| Ägypten – Iran | `1:1` | MEDIUM |
+| Spanien – Uruguay | `1:1` | MEDIUM |
+| Kap Verde – Saudi-Arabien | `1:1` | LOW-MEDIUM |
 
-## Immediate Review Queue
+## Pool status (2026-06-22)
 
-These are the lines most likely to be "off" if your game-state picks
-still mirror the old sheet.
-
-Pool context: user was **4th of 29 on 19 pts** after 16 matches (2026-06-16).
-Running total now **38 pts** after Spieltag 3 full + Spieltag 4 first 3 matches (2026-06-18).
-**Pool updated 2026-06-18: 35 participants, €350 pot.** 5th place = +€18. 1st place = €140.
-Current pool position unknown — check Kicktipp app. This is already a paying position; avoid forced variance.
+**63 pts** after 40 group-stage matches. 24 matches remain in the group stage.
+Pool size: **35 participants, €350**. 5th place = +€18. 1st place = **€140**.
+Pool position: unknown — check Kicktipp app. Was 4th (19pts) on 2026-06-16.
+Strategy A remains locked.
 
 | Priority | Match / area | Current default in `my_picks.md` | Review stance | Why |
 | --- | --- | --- | --- | --- |

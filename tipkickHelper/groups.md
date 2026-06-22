@@ -206,3 +206,85 @@ Results from Spieltag 3 (Groups I, J first matches — 16–17 June).
 | 🇦🇹 Austria ★★★ | Upgraded | Won 3–1 vs Jordan; press effective; Arnautovic impact sub |
 | 🇩🇿 Algeria ★ | Downgraded | Lost 0–3; no answer to Messi |
 | 🇯🇴 Jordan 💤 | — | Lost 1–3; one good goal (Olwan) but outclassed |
+
+## In-tournament update — 2026-06-22 (after ST4/ST5, MD2 complete for Groups A-H)
+
+### Group A standings (after MD2)
+| Team | Pts | GD | Form |
+| --- | ---: | ---: | --- |
+| Mexico | 6 | +3 | W W (2-0, 1-0) — **Group winner BANKED** |
+| Korea Republic | 3 | +1 | L W (1-2, ?) |
+| South Africa | 1 | -2 | W L (2-0, 1-1) — draw calibration miss |
+| Czechia | 1 | -2 | L L (1-2, 1-1) |
+
+**MD3 read**: Mexico vs Czechia (both picking rotation); South Africa vs Korea (Korea needs/has 2nd secured).
+
+### Group B standings (after MD2)
+| Team | Pts | GD | Form |
+| --- | ---: | ---: | --- |
+| Canada | 4 | +6 | D W (1-1, 6-0) — David in form |
+| Switzerland | 4 | +3 | D W (1-1, 4-1) |
+| Qatar | 1 | -5 | D L |
+| Bosnia | 1 | -4 | D L |
+
+**MD3 read**: Canada vs Switzerland (both through, draw chalk); Qatar vs Bosnia (both eliminated, pride match).
+
+### Group C standings (after MD2)
+| Team | Pts | GD | Form |
+| --- | ---: | ---: | --- |
+| Brazil | 4 | +3 | D W (1-1, 3-0) |
+| Morocco | 4 | +1 | D W (1-1, 1-0) |
+| Scotland | 3 | -1 | W L (1-0 Haiti, 0-1 Morocco) |
+| Haiti | 0 | -3 | L L |
+
+**Note**: Morocco-Brazil GD race decides group winner. Scotland still alive for 3rd-place spot.
+
+### Group D standings (after MD2)
+| Team | Pts | GD | Form |
+| --- | ---: | ---: | --- |
+| USA | 6 | +5 | W W (4-1, 2-0) — **Group winner BANKED** |
+| Australia | 3 | +2 | W L (2-0, 0-2) |
+| Paraguay | 3 | -2 | L W (1-4, 1-0) |
+| Türkiye | 0 | -5 | L L |
+
+**MD3 read**: USA vs Turkey (USA rotates but chalk); Paraguay vs Australia (both 3pts, Australia GD edge).
+
+### Group E standings (after MD2)
+| Team | Pts | GD | Form |
+| --- | ---: | ---: | --- |
+| Germany | 6 | +7 | W W (7-1, 2-1) — **Group winner BANKED** |
+| Côte d'Ivoire | 3 | +0 | W L (1-0, 1-2) |
+| Ecuador | 1 | -1 | L D (0-1, 0-0) |
+| Curaçao | 1 | -6 | L D (1-7, 0-0) |
+
+**MD3 read**: Germany vs Ecuador (Germany rests, still wins); CIV vs Curaçao (CIV must win for 2nd).
+
+### Group F standings (after MD2)
+| Team | Pts | GD | Form |
+| --- | ---: | ---: | --- |
+| Japan | 4 | +5 | D W (2-2, 4-0) |
+| Netherlands | 4 | +5 | D W (2-2, 5-1) |
+| Sweden | 3 | +4 | W L (5-1, 1-5) |
+| Tunisia | 0 | -14 | L L (1-5, 0-4) |
+
+**MD3 read**: Japan vs Sweden (both need win; Japan better form); Netherlands vs Tunisia (Netherlands easy chalk).
+
+### Group G standings (after MD2)
+| Team | Pts | GD | Form |
+| --- | ---: | ---: | --- |
+| Egypt | 4 | +2 | D W (1-1, 3-1) |
+| Belgium | 2 | 0 | D D (1-1, 0-0) — draw problem |
+| Iran | 2 | -2 | D D (2-2, 0-0) |
+| New Zealand | 1 | 0 | D L (2-2, 1-3) |
+
+**MD3 read**: Belgium vs NZ (Belgium MUST win; 3 draws in 2 games); Egypt vs Iran (draw chalk, Egypt rests).
+
+### Group H standings (after MD2)
+| Team | Pts | GD | Form |
+| --- | ---: | ---: | --- |
+| Spain | 4 | +4 | D W (0-0, 4-0) |
+| Uruguay | 2 | 0 | D D (1-1, 2-2) |
+| Cabo Verde | 2 | 0 | D D (0-0, 2-2) |
+| Saudi Arabia | 1 | -4 | D L (1-1, 0-4) |
+
+**MD3 read**: Spain vs Uruguay (Spain draw chalk for 1st; Uruguay must win); Cabo Verde vs Saudi Arabia (Cabo Verde fighting for 3rd-place spot).

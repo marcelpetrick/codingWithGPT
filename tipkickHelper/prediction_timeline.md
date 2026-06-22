@@ -9,7 +9,23 @@ Kicktipp 2 / 3 / 4 model from `pool_rules.md`.
 > so Canada – Bosnia is treated as a miss unless the Kicktipp app proves
 > the submitted pick was different.
 
-## Summary Through 15 June 2026
+## Summary Through 22 June 2026 (ST5 complete, 40 matches)
+
+| Metric | Value |
+| --- | --- |
+| Matches audited | 40 |
+| Match points | 58 / 160 |
+| Bonus points | 12 |
+| **Total (Kicktipp)** | **70** |
+| Exact results | 5 |
+| Goal-difference hits | 3 |
+| Tendency-only hits | 13 |
+| Misses (wrong tendency) | 19 |
+| Pool position | **4th / 35** |
+| Gap to leader (NoClue) | **6 pts** |
+| Gap from 5th (Barcarossa) | **+1 pt** |
+
+## Summary Through 15 June 2026 (ST1-ST3, 16 matches — historical)
 
 | Metric | Value |
 | --- | --- |
@@ -44,14 +60,43 @@ Kicktipp 2 / 3 / 4 model from `pool_rules.md`.
 | Jun 15 | Spain – Cabo Verde | 2–0 ESP | 0–0 | Vozinha seven saves; Yamal and Nico Williams came on but Spain lacked finish. | 0 | Biggest model miss; Spain still favorite, but opener was poor. |
 | Jun 15 | Saudi Arabia – Uruguay | 0–2 URU | 1–1 | Abdulelah Al-Amri 41'; Maxi Araujo 80'; Al-Owais saves. | 0 | Uruguay travel/finishing risk underestimated. |
 
+## ST4 Matches (Jun 18–20)
+
+| Date | Match | Pick | Actual | Points |
+| --- | --- | --- | --- | --- |
+| Jun 18 | Czechia – South Africa | 1–0 CZE | 1–1 | 0 — wrong tendency (Mokoena pen 83') |
+| Jun 18 | Switzerland – Bosnia | 2–1 SUI | 4–1 SUI | +2 tendency (blowout) |
+| Jun 18 | Canada – Qatar | 2–0 CAN | 6–0 CAN | +2 tendency (David hat-trick) |
+| Jun 18 | Mexico – Korea | 1–0 MEX | 1–0 MEX | +4 EXACT (Romo 50') |
+| Jun 19 | USA – Australia | 2–1 USA | 2–0 USA | +2 tendency |
+| Jun 19 | Scotland – Morocco | 0–1 MAR | 0–1 MAR | +4 EXACT (Gilmour OUT call paid off) |
+| Jun 20 | Brazil – Haiti | 2–0 BRA | 3–0 BRA | +2 tendency |
+| Jun 20 | Turkey – Paraguay | 1–0 TUR | 0–1 PAR | 0 — wrong tendency (Turkey collapse) |
+| **ST4 total** | | | | **16 / 32** |
+
+## ST5 Matches (Jun 20–22)
+
+| Date | Match | Pick | Actual | Points |
+| --- | --- | --- | --- | --- |
+| Jun 20 | Netherlands – Sweden | 2–1 NED | 5–1 NED | +2 tendency |
+| Jun 20 | Germany – Côte d'Ivoire | 2–1 GER | 2–1 GER | +4 EXACT |
+| Jun 21 | Ecuador – Curaçao | 2–0 ECU | 0–0 | 0 — wrong tendency |
+| Jun 21 | Tunisia – Japan | 0–2 JPN | 0–4 JPN | +2 tendency |
+| Jun 21 | Spain – Saudi Arabia | 2–0 ESP | 4–0 ESP | +2 tendency |
+| Jun 21 | Belgium – Iran | 2–1 BEL | 0–0 | 0 — wrong tendency (draw calibration miss) |
+| Jun 21 | Uruguay – Cabo Verde | 2–0 URU | 2–2 | 0 — wrong tendency (draw calibration miss) |
+| Jun 22 | New Zealand – Egypt | 0–2 EGY | 1–3 EGY | +3 GD match |
+| **ST5 total** | | | | **13 / 32** |
+
 ## Pattern Notes
 
+- **Draw calibration is the core miss**: 11 wrong-tendency draws across 40 matches — Ecuador, Belgium, Spain, Canada, Switzerland, Uruguay, NZ-Iran, Belgium-Iran, Uruguay-CV. These alone cost ~22 pts in lost tendency points.
 - The model is too conservative on favorite goal volume when the
-  favorite actually wins: USA, Germany, Sweden all scored far above
-  the modal pick.
+  favorite actually wins: USA, Germany, Sweden, Netherlands, Spain all scored far above the modal pick.
 - The model is also too eager to force favorite wins in openers:
-  Canada, Switzerland, Belgium, Spain, Uruguay all failed to convert
+  Canada, Switzerland, Belgium, Spain, Uruguay, Ecuador all failed to convert
   market-favorite status into wins.
 - Draws are not the problem by themselves. Correct draw calls on Brazil
   – Morocco and Netherlands – Japan were profitable; missed draws came
   from treating uncertain favorites as banker wins.
+- **Two exact hits in ST4** (Mexico 1-0, Scotland 0-1) salvaged a strong 16-pt matchday despite the Czechia and Turkey misses.
