@@ -9,21 +9,28 @@ Kicktipp 2 / 3 / 4 model from `pool_rules.md`.
 > so Canada – Bosnia is treated as a miss unless the Kicktipp app proves
 > the submitted pick was different.
 
-## Summary Through 22 June 2026 (ST5 complete, 40 matches)
+## Summary Through 25 June 2026 (ST7 complete, 52 matches)
+
+| Metric | Value |
+| --- | --- |
+| Matches audited | 52 |
+| Match points | 87 |
+| Bonus points | 24 |
+| **Total (Kicktipp)** | **111** |
+| ST8–10 | results pending |
+
+## Summary Through 22 June 2026 (ST5 complete, 40 matches — historical)
 
 | Metric | Value |
 | --- | --- |
 | Matches audited | 40 |
-| Match points | 58 / 160 |
+| Match points | 64 |
 | Bonus points | 12 |
-| **Total (Kicktipp)** | **70** |
+| **Total (Kicktipp)** | **76** |
 | Exact results | 5 |
 | Goal-difference hits | 3 |
 | Tendency-only hits | 13 |
 | Misses (wrong tendency) | 19 |
-| Pool position | **4th / 35** |
-| Gap to leader (NoClue) | **6 pts** |
-| Gap from 5th (Barcarossa) | **+1 pt** |
 
 ## Summary Through 15 June 2026 (ST1-ST3, 16 matches — historical)
 
@@ -87,6 +94,34 @@ Kicktipp 2 / 3 / 4 model from `pool_rules.md`.
 | Jun 21 | Uruguay – Cabo Verde | 2–0 URU | 2–2 | 0 — wrong tendency (draw calibration miss) |
 | Jun 22 | New Zealand – Egypt | 0–2 EGY | 1–3 EGY | +3 GD match |
 | **ST5 total** | | | | **13 / 32** |
+
+## ST6 Matches (Jun 22–24) — Groups I/J/K/L MD2
+
+| Kicktipp | Entered | Points |
+| --- | --- | ---: |
+| Argentinien – Österreich | `2:1` | — |
+| Frankreich – Irak | `2:0` | — |
+| Norwegen – Senegal | `2:1` | — |
+| Jordanien – Algerien | `0:2` | — |
+| Portugal – Usbekistan | `3:0` | — |
+| England – Ghana | `2:0` | — |
+| Panama – Kroatien | `0:2` | — |
+| Kolumbien – DR Kongo | `2:1` | — |
+| **ST6 total** | | **16** |
+
+## ST7 Matches (Jun 25) — Groups A/B/C MD3
+
+| Kicktipp | Entered | Points |
+| --- | --- | ---: |
+| Bosnien-Herzegowina – Katar | `1:1` | — |
+| Schweiz – Kanada | `1:1` | — |
+| Marokko – Haiti | `2:0` | — |
+| Schottland – Brasilien | `0:2` | — |
+| Südafrika – Südkorea | `1:2` | — |
+| Tschechien – Mexiko | `0:2` | — |
+| **ST7 total** | | **7** |
+
+> Per-match breakdowns for ST6/ST7 not yet available from the app; Kicktipp only shows Spieltag totals.
 
 ## Pattern Notes
 

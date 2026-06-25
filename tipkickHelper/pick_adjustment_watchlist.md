@@ -4,32 +4,61 @@
 
 ---
 
-## Pool status — 2026-06-22
+## Pool status — 2026-06-25 (after ST7)
 
 | | |
 |---|---|
-| Points | **76** (58 match + 12 bonus) |
-| Pool position | **1st / 35** |
-| Gap to 2nd | +5 pts (Hr.Vorragend / Mise26 at 71) |
+| Points | **111** (87 match + 24 bonus) |
 | Pot | €350 — 1st pays **€140** |
 | Strategy | **A locked** — chalk, modal scoreline, no switches |
 
+### Running match points by Spieltag
+
+| Spieltag | Pts |
+|---|---:|
+| ST1 | 13 |
+| ST2 | 6 |
+| ST3 | 16 |
+| ST4 | 16 |
+| ST5 | 13 |
+| ST6 | 16 |
+| ST7 | 7 |
+| Bonus | 24 |
+| **Total** | **111** |
+| ST8–10 | results pending |
+
 ---
 
-## ⏳ NEXT — Spieltag 10 (Groups J/K/L MD3, ~June 27–28)
+## ⏳ NEXT — Spieltag 10 (Groups J/K/L MD3, June 27–28)
 
-> Kicktipp team order for ST10 not yet visible in app. Open the app, check the order, and use these scores adjusted for which team is listed first.
+> Kicktipp team order confirmed from app screenshot. Enter exactly as shown.
 
-| Match | Winner / Pick | Enter (if team 1 listed first) | Enter (if team 2 listed first) |
+| Lock (CET) | Kicktipp match | **Enter** | Winner / Rationale |
 | --- | --- | --- | --- |
-| Argentina – Austria (Group J) | **Argentina 2:1** | `2:1` | `1:2` |
-| Jordan – Algeria (Group J) | **Algeria 2:0** | `0:2` | `2:0` |
-| Portugal – Colombia (Group K) | **1:1 draw** | `1:1` | `1:1` |
-| DR Kongo – Uzbekistan (Group K) | **DR Congo 1:0** | `1:0` | `0:1` |
-| England – Panama (Group L) | **England 2:0** | `2:0` | `0:2` |
-| Croatia – Ghana (Group L) | **Croatia 2:0** | `2:0` | `0:2` |
+| 27.06 22:59 | Kroatien – Ghana | **`2:0`** | Croatia 3pts vs Ghana 3pts — 2nd-place decider. Croatia tournament pedigree; Modrić-era discipline in must-win. |
+| 27.06 22:59 | Panama – England | **`0:2`** | England group winner (6pts), rotating. Panama 0pts eliminated. England chalk regardless of squad rotation. |
+| 28.06 01:29 | DR Kongo – Usbekistan | **`1:0`** | DR Congo 1pt vs Uzbekistan 0pts. DR Congo class edge; needs pts for best-3rd-place hope. |
+| 28.06 01:29 | Kolumbien – Portugal | **`1:1`** | Colombia group winner (6pts), Portugal 2nd (4pts). Both through; neither risks for 1st — tactical draw is the equilibrium. |
+| 28.06 03:59 | Algerien – Österreich | **`2:0`** | Algeria 3pts vs Austria 3pts — 2nd-place decider. Algeria attack (Mahrez/Amoura) edges Rangnick's Austria in must-win. |
+| 28.06 03:59 | Jordanien – Argentinien | **`0:2`** | Jordan 0pts eliminated vs Argentina rotating group winner. No contest even with Messi rested. |
 
-> Pick rationale: Argentina qualified/rotating but still chalk over Austria. Portugal–Colombia is a genuine 50/50 for group 1st — draw is the modal pick. England and Croatia are clear tier-above their opponents.
+> **Note:** Pre-computed watchlist erroneously listed this Spieltag as "Argentina–Austria / Jordan–Algeria." Those were the MD2 pairings (ST6). Correct MD3 pairings confirmed from app: Jordan–Argentina and Algeria–Austria.
+
+---
+
+## ✅ Spieltag 7 — entered + results (Groups A/B/C MD3, June 25)
+
+| Kicktipp | Entered | Points |
+| --- | --- | ---: |
+| Bosnien-Herzegowina – Katar | `1:1` | — |
+| Schweiz – Kanada | `1:1` | — |
+| Marokko – Haiti | `2:0` | — |
+| Schottland – Brasilien | `0:2` | — |
+| Südafrika – Südkorea | `1:2` | — |
+| Tschechien – Mexiko | `0:2` | — |
+| **ST7 total** | | **7** |
+
+> Per-match breakdown not available; app only confirms total of 7 pts.
 
 ---
 
@@ -55,29 +84,21 @@
 | Paraguay – Australien | `0:1` |
 | Türkei – USA | `1:2` |
 
-## ✅ Spieltag 7 — entered 2026-06-22 (Groups A/B/C MD3)
+## ✅ Spieltag 6 — entered + results (Groups I/J/K/L MD2, June 22–24)
 
-| Kicktipp | Entered |
-| --- | --- |
-| Bosnien-Herzegowina – Katar | `1:1` |
-| Schweiz – Kanada | `1:1` |
-| Marokko – Haiti | `2:0` |
-| Schottland – Brasilien | `0:2` |
-| Südafrika – Südkorea | `1:2` |
-| Tschechien – Mexiko | `0:2` |
+> Per-match breakdown not available; app confirms total of 16 pts.
 
-## ✅ Spieltag 6 — entered 2026-06-22 (Groups I/J/K/L MD2)
-
-| Kicktipp | Entered |
-| --- | --- |
-| Argentinien – Österreich | `2:1` |
-| Frankreich – Irak | `2:0` |
-| Norwegen – Senegal | `2:1` |
-| Jordanien – Algerien | `0:2` |
-| Portugal – Usbekistan | `3:0` |
-| England – Ghana | `2:0` |
-| Panama – Kroatien | `0:2` |
-| Kolumbien – DR Kongo | `2:1` |
+| Kicktipp | Entered | Points |
+| --- | --- | ---: |
+| Argentinien – Österreich | `2:1` | — |
+| Frankreich – Irak | `2:0` | — |
+| Norwegen – Senegal | `2:1` | — |
+| Jordanien – Algerien | `0:2` | — |
+| Portugal – Usbekistan | `3:0` | — |
+| England – Ghana | `2:0` | — |
+| Panama – Kroatien | `0:2` | — |
+| Kolumbien – DR Kongo | `2:1` | — |
+| **ST6 total** | | **16** |
 
 ## ✅ Spieltag 5 — entered + results (Groups E/F/G/H MD2)
 
@@ -160,6 +181,8 @@
 | ST3 | 16 |
 | ST4 | 16 |
 | ST5 | 13 |
-| Bonus | 12 |
-| **Total (Kicktipp)** | **76** |
-| ST6–9 | results pending |
+| ST6 | 16 |
+| ST7 | 7 |
+| Bonus | 24 |
+| **Total (Kicktipp)** | **111** |
+| ST8–10 | results pending |
