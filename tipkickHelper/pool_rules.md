@@ -1,4 +1,4 @@
-# Pool Rules — DATA MODUL WM 2026 (Kicktipp)
+# Pool Rules — WM 2026 (Kicktipp)
 
 Source: pool admin e-mail **+** verbatim Kicktipp "Spielregeln" page
 (user paste 2026-05-19, confirmed). Participant count updated

@@ -1,6 +1,6 @@
 # tipkickHelper — FIFA World Cup 2026 Prediction Pool
 
-Research notes and data-driven picks for the **DATA MODUL WM 2026**
+Research notes and data-driven picks for a company-internal **WM 2026**
 Kicktipp pool. Tournament runs **11 June – 19 July 2026** across USA,
 Canada, Mexico.
 

@@ -1,4 +1,4 @@
-# AGENTS.md — agent guide, DATA MODUL WM 2026 Kicktipp
+# AGENTS.md — agent guide, WM 2026 Kicktipp pool
 
 ## Context
 
