@@ -62,27 +62,31 @@
 
 ---
 
-## ✅ Spieltag 9 — entered 2026-06-22 (Groups G/H/I MD3)
+## ⚠️ Spieltag 9 — entered 2026-06-22 (Groups G/H/I MD3) — review before lock
 
-| Kicktipp | Entered |
-| --- | --- |
-| Norwegen – Frankreich | `1:2` |
-| Senegal – Irak | `2:0` |
-| Uruguay – Spanien | `1:1` |
-| Kap Verde – Saudi-Arabien | `1:1` |
-| Neuseeland – Belgien | `0:2` |
-| Ägypten – Iran | `1:1` |
+> June 25 analysis: two picks flagged. See `StrategyReview20260625.md` for full breakdown.
 
-## ✅ Spieltag 8 — entered 2026-06-22 (Groups D/E/F MD3)
+| Kicktipp | Entered | Status |
+| --- | --- | --- |
+| Norwegen – Frankreich | `1:2` | ⚠️ Optional: change to `1:1` — France needs only draw for 1st; tactical draw dynamics. Hold if you trust Mbappé counter-attack. |
+| Senegal – Irak | `2:0` | ✅ Hold |
+| Uruguay – Spanien | `1:1` | ✅ Hold — Spain needs draw; Pedri suspended |
+| Kap Verde – Saudi-Arabien | `1:1` | ⚠️ **Recommended change → `1:0`** — Saudi Arabia eliminated/passive, Cabo Verde motivated for R32 |
+| Neuseeland – Belgien | `0:2` | ✅ Hold |
+| Ägypten – Iran | `1:1` | ✅ Hold |
 
-| Kicktipp | Entered |
-| --- | --- |
-| Curaçao – Elfenbeinküste | `0:2` |
-| Ecuador – Deutschland | `0:2` |
-| Japan – Schweden | `2:1` |
-| Tunesien – Niederlande | `0:2` |
-| Paraguay – Australien | `0:1` |
-| Türkei – USA | `1:2` |
+## ⚠️ Spieltag 8 — entered 2026-06-22 (Groups D/E/F MD3) — review before lock
+
+> June 25 analysis: all six picks hold. One flag (Japan-Sweden). See `StrategyReview20260625.md`.
+
+| Kicktipp | Entered | Status |
+| --- | --- | --- |
+| Curaçao – Elfenbeinküste | `0:2` | ✅ Hold |
+| Ecuador – Deutschland | `0:2` | ✅ Hold — Ecuador scoreless + Páez suspended |
+| Japan – Schweden | `2:1` | ⚠️ Flag only: Kubo + Mitoma both OUT injured. Still chalk but reduced margin. Hold under Strategy A. |
+| Tunesien – Niederlande | `0:2` | ✅ Hold |
+| Paraguay – Australien | `0:1` | ✅ Hold — Australia GD edge is decisive |
+| Türkei – USA | `1:2` | ✅ Hold — USA rotating but still chalk |
 
 ## ✅ Spieltag 6 — entered + results (Groups I/J/K/L MD2, June 22–24)
 
