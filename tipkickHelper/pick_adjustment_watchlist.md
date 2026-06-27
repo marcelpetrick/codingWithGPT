@@ -4,11 +4,11 @@
 
 ---
 
-## Pool status — 2026-06-25 (after ST7)
+## Pool status — 2026-06-27 (after ST9, partial ST10)
 
 | | |
 |---|---|
-| Points | **111** (87 match + 24 bonus) |
+| Points | **148+** (108 match + 40 bonus confirmed) |
 | Pot | €350 — 1st pays **€140** |
 | Strategy | **A locked** — chalk, modal scoreline, no switches |
 
@@ -23,9 +23,43 @@
 | ST5 | 13 |
 | ST6 | 16 |
 | ST7 | 7 |
-| Bonus | 24 |
-| **Total** | **111** |
-| ST8–10 | results pending |
+| ST8 | 7 |
+| ST9 | 12 |
+| ST10 (Group L only) | 2 |
+| Bonus (10 × 4 pts) | 40 |
+| **Total confirmed** | **148** |
+| ST10 Groups J/K | results tonight |
+| Portugal (K) bonus | ⚠️ TBD tonight |
+
+---
+
+## Spieltag 11 — R32 / Sechzehntelfinale (June 28 – July 4)
+
+### ✅ Confirmed picks — entered 2026-06-27
+
+| Lock (CET) | Kicktipp | Entered | Odds | Notes |
+| --- | --- | --- | --- | --- |
+| ⚡ 28.06 20:59 | Südafrika – Kanada | `1:2` | CAN 56% | Canada chalk; Koné OUT; Davies fit |
+| 29.06 18:59 | Brasilien – Japan | `2:1` | BRA 55% | Japan crippled (Mitoma/Kubo/Endo out); Brazil chalk |
+| 29.06 22:29 | Deutschland – Paraguay | `2:0` | GER 70% | Paraguay lost 4-1 USA; Germany 94% bets |
+| 30.06 02:59 | Niederlande – Marokko | `2:1` | NED 44–59% | Morocco 32-game 90-min unbeaten; tight |
+| 30.06 18:59 | Elfenbeinküste – Norwegen | `1:2` | NOR 47% | Haaland fit (rested vs FRA, not injured) |
+| 30.06 22:59 | Frankreich – Schweden | `2:1` | FRA 74% | Sweden Hien OUT; France 9pts/+8 GD |
+| 02.07 01:59 | USA – Bosnien-Herzegowina | `2:1` | USA 70% | Bosnia first WC knockout; Pulisic returning |
+| 03.07 19:59 | Australien – Ägypten | `1:1` ⚠️ | 38/32/30% | **Reassess before lock if Salah confirmed out → flip to `2:1` AUS** |
+| 03.07 23:59 | Argentinien – Kap Verde | `2:0` | ARG 82% | Cape Verde drew all 3 group games; Messi fit |
+
+### ⏳ TBD picks — opponent not yet confirmed
+
+| Lock (CET) | Kicktipp | Notes |
+| --- | --- | --- |
+| 01.07 02:59 | Mexiko – TBD | Mexico swept group (9pts, 0 GA); chalk vs any 3rd-place |
+| 01.07 17:59 | TBD – TBD | Bracket position TBD |
+| 01.07 21:59 | Belgien – TBD | Belgium group winner |
+| 02.07 20:59 | Spanien – TBD | Spain 7pts, 0 GA; likely Austria or Algeria |
+| 03.07 00:59 | TBD – TBD | Bracket position TBD |
+| 03.07 04:59 | Schweiz – TBD | Switzerland group winner |
+| 04.07 03:29 | TBD – TBD | Bracket position TBD |
 
 ---
 
@@ -42,31 +76,29 @@
 
 ---
 
-## ⚠️ Spieltag 9 — entered 2026-06-22 (Groups G/H/I MD3) — review before lock
+## ✅ Spieltag 9 — entered + results (Groups G/H/I MD3, June 26–27)
 
-> June 25 analysis: two picks flagged. See `StrategyReview20260625.md` for full breakdown.
+| Kicktipp | Entered | Result | Pts |
+| --- | --- | --- | ---: |
+| Norwegen – Frankreich | `1:2` | 1–4 FRA | +2 |
+| Senegal – Irak | `2:0` | 5–0 SEN | +2 |
+| Uruguay – Spanien | `1:1` | 0–1 ESP | 0 |
+| Kap Verde – Saudi-Arabien | `1:1` | 0–0 | +2 |
+| Neuseeland – Belgien | `0:2` | 1–5 BEL | +2 |
+| Ägypten – Iran | `1:1` | 1–1 | **+4 EXACT** |
+| **ST9 total** | | | **12** |
 
-| Kicktipp | Entered | Status |
-| --- | --- | --- |
-| Norwegen – Frankreich | `1:2` | ⚠️ Optional: change to `1:1` — France needs only draw for 1st; tactical draw dynamics. Hold if you trust Mbappé counter-attack. |
-| Senegal – Irak | `2:0` | ✅ Hold |
-| Uruguay – Spanien | `1:1` | ✅ Hold — Spain needs draw; Pedri suspended |
-| Kap Verde – Saudi-Arabien | `1:1` | ⚠️ **Recommended change → `1:0`** — Saudi Arabia eliminated/passive, Cabo Verde motivated for R32 |
-| Neuseeland – Belgien | `0:2` | ✅ Hold |
-| Ägypten – Iran | `1:1` | ✅ Hold |
+## ✅ Spieltag 8 — entered + results (Groups D/E/F MD3, June 26)
 
-## ⚠️ Spieltag 8 — entered 2026-06-22 (Groups D/E/F MD3) — review before lock
-
-> June 25 analysis: all six picks hold. One flag (Japan-Sweden). See `StrategyReview20260625.md`.
-
-| Kicktipp | Entered | Status |
-| --- | --- | --- |
-| Curaçao – Elfenbeinküste | `0:2` | ✅ Hold |
-| Ecuador – Deutschland | `0:2` | ✅ Hold — Ecuador scoreless + Páez suspended |
-| Japan – Schweden | `2:1` | ⚠️ Flag only: Kubo + Mitoma both OUT injured. Still chalk but reduced margin. Hold under Strategy A. |
-| Tunesien – Niederlande | `0:2` | ✅ Hold |
-| Paraguay – Australien | `0:1` | ✅ Hold — Australia GD edge is decisive |
-| Türkei – USA | `1:2` | ✅ Hold — USA rotating but still chalk |
+| Kicktipp | Entered | Result | Pts |
+| --- | --- | --- | ---: |
+| Curaçao – Elfenbeinküste | `0:2` | 0–2 CIV | **+4 EXACT** |
+| Ecuador – Deutschland | `0:2` | 2–1 ECU | 0 |
+| Japan – Schweden | `2:1` | 1–1 | 0 |
+| Tunesien – Niederlande | `0:2` | 1–3 NED | +3 GD |
+| Paraguay – Australien | `0:1` | 0–0 | 0 |
+| Türkei – USA | `1:2` | 3–2 TUR | 0 |
+| **ST8 total** | | | **7** |
 
 ## ✅ Spieltag 7 — entered + results (Groups A/B/C MD3, June 25)
 
@@ -183,6 +215,11 @@
 | ST5 | 13 |
 | ST6 | 16 |
 | ST7 | 7 |
-| Bonus | 24 |
-| **Total (Kicktipp)** | **111** |
-| ST8–10 | results pending |
+| ST8 | 7 |
+| ST9 | 12 |
+| ST10 (Group L only) | 2 |
+| Bonus (10 × 4 pts) | 40 |
+| **Total confirmed** | **148** |
+| ST10 Groups J/K | results tonight |
+| Portugal (K) bonus | ⚠️ TBD tonight |
+| ST11 R32 | picks entered |
