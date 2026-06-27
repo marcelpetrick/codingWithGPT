@@ -29,36 +29,16 @@
 
 ---
 
-## ⏳ NEXT — Spieltag 10 (Groups J/K/L MD3, June 27–28)
+## ✅ Spieltag 10 — entered (Groups J/K/L MD3, June 27–28)
 
-> Kicktipp team order confirmed from app screenshot. Enter exactly as shown.
-
-| Lock (CET) | Kicktipp match | **Enter** | Winner / Rationale |
-| --- | --- | --- | --- |
-| 27.06 22:59 | Kroatien – Ghana | **`2:0`** | Croatia 3pts vs Ghana 3pts — 2nd-place decider. Croatia tournament pedigree; Modrić-era discipline in must-win. |
-| 27.06 22:59 | Panama – England | **`0:2`** | England group winner (6pts), rotating. Panama 0pts eliminated. England chalk regardless of squad rotation. |
-| 28.06 01:29 | DR Kongo – Usbekistan | **`1:0`** | DR Congo 1pt vs Uzbekistan 0pts. DR Congo class edge; needs pts for best-3rd-place hope. |
-| 28.06 01:29 | Kolumbien – Portugal | **`1:1`** | Colombia group winner (6pts), Portugal 2nd (4pts). Both through; neither risks for 1st — tactical draw is the equilibrium. |
-| 28.06 03:59 | Algerien – Österreich | **`2:0`** | Algeria 3pts vs Austria 3pts — 2nd-place decider. Algeria attack (Mahrez/Amoura) edges Rangnick's Austria in must-win. |
-| 28.06 03:59 | Jordanien – Argentinien | **`0:2`** | Jordan 0pts eliminated vs Argentina rotating group winner. No contest even with Messi rested. |
-
-> **Note:** Pre-computed watchlist erroneously listed this Spieltag as "Argentina–Austria / Jordan–Algeria." Those were the MD2 pairings (ST6). Correct MD3 pairings confirmed from app: Jordan–Argentina and Algeria–Austria.
-
----
-
-## ✅ Spieltag 7 — entered + results (Groups A/B/C MD3, June 25)
-
-| Kicktipp | Entered | Points |
-| --- | --- | ---: |
-| Bosnien-Herzegowina – Katar | `1:1` | — |
-| Schweiz – Kanada | `1:1` | — |
-| Marokko – Haiti | `2:0` | — |
-| Schottland – Brasilien | `0:2` | — |
-| Südafrika – Südkorea | `1:2` | — |
-| Tschechien – Mexiko | `0:2` | — |
-| **ST7 total** | | **7** |
-
-> Per-match breakdown not available; app only confirms total of 7 pts.
+| Kicktipp | Entered | Status |
+| --- | --- | --- |
+| Kroatien – Ghana | `2:0` | ✅ entered |
+| Panama – England | `0:2` | ✅ entered |
+| DR Kongo – Usbekistan | `1:0` | ✅ entered |
+| Kolumbien – Portugal | `1:1` | ✅ entered |
+| Algerien – Österreich | `2:0` | ✅ entered |
+| Jordanien – Argentinien | `0:2` | ✅ entered |
 
 ---
 
@@ -87,6 +67,22 @@
 | Tunesien – Niederlande | `0:2` | ✅ Hold |
 | Paraguay – Australien | `0:1` | ✅ Hold — Australia GD edge is decisive |
 | Türkei – USA | `1:2` | ✅ Hold — USA rotating but still chalk |
+
+## ✅ Spieltag 7 — entered + results (Groups A/B/C MD3, June 25)
+
+| Kicktipp | Entered | Points |
+| --- | --- | ---: |
+| Bosnien-Herzegowina – Katar | `1:1` | — |
+| Schweiz – Kanada | `1:1` | — |
+| Marokko – Haiti | `2:0` | — |
+| Schottland – Brasilien | `0:2` | — |
+| Südafrika – Südkorea | `1:2` | — |
+| Tschechien – Mexiko | `0:2` | — |
+| **ST7 total** | | **7** |
+
+> Per-match breakdown not available; app only confirms total of 7 pts.
+
+---
 
 ## ✅ Spieltag 6 — entered + results (Groups I/J/K/L MD2, June 22–24)
 
