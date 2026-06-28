@@ -4,11 +4,11 @@
 
 ---
 
-## Pool status — 2026-06-27 (after ST9, partial ST10)
+## Pool status — 2026-06-28 (after full ST10)
 
 | | |
 |---|---|
-| Points | **148+** (108 match + 40 bonus confirmed) |
+| Points | **164** (120 match + 44 bonus) |
 | Pot | €350 — 1st pays **€140** |
 | Strategy | **A locked** — chalk, modal scoreline, no switches |
 
@@ -25,11 +25,11 @@
 | ST7 | 7 |
 | ST8 | 7 |
 | ST9 | 12 |
-| ST10 (Group L only) | 2 |
-| Bonus (10 × 4 pts) | 40 |
-| **Total confirmed** | **148** |
-| ST10 Groups J/K | results tonight |
-| Portugal (K) bonus | ⚠️ TBD tonight |
+| ST10 (all groups) | 14 |
+| Bonus (11 × 4 pts) | 44 |
+| **Total confirmed** | **164** |
+
+> ST10 correction: Panama–England final score was 0–2 ENG (our pick `0:2` = exact, +4). England won Group L (7pts) — England bonus ✅. Portugal lost Group K to Colombia — Portugal bonus ❌.
 
 ---
 
@@ -49,30 +49,31 @@
 | 03.07 19:59 | Australien – Ägypten | `1:1` ⚠️ | 38/32/30% | **Reassess before lock if Salah confirmed out → flip to `2:1` AUS** |
 | 03.07 23:59 | Argentinien – Kap Verde | `2:0` | ARG 82% | Cape Verde drew all 3 group games; Messi fit |
 
-### ⏳ TBD picks — opponent not yet confirmed
+### ⏳ Still to enter — opponents now confirmed
 
-| Lock (CET) | Kicktipp | Notes |
-| --- | --- | --- |
-| 01.07 02:59 | Mexiko – TBD | Mexico swept group (9pts, 0 GA); chalk vs any 3rd-place |
-| 01.07 17:59 | TBD – TBD | Bracket position TBD |
-| 01.07 21:59 | Belgien – TBD | Belgium group winner |
-| 02.07 20:59 | Spanien – TBD | Spain 7pts, 0 GA; likely Austria or Algeria |
-| 03.07 00:59 | TBD – TBD | Bracket position TBD |
-| 03.07 04:59 | Schweiz – TBD | Switzerland group winner |
-| 04.07 03:29 | TBD – TBD | Bracket position TBD |
+| Lock (CET) | Kicktipp | **Enter** | Odds | Notes |
+| --- | --- | --- | --- | --- |
+| 01.07 02:59 | Mexiko – Ecuador | **`2:1`** | MEX 41.9% | Mexico 9pts/0GA/Azteca home; Ecuador beat Germany but 3rd-place |
+| 01.07 17:59 | England – DR Kongo | **`2:1`** | ENG 75.8% | England Group L winner; James doubtful but overwhelming chalk |
+| 01.07 21:59 | Belgien – Senegal | **`2:1`** | BEL 43.4% | Belgium Group G winner; Senegal 3pts 3rd-place; Lukaku fit |
+| 02.07 20:59 | Spanien – Österreich | **`2:0`** | ESP 74.9% | Spain 0GA vs Austria 6 conceded; Pino out but chalk holds |
+| 03.07 00:59 | Portugal – Kroatien | **`1:0`** | POR 53.4% | Tight game; Ronaldo fit, Portugal slight edge; Modrić with mask |
+| 03.07 04:59 | Schweiz – Algerien | **`1:0`** | SUI 50.6% | Near-coinflip; Amoura (ALG) doubtful — tight Swiss edge |
+| 04.07 03:29 | Kolumbien – Ghana | **`2:1`** | COL 60.9% | Colombia Group K winner; Kudus OUT whole tournament |
 
 ---
 
-## ✅ Spieltag 10 — entered (Groups J/K/L MD3, June 27–28)
+## ✅ Spieltag 10 — entered + results (Groups J/K/L MD3, June 27–28)
 
-| Kicktipp | Entered | Status |
-| --- | --- | --- |
-| Kroatien – Ghana | `2:0` | ✅ entered |
-| Panama – England | `0:2` | ✅ entered |
-| DR Kongo – Usbekistan | `1:0` | ✅ entered |
-| Kolumbien – Portugal | `1:1` | ✅ entered |
-| Algerien – Österreich | `2:0` | ✅ entered |
-| Jordanien – Argentinien | `0:2` | ✅ entered |
+| Kicktipp | Entered | Result | Pts |
+| --- | --- | --- | ---: |
+| Kroatien – Ghana | `2:0` | 2–1 CRO | +2 |
+| Panama – England | `0:2` | 0–2 ENG | **+4 EXACT** |
+| DR Kongo – Usbekistan | `1:0` | 3–1 COD | +2 |
+| Kolumbien – Portugal | `1:1` | 0–0 | +3 GD |
+| Algerien – Österreich | `2:0` | 3–3 | 0 |
+| Jordanien – Argentinien | `0:2` | 1–3 ARG | +3 GD |
+| **ST10 total** | | | **14** |
 
 ---
 
