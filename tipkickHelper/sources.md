@@ -341,3 +341,41 @@ Compiled from 2026-05-15 through 2026-06-16.
 - [Sports Mole — Mexico vs Ecuador injury/suspension list](https://www.sportsmole.co.uk/football/mexico/world-cup-2026/team-news/mexico-vs-ecuador-injury-suspension-list-predicted-xis_600277.html)
 - [Sports Mole — Netherlands vs Morocco predicted lineups](https://www.sportsmole.co.uk/football/netherlands/world-cup-2026/predicted-lineups/double-fitness-boost-how-netherlands-could-line-up-vs-morocco_600224.html)
 - [SI.com — Why Haaland isn't playing Norway vs France](https://www.si.com/soccer/why-erling-haaland-isnt-playing-norway-vs-france-2026-world-cup)
+
+## Research update — 2026-07-05
+
+### ST11 R32 results
+- [WC 2026 R32 results — Wikipedia](https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_round_of_32)
+- [WC 2026 bracket — CBS Sports](https://www.cbssports.com/soccer/news/2026-fifa-world-cup-bracket-round-of-32-results-round-of-16-matchups-final/)
+- [Round of 32 complete results — WorldCupWiki](https://worldcupwiki.com/2026-fifa-world-cup-round-of-32/)
+- [Round of 32 wrap — Yahoo Sports](https://sports.yahoo.com/soccer/live/world-cup-2026-bracket-scores-results-schedule-live-updates-round-of-32-173000083.html)
+- [WC 2026 red cards tracker — Yahoo Sports](https://sports.yahoo.com/articles/world-cup-2026-red-cards-205402638.html)
+
+### R16 first results (04.07)
+- [Canada 0–3 Morocco — NBC Sports](https://www.nbcsports.com/soccer/live/canada-vs-morocco-live-updates-score-goals-highlights-stats-from-2026-fifa-world-cup)
+- [Paraguay 0–1 France — FIFA.com](https://www.fifa.com/en/match-centre/match/17/285023/289288/400021533)
+- [ESPN WC 2026 R16 recap — France, Morocco](https://www.espn.com/espn/story/_/id/49271700/2026-fifa-world-cup-recap-france-paraguay-morocco-canada-kylian-mbappe)
+
+### R16 injury/team news
+- [Brazil vs Norway team news — Sports Mole](https://www.sportsmole.co.uk/football/brazil/world-cup-2026/team-news/brazil-vs-norway-injury-suspension-list-predicted-xis_600644.html)
+- [Brazil vs Norway preview — ESPN](https://www.espn.com/soccer/story/_/id/49256507/brazil-vs-norway-fifa-world-cup-2026-tv-channel-how-watch-kickoff-live-stream-injury-predicted-lineups)
+- [Declan Rice "terrible pain" vs DR Congo — ESPN](https://www.espn.com/soccer/story/_/id/49250143/declan-rice-terrible-pain-congo-dr-fit-england-mexico)
+- [England injury list vs Mexico — Sports Mole](https://www.sportsmole.co.uk/football/england/world-cup-2026/injuries-and-suspensions/rice-james-quansah-latest-england-injury-suspension-list-vs-mexico_600617.html)
+- [Nico Williams injury — ESPN](https://www.espn.com/soccer/story/_/id/49200729/spain-nico-williams-injury-yeremy-pino-2026-world-cup)
+- [Spain XI vs Portugal — Yahoo Sports](https://sports.yahoo.com/articles/spain-xi-vs-portugal-confirmed-185630668.html)
+- [Balogun suspended — ESPN](https://www.espn.com/soccer/story/_/id/49260630/usmnt-folarin-balogun-red-card-ban-belgium-emotional-rollercoaster)
+- [USA vs Belgium team news — Sports Mole](https://www.sportsmole.co.uk/football/belgium/world-cup-2026/preview/usa-vs-belgium-prediction-team-news-lineups_600664.html)
+- [Salah starts for Egypt — FOX Sports](https://www.foxsports.com/stories/soccer/2026-fifa-world-cup-buzz)
+- [Egypt beat Australia — Al Jazeera](https://www.aljazeera.com/sports/2026/7/3/egypt-beat-australia-on-penalties-to-win-first-world-cup-knockout-match)
+- [Romero available vs Cape Verde — ESPN](https://www.espn.com/soccer/story/_/id/49246064/cristian-romero-available-argentina-world-cup-knockout-vs-cape-verde-sources)
+- [WC 2026 injury tracker — ESPN](https://www.espn.com/soccer/story/_/id/48572979/2026-fifa-world-cup-injuries-tracker-which-stars-miss-latest-info)
+
+### R16 betting odds
+- [WC 2026 R16 odds overview — FOX Sports](https://www.foxsports.com/stories/soccer/2026-world-cup-round-16-odds)
+- [Brazil vs Norway — CBS Sports odds](https://www.cbssports.com/soccer/news/brazil-norway-odds-prediction-time-2026-world-cup-round-of-16-picks/)
+- [Mexico vs England — Covers.com](https://www.covers.com/world-cup/mexico-vs-england-prediction-picks-odds-sunday-7-5-2026)
+- [Spain vs Portugal odds — DraftKings Network](https://dknetwork.draftkings.com/2026/07/02/world-cup-2026-spain-vs-portugal-opening-odds/)
+- [USA vs Belgium — FOX Sports](https://www.foxsports.com/stories/soccer/2026-world-cup-odds-how-far-will-team-usa-go)
+- [Argentina vs Egypt odds — SportsBettingDime](https://www.sportsbettingdime.com/news/soccer/argentina-vs-egypt-odds-opening-lines-round-of-16/)
+- [Colombia vs Switzerland odds — DraftKings Network](https://dknetwork.draftkings.com/2026/07/04/world-cup-2026-colombia-vs-switzerland-opening-odds/)
+- [R16 picks overview — Yahoo Sports](https://sports.yahoo.com/soccer/betting/article/world-cup-round-of-16-picks-predictions-best-bets-for-every-match-including-brazil-norway-and-us-belgium-194041100.html)

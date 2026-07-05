@@ -4,6 +4,34 @@
 
 ---
 
+## Pool status — 2026-07-05 (after ST11 R32)
+
+| | |
+|---|---|
+| Points | **198** (154 match + 44 bonus) |
+| Pot | €350 — 1st pays **€140** |
+| Strategy | **A locked** — chalk, modal scoreline, no switches |
+
+### Running match points by Spieltag
+
+| Spieltag | Pts |
+|---|---:|
+| ST1 | 13 |
+| ST2 | 6 |
+| ST3 | 16 |
+| ST4 | 16 |
+| ST5 | 13 |
+| ST6 | 16 |
+| ST7 | 7 |
+| ST8 | 7 |
+| ST9 | 12 |
+| ST10 | 14 |
+| ST11 R32 | **34** |
+| Bonus (11 × 4 pts) | 44 |
+| **Total confirmed** | **198** |
+
+---
+
 ## Pool status — 2026-06-28 (after full ST10)
 
 | | |
