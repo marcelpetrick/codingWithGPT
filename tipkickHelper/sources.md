@@ -379,3 +379,31 @@ Compiled from 2026-05-15 through 2026-06-16.
 - [Argentina vs Egypt odds — SportsBettingDime](https://www.sportsbettingdime.com/news/soccer/argentina-vs-egypt-odds-opening-lines-round-of-16/)
 - [Colombia vs Switzerland odds — DraftKings Network](https://dknetwork.draftkings.com/2026/07/04/world-cup-2026-colombia-vs-switzerland-opening-odds/)
 - [R16 picks overview — Yahoo Sports](https://sports.yahoo.com/soccer/betting/article/world-cup-round-of-16-picks-predictions-best-bets-for-every-match-including-brazil-norway-and-us-belgium-194041100.html)
+
+## Research update — 2026-07-06
+
+### ST12 match results
+- [Brazil 1–2 Norway — ESPN](https://www.espn.com/soccer/story/_/id/49278406/brazil-vs-norway-live-world-cup-2026-updates-score-commentary-result)
+- [Brazil vs Norway — Al Jazeera](https://www.aljazeera.com/sports/2026/7/5/haaland-scores-twice-as-norway-stun-brazil-2-1-in-world-cup-2026-last-16)
+- [Mexico 2–3 England — ESPN](https://www.espn.com/soccer/story/_/id/49280042/mexico-england-live-world-cup-2026-latest-updates-commentary-score-result)
+- [Mexico 2–3 England — NBC Sports](https://www.nbcsports.com/soccer/live/mexico-vs-england-live-updates-score-goals-highlights-stats-from-2026-fifa-world-cup)
+
+### Injury / disciplinary news
+- [Quansah red card — Bolavip](https://bolavip.com/en/world-cup/why-did-jarell-quansah-get-a-red-card-vs-mexico-and-what-does-it-mean-for-england-at-the-2026-world-cup)
+- [Quansah suspension — Yahoo Sports](https://sports.yahoo.com/articles/jarell-quansah-world-cup-red-060846538.html)
+- [Balogun ban lifted — Al Jazeera](https://www.aljazeera.com/sports/2026/7/5/trump-thanks-fifa-as-it-suspends-baloguns-ban-for-belgium-world-cup-match)
+- [Balogun — Yahoo Sports](https://sports.yahoo.com/soccer/article/2026-world-cup-usmnt-striker-folarin-balogun-available-vs-belgium-after-red-card-ban-suspended-164042013.html)
+- [Messi head injury — GB News](https://www.gbnews.com/sport/football/lionel-messi-injury-argentina-world-cup-cape-verde)
+- [Rodri mystery injury — Irish Examiner](https://www.irishexaminer.com/sport/soccer/arid-41872464.html)
+
+### Portugal vs Spain preview
+- [Portugal vs Spain — Sports Mole](https://www.sportsmole.co.uk/football/portugal/world-cup-2026/preview/portugal-vs-spain-prediction-team-news-lineups_600650.html)
+- [Portugal vs Spain — ESPN](https://www.espn.com/soccer/story/_/id/49266158/fifa-world-cup-2026-portugal-vs-spain-tv-channel-how-watch-kickoff-live-stream-referee-predicted-lineups)
+- [Portugal vs Spain — Rotowire](https://www.rotowire.com/soccer/article/portugal-vs-spain-preview-predicted-lineups-team-news-tactical-analysis-2026-world-cup-round-of-16-121162)
+- [Spain XI vs Portugal — Yahoo Sports](https://sports.yahoo.com/articles/spain-xi-vs-portugal-confirmed-185630668.html)
+- [Ronaldo last World Cup — ESPN](https://www.espn.com/soccer/story/_/id/49278881/cristiano-ronaldo-world-cup-2026-portugal)
+
+### Other upcoming R16
+- [USA vs Belgium team news — Sports Mole](https://www.sportsmole.co.uk/football/belgium/world-cup-2026/preview/usa-vs-belgium-prediction-team-news-lineups_600664.html)
+- [Argentina vs Egypt — Messi knee — GB News](https://www.gbnews.com/sport/football/lionel-messi-injury-argentina-world-cup-cape-verde)
+- [Switzerland vs Colombia — Squawka](https://www.squawka.com/us/news/world-cup/match-preview-switzerland-vs-colombia-07-07-26-world-cup-2026-round-of-16/)

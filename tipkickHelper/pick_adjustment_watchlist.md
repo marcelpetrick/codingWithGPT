@@ -4,13 +4,39 @@
 
 ---
 
-## Pool status — 2026-07-05 (after ST11 R32)
+## Pool status — 2026-07-06 (ST12 partial: after Brazil–Norway + Mexico–England)
 
 | | |
 |---|---|
-| Points | **198** (154 match + 44 bonus) |
+| Points | **201** (157 match + 44 bonus) |
+| Pool rank | **2nd / 35** (+2 pts behind 1st; +11 pts ahead of 5th) |
 | Pot | €350 — 1st pays **€140** |
 | Strategy | **A locked** — chalk, modal scoreline, no switches |
+
+### Pool standings snapshot — 2026-07-06
+
+_Names anonymised. P-labels are stable rank positions at this snapshot. NoClue = us._
+
+| Pos | ID | ST1–10 | Se | Ac | Bonus | Total | Notes |
+|----:|-----|-------:|---:|---:|------:|------:|-------|
+| 1 | P01 | 100 | 34 | 6 | 44 | 203 | 2 pts ahead |
+| **2** | **NoClue** | **119** | **35** | **3** | **44** | **201** | **us** |
+| 3 | P03 | 105 | 31 | 7 | 44 | 198 | 3 pts behind |
+| 4 | P04 | 90 | 32 | 7 | 44 | 196 | 5 pts behind |
+| 5 | P05 | 95 | 34 | 4 | 44 | 190 | 11 pts behind — cash-out line |
+| 6 | P06 | 90 | 24 | 4 | 44 | 187 | |
+| 7 | P07 | 91 | 30 | 7 | 32 | 186 | 8 less bonus |
+| 8 | P08 | 93 | 29 | 2 | 44 | 185 | |
+| 9 | P09 | 91 | 34 | 4 | 44 | 184 | |
+| 10 | P10 | 89 | 32 | 7 | 36 | 182 | |
+
+> Positions 11–35 are all ≥ 20 pts behind. Not tracking individually.
+
+**Key observations:**
+- P01 has B=44 (same bonus as us) → can't be separated on bonus alone; match accuracy decides 1st.
+- P07 has B=32 (8 pts fewer bonus than us) → already at a structural disadvantage.
+- Our Ac=3 = Brazil–Norway GD hit (`2:1` pick, Brazil won 1–0, GD=1 matched → +3). Two July-4 R16 entries missed = 0 pts from Canada–Morocco and Paraguay–France.
+- Spieltagsiege (S column): NoClue S≈1.92, second-highest in pool — we have won approximately 2 matchdays.
 
 ### Running match points by Spieltag
 
