@@ -407,3 +407,41 @@ Compiled from 2026-05-15 through 2026-06-16.
 - [USA vs Belgium team news — Sports Mole](https://www.sportsmole.co.uk/football/belgium/world-cup-2026/preview/usa-vs-belgium-prediction-team-news-lineups_600664.html)
 - [Argentina vs Egypt — Messi knee — GB News](https://www.gbnews.com/sport/football/lionel-messi-injury-argentina-world-cup-cape-verde)
 - [Switzerland vs Colombia — Squawka](https://www.squawka.com/us/news/world-cup/match-preview-switzerland-vs-colombia-07-07-26-world-cup-2026-round-of-16/)
+
+## Research update — 2026-07-08
+
+### ST12 Achtelfinale — final results
+
+- [Portugal 0–1 Spain — ESPN](https://www.espn.com/soccer/match/_/gameId/760506/spain-portugal)
+- [Portugal vs Spain as it happened — Al Jazeera](https://www.aljazeera.com/sports/liveblog/2026/7/6/portugal-vs-spain-live-fifa-world-cup-2026-round-of-16)
+- [Spain match report — FIFA](https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/portugal-spain-match-report-highlights)
+- [USA 1–4 Belgium — FIFA](https://www.fifa.com/en/match-centre/match/17/285023/289288/400021534)
+- [USA 1–4 Belgium — Sky Sports](https://www.skysports.com/football/news/29908/13560189/world-cup-2026-usa-1-4-belgium-folarin-baloguns-red-card-reprieve-little-help-as-co-hosts-dumped-out-after-defensive-howlers)
+- [Argentina 3–2 Egypt — ESPN](https://www.espn.com/soccer/match/_/gameId/760509/egypt-argentina)
+- [Argentina 3–2 Egypt — Sky Sports](https://www.skysports.com/football/argentina-vs-egypt/report/549861)
+- [Switzerland 0–0 Colombia (SUI pens 4–3) — FIFA](https://www.fifa.com/en/match-centre/match/17/285023/289288/400021535)
+- [Switzerland beat Colombia on pens — Sky Sports](https://www.skysports.com/football/switzerland-vs-colombia/549860)
+
+### ST13 Viertelfinale — team news
+
+- [France vs Morocco predicted lineups — Sports Mole](https://www.sportsmole.co.uk/football/france/world-cup-2026/predicted-lineups/captain-mbappe-to-start-can-tchouameni-return-predicted-france-xi-vs-morocco_600830.html)
+- [Morocco QF lineup, Saibari sidelined — Sports Mole](https://www.sportsmole.co.uk/football/morocco/world-cup-2026/predicted-lineups/saibari-sidelined-riad-returns-predicted-morocco-world-cup-lineup-vs-france_600834.html)
+- [France vs Morocco QF preview — bet365 News](https://news.bet365.com/en-us/article/france-vs-morocco-quarterfinals-preview-lineup-predictions/2026070721252634143)
+- [Belgium Spain QF — Onana ACL — Goal.com](https://www.goal.com/en/lists/belgium-spain-world-cup-amadou-onana-acl-injury/blt8d5e3df23fbebef5)
+- [Quansah suspended vs Norway — OneFootball](https://onefootball.com/en/news/jarell-quansah-suspended-for-england-v-norway-world-cup-quarter-final-after-mexico-red-card-43105797)
+- [Reece James fitness race — Sky Sports](https://www.skysports.com/football/news/11095/13561150/england-world-cup-latest-reece-james-in-race-to-be-fit-for-quarter-final-clash-with-norway)
+- [Haaland rested vs France was intentional — ESPN](https://www.espn.com/soccer/story/_/id/49190980/norway-stale-solbakken-world-cup-erling-haaland-benched-no-brainer)
+- [Norway squad illness — Yahoo Sports](https://sports.yahoo.com/articles/norway-reportedly-hit-sickness-ahead-165755089.html)
+- [Messi fitness confirmed — Citi Sports](https://citisportsonline.com/2026/07/2026-world-cup-lionel-messi-is-fine-argentine-coach-dispels-fitness-concerns-over-forward/)
+- [England injury boost (James race) — SI.com](https://www.si.com/soccer/england-huge-injury-boost-world-cup-quarterfinal-norway)
+
+### ST13 Viertelfinale — odds
+
+- [France vs Morocco odds — DraftKings](https://dknetwork.draftkings.com/2026/07/04/world-cup-2026-france-vs-morocco-opening-odds/)
+- [France vs Morocco — OddsShark](https://www.oddsshark.com/soccer/world-cup/france-morocco-odds-picks-2026)
+- [Spain vs Belgium odds — DraftKings](https://dknetwork.draftkings.com/2026/07/06/opening-odds-for-spain-vs-belgium-in-the-fifa-world-cup-2026/)
+- [Spain vs Belgium — VegasInsider](https://www.vegasinsider.com/soccer/spain-belgium-odds-world-cup-2026/)
+- [Norway vs England odds — DraftKings](https://dknetwork.draftkings.com/2026/07/05/world-cup-2026-norway-vs-england-opening-odds/)
+- [Norway vs England — bet365 News](https://news.bet365.com/en-gb/article/norway-v-england-odds/2026070603283519554)
+- [Argentina vs Switzerland odds — DraftKings](https://dknetwork.draftkings.com/2026/07/07/opening-odds-for-argentina-vs-switzerland-in-the-fifa-world-cup-2026/)
+- [Argentina vs Switzerland — BetMGM](https://sports.betmgm.com/en/blog/world-cup/argentina-vs-switzerland-prediction-odds-preview-world-cup-july-11-bm16/)

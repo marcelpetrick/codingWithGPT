@@ -4,39 +4,39 @@
 
 ---
 
-## Pool status — 2026-07-06 (ST12 partial: after Brazil–Norway + Mexico–England)
+## Pool status — 2026-07-08 (after ST12 complete)
 
 | | |
 |---|---|
-| Points | **201** (157 match + 44 bonus) |
-| Pool rank | **2nd / 35** (+2 pts behind 1st; +11 pts ahead of 5th) |
+| Points | **206** (162 match + 44 bonus) |
+| Pool rank | **2nd / 35** (+4 pts behind 1st; +10 pts ahead of 5th) |
 | Pot | €350 — 1st pays **€140** |
 | Strategy | **A locked** — chalk, modal scoreline, no switches |
 
-### Pool standings snapshot — 2026-07-06
+### Pool standings snapshot — 2026-07-08
 
 _Names anonymised. P-labels are stable rank positions at this snapshot. NoClue = us._
 
 | Pos | ID | ST1–10 | Se | Ac | Bonus | Total | Notes |
 |----:|-----|-------:|---:|---:|------:|------:|-------|
-| 1 | P01 | 100 | 34 | 6 | 44 | 203 | 2 pts ahead |
-| **2** | **NoClue** | **119** | **35** | **3** | **44** | **201** | **us** |
-| 3 | P03 | 105 | 31 | 7 | 44 | 198 | 3 pts behind |
-| 4 | P04 | 90 | 32 | 7 | 44 | 196 | 5 pts behind |
-| 5 | P05 | 95 | 34 | 4 | 44 | 190 | 11 pts behind — cash-out line |
-| 6 | P06 | 90 | 24 | 4 | 44 | 187 | |
-| 7 | P07 | 91 | 30 | 7 | 32 | 186 | 8 less bonus |
-| 8 | P08 | 93 | 29 | 2 | 44 | 185 | |
-| 9 | P09 | 91 | 34 | 4 | 44 | 184 | |
-| 10 | P10 | 89 | 32 | 7 | 36 | 182 | |
+| 1 | P01 | 119 | 34 | 13 | 44 | 210 | 4 pts ahead |
+| **2** | **NoClue** | **119** | **35** | **8** | **44** | **206** | **us** |
+| 3 | P03 | 116 | 31 | 12 | 44 | 203 | 3 pts behind |
+| 4 | P04 | 108 | 34 | 12 | 44 | 198 | 8 pts behind |
+| 5 | P05 | 113 | 32 | 7 | 44 | 196 | 10 pts behind — cash-out line |
+| 6 | P06 | 115 | 24 | 13 | 44 | 196 | |
+| 7 | P07 | 102 | 34 | 10 | 44 | 190 | |
+| 8 | P08 | 117 | 30 | 10 | 32 | 189 | 8 pts less bonus |
+| 9 | P09 | 116 | 25 | 7 | 40 | 188 | |
+| 10 | P10 | 110 | 29 | 4 | 44 | 187 | |
 
-> Positions 11–35 are all ≥ 20 pts behind. Not tracking individually.
+> Positions 11–35 are all ≥ 19 pts behind. Not tracking individually.
 
 **Key observations:**
-- P01 has B=44 (same bonus as us) → can't be separated on bonus alone; match accuracy decides 1st.
-- P07 has B=32 (8 pts fewer bonus than us) → already at a structural disadvantage.
-- Our Ac=3 = Brazil–Norway GD hit (`2:1` pick, Brazil won 1–0, GD=1 matched → +3). Two July-4 R16 entries missed = 0 pts from Canada–Morocco and Paraguay–France.
-- Spieltagsiege (S column): NoClue S≈1.92, second-highest in pool — we have won approximately 2 matchdays.
+- P01 Ac=13 vs our Ac=8 → P01 had better R16 picks; gap opened from 2→4 pts during ST12.
+- P01 has B=44 (same bonus as us) → match accuracy is the only differentiator for 1st place.
+- Cash-out line (5th = 196 pts): we lead by +10.
+- Spieltagsiege (S column): NoClue S≈1.92, second-highest in pool.
 
 ### Running match points by Spieltag
 
@@ -52,9 +52,41 @@ _Names anonymised. P-labels are stable rank positions at this snapshot. NoClue =
 | ST8 | 7 |
 | ST9 | 12 |
 | ST10 | 14 |
-| ST11 R32 | **34** |
+| ST11 Se | **35** |
+| ST12 Ac | **8** |
 | Bonus (11 × 4 pts) | 44 |
-| **Total confirmed** | **198** |
+| **Total confirmed** | **206** |
+
+---
+
+## Spieltag 13 — Viertelfinale (July 9–12)
+
+### ⏳ Entry queue — picks to enter
+
+| ⚡ | Lock (CET) | Kicktipp | **Enter** | Odds | Notes |
+|---|---|---|---|---|---|
+| **⚡** | **09.07 21:59** | **Frankreich – Marokko** | **`2:1`** | FRA 60% | France clear chalk; Morocco lose Saibari; Tchouameni minor doubt |
+| | 10.07 20:59 | Spanien – Belgien | **`2:1`** | ESP 58% | Spain chalk; Onana ACL done; Belgium midfield gutted; Spain still scores 2 |
+| | 11.07 22:59 | Norwegen – England | **`1:2`** | ENG 48% | England chalk; Haaland likely scores vs Spence; pick = NOR 1 ENG 2; reassess if James confirmed out |
+| | 12.07 02:59 | Argentinien – Schweiz | **`2:1`** | ARG 56% | Argentina chalk; Romero doubt; SUI attack very limited; ARG concede but win |
+
+---
+
+## Spieltag 12 — Achtelfinale (July 4–7)
+
+### ✅ Completed picks + results
+
+| Lock (CET) | Kicktipp | Entered | 90-min Result | Pts |
+|---|---|---|---|---:|
+| 04.07 18:59 | Kanada – Marokko | _(no pick)_ | 0–3 MAR | 0 |
+| 04.07 22:59 | Paraguay – Frankreich | _(no pick)_ | 0–1 FRA | 0 |
+| 05.07 21:59 | Brasilien – Norwegen | `2:1` BRA | 1–2 NOR | 0 |
+| 06.07 02:59 | Mexiko – England | `1:2` ENG | 2–3 ENG | **+3** ✓GD |
+| 06.07 20:59 | Portugal – Spanien | `1:2` ESP | 0–1 ESP | **+3** ✓GD |
+| 07.07 01:59 | USA – Belgien | `2:1` USA | 1–4 BEL | 0 |
+| 07.07 17:59 | Argentinien – Ägypten | `2:0` ARG | 3–2 ARG | **+2** tendency |
+| 07.07 21:59 | Schweiz – Kolumbien | `1:2` COL | 0–0 → SUI pens | 0 |
+| **ST12 total** | | | | **8 / 32** |
 
 ---
 
