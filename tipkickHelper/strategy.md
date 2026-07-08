@@ -297,6 +297,17 @@ User-reported table state after 16 audited matches:
 | 1st | 21 | Current leader |
 | **4th** | **19** | User |
 
-Implication: Strategy A is working. The sheet is already in the top-5
-cash-out zone and only 2 points off the lead. Do not chase variance;
-keep refining future match picks inside the chalk framework.
+---
+
+## Pool position — 2026-07-08 (after ST12 / Achtelfinale)
+
+| Rank | Points | Context |
+| --- | ---: | --- |
+| 1st (P01) | 210 | Leader |
+| **2nd (NoClue)** | **206** | **us — 4 pts behind** |
+| 3rd (P03) | 203 | |
+| 5th (P05) | 196 | Cash-out line |
+
+**Remaining pts available (QF + SF + Final):** 7 matches × 4 pts max = 28 match pts + up to 20 bonus pts (France/Spain/Argentina semi + France champion) = **48 pts possible from here**.
+
+Strategy A continues to hold 2nd place. P01 and us have identical bonus (44 pts), so the race is pure match accuracy. ST12 upsets (Belgium 4-1, SUI pens, ARG comeback) cost us 3 wrong-tendency misses and opened the gap from 2→4 pts. No strategy change warranted.

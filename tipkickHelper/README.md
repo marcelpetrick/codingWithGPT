@@ -4,21 +4,21 @@ Research notes and data-driven picks for a company-internal **WM 2026**
 Kicktipp pool. Tournament runs **11 June – 19 July 2026** across USA,
 Canada, Mexico.
 
-> Status as of 2026-06-16. The tournament is live. Final draw was held
+> **Status as of 2026-07-08 — Quarterfinal stage.** Final draw held
 > **5 Dec 2025**, Washington, D.C.; pool entry closed **09 June 2026,
-> 23:59**. Confirmed **35 participants** (pool €350). Bonus picks locked at
-> the opening kickoff: **11 June 2026, 21:00 CET** (Mexico vs South Africa).
+> 23:59**. 35 participants (pool €350). Bonus picks locked 11 June 2026, 21:00 CET.
 >
-> **User status (2026-06-02): registered, paid, picks already submitted
-> in the Kicktipp app.** This repo is now in live audit/monitor mode:
-> score submitted picks, track forced news, and change future match
-> defaults only when Strategy A chalk materially changes.
+> **Current position: 2nd / 35 · 206 pts** (P01 leads at 210 pts; gap = 4 pts).
+> Cash-out line (5th) = 196 pts — we lead by +10. Strategy A locked throughout.
 >
-> **Latest monitoring update (2026-06-16):** current audit through matches
-> played 15 June shows **19 / 64 pts** using the current `my_picks.md`
-> sheet. User-reported pool position: **4th of 29** (as of 2026-06-16), leader on **21 pts**
-> (gap: **2 pts**). Group H and Group F are the most changed reads;
-> Strategy A stays locked.
+> **ST12 (Achtelfinale) complete: 8/32 pts.** Three upsets (Belgium 4–1 USA,
+> Switzerland on pens over Colombia, Argentina 3–2 comeback vs Egypt) cost
+> tendency pts. Gap to 1st opened from 2→4 pts this Spieltag.
+>
+> **ST13 (Viertelfinale) picks queued:** `2:1` FRA, `2:1` ESP, `1:2` ENG, `2:1` ARG.
+> First lock: Frankreich–Marokko, 09.07 21:59 CET.
+>
+> See [`review_20260708.md`](review_20260708.md) for the full QF analysis.
 
 ## Live Pick Workflow
 
@@ -48,10 +48,13 @@ The pool's actual entry happens **inside the Kicktipp app**, but
 | [`pick_adjustment_watchlist.md`](pick_adjustment_watchlist.md) | Current "review before entry" queue for future picks |
 | [`StrategyReview20260613.md`](StrategyReview20260613.md) | Superseded early in-tournament review; kept for audit history |
 | [`StrategyReview20260616.md`](StrategyReview20260616.md) | Dated performance review after matches through 15 June 2026 |
+| [`review_20260705.md`](review_20260705.md) | ST11 R32 scorecard (34 pts), ST12 R16 picks locked |
+| [`review_20260706.md`](review_20260706.md) | ST12 partial (Brazil–Norway + Mexico–England), standings update |
+| [`review_20260708.md`](review_20260708.md) | **ST12 complete (8/32 pts), ST13 QF picks, QF odds + injury brief** |
 | [`explanation.md`](explanation.md) | Mermaid diagrams: how the research process works end-to-end |
 | [`sources.md`](sources.md) | Links used as evidence |
 | [`task_inventory_20260616.md`](task_inventory_20260616.md) | Auditable task list for the 2026-06-16 review loop |
-| `Screenshot_20260616_*.png` | Kicktipp screenshots confirming Spieltag 1/2 entries, blank Spieltag 3, and bonus picks |
+| `Screenshot_*.png` | Kicktipp screenshots (Spieltag entries, bonus picks, R16, QF) |
 
 ## How to use this
 
