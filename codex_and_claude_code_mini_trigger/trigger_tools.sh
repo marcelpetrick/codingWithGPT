@@ -6,7 +6,7 @@ SCRIPT_NAME=$(basename "$0")
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 DEFAULT_WORKDIR=$(dirname -- "$SCRIPT_DIR")
 PROMPT="Return only the result of 1+1."
-CLAUDE_MODEL="${CLAUDE_TRIGGER_MODEL:-fable}"
+CLAUDE_MODEL="${CLAUDE_TRIGGER_MODEL:-sonnet}"
 CODEX_MODEL="${CODEX_TRIGGER_MODEL:-gpt-5.4-mini}"
 CODEX_REASONING_EFFORT="${CODEX_TRIGGER_REASONING_EFFORT:-low}"
 VERBOSE=0
