@@ -2,7 +2,7 @@
 Type=Application
 Name=Tool Mini Trigger
 Comment=Run the local 1+1 trigger checks
-Exec=/home/mpetrick/repos/codingWithGPT/codex_and_claude_code_mini_trigger/trigger_tools.sh --verbose --wait
+Exec=zsh -i -c '/home/mpetrick/repos/codingWithGPT/codex_and_claude_code_mini_trigger/trigger_tools.sh --verbose --wait'
 Path=/home/mpetrick/repos/codingWithGPT/codex_and_claude_code_mini_trigger
 Terminal=true
 Categories=Development;
