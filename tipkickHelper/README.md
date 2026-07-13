@@ -54,6 +54,7 @@ The pool's actual entry happens **inside the Kicktipp app**, but
 | [`review_20260706.md`](review_20260706.md) | ST12 partial (Brazil–Norway + Mexico–England), standings update |
 | [`review_20260708.md`](review_20260708.md) | ST12 complete (8/32 pts), ST13 QF picks, QF odds + injury brief |
 | [`review_20260713.md`](review_20260713.md) | **ST13 complete (6/16), 3rd @ 224, SF picks + whole-race math** |
+| [`form_perspective_20260713.md`](form_perspective_20260713.md) | **Full-tournament form logs of all 4 semifinalists + fallen-team lessons** |
 | [`explanation.md`](explanation.md) | Mermaid diagrams: how the research process works end-to-end |
 | [`sources.md`](sources.md) | Links used as evidence |
 | [`task_inventory_20260616.md`](task_inventory_20260616.md) | Auditable task list for the 2026-06-16 review loop |

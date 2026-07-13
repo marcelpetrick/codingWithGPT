@@ -476,3 +476,13 @@ Compiled from 2026-05-15 through 2026-06-16.
 
 - [Mbappé levels Messi at 8 goals — Yahoo](https://sports.yahoo.com/soccer/article/world-cup-goal-leaders-golden-boot-lionel-messi-erling-haaland-kylian-mbappe-ousmane-dembele-010143798.html)
 - [Golden boot tracker: Mbappé ahead on assist tiebreak — FOX Sports](https://www.foxsports.com/stories/soccer/2026-fifa-world-cup-golden-boot-tracker)
+
+### Semifinalist full match logs (form perspective 2026-07-13)
+
+- [France 3–0 Iraq — ESPN](https://www.espn.com/soccer/match/_/gameId/760457/iraq-france)
+- [France 3–0 Sweden — FIFA](https://www.fifa.com/en/match-centre/match/17/285023/289287/400021523)
+- [Spain 3–0 Austria — ESPN](https://www.espn.com/soccer/match/_/gameId/760497/austria-spain)
+- [England 2–1 DR Congo (Kane brace) — Sky Sports](https://www.skysports.com/football/news/11095/13558802/world-cup-2026-england-2-1-dr-congo-harry-kane-scores-twice-as-three-lions-come-from-behind-to-set-up-last-16-tie-against-co-hosts-mexico)
+- [Argentina 3–2 Cape Verde (aet) — ESPN](https://www.espn.com/soccer/match/_/gameId/760500/cape-verde-argentina)
+- [Argentina 2–0 Austria (Messi WC record) — FIFA](https://www.fifa.com/en/match-centre/match/17/285023/289273/400021494)
+- [Cape Verde's run ends vs Argentina — NPR](https://www.npr.org/2026/07/04/nx-s1-5882086/cape-verde-world-cup-ends)
