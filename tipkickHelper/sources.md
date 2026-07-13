@@ -445,3 +445,34 @@ Compiled from 2026-05-15 through 2026-06-16.
 - [Norway vs England — bet365 News](https://news.bet365.com/en-gb/article/norway-v-england-odds/2026070603283519554)
 - [Argentina vs Switzerland odds — DraftKings](https://dknetwork.draftkings.com/2026/07/07/opening-odds-for-argentina-vs-switzerland-in-the-fifa-world-cup-2026/)
 - [Argentina vs Switzerland — BetMGM](https://sports.betmgm.com/en/blog/world-cup/argentina-vs-switzerland-prediction-odds-preview-world-cup-july-11-bm16/)
+
+## Research update — 2026-07-13
+
+### ST13 Viertelfinale — results
+
+- [World Cup bracket: semifinal field set — Yahoo](https://sports.yahoo.com/soccer/live/world-cup-bracket-schedule-scores-results-live-updates-quarterfinals-203257966.html)
+- [Spain 2–1 Belgium — FIFA match centre](https://www.fifa.com/en/match-centre/match/17/285023/289289/400021538)
+- [Norway 1–2 England (aet) — ESPN](https://www.espn.com/soccer/match/_/gameId/760512/england-norway)
+- [England survive Norway with ET Bellingham goal — CBS](https://www.cbssports.com/soccer/news/norway-vs-england-live-updates-world-cup-2026-score-result/live/)
+- [Argentina 3–1 Switzerland (aet) — Al Jazeera liveblog](https://www.aljazeera.com/sports/liveblog/2026/7/11/argentina-vs-switzerland-live-fifa-world-cup-2026)
+- [Argentina 3–1 Switzerland — ESPN](https://www.espn.com/soccer/match/_/gameId/760513/switzerland-argentina)
+
+### ST14 Halbfinale — odds
+
+- [France vs Spain odds — ESPN](https://www.espn.com/soccer/odds/_/gameId/760514)
+- [France vs Spain opening odds — DraftKings](https://dknetwork.draftkings.com/2026/07/11/world-cup-2026-france-vs-spain-opening-odds/)
+- [England vs Argentina opening odds — SI](https://www.si.com/betting/england-vs-argentina-opening-odds-for-world-cup-semifinals-will-england-make-history)
+- [England vs Argentina odds/lines — Sports Betting Dime](https://www.sportsbettingdime.com/news/soccer/england-vs-argentina-odds-opening-lines-world-cup-semifinal/)
+- [England vs Argentina AI predictions (draw/pens lean) — Sports Betting Dime](https://www.sportsbettingdime.com/news/soccer/england-vs-argentina-ai-predictions-best-bets-july-15/)
+
+### ST14 Halbfinale — team news
+
+- [France injury list vs Spain: Tchouameni back, Mbappé fine — Sports Mole](https://www.sportsmole.co.uk/football/france/injury-news/injuries-and-suspensions/mbappe-tchouameni-kone-latest-france-injury-suspension-list-vs-spain_601068.html)
+- [France vs Spain preview + predicted lineups — RotoWire](https://www.rotowire.com/soccer/article/france-vs-spain-preview-predicted-lineups-team-news-tactical-analysis-2026-world-cup-semifinal-122319)
+- [Argentina injury list vs England: Messi, Romero fit — Sports Mole](https://www.sportsmole.co.uk/football/argentina/injury-news/injuries-and-suspensions/messi-romero-latest-argentina-injury-suspension-list-vs-england_601110.html)
+- [Romero + Paredes fit for semifinal — World Soccer Talk](https://worldsoccertalk.com/world-cup/argentina-stars-injury-update-paredes-and-cuti-romero-reportedly-fit-for-world-cup-semifinal-vs-england/)
+
+### Golden boot race
+
+- [Mbappé levels Messi at 8 goals — Yahoo](https://sports.yahoo.com/soccer/article/world-cup-goal-leaders-golden-boot-lionel-messi-erling-haaland-kylian-mbappe-ousmane-dembele-010143798.html)
+- [Golden boot tracker: Mbappé ahead on assist tiebreak — FOX Sports](https://www.foxsports.com/stories/soccer/2026-fifa-world-cup-golden-boot-tracker)

@@ -4,21 +4,23 @@ Research notes and data-driven picks for a company-internal **WM 2026**
 Kicktipp pool. Tournament runs **11 June – 19 July 2026** across USA,
 Canada, Mexico.
 
-> **Status as of 2026-07-08 — Quarterfinal stage.** Final draw held
+> **Status as of 2026-07-13 — Semifinal stage.** Final draw held
 > **5 Dec 2025**, Washington, D.C.; pool entry closed **09 June 2026,
 > 23:59**. 35 participants (pool €350). Bonus picks locked 11 June 2026, 21:00 CET.
 >
-> **Current position: 2nd / 35 · 206 pts** (P01 leads at 210 pts; gap = 4 pts).
-> Cash-out line (5th) = 196 pts — we lead by +10. Strategy A locked throughout.
+> **Current position: 3rd / 35 · 224 pts** (Barcarossa leads at 232; gap = 8 pts;
+> 2nd–5th packed within 2 pts; 6th is 12 back). We hold the best
+> Spieltagssiege tie-break in the top 7 (1.83).
 >
-> **ST12 (Achtelfinale) complete: 8/32 pts.** Three upsets (Belgium 4–1 USA,
-> Switzerland on pens over Colombia, Argentina 3–2 comeback vs Egypt) cost
-> tendency pts. Gap to 1st opened from 2→4 pts this Spieltag.
+> **ST13 (Viertelfinale) complete: 6/16 pts.** Spain 2–1 exact; Norway–England
+> and Argentina–Switzerland both 1–1 after 90 (correct winners, ET-zeroed).
+> Rivals holding England as 4th semifinalist banked +16 bonus vs our +12
+> (Brazil dead) — that, not match picks, cost us 2nd place.
 >
-> **ST13 (Viertelfinale) picks queued:** `2:1` FRA, `2:1` ESP, `1:2` ENG, `2:1` ARG.
-> First lock: Frankreich–Marokko, 09.07 21:59 CET.
+> **ST14 (Halbfinale) picks queued:** `1:0` Frankreich–Spanien (lock 14.07
+> 20:59 CET), `1:1` England–Argentinien (lock 15.07 20:59 CET).
 >
-> See [`review_20260708.md`](review_20260708.md) for the full QF analysis.
+> See [`review_20260713.md`](review_20260713.md) for the full SF analysis.
 
 ## Live Pick Workflow
 
@@ -50,7 +52,8 @@ The pool's actual entry happens **inside the Kicktipp app**, but
 | [`StrategyReview20260616.md`](StrategyReview20260616.md) | Dated performance review after matches through 15 June 2026 |
 | [`review_20260705.md`](review_20260705.md) | ST11 R32 scorecard (34 pts), ST12 R16 picks locked |
 | [`review_20260706.md`](review_20260706.md) | ST12 partial (Brazil–Norway + Mexico–England), standings update |
-| [`review_20260708.md`](review_20260708.md) | **ST12 complete (8/32 pts), ST13 QF picks, QF odds + injury brief** |
+| [`review_20260708.md`](review_20260708.md) | ST12 complete (8/32 pts), ST13 QF picks, QF odds + injury brief |
+| [`review_20260713.md`](review_20260713.md) | **ST13 complete (6/16), 3rd @ 224, SF picks + whole-race math** |
 | [`explanation.md`](explanation.md) | Mermaid diagrams: how the research process works end-to-end |
 | [`sources.md`](sources.md) | Links used as evidence |
 | [`task_inventory_20260616.md`](task_inventory_20260616.md) | Auditable task list for the 2026-06-16 review loop |

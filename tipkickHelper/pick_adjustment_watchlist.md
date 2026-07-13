@@ -4,6 +4,60 @@
 
 ---
 
+## Pool status — 2026-07-13 (after ST13 Viertelfinale complete)
+
+| | |
+|---|---|
+| Points | **224** (168 match + 56 bonus) |
+| Pool rank | **3rd / 35** (−8 behind 1st; +1 ahead of 5th; +12 ahead of 6th) |
+| Pot | €350 — 1st pays **€140** |
+| Strategy | **A locked** — but use the correct template: `1:0` tight / `1:1` even |
+
+### Pool standings snapshot — 2026-07-13 (Kicktipp handles)
+
+| Pos | Name | Se | Ac | Vi | B | S | Total |
+|----:|------|---:|---:|---:|--:|----:|------:|
+| 1 | Barcarossa (=P01) | 34 | 13 | 10 | 56 | 1.00 | 232 |
+| 2 | Shrek_Schuss (=P03) | 31 | 12 | 6 | 60 | 0.17 | 225 |
+| **3** | **NoClue** | **35** | **8** | **6** | **56** | **1.83** | **224** |
+| 4 | Duselheld (=P06) | 24 | 13 | 12 | 60 | 0.17 | 224 |
+| 5 | Abschlusspanik (=P04) | 34 | 12 | 9 | 60 | 0.17 | 223 |
+| 6 | Mise26 (=P10) | 29 | 4 | 9 | 60 | — | 212 |
+
+- Ranks 2/4/5/6 all held **England** as 4th semifinalist → B=60 vs our 56. Barcarossa mirrors our 56.
+- We win any points tie via Spieltagssiege (1.83 = best in top 7).
+- **TODO in app: read rivals' champion + top-scorer bonus picks (visible post-lock) — decides ST15 approach.**
+
+---
+
+## Spieltag 14 — Halbfinale (July 14–15)
+
+### ⏳ Entry queue — picks to enter
+
+| ⚡ | Lock (CET) | Kicktipp | **Enter** | Odds | Notes |
+|---|---|---|---|---|---|
+| **⚡** | **14.07 20:59** | **Frankreich – Spanien** | **`1:0`** | FRA 41% / D 30% / ESP 29% | Both conceded once in 6 games; FRA clean sheets in both KO games; Tchouameni back; 1-goal FRA win pays 3 either way |
+| | 15.07 20:59 | England – Argentinien | **`1:1`** | ENG 37% / D 33% / ARG 31% | Even match → Strategy A `1:1`; heavy ET pricing; differentiates vs winner-picking field; Romero/Paredes/Messi all fit |
+
+---
+
+## Spieltag 13 — Viertelfinale (July 9–12)
+
+### ✅ Completed picks + results
+
+| Lock (CET) | Kicktipp | Entered | 90-min Result | Pts |
+|---|---|---|---|---:|
+| 09.07 21:59 | Frankreich – Marokko | `2:1` | 2–0 FRA | **+2** tendency |
+| 10.07 20:59 | Spanien – Belgien | `2:1` | 2–1 ESP | **+4 EXACT** |
+| 11.07 22:59 | Norwegen – England | `1:2` | 1–1 (ENG 1–2 aet) | 0 |
+| 12.07 02:59 | Argentinien – Schweiz | `2:1` | 1–1 (ARG 3–1 aet) | 0 |
+| **ST13 total** | | | | **6 / 16** |
+
+> Lesson: 3 of the last 5 tight knockouts were level after 90. Correct winners,
+> zero points — the even-match `1:1` template must actually be used.
+
+---
+
 ## Pool status — 2026-07-08 (after ST12 complete)
 
 | | |
