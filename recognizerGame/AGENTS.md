@@ -6,8 +6,8 @@ Contributor instructions for work in `recognizerGame/` and its descendants.
 
 Before changing the project, read:
 
-1. `README.md` — authoritative MVP product specification.
-2. `IMPLEMENTATION_PLAN.md` — intended architecture, sequence, verification, and review gates.
+1. `documents/README.md` — authoritative MVP product specification.
+2. `documents/IMPLEMENTATION_PLAN.md` — intended architecture, sequence, verification, and review gates.
 
 If old notes or prompts disagree with the README, follow the README. Do not silently reinterpret product rules. Update the specification in a dedicated documentation commit when an approved decision changes.
 
@@ -97,7 +97,7 @@ If a required check cannot run, report exactly what was skipped and why.
 ## Documentation discipline
 
 - Keep game terminology consistent across code, UI, tests, README, and help content.
-- Update the README when behavior, supported environments, storage schema expectations, or acceptance criteria change.
+- Update `documents/README.md` when behavior, supported environments, storage schema expectations, or acceptance criteria change.
 - Update the implementation plan when a material delivery decision changes; mark completed work in project tracking rather than rewriting history.
 - Record tuning values such as icon scale, rotation, spacing, and transition duration near their implementation and summarize final decisions in the README.
 - Treat visual review and hands-on playtesting as required evidence for readability; automated geometry tests alone are insufficient.

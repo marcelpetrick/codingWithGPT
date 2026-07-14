@@ -4,6 +4,4 @@ node_modules
 playwright-report
 test-results
 AGENTS.md
-IMPLEMENTATION_PLAN.md
-README.md
-REVIEW_AND_WORKFLOW.md
+documents/*.md
