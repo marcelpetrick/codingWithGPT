@@ -1,4 +1,3 @@
-import birdImage from '../assets/symbols/bird.png'
 import type { SymbolId } from './types'
 
 export interface SymbolMetadata {
@@ -7,11 +6,10 @@ export interface SymbolMetadata {
   readonly label: string
   readonly color: string
   readonly glyph: string
-  readonly imageSrc?: string
 }
 
 const symbolDefinitions = [
-  ['bird', 'Bird', '#3989db', '🐦', birdImage],
+  ['bird', 'Bird', '#3989db', '🐦'],
   ['tree', 'Tree', '#3f9a50', '🌳'],
   ['anchor', 'Anchor', '#8a6048', '⚓'],
   ['target', 'Target', '#d64740', '🎯'],
@@ -71,13 +69,12 @@ const symbolDefinitions = [
 ] as const
 
 export const symbolCatalog: readonly SymbolMetadata[] = symbolDefinitions.map(
-  ([name, label, color, glyph, imageSrc], id) => ({
+  ([name, label, color, glyph], id) => ({
     id,
     name,
     label,
     color,
     glyph,
-    ...(imageSrc ? { imageSrc } : {}),
   }),
 )
 
