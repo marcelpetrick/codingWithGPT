@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { SymbolCard } from './components/SymbolCard'
+import { playFeedbackTone } from './feedback'
 import { createChallenge } from './domain/challenge'
 import {
   completedDecisionCount,
@@ -132,6 +133,9 @@ export function App() {
     setRun(selection.run)
 
     if (selection.result === 'incorrect') {
+      if (soundEnabled) {
+        playFeedbackTone('incorrect')
+      }
       setWarning('Not the shared symbol — keep looking!')
       return
     }
@@ -141,6 +145,9 @@ export function App() {
     }
 
     setWarning('')
+    if (soundEnabled) {
+      playFeedbackTone('correct')
+    }
     setSelectedSymbolId(symbolId)
     const activeSessionId = sessionId.current
     transitionTimeoutId.current = window.setTimeout(() => {
