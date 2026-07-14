@@ -3,15 +3,36 @@
 Extract unique presentation slides (and, best-effort, a transcript) from a
 screen-recorded Zoom meeting video.
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for how the pipeline, module
-boundaries, and `localPipeline.sh` fit together, with diagrams.
-
 ## How it works
 
 Zoom draws a thin, saturated green border around whatever screen share is
 currently pinned/viewed. That border is present on every frame where a slide
 is being shared, and absent during talking-head/gallery segments (Q&A,
-discussion, the frozen "meeting ended" frame at the end). The pipeline:
+discussion, the frozen "meeting ended" frame at the end).
+
+```mermaid
+flowchart TD
+    A["ffmpeg: sample 1 frame every --interval seconds"] --> B{"green screen-share<br/>border detected?"}
+    B -- "no" --> D["discard<br/>(talking head / gallery / frozen end frame)"]
+    B -- "yes" --> E["crop: inset border, trim chrome banner,<br/>auto-trim bottom letterbox"]
+    E --> F{"blurry or duplicate<br/>of last saved slide?"}
+    F -- "blurry" --> G["discard: mid-transition frame"]
+    F -- "duplicate" --> H["discard: same slide as before"]
+    F -- "new" --> I["save slide_NNNN.png<br/>+ manifest.json entry"]
+    I --> J{"--transcript?"}
+    J -- "yes" --> K["extract audio -> faster-whisper<br/>-> transcript.txt / transcript.srt"]
+    J -- "no" --> L["done"]
+    K --> L
+
+    style I fill:#2f9e44,color:#fff
+    style D fill:#adb5bd,color:#000
+    style G fill:#adb5bd,color:#000
+    style H fill:#adb5bd,color:#000
+```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the full per-module breakdown,
+the CLI sequence diagram, and why green-box *span* detection (rather than a
+naive bounding box) is needed. The pipeline, in words:
 
 1. Samples the video at a fixed interval (`--interval` seconds) via `ffmpeg`,
    streaming raw frames rather than writing thousands of temp images to disk.
