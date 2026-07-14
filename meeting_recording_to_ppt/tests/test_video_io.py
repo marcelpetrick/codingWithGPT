@@ -37,6 +37,14 @@ def test_probe_missing_file_raises(tmp_path):
         video_io.probe(tmp_path / "does_not_exist.mp4")
 
 
+def test_probe_non_video_file_raises_invalid_video_error(tmp_path):
+    garbage = tmp_path / "garbage.mkv"
+    garbage.write_bytes(b"this is not a real video file, just some bytes")
+
+    with pytest.raises(video_io.InvalidVideoError):
+        video_io.probe(garbage)
+
+
 def test_iter_sampled_frames_yields_expected_count_and_shape(synthetic_clip):
     info = video_io.probe(synthetic_clip)
     frames = list(

@@ -55,6 +55,23 @@ use):
 pip install -r requirements-transcript.txt
 ```
 
+### One-shot setup + verification
+
+`localPipeline.sh` creates/reuses a `.venv`, installs core, dev, and
+transcript dependencies, runs the pytest suite with coverage, and smoke-tests
+the CLI end-to-end against a small synthetically generated clip (so it never
+depends on any private recording being present):
+
+```sh
+./localPipeline.sh
+```
+
+Useful flags: `--no-transcript` (skip the heavy optional dependency),
+`--with-real-video` (also run the full pipeline against a real `.mkv`/`.mp4`
+found in this directory, purely informational), `--report-dir PATH` (keep
+logs, JUnit XML, coverage XML, and the summary instead of discarding them).
+See `./localPipeline.sh --help` for details.
+
 ## Usage
 
 ```sh
@@ -119,9 +136,12 @@ Other knobs:
 ## Tests
 
 ```sh
-pip install pytest
+pip install -r requirements-dev.txt
 pytest
 ```
+
+Or use `./localPipeline.sh`, which does this (plus coverage reporting and a
+CLI smoke test) in a throwaway/reusable `.venv`.
 
 Unit tests for detection and deduplication run on synthetic in-memory
 frames (no video needed). Integration tests (`test_video_io.py`,

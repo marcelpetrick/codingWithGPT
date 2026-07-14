@@ -21,6 +21,10 @@ class FfmpegNotFoundError(RuntimeError):
     """Raised when the ``ffmpeg``/``ffprobe`` binaries are not on PATH."""
 
 
+class InvalidVideoError(RuntimeError):
+    """Raised when ``path`` exists but isn't a video ffprobe can read."""
+
+
 def require_ffmpeg() -> None:
     for binary in ("ffmpeg", "ffprobe"):
         if shutil.which(binary) is None:
@@ -53,10 +57,17 @@ def probe(path: Path | str) -> VideoInfo:
         "-of", "json",
         str(path),
     ]
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    data = json.loads(result.stdout)
-    stream = data["streams"][0]
-    duration = float(data["format"]["duration"])
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise InvalidVideoError(
+            f"ffprobe couldn't read {path} as a video: {result.stderr.strip()}"
+        )
+    try:
+        data = json.loads(result.stdout)
+        stream = data["streams"][0]
+        duration = float(data["format"]["duration"])
+    except (json.JSONDecodeError, KeyError, IndexError, ValueError) as exc:
+        raise InvalidVideoError(f"{path} has no readable video stream") from exc
 
     fps_raw = stream.get("avg_frame_rate", "0/1")
     num, _, den = fps_raw.partition("/")

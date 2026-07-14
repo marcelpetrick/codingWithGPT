@@ -113,9 +113,32 @@ def parse_args(argv: list[str] | None = None) -> Config:
     )
 
 
+def _clear_previous_outputs(output: Path) -> None:
+    """Remove this tool's own artifacts from a prior run.
+
+    A prior run may have used different parameters (e.g. a coarser
+    --interval) and produced more slides than this run will. Without this,
+    a later, shorter run would leave stale slide_*.png files on disk that
+    no longer correspond to any entry in the fresh manifest.json. Only
+    files/directories this tool itself creates are touched.
+    """
+    for stale in output.glob("slide_*.png"):
+        stale.unlink()
+    for name in ("manifest.json", "transcript.txt", "transcript.srt"):
+        stale_file = output / name
+        if stale_file.exists():
+            stale_file.unlink()
+    debug_dir = output / "debug"
+    if debug_dir.is_dir():
+        for stale in debug_dir.glob("raw_t*.png"):
+            stale.unlink()
+
+
 def _prepare_output_dir(output: Path, overwrite: bool) -> None:
     if output.exists() and not overwrite:
         raise FileExistsError(f"{output} already exists. Pass --overwrite to reuse it.")
+    if output.exists():
+        _clear_previous_outputs(output)
     output.mkdir(parents=True, exist_ok=True)
 
 
@@ -206,7 +229,7 @@ def main(argv: list[str] | None = None) -> int:
     config = parse_args(argv)
     try:
         return run(config)
-    except FileExistsError as exc:
+    except (FileExistsError, video_io.InvalidVideoError, video_io.FfmpegNotFoundError) as exc:
         logger.error(str(exc))
         return 1
 

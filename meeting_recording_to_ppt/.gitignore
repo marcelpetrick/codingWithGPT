@@ -1,8 +1,11 @@
 slides_output/
+.venv/
 __pycache__/
 *.pyc
 *.egg-info/
 .pytest_cache/
+.coverage
+htmlcov/
 *.mkv
 *.mp4
 *.wav
