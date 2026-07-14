@@ -59,7 +59,7 @@ Add or retain exhaustive tests for the deck invariants. Never hand-edit card mem
 
 ## Development workflow
 
-- Follow the atomic sequence in `IMPLEMENTATION_PLAN.md` unless there is a concrete reason to reorder it.
+- Follow the atomic sequence in `documents/IMPLEMENTATION_PLAN.md` unless there is a concrete reason to reorder it.
 - Keep each commit focused on one coherent behavior and include its tests in the same commit.
 - Use Conventional Commit-style messages with the `recognizer` scope where practical, for example `feat(recognizer): add wall-clock timer`.
 - Do not mix broad formatting, refactoring, generated assets, and feature behavior in a single commit.
