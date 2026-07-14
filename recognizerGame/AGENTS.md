@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Instructions for coding agents working in `recognizerGame/` and its descendants.
+Contributor instructions for work in `recognizerGame/` and its descendants.
 
 ## Read first
 
@@ -40,7 +40,7 @@ Add or retain exhaustive tests for the deck invariants. Never hand-edit card mem
 
 ## Visual assets
 
-- Use the available image-generation tool to create new canonical symbol artwork; do not substitute third-party clip art.
+- Create canonical symbol artwork specifically for this project; do not substitute third-party clip art.
 - Generate and obtain approval for a representative batch before producing all 57 icons.
 - Follow the README art direction: thick black outline, bold recognizable silhouette, one dominant fill color, minimal detail, transparent clean background, and consistent padding.
 - Store canonical runtime assets and useful generation prompts/metadata in the repository.

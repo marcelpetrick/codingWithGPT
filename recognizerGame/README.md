@@ -110,7 +110,7 @@ The library contains 57 immediately recognizable objects. The initial subjects a
 
 The list may change during the first visual iteration if testing reveals ambiguity, but IDs used by the card definitions must remain stable once results or released decks depend on them.
 
-Each icon will be generated with the project's image-generation tool, reviewed by a human, and stored in the repository as a reusable asset. A symbol has one canonical appearance everywhere in the game. Source prompts and generation metadata should also be versioned where available so replacements are intentional and reproducible.
+Each icon will be created specifically for the project, reviewed for visual quality, and stored in the repository as a reusable asset. A symbol has one canonical appearance everywhere in the game. Source artwork and production notes should also be versioned where available so replacements are intentional and reproducible.
 
 The visual style is playful 1990s clip art:
 

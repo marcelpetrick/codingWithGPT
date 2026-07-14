@@ -88,7 +88,7 @@ No backend is required for the MVP. Game rules and state transitions should live
 
 **Commit:** `assets(recognizer): add generated clip-art symbol library`
 
-- Use the image-generation tool to create all 57 repository-owned icons with a consistent thick-outline, single-dominant-color style.
+- Produce all 57 repository-owned icons with a consistent thick-outline, single-dominant-color style.
 - Normalize canvas dimensions, transparency, padding, and file format without altering the artwork's identity.
 - Review at actual minimum and maximum rendered sizes.
 - Replace subjects that are confusing when rotated or visually too similar.
