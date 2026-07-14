@@ -64,4 +64,38 @@ describe('App', () => {
     expect(screen.getByLabelText('Final time')).toBeInTheDocument()
     vi.useRealTimers()
   })
+
+  it('cancels a pending card transition when the player leaves', () => {
+    vi.useFakeTimers()
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    render(<App />)
+    fireEvent.click(
+      screen.getByRole('button', { name: /start timed challenge/i }),
+    )
+
+    const currentButtons = Array.from(
+      screen
+        .getByLabelText('Your current card')
+        .querySelectorAll<HTMLButtonElement>('button'),
+    )
+    const nextLabels = new Set(
+      Array.from(
+        screen
+          .getByLabelText('Next card')
+          .querySelectorAll<HTMLButtonElement>('button'),
+      ).map((button) => button.getAttribute('aria-label')),
+    )
+    const matchingButton = currentButtons.find((button) =>
+      nextLabels.has(button.getAttribute('aria-label')),
+    )
+
+    fireEvent.click(matchingButton!)
+    fireEvent.click(screen.getByRole('button', { name: /leave game/i }))
+    act(() => vi.advanceTimersByTime(240))
+
+    expect(
+      screen.getByRole('heading', { name: 'Recognizer' }),
+    ).toBeInTheDocument()
+    vi.useRealTimers()
+  })
 })

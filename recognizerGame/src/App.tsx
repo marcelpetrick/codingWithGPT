@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { SymbolCard } from './components/SymbolCard'
 import { createChallenge } from './domain/challenge'
 import {
@@ -41,6 +41,8 @@ export function App() {
   const [now, setNow] = useState(0)
   const [selectedSymbolId, setSelectedSymbolId] = useState<SymbolId>()
   const [warning, setWarning] = useState('')
+  const sessionId = useRef(0)
+  const transitionTimeoutId = useRef<number | null>(null)
 
   const elapsed = timer ? elapsedMilliseconds(timer, now) : 0
   const decisionCount = matchingDecisionCount(challengeSize)
@@ -54,12 +56,26 @@ export function App() {
     return () => window.clearInterval(intervalId)
   }, [run?.phase, timer, view])
 
+  useEffect(
+    () => () => {
+      if (transitionTimeoutId.current !== null) {
+        window.clearTimeout(transitionTimeoutId.current)
+      }
+    },
+    [],
+  )
+
   const sharedSymbol = useMemo(
     () => (run && run.phase !== 'completed' ? currentMatch(run) : undefined),
     [run],
   )
 
   function startGame() {
+    sessionId.current += 1
+    if (transitionTimeoutId.current !== null) {
+      window.clearTimeout(transitionTimeoutId.current)
+      transitionTimeoutId.current = null
+    }
     const newRun = createGameRun(
       createChallenge(challengeSize),
       Math.floor(Math.random() * 2_147_483_647),
@@ -92,7 +108,12 @@ export function App() {
 
     setWarning('')
     setSelectedSymbolId(symbolId)
-    window.setTimeout(() => {
+    const activeSessionId = sessionId.current
+    transitionTimeoutId.current = window.setTimeout(() => {
+      if (activeSessionId !== sessionId.current) {
+        return
+      }
+
       const nextRun = finishTransition(selection.run)
       setRun(nextRun)
       setSelectedSymbolId(undefined)
@@ -103,6 +124,7 @@ export function App() {
         setNow(finishedTimer.finishedAt ?? Date.now())
         setView('results')
       }
+      transitionTimeoutId.current = null
     }, 240)
   }
 
@@ -193,6 +215,11 @@ export function App() {
                   'Leave this challenge? Your current run will not be saved.',
                 )
               ) {
+                sessionId.current += 1
+                if (transitionTimeoutId.current !== null) {
+                  window.clearTimeout(transitionTimeoutId.current)
+                  transitionTimeoutId.current = null
+                }
                 setView('menu')
                 setRun(null)
                 setTimer(null)
