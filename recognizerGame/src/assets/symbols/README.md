@@ -2,4 +2,4 @@
 
 This folder contains the canonical runtime artwork for Recognizer symbols.
 
-Artwork uses a bold clip-art treatment: thick black outline, one dominant color, no text, and generous transparent padding. Each symbol keeps the same source artwork wherever it appears. The initial prototype includes the bird illustration; the catalog provides distinctive temporary glyphs for the remaining symbols until their reviewed artwork is added.
+Artwork uses a bold clip-art treatment: thick black outline, one dominant color, no text, and generous transparent padding. Each symbol keeps the same source artwork wherever it appears. During the prototype, symbols render through a fixed vector mapping so every device receives the same silhouette and catalog color. The bird illustration remains available for later art-direction comparison.

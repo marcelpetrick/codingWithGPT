@@ -256,6 +256,13 @@ h1 {
   height: 130%;
   object-fit: contain;
 }
+.symbol-mark {
+  width: 135%;
+  height: 135%;
+  overflow: visible;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .results-panel {
   text-align: center;
 }

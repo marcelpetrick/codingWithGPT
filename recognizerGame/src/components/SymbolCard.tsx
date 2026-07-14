@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { SymbolMark } from './SymbolMark'
 import { createCardLayout } from '../domain/layout'
 import { getSymbolMetadata } from '../domain/symbols'
 import type { Card, SymbolId } from '../domain/types'
@@ -48,11 +49,7 @@ export function SymbolCard({
               disabled={disabled}
               onClick={() => onSelect(placement.symbolId)}
             >
-              {symbol.imageSrc ? (
-                <img src={symbol.imageSrc} alt="" />
-              ) : (
-                <span aria-hidden="true">{symbol.glyph}</span>
-              )}
+              <SymbolMark symbol={symbol} />
             </button>
           )
         })}
