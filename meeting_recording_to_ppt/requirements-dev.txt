@@ -1,3 +1,0 @@
-# Dev/test-only dependencies, used by localPipeline.sh and CI, not by the tool itself.
-pytest>=8
-pytest-cov>=5
