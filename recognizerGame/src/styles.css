@@ -10,50 +10,282 @@
 * {
   box-sizing: border-box;
 }
-
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
 }
-
 button,
 input {
   font: inherit;
 }
-
-.app-shell {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 1.5rem;
+button {
+  cursor: pointer;
+}
+button:focus-visible,
+input:focus-visible {
+  outline: 4px solid #2b84bd;
+  outline-offset: 3px;
 }
 
-.welcome-card {
-  width: min(100%, 36rem);
-  padding: clamp(2rem, 8vw, 4rem);
+.app-shell,
+.game-shell {
+  min-height: 100vh;
+  padding: clamp(1rem, 4vw, 2.5rem);
+}
+.app-shell {
+  display: grid;
+  place-items: center;
+}
+.panel {
+  width: min(100%, 42rem);
   border: 4px solid #172033;
   border-radius: 2rem;
   background: #fffdf5;
   box-shadow: 10px 10px 0 #f6c64f;
-  text-align: center;
+  padding: clamp(1.75rem, 6vw, 3.5rem);
 }
-
-.welcome-card h1 {
-  margin: 0.25rem 0 0.75rem;
-  font-size: clamp(3rem, 12vw, 5rem);
-  line-height: 0.95;
-}
-
-.welcome-card p {
-  margin-bottom: 0;
-  font-size: 1.125rem;
-}
-
-.welcome-card .eyebrow {
+.eyebrow {
   margin: 0;
   color: #a43a2c;
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+h1 {
+  margin: 0.25rem 0 0.75rem;
+  font-size: clamp(2.8rem, 10vw, 4.75rem);
+  line-height: 0.95;
+}
+.intro {
+  margin: 0 0 2rem;
+  font-size: 1.2rem;
+}
+.field-label,
+.challenge-picker legend {
+  display: block;
+  margin-bottom: 0.55rem;
+  font-weight: 800;
+}
+.field-label span {
+  color: #5d6675;
+  font-weight: 500;
+}
+.name-input {
+  width: 100%;
+  border: 3px solid #172033;
+  border-radius: 0.8rem;
+  background: #fff;
+  padding: 0.8rem 1rem;
+}
+.challenge-picker {
+  margin: 1.6rem 0;
+  padding: 0;
+  border: 0;
+}
+.tier-buttons,
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+.tier-button {
+  flex: 1;
+  min-width: 5rem;
+  border: 3px solid #172033;
+  border-radius: 1rem;
+  background: #fff;
+  padding: 0.75rem;
+  color: #172033;
+}
+.tier-button strong,
+.tier-button span {
+  display: block;
+}
+.tier-button strong {
+  font-size: 1.55rem;
+}
+.tier-button span {
+  font-size: 0.8rem;
+}
+.tier-button.is-active {
+  background: #f6c64f;
+  box-shadow: 3px 3px 0 #172033;
+  transform: translate(-2px, -2px);
+}
+.button {
+  border: 3px solid #172033;
+  border-radius: 0.85rem;
+  background: #f6c64f;
+  color: #172033;
+  font-weight: 900;
+  padding: 0.85rem 1.2rem;
+  box-shadow: 4px 4px 0 #172033;
+}
+.button:active {
+  box-shadow: 1px 1px 0 #172033;
+  transform: translate(3px, 3px);
+}
+.start-button {
+  width: 100%;
+}
+.button-secondary {
+  background: #fff;
+}
+.text-button {
+  border: 0;
+  background: transparent;
+  color: #264b82;
+  font-weight: 800;
+  text-decoration: underline;
+}
+.menu-help {
+  display: block;
+  margin: 1.4rem auto 0;
+}
+.help-panel {
+  font-size: 1.1rem;
+}
+.help-panel li {
+  margin: 0.6rem 0;
+}
+
+.game-shell {
+  max-width: 92rem;
+  margin: 0 auto;
+}
+.game-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+}
+.game-header .text-button {
+  justify-self: end;
+}
+.progress-text {
+  margin: 0.25rem 0 0;
+  font-weight: 800;
+}
+.timer {
+  border: 3px solid #172033;
+  border-radius: 0.8rem;
+  background: #fffdf5;
+  padding: 0.55rem 0.9rem;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+.game-instruction,
+.warning {
+  text-align: center;
+}
+.game-instruction {
+  margin: 1.5rem 0 0.25rem;
+  font-weight: 800;
+}
+.warning {
+  min-height: 1.5rem;
+  margin: 0.25rem 0 1rem;
+  color: #b32e37;
+  font-weight: 800;
+}
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 4vw, 3rem);
+  align-items: start;
+}
+.symbol-card-wrap {
+  min-width: 0;
+}
+.card-label {
+  margin: 0 0 0.5rem;
+  text-align: center;
+  font-weight: 900;
+}
+.symbol-card {
+  position: relative;
+  aspect-ratio: 1;
+  width: min(100%, 36rem);
+  margin: 0 auto;
+  overflow: hidden;
+  border: 5px solid #172033;
+  border-radius: 50%;
+  background: #fffdf5;
+  box-shadow: 7px 8px 0 #d5bd78;
+}
+.symbol-button {
+  position: absolute;
+  left: var(--symbol-x);
+  top: var(--symbol-y);
+  width: var(--symbol-size);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--symbol-color);
+  font-size: clamp(1.65rem, 5vw, 3.6rem);
+  line-height: 1;
+  transform: translate(-50%, -50%) rotate(var(--symbol-rotation));
+  transition:
+    transform 150ms ease,
+    filter 150ms ease;
+}
+.symbol-button:hover:not(:disabled) {
+  filter: drop-shadow(2px 2px 0 #f6c64f);
+}
+.symbol-button.is-selected {
+  filter: drop-shadow(0 0 6px #44ae62) drop-shadow(2px 2px 0 #172033);
+  transform: translate(-50%, -50%) rotate(var(--symbol-rotation)) scale(1.16);
+}
+.symbol-button:disabled {
+  cursor: default;
+}
+.symbol-button img {
+  width: 130%;
+  height: 130%;
+  object-fit: contain;
+}
+.results-panel {
+  text-align: center;
+}
+.result-time {
+  margin: 1rem 0;
+  font-size: clamp(3rem, 14vw, 6rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  line-height: 1;
+}
+
+@media (max-width: 650px) {
+  .game-header {
+    grid-template-columns: 1fr auto;
+  }
+  .game-header .text-button {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+  .cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .symbol-card {
+    width: min(100%, 31rem);
+  }
+  .symbol-button {
+    font-size: clamp(1.5rem, 11vw, 3rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
