@@ -280,6 +280,13 @@ def main(argv: list[str] | None = None) -> int:
     ) as exc:
         logger.error(str(exc))
         return 1
+    except Exception:
+        # A safety net for anything unanticipated (disk full while saving a
+        # PNG, a permissions error, a library bug): still exit 1 cleanly
+        # for the caller/shell script instead of dumping a raw traceback,
+        # while keeping the full traceback in the log for debugging.
+        logger.exception("Unexpected error while extracting slides.")
+        return 1
 
 
 if __name__ == "__main__":

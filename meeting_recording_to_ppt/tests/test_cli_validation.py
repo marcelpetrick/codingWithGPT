@@ -1,6 +1,7 @@
 import pytest
 
-from slide_extractor.cli import parse_args
+from slide_extractor import cli
+from slide_extractor.cli import main, parse_args
 
 # Argument parsing/validation is pure argparse logic and needs neither
 # ffmpeg nor a real video file, unlike the rest of tests/test_cli.py.
@@ -49,3 +50,19 @@ def test_accepts_boundary_values(args):
 def test_bottom_trim_px_defaults_to_none_for_auto_detection():
     config = parse_args(["video.mkv"])
     assert config.bottom_trim_px is None
+
+
+def test_unexpected_error_returns_1_instead_of_raising(tmp_path, monkeypatch, caplog):
+    video = tmp_path / "video.mkv"
+    video.write_bytes(b"placeholder")
+
+    def _boom(*_args, **_kwargs):
+        raise RuntimeError("disk exploded")
+
+    monkeypatch.setattr(cli.video_io, "probe", _boom)
+
+    with caplog.at_level("ERROR", logger="slide_extractor"):
+        exit_code = main([str(video), "-o", str(tmp_path / "out")])
+
+    assert exit_code == 1
+    assert any("Unexpected error" in record.getMessage() for record in caplog.records)
