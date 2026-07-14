@@ -226,7 +226,7 @@ h1 {
   position: absolute;
   left: var(--symbol-x);
   top: var(--symbol-y);
-  width: var(--symbol-size);
+  width: var(--symbol-hit-size);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -257,11 +257,12 @@ h1 {
   object-fit: contain;
 }
 .symbol-mark {
-  width: 135%;
-  height: 135%;
+  width: 100%;
+  height: 100%;
   overflow: visible;
   stroke-linecap: round;
   stroke-linejoin: round;
+  transform: scale(var(--symbol-visual-scale));
 }
 .results-panel {
   text-align: center;

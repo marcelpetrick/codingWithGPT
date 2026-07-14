@@ -6,6 +6,7 @@ export interface SymbolPlacement {
   readonly x: number
   readonly y: number
   readonly size: number
+  readonly hitSize: number
   readonly rotation: number
 }
 
@@ -24,6 +25,7 @@ export const layoutLimits = {
   minSize: 16,
   maxSize: 19,
   maxRotation: 18,
+  hitSize: 20,
   safeEdge: 2,
 } as const
 
@@ -45,6 +47,7 @@ export function createCardLayout(card: Card, seed: number): SymbolPlacement[] {
       size:
         layoutLimits.minSize +
         random() * (layoutLimits.maxSize - layoutLimits.minSize),
+      hitSize: layoutLimits.hitSize,
       rotation: (random() - 0.5) * 2 * layoutLimits.maxRotation,
     }
   })

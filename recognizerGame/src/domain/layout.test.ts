@@ -31,6 +31,7 @@ describe('card layout', () => {
           const halfSize = placement.size / 2
           expect(placement.size).toBeGreaterThanOrEqual(layoutLimits.minSize)
           expect(placement.size).toBeLessThanOrEqual(layoutLimits.maxSize)
+          expect(placement.hitSize).toBe(layoutLimits.hitSize)
           expect(Math.abs(placement.rotation)).toBeLessThanOrEqual(
             layoutLimits.maxRotation,
           )
@@ -51,6 +52,12 @@ describe('card layout', () => {
         placements.forEach((placement, index) => {
           placements.slice(index + 1).forEach((other) => {
             expect(overlaps(placement, other)).toBe(false)
+            expect(
+              overlaps(
+                { ...placement, size: placement.hitSize },
+                { ...other, size: other.hitSize },
+              ),
+            ).toBe(false)
           })
         })
       }

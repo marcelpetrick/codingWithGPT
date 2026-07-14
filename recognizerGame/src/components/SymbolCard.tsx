@@ -40,7 +40,8 @@ export function SymbolCard({
                 {
                   '--symbol-x': `${placement.x}%`,
                   '--symbol-y': `${placement.y}%`,
-                  '--symbol-size': `${placement.size}%`,
+                  '--symbol-hit-size': `${placement.hitSize}%`,
+                  '--symbol-visual-scale': placement.size / placement.hitSize,
                   '--symbol-rotation': `${placement.rotation}deg`,
                   '--symbol-color': symbol.color,
                 } as CSSProperties
