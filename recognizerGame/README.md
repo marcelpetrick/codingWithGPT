@@ -252,6 +252,30 @@ Recommended supporting tools:
 
 The domain logic should remain independent from React: deck construction, run state, time calculation, ranking insertion, persistence migration, and seeded card layout should be testable as pure TypeScript modules. This separation also leaves room for future multiplayer clients without putting networking concerns into the MVP.
 
+## Running and verifying the game
+
+Install the locked dependencies and run the browser development server:
+
+```bash
+npm ci
+npm run dev
+```
+
+The full local verification sequence is:
+
+```bash
+npm run format:check
+npm run lint
+npm run typecheck
+npm test
+npm run build
+npm run test:e2e
+```
+
+The production build includes a web app manifest and service worker. Once the app has loaded successfully, the browser can offer installation and serves the cached application shell and game assets while offline. Local rankings are browser storage, not part of the service-worker cache.
+
+The rendered symbol system uses a fixed, catalog-complete vector mapping: every symbol has a stable silhouette, one defined primary color, and a dark outline. The catalog and its rendering coverage are automatically tested. See [REVIEW_AND_WORKFLOW.md](./REVIEW_AND_WORKFLOW.md) for the architecture review, corrective priorities, and Mermaid workflows.
+
 ## MVP scope
 
 The MVP includes:
