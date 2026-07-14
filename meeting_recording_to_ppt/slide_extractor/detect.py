@@ -23,6 +23,13 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+# Single source of truth for these tuning knobs -- the CLI's argparse
+# defaults (slide_extractor/cli.py) import and reuse them rather than
+# repeating the literal values, so the two can't silently drift apart.
+DEFAULT_MIN_BOX_FRAC = 0.5
+DEFAULT_TOP_TRIM_PX = 42
+DEFAULT_BORDER_INSET_PX = 3
+
 # Below this, in either dimension, a crop is almost certainly not usable
 # slide content -- most likely --top-trim-px/--bottom-trim-px/
 # --border-inset-px are misconfigured for this recording (see README
@@ -55,7 +62,7 @@ def green_mask(frame: np.ndarray) -> np.ndarray:
     return (g > 100) & (g > r * 1.3) & (g > b * 1.3)
 
 
-def find_screen_share_box(mask: np.ndarray, min_frac: float = 0.5) -> BBox | None:
+def find_screen_share_box(mask: np.ndarray, min_frac: float = DEFAULT_MIN_BOX_FRAC) -> BBox | None:
     """Find the large screen-share rectangle in a green pixel mask.
 
     Returns ``None`` if no row/column has a green span covering at least
@@ -93,7 +100,7 @@ def find_screen_share_box(mask: np.ndarray, min_frac: float = 0.5) -> BBox | Non
 
 
 def measure_bottom_letterbox(
-    frame: np.ndarray, bbox: BBox, border_inset_px: int = 3,
+    frame: np.ndarray, bbox: BBox, border_inset_px: int = DEFAULT_BORDER_INSET_PX,
     max_px: int = 150, black_threshold: int = 12,
 ) -> int:
     """Measure the height of a solid-black letterbox bar at the bottom of ``bbox``.
@@ -122,9 +129,9 @@ def measure_bottom_letterbox(
 def crop_slide(
     frame: np.ndarray,
     bbox: BBox,
-    top_trim_px: int = 42,
+    top_trim_px: int = DEFAULT_TOP_TRIM_PX,
     bottom_trim_px: int | None = None,
-    border_inset_px: int = 3,
+    border_inset_px: int = DEFAULT_BORDER_INSET_PX,
 ) -> np.ndarray:
     """Crop ``frame`` to the slide content inside ``bbox``.
 

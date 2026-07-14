@@ -37,6 +37,13 @@ class SlideDecision(Enum):
     BLURRY = "blurry"
     DUPLICATE = "duplicate"
 
+
+# Single source of truth for these two tuning knobs -- the CLI's argparse
+# defaults (slide_extractor/cli.py) import and reuse them rather than
+# repeating the literal values, so the two can't silently drift apart.
+DEFAULT_SSIM_THRESHOLD = 0.90
+DEFAULT_MIN_SHARPNESS = 0.0005
+
 # Fixed target shape (not aspect-ratio-preserving): the detected screen-share
 # box can jitter by a pixel or two between frames (antialiasing at the green
 # border edge), which would otherwise make consecutive crops incomparable in
@@ -62,7 +69,11 @@ def sharpness_score(image: np.ndarray) -> float:
 class SlideChangeDetector:
     """Stateful gate that flags a crop as a new slide at most once per change."""
 
-    def __init__(self, ssim_threshold: float = 0.90, min_sharpness: float = 0.0005):
+    def __init__(
+        self,
+        ssim_threshold: float = DEFAULT_SSIM_THRESHOLD,
+        min_sharpness: float = DEFAULT_MIN_SHARPNESS,
+    ):
         self.ssim_threshold = ssim_threshold
         self.min_sharpness = min_sharpness
         self._last: np.ndarray | None = None

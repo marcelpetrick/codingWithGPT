@@ -12,7 +12,8 @@ from pathlib import Path
 from PIL import Image
 
 from . import detect, transcript, video_io
-from .dedup import SlideChangeDetector, SlideDecision
+from .dedup import DEFAULT_MIN_SHARPNESS, DEFAULT_SSIM_THRESHOLD, SlideChangeDetector, SlideDecision
+from .detect import DEFAULT_BORDER_INSET_PX, DEFAULT_MIN_BOX_FRAC, DEFAULT_TOP_TRIM_PX
 
 logger = logging.getLogger("slide_extractor")
 
@@ -85,14 +86,14 @@ def parse_args(argv: list[str] | None = None) -> Config:
         help="Seconds between sampled frames (default: 1.0)",
     )
     parser.add_argument(
-        "--min-box-frac", type=_fraction_float, default=0.5,
+        "--min-box-frac", type=_fraction_float, default=DEFAULT_MIN_BOX_FRAC,
         help="Minimum fraction of frame width/height a green row/col span must "
-             "cover to count as the real screen-share box (default: 0.5)",
+             f"cover to count as the real screen-share box (default: {DEFAULT_MIN_BOX_FRAC})",
     )
     parser.add_argument(
-        "--top-trim-px", type=_non_negative_int, default=42,
+        "--top-trim-px", type=_non_negative_int, default=DEFAULT_TOP_TRIM_PX,
         help="Pixels to trim off the top of the detected box to remove browser "
-             "chrome/banner; recording-specific, tune with --debug (default: 42)",
+             f"chrome/banner; recording-specific, tune with --debug (default: {DEFAULT_TOP_TRIM_PX})",
     )
     parser.add_argument(
         "--bottom-trim-px", type=_non_negative_int, default=None,
@@ -103,18 +104,18 @@ def parse_args(argv: list[str] | None = None) -> Config:
              "fixed value to override auto-detection.",
     )
     parser.add_argument(
-        "--border-inset-px", type=_non_negative_int, default=3,
-        help="Pixels to inset from the detected green border (default: 3)",
+        "--border-inset-px", type=_non_negative_int, default=DEFAULT_BORDER_INSET_PX,
+        help=f"Pixels to inset from the detected green border (default: {DEFAULT_BORDER_INSET_PX})",
     )
     parser.add_argument(
-        "--ssim-threshold", type=_unit_interval_float, default=0.90,
+        "--ssim-threshold", type=_unit_interval_float, default=DEFAULT_SSIM_THRESHOLD,
         help="Below this SSIM vs the last accepted slide, a candidate counts as "
-             "a new slide (default: 0.90)",
+             f"a new slide (default: {DEFAULT_SSIM_THRESHOLD})",
     )
     parser.add_argument(
-        "--min-sharpness", type=_non_negative_float, default=0.0005,
+        "--min-sharpness", type=_non_negative_float, default=DEFAULT_MIN_SHARPNESS,
         help="Minimum Laplacian-variance sharpness for a candidate to be "
-             "considered (rejects blurry mid-transition frames) (default: 0.0005)",
+             f"considered (rejects blurry mid-transition frames) (default: {DEFAULT_MIN_SHARPNESS})",
     )
     parser.add_argument(
         "--debug", action="store_true",
