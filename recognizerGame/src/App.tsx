@@ -16,16 +16,21 @@ import {
   startTimer,
   type RunTimer,
 } from './domain/timer'
+import { insertResult, isPersonalBest } from './domain/rankings'
+import {
+  clearGameData,
+  defaultGameData,
+  loadGameData,
+  saveGameData,
+  type StoredGameData,
+} from './domain/storage'
 import {
   challengeSizes,
   matchingDecisionCount,
-  type ChallengeSize,
   type SymbolId,
 } from './domain/types'
 
-type View = 'menu' | 'help' | 'game' | 'results'
-
-const defaultChallengeSize: ChallengeSize = 10
+type View = 'menu' | 'help' | 'game' | 'results' | 'rankings' | 'settings'
 
 function displayName(name: string): string {
   return name.trim() || 'Player'
@@ -33,9 +38,9 @@ function displayName(name: string): string {
 
 export function App() {
   const [view, setView] = useState<View>('menu')
-  const [playerName, setPlayerName] = useState('')
-  const [challengeSize, setChallengeSize] =
-    useState<ChallengeSize>(defaultChallengeSize)
+  const [gameData, setGameData] = useState<StoredGameData>(() =>
+    loadGameData(window.localStorage),
+  )
   const [run, setRun] = useState<GameRun | null>(null)
   const [timer, setTimer] = useState<RunTimer | null>(null)
   const [now, setNow] = useState(0)
@@ -43,9 +48,30 @@ export function App() {
   const [warning, setWarning] = useState('')
   const sessionId = useRef(0)
   const transitionTimeoutId = useRef<number | null>(null)
+  const skipNextSave = useRef(false)
+  const [resultSummary, setResultSummary] = useState<{
+    rank?: number
+    personalBest: boolean
+    retained: boolean
+  }>()
+
+  const { playerName, challengeSize, soundEnabled, reducedMotion } =
+    gameData.preferences
 
   const elapsed = timer ? elapsedMilliseconds(timer, now) : 0
   const decisionCount = matchingDecisionCount(challengeSize)
+
+  useEffect(() => {
+    if (skipNextSave.current) {
+      skipNextSave.current = false
+      return
+    }
+    saveGameData(window.localStorage, gameData)
+  }, [gameData])
+
+  useEffect(() => {
+    document.documentElement.dataset.motion = reducedMotion ? 'reduced' : 'full'
+  }, [reducedMotion])
 
   useEffect(() => {
     if (view !== 'game' || !timer || run?.phase === 'completed') {
@@ -86,7 +112,15 @@ export function App() {
     setNow(startedAt)
     setSelectedSymbolId(undefined)
     setWarning('')
+    setResultSummary(undefined)
     setView('game')
+  }
+
+  function updatePreferences(changes: Partial<StoredGameData['preferences']>) {
+    setGameData((data) => ({
+      ...data,
+      preferences: { ...data.preferences, ...changes },
+    }))
   }
 
   function handleSelection(symbolId: SymbolId) {
@@ -120,6 +154,32 @@ export function App() {
 
       if (nextRun.phase === 'completed') {
         const finishedTimer = finishTimer(timer, Date.now())
+        const result = {
+          id: `${finishedTimer.finishedAt ?? Date.now()}-${Math.random()}`,
+          playerName: displayName(playerName),
+          challengeSize,
+          elapsedMs: elapsedMilliseconds(
+            finishedTimer,
+            finishedTimer.finishedAt ?? Date.now(),
+          ),
+          completedAt: finishedTimer.finishedAt ?? Date.now(),
+        }
+        const personalBest = isPersonalBest(gameData.rankings, result)
+        const inserted = insertResult(
+          gameData.rankings,
+          result,
+          gameData.nextInsertionOrder,
+        )
+        setGameData({
+          ...gameData,
+          rankings: inserted.rankings,
+          nextInsertionOrder: gameData.nextInsertionOrder + 1,
+        })
+        setResultSummary({
+          rank: inserted.rank,
+          personalBest,
+          retained: inserted.retained,
+        })
         setTimer(finishedTimer)
         setNow(finishedTimer.finishedAt ?? Date.now())
         setView('results')
@@ -175,6 +235,14 @@ export function App() {
             {challengeSize} cards · {run.incorrectSelections} wrong pick
             {run.incorrectSelections === 1 ? '' : 's'}
           </p>
+          {resultSummary?.personalBest && (
+            <p className="achievement">New personal best!</p>
+          )}
+          {resultSummary?.retained && resultSummary.rank && (
+            <p className="achievement">
+              Rank #{resultSummary.rank} in this tier
+            </p>
+          )}
           <div className="button-row">
             <button className="button" type="button" onClick={startGame}>
               Play again
@@ -186,7 +254,98 @@ export function App() {
             >
               Main menu
             </button>
+            <button
+              className="text-button"
+              type="button"
+              onClick={() => setView('rankings')}
+            >
+              View rankings
+            </button>
           </div>
+        </section>
+      </main>
+    )
+  }
+
+  if (view === 'rankings') {
+    const entries = gameData.rankings[challengeSize]
+    return (
+      <main className="app-shell">
+        <section className="panel rankings-panel">
+          <p className="eyebrow">Local rankings</p>
+          <h1>{challengeSize}-card best times</h1>
+          <ol className="ranking-list">
+            {Array.from({ length: 10 }, (_, index) => {
+              const entry = entries[index]
+              return (
+                <li key={entry?.id ?? `empty-${index}`}>
+                  <span>{index + 1}</span>
+                  <strong>{entry?.playerName ?? '—'}</strong>
+                  <time>
+                    {entry ? formatDuration(entry.elapsedMs, true) : '—'}
+                  </time>
+                </li>
+              )
+            })}
+          </ol>
+          <button
+            className="button"
+            type="button"
+            onClick={() => setView('menu')}
+          >
+            Back to menu
+          </button>
+        </section>
+      </main>
+    )
+  }
+
+  if (view === 'settings') {
+    return (
+      <main className="app-shell">
+        <section className="panel settings-panel">
+          <p className="eyebrow">Settings</p>
+          <h1>Play your way</h1>
+          <label className="setting-toggle">
+            <input
+              type="checkbox"
+              checked={soundEnabled}
+              onChange={(event) =>
+                updatePreferences({ soundEnabled: event.target.checked })
+              }
+            />
+            Enable feedback sounds
+          </label>
+          <label className="setting-toggle">
+            <input
+              type="checkbox"
+              checked={reducedMotion}
+              onChange={(event) =>
+                updatePreferences({ reducedMotion: event.target.checked })
+              }
+            />
+            Reduce animations
+          </label>
+          <button
+            className="button button-danger"
+            type="button"
+            onClick={() => {
+              if (window.confirm('Clear all local rankings and preferences?')) {
+                clearGameData(window.localStorage)
+                skipNextSave.current = true
+                setGameData(defaultGameData())
+              }
+            }}
+          >
+            Clear local game data
+          </button>
+          <button
+            className="text-button menu-help"
+            type="button"
+            onClick={() => setView('menu')}
+          >
+            Back to menu
+          </button>
         </section>
       </main>
     )
@@ -275,7 +434,9 @@ export function App() {
           maxLength={24}
           autoComplete="nickname"
           placeholder="Player"
-          onChange={(event) => setPlayerName(event.target.value)}
+          onChange={(event) =>
+            updatePreferences({ playerName: event.target.value })
+          }
         />
         <fieldset className="challenge-picker">
           <legend>Choose your challenge</legend>
@@ -287,7 +448,7 @@ export function App() {
                 type="button"
                 aria-label={`${size} cards`}
                 aria-pressed={challengeSize === size}
-                onClick={() => setChallengeSize(size)}
+                onClick={() => updatePreferences({ challengeSize: size })}
               >
                 <strong>{size}</strong>
                 <span>cards</span>
@@ -309,6 +470,22 @@ export function App() {
         >
           How to play
         </button>
+        <div className="menu-links">
+          <button
+            className="text-button"
+            type="button"
+            onClick={() => setView('rankings')}
+          >
+            Rankings
+          </button>
+          <button
+            className="text-button"
+            type="button"
+            onClick={() => setView('settings')}
+          >
+            Settings
+          </button>
+        </div>
       </section>
     </main>
   )
