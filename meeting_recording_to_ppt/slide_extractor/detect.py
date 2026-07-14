@@ -16,9 +16,19 @@ have a much smaller span and are filtered out.
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 
 import numpy as np
+
+logger = logging.getLogger(__name__)
+
+# Below this, in either dimension, a crop is almost certainly not usable
+# slide content -- most likely --top-trim-px/--bottom-trim-px/
+# --border-inset-px are misconfigured for this recording (see README
+# "Tuning for a new recording"), silently producing a near-empty PNG
+# instead of a slide.
+_MIN_REASONABLE_CROP_PX = 20
 
 
 @dataclass(frozen=True)
@@ -133,4 +143,13 @@ def crop_slide(
     right = max(bbox.right - border_inset_px, left + 1)
     top = min(bbox.top + border_inset_px + top_trim_px, height - 1)
     bottom = max(bbox.bottom - border_inset_px - bottom_trim_px, top + 1)
+
+    crop_width, crop_height = right - left, bottom - top
+    if crop_width < _MIN_REASONABLE_CROP_PX or crop_height < _MIN_REASONABLE_CROP_PX:
+        logger.warning(
+            "Crop is only %dx%d px (detected box was %dx%d) -- --top-trim-px/"
+            "--bottom-trim-px/--border-inset-px are likely too large for this "
+            "recording. Re-run with --debug and check slides_output/debug/.",
+            crop_width, crop_height, bbox.width, bbox.height,
+        )
     return frame[top:bottom, left:right]

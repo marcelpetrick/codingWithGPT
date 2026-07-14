@@ -114,3 +114,24 @@ def test_crop_slide_auto_detects_bottom_letterbox():
     crop = crop_slide(frame, bbox, top_trim_px=42, border_inset_px=3)
 
     assert (crop == 255).all(), "auto bottom-trim should exclude the black letterbox bar"
+
+
+def test_crop_slide_warns_on_degenerate_crop(caplog):
+    frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
+    bbox = BBox(left=302, right=1617, top=258, bottom=1079)
+
+    with caplog.at_level("WARNING", logger="slide_extractor.detect"):
+        crop = crop_slide(frame, bbox, top_trim_px=5000, bottom_trim_px=0, border_inset_px=3)
+
+    assert crop.size > 0  # still produces *something*, just a sliver
+    assert any("too large for this recording" in record.getMessage() for record in caplog.records)
+
+
+def test_crop_slide_does_not_warn_for_a_reasonable_crop(caplog):
+    frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
+    bbox = BBox(left=302, right=1617, top=258, bottom=1079)
+
+    with caplog.at_level("WARNING", logger="slide_extractor.detect"):
+        crop_slide(frame, bbox, top_trim_px=42, bottom_trim_px=0, border_inset_px=3)
+
+    assert not caplog.records
