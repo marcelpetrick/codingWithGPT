@@ -1,6 +1,7 @@
 import { createChallenge, createSeededRandom } from './challenge'
 import {
   abandonGame,
+  cardLayoutSeed,
   completedDecisionCount,
   createGameRun,
   currentMatch,
@@ -23,6 +24,18 @@ describe('single-player game state', () => {
     const advanced = finishTransition(selected.run)
     expect(advanced.currentIndex).toBe(1)
     expect(advanced.phase).toBe('active')
+  })
+
+  it('keeps each card layout seed stable while the run advances', () => {
+    const run = createGameRun(createChallenge(10, createSeededRandom(4)), 77)
+    const nextCard = run.cards[1]
+    const nextSeed = cardLayoutSeed(run, nextCard)
+    const advanced = finishTransition(selectSymbol(run, currentMatch(run)).run)
+
+    expect(
+      cardLayoutSeed(advanced, advanced.cards[advanced.currentIndex]),
+    ).toBe(nextSeed)
+    expect(createGameRun(run.cards, 77).layoutSeeds).toEqual(run.layoutSeeds)
   })
 
   it('keeps the pair active after a wrong selection', () => {

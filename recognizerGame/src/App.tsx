@@ -60,7 +60,10 @@ export function App() {
   )
 
   function startGame() {
-    const newRun = createGameRun(createChallenge(challengeSize))
+    const newRun = createGameRun(
+      createChallenge(challengeSize),
+      Math.floor(Math.random() * 2_147_483_647),
+    )
     const startedAt = Date.now()
     setRun(newRun)
     setTimer(startTimer(startedAt))
@@ -209,7 +212,7 @@ export function App() {
           <SymbolCard
             card={run.cards[run.currentIndex]}
             label="Your current card"
-            seed={run.currentIndex * 2 + 1}
+            seed={run.layoutSeeds[run.cards[run.currentIndex].id]}
             selectedSymbolId={selectedSymbolId}
             disabled={run.phase !== 'active'}
             onSelect={handleSelection}
@@ -217,7 +220,7 @@ export function App() {
           <SymbolCard
             card={run.cards[run.currentIndex + 1]}
             label="Next card"
-            seed={run.currentIndex * 2 + 2}
+            seed={run.layoutSeeds[run.cards[run.currentIndex + 1].id]}
             selectedSymbolId={selectedSymbolId}
             disabled={run.phase !== 'active'}
             onSelect={handleSelection}

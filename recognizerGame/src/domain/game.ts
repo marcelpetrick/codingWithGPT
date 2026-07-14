@@ -1,8 +1,10 @@
 import { sharedSymbols } from './deck'
+import { createSeededRandom } from './challenge'
 import type { Card, GamePhase, SymbolId } from './types'
 
 export interface GameRun {
   readonly cards: readonly Card[]
+  readonly layoutSeeds: Readonly<Record<number, number>>
   readonly phase: Extract<
     GamePhase,
     'active' | 'transitioning' | 'completed' | 'abandoned'
@@ -13,17 +15,31 @@ export interface GameRun {
 
 export type SelectionResult = 'correct' | 'incorrect' | 'ignored'
 
-export function createGameRun(cards: readonly Card[]): GameRun {
+export function createGameRun(cards: readonly Card[], layoutSeed = 0): GameRun {
   if (cards.length < 2) {
     throw new Error('A game requires at least two cards')
   }
 
+  const random = createSeededRandom(layoutSeed)
+  const layoutSeeds = Object.fromEntries(
+    cards.map((card) => [card.id, Math.floor(random() * 2_147_483_647)]),
+  )
+
   return {
     cards,
+    layoutSeeds,
     phase: 'active',
     currentIndex: 0,
     incorrectSelections: 0,
   }
+}
+
+export function cardLayoutSeed(run: GameRun, card: Card): number {
+  const seed = run.layoutSeeds[card.id]
+  if (seed === undefined) {
+    throw new Error(`No layout seed exists for card ${card.id}`)
+  }
+  return seed
 }
 
 export function currentCard(run: GameRun): Card {
