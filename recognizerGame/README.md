@@ -268,6 +268,25 @@ Recommended supporting tools:
 
 The domain logic should remain independent from React: deck construction, run state, time calculation, ranking insertion, persistence migration, and seeded card layout should be testable as pure TypeScript modules. This separation also leaves room for future multiplayer clients without putting networking concerns into the MVP.
 
+## Architecture
+
+```mermaid
+flowchart TD
+  Menu[Menu and preferences] --> Challenge[Shuffled challenge]
+  Deck[Verified 57-card deck] --> Challenge
+  Challenge --> Run[Game run with stable card-layout seeds]
+  Run --> Cards[Two responsive symbol cards]
+  Cards --> State[Pure game state transitions]
+  State --> Timer[Wall-clock timer]
+  State --> Results[Completed result]
+  Timer --> Results
+  Results --> Rankings[Tier-specific rankings and personal best]
+  Rankings --> Storage[Versioned browser storage]
+  Storage --> Menu
+```
+
+The deck and game rules are pure TypeScript modules. React renders the menu, cards, timer, and result views around that state. Rankings and preferences are validated before being read from browser storage, so malformed local data falls back safely to defaults.
+
 ## Running and verifying the game
 
 Install the locked dependencies and run the browser development server:
@@ -288,9 +307,28 @@ npm run build
 npm run test:e2e
 ```
 
+Run every check through the local pipeline:
+
+```bash
+./localPipeline.sh
+```
+
+Use `./localPipeline.sh --install` after a fresh checkout, `--skip-e2e` when browser tests cannot run locally, and `--report-dir reports/local-pipeline` to retain per-stage logs and the final summary.
+
+```mermaid
+flowchart LR
+  Install[npm ci or existing node_modules] --> Format[Prettier check]
+  Format --> Lint[ESLint]
+  Lint --> Types[TypeScript check]
+  Types --> Unit[Vitest unit and component tests]
+  Unit --> Build[Production PWA build]
+  Build --> Browser[Playwright desktop and mobile tests]
+  Browser --> Summary[Stage summary and exit status]
+```
+
 The production build includes a web app manifest and service worker. Once the app has loaded successfully, the browser can offer installation and serves the cached application shell and game assets while offline. Local rankings are browser storage, not part of the service-worker cache.
 
-The rendered symbol system uses a fixed, catalog-complete vector mapping: every symbol has a stable silhouette, one defined primary color, and a dark outline. The catalog and its rendering coverage are automatically tested. See [REVIEW_AND_WORKFLOW.md](./REVIEW_AND_WORKFLOW.md) for the architecture review, corrective priorities, and Mermaid workflows.
+The rendered symbol system uses a fixed, catalog-complete vector mapping: every symbol has a stable silhouette, one defined primary color, and a dark outline. The catalog and its rendering coverage are automatically tested. See [REVIEW_AND_WORKFLOW.md](./documents/REVIEW_AND_WORKFLOW.md) for the architecture review, corrective priorities, and Mermaid workflows.
 
 ## MVP scope
 
@@ -335,4 +373,4 @@ The MVP is complete when:
 
 The domain model should allow later multiplayer and tournament work, but no networking or tournament UI is required now. A future multiplayer mode could present the same card pair to multiple players and award the round to the first correct response. Tournament formats could later build on those matches. Their identities, results, fairness model, synchronization, and rankings must remain separate from the local single-player timer.
 
-See [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for the proposed delivery sequence.
+See [IMPLEMENTATION_PLAN.md](./documents/IMPLEMENTATION_PLAN.md) for the proposed delivery sequence.

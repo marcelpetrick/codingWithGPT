@@ -3,6 +3,7 @@ dist/
 coverage/
 playwright-report/
 test-results/
+reports/
 tmp/
 *.local
 .DS_Store

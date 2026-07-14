@@ -9,11 +9,13 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "docs:check-links": "node scripts/checkMarkdownLinks.mjs",
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "pipeline": "./localPipeline.sh"
   },
   "dependencies": {
     "@vitejs/plugin-react": "6.0.3",
