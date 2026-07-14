@@ -1,0 +1,59 @@
+:root {
+  font-family:
+    Inter, ui-rounded, 'Arial Rounded MT Bold', system-ui, sans-serif;
+  color: #172033;
+  background: #f7f1df;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.welcome-card {
+  width: min(100%, 36rem);
+  padding: clamp(2rem, 8vw, 4rem);
+  border: 4px solid #172033;
+  border-radius: 2rem;
+  background: #fffdf5;
+  box-shadow: 10px 10px 0 #f6c64f;
+  text-align: center;
+}
+
+.welcome-card h1 {
+  margin: 0.25rem 0 0.75rem;
+  font-size: clamp(3rem, 12vw, 5rem);
+  line-height: 0.95;
+}
+
+.welcome-card p {
+  margin-bottom: 0;
+  font-size: 1.125rem;
+}
+
+.welcome-card .eyebrow {
+  margin: 0;
+  color: #a43a2c;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
