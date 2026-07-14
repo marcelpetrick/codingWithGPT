@@ -17,6 +17,43 @@ from .dedup import SlideChangeDetector, SlideDecision
 logger = logging.getLogger("slide_extractor")
 
 
+def _positive_float(value: str) -> float:
+    parsed = float(value)
+    if not parsed > 0:
+        raise argparse.ArgumentTypeError(f"must be > 0, got {parsed}")
+    return parsed
+
+
+def _fraction_float(value: str) -> float:
+    """A value in (0, 1], for a quantity that's a fraction of a frame dimension."""
+    parsed = float(value)
+    if not (0 < parsed <= 1):
+        raise argparse.ArgumentTypeError(f"must be > 0 and <= 1, got {parsed}")
+    return parsed
+
+
+def _unit_interval_float(value: str) -> float:
+    """A value in [0, 1], for an SSIM-like similarity threshold."""
+    parsed = float(value)
+    if not (0 <= parsed <= 1):
+        raise argparse.ArgumentTypeError(f"must be between 0 and 1, got {parsed}")
+    return parsed
+
+
+def _non_negative_float(value: str) -> float:
+    parsed = float(value)
+    if parsed < 0:
+        raise argparse.ArgumentTypeError(f"must be >= 0, got {parsed}")
+    return parsed
+
+
+def _non_negative_int(value: str) -> int:
+    parsed = int(value)
+    if parsed < 0:
+        raise argparse.ArgumentTypeError(f"must be >= 0, got {parsed}")
+    return parsed
+
+
 @dataclass
 class Config:
     video: Path
@@ -44,21 +81,21 @@ def parse_args(argv: list[str] | None = None) -> Config:
         help="Output directory for slide PNGs and manifest (default: ./slides_output)",
     )
     parser.add_argument(
-        "--interval", type=float, default=1.0,
+        "--interval", type=_positive_float, default=1.0,
         help="Seconds between sampled frames (default: 1.0)",
     )
     parser.add_argument(
-        "--min-box-frac", type=float, default=0.5,
+        "--min-box-frac", type=_fraction_float, default=0.5,
         help="Minimum fraction of frame width/height a green row/col span must "
              "cover to count as the real screen-share box (default: 0.5)",
     )
     parser.add_argument(
-        "--top-trim-px", type=int, default=42,
+        "--top-trim-px", type=_non_negative_int, default=42,
         help="Pixels to trim off the top of the detected box to remove browser "
              "chrome/banner; recording-specific, tune with --debug (default: 42)",
     )
     parser.add_argument(
-        "--bottom-trim-px", type=int, default=None,
+        "--bottom-trim-px", type=_non_negative_int, default=None,
         help="Pixels to trim off the bottom of the detected box to remove "
              "Zoom's letterbox padding below the shared window. Default: "
              "auto-detect the black bar height per frame (it varies "
@@ -66,16 +103,16 @@ def parse_args(argv: list[str] | None = None) -> Config:
              "fixed value to override auto-detection.",
     )
     parser.add_argument(
-        "--border-inset-px", type=int, default=3,
+        "--border-inset-px", type=_non_negative_int, default=3,
         help="Pixels to inset from the detected green border (default: 3)",
     )
     parser.add_argument(
-        "--ssim-threshold", type=float, default=0.90,
+        "--ssim-threshold", type=_unit_interval_float, default=0.90,
         help="Below this SSIM vs the last accepted slide, a candidate counts as "
              "a new slide (default: 0.90)",
     )
     parser.add_argument(
-        "--min-sharpness", type=float, default=0.0005,
+        "--min-sharpness", type=_non_negative_float, default=0.0005,
         help="Minimum Laplacian-variance sharpness for a candidate to be "
              "considered (rejects blurry mid-transition frames) (default: 0.0005)",
     )
