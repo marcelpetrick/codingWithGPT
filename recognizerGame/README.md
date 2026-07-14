@@ -4,6 +4,12 @@ Recognizer Game is a browser-based, single-player concentration game. Two cards 
 
 This document is the product specification for the MVP. It consolidates the original game discussion, the written requirements, and the stakeholder clarifications. Where earlier notes conflict with the decisions below, this document is authoritative.
 
+**Author: Marcel Petrick <mail@marcelpetrick.it>**
+
+**License: GPLv3 or later. See `LICENSE`.**
+
+**Note: projected is generated with AI.**
+
 ## Product goals
 
 - Create a quick-to-learn test of visual recognition, concentration, and adaptability.
@@ -24,6 +30,16 @@ This document is the product specification for the MVP. It consolidates the orig
 6. An incorrect selection shows a brief, non-blocking warning and may play an error sound. It does not add a time penalty, lock input, reveal the answer, or change the cards.
 7. The loop continues until the final adjacent pair is solved.
 8. The timer stops immediately, the result is saved locally, and the results screen compares it with the ranking for that challenge size.
+
+## Game workflow
+
+During a challenge, choose the shared symbol on either visible card. A correct selection advances the stack; an incorrect selection only gives a brief warning while the timer continues.
+
+![Active matching game: the player finds the one shared symbol between the current and next cards.](./media/game.png)
+
+After the final match, the game freezes the wall-clock time, stores the result in the selected challenge tier, and reports personal-best and ranking feedback.
+
+![Completed challenge result with time, personal-best status, and tier ranking.](./media/record.png)
 
 Challenge size means the total number of cards used in one game, including the initial current card. Consequently:
 

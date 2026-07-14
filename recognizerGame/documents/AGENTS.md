@@ -6,8 +6,8 @@ Contributor instructions for work in `recognizerGame/` and its descendants.
 
 Before changing the project, read:
 
-1. `documents/README.md` — authoritative MVP product specification.
-2. `documents/IMPLEMENTATION_PLAN.md` — intended architecture, sequence, verification, and review gates.
+1. `../README.md` — authoritative MVP product specification.
+2. `IMPLEMENTATION_PLAN.md` — intended architecture, sequence, verification, and review gates.
 
 If old notes or prompts disagree with the README, follow the README. Do not silently reinterpret product rules. Update the specification in a dedicated documentation commit when an approved decision changes.
 
@@ -59,7 +59,7 @@ Add or retain exhaustive tests for the deck invariants. Never hand-edit card mem
 
 ## Development workflow
 
-- Follow the atomic sequence in `documents/IMPLEMENTATION_PLAN.md` unless there is a concrete reason to reorder it.
+- Follow the atomic sequence in `IMPLEMENTATION_PLAN.md` unless there is a concrete reason to reorder it.
 - Keep each commit focused on one coherent behavior and include its tests in the same commit.
 - Use Conventional Commit-style messages with the `recognizer` scope where practical, for example `feat(recognizer): add wall-clock timer`.
 - Do not mix broad formatting, refactoring, generated assets, and feature behavior in a single commit.
@@ -97,7 +97,7 @@ If a required check cannot run, report exactly what was skipped and why.
 ## Documentation discipline
 
 - Keep game terminology consistent across code, UI, tests, README, and help content.
-- Update `documents/README.md` when behavior, supported environments, storage schema expectations, or acceptance criteria change.
+- Update `../README.md` when behavior, supported environments, storage schema expectations, or acceptance criteria change.
 - Update the implementation plan when a material delivery decision changes; mark completed work in project tracking rather than rewriting history.
 - Record tuning values such as icon scale, rotation, spacing, and transition duration near their implementation and summarize final decisions in the README.
 - Treat visual review and hands-on playtesting as required evidence for readability; automated geometry tests alone are insufficient.
