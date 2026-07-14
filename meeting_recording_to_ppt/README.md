@@ -3,6 +3,9 @@
 Extract unique presentation slides (and, best-effort, a transcript) from a
 screen-recorded Zoom meeting video.
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for how the pipeline, module
+boundaries, and `localPipeline.sh` fit together, with diagrams.
+
 ## How it works
 
 Zoom draws a thin, saturated green border around whatever screen share is
