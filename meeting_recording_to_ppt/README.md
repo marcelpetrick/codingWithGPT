@@ -5,23 +5,43 @@ screen-recorded Zoom meeting video.
 
 ## How it works
 
-Zoom draws a thin, saturated green border around whatever screen share is
-currently pinned/viewed. That border is present on every frame where a slide
-is being shared, and absent during talking-head/gallery segments (Q&A,
-discussion, the frozen "meeting ended" frame at the end).
+**The big picture:** you point the tool at a recording; it hands back the
+slides that were shown, one image each, plus (optionally) a transcript.
+Everything else in this section is *how* it manages that.
+
+```mermaid
+flowchart LR
+    V["Meeting recording<br/>(.mkv / .mp4)"] --> T["slide_extractor"]
+    T --> S["Slide images<br/>(one PNG per distinct slide)"]
+    T --> M["manifest.json<br/>(list of slides + timestamps)"]
+    T -.->|optional| X["transcript.txt / transcript.srt"]
+
+    style T fill:#4c6ef5,color:#fff
+```
+
+To do that, it has to tell "a slide is showing" apart from "someone's talking
+head is showing" and "this is the same slide as a second ago." It leans on a
+quirk of Zoom recordings: Zoom draws a thin, bright green border around
+whatever screen share is currently pinned/viewed on screen. That border is
+present on every frame where a slide is being shared, and absent during
+talking-head/gallery segments (Q&A, discussion, the frozen "meeting ended"
+frame at the end) — so its presence alone tells the tool which frames are
+worth looking at.
+
+Zooming in on what happens to a single sampled frame:
 
 ```mermaid
 flowchart TD
-    A["ffmpeg: sample 1 frame every --interval seconds"] --> B{"green screen-share<br/>border detected?"}
-    B -- "no" --> D["discard<br/>(talking head / gallery / frozen end frame)"]
-    B -- "yes" --> E["crop: inset border, trim chrome banner,<br/>auto-trim bottom letterbox"]
-    E --> F{"blurry or duplicate<br/>of last saved slide?"}
-    F -- "blurry" --> G["discard: mid-transition frame"]
-    F -- "duplicate" --> H["discard: same slide as before"]
-    F -- "new" --> I["save slide_NNNN.png<br/>+ manifest.json entry"]
-    I --> J{"--transcript?"}
-    J -- "yes" --> K["extract audio -> faster-whisper<br/>-> transcript.txt / transcript.srt"]
-    J -- "no" --> L["done"]
+    A["Look at one frame<br/>(sampled every second or so)"] --> B{"Is the green<br/>screen-share border<br/>visible?"}
+    B -- "no" --> D["Skip it<br/>(talking head / gallery / frozen end frame)"]
+    B -- "yes" --> E["Crop out just the slide<br/>(drop the border, the browser's own<br/>toolbar, and any black padding)"]
+    E --> F{"Compared to the last<br/>slide saved, is this one..."}
+    F -- "too blurry to tell<br/>(mid slide-transition)" --> G["Skip it"]
+    F -- "the same slide<br/>as before" --> H["Skip it"]
+    F -- "visibly different" --> I["Save it as a new slide"]
+    I --> J{"Transcript requested?"}
+    J -- "yes" --> K["Transcribe the audio track<br/>(best effort, separate step)"]
+    J -- "no" --> L["Done"]
     K --> L
 
     style I fill:#2f9e44,color:#fff
@@ -30,9 +50,11 @@ flowchart TD
     style H fill:#adb5bd,color:#000
 ```
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for the full per-module breakdown,
-the CLI sequence diagram, and why green-box *span* detection (rather than a
-naive bounding box) is needed. The pipeline, in words:
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the module-level breakdown, the
+CLI's call sequence, and why the border needs *span*-based detection rather
+than a naive "bounding box of every green pixel" (short version: Zoom also
+puts a small green border around the active speaker's face, and a naive
+approach merges the two). The pipeline, in more precise terms:
 
 1. Samples the video at a fixed interval (`--interval` seconds) via `ffmpeg`,
    streaming raw frames rather than writing thousands of temp images to disk.
