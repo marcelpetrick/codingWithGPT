@@ -1,0 +1,8 @@
+slides_output/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+*.mkv
+*.mp4
+*.wav
