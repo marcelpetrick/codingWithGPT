@@ -6,18 +6,18 @@ The prototype proves the game loop and deck mathematics. It is not yet release-r
 
 ## Prioritized findings
 
-| # | Finding | Risk | Corrective action |
-| --- | --- | --- | --- |
-| 1 | Run state, timer ownership, and delayed transitions are coordinated inside `App`. A stale timeout can update a run after leaving or restarting. | Incorrect results or state updates after cancellation. | Introduce an explicit run controller/reducer, a transition token, and timeout cleanup. |
-| 2 | Card layouts are derived from the visible position. A card changes its visual arrangement when it moves from the next-card role to the current-card role. | Unnecessary difficulty and a mismatch with stable-in-run card presentation. | Assign one layout seed to each card at challenge creation and retain it for the run. |
-| 3 | The layout checks only circular visual bounds inferred from percentages. It does not reserve an independent hit area or use a deterministic fallback. | Tappable targets can crowd each other on small cards. | Model visual and hit bounds, use fixed safe slots as fallback, and test both. |
-| 4 | No persistent preferences, rankings, migration, corrupt-data handling, or data clearing exist. | Scores and player choices disappear; browser data failures can break the UI. | Add versioned storage adapter, validation, recovery, settings, and confirmed clearing. |
-| 5 | The completion screen does not store a result or show tier-specific ranking/personal-best feedback. | The primary motivating feedback loop is missing. | Add result insertion, tie ordering, top-ten ranking, and personal-best calculations. |
-| 6 | Dependencies use `latest` ranges. | A clean install can change behavior without a source change. | Pin direct dependency versions and rely on the lockfile for transitive resolution. |
-| 7 | Feedback preferences and reduced-motion handling are incomplete. | Users cannot control sound/motion; transitions are hard-coded. | Persist sound/reduced-motion preferences, add optional feedback tones, and remove motion when requested. |
-| 8 | The initial artwork is incomplete: one reviewed bitmap asset exists while the rest use platform emoji. | Appearance varies by platform and does not meet the intended consistent clip-art style. | Keep the catalog contract, add reviewed canonical artwork in batches, and remove fallback glyphs before release. |
-| 9 | Verification is limited to unit/component tests. | Browser-only issues, touch interaction, local-storage behavior, and installability are unproven. | Add Playwright desktop/mobile journeys and a production build smoke test. |
-| 10 | The app lacks an installable offline shell and release-operation documentation. | The browser-installation requirement is unmet and handoff is unclear. | Add a manifest/service worker with tested update behavior and document deployment/playtest checks. |
+| # | Finding | Risk | Corrective action | Status |
+| --- | --- | --- | --- | --- |
+| 1 | Run state, timer ownership, and delayed transitions are coordinated inside `App`. A stale timeout can update a run after leaving or restarting. | Incorrect results or state updates after cancellation. | Transition session token and timeout cleanup. | Complete |
+| 2 | Card layouts are derived from the visible position. A card changes its visual arrangement when it moves from the next-card role to the current-card role. | Unnecessary difficulty and a mismatch with stable-in-run card presentation. | Per-card seed assigned at run creation. | Complete |
+| 3 | The layout checks only circular visual bounds inferred from percentages. It does not reserve an independent hit area or use a deterministic fallback. | Tappable targets can crowd each other on small cards. | Tested fixed safe slots with distinct visual and hit geometry. | Complete |
+| 4 | No persistent preferences, rankings, migration, corrupt-data handling, or data clearing exist. | Scores and player choices disappear; browser data failures can break the UI. | Versioned storage adapter, validation, recovery, settings, and confirmed clearing. | Complete |
+| 5 | The completion screen does not store a result or show tier-specific ranking/personal-best feedback. | The primary motivating feedback loop is missing. | Tiered insertion, tie ordering, top-ten ranking, and personal-best calculations. | Complete |
+| 6 | Dependencies use `latest` ranges. | A clean install can change behavior without a source change. | Direct versions pinned and lockfile retained. | Complete |
+| 7 | Feedback preferences and reduced-motion handling are incomplete. | Users cannot control sound/motion; transitions are hard-coded. | Persisted sound/motion settings, optional tones, and motion override. | Complete |
+| 8 | The initial artwork is incomplete: one reviewed bitmap asset exists while the rest use platform emoji. | Appearance varies by platform and does not meet the intended consistent clip-art style. | Complete fixed vector mapping with catalog color and dark outline; no platform emoji at runtime. | Complete |
+| 9 | Verification is limited to unit/component tests. | Browser-only issues, touch interaction, local-storage behavior, and installability are unproven. | Playwright desktop/mobile journeys, accessibility scan, and production build. | Complete |
+| 10 | The app lacks an installable offline shell and release-operation documentation. | The browser-installation requirement is unmet and handoff is unclear. | Manifest, service worker, cache strategy, and operating guide. | Complete |
 
 ## Correct game workflow
 
