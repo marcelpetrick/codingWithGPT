@@ -229,7 +229,12 @@ def main(argv: list[str] | None = None) -> int:
     config = parse_args(argv)
     try:
         return run(config)
-    except (FileExistsError, video_io.InvalidVideoError, video_io.FfmpegNotFoundError) as exc:
+    except (
+        FileExistsError,
+        video_io.InvalidVideoError,
+        video_io.FfmpegNotFoundError,
+        video_io.VideoDecodeError,
+    ) as exc:
         logger.error(str(exc))
         return 1
 

@@ -66,3 +66,13 @@ def test_iter_sampled_frames_generator_can_be_closed_early(synthetic_clip):
     gen = video_io.iter_sampled_frames(synthetic_clip, interval_s=0.1, width=info.width, height=info.height)
     next(gen)
     gen.close()  # must not raise / hang
+
+
+def test_iter_sampled_frames_raises_on_ffmpeg_failure_instead_of_yielding_nothing(synthetic_clip):
+    info = video_io.probe(synthetic_clip)
+    # interval_s=0 makes ffmpeg's "fps=1/0" filter fail to initialize, so
+    # ffmpeg exits with an error before producing any frames. Before this
+    # was fixed, that looked identical to "clean end of stream" and the
+    # generator silently yielded zero frames instead of raising.
+    with pytest.raises(video_io.VideoDecodeError):
+        list(video_io.iter_sampled_frames(synthetic_clip, interval_s=0, width=info.width, height=info.height))
