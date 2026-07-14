@@ -12,7 +12,7 @@ from pathlib import Path
 from PIL import Image
 
 from . import detect, transcript, video_io
-from .dedup import SlideChangeDetector
+from .dedup import SlideChangeDetector, SlideDecision
 
 logger = logging.getLogger("slide_extractor")
 
@@ -166,7 +166,8 @@ def run(config: Config) -> int:
     manifest: list[dict] = []
     scanned = 0
     rejected_no_box = 0
-    rejected_dup_or_blurry = 0
+    rejected_blurry = 0
+    rejected_duplicate = 0
     slide_index = 0
 
     for timestamp, frame in video_io.iter_sampled_frames(
@@ -192,8 +193,12 @@ def run(config: Config) -> int:
             )
             Image.fromarray(raw_crop).save(debug_dir / f"raw_t{timestamp:08.1f}s.png")
 
-        if not detector.is_new_slide(crop):
-            rejected_dup_or_blurry += 1
+        decision = detector.classify(crop)
+        if decision is SlideDecision.BLURRY:
+            rejected_blurry += 1
+            continue
+        if decision is SlideDecision.DUPLICATE:
+            rejected_duplicate += 1
             continue
 
         slide_index += 1
@@ -211,8 +216,8 @@ def run(config: Config) -> int:
 
     logger.info(
         "Done. Scanned %d frames -> %d slides saved, %d rejected (no screen share), "
-        "%d rejected (duplicate/blurry).",
-        scanned, slide_index, rejected_no_box, rejected_dup_or_blurry,
+        "%d rejected (blurry/transition), %d rejected (duplicate slide).",
+        scanned, slide_index, rejected_no_box, rejected_blurry, rejected_duplicate,
     )
 
     if config.transcript:

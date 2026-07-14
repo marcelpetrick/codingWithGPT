@@ -13,11 +13,29 @@ Two signals are used:
 
 from __future__ import annotations
 
+from enum import Enum
+
 import numpy as np
 from scipy import ndimage
 from skimage.color import rgb2gray
 from skimage.metrics import structural_similarity
 from skimage.transform import resize
+
+
+class SlideDecision(Enum):
+    """Why a candidate crop was, or wasn't, saved as a new slide.
+
+    Kept distinct rather than collapsed into a single bool: a run that
+    saves zero slides for a "too blurry" reason needs a different fix
+    (loosen --min-sharpness) than one where everything is a "duplicate"
+    (loosen --ssim-threshold or check --top-trim-px/--bottom-trim-px
+    aren't cropping the wrong region) -- conflating the two into one
+    counter made that impossible to tell apart from the summary log line.
+    """
+
+    NEW = "new"
+    BLURRY = "blurry"
+    DUPLICATE = "duplicate"
 
 # Fixed target shape (not aspect-ratio-preserving): the detected screen-share
 # box can jitter by a pixel or two between frames (antialiasing at the green
@@ -49,21 +67,21 @@ class SlideChangeDetector:
         self.min_sharpness = min_sharpness
         self._last: np.ndarray | None = None
 
-    def is_new_slide(self, candidate: np.ndarray) -> bool:
-        """Return True and update internal state if ``candidate`` is a new slide."""
+    def classify(self, candidate: np.ndarray) -> SlideDecision:
+        """Classify ``candidate``, updating internal state if it's a new slide."""
         comparable = _to_comparable(candidate)
 
         if float(ndimage.laplace(comparable).var()) < self.min_sharpness:
-            return False  # blurry / mid-transition frame
+            return SlideDecision.BLURRY  # blurry / mid-transition frame
 
         if self._last is None:
             self._last = comparable
-            return True
+            return SlideDecision.NEW
 
         similarity = structural_similarity(
             self._last, comparable, data_range=1.0
         )
         if similarity < self.ssim_threshold:
             self._last = comparable
-            return True
-        return False
+            return SlideDecision.NEW
+        return SlideDecision.DUPLICATE
