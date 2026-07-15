@@ -17,8 +17,8 @@ The ternary model, the optional vision component, the speculative-decoding draft
 | Local-only layout and workflow documentation | Complete |
 | Build PrismML llama.cpp fork with CUDA | Complete (local `runtime/` build) |
 | Download 1-bit text model | Complete (local ignored `models/` artifact) |
-| Launch and validate local server | Pending |
-| Add operational wrapper scripts | In progress |
+| Launch and validate local server | Complete (4K, one slot, loopback-only) |
+| Add operational wrapper scripts | Complete |
 | Test 8K context or optional components | Deferred until 4K validation |
 
 ## Plan

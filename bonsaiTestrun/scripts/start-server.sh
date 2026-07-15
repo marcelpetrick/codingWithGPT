@@ -22,6 +22,9 @@ nohup "$SERVER" \
   --host 127.0.0.1 --port 8080 \
   --ctx-size 4096 \
   --n-gpu-layers 99 \
+  --parallel 1 \
+  --cache-ram 0 \
+  --no-warmup \
   >"$LOG_DIR/llama-server.log" 2>&1 &
 echo $! >"$PID_FILE"
 
