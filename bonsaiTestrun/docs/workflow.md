@@ -2,7 +2,7 @@
 
 ## Safety boundary
 
-All mutable runtime state is kept under the repository root. The scripts do not call `sudo`, package managers, `pip install`, or `systemctl`; they neither install nor modify host services. The only external actions are a git clone into `runtime/` and the model download into `models/`.
+All mutable runtime state is kept under the repository root. The scripts do not call `sudo`, package managers, `pip install`, or `systemctl`; they neither install nor modify host services. The only external actions are a git clone into `runtime/` and a resumable `curl` model download into `models/`.
 
 ```mermaid
 flowchart LR
