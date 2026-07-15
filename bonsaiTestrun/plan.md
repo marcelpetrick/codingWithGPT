@@ -10,6 +10,17 @@ Native Ollama is not the current implementation target. Although Ollama can impo
 
 The ternary model, the optional vision component, the speculative-decoding drafter, and long contexts should not be enabled initially: they add memory pressure to an 8 GB GPU. The advertised 262K-token context is not a practical target for this hardware.
 
+## Implementation status
+
+| Step | Status |
+| --- | --- |
+| Local-only layout and workflow documentation | Complete |
+| Build PrismML llama.cpp fork with CUDA | In progress |
+| Download 1-bit text model | Pending |
+| Launch and validate local server | Pending |
+| Add operational wrapper scripts | In progress |
+| Test 8K context or optional components | Deferred until 4K validation |
+
 ## Plan
 
 1. Clone PrismML's `llama.cpp` fork into this repository and build the CUDA backend. Limit compilation parallelism to avoid exhausting the laptop's GPU or host memory.

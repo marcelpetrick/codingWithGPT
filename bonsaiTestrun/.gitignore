@@ -1,0 +1,5 @@
+# Local runtime artifacts: intentionally never committed.
+runtime/
+models/
+logs/
+.cache/
