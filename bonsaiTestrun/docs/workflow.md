@@ -47,6 +47,8 @@ The initial server configuration is intentionally conservative:
 
 The local build uses PrismML's `prism` branch at commit `62061f9`, CUDA 13.3, and the RTX A2000 Laptop GPU's compute capability 8.6. It is generated under `runtime/llama.cpp/build/` and is ignored by git, so it can be deleted and recreated without touching the host installation.
 
+The local-only 1-bit text model was downloaded as `models/Bonsai-27B-Q1_0.gguf` (3.54 GiB). The downloader first writes a `.partial` file and renames it only after a successful transfer.
+
 ## Validation and troubleshooting
 
 `check-server.sh` sends a short chat completion to the local API and prints the result. While the server runs, inspect GPU use with:
