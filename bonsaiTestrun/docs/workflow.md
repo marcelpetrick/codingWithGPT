@@ -43,6 +43,10 @@ The initial server configuration is intentionally conservative:
 - Binding: `127.0.0.1` only.
 - GPU budget: the vendor model card reports about 5.2 GB peak memory at 4K context for the 1-bit language model. Check actual usage on this RTX A2000 8 GB GPU before increasing context.
 
+## Build record
+
+The local build uses PrismML's `prism` branch at commit `62061f9`, CUDA 13.3, and the RTX A2000 Laptop GPU's compute capability 8.6. It is generated under `runtime/llama.cpp/build/` and is ignored by git, so it can be deleted and recreated without touching the host installation.
+
 ## Validation and troubleshooting
 
 `check-server.sh` sends a short chat completion to the local API and prints the result. While the server runs, inspect GPU use with:
