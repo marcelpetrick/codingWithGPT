@@ -4,25 +4,20 @@ Research notes and data-driven picks for a company-internal **WM 2026**
 Kicktipp pool. Tournament runs **11 June – 19 July 2026** across USA,
 Canada, Mexico.
 
-> **Status as of 2026-07-17 — final matchday.** Final draw held
-> **5 Dec 2025**, Washington, D.C.; pool entry closed **09 June 2026,
-> 23:59**. 35 participants (pool €350). Bonus picks locked 11 June 2026, 21:00 CET.
+> **Status: TOURNAMENT COMPLETE (2026-07-20).** 35 participants, pool €350.
 >
-> **Current position: 4th / 35 · 224 pts** (leader at 234, −10; podium is 2nd
-> at 229 / 3rd at 227; tied with 5th at 224 but **ahead on the best Spieltagssiege
-> tie-break in the pool, 1.83**). 1st is out of reach.
+> **Final result: 5th / 35 · 228 pts.** Payout €28 on a €10 entry → **net +€18,
+> investment returned.** The goal was to get the money back, not finish 1st — met.
 >
-> **ST14 (Halbfinale) complete: 0/16 pts.** Both favourites lost: France 0–2
-> Spain, England 1–2 Argentina — our `1:0` and `1:1` both scored 0. **France's
-> exit killed our Champion bonus (dead) and flipped the top-scorer race to Messi**
-> (8g/4a > Mbappé 8g/3a) — the +8 France double-bonus path to 1st is gone.
+> Match points 168 + bonus 60. The late top-scorer bonus (Mbappé Golden Boot)
+> landed (+4); the France champion bonus died with France's semifinal exit. Both
+> final-matchday picks (`2:1` France bronze, `2:1` Spain final) scored 0, and both
+> semifinal favourites (France, England) lost — an unpredictable endgame. The one
+> avoidable cost was **two forgotten R16 entries (~3–4 pts)**, which alone is the
+> gap between 5th and a podium.
 >
-> **Final matchday (ST15) picks:** `2:1` Frankreich–England (Bronze, lock 18.07
-> ~22:59 CET) · `2:1` Spanien–Argentinien (Finale, lock 19.07 ~20:59 CET).
-> Switch the final to `1:2` Argentina only if the bonus scout shows rivals
-> ahead hold a live champion pick.
->
-> See [`review_20260717.md`](review_20260717.md) for the full final-matchday analysis.
+> See [`final_results.md`](final_results.md) for the closing record and
+> [`missedGames.md`](missedGames.md) for the forgotten-entry post-mortem.
 
 ## Live Pick Workflow
 
@@ -56,7 +51,9 @@ The pool's actual entry happens **inside the Kicktipp app**, but
 | [`review_20260706.md`](review_20260706.md) | ST12 partial (Brazil–Norway + Mexico–England), standings update |
 | [`review_20260708.md`](review_20260708.md) | ST12 complete (8/32 pts), ST13 QF picks, QF odds + injury brief |
 | [`review_20260713.md`](review_20260713.md) | ST13 complete (6/16), 3rd @ 224, SF picks + whole-race math |
-| [`review_20260717.md`](review_20260717.md) | **ST14 complete (0/16), 4th @ 224, France bonus dead, final + bronze picks** |
+| [`review_20260717.md`](review_20260717.md) | ST14 complete (0/16), 4th @ 224, France bonus dead, final + bronze picks |
+| [`missedGames.md`](missedGames.md) | Post-mortem: the two forgotten R16 entries and their podium cost |
+| [`final_results.md`](final_results.md) | **Closing record — 5th/35 @ 228, €28 payout (+€18), verdict** |
 | [`form_perspective_20260713.md`](form_perspective_20260713.md) | **Full-tournament form logs of all 4 semifinalists + fallen-team lessons** |
 | [`explanation.md`](explanation.md) | Mermaid diagrams: how the research process works end-to-end |
 | [`sources.md`](sources.md) | Links used as evidence |

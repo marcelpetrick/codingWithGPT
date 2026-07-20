@@ -17,14 +17,14 @@
 
 | Pos | Name | Se | Ac | Vi | B | S | Total |
 |----:|------|---:|---:|---:|--:|----:|------:|
-| 1 | Barcarossa (=P01) | 34 | 13 | 10 | 56 | 1.00 | 232 |
-| 2 | Shrek_Schuss (=P03) | 31 | 12 | 6 | 60 | 0.17 | 225 |
+| 1 | P01 | 34 | 13 | 10 | 56 | 1.00 | 232 |
+| 2 | P03 | 31 | 12 | 6 | 60 | 0.17 | 225 |
 | **3** | **NoClue** | **35** | **8** | **6** | **56** | **1.83** | **224** |
-| 4 | Duselheld (=P06) | 24 | 13 | 12 | 60 | 0.17 | 224 |
-| 5 | Abschlusspanik (=P04) | 34 | 12 | 9 | 60 | 0.17 | 223 |
-| 6 | Mise26 (=P10) | 29 | 4 | 9 | 60 | — | 212 |
+| 4 | P06 | 24 | 13 | 12 | 60 | 0.17 | 224 |
+| 5 | P04 | 34 | 12 | 9 | 60 | 0.17 | 223 |
+| 6 | P10 (=P10) | 29 | 4 | 9 | 60 | — | 212 |
 
-- Ranks 2/4/5/6 all held **England** as 4th semifinalist → B=60 vs our 56. Barcarossa mirrors our 56.
+- Ranks 2/4/5/6 all held **England** as 4th semifinalist → B=60 vs our 56. P01 mirrors our 56.
 - We win any points tie via Spieltagssiege (1.83 = best in top 7).
 - **TODO in app: read rivals' champion + top-scorer bonus picks (visible post-lock) — decides ST15 approach.**
 
