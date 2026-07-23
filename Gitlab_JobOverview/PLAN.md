@@ -1,5 +1,3 @@
-awesome — here’s a tight plan to get this done. after you review, I’ll turn it into code.
-
 # Plan: “show running & queued CI jobs across all projects I can access (non-admin)”
 
 ## 1) Approach & constraints
@@ -8,7 +6,8 @@ awesome — here’s a tight plan to get this done. after you review, I’ll tur
 * Because you’re not admin, we **can’t** hit instance-wide job endpoints; we’ll **iterate projects you can access** and query jobs per project.
 * “Jobs” = CI jobs created by pipelines; we care about **statuses `running` and `pending`** (queued).
 
-> We can mirror the pagination/timeouts/verbosity style you already use in your GitLab scripts so it feels familiar. Your existing tools paginate via headers and print clean, human-readable blocks — we’ll keep the same vibes. 
+The implementation keeps pagination, progress, and machine-readable output
+behavior explicit so large scans remain observable.
 
 ## 2) Inputs & configuration
 
@@ -25,16 +24,16 @@ awesome — here’s a tight plan to get this done. after you review, I’ll tur
 
 ## 3) Project discovery (non-admin)
 
-* `gl.projects.list(membership=True, archived=False, iterator=True, per_page=100)`.
-* If `--projects` is given, filter to those `path_with_namespace`.
+* `gl.projects.list(membership=True, archived=False, simple=True, iterator=True, per_page=100)`.
+* If `--projects` is given, resolve those paths directly instead of enumerating
+  every membership.
 * Handle per-project 403s (some groups may still deny job reads).
 
 ## 4) Fetch jobs per project
 
 For each project:
 
-* Call `project.jobs.list(scope=['running','pending'], per_page=100, all=True)`
-  (If the SDK version doesn’t accept a list for `scope`, call twice, once for each.)
+* Call `project.jobs.list(scope=['running','pending'], per_page=100, get_all=True)`.
 * For each job, capture:
 
   * `id`, `name`, `stage`, `status`, `ref`, `tag`, `created_at`, `started_at`, `queued_duration`, `duration`, `user`, `runner`
@@ -44,8 +43,9 @@ For each project:
 ## 5) Performance & robustness
 
 * Use a bounded **ThreadPool** (e.g. `concurrent.futures.ThreadPoolExecutor(max_workers=concurrency)`) to fetch projects in parallel.
-* Respect pagination; catch/transparently report HTTP errors (401/403/429).
-* Optional light **rate-limit backoff** on `429 Retry-After`.
+* Respect pagination and transparently report HTTP errors.
+* Let `python-gitlab` honor `429 Retry-After` responses and its bounded retry
+  policy.
 
 ## 6) Output (human-readable first)
 
@@ -76,8 +76,8 @@ TOTALS: running=12  pending=31  across 19/57 projects with active jobs
 
 Other formats:
 
-* `--json` returns a stable schema (easy to pipe to jq).
-* `--csv` for spreadsheets (columns: project, job_id, status, …).
+* `--format json` returns a stable schema (easy to pipe to jq).
+* `--format csv` is for spreadsheets (columns: project, job_id, status, …).
 
 ## 7) CLI shape
 
@@ -92,7 +92,7 @@ gitlab-jobs-now.py \
   [--verbose]
 ```
 
-## 8) Edge cases we’ll cover
+## 8) Covered edge cases
 
 * Some projects hidden or lacking job read rights → warn & continue.
 * Empty result (no running/pending anywhere) → print a friendly “none found” with totals.
@@ -100,18 +100,16 @@ gitlab-jobs-now.py \
 * Archived projects excluded unless `--include-archived`.
 * Large accounts: cap projects with `--max-projects` for quick checks.
 
-## 9) Testing plan
+## 9) Testing
 
-* Smoke test on your instance with one group.
-* Simulate permission errors (use a project you can view but not its jobs).
-* Compare counts vs GitLab UI filters (Jobs → Running / Pending).
+* Unit tests cover combined scopes, project discovery, archive handling, API
+  failures, and output totals.
+* Run a smoke test on the target instance with `--projects` or
+  `--max-projects`.
+* Compare counts against the GitLab UI filters (Jobs → Running / Pending).
 
 ## 10) Nice-to-haves (later)
 
 * `--since` window and `--runner <name>` filter.
 * Colorized TTY output.
 * Per-project totals and an overall “queue age p95”.
-
----
-
-If this plan looks good, I’ll implement it with **python-gitlab**, plus a tiny compatibility layer to keep the same pagination/verbosity flavor you used in your existing scripts. 
