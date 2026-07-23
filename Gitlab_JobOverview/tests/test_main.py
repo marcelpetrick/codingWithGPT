@@ -1,16 +1,23 @@
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from types import SimpleNamespace
+
+import gitlab
 
 import main
 
 
 class RecordingJobs:
-    def __init__(self, jobs=None):
+    def __init__(self, jobs=None, error=None):
         self.jobs = jobs or []
+        self.error = error
         self.calls = []
 
     def list(self, **kwargs):
         self.calls.append(kwargs)
+        if self.error:
+            raise self.error
         return self.jobs
 
 
@@ -73,6 +80,23 @@ class FetchJobsTests(unittest.TestCase):
 
         self.assertEqual(["pending"], jobs.calls[0]["scope"])
 
+    def test_list_errors_propagate_to_the_scan_coordinator(self):
+        jobs = RecordingJobs(
+            error=gitlab.exceptions.GitlabListError(
+                "forbidden",
+                response_code=403,
+            )
+        )
+        project = SimpleNamespace(
+            id=42,
+            path_with_namespace="group/project",
+            web_url="https://gitlab.example/group/project",
+            jobs=jobs,
+        )
+
+        with self.assertRaises(gitlab.exceptions.GitlabListError):
+            main.fetch_jobs_for_project(project)
+
 
 class ProjectDiscoveryTests(unittest.TestCase):
     def test_membership_listing_requests_simple_project_records(self):
@@ -91,6 +115,22 @@ class ProjectDiscoveryTests(unittest.TestCase):
 
         self.assertEqual([project], result)
         self.assertTrue(projects.list_calls[0]["simple"])
+        self.assertFalse(projects.list_calls[0]["archived"])
+
+    def test_including_archived_projects_omits_the_archive_filter(self):
+        projects = RecordingProjects()
+        gl = SimpleNamespace(projects=projects)
+
+        list(
+            main.iter_projects(
+                gl,
+                include_archived=True,
+                limit=None,
+                verbose=False,
+            )
+        )
+
+        self.assertNotIn("archived", projects.list_calls[0])
 
     def test_selected_projects_are_resolved_directly_and_deduplicated_by_caller(self):
         first = SimpleNamespace(archived=False)
@@ -109,12 +149,29 @@ class ProjectDiscoveryTests(unittest.TestCase):
                 ["group/first", "group/second"],
                 include_archived=False,
                 limit=None,
-                verbose=False,
             )
         )
 
         self.assertEqual([first, second], result)
         self.assertEqual(["group/first", "group/second"], projects.get_calls)
+
+
+class OutputTests(unittest.TestCase):
+    def test_table_reports_failed_project_count(self):
+        output = StringIO()
+
+        with redirect_stdout(output):
+            main.print_table(
+                {
+                    "group/success": [],
+                    "group/failure": [],
+                },
+                "https://gitlab.example",
+                "user",
+                failed_projects=1,
+            )
+
+        self.assertIn("Projects scanned: 2 (failed: 1)", output.getvalue())
 
 
 if __name__ == "__main__":

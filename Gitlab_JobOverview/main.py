@@ -88,16 +88,18 @@ def build_client(base_url: str, token: Optional[str], verbose: bool) -> gitlab.G
 
 def iter_projects(gl: gitlab.Gitlab, include_archived: bool, limit: Optional[int], verbose: bool):
     count = 0
+    list_options = {
+        "membership": True,
+        "simple": True,
+        "iterator": True,
+        "per_page": 100,
+        "order_by": "last_activity_at",
+        "sort": "desc",
+    }
+    if not include_archived:
+        list_options["archived"] = False
     try:
-        for proj in gl.projects.list(
-            membership=True,
-            archived=include_archived,
-            simple=True,
-            iterator=True,
-            per_page=100,
-            order_by="last_activity_at",
-            sort="desc",
-        ):
+        for proj in gl.projects.list(**list_options):
             yield proj
             count += 1
             if limit and count >= limit:
@@ -111,7 +113,6 @@ def iter_selected_projects(
     paths: Iterable[str],
     include_archived: bool,
     limit: Optional[int],
-    verbose: bool,
 ):
     """Resolve explicitly selected projects without enumerating all memberships."""
     count = 0
@@ -119,8 +120,7 @@ def iter_selected_projects(
         try:
             proj = gl.projects.get(path)
         except gitlab.exceptions.GitlabGetError as e:
-            if verbose:
-                err(f"[{path}] Unable to resolve project: {e}")
+            err(f"[{path}] Unable to resolve project: {e}")
             continue
         if not include_archived and getattr(proj, "archived", False):
             continue
@@ -133,41 +133,21 @@ def fetch_jobs_for_project(
     proj,
     want_running: bool = True,
     want_pending: bool = True,
-    backoff: float = 1.0,
-    verbose: bool = False,
 ) -> Tuple[str, str, List[Dict[str, Any]]]:
     path = getattr(proj, "path_with_namespace", str(proj.id))
     web_url = getattr(proj, "web_url", None)
     jobs: List[Dict[str, Any]] = []
 
     def _list_with_scopes(scope_values: List[str]) -> List[Any]:
-        attempts = 0
-        while True:
-            attempts += 1
-            try:
-                return proj.jobs.list(scope=scope_values, per_page=100, get_all=True)
-            except gitlab.exceptions.GitlabHttpError as e:
-                if e.response_code == 429 and attempts <= 3:
-                    time.sleep(backoff * attempts)
-                    continue
-                raise
+        return proj.jobs.list(scope=scope_values, per_page=100, get_all=True)
 
-    try:
-        scopes = []
-        if want_running:
-            scopes.append("running")
-        if want_pending:
-            scopes.append("pending")
-        if scopes:
-            jobs.extend(_list_with_scopes(scopes))
-    except gitlab.exceptions.GitlabAuthenticationError:
-        if verbose:
-            err(f"[auth] No access to jobs for {path}")
-        return str(proj.id), path, []
-    except gitlab.exceptions.GitlabHttpError as e:
-        if verbose:
-            err(f"[{path}] HTTP error fetching jobs: {e} (code {e.response_code})")
-        return str(proj.id), path, []
+    scopes = []
+    if want_running:
+        scopes.append("running")
+    if want_pending:
+        scopes.append("pending")
+    if scopes:
+        jobs.extend(_list_with_scopes(scopes))
 
     normalized: List[Dict[str, Any]] = []
     now = datetime.now(timezone.utc)
@@ -219,7 +199,12 @@ def fetch_jobs_for_project(
 
 # --------------------------- Output ----------------------------------
 
-def print_table(grouped: Dict[str, List[Dict[str, Any]]], base_url: str, username: str):
+def print_table(
+    grouped: Dict[str, List[Dict[str, Any]]],
+    base_url: str,
+    username: str,
+    failed_projects: int = 0,
+):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     projects_scanned = len(grouped)
     projects_with_jobs = sum(1 for jobs in grouped.values() if jobs)
@@ -229,7 +214,11 @@ def print_table(grouped: Dict[str, List[Dict[str, Any]]], base_url: str, usernam
     line = "=" * 72
     print(line)
     print(f"Running & Queued Jobs (as of {now})")
-    print(f"Account: {username}    Host: {base_url}    Projects scanned: {projects_scanned}")
+    failure_suffix = f" (failed: {failed_projects})" if failed_projects else ""
+    print(
+        f"Account: {username}    Host: {base_url}    "
+        f"Projects scanned: {projects_scanned}{failure_suffix}"
+    )
     print(line)
 
     if total_running == 0 and total_pending == 0:
@@ -347,7 +336,6 @@ def main():
                     only_paths,
                     args.include_archived,
                     args.max_projects,
-                    args.verbose,
                 )
             )
         else:
@@ -375,17 +363,17 @@ def main():
 
     grouped: Dict[str, List[Dict[str, Any]]] = {}
     all_items: List[Dict[str, Any]] = []
+    failed_projects = 0
 
     def worker(idx: int, proj):
         path = getattr(proj, "path_with_namespace", str(proj.id))
         if args.progress:
             err(f"[{idx}/{total}] scanning {path} …")
-        proj_id, path, jobs = fetch_jobs_for_project(proj, True, True, 1.0, args.verbose)
+        proj_id, path, jobs = fetch_jobs_for_project(proj, True, True)
         running = sum(1 for j in jobs if j["status"] == "running")
         pending = sum(1 for j in jobs if j["status"] == "pending")
         if args.progress:
-            mark = "✓" if jobs or True else "-"
-            err(f"[{idx}/{total}] {mark} {path}: running={running} pending={pending}")
+            err(f"[{idx}/{total}] ✓ {path}: running={running} pending={pending}")
         return proj_id, path, jobs
 
     try:
@@ -399,8 +387,11 @@ def main():
                 try:
                     proj_id, path, jobs = fut.result()
                 except Exception as e:
+                    path = getattr(p, "path_with_namespace", str(p.id))
                     if args.verbose or args.progress:
-                        err(f"[{idx}/{total}] {getattr(p, 'path_with_namespace', p.id)} failed: {e}")
+                        err(f"[{idx}/{total}] ✗ {path} failed: {e}")
+                    grouped[path] = []
+                    failed_projects += 1
                     counter["done"] += 1
                     continue
                 grouped[path] = jobs
@@ -414,11 +405,17 @@ def main():
 
     # Output
     if args.format == "table":
-        print_table(grouped, args.base_url, username)
+        print_table(grouped, args.base_url, username, failed_projects)
     elif args.format == "json":
         print_json(all_items)
     else:
         print_csv(all_items)
+
+    if failed_projects and not (args.verbose or args.progress):
+        err(
+            f"Warning: {failed_projects} project(s) could not be scanned; "
+            "rerun with --verbose for details."
+        )
 
 if __name__ == "__main__":
     main()
