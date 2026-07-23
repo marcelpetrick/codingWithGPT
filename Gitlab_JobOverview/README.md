@@ -65,6 +65,10 @@ reported on standard error.
 - `--format json` emits a stable object schema suitable for `jq`.
 - `--format csv` emits spreadsheet-friendly columns.
 
+Successful runs end with the elapsed wall-clock duration. It is written to
+standard output for tables and standard error for JSON or CSV so
+machine-readable output remains valid.
+
 If GitLab does not return `queued_duration`, pending duration is calculated
 from `created_at`.
 

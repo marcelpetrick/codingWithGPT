@@ -1,5 +1,5 @@
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from types import SimpleNamespace
 
@@ -172,6 +172,29 @@ class OutputTests(unittest.TestCase):
             )
 
         self.assertIn("Projects scanned: 2 (failed: 1)", output.getvalue())
+
+    def test_elapsed_time_preserves_millisecond_precision(self):
+        self.assertEqual("1m2.346s", main.human_elapsed(62.3456))
+
+    def test_table_elapsed_time_is_printed_to_stdout(self):
+        stdout = StringIO()
+        stderr = StringIO()
+
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            main.print_elapsed(1.25, "table")
+
+        self.assertEqual("Elapsed wall-clock time: 1.250s\n", stdout.getvalue())
+        self.assertEqual("", stderr.getvalue())
+
+    def test_json_elapsed_time_is_printed_to_stderr(self):
+        stdout = StringIO()
+        stderr = StringIO()
+
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            main.print_elapsed(1.25, "json")
+
+        self.assertEqual("", stdout.getvalue())
+        self.assertEqual("Elapsed wall-clock time: 1.250s\n", stderr.getvalue())
 
 
 if __name__ == "__main__":

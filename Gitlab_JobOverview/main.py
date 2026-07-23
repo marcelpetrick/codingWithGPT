@@ -64,6 +64,17 @@ def human_td(dt: timedelta) -> str:
     parts.append(f"{seconds}s")
     return "".join(parts)
 
+def human_elapsed(seconds: float) -> str:
+    total_milliseconds = max(0, int(seconds * 1000 + 0.5))
+    whole_seconds, milliseconds = divmod(total_milliseconds, 1000)
+    parts = []
+    for unit, divisor in (("d", 86400), ("h", 3600), ("m", 60)):
+        if whole_seconds >= divisor:
+            value, whole_seconds = divmod(whole_seconds, divisor)
+            parts.append(f"{value}{unit}")
+    parts.append(f"{whole_seconds}.{milliseconds:03d}s")
+    return "".join(parts)
+
 def safe_get(d: Dict[str, Any], *keys, default=None):
     cur = d
     for k in keys:
@@ -75,6 +86,13 @@ def safe_get(d: Dict[str, Any], *keys, default=None):
 def err(msg: str):
     with PRINT_LOCK:
         print(msg, file=sys.stderr, flush=True)
+
+def print_elapsed(seconds: float, output_format: str):
+    message = f"Elapsed wall-clock time: {human_elapsed(seconds)}"
+    if output_format == "table":
+        print(message)
+    else:
+        err(message)
 
 # ------------------------- GitLab helpers ----------------------------
 
@@ -294,6 +312,7 @@ def start_heartbeat(total: int, counter, interval_secs: int):
 # ----------------------------- Main ----------------------------------
 
 def main():
+    started_at = time.perf_counter()
     parser = argparse.ArgumentParser(description="List running and queued GitLab CI jobs across accessible projects.")
     parser.add_argument("--base-url", required=False, default=os.environ.get("GITLAB_URL") or os.environ.get("CI_SERVER_URL"),
                         help="GitLab base URL, e.g. https://git.example.com (env: GITLAB_URL)")
@@ -416,6 +435,8 @@ def main():
             f"Warning: {failed_projects} project(s) could not be scanned; "
             "rerun with --verbose for details."
         )
+
+    print_elapsed(time.perf_counter() - started_at, args.format)
 
 if __name__ == "__main__":
     main()
