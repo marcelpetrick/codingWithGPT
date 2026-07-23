@@ -86,20 +86,18 @@ def build_client(base_url: str, token: Optional[str], verbose: bool) -> gitlab.G
         err(f"Authenticated as: {me.username} ({me.name})")
     return gl
 
-def iter_projects(gl: gitlab.Gitlab, include_archived: bool, limit: Optional[int], only_paths: Optional[set], verbose: bool):
+def iter_projects(gl: gitlab.Gitlab, include_archived: bool, limit: Optional[int], verbose: bool):
     count = 0
     try:
         for proj in gl.projects.list(
             membership=True,
             archived=include_archived,
+            simple=True,
             iterator=True,
             per_page=100,
             order_by="last_activity_at",
             sort="desc",
         ):
-            path = proj.path_with_namespace
-            if only_paths and path not in only_paths:
-                continue
             yield proj
             count += 1
             if limit and count >= limit:
@@ -107,6 +105,29 @@ def iter_projects(gl: gitlab.Gitlab, include_archived: bool, limit: Optional[int
     except gitlab.GitlabListError as e:
         err(f"Error listing projects: {e}")
         raise
+
+def iter_selected_projects(
+    gl: gitlab.Gitlab,
+    paths: Iterable[str],
+    include_archived: bool,
+    limit: Optional[int],
+    verbose: bool,
+):
+    """Resolve explicitly selected projects without enumerating all memberships."""
+    count = 0
+    for path in paths:
+        try:
+            proj = gl.projects.get(path)
+        except gitlab.exceptions.GitlabGetError as e:
+            if verbose:
+                err(f"[{path}] Unable to resolve project: {e}")
+            continue
+        if not include_archived and getattr(proj, "archived", False):
+            continue
+        yield proj
+        count += 1
+        if limit and count >= limit:
+            break
 
 def fetch_jobs_for_project(
     proj,
@@ -119,12 +140,12 @@ def fetch_jobs_for_project(
     web_url = getattr(proj, "web_url", None)
     jobs: List[Dict[str, Any]] = []
 
-    def _list_with_scope(scope_value: str) -> List[Any]:
+    def _list_with_scopes(scope_values: List[str]) -> List[Any]:
         attempts = 0
         while True:
             attempts += 1
             try:
-                return proj.jobs.list(scope=scope_value, per_page=100, all=True)
+                return proj.jobs.list(scope=scope_values, per_page=100, get_all=True)
             except gitlab.exceptions.GitlabHttpError as e:
                 if e.response_code == 429 and attempts <= 3:
                     time.sleep(backoff * attempts)
@@ -132,12 +153,13 @@ def fetch_jobs_for_project(
                 raise
 
     try:
+        scopes = []
         if want_running:
-            for j in _list_with_scope("running"):
-                jobs.append(j)
+            scopes.append("running")
         if want_pending:
-            for j in _list_with_scope("pending"):
-                jobs.append(j)
+            scopes.append("pending")
+        if scopes:
+            jobs.extend(_list_with_scopes(scopes))
     except gitlab.exceptions.GitlabAuthenticationError:
         if verbose:
             err(f"[auth] No access to jobs for {path}")
@@ -312,12 +334,31 @@ def main():
         sys.exit(1)
 
     username = getattr(gl.user, "username", "unknown")
-    only_paths = set(args.projects.split()) if args.projects.strip() else None
+    only_paths = list(dict.fromkeys(args.projects.split())) if args.projects.strip() else None
 
     if args.verbose:
-        err("Enumerating projects…")
+        action = "Resolving selected projects…" if only_paths else "Enumerating projects…"
+        err(action)
     try:
-        projects_list = list(iter_projects(gl, args.include_archived, args.max_projects, only_paths, args.verbose))
+        if only_paths:
+            projects_list = list(
+                iter_selected_projects(
+                    gl,
+                    only_paths,
+                    args.include_archived,
+                    args.max_projects,
+                    args.verbose,
+                )
+            )
+        else:
+            projects_list = list(
+                iter_projects(
+                    gl,
+                    args.include_archived,
+                    args.max_projects,
+                    args.verbose,
+                )
+            )
     except Exception:
         sys.exit(1)
 
