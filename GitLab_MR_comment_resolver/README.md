@@ -103,6 +103,64 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 ```
 
+## Invoking it, step by step
+
+Replace the placeholders with your own values. Nothing here is stored in the
+repository — the token lives in your shell (or in a file you keep outside the
+project), never in a tracked file.
+
+**1. Put the token in the environment.** Use a leading space so the line is kept
+out of your shell history (`zsh`/`bash` with `HIST_IGNORE_SPACE`):
+
+```bash
+ export GITLAB_TOKEN="<your-project-access-token>"
+```
+
+Or, to avoid the shell entirely:
+
+```bash
+printf '%s' '<your-project-access-token>' > ~/.gitlab-token
+chmod 600 ~/.gitlab-token
+```
+
+**2. Preview first — this writes nothing.**
+
+```bash
+.venv/bin/python main.py \
+  "https://<your-gitlab-host>/<group>/<project>/-/merge_requests/<iid>" \
+  --dry-run --show-skipped
+```
+
+With a token file instead of the environment variable, append
+`--token-file ~/.gitlab-token` to any of these commands.
+
+**3. Resolve, after checking the preview.** Without `--yes` it shows the same
+list and asks `Resolve N thread(s)? [y/N]`:
+
+```bash
+.venv/bin/python main.py \
+  "https://<your-gitlab-host>/<group>/<project>/-/merge_requests/<iid>"
+```
+
+**4. If you regret it, reverse the run:**
+
+```bash
+.venv/bin/python main.py \
+  "https://<your-gitlab-host>/<group>/<project>/-/merge_requests/<iid>" \
+  --unresolve --yes
+```
+
+Quote the URL: it contains `-` and `?` characters that some shells would
+otherwise interpret.
+
+### What a real merge request looks like
+
+On a busy MR most "comments" are *not* resolvable, so expect the skipped list to
+be much longer than the resolve list. A typical run reports something like
+`22 to resolve, 85 skipped`, where the 85 are automated bot summaries posted as
+standalone comments, system notes, and threads that were already resolved. That
+is expected, not a failure — see the table at the top.
+
 ## Usage
 
 Preview without changing anything — do this first:
