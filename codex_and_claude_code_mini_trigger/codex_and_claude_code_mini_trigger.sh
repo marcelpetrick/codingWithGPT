@@ -6,7 +6,8 @@ SCRIPT_NAME=$(basename "$0")
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 DEFAULT_WORKDIR=$(dirname -- "$SCRIPT_DIR")
 PROMPT="Return only the result of 1+1."
-CLAUDE_MODEL="${CLAUDE_TRIGGER_MODEL:-sonnet}"
+CLAUDE_SYSTEM_PROMPT="Answer with the result only."
+CLAUDE_MODEL="${CLAUDE_TRIGGER_MODEL:-claude-haiku-4-5}"
 CODEX_MODEL="${CODEX_TRIGGER_MODEL:-gpt-5.4-mini}"
 CODEX_REASONING_EFFORT="${CODEX_TRIGGER_REASONING_EFFORT:-low}"
 VERBOSE=0
@@ -20,6 +21,9 @@ Usage: ${SCRIPT_NAME} [OPTIONS]
 
 Run a minimal non-interactive 1+1 check with Claude Code and Codex.
 
+The Claude Code call runs with the smallest practical context: a one-line
+replacement system prompt, no tools, no skills, and no MCP servers.
+
 Options:
   -h, --help           Show this help text and exit.
   -v, --verbose        Print commands, paths, and progress information.
@@ -30,7 +34,8 @@ Options:
 
 Environment:
   CLAUDE_TRIGGER_MODEL
-                       Claude Code model to use. Defaults to ${CLAUDE_MODEL}.
+                       Claude Code model to use. Defaults to ${CLAUDE_MODEL},
+                       the cheapest current Claude model.
   CODEX_TRIGGER_MODEL
                        Codex model to use. Defaults to ${CODEX_MODEL}.
   CODEX_TRIGGER_REASONING_EFFORT
@@ -219,7 +224,12 @@ cd "$WORKDIR" || {
 
 overall_status=0
 
-if run_tool "Claude Code" json claude -p --model "$CLAUDE_MODEL" --output-format json --no-session-persistence "$PROMPT"; then
+if run_tool "Claude Code" json claude -p --model "$CLAUDE_MODEL" --output-format json \
+  --system-prompt "$CLAUDE_SYSTEM_PROMPT" \
+  --tools "" \
+  --disable-slash-commands \
+  --strict-mcp-config --mcp-config '{"mcpServers":{}}' \
+  --no-session-persistence "$PROMPT"; then
   printf '%s\n' "Claude Code check completed."
 else
   status=$?
