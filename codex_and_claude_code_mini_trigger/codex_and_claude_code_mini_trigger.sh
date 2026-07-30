@@ -120,15 +120,17 @@ extract_json_usage() {
 # exhaustive field dump because that dump grows with every new usage field the
 # tools report, and the one number worth watching gets lost in it.
 print_totals() {
-  label="$1"
-  output_format="$2"
-  usage_file="$3"
+  # Distinct names: this runs inside run_tool, and POSIX shell functions share
+  # globals, so reusing label/output_format here would clobber the caller's.
+  totals_label="$1"
+  totals_format="$2"
+  totals_file="$3"
 
   if ! command -v jq >/dev/null 2>&1; then
     return
   fi
 
-  case "$output_format" in
+  case "$totals_format" in
     json)
       # Claude Code reports cache reads and cache writes separately from
       # input_tokens, so the total is the sum of all four counters.
@@ -141,8 +143,8 @@ print_totals() {
         | "input=\($u.input_tokens // 0) output=\($u.output_tokens // 0) " +
           "cache_read=\($u.cache_read_input_tokens // 0) " +
           "cache_write=\($u.cache_creation_input_tokens // 0) " +
-          "total=\($total) cost_usd=\(.total_cost_usd // 0)"
-      ' "$usage_file" 2>/dev/null)
+          "total=\($total) cost_usd=\(((.total_cost_usd // 0) * 1000000 | round) / 1000000)"
+      ' "$totals_file" 2>/dev/null)
       ;;
     jsonl)
       # Codex counts cached tokens inside input_tokens, so adding them again
@@ -156,7 +158,7 @@ print_totals() {
               "output=\($u.output_tokens // 0) " +
               "reasoning=\($u.reasoning_output_tokens // 0) total=\($total)"
           end
-      ' "$usage_file" 2>/dev/null)
+      ' "$totals_file" 2>/dev/null)
       ;;
     *)
       return
@@ -164,7 +166,7 @@ print_totals() {
   esac
 
   if [ -n "$totals" ]; then
-    printf '%s\n' "${label} totals: ${totals}"
+    printf '%s\n' "${totals_label} totals: ${totals}"
   fi
 }
 
