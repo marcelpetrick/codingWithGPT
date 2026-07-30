@@ -116,6 +116,58 @@ extract_json_usage() {
   fi
 }
 
+# Print a single-line token/cost total for the run. Kept separate from the
+# exhaustive field dump because that dump grows with every new usage field the
+# tools report, and the one number worth watching gets lost in it.
+print_totals() {
+  label="$1"
+  output_format="$2"
+  usage_file="$3"
+
+  if ! command -v jq >/dev/null 2>&1; then
+    return
+  fi
+
+  case "$output_format" in
+    json)
+      # Claude Code reports cache reads and cache writes separately from
+      # input_tokens, so the total is the sum of all four counters.
+      totals=$(jq -r '
+        (.usage // {}) as $u
+        | (($u.input_tokens // 0)
+           + ($u.output_tokens // 0)
+           + ($u.cache_read_input_tokens // 0)
+           + ($u.cache_creation_input_tokens // 0)) as $total
+        | "input=\($u.input_tokens // 0) output=\($u.output_tokens // 0) " +
+          "cache_read=\($u.cache_read_input_tokens // 0) " +
+          "cache_write=\($u.cache_creation_input_tokens // 0) " +
+          "total=\($total) cost_usd=\(.total_cost_usd // 0)"
+      ' "$usage_file" 2>/dev/null)
+      ;;
+    jsonl)
+      # Codex counts cached tokens inside input_tokens, so adding them again
+      # would double count; the total is input plus output only.
+      totals=$(jq -rs '
+        map(select(.type == "turn.completed" and .usage != null)) | last
+        | if . == null then empty else
+            (.usage) as $u
+            | (($u.input_tokens // 0) + ($u.output_tokens // 0)) as $total
+            | "input=\($u.input_tokens // 0) (cached=\($u.cached_input_tokens // 0)) " +
+              "output=\($u.output_tokens // 0) " +
+              "reasoning=\($u.reasoning_output_tokens // 0) total=\($total)"
+          end
+      ' "$usage_file" 2>/dev/null)
+      ;;
+    *)
+      return
+      ;;
+  esac
+
+  if [ -n "$totals" ]; then
+    printf '%s\n' "${label} totals: ${totals}"
+  fi
+}
+
 run_tool() {
   label="$1"
   output_format="$2"
@@ -146,10 +198,12 @@ run_tool() {
   printf '%s\n' "Wall clock: ${elapsed_seconds}s"
 
   if [ "$output_format" = "json" ]; then
+    print_totals "$label" json "$output_file"
     extract_json_usage "$label" "$output_file"
   elif [ "$output_format" = "jsonl" ]; then
     jsonl_file="${output_file}.jsonl"
     grep '^[[:space:]]*{' "$output_file" >"$jsonl_file" 2>/dev/null || true
+    print_totals "$label" jsonl "$jsonl_file"
     extract_json_usage "$label" "$jsonl_file"
     rm -f "$jsonl_file"
   fi
