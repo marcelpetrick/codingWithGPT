@@ -8,6 +8,7 @@ DEFAULT_WORKDIR=$(dirname -- "$SCRIPT_DIR")
 PROMPT="Return only the result of 1+1."
 CLAUDE_SYSTEM_PROMPT="Answer with the result only."
 CLAUDE_MODEL="${CLAUDE_TRIGGER_MODEL:-claude-haiku-4-5}"
+CLAUDE_SESSION_PERSISTENCE="${CLAUDE_TRIGGER_SESSION_PERSISTENCE:-1}"
 CODEX_MODEL="${CODEX_TRIGGER_MODEL:-gpt-5.4-mini}"
 CODEX_REASONING_EFFORT="${CODEX_TRIGGER_REASONING_EFFORT:-low}"
 VERBOSE=0
@@ -36,6 +37,12 @@ Environment:
   CLAUDE_TRIGGER_MODEL
                        Claude Code model to use. Defaults to ${CLAUDE_MODEL},
                        the cheapest current Claude model.
+  CLAUDE_TRIGGER_SESSION_PERSISTENCE
+                       Write a Claude Code session record to disk (0 or 1).
+                       Defaults to ${CLAUDE_SESSION_PERSISTENCE}. Keep this at 1 so external
+                       monitors such as abtop can observe the run; set it to 0
+                       to save one orchestration call at the cost of leaving
+                       no trace on disk.
   CODEX_TRIGGER_MODEL
                        Codex model to use. Defaults to ${CODEX_MODEL}.
   CODEX_TRIGGER_REASONING_EFFORT
@@ -207,6 +214,22 @@ if [ "$TIMEOUT_SECONDS" -lt 1 ]; then
   exit 2
 fi
 
+case "$CLAUDE_SESSION_PERSISTENCE" in
+  0|1) ;;
+  *)
+    fail "CLAUDE_TRIGGER_SESSION_PERSISTENCE must be 0 or 1"
+    exit 2
+    ;;
+esac
+
+# Option parsing is finished, so the positional parameters are free to reuse
+# as the optional-argument list for the Claude Code invocation below.
+if [ "$CLAUDE_SESSION_PERSISTENCE" -eq 0 ]; then
+  set -- --no-session-persistence
+else
+  set --
+fi
+
 require_command sh || exit 127
 require_command claude || exit 127
 require_command codex || exit 127
@@ -229,7 +252,8 @@ if run_tool "Claude Code" json claude -p --model "$CLAUDE_MODEL" --output-format
   --tools "" \
   --disable-slash-commands \
   --strict-mcp-config --mcp-config '{"mcpServers":{}}' \
-  --no-session-persistence "$PROMPT"; then
+  "$@" \
+  -- "$PROMPT"; then
   printf '%s\n' "Claude Code check completed."
 else
   status=$?
