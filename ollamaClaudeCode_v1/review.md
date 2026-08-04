@@ -317,8 +317,30 @@ than showing invented numbers.
 
 ## Open items
 
-1. `qwen3.6:27b-q4_K_M` on `.67` — the actual recommendation, needs Alex's OK.
+1. Pull the models proposed in `fitting_models.md` onto `.67` — needs Alex's OK.
 2. SSH keys on both servers, for real GPU telemetry.
 3. `nvidia-smi -L` on `.67` to confirm the two cards.
 4. Tool-use probe for `qwen3-coder:30b`.
-5. Why q8 lands 5× under Alex's q4 figure — needs his exact model on this box.
+5. ~~Why q8 lands 5× under Alex's q4 figure~~ — **resolved, see below.**
+
+---
+
+## Resolved: why Alex's "36B" beat an 8B model
+
+`qwen3.6:35b-a3b` is a **mixture-of-experts** (`archqwen35moe`): 36B total
+parameters but only **~3B active per token**. Generation is memory-bandwidth
+bound on *active* weights, so it streams less per token than `llama3.1:8b` does
+— which is exactly why it measured faster despite being nominally 4× the size.
+
+That also closes out the q8 question. The three data points line up on active
+bytes per token, not on parameter count:
+
+| Model | Total | Active/token | Measured |
+|---|---|---|---|
+| `qwen3.6:35b-a3b` q4_K_M | 36B | 3B (MoE) | 89.8 tok/s (Alex) |
+| `llama3.1:8b` | 8B | 8B dense | 86.9 tok/s (Alex) |
+| `qwen3.6:27b-q8_0` | 27.8B | 27.8B dense @ q8 | 18.1 tok/s (ours) |
+
+Nothing is wrong with `.67`. The installed model is simply the worst combination
+available for it — dense *and* q8, streaming ~30 GB per token where the MoE
+streams ~2 GB. Model choice is worth 5× here; the hardware is not the limit.
