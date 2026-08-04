@@ -1,0 +1,124 @@
+==============================================
+ Ollama benchmark v1
+ Server:   http://192.168.100.37:11434  (ollama 0.30.6)
+ Profiles: S
+ Timeouts: cold 900s / warm 600s
+ Thinking: default
+ Output:   ./results/192.168.100.37-20260804-182402.tsv
+==============================================
+
+[codestral:22b]
+    [S] OK  10.4 tok/s  300 tokens  load 50.1s  total 96.4s  vram 11.22/14.19 GB  SPLIT!
+
+[codestral:22b-ctx32k]
+    [S] OK  8.1 tok/s  300 tokens  load 16.0s  total 54.3s  vram 11.05/20.42 GB  SPLIT!
+
+[granite4.1:8b-q4_K_M]
+    [S] OK  54.3 tok/s  300 tokens  load 13.3s  total 18.9s  vram 5.89/5.89 GB
+
+[hermes3:8b]
+    [S] OK  62.4 tok/s  300 tokens  load 14.1s  total 19.0s  vram 5.01/5.01 GB
+
+[mistral-nemo:12b]
+    [S] OK  43.1 tok/s  300 tokens  load 28.0s  total 35.0s  vram 7.47/7.47 GB
+
+[mistral-nemo:12b-ctx20k]
+    [S] OK  43.0 tok/s  291 tokens  load 12.0s  total 18.9s  vram 10.18/10.18 GB
+
+[mistral-nemo:12b-ctx32k]
+    [S] OK  27.9 tok/s  280 tokens  load 13.9s  total 24.2s  vram 11.17/12.75 GB  SPLIT!
+
+[mrthp/omnicoder2:latest]
+    [S] OK  52.2 tok/s  300 tokens  load 17.2s  total 23.8s  vram 6.4/6.4 GB
+        thinking block: ~210 words
+
+[qwen2.5-coder:32b]
+    [S] OK  3.4 tok/s  300 tokens  load 22.9s  total 113.1s  vram 11.12/21.18 GB  SPLIT!
+
+[qwen2.5-coder:7b]
+    [S] OK  59.9 tok/s  300 tokens  load 15.3s  total 20.5s  vram 4.74/4.74 GB
+
+[qwen2.5-coder:7b-ctx32k]
+    [S] OK  60.1 tok/s  300 tokens  load 10.2s  total 15.3s  vram 6.37/6.37 GB
+
+[qwen3:14b-q8_0]
+    [S] OK  5.1 tok/s  300 tokens  load 30.4s  total 90.5s  vram 11.13/16.83 GB  SPLIT!
+        thinking block: ~216 words
+
+[qwen3.5:0.8b]
+    [S] OK  139.3 tok/s  300 tokens  load 12.8s  total 15.0s  vram 0.93/0.93 GB
+        thinking block: ~209 words
+
+[qwen3.5:27b]
+    [S] OK  5.7 tok/s  300 tokens  load 47.9s  total 108.7s  vram 11.24/17.39 GB  SPLIT!
+        thinking block: ~170 words
+
+[qwen3.5:9b]
+    [S] OK  47.4 tok/s  300 tokens  load 11.4s  total 17.9s  vram 5.38/5.38 GB
+        thinking block: ~129 words
+
+[qwen3.5:9b-ctx64k]
+    [S] OK  47.3 tok/s  300 tokens  load 13.4s  total 19.9s  vram 7.45/7.45 GB
+        thinking block: ~173 words
+
+[qwen3.5:9b-ctx80k]
+    [S] OK  47.3 tok/s  300 tokens  load 13.4s  total 19.9s  vram 8.01/8.01 GB
+        thinking block: ~151 words
+
+[qwen3.5:9b-ctx96k]
+    [S] OK  47.3 tok/s  300 tokens  load 13.2s  total 19.7s  vram 8.56/8.56 GB
+        thinking block: ~202 words
+
+[qwen3.5-ctx32k:9b]
+    [S] OK  47.4 tok/s  300 tokens  load 12.9s  total 19.4s  vram 6.32/6.32 GB
+        thinking block: ~102 words
+
+[qwen3.6:27b-q4_K_M]
+    [S] OK  4.8 tok/s  300 tokens  load 59.2s  total 122.1s  vram 9.6/17.37 GB  SPLIT!
+        thinking block: ~144 words
+
+[qwen3:8b-q4_K_M]
+    [S] OK  58.8 tok/s  300 tokens  load 13.3s  total 18.8s  vram 5.57/5.57 GB
+        thinking block: ~232 words
+
+[qwen3:8b-q8_0]
+    [S] OK  38.4 tok/s  300 tokens  load 23.2s  total 31.2s  vram 8.89/8.89 GB
+        thinking block: ~228 words
+
+[qwen3-coder:30b]
+    [S] OK  15.9 tok/s  300 tokens  load 46.8s  total 67.3s  vram 11.16/19.96 GB  SPLIT!
+
+[qwen3-embedding:4b] SKIP (vision/embedding/image)
+[qwen3-vl:4b] SKIP (vision/embedding/image)
+[qwen3-vl:8b] SKIP (vision/embedding/image)
+[x/flux2-klein:latest] SKIP (vision/embedding/image)
+
+==============================================
+ Summary — http://192.168.100.37:11434 (ollama 0.30.6)
+==============================================
+profile  model                    status  tok_s  eval_count  think_count  load_s  prompt_eval_s  total_s  vram_gb  size_gb
+S        codestral:22b            OK      10.4   300         0            50.17   17.482         96.41    11.22    14.19
+S        codestral:22b-ctx32k     OK      8.1    300         0            16.09   1.461          54.39    11.05    20.42
+S        granite4.1:8b-q4_K_M     OK      54.3   300         0            13.34   .110           18.98    5.89     5.89
+S        hermes3:8b               OK      62.4   300         0            14.16   .082           19.05    5.01     5.01
+S        mistral-nemo:12b         OK      43.1   300         0            28.00   .092           35.05    7.47     7.47
+S        mistral-nemo:12b-ctx20k  OK      43.0   291         0            12.04   .095           18.91    10.18    10.18
+S        mistral-nemo:12b-ctx32k  OK      27.9   280         0            13.97   .240           24.25    11.17    12.75
+S        mrthp/omnicoder2:latest  OK      52.2   300         210          17.21   .910           23.89    6.4      6.4
+S        qwen2.5-coder:32b        OK      3.4    300         0            22.92   2.428          113.12   11.12    21.18
+S        qwen2.5-coder:7b         OK      59.9   300         0            15.39   .113           20.51    4.74     4.74
+S        qwen2.5-coder:7b-ctx32k  OK      60.1   300         0            10.25   .113           15.36    6.37     6.37
+S        qwen3:14b-q8_0           OK      5.1    300         216          30.49   1.338          90.51    11.13    16.83
+S        qwen3.5:0.8b             OK      139.3  300         209          12.84   .072           15.07    0.93     0.93
+S        qwen3.5:27b              OK      5.7    300         170          47.90   8.578          108.77   11.24    17.39
+S        qwen3.5:9b               OK      47.4   300         129          11.49   .159           17.98    5.38     5.38
+S        qwen3.5:9b-ctx64k        OK      47.3   300         173          13.47   .164           19.97    7.45     7.45
+S        qwen3.5:9b-ctx80k        OK      47.3   300         151          13.48   .163           19.98    8.01     8.01
+S        qwen3.5:9b-ctx96k        OK      47.3   300         202          13.27   .162           19.77    8.56     8.56
+S        qwen3.5-ctx32k:9b        OK      47.4   300         102          12.96   .161           19.45    6.32     6.32
+S        qwen3.6:27b-q4_K_M       OK      4.8    300         144          59.24   1.554          122.11   9.6      17.37
+S        qwen3:8b-q4_K_M          OK      58.8   300         232          13.38   .346           18.84    5.57     5.57
+S        qwen3:8b-q8_0            OK      38.4   300         228          23.20   .234           31.24    8.89     8.89
+S        qwen3-coder:30b          OK      15.9   300         0            46.85   1.704          67.38    11.16    19.96
+
+TSV: ./results/192.168.100.37-20260804-182402.tsv
