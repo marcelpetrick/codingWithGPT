@@ -1,0 +1,3 @@
+swebench>=2.5
+datasets
+openai
