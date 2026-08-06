@@ -1,5 +1,10 @@
 # Review — what was done and what was found
 
+> **Round 2 (2026-08-06) is in `review2.md`** — models pulled onto `.67`, a full
+> speed + agentic-capability matrix, and a silent 16K context cap that kills tool
+> calling. The one-page summary is `evaluation.pdf`. This file is round 1.
+
+
 Run 2026-08-04. Server `192.168.100.37` (old) and `192.168.100.67` (new, from Alex).
 Raw data in `results/`, `results-nothink/`, `results-37-S.log`.
 
