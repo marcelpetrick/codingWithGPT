@@ -151,17 +151,26 @@ real safe working set is ~16k.
 
 ## Overflowing `num_ctx` silently costs you *half* the window
 
-Measured on `qwen3.6:27b-q8_0-ctx60k` (baked `num_ctx` 60000), with the corrected
-prose haystack:
+Measured with the corrected prose haystack, across two different window sizes:
 
-| needle document | approx. prompt tokens | `num_ctx` | server reported |
+| model | `num_ctx` | approx. prompt tokens | server reported |
 |---|---|---|---|
-| 40007 words / 248788 chars | ~66k | 60000 | **30002** |
-| 80003 words / 499672 chars | ~132k | 60000 | **30002** |
+| `qwen3.6:27b-q8_0-ctx60k` | 60000 | ~66k | **30002** |
+| `qwen3.6:27b-q8_0-ctx60k` | 60000 | ~132k | **30002** |
+| `qwen3.6:27b-mtp-q8_0-ctx60k` | 60000 | ~66k | **30002** |
+| `qwen3.6:27b-mtp-q8_0-ctx60k` | 60000 | ~132k | **30002** |
+| `qwen3.6:27b-mtp-q8_0-ctx128k` | 131072 | ~132k | **65538** |
 
-Two prompts differing by a factor of two both come back at exactly 30002 — half
-the window plus two. Overflow does **not** fill the context and truncate the
-remainder: it discards down to `num_ctx/2`. No error is returned.
+Prompts differing by a factor of two come back identical, and the retained amount
+is exactly **`num_ctx / 2 + 2`** at both 60000 and 131072. That the same formula
+holds across two window sizes makes it a rule rather than a coincidence.
+
+Overflow does **not** fill the context and truncate the remainder: it discards down
+to half. No error is returned.
+
+(The same model recalled a needle at 72419 tokens when `num_ctx` was 131072 and the
+document fit — so this is the overflow path specifically, not a ceiling on what the
+model can use.)
 
 Consequences for agentic coding:
 
