@@ -71,9 +71,29 @@ GATES = [
     ("T3_multiturn", "multi-turn"),
     ("T4_parallel_calls", "parallel calls"),
     ("T5_complex_schema", "nested schema"),
-    ("T6_needle_120k", "recall @120k"),
-    ("T7_tool_at_long_ctx", "tools @ full ctx"),
+    ("T7_tool_at_long_ctx", "tools @ long ctx"),
 ]
+
+# The needle gates are named for the *word count* of the filler document, not a
+# token count, and the server's reported prompt size does not match either (see
+# review2.md). So the recall column reports the deepest level that passed and
+# the prompt size the server actually reported for it -- never a nominal figure.
+NEEDLES = ["T6_needle_4k", "T6_needle_16k", "T6_needle_60k", "T6_needle_120k"]
+
+def recall_cell(a):
+    deepest = None
+    for g in NEEDLES:
+        got = a.get(g)
+        if got and got[0] == "PASS":
+            deepest = (g, got[1])
+    if deepest is None:
+        return '<td class="mut">—</td>' if not any(a.get(g) for g in NEEDLES) \
+               else '<td class="ba">fail</td>'
+    g, detail = deepest
+    words = g.rsplit("_", 1)[1]
+    tok = detail.replace("found_at_", "").replace("_prompt_tokens", "")
+    label = f"{words}w" + (f" / {int(tok)/1000:.0f}k rep." if tok.isdigit() else "")
+    return f'<td class="ok" title="{html.escape(detail)}">{label}</td>'
 
 def cell(res):
     if res is None:
@@ -86,12 +106,12 @@ def cell(res):
         return f'<td class="wa" title="{html.escape(d)}">{short}</td>'
     return f'<td class="ba" title="{html.escape(d)}">{ "err" if r=="ERROR" else "fail"}</td>'
 
-gate_head = "".join(f"<th>{n}</th>" for _, n in GATES)
+gate_head = "".join(f"<th>{n}</th>" for _, n in GATES) + "<th>deepest recall</th>"
 
 matrix = []
 for r in rows:
     a = ag_by_norm.get(norm(r["model"]), {})
-    tds = "".join(cell(a.get(g)) for g, _ in GATES)
+    tds = "".join(cell(a.get(g)) for g, _ in GATES) + recall_cell(a)
     matrix.append(f'<tr><td class="mono">{html.escape(r["model"])}</td>{tds}</tr>')
 
 # ---------- footprint table ----------
@@ -179,8 +199,8 @@ generated {datetime.date.today().isoformat()} · all figures measured on this ho
 <li><b>pick right tool</b> — four tools offered; must choose <span class="mono">search_code</span>, not the first one.</li>
 <li><b>multi-turn</b> — must consume a <span class="mono">tool_result</span> it was handed and act on it rather than re-calling.</li>
 <li><b>nested schema</b> — enums plus an array of objects, like a real patch tool.</li>
-<li><b>recall @120k</b> — a fact buried mid-document; proves the context is usable, not merely allocatable.</li>
-<li><b>tools @ full ctx</b> — tool call with ~53k tokens already in the window. Run 3×: this is where models silently stop emitting tool calls.</li>
+<li><b>tools @ long ctx</b> — tool call with ~53k tokens already in the window. Run 3×: this is where models silently stop emitting tool calls.</li>
+<li><b>deepest recall</b> — a fact buried mid-document, retrieved. Shown as filler <i>words</i> and the prompt size the server reported. Proves the context is usable, not merely allocatable.</li>
 </ul>
 </div>
 <div>
@@ -193,8 +213,10 @@ generated {datetime.date.today().isoformat()} · all figures measured on this ho
 Profile S = Sieve-of-Eratosthenes prompt capped at 300 tokens (comparable to the v0 history).
 Profile L = "Write exactly 1000 tokens about GPUs", uncapped (comparable to the figures quoted by Alex).
 The two are never averaged: longer generations amortise warm-up and report higher tok/s on identical hardware.
-Context ceiling = largest num_ctx whose weights+KV still sit entirely in VRAM. GPU temperature and
-utilisation are not shown because the Ollama HTTP API does not expose them and SSH to the host is refused.
+Context ceiling = largest num_ctx whose weights+KV still sit entirely in VRAM. Recall depth is stated in filler
+words plus the server-reported prompt size; those two disagree with each other and with a chars/4 estimate, so
+neither is presented as a verified token count. GPU temperature and utilisation are not shown because the Ollama
+HTTP API does not expose them and SSH to the host is refused.
 </div>
 """
 
