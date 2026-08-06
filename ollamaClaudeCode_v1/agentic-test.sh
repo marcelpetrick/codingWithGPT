@@ -178,20 +178,35 @@ rec T5_complex_schema "$V" "$D"
 needle_test() {
   local words="$1" label="$2"
   local body="/tmp/nh_body_$$.json"
+  # Cap the requested num_ctx at what the model actually has baked in. Asking a
+  # 60k-context q8 model for 180k KV makes it spill to system RAM and crawl for
+  # tens of minutes; capping means the prompt is truncated instead and the needle
+  # (mid-document) is lost -- a FAIL, which is the honest answer for that model at
+  # that depth rather than a timeout that looks like a harness problem.
+  local baked
+  baked=$(curl -s --max-time 15 -X POST "$BASE/api/show" \
+    -H "Content-Type: application/json" -d "{\"model\":\"$MODEL\"}" \
+    | jq -r '.parameters // ""' | grep -oP 'num_ctx\s+\K[0-9]+' | head -1)
+  [ -z "$baked" ] && baked=32768
   # Build the whole request body in Python and post it from a file. Passing a
   # 120k-word document through argv overflows the exec limit ("Argument list too
   # long"), and /api/chat framing is required -- raw /api/generate with
   # low-entropy filler makes models echo the prompt and stop after a token or two.
-  python3 - "$words" "$MODEL" "$body" <<'PY'
+  python3 - "$words" "$MODEL" "$body" "$baked" <<'PY'
 import json,sys
-w=int(sys.argv[1]); model=sys.argv[2]; out=sys.argv[3]
+w=int(sys.argv[1]); model=sys.argv[2]; out=sys.argv[3]; baked=int(sys.argv[4])
 secret="The deployment passphrase is CRIMSON-PANGOLIN-4471."
 # Natural-language filler, varied enough not to collapse into repetition.
-sent=("The service {0} handles inbound requests and logs to shard {1}. "
+# The comma between these two strings is load-bearing: without it Python
+# implicitly concatenates them into ONE string, sent[i%2] indexes a *character*,
+# and the haystack degenerates into "ThThThTh..." -- which every model trivially
+# passes and which measures nothing. That bug invalidated the first T6 results.
+sent=("The service {0} handles inbound requests and logs to shard {1}. ",
       "Retention for bucket {0} is {1} days under the standard policy. ")
-parts=[]; i=0
-while sum(len(p.split()) for p in parts) < w:
-    parts.append(sent[i%2].format("svc%d"%i, i)); i+=1
+assert isinstance(sent, tuple) and len(sent) == 2, "filler must be a 2-tuple"
+parts=[]; words=0; i=0
+while words < w:
+    p=sent[i%2].format("svc%d"%i, i); parts.append(p); words+=len(p.split()); i+=1
 mid=len(parts)//2
 doc="".join(parts[:mid])+"\n\n"+secret+"\n\n"+"".join(parts[mid:])
 q=("Answer only the question, using the document below.\n"
@@ -199,10 +214,12 @@ q=("Answer only the question, using the document below.\n"
    "=== DOCUMENT START ===\n"+doc+"\n=== DOCUMENT END ===\n\n"
    "QUESTION (repeat): What is the deployment passphrase? "
    "Reply with the passphrase only, nothing else.")
-ctx=int(w*2.0)+8192
+ctx=min(int(w*2.0)+8192, baked)
 json.dump({"model":model,"stream":False,"think":False,
            "options":{"num_predict":64,"num_ctx":ctx,"temperature":0},
            "messages":[{"role":"user","content":q}]}, open(out,"w"))
+sys.stderr.write("      needle %s: %d words, %d chars, num_ctx %d\n"
+                 % (sys.argv[1], words, len(doc), ctx))
 PY
   local R; R=$(curl -s --max-time "$TIMEOUT" -X POST "$BASE/api/chat" \
     -H "Content-Type: application/json" -d @"$body")
@@ -220,10 +237,14 @@ PY
     rec "T6_needle_$label" FAIL "missed_at_${pe}_prompt_tokens"
   fi
 }
-needle_test 4000   4k
-needle_test 16000  16k
-needle_test 60000  60k
-needle_test 120000 120k
+# Word counts are chosen to hit the *token* level named in the label: this filler
+# runs ~1.5 tokens/word (6.04 chars/word), so words = target_tokens / 1.5. The
+# label is the target; the recorded detail carries the prompt size the server
+# actually reported, and that measured figure is what gets published.
+needle_test 2700  4k
+needle_test 10700 16k
+needle_test 40000 60k
+needle_test 80000 120k
 
 # ---- T7: tool call with a nearly-full context ----------------------------
 # The state a coding agent actually lives in. Many models silently stop
