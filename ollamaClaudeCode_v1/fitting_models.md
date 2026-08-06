@@ -2,6 +2,40 @@
 
 Written 2026-08-04, on the measurements in `review.md`.
 
+> **Superseded in part, 2026-08-06.** Everything below was a *proposal* based on
+> round-1 measurements and estimates. The full matrix has since been run — 11
+> configurations across both servers — and the results are in **`review2.md`**, with
+> a one-page summary in **`evaluation.pdf`**. Where the two disagree, `review2.md`
+> is measured and this file is not.
+>
+> **The recommendation confirmed and sharpened:**
+>
+> ```shell
+> curl -X POST http://192.168.100.67:11434/api/create \
+>   -H "Content-Type: application/json" \
+>   -d '{"model":"qwen3.6:35b-a3b-q4_K_M-agentic",
+>        "from":"qwen3.6:35b-a3b-q4_K_M",
+>        "parameters":{"num_ctx":262144,"temperature":0,"presence_penalty":0},
+>        "stream":false}'
+> ```
+>
+> Measured **127.2 / 131.5 tok/s**, 33.08 GB fully in VRAM, full 262144 context
+> resident, all ten agentic gates PASS, needle recalled at 146957 prompt tokens.
+> **7.2× the `qwen3.6:27b-q8_0` that was on the box.** This model tag now exists on
+> `.67`.
+>
+> **What round 1 got wrong, corrected by measurement:**
+>
+> | this file said | measured |
+> |---|---|
+> | MoE KV rate unknown, est. ~0.08 GB/1k → ~150k ctx ceiling | **0.032 GB/1k → full 262144 fits at 33.09 GB** |
+> | sampling not considered | **`presence_penalty 1.5` (a vendor default) costs 35% of throughput** |
+> | MTP untested | **+170% on dense q8, but −25% on the MoE — wrong choice here** |
+> | `num_ctx` treated as free headroom | **overflow discards half the window on Ollama 0.32.5; a 12.5% spill costs 5.3×** |
+>
+> The flagged caveat about the KV estimate not transferring across architectures was
+> the right call — the real figure was 2.5× better than the estimate.
+
 ---
 
 ## The budget

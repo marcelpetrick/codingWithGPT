@@ -5,12 +5,32 @@ for results.** Network was fixed by the USB ethernet adapter coming up on
 `192.168.100.54/24`. Everything below this banner described the pre-reboot
 blocked state and is kept for history; the connectivity section is stale.
 
-Still open after the run:
-1. Pull `qwen3.6:27b-q4_K_M` onto `.67` (the actual recommendation) — needs Alex's OK.
-2. SSH keys on both servers — no GPU temp/util/power without them.
+**UPDATE 2026-08-06: round 2 is complete.** Read **`review2.md`** (findings) and
+**`evaluation.pdf`** (one-page summary). 11 configurations measured across both
+servers, including Alex's builds and the sampling isolation runs.
+
+Answer to the original question: **`qwen3.6:35b-a3b-q4_K_M-agentic`** —
+`num_ctx 262144, temperature 0, presence_penalty 0` — 131.5 tok/s, all gates pass,
+147k verified recall, 7.2× what was installed on `.67`. The tag exists on the server.
+
+Items 1 and 5 below are **done**; the rest still stand:
+1. ~~Pull `qwen3.6:27b-q4_K_M` onto `.67`~~ — done, and superseded: the MoE is 3.1×
+   faster than that dense q4 at similar size.
+2. SSH keys on both servers — still no GPU temp/util/power without them.
 3. `nvidia-smi -L` on `.67` to confirm the two cards behind the measured ~36.1 GB.
-4. Tool-use probe for `qwen3-coder:30b`.
-5. Fresh context sweep on `.37` — v0's ctx80k ceiling is obsolete, ctx96k is now free.
+4. Tool-use probe for `qwen3-coder:30b` (on `.37`; untested, not part of round 2).
+5. ~~Fresh context sweep on `.37`~~ — done: `ctx80k` is 8.01 GB (was 12.22 in v0),
+   `ctx96k` costs 8.56 GB and 0.2 tok/s, and `.37` holds 131072 fully in VRAM.
+
+New items from round 2:
+6. **Re-test the overflow behaviour when `.67`'s Ollama is upgraded.** The
+   `num_ctx/2` truncation is a 0.32.5 regression — `.37` on 0.30.6 fills the window
+   normally. It may simply disappear.
+7. **Repeat the sampling-sensitivity test with more trials.** n=8 was enough to show
+   `temperature 1` halves the 9b's structured-tool reliability, but not enough to
+   rule out a small `presence_penalty` effect on correctness.
+8. Tell Alex about `presence_penalty` — his `-ctx60k` builds inherit the vendor
+   default and are leaving ~35% of throughput on the table.
 
 ---
 
