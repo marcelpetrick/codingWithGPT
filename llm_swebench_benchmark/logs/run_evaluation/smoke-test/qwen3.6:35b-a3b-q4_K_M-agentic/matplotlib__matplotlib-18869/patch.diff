@@ -1,0 +1,6 @@
+--- a/matplotlib/__init__.py
++++ b/matplotlib/__init__.py
+@@ -16,6 +16,7 @@ import matplotlib as mpl
+ # Provide __version__ for backward compatibility.
+ __version__ = "3.7.0"
++__version_info__ = tuple(int(v) for v in __version__.split(".") if v.isdigit())

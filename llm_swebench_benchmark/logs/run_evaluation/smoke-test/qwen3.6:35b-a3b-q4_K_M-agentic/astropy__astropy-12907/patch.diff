@@ -1,0 +1,33 @@
+--- a/astropy/modeling/separable.py
++++ b/astropy/modeling/separable.py
+@@ -42,23 +42,12 @@ def separability_matrix(model, as_dict=False):
+     if hasattr(model, 'separable'):
+         if as_dict:
+             return copy.deepcopy(model.separable)
+         return _separable_to_matrix(model, model.separable)
+ 
+-    if isinstance(model, CompoundModel):
+-        if as_dict:
+-            return _separable_dict(model)
+-        seps = [separability_matrix(submodel) for submodel in model.submodels]
+-        out_idx = 0
+-        for submodel, sep in zip(model.submodels, seps):
+-            n_out = submodel.output_dim
+-            n_in = submodel.input_dim
+-            if sep is None:
+-                sep = np.ones((n_out, n_in), dtype=bool)
+-            out_idx += n_out
+-        seps_combined = np.zeros((model.output_dim, model.input_dim), dtype=bool)
+-        out_idx = 0
+-        for submodel, sep in zip(model.submodels, seps):
+-            n_out = submodel.output_dim
+-            n_in = submodel.input_dim
+-            seps_combined[out_idx:out_idx + n_out, :] = np.ones((n_out, n_in), dtype=bool)
+-            out_idx += n_out
+-        return seps_combined
++    # Always compute as a dict first to handle nested CompoundModels correctly.
++    sep_dict = _separable_dict(model)
++    if as_dict:
++        return sep_dict
++
++    return _separable_to_matrix(model, sep_dict)
