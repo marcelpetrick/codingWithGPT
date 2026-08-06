@@ -1,0 +1,4 @@
+# Run logs from the detached harnesses. Regenerable, timestamped, noisy in diffs;
+# the measured data (eval*/, agentic*/, sampling/) is committed instead.
+*.log
+*.log.done
