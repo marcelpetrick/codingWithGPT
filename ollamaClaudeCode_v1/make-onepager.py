@@ -29,9 +29,17 @@ def read_tsv(p):
 # directory and the host is attached here rather than by concatenating files.
 HOSTS = [("eval", "agentic", ".67"), ("eval37", "agentic37", ".37")]
 
+# The -iso* variants exist only to isolate the sampling effect (temperature vs
+# presence_penalty at otherwise identical weights). They are diagnostics, not
+# deployment candidates, so they stay out of the candidate tables; their numbers
+# are carried in the findings text instead.
+EXCLUDE = ("-isot0", "-isopp0")
+
 rows, agentic = [], {}
 for eval_dir, ag_dir, host in HOSTS:
     for r in read_tsv(os.path.join(HERE, eval_dir, "rows.tsv")):
+        if any(r["model"].endswith(x) for x in EXCLUDE):
+            continue
         r["host"] = host
         rows.append(r)
     for p in sorted(glob.glob(os.path.join(HERE, ag_dir, "*.tsv"))):
@@ -156,18 +164,18 @@ verdict = os.environ.get("ONEPAGER_VERDICT", "").strip()
 
 doc = f"""<!doctype html>
 <meta charset="utf-8">
-<title>Local model evaluation — agentic coding on 192.168.100.67</title>
+<title>Local model evaluation — agentic coding on 192.168.100.67 and .37</title>
 <style>
   @page {{ size: A4; margin: 11mm 11mm 9mm; }}
   * {{ box-sizing: border-box; }}
   body {{ margin:0; background:{SURFACE}; color:{INK};
-         font:9.2px/1.42 "Helvetica Neue",Helvetica,Arial,sans-serif; }}
+         font:8.4px/1.32 "Helvetica Neue",Helvetica,Arial,sans-serif; }}
   h1 {{ font-size:16px; margin:0 0 1px; letter-spacing:-.2px; }}
   .sub {{ color:{INK2}; font-size:8.6px; margin-bottom:7px; }}
-  h2 {{ font-size:9.6px; text-transform:uppercase; letter-spacing:.09em;
-        color:{INK2}; margin:11px 0 4px; font-weight:600; }}
+  h2 {{ font-size:9px; text-transform:uppercase; letter-spacing:.09em;
+        color:{INK2}; margin:8px 0 3px; font-weight:600; }}
   table {{ border-collapse:collapse; width:100%; }}
-  th,td {{ text-align:right; padding:2.6px 4px; border-bottom:.5px solid #e6e5e1; }}
+  th,td {{ text-align:right; padding:1.9px 4px; border-bottom:.5px solid #e6e5e1; }}
   th:first-child,td:first-child {{ text-align:left; }}
   th {{ color:{INK3}; font-weight:600; font-size:8px; text-transform:uppercase;
         letter-spacing:.05em; border-bottom:.8px solid #d8d7d2; }}
@@ -182,8 +190,8 @@ doc = f"""<!doctype html>
   .cols {{ display:flex; gap:13px; }}
   .cols > div {{ flex:1; }}
   ul {{ margin:2px 0 0; padding-left:12px; }}
-  li {{ margin-bottom:2.6px; }}
-  .brow {{ display:flex; align-items:center; gap:6px; margin-bottom:2.6px; }}
+  li {{ margin-bottom:2px; }}
+  .brow {{ display:flex; align-items:center; gap:6px; margin-bottom:1.9px; }}
   .blabel {{ width:36%; font-family:"SF Mono",Menlo,monospace; font-size:8.2px;
              color:{INK}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }}
   .btrack {{ flex:1; height:9px; background:#eceae5; }}
@@ -194,9 +202,10 @@ doc = f"""<!doctype html>
            padding-top:4px; }}
 </style>
 
-<h1>Local models for agentic coding — server 192.168.100.67</h1>
-<div class="sub">36.1 GB usable VRAM (measured, two GPUs) · Ollama 0.32.5 ·
-generated {datetime.date.today().isoformat()} · all figures measured on this host</div>
+<h1>Local models for agentic coding — servers 192.168.100.67 and .37</h1>
+<div class="sub">.67 — 36.1 GB usable VRAM (measured, two GPUs), Ollama 0.32.5 &nbsp;·&nbsp;
+.37 — 12.2 GB, Ollama 0.30.6 &nbsp;·&nbsp; generated {datetime.date.today().isoformat()} ·
+all figures measured on these hosts</div>
 
 {f'<div class="verdict">{verdict}</div>' if verdict else ''}
 
@@ -218,13 +227,12 @@ generated {datetime.date.today().isoformat()} · all figures measured on this ho
 
 <div class="cols">
 <div>
-<h2>What the gates mean</h2>
+<h2>How to read the gates</h2>
 <ul>
-<li><b>pick right tool</b> — four tools offered; must choose <span class="mono">search_code</span>, not the first one.</li>
-<li><b>multi-turn</b> — must consume a <span class="mono">tool_result</span> it was handed and act on it rather than re-calling.</li>
-<li><b>nested schema</b> — enums plus an array of objects, like a real patch tool.</li>
-<li><b>tools @ long ctx</b> — tool call with ~53k tokens already in the window. Run 3×: this is where models silently stop emitting tool calls.</li>
-<li><b>deepest recall</b> — deepest prompt, in measured tokens, from which a fact buried mid-document was still retrieved. Proves the context is usable, not merely allocatable.</li>
+<li><b>nested schema</b> — enums plus an array of objects, like a real patch tool. <b>pick right tool</b> — four offered; must choose <span class="mono">search_code</span>.</li>
+<li><b>tools @ long ctx</b> — tool call with ~53k tokens already in the window, run 3&times;. This is where models silently stop emitting tool calls.</li>
+<li><b>deepest recall</b> — deepest prompt, in measured tokens, from which a fact buried mid-document was still retrieved. Lower figures are <i>window</i> limits, not model limits: the deeper needle overflowed num_ctx and was discarded before the model saw it.</li>
+<li>All gates ran with thinking disabled and a 4000-token budget. Under a squeezed budget these same models fail in ways that look like incapability — no call, wrong schema — so both must be controlled for.</li>
 </ul>
 </div>
 <div>

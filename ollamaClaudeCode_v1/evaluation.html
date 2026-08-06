@@ -1,0 +1,155 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Local model evaluation — agentic coding on 192.168.100.67 and .37</title>
+<style>
+  @page { size: A4; margin: 11mm 11mm 9mm; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#fcfcfb; color:#0b0b0b;
+         font:8.4px/1.32 "Helvetica Neue",Helvetica,Arial,sans-serif; }
+  h1 { font-size:16px; margin:0 0 1px; letter-spacing:-.2px; }
+  .sub { color:#52514e; font-size:8.6px; margin-bottom:7px; }
+  h2 { font-size:9px; text-transform:uppercase; letter-spacing:.09em;
+        color:#52514e; margin:8px 0 3px; font-weight:600; }
+  table { border-collapse:collapse; width:100%; }
+  th,td { text-align:right; padding:1.9px 4px; border-bottom:.5px solid #e6e5e1; }
+  th:first-child,td:first-child { text-align:left; }
+  th { color:#8a8880; font-weight:600; font-size:8px; text-transform:uppercase;
+        letter-spacing:.05em; border-bottom:.8px solid #d8d7d2; }
+  .mono { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:8.4px; }
+  .ok { color:#008300; font-weight:600; }
+  .wa { color:#8a6100; font-weight:600; }
+  .ba { color:#e34948; font-weight:600; }
+  .mut { color:#8a8880; }
+  .verdict { border:.8px solid #d8d7d2; border-left:2.5px solid #2a78d6;
+              background:#f6f8fb; padding:6px 9px; margin:0 0 3px; }
+  .verdict b { font-size:10px; }
+  .cols { display:flex; gap:13px; }
+  .cols > div { flex:1; }
+  ul { margin:2px 0 0; padding-left:12px; }
+  li { margin-bottom:2px; }
+  .brow { display:flex; align-items:center; gap:6px; margin-bottom:1.9px; }
+  .blabel { width:36%; font-family:"SF Mono",Menlo,monospace; font-size:8.2px;
+             color:#0b0b0b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .btrack { flex:1; height:9px; background:#eceae5; }
+  .bfill { height:9px; background:#2a78d6;
+            border-top-right-radius:3px; border-bottom-right-radius:3px; }
+  .bval { width:34px; text-align:right; font-weight:600; font-size:8.6px; }
+  .foot { margin-top:9px; color:#8a8880; font-size:7.5px; border-top:.5px solid #e6e5e1;
+           padding-top:4px; }
+</style>
+
+<h1>Local models for agentic coding — servers 192.168.100.67 and .37</h1>
+<div class="sub">.67 — 36.1 GB usable VRAM (measured, two GPUs), Ollama 0.32.5 &nbsp;·&nbsp;
+.37 — 12.2 GB, Ollama 0.30.6 &nbsp;·&nbsp; generated 2026-08-06 ·
+all figures measured on these hosts</div>
+
+<div class="verdict"><b>Use <span style="font-family:monospace">qwen3.6:35b-a3b-q4_K_M</span> with <span style="font-family:monospace">num_ctx 262144, temperature 0, presence_penalty 0</span>.</b>
+Measured 131.5 tok/s, 33.08 GB fully resident, the full 256k context in VRAM, all ten agentic gates passed, and a fact recalled from 146957 prompt tokens.
+That is <b>7.2&times;</b> the <span style="font-family:monospace">qwen3.6:27b-q8_0</span> originally installed on this box &mdash; same hardware, three configuration decisions:
+pick the <b>MoE</b> (3.1&times; over dense q4 of similar size), clear <b>presence_penalty</b> (1.53&times;), and bake a <b>num_ctx that fits entirely in VRAM</b> (avoids a 5.3&times; loss).</div>
+
+<h2>Generation throughput — profile L, thinking disabled (tok/s)</h2>
+
+    <div class="brow">
+      <div class="blabel">qwen3.6:35b-a3b-q4_K_M-agentic  [.67]</div>
+      <div class="btrack"><div class="bfill" style="width:100.0%"></div></div>
+      <div class="bval">131.5</div>
+    </div>
+    <div class="brow">
+      <div class="blabel">qwen3.6:35b-a3b-q4_K_M-ctx128k  [.67]</div>
+      <div class="btrack"><div class="bfill" style="width:65.6%"></div></div>
+      <div class="bval">86.2</div>
+    </div>
+    <div class="brow">
+      <div class="blabel">qwen3.6:35b-a3b-q4_K_M-ctx256k  [.67]</div>
+      <div class="btrack"><div class="bfill" style="width:64.2%"></div></div>
+      <div class="bval">84.4</div>
+    </div>
+    <div class="brow">
+      <div class="blabel">qwen3.5:9b-ctx80k  [.67]</div>
+      <div class="btrack"><div class="bfill" style="width:51.2%"></div></div>
+      <div class="bval">67.3</div>
+    </div>
+    <div class="brow">
+      <div class="blabel">qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k  [.67]</div>
+      <div class="btrack"><div class="bfill" style="width:49.3%"></div></div>
+      <div class="bval">64.8</div>
+    </div>
+    <div class="brow">
+      <div class="blabel">qwen3.5:9b-ctx80k  [.37]</div>
+      <div class="btrack"><div class="bfill" style="width:36.5%"></div></div>
+      <div class="bval">48.0</div>
+    </div>
+    <div class="brow">
+      <div class="blabel">qwen3.5:9b-ctx96k  [.37]</div>
+      <div class="btrack"><div class="bfill" style="width:36.4%"></div></div>
+      <div class="bval">47.9</div>
+    </div>
+    <div class="brow">
+      <div class="blabel">qwen3.6:27b-mtp-q8_0-ctx60k  [.67]</div>
+      <div class="btrack"><div class="bfill" style="width:22.5%"></div></div>
+      <div class="bval">29.6</div>
+    </div>
+    <div class="brow">
+      <div class="blabel">qwen3.6:27b-q4_K_M-ctx128k  [.67]</div>
+      <div class="btrack"><div class="bfill" style="width:21.3%"></div></div>
+      <div class="bval">28.0</div>
+    </div>
+    <div class="brow">
+      <div class="blabel">qwen3.6:27b-q8_0-ctx60k  [.67]</div>
+      <div class="btrack"><div class="bfill" style="width:13.8%"></div></div>
+      <div class="bval">18.2</div>
+    </div>
+    <div class="brow">
+      <div class="blabel">qwen3.6:27b-mtp-q8_0-ctx128k  [.67]</div>
+      <div class="btrack"><div class="bfill" style="width:4.3%"></div></div>
+      <div class="bval">5.6</div>
+    </div>
+
+<h2>Footprint, speed and context ceiling</h2>
+<table>
+<tr><th>model</th><th>size GB</th><th>VRAM GB</th><th>placement</th>
+    <th>tok/s S</th><th>tok/s L</th><th>max ctx in VRAM</th><th>thinks by default</th></tr>
+<tr><td class="mono">qwen3.6:35b-a3b-q4_K_M-ctx128k  [.67]</td><td>28.25</td><td>28.25</td><td><span class="ok">full</span></td><td>80.0</td><td>86.2</td><td>262144</td><td>yes</td></tr><tr><td class="mono">qwen3.6:27b-q4_K_M-ctx128k  [.67]</td><td>30.43</td><td>30.43</td><td><span class="ok">full</span></td><td>27.8</td><td>28.0</td><td>131072</td><td>yes</td></tr><tr><td class="mono">qwen3.6:27b-q8_0-ctx60k  [.67]</td><td>32.87</td><td>32.87</td><td><span class="ok">full</span></td><td>18.1</td><td>18.2</td><td>65536</td><td>yes</td></tr><tr><td class="mono">qwen3.6:27b-mtp-q8_0-ctx60k  [.67]</td><td>31.82</td><td>31.82</td><td><span class="ok">full</span></td><td>48.8</td><td>29.6</td><td>32768</td><td>yes</td></tr><tr><td class="mono">qwen3.6:27b-mtp-q8_0-ctx128k  [.67]</td><td>36.65</td><td>32.07</td><td><span class="ba">split</span></td><td>11.1</td><td>5.6</td><td>32768</td><td>yes</td></tr><tr><td class="mono">qwen3.5:9b-ctx80k  [.67]</td><td>8.79</td><td>8.79</td><td><span class="ok">full</span></td><td>65.1</td><td>67.3</td><td>262144</td><td>yes</td></tr><tr><td class="mono">qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k  [.67]</td><td>26.14</td><td>26.14</td><td><span class="ok">full</span></td><td>51.4</td><td>64.8</td><td>262144</td><td>yes</td></tr><tr><td class="mono">qwen3.6:35b-a3b-q4_K_M-ctx256k  [.67]</td><td>33.08</td><td>33.08</td><td><span class="ok">full</span></td><td>82.2</td><td>84.4</td><td>262144</td><td>yes</td></tr><tr><td class="mono">qwen3.6:35b-a3b-q4_K_M-agentic  [.67]</td><td>33.08</td><td>33.08</td><td><span class="ok">full</span></td><td>127.2</td><td>131.5</td><td>262144</td><td>yes</td></tr><tr><td class="mono">qwen3.5:9b-ctx80k  [.37]</td><td>8.01</td><td>8.01</td><td><span class="ok">full</span></td><td>47.7</td><td>48.0</td><td>131072</td><td>yes</td></tr><tr><td class="mono">qwen3.5:9b-ctx96k  [.37]</td><td>8.56</td><td>8.56</td><td><span class="ok">full</span></td><td>47.5</td><td>47.9</td><td>131072</td><td>yes</td></tr>
+</table>
+
+<h2>Agentic capability gates</h2>
+<table>
+<tr><th>model</th><th>single tool</th><th>pick right tool</th><th>multi-turn</th><th>parallel calls</th><th>nested schema</th><th>tools @ long ctx</th><th>deepest recall</th></tr>
+<tr><td class="mono">qwen3.6:35b-a3b-q4_K_M-ctx128k  [.67]</td><td class="ok" title="correct_args">pass</td><td class="ok" title="chose_search_code">pass</td><td class="ok" title="used_tool_result">pass</td><td class="ok" title="2_parallel_calls">pass</td><td class="ok" title="nested_schema_exact_2_edits">pass</td><td class="ok" title="3/3_at_53283_tokens[PASS,PASS,PASS]">pass</td><td class="ok">72k tok</td></tr><tr><td class="mono">qwen3.6:27b-q4_K_M-ctx128k  [.67]</td><td class="ok" title="correct_args">pass</td><td class="ok" title="chose_search_code">pass</td><td class="ok" title="used_tool_result">pass</td><td class="ok" title="2_parallel_calls">pass</td><td class="ok" title="nested_schema_exact_2_edits">pass</td><td class="ok" title="3/3_at_53283_tokens[PASS,PASS,PASS]">pass</td><td class="ok">72k tok</td></tr><tr><td class="mono">qwen3.6:27b-q8_0-ctx60k  [.67]</td><td class="ok" title="correct_args">pass</td><td class="ok" title="chose_search_code">pass</td><td class="ok" title="used_tool_result">pass</td><td class="ok" title="2_parallel_calls">pass</td><td class="ok" title="nested_schema_exact_2_edits">pass</td><td class="ok" title="3/3_at_53283_tokens[PASS,PASS,PASS]">pass</td><td class="ok">18k tok</td></tr><tr><td class="mono">qwen3.6:27b-mtp-q8_0-ctx60k  [.67]</td><td class="ok" title="correct_args">pass</td><td class="ok" title="chose_search_code">pass</td><td class="ok" title="used_tool_result">pass</td><td class="ok" title="2_parallel_calls">pass</td><td class="ok" title="nested_schema_exact_2_edits">pass</td><td class="ok" title="3/3_at_53283_tokens[PASS,PASS,PASS]">pass</td><td class="ok">18k tok</td></tr><tr><td class="mono">qwen3.6:27b-mtp-q8_0-ctx128k  [.67]</td><td class="ok" title="correct_args">pass</td><td class="ok" title="chose_search_code">pass</td><td class="ok" title="used_tool_result">pass</td><td class="ok" title="2_parallel_calls">pass</td><td class="ok" title="nested_schema_exact_2_edits">pass</td><td class="ok" title="3/3_at_53283_tokens[PASS,PASS,PASS]">pass</td><td class="ok">72k tok</td></tr><tr><td class="mono">qwen3.5:9b-ctx80k  [.67]</td><td class="ok" title="correct_args">pass</td><td class="ok" title="chose_search_code">pass</td><td class="ok" title="used_tool_result">pass</td><td class="ok" title="2_parallel_calls">pass</td><td class="ok" title="nested_schema_exact_2_edits">pass</td><td class="ok" title="3/3_at_53283_tokens[PASS,PASS,PASS]">pass</td><td class="ok">72k tok</td></tr><tr><td class="mono">qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k  [.67]</td><td class="ok" title="correct_args">pass</td><td class="ok" title="chose_search_code">pass</td><td class="ok" title="used_tool_result">pass</td><td class="ok" title="2_parallel_calls">pass</td><td class="ok" title="nested_schema_exact_2_edits">pass</td><td class="ok" title="3/3_at_53283_tokens[PASS,PASS,PASS]">pass</td><td class="ok">72k tok</td></tr><tr><td class="mono">qwen3.6:35b-a3b-q4_K_M-ctx256k  [.67]</td><td class="ok" title="correct_args">pass</td><td class="ok" title="chose_search_code">pass</td><td class="ok" title="used_tool_result">pass</td><td class="ok" title="2_parallel_calls">pass</td><td class="ok" title="nested_schema_exact_2_edits">pass</td><td class="ok" title="3/3_at_53283_tokens[PASS,PASS,PASS]">pass</td><td class="ok">147k tok</td></tr><tr><td class="mono">qwen3.6:35b-a3b-q4_K_M-agentic  [.67]</td><td class="ok" title="correct_args">pass</td><td class="ok" title="chose_search_code">pass</td><td class="ok" title="used_tool_result">pass</td><td class="ok" title="2_parallel_calls">pass</td><td class="ok" title="nested_schema_exact_2_edits">pass</td><td class="ok" title="3/3_at_53283_tokens[PASS,PASS,PASS]">pass</td><td class="ok">147k tok</td></tr><tr><td class="mono">qwen3.5:9b-ctx80k  [.37]</td><td class="ok" title="correct_args">pass</td><td class="ok" title="chose_search_code">pass</td><td class="ok" title="used_tool_result">pass</td><td class="ok" title="2_parallel_calls">pass</td><td class="ok" title="nested_schema_exact_2_edits">pass</td><td class="ok" title="3/3_at_53283_tokens[PASS,PASS,PASS]">pass</td><td class="ok">72k tok</td></tr><tr><td class="mono">qwen3.5:9b-ctx96k  [.37]</td><td class="ok" title="correct_args">pass</td><td class="ok" title="chose_search_code">pass</td><td class="ok" title="used_tool_result">pass</td><td class="ok" title="2_parallel_calls">pass</td><td class="ba" title="no_tool_call">fail</td><td class="ok" title="3/3_at_53283_tokens[PASS,PASS,PASS]">pass</td><td class="ok">72k tok</td></tr>
+</table>
+
+<div class="cols">
+<div>
+<h2>How to read the gates</h2>
+<ul>
+<li><b>nested schema</b> — enums plus an array of objects, like a real patch tool. <b>pick right tool</b> — four offered; must choose <span class="mono">search_code</span>.</li>
+<li><b>tools @ long ctx</b> — tool call with ~53k tokens already in the window, run 3&times;. This is where models silently stop emitting tool calls.</li>
+<li><b>deepest recall</b> — deepest prompt, in measured tokens, from which a fact buried mid-document was still retrieved. Lower figures are <i>window</i> limits, not model limits: the deeper needle overflowed num_ctx and was discarded before the model saw it.</li>
+<li>All gates ran with thinking disabled and a 4000-token budget. Under a squeezed budget these same models fail in ways that look like incapability — no call, wrong schema — so both must be controlled for.</li>
+</ul>
+</div>
+<div>
+<h2>Findings</h2>
+<ul>
+<li><b>presence_penalty 1.5 &mdash; a vendor default &mdash; costs 35% of throughput.</b> Isolated at identical weights/ctx/VRAM: 84.4 &rarr; 129.5 tok/s at 0. temperature 0 adds no speed.</li>
+<li><b>MTP reverses sign by architecture.</b> +170% on the bandwidth-bound dense q8 (18.1&rarr;48.8 S) but &minus;25% on the MoE, which was never bandwidth-starved. Not a generic optimisation.</li>
+<li><b>A 12.5% VRAM spill costs 5.3&times;.</b> Same weights at ctx60k vs ctx128k: 29.6 &rarr; 5.6 tok/s. Loads fine, passes every gate, silently five times slower.</li>
+<li><b>Bare model tags cap at 16384 tokens</b> through /v1/messages, which has no num_ctx knob &mdash; and tool calling stops entirely past it, with no error. Only point an agent at a ctx-baked variant.</li>
+<li><b>Overflowing num_ctx discards half the window</b> (num_ctx/2+2; four models, three window sizes) &mdash; but only on Ollama 0.32.5. On 0.30.6 the window fills normally, so this is a regression in the newer server.</li>
+<li><b>temperature 1 makes small-model tool calls a coin flip.</b> The 9b passes the nested-schema gate 4&ndash;5/8 at defaults, 8/8 at temperature 0 &mdash; so single-trial gate results below measure luck as much as capability.</li>
+<li><b>The new server is 1.4&times; the old one</b>, not the ~2&times; the raw quoted figures implied (identical model on both hosts). The rest was model and configuration choice.</li>
+</ul>
+</div>
+</div>
+
+<div class="foot">
+Profile S = Sieve-of-Eratosthenes prompt capped at 300 tokens (comparable to the v0 history).
+Profile L = "Write exactly 1000 tokens about GPUs", uncapped (comparable to the figures quoted by Alex).
+The two are never averaged: longer generations amortise warm-up and report higher tok/s on identical hardware.
+Context ceiling = largest num_ctx whose weights+KV still sit entirely in VRAM. Recall depth is the deepest prompt,
+in tokens reported by the server, from which the buried fact was retrieved; prose measures 1.65 tokens/word here.
+Overflowing num_ctx discards down to num_ctx/2 with no error, so size num_ctx at twice the context you intend to
+use. GPU temperature and utilisation are not shown because the Ollama HTTP API does not expose them and SSH to the
+host is refused.
+</div>
