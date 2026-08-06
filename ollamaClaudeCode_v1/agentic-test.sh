@@ -37,6 +37,24 @@ MSG_URL="$BASE/v1/messages"
 HDR=(-H "Content-Type: application/json" -H "x-api-key: ollama" -H "anthropic-version: 2023-06-01")
 TIMEOUT=1200
 
+# Every tool test runs in the configuration these models should actually be
+# deployed in, because otherwise the gates measure the budget rather than the
+# model. Two measurements forced this:
+#
+#  1. max_tokens. At max_tokens=1200 the MoE returned stop_reason=max_tokens with
+#     a 4487-char thinking block and no tool call at all; at 4000 the same request
+#     returned stop_reason=tool_use with correct arguments. The apparent "cannot
+#     handle a nested schema" was thinking starving the budget.
+#  2. how to disable thinking. On /v1/messages the Ollama-native "think": false is
+#     NOT honoured (240 thinking chars leaked through). Anthropic's
+#     thinking:{"type":"disabled"} is honoured: 0 thinking chars, and the same tool
+#     call cost 40 output tokens instead of 166 -- ~4x cheaper per agent turn.
+#
+# MAXTOK is therefore generous and thinking is disabled on every tool test.
+# Whether a model thinks by *default* is recorded separately, in evaluate.sh.
+MAXTOK=4000
+NOTHINK='"thinking":{"type":"disabled"}'
+
 rec() { printf '%s\t%s\t%s\n' "$1" "$2" "$3" >> "$RES"; printf '  %-28s %-8s %s\n' "$1" "$2" "$3"; }
 
 post() {  # post <json-body> ; echoes response, tees to raw log
@@ -57,10 +75,10 @@ TOOLS_MULTI='[
 echo "############ agentic tests: $MODEL on $HOST ############"
 
 # ---- T1: single tool, simple schema ----------------------------------------
-R=$(post "{\"model\":\"$MODEL\",\"max_tokens\":700,\"tools\":[{\"name\":\"write_file\",\"description\":\"Write content to a file\",\"input_schema\":{\"type\":\"object\",\"properties\":{\"path\":{\"type\":\"string\"},\"content\":{\"type\":\"string\"}},\"required\":[\"path\",\"content\"]}}],\"messages\":[{\"role\":\"user\",\"content\":\"Write hello world to /tmp/test.txt\"}]}")
+R=$(post "{\"model\":\"$MODEL\",\"max_tokens\":$MAXTOK,$NOTHINK,\"tools\":[{\"name\":\"write_file\",\"description\":\"Write content to a file\",\"input_schema\":{\"type\":\"object\",\"properties\":{\"path\":{\"type\":\"string\"},\"content\":{\"type\":\"string\"}},\"required\":[\"path\",\"content\"]}}],\"messages\":[{\"role\":\"user\",\"content\":\"Write hello world to /tmp/test.txt\"}]}")
 eval "$(echo "$R" | python3 -c "
 import json,sys
-try: d=json.load(sys.stdin)
+try: d=json.loads(sys.stdin.read(),strict=False)
 except Exception: print('V=FAIL; D=unparseable'); raise SystemExit
 if d.get('error'): print('V=FAIL; D=api_error'); raise SystemExit
 tu=[b for b in d.get('content',[]) if b.get('type')=='tool_use']
@@ -72,10 +90,10 @@ else: print('V=FAIL; D=stop_reason='+str(sr))
 rec T1_single_tool "$V" "$D"
 
 # ---- T2: tool selection among four ----------------------------------------
-R=$(post "{\"model\":\"$MODEL\",\"max_tokens\":700,\"tools\":$TOOLS_MULTI,\"messages\":[{\"role\":\"user\",\"content\":\"Find every place in the repo where we call deprecated_api(). Do not read or write any file yet.\"}]}")
+R=$(post "{\"model\":\"$MODEL\",\"max_tokens\":$MAXTOK,$NOTHINK,\"tools\":$TOOLS_MULTI,\"messages\":[{\"role\":\"user\",\"content\":\"Find every place in the repo where we call deprecated_api(). Do not read or write any file yet.\"}]}")
 eval "$(echo "$R" | python3 -c "
 import json,sys
-try: d=json.load(sys.stdin)
+try: d=json.loads(sys.stdin.read(),strict=False)
 except Exception: print('V=FAIL; D=unparseable'); raise SystemExit
 if d.get('error'): print('V=FAIL; D=api_error'); raise SystemExit
 tu=[b for b in d.get('content',[]) if b.get('type')=='tool_use']
@@ -88,21 +106,21 @@ rec T2_tool_selection "$V" "$D"
 # ---- T3: multi-turn, feed tool_result back --------------------------------
 # First turn: ask it to read a file. Then hand back a result and require it to
 # act on the content rather than re-reading.
-R1=$(post "{\"model\":\"$MODEL\",\"max_tokens\":700,\"tools\":$TOOLS_MULTI,\"messages\":[{\"role\":\"user\",\"content\":\"Read /app/version.txt and tell me what version it contains.\"}]}")
+R1=$(post "{\"model\":\"$MODEL\",\"max_tokens\":$MAXTOK,$NOTHINK,\"tools\":$TOOLS_MULTI,\"messages\":[{\"role\":\"user\",\"content\":\"Read /app/version.txt and tell me what version it contains.\"}]}")
 TID=$(echo "$R1" | jq -r '[.content[]?|select(.type=="tool_use")][0].id // empty' 2>/dev/null)
 if [ -z "$TID" ]; then
   rec T3_multiturn FAIL "no_tool_use_on_turn1"
 else
   ASSIST=$(echo "$R1" | jq -c '{role:"assistant", content:.content}')
   R2=$(post "$(jq -nc --arg m "$MODEL" --argjson tools "$TOOLS_MULTI" --argjson a "$ASSIST" --arg tid "$TID" \
-    '{model:$m, max_tokens:700, tools:$tools, messages:[
+    '{model:$m, max_tokens:4000, thinking:{type:"disabled"}, tools:$tools, messages:[
        {role:"user", content:"Read /app/version.txt and tell me what version it contains."},
        $a,
        {role:"user", content:[{type:"tool_result", tool_use_id:$tid, content:"4.2.1-rc3"}]}
      ]}')")
   eval "$(echo "$R2" | python3 -c "
 import json,sys
-try: d=json.load(sys.stdin)
+try: d=json.loads(sys.stdin.read(),strict=False)
 except Exception: print('V=FAIL; D=unparseable'); raise SystemExit
 if d.get('error'): print('V=FAIL; D=api_error_turn2'); raise SystemExit
 txt=' '.join(b.get('text','') for b in d.get('content',[]) if b.get('type')=='text')
@@ -115,10 +133,10 @@ else: print('V=FAIL; D=no_mention_of_result')
 fi
 
 # ---- T4: parallel tool calls ----------------------------------------------
-R=$(post "{\"model\":\"$MODEL\",\"max_tokens\":900,\"tools\":$TOOLS_MULTI,\"messages\":[{\"role\":\"user\",\"content\":\"Read both /app/a.txt and /app/b.txt. Issue both reads at once in a single turn.\"}]}")
+R=$(post "{\"model\":\"$MODEL\",\"max_tokens\":$MAXTOK,$NOTHINK,\"tools\":$TOOLS_MULTI,\"messages\":[{\"role\":\"user\",\"content\":\"Read both /app/a.txt and /app/b.txt. Issue both reads at once in a single turn.\"}]}")
 eval "$(echo "$R" | python3 -c "
 import json,sys
-try: d=json.load(sys.stdin)
+try: d=json.loads(sys.stdin.read(),strict=False)
 except Exception: print('V=FAIL; D=unparseable'); raise SystemExit
 if d.get('error'): print('V=FAIL; D=api_error'); raise SystemExit
 tu=[b for b in d.get('content',[]) if b.get('type')=='tool_use']
@@ -128,10 +146,10 @@ rec T4_parallel_calls "$V" "$D"
 
 # ---- T5: complex nested schema -------------------------------------------
 COMPLEX='[{"name":"apply_patch","description":"Apply a structured multi-file patch to the repository","input_schema":{"type":"object","properties":{"commit_message":{"type":"string"},"strategy":{"type":"string","enum":["merge","rebase","squash"]},"edits":{"type":"array","items":{"type":"object","properties":{"path":{"type":"string"},"mode":{"type":"string","enum":["create","modify","delete"]},"hunks":{"type":"array","items":{"type":"object","properties":{"old":{"type":"string"},"new":{"type":"string"}},"required":["old","new"]}}},"required":["path","mode"]}}},"required":["commit_message","strategy","edits"]}}]'
-R=$(post "$(jq -nc --arg m "$MODEL" --argjson t "$COMPLEX" '{model:$m,max_tokens:1200,tools:$t,messages:[{role:"user",content:"Rename the function foo to bar in src/main.py, and delete src/old.py. Use the squash strategy and commit message \"refactor: rename foo to bar\"."}]}')")
+R=$(post "$(jq -nc --arg m "$MODEL" --argjson t "$COMPLEX" '{model:$m,max_tokens:4000,thinking:{type:"disabled"},tools:$t,messages:[{role:"user",content:"Rename the function foo to bar in src/main.py, and delete src/old.py. Use the squash strategy and commit message \"refactor: rename foo to bar\"."}]}')")
 eval "$(echo "$R" | python3 -c "
 import json,sys
-try: d=json.load(sys.stdin)
+try: d=json.loads(sys.stdin.read(),strict=False)
 except Exception: print('V=FAIL; D=unparseable'); raise SystemExit
 if d.get('error'): print('V=FAIL; D=api_error'); raise SystemExit
 tu=[b for b in d.get('content',[]) if b.get('type')=='tool_use']
@@ -231,10 +249,10 @@ rm -f /tmp/big_$$.txt
 T7_PASS=0; T7_TOKENS="?"; T7_MODES=""
 for trial in 1 2 3; do
   R=$(post "$(jq -nc --arg m "$MODEL" --argjson tools "$TOOLS_MULTI" --argjson c "$BIG" \
-    '{model:$m,max_tokens:700,tools:$tools,messages:[{role:"user",content:$c}]}')")
+    '{model:$m,max_tokens:4000,thinking:{type:"disabled"},tools:$tools,messages:[{role:"user",content:$c}]}')")
   eval "$(echo "$R" | python3 -c "
 import json,sys
-try: d=json.load(sys.stdin)
+try: d=json.loads(sys.stdin.read(),strict=False)
 except Exception: print('V=FAIL; T=?'); raise SystemExit
 if d.get('error'): print('V=ERROR; T=?'); raise SystemExit
 tu=[b for b in d.get('content',[]) if b.get('type')=='tool_use']
