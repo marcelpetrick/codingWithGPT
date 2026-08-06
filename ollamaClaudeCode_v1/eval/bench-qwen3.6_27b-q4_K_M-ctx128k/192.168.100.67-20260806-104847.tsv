@@ -1,0 +1,3 @@
+profile	model	status	tok_s	eval_count	think_count	load_s	prompt_eval_s	total_s	vram_gb	size_gb
+S	qwen3.6:27b-q4_K_M-ctx128k	OK	27.8	241	0	14.95	.308	23.90	30.43	30.43
+L	qwen3.6:27b-q4_K_M-ctx128k	OK	28.0	1424	0	.61	.239	51.92	30.43	30.43

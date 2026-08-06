@@ -11,7 +11,8 @@ All seven ctx-baked variants, thinking disabled, sorted by long-profile throughp
 
 | model | VRAM | placement | tok/s S | tok/s L | ctx fully in VRAM |
 |---|---|---|---|---|---|
-| **`qwen3.6:35b-a3b-q4_K_M-ctx128k`** | 28.25 | full | **80.0** | **86.2** | **262144** |
+| **`qwen3.6:35b-a3b-q4_K_M-ctx256k`** | 33.08 | full | **82.2** | **84.4** | **262144** |
+| `qwen3.6:35b-a3b-q4_K_M-ctx128k` | 28.25 | full | 80.0 | 86.2 | 262144 |
 | `qwen3.5:9b-ctx80k` | 8.79 | full | 65.1 | 67.3 | 262144 |
 | `qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k` | 26.14 | full | 51.4 | 64.8 | 262144 |
 | `qwen3.6:27b-mtp-q8_0-ctx60k` | 31.82 | full | 48.8 | 29.6 | 32768 |
@@ -29,16 +30,36 @@ Recall depth tracks the configured window exactly, as the overflow rule predicts
 
 | model | deepest verified recall |
 |---|---|
-| `35b-a3b-mtp-q4_K_M-ctx128k`, `27b-mtp-q8_0-ctx128k`, `9b-ctx80k` | 72419 tokens |
+| **`35b-a3b-q4_K_M-ctx256k`** | **146957 tokens** |
+| `35b-a3b-q4_K_M-ctx128k`, `35b-a3b-mtp-q4_K_M-ctx128k`, `27b-mtp-q8_0-ctx128k`, `9b-ctx80k` | 72419 tokens (window-limited) |
 | `27b-q8_0-ctx60k`, `27b-mtp-q8_0-ctx60k` | 17861 tokens (window-limited) |
+
+Only the 256k build was ever shown a document deeper than ~72k tokens; for every
+other model the deeper needle overflowed the window and was discarded before the
+model saw it. These are configuration ceilings, not model ceilings.
+
+### The 256k config, measured rather than inferred
+
+The 128k run's ceiling sweep showed 262144 *fitting* in VRAM, but allocation is not
+performance, so the config being recommended was built and measured:
+
+| `qwen3.6:35b-a3b-q4_K_M` | VRAM | tok/s S | tok/s L | deepest verified recall |
+|---|---|---|---|---|
+| `-ctx128k` | 28.25 | 80.0 | 86.2 | 72419 (window-limited) |
+| **`-ctx256k`** | **33.08** | **82.2** | **84.4** | **146957** |
+
+The full 256k window costs 4.8 GB and about 2% on the long profile — inside
+run-to-run noise, and the short profile came out marginally *higher* — while
+doubling verified usable recall. **Throughput does not degrade with a 256k window
+on this model**, which is the fact the sweep could not establish on its own.
 
 ### Verdict
 
-**`qwen3.6:35b-a3b-q4_K_M` with `num_ctx` baked at 262144.** It is the fastest model
-measured, holds the full 256k context entirely in VRAM at 33.09 GB, and passes every
-agentic gate. Nothing else on the box is close: it is 3.1× the dense q4 of similar
-size, 4.7× Alex's q8, and it is the only build that combines top throughput with a
-context that does not need rationing.
+**`qwen3.6:35b-a3b-q4_K_M` with `num_ctx` baked at 262144.** Measured at 82.2 / 84.4
+tok/s with all 33.08 GB resident in VRAM, every agentic gate passed, and a needle
+recalled at **146957 prompt tokens**. Nothing else on the box is close: 3.1× the
+dense q4 of similar size, 4.7× Alex's q8, and the only build combining top
+throughput with a context that needs no rationing.
 
 Second choice is `qwen3.5:9b-ctx80k` — 8.79 GB and 67.3 tok/s. Not as capable per
 token, but it leaves ~27 GB free for a second model, which is what makes running an

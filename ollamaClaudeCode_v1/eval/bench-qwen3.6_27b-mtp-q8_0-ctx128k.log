@@ -1,0 +1,22 @@
+==============================================
+ Ollama benchmark v1
+ Server:   http://192.168.100.67:11434  (ollama 0.32.5)
+ Profiles: S L
+ Timeouts: cold 1200s / warm 900s
+ Thinking: off
+ Output:   /home/mpetrick/repos/codingWithGPT/ollamaClaudeCode_v1/eval/bench-qwen3.6_27b-mtp-q8_0-ctx128k/192.168.100.67-20260806-111741.tsv
+==============================================
+
+[qwen3.6:27b-mtp-q8_0-ctx128k]
+    [S] OK  11.1 tok/s  264 tokens  load 26.5s  total 51.4s  vram 32.07/36.65 GB  SPLIT!
+    [L] OK  5.6 tok/s  1498 tokens  load .6s  total 265.3s  vram 32.07/36.65 GB  SPLIT!
+
+
+==============================================
+ Summary — http://192.168.100.67:11434 (ollama 0.32.5)
+==============================================
+profile  model                         status  tok_s  eval_count  think_count  load_s  prompt_eval_s  total_s  vram_gb  size_gb
+S        qwen3.6:27b-mtp-q8_0-ctx128k  OK      11.1   264         0            26.52   1.211          51.48    32.07    36.65
+L        qwen3.6:27b-mtp-q8_0-ctx128k  OK      5.6    1498        0            .60     .804           265.37   32.07    36.65
+
+TSV: /home/mpetrick/repos/codingWithGPT/ollamaClaudeCode_v1/eval/bench-qwen3.6_27b-mtp-q8_0-ctx128k/192.168.100.67-20260806-111741.tsv

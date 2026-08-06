@@ -1,0 +1,9 @@
+model	size_gb	vram_gb	split	tok_s_S	tok_s_L	tool_use	max_ctx_in_vram	think_default	notes
+qwen3.6:35b-a3b-q4_K_M-ctx128k	28.25	28.25	no	80.0	86.2	PASS	262144	yes	
+qwen3.6:27b-q4_K_M-ctx128k	30.43	30.43	no	27.8	28.0	PASS	131072	yes	
+qwen3.6:27b-q8_0-ctx60k	32.87	32.87	no	18.1	18.2	PASS	65536	yes	
+qwen3.6:27b-mtp-q8_0-ctx60k	31.82	31.82	no	48.8	29.6	PASS	32768	yes	
+qwen3.6:27b-mtp-q8_0-ctx128k	36.65	32.07	YES	11.1	5.6	PASS	32768	yes	
+qwen3.5:9b-ctx80k	8.79	8.79	no	65.1	67.3	PASS	262144	yes	
+qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k	26.14	26.14	no	51.4	64.8	PASS	262144	yes	
+qwen3.6:35b-a3b-q4_K_M-ctx256k	33.08	33.08	no	82.2	84.4	PASS	262144	yes	
