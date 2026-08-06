@@ -49,8 +49,10 @@ def clone_repo(repo: str, commit: str, tmp_dir: str) -> str:
     repo_dir = os.path.join(tmp_dir, repo.replace("/", "__"))
     if os.path.exists(repo_dir):
         shutil.rmtree(repo_dir)
+    # Clone without --depth so we can checkout any commit (SWE-bench uses
+    # arbitrary historical commits, not just HEAD).
     subprocess.run(
-        ["git", "clone", "--depth", "1", f"https://github.com/{repo}.git", repo_dir],
+        ["git", "clone", f"https://github.com/{repo}.git", repo_dir],
         check=True,
         capture_output=True,
     )
