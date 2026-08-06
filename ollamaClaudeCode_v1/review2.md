@@ -109,15 +109,32 @@ one time in three will stall an agent loop unpredictably rather than fail loudly
 
 ---
 
-## Schema drift is a distinct failure mode from no-call
+## Schema drift was a budget artifact, not a model trait — corrected
 
-Given a realistic patch tool (enums plus an array of objects), `qwen3.5:9b`
-produced a **semantically correct** patch using **invented field names**:
-`file_path` for the required `path`, `old_lines`/`new_lines` for `old`/`new`.
+An earlier version of this document reported that `qwen3.5:9b`, given a realistic
+patch tool (enums plus an array of objects), produced a semantically correct patch
+using **invented field names** (`file_path` for `path`, `old_lines`/`new_lines` for
+`old`/`new`), and presented that as a property of the model.
 
-That still breaks a strict tool runtime, but it is a different defect from
-emitting no call at all — which is what the MoE did on the same test at default
-`max_tokens`. The harness reports the two separately.
+That was measured before the harness was corrected — under `max_tokens=1200` with
+thinking left on. Re-measured with `thinking:{"type":"disabled"}` and a 4000-token
+budget, the same model on the same test returns `nested_schema_exact_2_edits`: the
+exact schema, correct field names. **Every model in the matrix passes this gate.**
+
+So schema drift here was a symptom of budget pressure, not a capability limit. It
+belongs with the other budget artifacts:
+
+| symptom under a squeezed budget | what it actually was |
+|---|---|
+| MoE emitted no tool call at all | 4487 chars of thinking, then `stop_reason=max_tokens` |
+| `9b` invented field names | degraded output under the same pressure |
+
+The general lesson is the one worth keeping: **a thinking model under a tight token
+budget fails in ways that look like incapability** — no call, wrong schema, wrong
+tool — and those failures disappear when the budget is adequate and thinking is
+disabled. Any tool-use evaluation that does not control for both is measuring its
+own configuration. Disabling thinking also cut the same call from 166 output tokens
+to 40, so it is the cheaper configuration as well as the more capable one.
 
 ---
 
@@ -160,10 +177,15 @@ Measured with the corrected prose haystack, across two different window sizes:
 | `qwen3.6:27b-mtp-q8_0-ctx60k` | 60000 | ~66k | **30002** |
 | `qwen3.6:27b-mtp-q8_0-ctx60k` | 60000 | ~132k | **30002** |
 | `qwen3.6:27b-mtp-q8_0-ctx128k` | 131072 | ~132k | **65538** |
+| `qwen3.5:9b-ctx80k` | 81920 | ~132k | **40962** |
 
 Prompts differing by a factor of two come back identical, and the retained amount
-is exactly **`num_ctx / 2 + 2`** at both 60000 and 131072. That the same formula
-holds across two window sizes makes it a rule rather than a coincidence.
+is exactly **`num_ctx / 2 + 2`** at 60000, 81920 and 131072 — three window sizes
+across four models. That makes it a rule rather than an artifact of one number.
+
+All five rows are from `.67` (Ollama 0.32.5). Whether the behaviour is
+version-specific is checked separately on `.37` (0.30.6); see the cross-server
+section.
 
 Overflow does **not** fill the context and truncate the remainder: it discards down
 to half. No error is returned.
