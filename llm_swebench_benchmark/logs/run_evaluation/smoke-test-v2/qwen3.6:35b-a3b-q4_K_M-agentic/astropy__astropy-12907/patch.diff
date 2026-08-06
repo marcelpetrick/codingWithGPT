@@ -1,0 +1,21 @@
+--- a/astropy/modeling/separable.py
++++ b/astropy/modeling/separable.py
+@@ -93,11 +93,13 @@ def separability_matrix(model):
+ 
+     sep = np.zeros((model.n_outputs, model.n_inputs), dtype=bool)
+ 
+     if model.linked:
+         # Series composition
+         # ...
+     elif isinstance(model, CompoundModel):
+-        for submodel in model.submodels:
+-            sep[submodel.output_indices][:, submodel.input_indices] = True
+-        return sep
++        # For parallel composition (&), we must recursively compute the
++        # separability of the left and right components to correctly handle
++        # nested CompoundModels.
++        sep[:model.left.n_outputs, :model.left.n_inputs] = separability_matrix(model.left)
++        sep[model.left.n_outputs:, model.left.n_inputs:] = separability_matrix(model.right)
++        return sep
+     sep = _compute_separability(sep, model)
+     return sep

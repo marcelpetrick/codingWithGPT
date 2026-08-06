@@ -1,0 +1,10 @@
+--- a/lib/matplotlib/__init__.py
++++ b/lib/matplotlib/__init__.py
+@@ -58,6 +58,9 @@
+ except ImportError:
+     __version__ = "unknown"
+ 
++import re
++__version_info__ = tuple(int(x) for x in re.findall(r'\d+', __version__)[:3])
++
+ # The following import must be after __version__ is set...
