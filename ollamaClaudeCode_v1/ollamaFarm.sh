@@ -486,11 +486,29 @@ while true; do
   INTERVAL="${INTERVALS[$IDX]}"
   OUT=""
 
+  # Terminal geometry, refreshed every frame so a resize is picked up immediately.
+  # Rows drive the clipping guard; columns size the header rule, which was
+  # previously a hardcoded run of box characters and so was the wrong length at
+  # every window size but one.
+  if [ -t 1 ]; then
+    read -r TERM_ROWS TERM_COLS < <( { stty size 2>/dev/null || echo "24 80"; } )
+  else
+    TERM_ROWS=24; TERM_COLS=80
+  fi
+  [[ "$TERM_ROWS" =~ ^[0-9]+$ ]] && [ "$TERM_ROWS" -gt 0 ] || TERM_ROWS=24
+  [[ "$TERM_COLS" =~ ^[0-9]+$ ]] && [ "$TERM_COLS" -gt 20 ] || TERM_COLS=80
+
   # A paused view says how to resume, and any section that a persisted toggle has
   # switched off is named in the header. Without that, a toggle saved in a previous
   # session silently hides the most important data and looks like a broken tool.
-  hdr_state=""
-  [ "$PAUSED" = "1" ] && hdr_state="  ${C_YEL}${C_REV} PAUSED — press p to resume ${C_RST}"
+  # The badge is kept as a plain twin as well: its *visible* width is needed to
+  # size the rule, and the coloured version is full of escape bytes that ${#...}
+  # would count as characters.
+  hdr_state=""; hdr_plain=""
+  if [ "$PAUSED" = "1" ]; then
+    hdr_plain="   PAUSED — press p to resume "
+    hdr_state="  ${C_YEL}${C_REV} PAUSED — press p to resume ${C_RST}"
+  fi
   off=""
   [ "$SHOW_MODELS" = "0" ] && off+=" models:off(m)"
   [ "$SHOW_BARS"   = "0" ] && off+=" bars:off(v)"
@@ -498,8 +516,13 @@ while true; do
   [ "$SHOW_EVENTS" = "0" ] && off+=" events:off(e)"
   [ -n "$off" ] && off="  ${C_YEL}hidden:${off}${C_RST}"
 
-  emit '%s┌─ Ollama farm ─────────────────────────────────────────────────────────────┐%s%s\n' \
-       "$C_B" "$C_RST" "$hdr_state"
+  # Rule stretched to the terminal width: ┌─ Ollama farm ──…──┐
+  hdr_title='┌─ Ollama farm '
+  rule_w=$(( TERM_COLS - ${#hdr_title} - ${#hdr_plain} - 1 ))
+  [ "$rule_w" -lt 3 ] && rule_w=3
+  printf -v hdr_rule '%*s' "$rule_w" ''
+  hdr_rule="${hdr_rule// /─}"
+  emit '%s%s%s┐%s%s\n' "$C_B" "$hdr_title" "$hdr_rule" "$C_RST" "$hdr_state"
   emit '  %s%s   every %ss%s   %s[+ slower  - faster  v m w e  d s  p pause  h help  q quit]%s%s\n\n' \
        "$C_DIM" "$(date '+%Y-%m-%d %H:%M:%S')" "$INTERVAL" "$C_RST" "$C_DIM" "$C_RST" "$off"
 
@@ -548,10 +571,9 @@ while true; do
   #      scrolls, \e[H then no longer refers to the top of the frame, and every
   #      subsequent repaint lands one row off and smears.
   if [ -t 1 ]; then
-    rows=$( { stty size 2>/dev/null || echo "24 80"; } | awk '{print ($1>0?$1:24)}')
-    frame=$(printf '%s' "$OUT" | head -n $(( rows > 2 ? rows - 1 : 1 )) )
+    frame=$(printf '%s' "$OUT" | head -n $(( TERM_ROWS > 2 ? TERM_ROWS - 1 : 1 )) )
     nl_count=$(printf '%s\n' "$OUT" | wc -l)
-    [ "$nl_count" -ge "$rows" ] && frame+=$'\n  \e[2m…frame clipped to terminal height\e[0m'
+    [ "$nl_count" -ge "$TERM_ROWS" ] && frame+=$'\n  \e[2m…frame clipped to terminal height\e[0m'
     printf '\e[H%s\e[J' "${frame//$'\n'/$'\e[K'$'\n'}"
   else
     printf '%s' "$OUT"
