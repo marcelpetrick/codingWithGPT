@@ -235,6 +235,39 @@ preserving the unaffected speed and T1–T5/T7 measurements.
 answering wrongly. Nothing checked that the harness built the input it claimed
 to. The realised-shape logging is now the check.
 
+## A 12.5% VRAM spill costs 5.3× throughput
+
+The cleanest single-variable result in the matrix. Identical weights, identical
+quantisation, identical MTP — the *only* difference is the baked `num_ctx`:
+
+| model | tok/s S | tok/s L | placement |
+|---|---|---|---|
+| `qwen3.6:27b-mtp-q8_0-ctx60k` | 48.8 | 29.6 | 31.82 GB, fully in VRAM |
+| `qwen3.6:27b-mtp-q8_0-ctx128k` | 11.1 | **5.6** | 32.07 / 36.65 GB — **4.58 GB on CPU** |
+
+Pushing 12.5% of the model into system RAM costs **5.3× on the long profile** and
+4.4× on the short one. The penalty is wildly disproportionate to the fraction
+displaced, because every token must now cross the PCIe boundary for that slice.
+
+So over-provisioning `num_ctx` is not merely wasteful — it is the single most
+expensive misconfiguration available on this box, and it looks completely healthy
+from the outside: the model loads, answers correctly, and passes every capability
+gate. It is simply five times slower. (This model still recalled a needle at 72419
+prompt tokens — correct, and unusable, at 5.6 tok/s.)
+
+### The resulting deployment rule
+
+Two findings pull in opposite directions — the `num_ctx/2` overflow cliff rewards a
+*large* window, while spilling punishes one that is *too* large. They resolve
+cleanly:
+
+> Bake `num_ctx` as large as fits **entirely in VRAM**, and not one token larger.
+> Then plan real usage at **half** that number.
+
+Check placement, never assume it: `size_vram < size` in `/api/ps` is the spill
+signal, and `ollamaFarm.sh` surfaces it per model. A split model is a
+five-times-slower model that reports no error.
+
 ## What is benchmarked, and what is deliberately not
 
 `.67` holds 13 model tags, which are **6 distinct weight sets** plus ctx-baked
