@@ -18,7 +18,7 @@
 #      generation throughput for nothing.
 #
 # Keys (btop-style), active while running:
-#   +  /  -    faster / slower refresh      p   pause
+#   -  /  +    faster / slower refresh      p   pause (p again to resume)
 #   v          VRAM bars on/off             m   per-model detail on/off
 #   w          warnings on/off              e   event log on/off
 #   d          re-run host discovery        s   toggle nvidia-smi over SSH
@@ -467,7 +467,7 @@ render_host() {
 
 help_overlay() {
   emit '  %s%sKEYS%s\n' "$C_B" "$C_REV" "$C_RST"
-  emit '    %s+ -%s  refresh faster/slower      %sp%s  pause          %sq%s  quit\n' \
+  emit '    %s- +%s  refresh faster / slower    %sp%s  pause/resume   %sq%s  quit\n' \
     "$C_B" "$C_RST" "$C_B" "$C_RST" "$C_B" "$C_RST"
   emit '    %sv%s    VRAM bars                  %sm%s  model detail   %sw%s  warnings\n' \
     "$C_B" "$C_RST" "$C_B" "$C_RST" "$C_B" "$C_RST"
@@ -486,12 +486,22 @@ while true; do
   INTERVAL="${INTERVALS[$IDX]}"
   OUT=""
 
+  # A paused view says how to resume, and any section that a persisted toggle has
+  # switched off is named in the header. Without that, a toggle saved in a previous
+  # session silently hides the most important data and looks like a broken tool.
   hdr_state=""
-  [ "$PAUSED" = "1" ] && hdr_state="  ${C_YEL}${C_REV} PAUSED ${C_RST}"
+  [ "$PAUSED" = "1" ] && hdr_state="  ${C_YEL}${C_REV} PAUSED — press p to resume ${C_RST}"
+  off=""
+  [ "$SHOW_MODELS" = "0" ] && off+=" models:off(m)"
+  [ "$SHOW_BARS"   = "0" ] && off+=" bars:off(v)"
+  [ "$SHOW_WARN"   = "0" ] && off+=" warnings:off(w)"
+  [ "$SHOW_EVENTS" = "0" ] && off+=" events:off(e)"
+  [ -n "$off" ] && off="  ${C_YEL}hidden:${off}${C_RST}"
+
   emit '%s┌─ Ollama farm ─────────────────────────────────────────────────────────────┐%s%s\n' \
        "$C_B" "$C_RST" "$hdr_state"
-  emit '  %s%s   every %ss%s   %s[+/- rate  v m w e  d s  p pause  h help  q quit]%s\n\n' \
-       "$C_DIM" "$(date '+%Y-%m-%d %H:%M:%S')" "$INTERVAL" "$C_RST" "$C_DIM" "$C_RST"
+  emit '  %s%s   every %ss%s   %s[+ slower  - faster  v m w e  d s  p pause  h help  q quit]%s%s\n\n' \
+       "$C_DIM" "$(date '+%Y-%m-%d %H:%M:%S')" "$INTERVAL" "$C_RST" "$C_DIM" "$C_RST" "$off"
 
   if [ "$SHOW_HELP" = "1" ]; then
     help_overlay
@@ -527,9 +537,25 @@ while true; do
          "$C_DIM" "$C_RST"
   fi
 
-  # \e[H home, then \e[J clears from the cursor down: less flicker than a full
-  # \e[2J wipe, and it self-corrects when the terminal is resized.
-  printf '\e[H%s\e[J' "$OUT"
+  # Frame painting. Two things are needed to stop the display corrupting, and the
+  # first version had neither:
+  #
+  #   1. Every line must be terminated with \e[K (erase to end of line). Without it
+  #      a short line leaves the tail of whatever longer line occupied that row in
+  #      the previous frame -- which is what made the event list look overwritten,
+  #      since event text varies in length frame to frame.
+  #   2. The frame must not exceed the terminal height. If it does, the terminal
+  #      scrolls, \e[H then no longer refers to the top of the frame, and every
+  #      subsequent repaint lands one row off and smears.
+  if [ -t 1 ]; then
+    rows=$( { stty size 2>/dev/null || echo "24 80"; } | awk '{print ($1>0?$1:24)}')
+    frame=$(printf '%s' "$OUT" | head -n $(( rows > 2 ? rows - 1 : 1 )) )
+    nl_count=$(printf '%s\n' "$OUT" | wc -l)
+    [ "$nl_count" -ge "$rows" ] && frame+=$'\n  \e[2m…frame clipped to terminal height\e[0m'
+    printf '\e[H%s\e[J' "${frame//$'\n'/$'\e[K'$'\n'}"
+  else
+    printf '%s' "$OUT"
+  fi
 
   # read doubles as the sleep, so keys stay responsive at any refresh rate.
   # A timeout returns non-zero; that is the normal path and must not abort.
@@ -541,8 +567,10 @@ while true; do
   fi
 
   case "$key" in
-    +|=)  [ "$IDX" -gt 0 ] && IDX=$((IDX-1)); save_config ;;
-    -|_)  [ "$IDX" -lt $(( ${#INTERVALS[@]} - 1 )) ] && IDX=$((IDX+1)); save_config ;;
+    # + and - act on the INTERVAL, matching btop: "+" makes the number bigger, so
+    # the refresh gets slower. (The first version had these inverted.)
+    +|=)  [ "$IDX" -lt $(( ${#INTERVALS[@]} - 1 )) ] && IDX=$((IDX+1)); save_config ;;
+    -|_)  [ "$IDX" -gt 0 ] && IDX=$((IDX-1)); save_config ;;
     v|V)  SHOW_BARS=$((1-SHOW_BARS)); save_config ;;
     m|M)  SHOW_MODELS=$((1-SHOW_MODELS)); save_config ;;
     w|W)  SHOW_WARN=$((1-SHOW_WARN)); save_config ;;
