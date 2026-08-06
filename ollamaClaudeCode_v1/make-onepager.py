@@ -25,20 +25,35 @@ def read_tsv(p):
     with open(p) as f:
         return list(csv.DictReader(f, delimiter="\t"))
 
-rows = read_tsv(os.path.join(HERE, "eval", "rows.tsv"))
+# Two hosts. rows.tsv carries no host column, so the .37 results live in their own
+# directory and the host is attached here rather than by concatenating files.
+HOSTS = [("eval", "agentic", ".67"), ("eval37", "agentic37", ".37")]
 
-agentic = {}
-for p in sorted(glob.glob(os.path.join(HERE, "agentic", "*.tsv"))):
-    if p.endswith(".raw.jsonl"):
-        continue
-    model = os.path.basename(p)[:-4].replace("__", ":", 1).replace("_", ".")
-    agentic[model] = {r["test"]: (r["result"], r["detail"]) for r in read_tsv(p)}
+rows, agentic = [], {}
+for eval_dir, ag_dir, host in HOSTS:
+    for r in read_tsv(os.path.join(HERE, eval_dir, "rows.tsv")):
+        r["host"] = host
+        rows.append(r)
+    for p in sorted(glob.glob(os.path.join(HERE, ag_dir, "*.tsv"))):
+        if p.endswith(".raw.jsonl"):
+            continue
+        model = os.path.basename(p)[:-4].replace("__", ":", 1).replace("_", ".")
+        agentic[(host, model)] = {r["test"]: (r["result"], r["detail"])
+                                  for r in read_tsv(p)}
 
 def norm(name):
     """agentic filenames lose punctuation; match them back to eval model names."""
     return "".join(ch for ch in name.lower() if ch.isalnum())
 
-ag_by_norm = {norm(k): v for k, v in agentic.items()}
+ag_by_norm = {(h, norm(m)): v for (h, m), v in agentic.items()}
+
+def gates_for(r):
+    return ag_by_norm.get((r.get("host", ".67"), norm(r["model"])), {})
+
+def label(r):
+    """Model name, tagged with the host when more than one host is present."""
+    n = r["model"]
+    return f"{n}  [{r['host']}]" if len({x.get("host") for x in rows}) > 1 else n
 
 def f(x, default="—"):
     return x if x not in (None, "", "?") else default
@@ -50,7 +65,7 @@ def num(x):
         return None
 
 # ---------- throughput chart (single series, sorted, direct labels) ----------
-bars = [(r["model"], num(r.get("tok_s_L"))) for r in rows if num(r.get("tok_s_L"))]
+bars = [(label(r), num(r.get("tok_s_L"))) for r in rows if num(r.get("tok_s_L"))]
 bars.sort(key=lambda t: t[1], reverse=True)
 vmax = max([v for _, v in bars], default=1)
 
@@ -119,9 +134,9 @@ gate_head = "".join(f"<th>{n}</th>" for _, n in GATES) + "<th>deepest recall</th
 
 matrix = []
 for r in rows:
-    a = ag_by_norm.get(norm(r["model"]), {})
+    a = gates_for(r)
     tds = "".join(cell(a.get(g)) for g, _ in GATES) + recall_cell(a)
-    matrix.append(f'<tr><td class="mono">{html.escape(r["model"])}</td>{tds}</tr>')
+    matrix.append(f'<tr><td class="mono">{html.escape(label(r))}</td>{tds}</tr>')
 
 # ---------- footprint table ----------
 foot = []
@@ -129,7 +144,7 @@ for r in rows:
     split = r.get("split", "")
     sp = f'<span class="ba">split</span>' if split == "YES" else '<span class="ok">full</span>'
     foot.append(
-        f'<tr><td class="mono">{html.escape(r["model"])}</td>'
+        f'<tr><td class="mono">{html.escape(label(r))}</td>'
         f'<td>{f(r.get("size_gb"))}</td><td>{f(r.get("vram_gb"))}</td><td>{sp}</td>'
         f'<td>{f(r.get("tok_s_S"))}</td><td>{f(r.get("tok_s_L"))}</td>'
         f'<td>{f(r.get("max_ctx_in_vram"))}</td>'

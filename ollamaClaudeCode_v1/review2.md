@@ -121,6 +121,34 @@ emitting no call at all — which is what the MoE did on the same test at defaul
 
 ---
 
+## Multi-token prediction is worth 1.6–2.7×, and it inverts the profiles
+
+Same weights, same q8 quantisation, same baked context — MTP is the only variable:
+
+| model | tok/s **S** (short, 300-cap) | tok/s **L** (long, uncapped) | ctx fully in VRAM | weights VRAM |
+|---|---|---|---|---|
+| `qwen3.6:27b-q8_0-ctx60k` | 18.1 | 18.2 | 65536 | 32.87 GB |
+| `qwen3.6:27b-mtp-q8_0-ctx60k` | **48.8** | **29.6** | 32768 | 31.82 GB |
+
+Two things stand out.
+
+**The gain decays with generation length** — 2.7× on the short profile, 1.6× on the
+long one. This is the expected speculative-decoding signature: draft tokens are
+accepted at a high rate early and the acceptance rate falls as the generation goes
+on. Every non-MTP model in the matrix has L slightly *above* S (longer runs
+amortise warm-up); MTP is the only one where **S > L**, and by a wide margin.
+
+Consequence: a single tok/s figure for an MTP model is close to meaningless — it
+encodes the benchmark's output length, not the model's speed. This is the concrete
+justification for the two-profile design; averaging them would have buried a 1.6×
+spread that depends entirely on how long the answer is.
+
+**MTP costs context headroom.** The ceiling halves from 65536 to 32768 fully in
+VRAM even though the weights are slightly *smaller* (31.82 vs 32.87 GB) — the
+draft machinery needs its own buffers. For agentic coding that trade is poor: 32768
+is below a useful working set, and the `num_ctx/2` overflow rule below means the
+real safe working set is ~16k.
+
 ## Overflowing `num_ctx` silently costs you *half* the window
 
 Measured on `qwen3.6:27b-q8_0-ctx60k` (baked `num_ctx` 60000), with the corrected
@@ -206,6 +234,38 @@ preserving the unaffected speed and T1–T5/T7 measurements.
 **Process lesson:** all the safeguards in this harness are about the *server*
 answering wrongly. Nothing checked that the harness built the input it claimed
 to. The realised-shape logging is now the check.
+
+## What is benchmarked, and what is deliberately not
+
+`.67` holds 13 model tags, which are **6 distinct weight sets** plus ctx-baked
+variants of each. The matrix covers all six:
+
+| weight set | variant benchmarked | axis it contributes |
+|---|---|---|
+| `qwen3.6:35b-a3b-q4_K_M` | `-ctx128k`, `-ctx256k` | MoE, and the recommended deploy config |
+| `qwen3.6:35b-a3b-mtp-q4_K_M` | `-ctx128k` | MoE + MTP combined |
+| `qwen3.6:27b-q4_K_M` | `-ctx128k` | dense q4 — architecture control vs the MoE |
+| `qwen3.6:27b-q8_0` | `-ctx60k` | dense q8 — quantisation axis (Alex's build) |
+| `qwen3.6:27b-mtp-q8_0` | `-ctx60k`, `-ctx128k` | MTP axis, and MTP past its VRAM ceiling |
+| `qwen3.5:9b` | `-ctx80k` | small-model baseline, shared with `.37` |
+
+The **6 bare tags are excluded on purpose.** They carry no `num_ctx`, so through
+`/v1/messages` they are all capped at 16384 with tool calling silently dead past
+that (see the headline finding). Benchmarking them would produce rows describing a
+configuration nobody should deploy, and their throughput would be identical to
+their variants anyway. `ctx-cliff.sh` documents that behaviour instead.
+
+`qwen3.6:35b-a3b-q4_K_M-ctx256k` was created and measured rather than inferred from
+the 128k row: the 128k run showed 262144 fitting in VRAM during the ceiling sweep,
+but a sweep only proves allocation, not that the model performs there.
+
+### The old server, same harness
+
+`.37` (12.2 GB) is re-measured with `qwen3.5:9b-ctx80k` and `-ctx96k` through the
+*corrected* harness, so the cross-server comparison covers the agentic gates rather
+than throughput alone. It also runs **Ollama 0.30.6** against `.67`'s 0.32.5, which
+makes it an independent check on whether the `num_ctx/2` overflow behaviour is a
+general property or a version-specific quirk.
 
 ## Method notes
 
