@@ -132,9 +132,15 @@ def build_prompt(instance: dict, repo_dir: str) -> str:
     if hints:
         prompt += f"\n## Hints\n{hints}\n"
 
+    # Extract repo root directory name from the GitHub org/repo path.
+    # e.g. "matplotlib/matplotlib" → root dir is "matplotlib"
+    # The patch paths must use this as the prefix (or nothing if root-level).
+    repo_root = instance["repo"].split("/")[-1]
+
     prompt += f"""
 ## Repository: {instance['repo']}
 ## Commit: {instance['base_commit']}
+## Repo root directory: {repo_root}/
 
 ### Repository structure (first 80 files):
 ```
@@ -149,13 +155,16 @@ def build_prompt(instance: dict, repo_dir: str) -> str:
 {contents}
 """
 
-    prompt += """
+    prompt += f"""
 ## Task
 Generate a unified diff (patch) that fixes the issue described above.
 
 Rules:
 - Output ONLY the unified diff, no explanation or commentary.
 - Use `--- a/<path>` and `+++ b/<path>` headers.
+- Paths are relative to the repo root directory ({repo_root}/).
+  For files in the repo root, use `--- a/filename.py`.
+  For files in subdirectories, use `--- a/subdir/filename.py`.
 - Only include files that need changes.
 - Preserve existing indentation and formatting.
 - The patch will be applied to the repository at the given commit.
