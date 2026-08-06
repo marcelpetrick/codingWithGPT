@@ -7,3 +7,6 @@ qwen3.6:27b-mtp-q8_0-ctx128k	36.65	32.07	YES	11.1	5.6	PASS	32768	yes
 qwen3.5:9b-ctx80k	8.79	8.79	no	65.1	67.3	PASS	262144	yes	
 qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k	26.14	26.14	no	51.4	64.8	PASS	262144	yes	
 qwen3.6:35b-a3b-q4_K_M-ctx256k	33.08	33.08	no	82.2	84.4	PASS	262144	yes	
+qwen3.6:35b-a3b-q4_K_M-agentic	33.08	33.08	no	127.2	131.5	PASS	262144	yes	
+qwen3.6:35b-a3b-q4_K_M-isot0	33.08	33.08	no	77.7	83.2	PASS	262144	yes	
+qwen3.6:35b-a3b-q4_K_M-isopp0	33.08	33.08	no	124.9	129.5	PASS	262144	yes	

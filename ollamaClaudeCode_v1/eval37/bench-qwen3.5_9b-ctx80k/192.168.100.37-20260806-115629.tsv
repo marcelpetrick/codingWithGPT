@@ -1,0 +1,3 @@
+profile	model	status	tok_s	eval_count	think_count	load_s	prompt_eval_s	total_s	vram_gb	size_gb
+S	qwen3.5:9b-ctx80k	OK	47.7	300	0	10.40	.163	16.85	8.01	8.01
+L	qwen3.5:9b-ctx80k	OK	48.0	4096	0	.63	.092	86.09	8.01	8.01

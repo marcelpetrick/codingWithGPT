@@ -1,0 +1,10 @@
+host	model	config	passes	trials	detail
+192.168.100.37	qwen3.5:9b-ctx96k	model defaults	5	8	no_tool_call;edits_not_array;drift_missing_mode,path;
+192.168.100.37	qwen3.5:9b-ctx96k	temperature 0	8	8	clean
+192.168.100.37	qwen3.5:9b-ctx96k	temp 0 + top_p 1	8	8	clean
+192.168.100.37	qwen3.5:9b-ctx80k	model defaults	4	8	edits_not_array;edits_not_array;no_tool_call;no_tool_call;
+192.168.100.37	qwen3.5:9b-ctx80k	temperature 0	8	8	clean
+192.168.100.37	qwen3.5:9b-ctx80k	temp 0 + top_p 1	8	8	clean
+192.168.100.67	qwen3.6:35b-a3b-q4_K_M-ctx256k	model defaults	8	8	clean
+192.168.100.67	qwen3.6:35b-a3b-q4_K_M-ctx256k	temperature 0	8	8	clean
+192.168.100.67	qwen3.6:35b-a3b-q4_K_M-ctx256k	temp 0 + top_p 1	8	8	clean

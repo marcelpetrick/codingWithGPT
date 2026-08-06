@@ -1,0 +1,3 @@
+model	size_gb	vram_gb	split	tok_s_S	tok_s_L	tool_use	max_ctx_in_vram	think_default	notes
+qwen3.5:9b-ctx80k	8.01	8.01	no	47.7	48.0	PASS	131072	yes	
+qwen3.5:9b-ctx96k	8.56	8.56	no	47.5	47.9	PASS	131072	yes	

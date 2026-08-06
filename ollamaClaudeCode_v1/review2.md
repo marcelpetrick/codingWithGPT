@@ -5,6 +5,89 @@
 
 ---
 
+## The biggest single win: `presence_penalty 0` is worth +53% throughput
+
+Every model on both hosts ships qwen's prose sampling defaults:
+
+```
+temperature 1   top_p 0.95   top_k 20   presence_penalty 1.5
+```
+
+Isolated on `qwen3.6:35b-a3b-q4_K_M`, `num_ctx` 262144, 33.08 GB resident in every
+case — the only variable is sampling:
+
+| config | tok/s S | tok/s L | vs default |
+|---|---|---|---|
+| vendor defaults (temp 1, pp 1.5) | 82.2 | 84.4 | — |
+| `temperature 0` only | 77.7 | 83.2 | **no gain** |
+| **`presence_penalty 0` only** | 124.9 | **129.5** | **+53%** |
+| `temperature 0` + `presence_penalty 0` | **127.2** | **131.5** | **+56%** |
+
+**`presence_penalty 1.5` costs about 35% of generation throughput.** It requires a
+per-token pass over the vocabulary to penalise already-emitted tokens; at 0 that
+pass is skipped. `temperature 0` contributes nothing to speed.
+
+This is free performance hiding in a vendor default that nothing warns about, on
+the model that was already the fastest on the box.
+
+### `temperature 0` is a separate fix, for reliability
+
+The default `temperature 1` makes structured tool calls a coin flip on the small
+model. T5 (nested schema: enums plus an array of objects), 8 trials per config:
+
+| model | vendor defaults | `temperature 0` |
+|---|---|---|
+| `qwen3.5:9b-ctx96k` (.37) | **5/8** | **8/8** |
+| `qwen3.5:9b-ctx80k` (.37) | **4/8** | **8/8** |
+| `qwen3.6:35b-a3b-q4_K_M-ctx256k` (.67) | 8/8 | 8/8 |
+
+Failures were a mix of `no_tool_call`, `edits_not_an_array` and missing
+`path`/`mode` keys — i.e. the same "schema drift" retracted earlier in this
+document, now correctly attributed to **sampling temperature** rather than to the
+model or to the token budget.
+
+`presence_penalty` was tested for this too and is **not** the cause: at
+`temperature 1` with `presence_penalty 0` the 9b scored 7/8 against 5/8 at the
+default, which is well inside noise at n=8 (Fisher exact p ≈ 0.57). An earlier
+draft of this document hypothesised that `presence_penalty 1.5` breaks nested JSON
+by penalising repeated field names. That hypothesis is **wrong** and is withdrawn —
+its real cost is throughput, not correctness.
+
+The MoE is robust at either temperature (8/8 both ways), which is one more reason to
+prefer it; but `temperature 0` remains correct for agent loops, where reproducibility
+matters independently of pass rate.
+
+### This invalidates the single-trial gate results
+
+Gates T1–T6 were run **once** per model. T5 on the 9b is now known to pass about
+half the time at default sampling, so:
+
+- the matrix's `T5 PASS` for `qwen3.5:9b-ctx80k` was a coin landing heads
+- the `T5 FAIL` for `qwen3.5:9b-ctx96k` was the same coin landing tails
+
+Neither measured a capability. The earlier claim in this document that "every model
+passed every capability gate" is therefore **too strong** and is corrected: every
+model passed on the trial that was run, and only T7 (3 trials) carries a replication
+count. Sampling-sensitive gates need repetition; the pass/fail of a single call on a
+temperature-1 model is not a property of the model.
+
+### Recommended deployment variant, built and verified
+
+```shell
+curl -X POST http://192.168.100.67:11434/api/create \
+  -H "Content-Type: application/json" \
+  -d '{"model":"qwen3.6:35b-a3b-q4_K_M-agentic",
+       "from":"qwen3.6:35b-a3b-q4_K_M",
+       "parameters":{"num_ctx":262144,"temperature":0,"presence_penalty":0},
+       "stream":false}'
+```
+
+Measured: **127.2 / 131.5 tok/s**, 33.08 GB fully in VRAM, 262144 context resident,
+**all ten gates PASS**, needle recalled at **146957 prompt tokens**.
+
+That is **7.2×** the throughput of the `qwen3.6:27b-q8_0` that was installed on the
+box at the start of this exercise, on the same hardware.
+
 ## Results — full matrix on `.67` (36.1 GB, two GPUs)
 
 All seven ctx-baked variants, thinking disabled, sorted by long-profile throughput:
@@ -20,11 +103,15 @@ All seven ctx-baked variants, thinking disabled, sorted by long-profile throughp
 | `qwen3.6:27b-q8_0-ctx60k` | 32.87 | full | 18.1 | 18.2 | 65536 |
 | `qwen3.6:27b-mtp-q8_0-ctx128k` | 36.65 | **SPLIT** | 11.1 | 5.6 | 32768 |
 
-**Every model passed every capability gate** — single tool, tool selection,
-multi-turn `tool_result`, parallel calls, nested schema, and tool calling with ~53k
-tokens in the window (3/3 trials each). Once thinking is disabled and the token
-budget is adequate, capability is not the differentiator on this hardware.
-**Throughput and usable context are.**
+Every model passed every capability gate **on the single trial that was run** (T7
+excepted, which is 3/3 across three trials for every model). As the sampling section
+above establishes, a single trial at `temperature 1` is not a capability measurement
+— the 9b passes T5 only about half the time at default sampling. Read this table as
+"no model showed a systematic capability gap", not as "all capabilities verified".
+
+Once thinking is disabled and the budget is adequate, capability is not the
+differentiator on this hardware. **Throughput, usable context, and sampling
+configuration are.**
 
 Recall depth tracks the configured window exactly, as the overflow rule predicts:
 
@@ -55,11 +142,21 @@ on this model**, which is the fact the sweep could not establish on its own.
 
 ### Verdict
 
-**`qwen3.6:35b-a3b-q4_K_M` with `num_ctx` baked at 262144.** Measured at 82.2 / 84.4
-tok/s with all 33.08 GB resident in VRAM, every agentic gate passed, and a needle
-recalled at **146957 prompt tokens**. Nothing else on the box is close: 3.1× the
-dense q4 of similar size, 4.7× Alex's q8, and the only build combining top
-throughput with a context that needs no rationing.
+**`qwen3.6:35b-a3b-q4_K_M-agentic`** — `num_ctx` 262144, `temperature` 0,
+`presence_penalty` 0.
+
+Measured at **127.2 / 131.5 tok/s**, 33.08 GB fully resident, full 262144 context in
+VRAM, all ten gates PASS, needle recalled at **146957 prompt tokens**.
+
+| against | factor |
+|---|---|
+| `qwen3.6:27b-q8_0` — what was installed on the box | **7.2×** |
+| `qwen3.6:27b-q4_K_M` — dense, same quantisation | **4.7×** |
+| the same MoE at vendor sampling defaults | **1.56×** |
+
+Three independent decisions produced that, in descending order of value: choosing the
+**MoE** architecture (3.1× over dense q4), clearing **`presence_penalty`** (1.53×),
+and baking a `num_ctx` that fits **entirely in VRAM** (avoids a 5.3× loss).
 
 Second choice is `qwen3.5:9b-ctx80k` — 8.79 GB and 67.3 tok/s. Not as capable per
 token, but it leaves ~27 GB free for a second model, which is what makes running an

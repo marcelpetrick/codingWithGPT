@@ -1,0 +1,22 @@
+==============================================
+ Ollama benchmark v1
+ Server:   http://192.168.100.67:11434  (ollama 0.32.5)
+ Profiles: S L
+ Timeouts: cold 1200s / warm 900s
+ Thinking: off
+ Output:   ./eval/bench-qwen3.6_35b-a3b-q4_K_M-isot0/192.168.100.67-20260806-122308.tsv
+==============================================
+
+[qwen3.6:35b-a3b-q4_K_M-isot0]
+    [S] OK  77.7 tok/s  265 tokens  load 11.6s  total 15.2s  vram 33.08/33.08 GB
+    [L] OK  83.2 tok/s  1007 tokens  load .6s  total 12.9s  vram 33.08/33.08 GB
+
+
+==============================================
+ Summary — http://192.168.100.67:11434 (ollama 0.32.5)
+==============================================
+profile  model                         status  tok_s  eval_count  think_count  load_s  prompt_eval_s  total_s  vram_gb  size_gb
+S        qwen3.6:35b-a3b-q4_K_M-isot0  OK      77.7   265         0            11.60   .276           15.29    33.08    33.08
+L        qwen3.6:35b-a3b-q4_K_M-isot0  OK      83.2   1007        0            .60     .113           12.92    33.08    33.08
+
+TSV: ./eval/bench-qwen3.6_35b-a3b-q4_K_M-isot0/192.168.100.67-20260806-122308.tsv
