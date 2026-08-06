@@ -5,6 +5,50 @@
 
 ---
 
+## Results — full matrix on `.67` (36.1 GB, two GPUs)
+
+All seven ctx-baked variants, thinking disabled, sorted by long-profile throughput:
+
+| model | VRAM | placement | tok/s S | tok/s L | ctx fully in VRAM |
+|---|---|---|---|---|---|
+| **`qwen3.6:35b-a3b-q4_K_M-ctx128k`** | 28.25 | full | **80.0** | **86.2** | **262144** |
+| `qwen3.5:9b-ctx80k` | 8.79 | full | 65.1 | 67.3 | 262144 |
+| `qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k` | 26.14 | full | 51.4 | 64.8 | 262144 |
+| `qwen3.6:27b-mtp-q8_0-ctx60k` | 31.82 | full | 48.8 | 29.6 | 32768 |
+| `qwen3.6:27b-q4_K_M-ctx128k` | 30.43 | full | 27.8 | 28.0 | 131072 |
+| `qwen3.6:27b-q8_0-ctx60k` | 32.87 | full | 18.1 | 18.2 | 65536 |
+| `qwen3.6:27b-mtp-q8_0-ctx128k` | 36.65 | **SPLIT** | 11.1 | 5.6 | 32768 |
+
+**Every model passed every capability gate** — single tool, tool selection,
+multi-turn `tool_result`, parallel calls, nested schema, and tool calling with ~53k
+tokens in the window (3/3 trials each). Once thinking is disabled and the token
+budget is adequate, capability is not the differentiator on this hardware.
+**Throughput and usable context are.**
+
+Recall depth tracks the configured window exactly, as the overflow rule predicts:
+
+| model | deepest verified recall |
+|---|---|
+| `35b-a3b-mtp-q4_K_M-ctx128k`, `27b-mtp-q8_0-ctx128k`, `9b-ctx80k` | 72419 tokens |
+| `27b-q8_0-ctx60k`, `27b-mtp-q8_0-ctx60k` | 17861 tokens (window-limited) |
+
+### Verdict
+
+**`qwen3.6:35b-a3b-q4_K_M` with `num_ctx` baked at 262144.** It is the fastest model
+measured, holds the full 256k context entirely in VRAM at 33.09 GB, and passes every
+agentic gate. Nothing else on the box is close: it is 3.1× the dense q4 of similar
+size, 4.7× Alex's q8, and it is the only build that combines top throughput with a
+context that does not need rationing.
+
+Second choice is `qwen3.5:9b-ctx80k` — 8.79 GB and 67.3 tok/s. Not as capable per
+token, but it leaves ~27 GB free for a second model, which is what makes running an
+agent and a reviewer side by side possible.
+
+Avoid `-mtp-` builds on the MoE (slower, see below) and any `num_ctx` that does not
+fit in VRAM (5.3× penalty, see below).
+
+---
+
 ## The headline: a silent 16K context cap that kills tool calling
 
 This is the most consequential finding of the whole exercise, and it is
@@ -138,7 +182,42 @@ to 40, so it is the cheaper configuration as well as the more capable one.
 
 ---
 
-## Multi-token prediction is worth 1.6–2.7×, and it inverts the profiles
+## MTP helps the dense model and *hurts* the MoE
+
+The single most surprising result. MTP is not a free speed-up — its sign depends on
+what the model was bottlenecked by:
+
+| MTP applied to | tok/s S | tok/s L | effect |
+|---|---|---|---|
+| dense `qwen3.6:27b-q8_0` | 18.1 → **48.8** | 18.2 → **29.6** | **+170% / +63%** |
+| MoE `qwen3.6:35b-a3b-q4_K_M` | 80.0 → **51.4** | 86.2 → **64.8** | **−36% / −25%** |
+
+The mechanism is consistent with the MoE result earlier in this document.
+Multi-token prediction trades *extra compute* (drafting several tokens, then
+verifying them) for *fewer weight passes*. That is a winning trade only when
+decoding is starved on memory bandwidth:
+
+- the dense q8 streams ~30 GB of weights per token — badly bandwidth-bound, so
+  eliminating weight passes is worth a great deal
+- the MoE streams only ~2 GB of *active* experts per token — it was never
+  bandwidth-starved, so the draft-and-verify overhead costs more compute than the
+  saved bandwidth is worth, and throughput drops
+
+**Do not treat MTP as a generic optimisation.** It is a targeted fix for
+bandwidth-bound dense models. Applied to an already-efficient MoE it is a
+regression — and, being a separate model tag, it looks like a strict upgrade.
+
+This resolves the tension flagged earlier between MTP's speed and its context cost:
+on the architecture that actually wins here, MTP is not a trade-off to balance, it
+is simply the wrong choice.
+
+One genuine advantage, which does not rescue it: MoE+MTP is smaller
+(26.14 GB vs 28.25) and holds 262144 in VRAM at **27.57 GB** against the plain
+MoE's 33.09 GB. Its ceiling-sweep increments are non-monotonic
+(23.33 → 25.72 → 26.15 → 27.57 GB), which points at allocator granularity rather
+than clean KV growth, so no per-1k KV rate is quoted for it. Cheaper, but 25% slower.
+
+## Multi-token prediction is worth 1.6–2.7× on a dense model, and it inverts the profiles
 
 Same weights, same q8 quantisation, same baked context — MTP is the only variable:
 
