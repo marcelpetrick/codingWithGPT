@@ -121,6 +121,54 @@ emitting no call at all — which is what the MoE did on the same test at defaul
 
 ---
 
+## A one-character harness bug that faked a capability
+
+Worth writing down because it produced *confident, plausible, entirely void*
+results, and only an arithmetic smell exposed it.
+
+The needle test built its haystack from two sentence templates:
+
+```python
+sent=("The service {0} handles inbound requests and logs to shard {1}. "
+      "Retention for bucket {0} is {1} days under the standard policy. ")
+```
+
+There is no comma between them. Python implicitly concatenates adjacent string
+literals, so `sent` was a single 128-character **string**, not a 2-tuple —
+and `sent[i%2]` therefore indexed a *character*, returning `'T'` or `'h'`.
+The haystack was `ThThThThTh…`.
+
+The tell was in the reported prompt sizes:
+
+| gate | reported `prompt_eval_count` |
+|---|---|
+| `needle_4k` | 2081 |
+| `needle_16k` | 8081 |
+| `needle_60k` | 30081 |
+| `needle_120k` | 60081 |
+
+Every one is exactly `words/2 + 81` — because `ThTh` packs at about two
+characters per token, and 81 is the question framing. Real prose runs ~1.5
+tokens per *word*, i.e. three times higher. No plausible tokeniser produces
+0.5 tokens/word, and the smallest level could not have been truncation (its
+`num_ctx` was 16192, far above the prompt).
+
+So the gate was asking whether a model can spot one sentence inside a wall of
+repeating bigrams. Everything passes that. It says nothing about usable context —
+and it is the *same* low-entropy failure mode already fixed once in this harness
+for `/api/generate`, reintroduced through a different door.
+
+Fixes: add the comma, `assert isinstance(sent, tuple)` so it cannot regress
+silently, retarget the word counts so each label names a token level rather than
+a word count, and log realised words/chars/`num_ctx` per needle so the document
+shape is auditable from the log alone. All first-pass T6 results are void;
+`needle-retest.sh` re-runs the needle gates alone and splices corrected rows in,
+preserving the unaffected speed and T1–T5/T7 measurements.
+
+**Process lesson:** all the safeguards in this harness are about the *server*
+answering wrongly. Nothing checked that the harness built the input it claimed
+to. The realised-shape logging is now the check.
+
 ## Method notes
 
 - Only **ctx-baked variants** were benchmarked. Testing a bare tag would measure a
@@ -134,6 +182,11 @@ emitting no call at all — which is what the MoE did on the same test at defaul
     question asked both before and after the document
 - `/v1/messages` responses sometimes contain unescaped control characters and must
   be parsed with `strict=False`.
+- Do not edit a shell script while an instance of it is running. `agentic-test.sh`
+  was patched mid-matrix; bash reads scripts incrementally, so shifting byte
+  offsets can drop a running interpreter mid-statement. Function bodies already
+  parsed survive, top-level lines may not. The affected model's row set was
+  checked for completeness afterwards rather than assumed intact.
 - Alex was working on `.67` in parallel during this run (`mtp-q8_0`, `ctx60k`
   variants appeared mid-session). His models are included in the matrix.
 
