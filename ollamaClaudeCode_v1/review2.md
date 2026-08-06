@@ -283,9 +283,29 @@ Prompts differing by a factor of two come back identical, and the retained amoun
 is exactly **`num_ctx / 2 + 2`** at 60000, 81920 and 131072 — three window sizes
 across four models. That makes it a rule rather than an artifact of one number.
 
-All five rows are from `.67` (Ollama 0.32.5). Whether the behaviour is
-version-specific is checked separately on `.37` (0.30.6); see the cross-server
-section.
+### …and it is a regression in Ollama 0.32.5, not general behaviour
+
+The cross-version check settles it. Same model, same ctx-baked variant, same
+document, same `num_ctx` — only the server version differs:
+
+| host | Ollama | `num_ctx` | document | retained | formula |
+|---|---|---|---|---|---|
+| `.67` | **0.32.5** | 81920 | ~132k tok | **40962** | `n/2 + 2` |
+| `.37` | **0.30.6** | 81920 | ~132k tok | **81919** | `n − 1` |
+
+`qwen3.5:9b-ctx80k` is byte-identical on both hosts and the needle document is
+generated deterministically, so the Ollama version is the only variable.
+
+**0.30.6 fills the window; 0.32.5 discards half of it.** The half-window rule is
+therefore a *regression in the newer Ollama*, not a property of llama.cpp context
+handling or of these models. On this axis the newer server is the worse one, and
+`.67` is the box that has it.
+
+This does not change the deployment rule — sizing `num_ctx` at twice the intended
+usage is still correct on `.67`, and is harmless on `.37` — but it does mean the
+cost is a fixable software regression rather than an inherent limit. Worth
+re-testing when `.67` is next upgraded, and worth checking before assuming a newer
+Ollama is strictly better.
 
 Overflow does **not** fill the context and truncate the remainder: it discards down
 to half. No error is returned.
