@@ -55,7 +55,7 @@ After inference completes:
 
 ```bash
 python -m swebench.harness.run_evaluation \
-    --dataset_name princeton-nlp/SWE-bench_Lite \
+    --dataset_name SWE-bench/SWE-bench_Lite \
     --predictions_path predictions.json \
     --max_workers 4 \
     --run_id qwen36-agentic-$(date +%Y%m%d) \
@@ -78,7 +78,7 @@ json.dump([dict(i) for i in targets[:3]], open('subset.json','w'), indent=2)
 "
 python inference.py --instances subset.json --output subset_preds.json
 python -m swebench.harness.run_evaluation \
-    --dataset_name princeton-nlp/SWE-bench_Lite \
+    --dataset_name SWE-bench/SWE-bench_Lite \
     --predictions_path subset_preds.json \
     --max_workers 1 \
     --run_id smoke-test
