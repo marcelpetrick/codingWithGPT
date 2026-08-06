@@ -80,20 +80,29 @@ GATES = [
 # the prompt size the server actually reported for it -- never a nominal figure.
 NEEDLES = ["T6_needle_4k", "T6_needle_16k", "T6_needle_60k", "T6_needle_120k"]
 
+def _tok(detail):
+    t = detail.replace("found_at_", "").replace("missed_at_", "").replace("_prompt_tokens", "")
+    return int(t) if t.isdigit() else None
+
 def recall_cell(a):
+    """Deepest verified recall, in tokens the server actually reported.
+
+    A FAIL whose reported prompt size is about half the model's window is an
+    overflow, not an inability to retrieve -- the needle was never shown to the
+    model (see review2.md). Those are not counted against the model.
+    """
+    if not any(a.get(g) for g in NEEDLES):
+        return '<td class="mut">—</td>'
     deepest = None
     for g in NEEDLES:
         got = a.get(g)
         if got and got[0] == "PASS":
-            deepest = (g, got[1])
+            t = _tok(got[1])
+            if t and (deepest is None or t > deepest):
+                deepest = t
     if deepest is None:
-        return '<td class="mut">—</td>' if not any(a.get(g) for g in NEEDLES) \
-               else '<td class="ba">fail</td>'
-    g, detail = deepest
-    words = g.rsplit("_", 1)[1]
-    tok = detail.replace("found_at_", "").replace("_prompt_tokens", "")
-    label = f"{words}w" + (f" / {int(tok)/1000:.0f}k rep." if tok.isdigit() else "")
-    return f'<td class="ok" title="{html.escape(detail)}">{label}</td>'
+        return '<td class="ba">fail</td>'
+    return f'<td class="ok">{deepest/1000:.0f}k tok</td>'
 
 def cell(res):
     if res is None:
@@ -200,7 +209,7 @@ generated {datetime.date.today().isoformat()} · all figures measured on this ho
 <li><b>multi-turn</b> — must consume a <span class="mono">tool_result</span> it was handed and act on it rather than re-calling.</li>
 <li><b>nested schema</b> — enums plus an array of objects, like a real patch tool.</li>
 <li><b>tools @ long ctx</b> — tool call with ~53k tokens already in the window. Run 3×: this is where models silently stop emitting tool calls.</li>
-<li><b>deepest recall</b> — a fact buried mid-document, retrieved. Shown as filler <i>words</i> and the prompt size the server reported. Proves the context is usable, not merely allocatable.</li>
+<li><b>deepest recall</b> — deepest prompt, in measured tokens, from which a fact buried mid-document was still retrieved. Proves the context is usable, not merely allocatable.</li>
 </ul>
 </div>
 <div>
@@ -213,10 +222,11 @@ generated {datetime.date.today().isoformat()} · all figures measured on this ho
 Profile S = Sieve-of-Eratosthenes prompt capped at 300 tokens (comparable to the v0 history).
 Profile L = "Write exactly 1000 tokens about GPUs", uncapped (comparable to the figures quoted by Alex).
 The two are never averaged: longer generations amortise warm-up and report higher tok/s on identical hardware.
-Context ceiling = largest num_ctx whose weights+KV still sit entirely in VRAM. Recall depth is stated in filler
-words plus the server-reported prompt size; those two disagree with each other and with a chars/4 estimate, so
-neither is presented as a verified token count. GPU temperature and utilisation are not shown because the Ollama
-HTTP API does not expose them and SSH to the host is refused.
+Context ceiling = largest num_ctx whose weights+KV still sit entirely in VRAM. Recall depth is the deepest prompt,
+in tokens reported by the server, from which the buried fact was retrieved; prose measures 1.65 tokens/word here.
+Overflowing num_ctx discards down to num_ctx/2 with no error, so size num_ctx at twice the context you intend to
+use. GPU temperature and utilisation are not shown because the Ollama HTTP API does not expose them and SSH to the
+host is refused.
 </div>
 """
 

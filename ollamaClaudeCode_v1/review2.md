@@ -121,6 +121,44 @@ emitting no call at all — which is what the MoE did on the same test at defaul
 
 ---
 
+## Overflowing `num_ctx` silently costs you *half* the window
+
+Measured on `qwen3.6:27b-q8_0-ctx60k` (baked `num_ctx` 60000), with the corrected
+prose haystack:
+
+| needle document | approx. prompt tokens | `num_ctx` | server reported |
+|---|---|---|---|
+| 40007 words / 248788 chars | ~66k | 60000 | **30002** |
+| 80003 words / 499672 chars | ~132k | 60000 | **30002** |
+
+Two prompts differing by a factor of two both come back at exactly 30002 — half
+the window plus two. Overflow does **not** fill the context and truncate the
+remainder: it discards down to `num_ctx/2`. No error is returned.
+
+Consequences for agentic coding:
+
+- the usable working set of a `-ctx60k` model is **30k tokens**, not 60k, once
+  anything overfills it
+- because the discarded part includes the document middle (and, per the 16K
+  finding, the prompt *tail*), the failure is silent and content-dependent
+- so a `-ctx60k` variant is not "60k of headroom"; it is 60k of allocation with a
+  30k cliff behind it
+
+This also means the two deep-needle FAILs on this model are **window-limited, not
+recall failures** — the model was never shown the needle. The reports distinguish
+these cases; a FAIL whose reported prompt size is ≈ `num_ctx/2` is an overflow,
+not an inability to retrieve.
+
+Practical rule: size `num_ctx` at **twice** the largest context you actually
+intend to use.
+
+## Token accounting, resolved
+
+The corrected prose filler measures **1.63–1.67 tokens per word** (4411 tokens
+from 2706 words; 17861 from 10703), which is the normal range for English prose
+and confirms the `ThTh` diagnosis below rather than merely correlating with it.
+Recall depths are now reported in verified tokens.
+
 ## A one-character harness bug that faked a capability
 
 Worth writing down because it produced *confident, plausible, entirely void*
