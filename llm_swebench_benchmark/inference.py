@@ -35,7 +35,7 @@ from openai import OpenAI
 
 OLLAMA_URL = "http://192.168.100.67:11434/v1"
 MODEL_NAME = "qwen3.6:35b-a3b-q4_K_M-agentic"
-MAX_TOKENS = 8192
+MAX_TOKENS = 16384
 RETRY_ATTEMPTS = 3
 RETRY_BASE_DELAY = 5  # seconds
 
@@ -199,9 +199,23 @@ def retry_request(client: OpenAI, prompt: str, instance_id: str) -> str:
                 max_tokens=MAX_TOKENS,
             )
             content = response.choices[0].message.content
+            # The model may output thinking/reasoning tokens that consume
+            # the budget, leaving content empty. Check for that.
             if content:
                 return content
-            print(f"  [WARN] {instance_id}: empty response, retry {attempt}/{RETRY_ATTEMPTS}", file=sys.stderr)
+            # Check if reasoning consumed the budget
+            reasoning = getattr(response.choices[0].message, "reasoning", None)
+            if reasoning and len(reasoning) > 500:
+                print(
+                    f"  [WARN] {instance_id}: model spent {len(reasoning)} chars on "
+                    f"thinking, no content left (attempt {attempt}/{RETRY_ATTEMPTS})",
+                    file=sys.stderr,
+                )
+            else:
+                print(
+                    f"  [WARN] {instance_id}: empty response, retry {attempt}/{RETRY_ATTEMPTS}",
+                    file=sys.stderr,
+                )
         except Exception as e:
             print(f"  [ERROR] {instance_id}: {e} (attempt {attempt}/{RETRY_ATTEMPTS})", file=sys.stderr)
 
