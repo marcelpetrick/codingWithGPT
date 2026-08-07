@@ -34,8 +34,21 @@ docker info | head -3
 Generate patches for all 300 SWE-bench Lite instances:
 
 ```bash
-python inference.py
+python inference.py                        # oracle context (default)
+python inference.py --context retrieved    # lexical retrieval, no gold info
 ```
+
+`--context` selects which source files the model is shown:
+
+- `oracle` — the files the reference patch edits. This is the standard
+  SWE-bench oracle setting used by most non-agentic published numbers, so
+  results are comparable. It reveals *where* to look, never *what* to write.
+- `retrieved` — dependency-free lexical retrieval over the repo, ranking files
+  by weighted overlap with the issue text. Harder and more realistic; uses no
+  gold-patch information at all.
+
+Always state which setting a score was produced under — they are not
+comparable to each other.
 
 Options:
 
@@ -184,7 +197,32 @@ instances accounted for: 299 attempted (1 has an empty patch), 0 unaccounted,
 `django__django-11099`, `django__django-13658`, `django__django-15061`,
 `mwaskom__seaborn-3010`, `pytest-dev__pytest-5227`, `sympy__sympy-17655`.
 
-**qwen3.6:35b-a3b-q4_K_M-agentic resolves 8.0% of SWE-bench Lite.**
+> ### ⚠ 8.0% is NOT this model's SWE-bench score
+>
+> Both runs above were generated with a broken prompt. `build_prompt()` derived
+> its "target files" from `FAIL_TO_PASS`, which holds **test node IDs**
+> (`path/to/test_x.py::test_name`), not source paths. Splitting on `::` yields
+> the *test* files. Verified across the dataset: **in 300/300 instances the
+> model was shown none of the files it had to edit.**
+>
+> ```
+> astropy__astropy-7746
+>   FAIL_TO_PASS[0] : astropy/wcs/tests/test_wcs.py::test_zero_size_input
+>   -> file shown   : astropy/wcs/tests/test_wcs.py     <- the test
+>   gold patch edits: astropy/wcs/wcs.py                <- never shown
+> ```
+>
+> The model was reconstructing source files from pretraining memory and
+> patching them blind. This reframes the failure analysis below: the dominant
+> "hallucinated context" category is not gratuitous hallucination, it is the
+> predictable result of withholding the file being edited. It also explains why
+> 22 of 24 solves come from django and sympy — the largest, most-memorised
+> repos, the only ones the model could recall accurately.
+>
+> **Treat 8.0% as a floor measured with the context supply broken, not as a
+> benchmark result.** `inference.py` is fixed (`--context oracle|retrieved`),
+> but the numbers below predate the fix and no valid score exists until
+> inference is re-run.
 
 Note that `resolved / applied` is essentially unchanged (20.7% → 20.0%). This is
 the honest reading of the repair work: fixing the diff envelope let 38 more
@@ -303,6 +341,14 @@ a function that does not exist in that file at that commit.
    harness deletes each image after grading, so several GB of movement is
    normal. Alert on an absolute floor (e.g. under 3 GB) and on real
    `no space left on device` lines, not on the oscillation itself.
+10. **Assert that the prompt contains the files the answer must edit.** This is
+    the single highest-value check in the whole pipeline and it is two lines:
+    intersect the paths shown in the prompt with the paths the reference patch
+    touches, and fail loudly on an empty intersection. Running it once would
+    have caught the `FAIL_TO_PASS` bug before ~2.5 hours of inference and two
+    full evaluation runs were spent measuring a blindfolded model. A comment
+    asserting what a field contains (`# FAIL_TO_PASS contains file paths`) is
+    not evidence; one `print()` of the actual value is.
 
 ## Estimated Wall Time
 

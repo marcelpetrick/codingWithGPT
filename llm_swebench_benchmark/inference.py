@@ -16,7 +16,9 @@ Usage:
 """
 
 import argparse
+import collections
 import json
+import math
 import os
 import re
 import shutil
@@ -99,27 +101,84 @@ def get_file_contents(repo_dir: str, files: list[str], max_total_chars: int = 12
     return "".join(parts)
 
 
-def build_prompt(instance: dict, repo_dir: str) -> str:
+def oracle_files(instance: dict) -> list[str]:
+    """Files the reference patch edits -- the standard SWE-bench "oracle" context.
+
+    This tells the model *where* to look, not *what* to write; the reference
+    patch body is never shown. It is the setting most non-agentic SWE-bench
+    numbers are reported under, so results are comparable.
+    """
+    return sorted({
+        line[len("--- a/"):].strip()
+        for line in instance.get("patch", "").split("\n")
+        if line.startswith("--- a/")
+    })
+
+
+_TOKEN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]{2,}")
+
+
+def retrieved_files(instance: dict, repo_dir: str, top_k: int = 5) -> list[str]:
+    """Rank source files by lexical overlap with the issue text.
+
+    A dependency-free stand-in for BM25: score each candidate by how many
+    distinct issue identifiers it mentions, weighted towards rarer ones. Used
+    for the honest "no oracle" setting.
+    """
+    query = collections.Counter(
+        t.lower() for t in _TOKEN_RE.findall(
+            instance.get("problem_statement", "") + "\n" + instance.get("hints_text", "")
+        )
+    )
+    if not query:
+        return []
+
+    candidates = [
+        f for f in get_repo_tree(repo_dir).split("\n")
+        if f.endswith(".py") and "/tests/" not in f and not os.path.basename(f).startswith("test_")
+    ]
+
+    doc_freq: collections.Counter = collections.Counter()
+    per_file: dict[str, set] = {}
+    for f in candidates:
+        try:
+            with open(os.path.join(repo_dir, f), errors="replace") as fh:
+                toks = {t.lower() for t in _TOKEN_RE.findall(fh.read())} & set(query)
+        except OSError:
+            continue
+        if toks:
+            per_file[f] = toks
+            doc_freq.update(toks)
+
+    n = len(per_file) or 1
+    scored = [
+        (sum(query[t] * math.log(1 + n / (1 + doc_freq[t])) for t in toks), f)
+        for f, toks in per_file.items()
+    ]
+    scored.sort(reverse=True)
+    return [f for _, f in scored[:top_k]]
+
+
+def build_prompt(instance: dict, repo_dir: str, context: str = "oracle") -> str:
     """Build the prompt for a single SWE-bench instance."""
     problem = instance.get("problem_statement", "")
     hints = instance.get("hints_text", "")
 
-    # Get the files that need changes (FAIL_TO_PASS contains file paths)
-    fail_to_pass = instance.get("FAIL_TO_PASS", [])
-    # Extract file paths from the test specs (format: "file::test_name")
-    target_files = list(set(f.split("::")[0] for f in fail_to_pass if "::" in f))
+    # NOTE: do NOT derive these from FAIL_TO_PASS. That field holds test node
+    # IDs ("path/to/test_x.py::test_name"), so splitting on "::" yields the
+    # *test* files -- never the source files that need editing. An earlier
+    # revision did exactly that, and in all 300 instances the model was shown
+    # only tests and had to invent the source it was patching. That single bug
+    # accounted for the bulk of the "hallucinated context" apply failures.
+    if context == "oracle":
+        target_files = oracle_files(instance)
+    else:
+        target_files = retrieved_files(instance, repo_dir)
 
-    # If no file hints, grab root-level Python files
-    if not target_files:
-        result = subprocess.run(
-            ["git", "ls-files"],
-            cwd=repo_dir,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        target_files = [f for f in result.stdout.strip().split("\n") if f.endswith(".py")]
-        target_files = target_files[:10]  # cap to avoid budget blowout
+    if not target_files:  # retrieval found nothing usable
+        target_files = [
+            f for f in get_repo_tree(repo_dir).split("\n") if f.endswith(".py")
+        ][:10]
 
     tree = get_repo_tree(repo_dir)
     contents = get_file_contents(repo_dir, target_files)
@@ -251,6 +310,15 @@ def main():
     parser.add_argument("--instances", help="Path to a subset JSON (list of instance dicts)")
     parser.add_argument("--tmp_dir", default="/tmp/swebench-inference", help="Temp directory for repos")
     parser.add_argument("--dry_run", action="store_true", help="Print prompts without sending to model")
+    parser.add_argument(
+        "--context",
+        choices=["oracle", "retrieved"],
+        default="oracle",
+        help="Which source files to show the model: 'oracle' = the files the "
+             "reference patch edits (standard SWE-bench oracle setting, "
+             "comparable to published numbers); 'retrieved' = lexical retrieval "
+             "over the repo, no gold-patch information used.",
+    )
     args = parser.parse_args()
 
     # Load dataset
@@ -319,7 +387,7 @@ def main():
         repo_dir = clone_repo(inst["repo"], inst["base_commit"], args.tmp_dir)
 
         # Build prompt
-        prompt = build_prompt(inst, repo_dir)
+        prompt = build_prompt(inst, repo_dir, context=args.context)
 
         if args.dry_run:
             print(f"  [DRY RUN] prompt length: {len(prompt)} chars", file=sys.stderr)
