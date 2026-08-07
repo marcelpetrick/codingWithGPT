@@ -166,19 +166,28 @@ python analyze_results.py --run logs/run_evaluation/<run_id> \
 > subset of instances that happened to survive the pipeline, which inflates the
 > number. Over the full dataset it is `17/300 = 5.7%`.
 
-### Evaluation Run 2 — repaired patches (2026-08-07)
+### Evaluation Run 2 — repaired patches (2026-08-07, PARTIAL)
 
-Re-evaluated `predictions_repaired.json` against the same harness. **In progress
-at time of writing**; final numbers to be filled in from:
+Re-evaluated `predictions_repaired.json` against the same harness. **Stopped
+deliberately at 146/300 instances** (49%); see [RESUME.md](RESUME.md) for the
+exact resume command and the list of 154 instances not yet run.
 
-```bash
-python analyze_results.py --run logs/run_evaluation/qwen36-repaired-20260807 \
-    --baseline logs/run_evaluation/qwen36-agentic-20260807-reboot
-```
+| Metric | Run 1 (baseline) | Run 2 (partial) |
+|---|---|---|
+| Instances attempted | 299 | 146 |
+| Patch apply failures | 213 (71%) | 75 (51%) |
+| Graded (reached tests) | 82 | 61 |
+| Resolved | 17 | 15 |
 
-Early signal: patch-apply failures dropped from 213 to **0**, so every instance
-now reaches the test stage and the resolution rate is measured over the full
-dataset rather than a self-selected subset.
+**No score should be read off run 2 yet.** It is half complete and the instances
+processed so far are alphabetical (astropy → django → matplotlib), not a
+representative sample, so `15/61` is not comparable to run 1's `17/300`.
+
+The meaningful result so far is the apply rate: repairing the diff envelope cut
+patch-apply failures from **71% → 51%**, so materially more patches reach the
+test stage. It did **not** eliminate them — the residue is dominated by the
+model hallucinating code that does not exist at the base commit, which is a
+model limitation and is deliberately not papered over.
 
 ### Root Cause — three mechanical defects in the extracted diffs
 
