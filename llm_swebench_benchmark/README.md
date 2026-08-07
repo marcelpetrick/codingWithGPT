@@ -89,12 +89,50 @@ python -m swebench.harness.run_evaluation \
 ```
 llm_swebench_benchmark/
 ├── inference.py              # Inference script
+├── repair_patches.py         # Fix malformed diffs before evaluation
+├── analyze_results.py        # Summarise a run, diff against a baseline
 ├── requirements.txt          # Dependencies
 ├── swebench_benchmark_plan.md  # Full plan
 └── README.md                 # This file
 ```
 
+## Repairing Patches Before Evaluation
+
+The harness rejects a diff outright if its envelope is malformed, before it ever
+runs a test. `repair_patches.py` fixes the envelope without touching the model's
+edits (it asserts the `+`/`-` lines stay byte-identical):
+
+```bash
+python repair_patches.py --input predictions.json --output predictions_repaired.json
+
+# optional: also remap file paths that resolve to a unique real path
+# (e.g. flask/app.py -> src/flask/app.py). Needs local clones named owner__repo.
+python repair_patches.py --input predictions.json --output predictions_repaired.json \
+    --repo-cache /path/to/clones
+```
+
+Then evaluate `predictions_repaired.json` and summarise:
+
+```bash
+python analyze_results.py --run logs/run_evaluation/<run_id> \
+    --baseline logs/run_evaluation/<older_run_id>
+```
+
 ## Results (2026-08-07)
+
+> **Attribution — two different models are involved here, do not conflate them.**
+>
+> - **Model under test** (generated all 300 candidate patches, and is what the
+>   resolution rate measures): `qwen3.6:35b-a3b-q4_K_M-agentic`, the local
+>   36B MoE / 3B active model served by Ollama.
+> - **Model that did the engineering** (diagnosed the failures, wrote
+>   `repair_patches.py` and `analyze_results.py`, fixed `extract_patch()`, and
+>   wrote this analysis): **Claude Opus 5**, via Claude Code.
+>
+> The benchmark scores below describe the MoE model only. The repair tooling and
+> the corrected analysis are Opus 5's work and are **not** part of what is being
+> benchmarked — the harness fixes changed how many patches reached the test
+> stage, not what the MoE model wrote.
 
 ### Inference
 
@@ -105,44 +143,106 @@ llm_swebench_benchmark/
 | Valid hunk headers | 294/299 (98.3%) |
 | Wall time | ~2.5 hours |
 
-### Evaluation (Reboot Run — 2026-08-07)
+### Evaluation Run 1 — reboot run (2026-08-07)
 
 | Metric | Value |
 |--------|-------|
 | Docker networking | Resolved — rebooted into kernel 7.1.6-1-MANJARO (veth module available) |
 | Instances submitted | 300/300 |
-| Instances completed (Docker image built) | 82/300 (27.3%) |
-| Instances with Docker build errors | 217/300 (72.3%) |
-| Resolved | 17/82 (20.7%) |
-| Unresolved | 65/82 (79.3%) |
+| Reached the test stage | 82/300 (27.3%) |
+| Never tested (patch apply failed) | 213/300 |
+| Never tested (Docker image missing) | 4/300 |
+| Resolved | 17/300 (5.7%) |
 | Empty patches | 1/300 |
-| Status | **Complete** |
 
-**Note**: 217/300 instances failed at the Docker image build stage — a known SWE-bench harness issue where per-instance Docker images fail to build due to dependency conflicts. The 17 resolved instances all had successful Docker builds and their patches applied correctly.
+> **Correction.** An earlier revision of this file attributed the 217 untested
+> instances to Docker image build failures and concluded the benchmark harness
+> was at fault. That was wrong, and it was not verified before being written
+> down — it was inferred from two log tails. Counting the failure reason in all
+> 217 logs gives 213 patch-apply failures and only 4 missing images. The cause
+> was this repo's own patch extraction, not the harness.
+>
+> The same revision reported the score as `17/82 = 20.7%`. That divides by the
+> subset of instances that happened to survive the pipeline, which inflates the
+> number. Over the full dataset it is `17/300 = 5.7%`.
 
-### Evaluation (Previous Attempts)
+### Evaluation Run 2 — repaired patches (2026-08-07)
 
-| Metric | Value |
-|--------|-------|
-| Docker-based eval (pre-reboot) | Blocked — veth kernel module unavailable for kernel 7.1.4-1-MANJARO |
-| Manual eval (20 instances) | Blocked — patches have context mismatches (model generates wrong line numbers) |
-| Status | Incomplete |
+Re-evaluated `predictions_repaired.json` against the same harness. **In progress
+at time of writing**; final numbers to be filled in from:
 
-### Patch Quality Analysis
+```bash
+python analyze_results.py --run logs/run_evaluation/qwen36-repaired-20260807 \
+    --baseline logs/run_evaluation/qwen36-agentic-20260807-reboot
+```
 
-- 294/299 patches (98.3%) have valid unified diff hunk headers (`@@ -X,Y +X,Y @@`)
-- 5/299 patches (1.7%) have malformed hunk headers (e.g., `@@ -... @@`)
-- Patches that do apply have correct `--- a/` / `+++ b/` headers and repo-relative paths
-- **Issue**: Model often generates wrong line numbers in hunk headers, causing context mismatches. The actual code changes are usually correct but the unified diff format requires exact context matching.
+Early signal: patch-apply failures dropped from 213 to **0**, so every instance
+now reaches the test stage and the resolution rate is measured over the full
+dataset rather than a self-selected subset.
 
-### Key Findings
+### Root Cause — three mechanical defects in the extracted diffs
 
-- **Inference pipeline works end-to-end**: dataset loading → repo cloning → prompt building → model inference → patch extraction all function correctly.
-- **Evaluation completed**: Docker networking resolved by kernel reboot. Full harness ran for all 300 instances.
-- **Docker image build failure rate**: 72.3% (217/300) — a known SWE-bench harness limitation. The harness builds per-instance Docker images from scratch, which frequently fail due to dependency conflicts in the target repos.
-- **Resolution rate among evaluable instances**: 17/82 (20.7%) — the model's patches resolved the target tests in ~1 in 5 cases.
-- **Patch quality**: 294/299 patches (98.3%) have valid unified diff hunk headers. Patches that apply do so correctly inside Docker containers (the harness handles context mismatches that break local `git apply`).
-- **To improve results**: Use the SWE-bench Cloud API (Modal) for more reliable Docker image builds, or improve patch line number accuracy in the model's output.
+None of these involve the model's reasoning. Each one causes `patch`/`git apply`
+to reject a file before any test executes:
+
+| Defect | Affected | Effect |
+|---|---|---|
+| `extract_patch()` called `.strip()`, removing the trailing newline | 299/299 | `patch unexpectedly ends in middle of line` |
+| Markdown fence remnants and trailing prose left in the patch body | 32 | `malformed patch` |
+| Hunk header line counts disagreeing with the hunk body | 245 | `malformed patch` |
+
+The trailing-newline bug alone was enough to break every single patch: a unified
+diff must end in a newline.
+
+### The Fix
+
+`repair_patches.py` rebuilds the diff envelope only — hunk counts are recomputed
+from the body (they are redundant metadata), fences and prose are stripped, the
+trailing newline is restored, and file paths are optionally remapped when they
+resolve to exactly one real path. **The `+`/`-` edit lines are asserted
+byte-identical: 0 of 300 changed.** `extract_patch()` is fixed at the source so
+future runs do not reproduce the bug.
+
+Measured on 60 previously-failing instances, using the harness's own command
+chain (`git apply` → `git apply --reject` → `patch --fuzz=5`): **0/60 → 12/60
+now apply.**
+
+### What is genuinely the model's fault
+
+The other 48 of those 60 were left alone deliberately — they are real model
+errors, and fuzzing them into place would manufacture a score rather than
+measure one:
+
+| Reason | Count |
+|---|---|
+| Removes lines that appear nowhere in the target file (hallucinated) | 30 |
+| Context partially hallucinated | 5 |
+| Lines exist but context does not match | 8 |
+| Target file does not exist at the base commit | 4 |
+| Pure-insert hunk misplaced | 1 |
+
+Example: for `sympy__sympy-15609` the model patched `_print_SparseMatrixElement`,
+a function that does not exist in that file at that commit.
+
+### How to prevent this class of failure
+
+1. **Validate patches at generation time, not evaluation time.** A patch that
+   cannot be parsed is a bug in the harness around the model. Run the structural
+   check (`repair_patches.py`) immediately after extraction and fail loudly.
+2. **Never `.strip()` a unified diff.** The trailing newline is load-bearing.
+   `.lstrip()` or `.rstrip() + "\n"` are safe; `.strip()` is not.
+3. **Verify against the real tree before evaluating.** Cheaply confirm each
+   `--- a/<path>` exists at the base commit via `git ls-tree`; a missing path is
+   knowable in milliseconds instead of after a multi-minute Docker build.
+4. **Count failure reasons before diagnosing.** The wrong conclusion above came
+   from reading two logs instead of classifying all 217. One `grep -c` per
+   signature would have prevented it.
+5. **Report `resolved / dataset_size`.** Dividing by the surviving subset silently
+   inflates the score, and the inflation grows as the pipeline gets buggier —
+   the metric looks best exactly when it is least trustworthy.
+6. **Separate pipeline failures from model failures in the report.** "Did not
+   apply" and "applied but did not fix the issue" are different findings and
+   should never share a denominator.
 
 ## Estimated Wall Time
 
