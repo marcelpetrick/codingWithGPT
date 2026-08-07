@@ -270,6 +270,10 @@ def main():
             print(f"  Resuming: {len(existing_ids)} predictions already exist.", file=sys.stderr)
             instances = [i for i in instances if i["instance_id"] not in existing_ids]
             print(f"  {len(instances)} instances remaining.", file=sys.stderr)
+            # Preserve existing predictions so incremental writes don't lose them
+            predictions = list(existing)
+    else:
+        predictions = []
 
     if args.start_from > 0:
         instances = instances[args.start_from:]
@@ -300,7 +304,8 @@ def main():
     os.makedirs(args.tmp_dir, exist_ok=True)
 
     # Process instances
-    predictions = []
+    if not predictions:
+        predictions = []
     start_time = time.time()
 
     for i, inst in enumerate(instances):
