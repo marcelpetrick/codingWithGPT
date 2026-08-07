@@ -166,28 +166,63 @@ python analyze_results.py --run logs/run_evaluation/<run_id> \
 > subset of instances that happened to survive the pipeline, which inflates the
 > number. Over the full dataset it is `17/300 = 5.7%`.
 
-### Evaluation Run 2 — repaired patches (2026-08-07, PARTIAL)
+### Evaluation Run 2 — repaired patches (2026-08-07, COMPLETE)
 
-Re-evaluated `predictions_repaired.json` against the same harness. **Stopped
-deliberately at 146/300 instances** (49%); see [RESUME.md](RESUME.md) for the
-exact resume command and the list of 154 instances not yet run.
+Re-evaluated `predictions_repaired.json` against the same harness. All 300
+instances accounted for: 299 attempted (1 has an empty patch), 0 unaccounted,
+0 disk-related failures.
 
-| Metric | Run 1 (baseline) | Run 2 (partial) |
+| Metric | Run 1 (baseline) | Run 2 (repaired) |
 |---|---|---|
-| Instances attempted | 299 | 146 |
-| Patch apply failures | 213 (71%) | 75 (51%) |
-| Graded (reached tests) | 82 | 61 |
-| Resolved | 17 | 15 |
+| Instances attempted | 299 | 299 |
+| Patch apply failures | 213 (71%) | 179 (60%) |
+| Graded (reached tests) | 82 (27%) | 120 (40%) |
+| **Resolved** | **17/300 = 5.7%** | **24/300 = 8.0%** |
+| Resolved / applied | 20.7% | 20.0% |
 
-**No score should be read off run 2 yet.** It is half complete and the instances
-processed so far are alphabetical (astropy → django → matplotlib), not a
-representative sample, so `15/61` is not comparable to run 1's `17/300`.
+**7 newly resolved, 0 regressions:** `django__django-11039`,
+`django__django-11099`, `django__django-13658`, `django__django-15061`,
+`mwaskom__seaborn-3010`, `pytest-dev__pytest-5227`, `sympy__sympy-17655`.
 
-The meaningful result so far is the apply rate: repairing the diff envelope cut
-patch-apply failures from **71% → 51%**, so materially more patches reach the
-test stage. It did **not** eliminate them — the residue is dominated by the
-model hallucinating code that does not exist at the base commit, which is a
-model limitation and is deliberately not papered over.
+**qwen3.6:35b-a3b-q4_K_M-agentic resolves 8.0% of SWE-bench Lite.**
+
+Note that `resolved / applied` is essentially unchanged (20.7% → 20.0%). This is
+the honest reading of the repair work: fixing the diff envelope let 38 more
+patches reach the test stage, and they converted at the same rate as the ones
+that already applied. The repair recovered measurement that was being lost — it
+did not make the model better, and it did not flatter the result.
+
+### Per-repo breakdown (denominator = full dataset, not just graded)
+
+| Repo | Dataset | Graded | Resolved | Rate |
+|---|---:|---:|---:|---:|
+| django/django | 114 | 51 | 15 | 13.2% |
+| sympy/sympy | 77 | 27 | 7 | 9.1% |
+| mwaskom/seaborn | 4 | 3 | 1 | 25.0% |
+| pytest-dev/pytest | 17 | 8 | 1 | 5.9% |
+| astropy/astropy | 6 | 2 | 0 | 0% |
+| matplotlib/matplotlib | 23 | 12 | 0 | 0% |
+| pallets/flask | 3 | 1 | 0 | 0% |
+| psf/requests | 6 | 1 | 0 | 0% |
+| pydata/xarray | 5 | 2 | 0 | 0% |
+| pylint-dev/pylint | 6 | 1 | 0 | 0% |
+| scikit-learn/scikit-learn | 23 | 8 | 0 | 0% |
+| sphinx-doc/sphinx | 16 | 4 | 0 | 0% |
+| **TOTAL** | **300** | **120** | **24** | **8.0%** |
+
+The distribution matters more than the headline. **22 of 24 solutions come from
+two repos** (django and sympy), which together are 64% of the dataset. On the
+other ten repos the model scores 2/109. django and sympy issues in SWE-bench
+Lite tend to be localised — a wrong comparison, a missing guard — while
+scikit-learn, sphinx and matplotlib issues more often require understanding
+state that spans several files. The model is not uniformly weak at 8%; it is
+reasonable at small localised fixes and near zero at anything requiring wider
+context.
+
+The apply rate remains the bigger constraint: **60% of patches still never reach
+a test.** That residue is dominated by the model hallucinating code that does
+not exist at the base commit. It is a model limitation and is deliberately not
+papered over — see below.
 
 ### Root Cause — three mechanical defects in the extracted diffs
 
@@ -252,6 +287,22 @@ a function that does not exist in that file at that commit.
 6. **Separate pipeline failures from model failures in the report.** "Did not
    apply" and "applied but did not fix the issue" are different findings and
    should never share a denominator.
+7. **Size `--max_workers` against the largest repo image, not the average.**
+   matplotlib env images are ~7.7 GB, roughly 3x django or sympy. Four workers
+   is comfortable for most of the dataset and fatal on the matplotlib block:
+   this run filled a 98 GB root partition to 0 bytes twice before being
+   dropped to `--max_workers 1` for those instances. Budget
+   `workers x 8 GB` of free space, or run the matplotlib/seaborn block
+   separately.
+8. **Reconcile the instance count before reporting.** `graded + apply-failed`
+   must equal the number of instance directories. This run had 10 instances
+   with neither a report nor a failure marker — killed mid-flight by an earlier
+   `SIGTERM` — which would have silently vanished from the denominator. They
+   were re-run to close the gap.
+9. **Distinguish "free space oscillating" from "free space at zero".** The
+   harness deletes each image after grading, so several GB of movement is
+   normal. Alert on an absolute floor (e.g. under 3 GB) and on real
+   `no space left on device` lines, not on the oscillation itself.
 
 ## Estimated Wall Time
 

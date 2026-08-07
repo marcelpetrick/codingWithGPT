@@ -18,3 +18,9 @@ venv/
 # Temp files
 /tmp/
 *.tmp
+
+# Evaluation run logs
+eval_*.log
+
+# Harness per-invocation summary (describes only the last phase, not the merged run)
+qwen3.6*.qwen36-repaired-*.json

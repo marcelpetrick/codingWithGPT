@@ -1,80 +1,66 @@
-# Resume Notes — SWE-bench Lite evaluation
+# Run Notes — SWE-bench Lite evaluation
 
-**Stopped:** 2026-08-07, 19:0x, deliberately (`SIGTERM` to the harness), at 146/300
-instances. Not a crash. Nothing is corrupted; no cleanup is pending.
+**Status: COMPLETE.** Run 2 (`qwen36-repaired-20260807`) finished on 2026-08-07.
+All 300 dataset instances are accounted for; nothing is pending. This file is
+kept for the operational notes below, which are the parts worth remembering next
+time.
 
-## How to resume
+Final result: **24/300 = 8.0% resolved**, up from 5.7% before the patch repair.
+See [README.md](README.md) for the full analysis and the per-repo breakdown.
 
-The harness has no resume flag — it re-runs whatever is in the predictions file.
-`remaining_instances.json` holds the 154 instance IDs that were never attempted,
-so filter the predictions down to those and run only them:
-
-```bash
-cd llm_swebench_benchmark
-
-python3 - <<'EOF'
-import json
-remaining = set(json.load(open("remaining_instances.json")))
-preds = [p for p in json.load(open("predictions_repaired.json"))
-         if p["instance_id"] in remaining]
-json.dump(preds, open("predictions_remaining.json", "w"), indent=2)
-print(len(preds), "instances to run")
-EOF
-
-nohup python3 -m swebench.harness.run_evaluation \
-    --dataset_name SWE-bench/SWE-bench_Lite \
-    --predictions_path "$PWD/predictions_remaining.json" \
-    --max_workers 4 \
-    --run_id qwen36-repaired-20260807 \
-    --timeout 600 > eval_repaired_part2.log 2>&1 &
-```
-
-Reusing the same `--run_id` writes into the same log tree, so the two halves
-merge and `analyze_results.py` reads them as one run.
-
-Then summarise the whole thing:
+## Reproducing the analysis
 
 ```bash
 python analyze_results.py --run logs/run_evaluation/qwen36-repaired-20260807 \
     --baseline logs/run_evaluation/qwen36-agentic-20260807-reboot
 ```
 
-## State at the stop
+## How the run was actually executed
 
-| | Run 1 (baseline) | Run 2 (repaired, partial) |
-|---|---|---|
-| Instances attempted | 299 | 146 |
-| Patch apply failures | 213 (71%) | 75 (51%) |
-| Graded (reached tests) | 82 | 61 |
-| Resolved | 17 | 15 |
+Not in one shot. The sequence, because it matters for anyone re-running it:
 
-**Do not read a score off run 2 yet.** It is 49% complete and the instances run
-so far are alphabetical (astropy → django → matplotlib), not a representative
-sample. `15/61` is not comparable to run 1's `17/300`.
+1. 146 instances at `--max_workers 4`, stopped deliberately with `SIGTERM`.
+2. The remaining 153 (of 154; one has an empty patch) at `--max_workers 4`,
+   41 minutes.
+3. 10 instances that step 1's `SIGTERM` had left with no verdict at all —
+   neither a `report.json` nor a `Patch Apply Failed` marker. Found by
+   reconciling `graded + apply-failed` against the instance-directory count.
+4. Of those 10, the last 4 had to drop to `--max_workers 1` after matplotlib
+   images filled the root partition.
 
-The one figure that *is* meaningful so far: the repair cut patch-apply failures
-from **71% → 51%**, so substantially more patches now reach the test stage.
+All four phases reuse `--run_id qwen36-repaired-20260807`, so they merge into a
+single log tree and `analyze_results.py` reads them as one run.
 
-## Environment notes for next session
+## Environment notes
 
 - **Docker needs kernel 7.1.6-1-MANJARO** (has the `veth` module). Kernel
-  7.1.4 lacks it and Docker bridge networking fails outright. Check with
-  `uname -r` before starting.
-- **Root filesystem is tight.** `/` is 98G and separate from `/home`; it was at
-  87% with 13G free after cleanup. The harness builds a ~2-3GB image per
-  instance and deletes it after grading, so free space oscillates by several GB
-  during a run — a momentary dip toward 0G is normal and self-correcting, not a
-  leak. Only a `no space left on device` line inside
-  `logs/run_evaluation/<run_id>/*/*/run_instance.log` indicates a real problem.
-- `docker image prune` reclaims nothing here; the harness already removes its
-  own images. Orphans only survive if a run is killed mid-instance — clear them
-  with `docker rm -f $(docker ps -aq --filter name=sweb.eval)` and
-  `docker rmi -f $(docker images -q 'swebench/sweb.eval*')`.
+  7.1.4 lacks it and Docker bridge networking fails outright. Check `uname -r`
+  before starting.
+- **Root filesystem is the binding constraint.** `/` is 98 GB and separate from
+  `/home`. Budget roughly `max_workers x 8 GB` of free space: matplotlib env
+  images are ~7.7 GB each, about 3x django or sympy. Two workers on matplotlib
+  exhausted 18 GB of free space and drove `/` to 0 bytes.
+- **Free space oscillating by several GB is normal** — the harness removes each
+  image right after grading. Only two things indicate a real problem: an
+  absolute floor (under ~3 GB), or a `no space left on device` line inside
+  `logs/run_evaluation/<run_id>/*/*/run_instance.log`. This run finished with
+  **0** such lines.
+- **`docker system df` under-reports.** After a full prune showing 0 images,
+  ~23 GB on `/` was still unreadable to a non-root user — orphaned `overlay2`
+  layer data from `SIGKILL`ed builds that Docker's own accounting does not see
+  and `docker system prune` does not reclaim. Inspect with
+  `sudo du -sh /var/lib/docker/* | sort -rh`.
+- Clearing orphans after a killed run:
+  `docker rm -f $(docker ps -aq --filter name=sweb.eval)` and
+  `docker rmi -f $(docker images -q 'swebench/sweb.eval*')`. Note the
+  `swebench/` filter — a bare `docker system prune -a` will also delete
+  unrelated project images.
 
 ## Where the remaining failures come from
 
-Sampled 60 previously-failing instances after repair: 12 now apply, 48 do not.
-The 48 are genuine model errors, not pipeline defects:
+179 of 299 patches (60%) still never reached a test. Sampling 60 of them after
+repair: 12 now apply, 48 do not. The 48 are genuine model errors, not pipeline
+defects:
 
 | Reason | Count |
 |---|---|
