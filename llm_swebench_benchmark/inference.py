@@ -179,21 +179,24 @@ def extract_patch(response_text: str) -> str | None:
 
     Tries markdown code fences first, then bare diff.
     """
+    # NOTE: only leading whitespace may be stripped. A unified diff must end in
+    # a newline -- stripping it makes `patch` report "patch unexpectedly ends in
+    # middle of line" and reject the whole file.
     # Try fenced code block
     fence_match = re.search(r"```(?:diff|patch)?\s*\n(--- .*)", response_text, re.DOTALL)
     if fence_match:
-        patch = fence_match.group(1).strip()
+        patch = fence_match.group(1).lstrip()
         # Find the end of the diff (next code fence or end of string)
         end_match = re.search(r"\n```", patch)
         if end_match:
-            patch = patch[: end_match.start()].strip()
+            patch = patch[: end_match.start()]
         if patch.startswith("---"):
-            return patch
+            return patch.rstrip() + "\n"
 
     # Try bare diff
     bare_match = re.search(r"(--- a/.*)(?=\n--- a/|\n\+\+\+ b/|\Z)", response_text, re.DOTALL)
     if bare_match:
-        return bare_match.group(1).strip()
+        return bare_match.group(1).rstrip() + "\n"
 
     return None
 

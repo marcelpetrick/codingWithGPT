@@ -1,6 +1,7 @@
 # Evaluation artifacts
 logs/run_evaluation/
 evaluation_reboot.log
+eval_repaired.log
 manual_results.json
 manual_eval.py
 
