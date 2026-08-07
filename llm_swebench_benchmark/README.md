@@ -105,11 +105,20 @@ llm_swebench_benchmark/
 | Valid hunk headers | 294/299 (98.3%) |
 | Wall time | ~2.5 hours |
 
-### Evaluation
+### Evaluation (Reboot Run — 2026-08-07)
 
 | Metric | Value |
 |--------|-------|
-| Docker-based eval | Blocked — veth kernel module unavailable for running kernel (7.1.4-1-MANJARO) |
+| Docker networking | Resolved — rebooted into kernel 7.1.6-1-MANJARO (veth module available) |
+| Instances evaluated | 63/299 (21%) |
+| Resolved | 11/63 (17.5%) |
+| Status | **Running** — ~164 instances remaining, estimated ~3h wall time |
+
+### Evaluation (Previous Attempts)
+
+| Metric | Value |
+|--------|-------|
+| Docker-based eval (pre-reboot) | Blocked — veth kernel module unavailable for kernel 7.1.4-1-MANJARO |
 | Manual eval (20 instances) | Blocked — patches have context mismatches (model generates wrong line numbers) |
 | Status | Incomplete |
 
