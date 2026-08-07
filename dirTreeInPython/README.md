@@ -8,6 +8,8 @@ interactive HTML treemap: rectangle area equals disk usage, click to drill down.
 
 Works on **Windows 11, Linux and macOS** with CPython >= 3.7.
 
+![](dirtree.png)
+
 ---
 
 ## Features
