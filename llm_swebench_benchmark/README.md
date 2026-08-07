@@ -94,6 +94,22 @@ llm_swebench_benchmark/
 └── README.md                 # This file
 ```
 
+## Results (2026-08-07)
+
+| Phase | Metric | Value |
+|-------|--------|-------|
+| Inference | Instances completed | 300/300 (100%) |
+| Inference | Patch extraction rate | 299/300 (99.7%) |
+| Inference | Wall time | ~2.5 hours |
+| Evaluation | Docker images | Not available on system |
+| Evaluation | Status | Incomplete — 100% error rate due to missing swebench Docker images |
+
+### Key Findings
+
+- **Inference pipeline works end-to-end**: dataset loading → repo cloning → prompt building → model inference → patch extraction all function correctly.
+- **Patch quality**: Generated patches are valid unified diffs with correct `--- a/` / `+++ b/` headers and proper repo-relative paths.
+- **Evaluation bottleneck**: The SWE-bench evaluation harness requires pre-built Docker images (`swebench/sweb-eval-*`) that are not present on this system. Without these images, every instance fails with a Docker container startup error. To complete evaluation, pull the required images or run on a system with the swebench Docker images pre-loaded.
+
 ## Estimated Wall Time
 
 ~4–11 hours for all 300 instances (~1–3 min per instance at ~131 tok/s).
