@@ -1,0 +1,19 @@
+# Evaluation artifacts
+logs/run_evaluation/
+evaluation_reboot.log
+manual_results.json
+manual_eval.py
+
+# Predictions (generated, not source)
+predictions_*.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Temp files
+/tmp/
+*.tmp
