@@ -1,0 +1,38 @@
+2026-08-07 13:30:55,142 - INFO - Creating container for django__django-11848...
+2026-08-07 13:30:55,201 - INFO - Container for django__django-11848 created: b2dda6d26c19f3d4f6cd769febcd6d7c981b2ae6edb318c18f396245d6a6dfdd
+2026-08-07 13:30:55,329 - ERROR - Error in evaluating model for django__django-11848: 500 Server Error for http+docker://localhost/v1.55/containers/b2dda6d26c19f3d4f6cd769febcd6d7c981b2ae6edb318c18f396245d6a6dfdd/start: Internal Server Error ("failed to set up container networking: failed to create endpoint sweb.eval.django__django-11848.qwen36-agentic-20260807 on network bridge: failed to add the host (vethf25c512) <=> sandbox (vethb9c51d7) pair interfaces: operation not supported")
+Traceback (most recent call last):
+  File "/home/mpetrick/.local/lib/python3.14/site-packages/docker/api/client.py", line 275, in _raise_for_status
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/site-packages/requests/models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 500 Server Error: Internal Server Error for url: http+docker://localhost/v1.55/containers/b2dda6d26c19f3d4f6cd769febcd6d7c981b2ae6edb318c18f396245d6a6dfdd/start
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/mpetrick/.local/lib/python3.14/site-packages/swebench/harness/run_evaluation.py", line 155, in run_instance
+    container.start()
+    ~~~~~~~~~~~~~~~^^
+  File "/home/mpetrick/.local/lib/python3.14/site-packages/docker/models/containers.py", line 421, in start
+    return self.client.api.start(self.id, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/mpetrick/.local/lib/python3.14/site-packages/docker/utils/decorators.py", line 19, in wrapped
+    return f(self, resource_id, *args, **kwargs)
+  File "/home/mpetrick/.local/lib/python3.14/site-packages/docker/api/container.py", line 1136, in start
+    self._raise_for_status(res)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/mpetrick/.local/lib/python3.14/site-packages/docker/api/client.py", line 277, in _raise_for_status
+    raise create_api_error_from_http_exception(e) from e
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/home/mpetrick/.local/lib/python3.14/site-packages/docker/errors.py", line 39, in create_api_error_from_http_exception
+    raise cls(e, response=response, explanation=explanation) from e
+docker.errors.APIError: 500 Server Error for http+docker://localhost/v1.55/containers/b2dda6d26c19f3d4f6cd769febcd6d7c981b2ae6edb318c18f396245d6a6dfdd/start: Internal Server Error ("failed to set up container networking: failed to create endpoint sweb.eval.django__django-11848.qwen36-agentic-20260807 on network bridge: failed to add the host (vethf25c512) <=> sandbox (vethb9c51d7) pair interfaces: operation not supported")
+
+Check (logs/run_evaluation/qwen36-agentic-20260807/qwen3.6:35b-a3b-q4_K_M-agentic/django__django-11848/run_instance.log) for more information.
+2026-08-07 13:30:55,329 - INFO - Attempting to stop container sweb.eval.django__django-11848.qwen36-agentic-20260807...
+2026-08-07 13:30:55,331 - INFO - Attempting to remove container sweb.eval.django__django-11848.qwen36-agentic-20260807...
+2026-08-07 13:30:55,344 - INFO - Container sweb.eval.django__django-11848.qwen36-agentic-20260807 removed.
+2026-08-07 13:30:55,344 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.django_1776_django-11848:latest...
+2026-08-07 13:30:55,443 - INFO - Image swebench/sweb.eval.x86_64.django_1776_django-11848:latest removed.
