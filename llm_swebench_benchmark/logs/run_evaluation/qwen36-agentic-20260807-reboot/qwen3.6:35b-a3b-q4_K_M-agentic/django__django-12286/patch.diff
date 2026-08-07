@@ -1,0 +1,8 @@
+--- a/django/conf/__init__.py
++++ b/django/conf/__init__.py
+@@ -351,7 +351,7 @@ class Settings:
+-        if language_code[:2] not in [code for code, name in global_settings.LANGUAGES]:
++        if language_code[:2] not in [code for code, name in global_settings.LANGUAGES] and language_code not in global_settings.LANGUAGES:
+             raise ImproperlyConfigured(
+                 "You have provided a value for the LANGUAGE_CODE setting that is "
+                 "not in the LANGUAGES setting."

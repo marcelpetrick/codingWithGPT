@@ -1,0 +1,17 @@
+--- a/lib/mpl_toolkits/mplot3d/art3d.py
++++ b/lib/mpl_toolkits/mplot3d/art3d.py
+@@ -171,6 +171,7 @@
+ 
+     def update_normal3d(self, xs, ys, zs):
++        self._verts3d = [[], [], []]
+         try:
+             xs = np.asarray(xs)
+             ys = np.asarray(ys)
+             zs = np.asarray(zs)
+             if xs.ndim > 1 or ys.ndim > 1 or zs.ndim > 1:
+                 raise ValueError('x, y, z must be 1D')
+-            self._verts3d = [xs, ys, zs]
++            self._verts3d = [xs, ys, zs]
+         except ValueError:
++            pass
+```

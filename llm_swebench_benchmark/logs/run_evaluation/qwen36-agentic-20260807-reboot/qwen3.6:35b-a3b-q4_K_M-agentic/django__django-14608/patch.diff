@@ -1,0 +1,28 @@
+--- a/django/forms/utils.py
++++ b/django/forms/utils.py
+@@ -10,10 +10,12 @@ def format_html_join(sep, fmt, args_generator):
+ 
+ class ErrorList(list):
+-    def __init__(self, *args, error_class=None, form=None, **kwargs):
++    def __init__(self, *args, error_class=None, form=None, is_formset=False, **kwargs):
+         super().__init__(*args, **kwargs)
+-        self.error_class = error_class if error_class is not None else self._get_error_class(form=form)
++        self.error_class = error_class if error_class is not None else self._get_error_class(form=form, is_formset=is_formset)
+         self.form = form
+ 
+-    def _get_error_class(self, form=None):
++    def _get_error_class(self, form=None, is_formset=False):
++        if is_formset:
++            return 'nonform'
+         if form is not None:
+             return 'nonfield'
+         return 'error'
+--- a/django/forms/formsets.py
++++ b/django/forms/formsets.py
+@@ -990,6 +990,7 @@ class BaseFormSet:
+     @cached_property
+     def non_form_errors(self):
+         return self.error_class(
+             self._non_form_errors,
++            is_formset=True,
+         )

@@ -1,0 +1,11 @@
+--- a/django/forms/formsets.py
++++ b/django/forms/formsets.py
+@@ -30,7 +30,7 @@ class ManagementForm(Form):
+     increment the count field of this form as well.
+ 
+     """
+-    template_name = "django/forms/default.html"  # RemovedInDjango50Warning.
++    template_name = None
+ 
+     TOTAL_FORMS = IntegerField(widget=HiddenInput)
+     INITIAL_FORMS = IntegerField(widget=HiddenInput)

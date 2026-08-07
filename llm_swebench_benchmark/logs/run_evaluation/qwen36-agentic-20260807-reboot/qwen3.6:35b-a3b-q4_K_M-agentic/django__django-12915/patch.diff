@@ -1,0 +1,10 @@
+--- a/django/contrib/staticfiles/handlers.py
++++ b/django/contrib/staticfiles/handlers.py
+@@ -64,6 +64,9 @@ class StaticFilesHandlerMixin:
+         return server.get_response(scope)
+ 
++    def get_response_async(self, request):
++        return self.get_response(request)
++
+ 
+ class StaticFilesHandler(WSGIHandler, StaticFilesHandlerMixin):

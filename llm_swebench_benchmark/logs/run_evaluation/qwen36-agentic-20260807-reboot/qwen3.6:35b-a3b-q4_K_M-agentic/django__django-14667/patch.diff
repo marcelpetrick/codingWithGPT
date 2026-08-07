@@ -1,0 +1,13 @@
+--- a/django/db/models/query.py
++++ b/django/db/models/query.py
+@@ -2381,9 +2381,7 @@ class QuerySet:
+     def defer(self, *fields):
+         clone = self._chain()
+-        if clone._fields is not None:
+-            clone._fields = clone._fields.difference(fields)
+-            if not clone._fields:
+-                clone._fields = None
++        clone._fields = None
+         if clone._deferred is None:
+             clone._deferred = set(fields)
+         else:

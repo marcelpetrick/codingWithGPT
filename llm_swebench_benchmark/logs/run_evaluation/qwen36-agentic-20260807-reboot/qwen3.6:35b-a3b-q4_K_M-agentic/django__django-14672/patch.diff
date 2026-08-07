@@ -1,0 +1,9 @@
+--- a/django/db/models/fields/reverse_related.py
++++ b/django/db/models/fields/reverse_related.py
+@@ -126,7 +126,7 @@ class ManyToManyRel(ForeignObjectRel):
+             self.opts.model_name,
+             self.opts.auto_created,
+             make_hashable(self.limit_choices_to),
+-            self.through_fields,
++            make_hashable(self.through_fields),
+         )

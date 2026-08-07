@@ -1,0 +1,10 @@
+--- a/lib/matplotlib/rcsetup.py
++++ b/lib/matplotlib/rcsetup.py
+@@ -2275,6 +2275,8 @@ def _figure_set(figure):
+ 
+ 
+ def _backend_setter(backend):
++    if backend is _auto_backend_sentinel:
++        return
+     old_backend = rcParams['backend']
+     if backend.lower() != old_backend.lower():

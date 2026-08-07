@@ -1,0 +1,23 @@
+--- a/django/db/migrations/autodetector.py
++++ b/django/db/migrations/autodetector.py
+@@ -421,11 +421,11 @@ class MigrationAutodetector:
+         def key(op):
+             if isinstance(op, migrations.AddConstraint):
+                 return 0
+             if isinstance(op, migrations.AddIndex):
+                 return 1
++            if isinstance(op, migrations.AlterUniqueTogether):
++                return 2
+             if isinstance(op, migrations.AddField):
+                 return 4
+-            if isinstance(op, migrations.AlterUniqueTogether):
+-                return 6
+             if isinstance(op, migrations.RemoveField):
+                 return 5
+-            if isinstance(op, migrations.AlterIndexTogether):
+-                return 8
++            if isinstance(op, migrations.AlterIndexTogether):
++                return 3
+             if isinstance(op, migrations.RemoveConstraint):
+                 return 10
+             return 99

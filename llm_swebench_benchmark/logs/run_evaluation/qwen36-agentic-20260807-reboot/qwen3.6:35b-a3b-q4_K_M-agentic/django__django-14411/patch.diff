@@ -1,0 +1,11 @@
+--- a/django/contrib/admin/widgets.py
++++ b/django/contrib/admin/widgets.py
+@@ -1090,6 +1090,9 @@ class ReadOnlyPasswordHashWidget(Widget):
+             ((label, value) for value in values),
+         )
+ 
++    def id_for_label(self):
++        return None
++
+     def value_from_datadict(self, data, files, name):
+         return data.get(name)

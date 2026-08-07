@@ -1,0 +1,11 @@
+--- a/astropy/wcs/wcs.py
++++ b/astropy/wcs/wcs.py
+@@ -1265,6 +1265,9 @@ class WCS:
+         if any(len(ax) != len(axes[0]) for ax in axes):
+             raise ValueError(
+                 "a 1-D array for each axis, followed by an origin.")
++        if any(len(ax) == 0 for ax in axes):
++            return [np.array([], dtype=np.float64)
++                    for _ in range(self.naxis)]
+ 
+         return _return_list_of_arrays(axes, origin)

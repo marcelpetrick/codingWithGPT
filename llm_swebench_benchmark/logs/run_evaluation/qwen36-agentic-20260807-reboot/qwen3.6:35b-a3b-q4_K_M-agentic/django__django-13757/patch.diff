@@ -1,0 +1,48 @@
+--- a/django/db/models/fields/json.py
++++ b/django/db/models/fields/json.py
+@@ -359,6 +359,26 @@ class KeyTransform(
+             return super().as_sql(compiler, connection)
+ 
+ 
++class JSONKeyTransformIsNull(KeyTransformIsNull):
++    def as_sql(self, compiler, connection):
++        lhs_col = self.get_rhs_column(compiler)
++        return f"json_type({lhs_col}, '{self.get_col_path()}') IS NULL"
++
++
++class OracleKeyTransformIsNull(KeyTransformIsNull):
++    def as_sql(self, compiler, connection):
++        lhs_col = self.get_rhs_column(compiler)
++        return f"json_exists({lhs_col}, '{self.get_path_sql()}') IS TRUE"
++
++
+ class KeyTransformIsNull(KeyTransform, IsNull):
+     def as_sql(self, compiler, connection):
+         if not self.is_negated():
+             return self.get_negated()
+         rhs_col = self.get_rhs_column(compiler)
++        if connection.vendor == 'sqlite':
++            return compiler.compile(
++                JSONKeyTransformIsNull(self, self.rhs).resolve_expression(compiler.get_query().root_node).as_sql(compiler, connection)
++            )
++        if connection.ops.oracle:
++            return compiler.compile(
++                OracleKeyTransformIsNull(self, self.rhs).resolve_expression(compiler.get_query().root_node).as_sql(compiler, connection)
++            )
+         return super().as_sql(compiler, connection)
+ 
+
+--- a/tests/model_fields/test_jsonfield.py
++++ b/tests/model_fields/test_jsonfield.py
+@@ -1231,8 +1231,8 @@ class TestQuerying(
+                 NullableJSONModel.objects.filter(value__b__isnull=True),
+                 self.objs[3:],
+             )
+             self.assertSequenceEqual(
+-                NullableJSONModel.objects.filter(value__a__isnull=True),
+-                self.objs[:3] + self.objs[5:],
++                NullableJSONModel.objects.filter(value__j__isnull=True),
++                self.objs[:4] + self.objs[5:],
+             )
+             self.assertSequenceEqual(
+                 NullableJSONModel.objects.filter(value__j__isnull=False),

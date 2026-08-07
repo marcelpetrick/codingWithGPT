@@ -1,0 +1,12 @@
+--- a/astropy/modeling/separable.py
++++ b/astropy/modeling/separable.py
+@@ -123,8 +123,8 @@ def separability_matrix(model):
+         out_mat = np.zeros((model.n_outputs, model.n_inputs), dtype=bool)
+         if isinstance(model, CompoundModel):
+-            out_mat[:model.n_outputs_left, :model.n_inputs_left] = model.left.separability_matrix
+-            out_mat[model.n_outputs_left:, model.n_inputs_left:] = model.right.separability_matrix
++            out_mat[:model.n_outputs_left, :model.n_inputs_left] = separability_matrix(model.left)
++            out_mat[model.n_outputs_left:, model.n_inputs_left:] = separability_matrix(model.right)
+             return out_mat
+         else:
+             # handle basic models

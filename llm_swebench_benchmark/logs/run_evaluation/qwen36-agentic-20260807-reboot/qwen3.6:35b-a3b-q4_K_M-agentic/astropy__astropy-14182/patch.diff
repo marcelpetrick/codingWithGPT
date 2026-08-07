@@ -1,0 +1,16 @@
+--- a/astropy/io/ascii/rst.py
++++ b/astropy/io/ascii/rst.py
+@@ -...
+ class RST(BasicRst):
+     name = 'rst'
+-    def __init__(self, **kwargs):
+-        super().__init__(**kwargs)
++    def __init__(self, **kwargs):
++        self.header_rows = kwargs.pop('header_rows', None)
++        super().__init__(**kwargs)
++
++    def write_header_rows(self):
++        if self.header_rows is not None:
++            for header_row in self.header_rows:
++                self.write_header_row(header_row)
++        self.write_header_row(self._colinfo['name'])

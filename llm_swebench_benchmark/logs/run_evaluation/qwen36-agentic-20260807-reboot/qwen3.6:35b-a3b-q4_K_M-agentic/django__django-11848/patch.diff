@@ -1,0 +1,36 @@
+--- a/django/utils/http.py
++++ b/django/utils/http.py
+@@ -105,6 +105,16 @@ def parse_http_date(date):
+     if result is None:
+         return None
+ 
++    # email.utils.parsedate_to_datetime treats two-digit years as 20xx.
++    # According to RFC 7231 (Section 7.1.1.1), timestamps in rfc850-date
++    # format MUST interpret a timestamp that appears to be more than 50
++    # years in the future as representing the most recent year in the past
++    # that had the same last two digits.
++    if re.search(r', (\d{2})-[A-Za-z]+-(\d{2}) ', date):
++        year = result.year
++        if year > datetime.now().year + 50:
++            result = result.replace(year=year - 100)
++
+     return result
+ 
+ 
+--- a/django/utils/tests/test_http.py
++++ b/django/utils/tests/test_http.py
+@@ -112,6 +112,16 @@ class UtilsHttpTests(TestCase):
+         with self.subTest(date='Sun Nov  6 08:49:37 1994'):
+             self.assertEqual(parse_http_date('Sun Nov  6 08:49:37 1994').year, 1994)
+ 
++    def test_parse_http_date_rfc850_year_69(self):
++        # RFC 7231 says two-digit years that appear to be >50 years in the
++        # future should be rolled back to the past. We test this by patching
++        # datetime.now() to simulate a year where 69 is more than 50 years
++        # in the future.
++        with mock.patch.object(datetime, 'now', return_value=datetime(2023, 1, 1)):
++            result = parse_http_date('Sunday, 06-Nov-69 08:49:37 GMT')
++            self.assertEqual(result.year, 1969)
++
+     def test_parse_http_date_invalid(self):
+         self.assertIsNone(parse_http_date('invalid date'))

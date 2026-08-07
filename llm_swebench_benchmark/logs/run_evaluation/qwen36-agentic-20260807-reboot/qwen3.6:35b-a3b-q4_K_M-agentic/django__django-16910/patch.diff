@@ -1,0 +1,10 @@
+--- a/django/db/models/sql/query.py
++++ b/django/db/models/sql/query.py
+@@ -1861,7 +1861,7 @@ class Query(base.Query):
+         if field_names is not None:
+             for field_name in field_names:
+                 col = self.get_col(field_name, include_aliases=include_aliases, is_summary=is_summary)
+-                if self._fields is not None and col not in self._fields:
++                if self._fields is not None and col.name not in self._fields:
+                     continue
+                 self.select_fields.append(col)

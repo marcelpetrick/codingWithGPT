@@ -1,0 +1,13 @@
+--- a/django/db/migrations/autodetector.py
++++ b/django/db/migrations/autodetector.py
+@@ -636,11 +636,6 @@ class MigrationAutodetector:
+                 # If we're renaming a primary key, we need to update the
+                 # to_field of any related ForeignKey fields.
+-                if old_field.primary_key and not new_field.primary_key:
+-                    related_fields = self._get_related_fields(old_field)
+-                    for related_field, model, field, related_model in related_fields:
+-                        related_fields_changes.append((related_model, field, None, None, None, None))
+-                    continue
+                 related_fields = self._get_related_fields(old_field, to_field=True)
+                 for related_field, model, field, related_model in related_fields:
+                     # We only need to update the to_field when it's pointing

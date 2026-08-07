@@ -1,0 +1,17 @@
+--- a/django/forms/widgets.py
++++ b/django/forms/widgets.py
+@@ -1623,6 +1623,11 @@ class MultiWidget(Widget):
+         if not isinstance(other, MultiWidget):
+             return False
+         return self.widgets == other.widgets
+ 
++    def id_for_label(self, id_):
++        """
++        Return an empty string so the <label> tag's 'for' attribute is not
++        set. This improves accessibility when using a screen reader.
++        """
++        return ''
++
+     @property
+     def decomposition(self):
+         """Split self.value into multiple widgets."""

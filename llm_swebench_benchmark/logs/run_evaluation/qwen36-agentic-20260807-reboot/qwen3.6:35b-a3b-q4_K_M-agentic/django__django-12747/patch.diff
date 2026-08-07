@@ -1,0 +1,11 @@
+--- a/django/db/models/deletion.py
++++ b/django/db/models/deletion.py
+@@ -226,8 +226,9 @@ class Collector:
+     def delete(self):
+         data = {}
+         for model, instances in sorted(self.data.items()):
+-            data[model] = self._delete_instances(model, instances, data)
++            count = self._delete_instances(model, instances, data)
++            if count:
++                data[model] = count
+         return len(data), data

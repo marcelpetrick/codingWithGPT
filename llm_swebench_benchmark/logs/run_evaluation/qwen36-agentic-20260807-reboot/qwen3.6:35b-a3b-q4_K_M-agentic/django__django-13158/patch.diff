@@ -1,0 +1,13 @@
+--- a/django/db/models/query.py
++++ b/django/db/models/query.py
+@@ -1523,7 +1523,9 @@ class QuerySet:
+     def none(self, with_limits=True, with_ordering=True):
+         # Create a queryset that always evaluates to an empty list.
+         query = self.query.chain()
+-        query.add_empty_values()
++        if query.is_union:
++            query.empty_values = True
++        else:
++            query.add_empty_values()
+         if not with_limits:
+             query.clear_limits()

@@ -1,0 +1,14 @@
+--- a/django/contrib/auth/validators.py
++++ b/django/contrib/auth/validators.py
+@@ -7,7 +7,7 @@
+ @deconstructible
+ class ASCIIUsernameValidator:
+-    regex = r'^[\w.@+-]+$'
++    regex = r'\A[\w.@+-]+\Z'
+     message = _(
+@@ -23,7 +23,7 @@
+ @deconstructible
+ class UnicodeUsernameValidator:
+-    regex = r'^[\w.@+-]+$'
++    regex = r'\A[\w.@+-]+\Z'
+     message = ASCIIUsernameValidator.message

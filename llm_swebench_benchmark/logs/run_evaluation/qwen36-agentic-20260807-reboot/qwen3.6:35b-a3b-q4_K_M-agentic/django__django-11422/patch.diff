@@ -1,0 +1,20 @@
+--- a/django/utils/autoreload.py
++++ b/django/utils/autoreload.py
+@@ -300,7 +300,17 @@ def iter_modules_and_files(specials, additional_dirs=()):
+                 continue
+             # Skip built-in modules
+             if getattr(module, "__file__", None) is None:
++                # Some modules like 'django' may have an __spec__ but their __file__
++                # attribute may not have an absolute path, or may not exist.
++                # For __main__ (the manage.py file), __spec__ is None in some cases,
++                # but it has a __file__ that points to manage.py. This is also the
++                # case for other dynamically loaded scripts.
++                if getattr(module, "__name__") == "__main__":
++                    filename = getattr(module, "__file__")
++                    if filename:
++                        yield filename, module
+                 continue
++            # The module is a standard library module.
+             continue
+     # Add the __file__ of the module itself to the list, if not already present.
+     if module is not None:

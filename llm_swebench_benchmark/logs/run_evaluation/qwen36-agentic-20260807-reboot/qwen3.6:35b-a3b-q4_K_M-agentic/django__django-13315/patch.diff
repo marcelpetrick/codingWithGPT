@@ -1,0 +1,17 @@
+--- a/django/forms/models.py
++++ b/django/forms/models.py
+@@ -364,6 +364,16 @@ class ModelChoiceIterator(ChoiceIterator):
+             self.queryset = self.queryset.filter(**limit_choices_to)
+         else:
+             self.queryset = self.queryset.filter(limit_choices_to)
++            # limit_choices_to is a QuerySet involving a join, which can
++            # cause duplicates. Filter them in Python to avoid issues with
++            # DISTINCT queries on custom model fields (e.g., geographic points)
++            # and to prevent MultipleObjectsReturned errors.
++            seen_pks = set()
++            unique_pks = []
++            for obj in self.queryset:
++                if obj.pk not in seen_pks:
++                    seen_pks.add(obj.pk)
++                    unique_pks.append(obj.pk)
++            self.queryset = self.queryset.model.objects.filter(pk__in=unique_pks)

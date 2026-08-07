@@ -1,0 +1,10 @@
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -2817,7 +2817,7 @@ class DurationField(AuxiliaryField):
+                         code='invalid',
+-                    "'%s' is not a valid duration. Expected format: [DD] [HH:[MM:]]ss[.uuuuuu]",
++                    "'%s' is not a valid duration. Expected format: [DD] [[HH:]MM:]ss[.uuuuuu]",
+                     code='invalid',
+                     " code='invalid',
+                 ) from e
+```

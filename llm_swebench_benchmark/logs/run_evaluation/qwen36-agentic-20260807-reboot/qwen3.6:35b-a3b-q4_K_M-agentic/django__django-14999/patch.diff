@@ -1,0 +1,12 @@
+--- a/django/db/migrations/operations/models.py
++++ b/django/db/migrations/operations/models.py
+@@ -642,6 +642,9 @@ class RenameModel(Operation):
+         return sql
+ 
+     def reconstruct_sql(self, schema_editor, project_state, sql, app_label):
++        model = project_state.apps.get_model(app_label, self.new_model_name)
++        if model._meta.db_table != '%s_%s' % (app_label, model._meta.model_name):
++            return sql
+         old_name = '%s.%s' % (app_label, model._meta.model_name)
+         if hasattr(schema_editor.connection, 'vendor'):
+             if schema_editor.connection.vendor == 'postgresql':

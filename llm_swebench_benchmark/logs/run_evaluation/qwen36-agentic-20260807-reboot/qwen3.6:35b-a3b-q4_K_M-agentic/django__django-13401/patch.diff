@@ -1,0 +1,25 @@
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -277,13 +277,19 @@ class Field:
+     def __eq__(self, other):
+         if not isinstance(other, Field):
+             return NotImplemented
+-        return self.creation_counter == other.creation_counter
++        return (
++            self.creation_counter == other.creation_counter and
++            self.model == other.model
++        )
+ 
+     def __hash__(self):
+-        return hash(self.creation_counter)
++        return hash((self.creation_counter, self.model))
+ 
+     def __lt__(self, other):
+         if not isinstance(other, Field):
+             return NotImplemented
+-        return self.creation_counter < other.creation_counter
++        if self.creation_counter != other.creation_counter:
++            return self.creation_counter < other.creation_counter
++        return self.name < other.name
+ 
+     def contribute_to_class(self, cls, name, private_only=False):

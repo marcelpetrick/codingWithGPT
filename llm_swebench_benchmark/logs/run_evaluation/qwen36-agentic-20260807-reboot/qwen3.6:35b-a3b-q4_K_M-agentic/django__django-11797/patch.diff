@@ -1,0 +1,11 @@
+--- a/django/db/models/lookups.py
++++ b/django/db/models/lookups.py
+@@ -262,7 +262,7 @@ class Exact(Lookup):
+     def process_rhs(self, compiler):
+         qn = compiler.quote_name_unless_alias
+         if self.rhs_is_direct_value:
+             lhs = self.lhs.output_field.get_col(self.lhs.alias)
+-            if getattr(self.rhs, 'has_select_fields', True):
++            if not getattr(self.rhs, 'has_select_fields', True):
+                 self.rhs.query.clear_select_clause()
+                 self.rhs.query.add_fields(['pk'])

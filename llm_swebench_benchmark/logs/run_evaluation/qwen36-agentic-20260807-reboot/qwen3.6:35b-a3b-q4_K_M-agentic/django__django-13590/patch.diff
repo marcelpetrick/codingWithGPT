@@ -1,0 +1,10 @@
+--- a/django/db/models/sql/query.py
++++ b/django/db/models/sql/query.py
+@@ -1443,7 +1443,7 @@ class Query(BaseExpression):
+             new_data = [
+                 self.resolve_lookup_value(v, allow_joins, reuse)
+                 for v in value
+             ]
+             if isinstance(value, tuple):
+-                return type(value)(new_data)
++                return type(value)(*new_data)

@@ -1,0 +1,8 @@
+--- a/django/template/defaultfilters.py
++++ b/django/template/defaultfilters.py
+@@ -535,7 +535,7 @@ def join(value, arg, autoescape=True):
+     except (AttributeError, TypeError):
+         # If value is not given an autoescape attribute (e.g. a list in a
+         # loop), we default to using the current autoescape setting.
+-        return escape(arg).join(value)
++        return escape(arg).join(value) if autoescape else arg.join(value)

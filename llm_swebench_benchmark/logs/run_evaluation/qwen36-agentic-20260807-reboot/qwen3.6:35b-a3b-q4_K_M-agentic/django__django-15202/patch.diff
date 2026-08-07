@@ -1,0 +1,16 @@
+--- a/django/core/validators.py
++++ b/django/core/validators.py
+@@ -127,7 +127,13 @@ class URLValidator:
+     def __call__(self, value):
+         super().__call__(value)
+-        url = urlsplit(self.regex.sub('', value))[1]
++        try:
++            url = urlsplit(self.regex.sub('', value))[1]
++        except ValueError:
++            raise ValidationError(
++                self.message,
++                code=self.code,
++            ) from None
+         if url and '@' in url:
+             parts = url.split('@')
+             if _check_brackets(parts[-1]):

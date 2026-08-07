@@ -1,0 +1,13 @@
+--- a/django/template/autoreload.py
++++ b/django/template/autoreload.py
+@@ -17,6 +17,10 @@ def ensure_template_loaders(engine):
+ 
+ 
+ def on_template_changed(sender, file_path, **kwargs):
++    # Ensure that Python files are always watched, even if they are
++    # located inside a template directory. See #34616.
++    if file_path.suffix == ".py":
++        return
+     from django.template import engines
+ 
+     for engine in engines.all():

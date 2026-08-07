@@ -1,0 +1,16 @@
+--- a/django/db/models/query.py
++++ b/django/db/models/query.py
+@@ -1130,6 +1130,10 @@ class QuerySet:
+     def distinct(self, *field_names):
+         """
+         Return a new QuerySet instance with DISTINCT applied.
+         """
++        if self.query._distinct_unsupported:
++            raise NotImplementedError(
++                "distinct() is not supported for union querysets."
++            )
++
+         q = self._clone()
+         q._distinct = True
+         if field_names:
+```

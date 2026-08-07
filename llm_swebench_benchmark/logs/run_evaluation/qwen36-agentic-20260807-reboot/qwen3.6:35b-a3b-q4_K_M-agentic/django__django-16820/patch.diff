@@ -1,0 +1,13 @@
+--- a/django/db/migrations/state.py
++++ b/django/db/migrations/state.py
+@@ -630,7 +630,10 @@ class ProjectState:
+         model_cls._meta.apps = self
+         if options:
+             for name, value in options.items():
+-                setattr(model_cls._meta, name, value)
++                if name == "index_together":
++                    object.__setattr__(model_cls._meta, name, value)
++                else:
++                    setattr(model_cls._meta, name, value)
+ 
+         self.models[app_label][model_name] = model_cls

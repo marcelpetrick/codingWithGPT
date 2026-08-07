@@ -1,0 +1,10 @@
+--- a/astropy/nddata/nddata.py
++++ b/astropy/nddata/nddata.py
+@@ -489,7 +489,7 @@ class NDDataRef(NDData):
+                 if isinstance(operand, (int, float)):
+                     return deepcopy(self.mask)
+-            elif operand is None:
++            elif operand.mask is None:
+                 return deepcopy(self.mask)
+             elif handle_mask is not None:
+                 return handle_mask(self.mask, operand.mask, out=out)

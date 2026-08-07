@@ -1,0 +1,11 @@
+--- a/django/core/management/base.py
++++ b/django/core/management/base.py
+@@ -83,7 +83,7 @@ class BaseCommand(metaclass=BaseCommandMetaclass):
+         parser = CommandParser(
+             prog="%s %s" % (os.path.basename(prog_name), subcommand),
+             description=self.help or None,
+-            formatter_class=DjangoHelpFormatter,
++            # formatter_class is now set via kwargs.setdefault()
+             missing_args_message=getattr(self, "missing_args_message", None),
+             called_from_command_line=getattr(self, "_called_from_command_line", None),
+             **kwargs,

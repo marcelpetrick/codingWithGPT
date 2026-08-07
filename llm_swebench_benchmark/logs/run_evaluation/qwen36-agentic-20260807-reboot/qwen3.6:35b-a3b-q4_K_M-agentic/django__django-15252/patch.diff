@@ -1,0 +1,11 @@
+--- a/django/db/migrations/recorder.py
++++ b/django/db/migrations/recorder.py
+@@ -63,6 +63,9 @@ class MigrationRecorder:
+         if self.connection.ops.check_table_exists(self.connection.introspection, self.Migration._meta.db_table):
+             return
++        # Allow the database router to decide whether to create the table.
++        if not router.allow_migrate(self.connection.alias, self.Migration):
++            return
+         if self.connection.connection is None:
+             self.connect()
+         with self.connection.schema_editor() as editor:

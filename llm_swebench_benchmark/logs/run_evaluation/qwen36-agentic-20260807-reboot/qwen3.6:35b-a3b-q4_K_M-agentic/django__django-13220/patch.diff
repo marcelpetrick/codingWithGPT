@@ -1,0 +1,15 @@
+--- a/core/exceptions.py
++++ b/core/exceptions.py
+@@ -243,6 +243,14 @@ class ValidationError(Exception):
+         self.params = params
+         super().__init__(self.message_and_parameters(*self))
+ 
++    def __eq__(self, other):
++        if isinstance(other, ValidationError):
++            return (sorted(self.messages) == sorted(other.messages) and
++                    self.code == other.code and
++                    self.params == other.params)
++        return NotImplemented
++
+     def __repr__(self):
+         return '<%s: %r>' % (self.__class__.__name__, self.messages)

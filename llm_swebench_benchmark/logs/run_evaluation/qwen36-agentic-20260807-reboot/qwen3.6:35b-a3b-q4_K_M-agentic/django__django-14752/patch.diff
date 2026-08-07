@@ -1,0 +1,22 @@
+--- a/django/contrib/admin/views/autocomplete.py
++++ b/django/contrib/admin/views/autocomplete.py
+@@ -54,9 +54,10 @@ class AutocompleteJsonView(TemplateResponseMixin, ContextMixin, View):
+         if not self.has_perm(request):
+             raise PermissionDenied
+         self.object_list = self.get_queryset()
+         context = self.get_context_data()
+         return JsonResponse({
+             'results': [
+-                {'id': str(getattr(obj, to_field_name)), 'text': str(obj)}
+-                for obj in context['object_list']
++                self.serialize_result(obj, to_field_name) for obj in context['object_list']
+             ],
+             'pagination': {'more': context['page_obj'].has_next()],
+@@ -65,6 +66,10 @@ class AutocompleteJsonView(TemplateResponseMixin, ContextMixin, View):
+             'pagination': {'more': context['page_obj'].has_next()],
+         })
+ 
++    def serialize_result(self, obj, to_field_name):
++        return {'id': str(getattr(obj, to_field_name)), 'text': str(obj)}
++
+     def get_context_data(self, **kwargs):

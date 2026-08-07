@@ -1,0 +1,15 @@
+--- a/django/contrib/admin/utils.py
++++ b/django/contrib/admin/utils.py
+@@ -394,6 +394,11 @@ def display_for_field(value, field, empty_value_display):
+         if isinstance(field, models.GenericIPAddressField):
+             return str(value) if value is not None else empty_value_display
+         if isinstance(field, models.BinaryField):
+             return base64.b64encode(value).decode('ascii')
++        if isinstance(field, models.JSONField):
++            if value is None:
++                return ''
++            return json.dumps(value, cls=serializers.JSONEncoder)
++
+         return display_for_value(value, value)
+ 
+     def display_for_value(value, empty_value_display):

@@ -1,0 +1,18 @@
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -3074,9 +3074,10 @@ class Field:
+     def contribute_to_class(self, cls, name, **kwargs):
+         self.set_attributes_from_name(name)
+         self.model = cls
+         self.contribute_to_class_reverse_map()
+ 
+         if self.choices:
+             setattr(cls, 'get_%s_list_display' % self.name,
+                     partialmethod(cls._get_FIELD_list_display, field=self))
+-            setattr(cls, 'get_%s_display' % self.name,
+-                    partialmethod(cls._get_FIELD_display, field=self))
++            if not hasattr(cls, 'get_%s_display' % self.name):
++                setattr(cls, 'get_%s_display' % self.name,
++                        partialmethod(cls._get_FIELD_display, field=self))
+ 
+     def contribute_to_class_reverse_map(self):

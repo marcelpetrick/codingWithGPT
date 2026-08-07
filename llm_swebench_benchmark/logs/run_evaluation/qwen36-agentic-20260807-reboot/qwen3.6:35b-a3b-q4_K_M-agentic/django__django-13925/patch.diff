@@ -1,0 +1,36 @@
+--- a/django/core/checks/model_checks.py
++++ b/django/core/checks/model_checks.py
+@@ -142,7 +142,7 @@ def check_primary_key_field_type(model, app_configs=None, **kwargs):
+     """
+     warnings = []
+-    for field in model._meta.fields:
++    for field in model._meta.local_concrete_fields:
+         if field.primary_key and isinstance(field, AutoField):
+             warnings.append(
+                 checks.W042(
+--- a/tests/checks_tests/models.py
++++ b/tests/checks_tests/models.py
+@@ -120,3 +120,11 @@ class TestField(models.Model):
+ 
+     def save(self, *args, **kwargs):
+         pass
+ 
+ 
++class Parent(models.Model):
++    id = models.AutoField(primary_key=True)
++
++
++class Child(Parent):
++    pass
+--- a/tests/checks_tests/test_model_checks.py
++++ b/tests/checks_tests/test_model_checks.py
+@@ -155,3 +155,12 @@ class ModelChecksAPITests(TestCase):
+         result = check_primary_key_field_type(self.model)
+         self.assertEqual([msg for msg in result if isinstance(msg, warnings.W042)], [msg])
+ 
++    def test_check_primary_key_field_type_inherited(self):
++        # Regression for #32353.
++        self.assertEqual(
++            check_primary_key_field_type(models.Child),
++            [],
++        )

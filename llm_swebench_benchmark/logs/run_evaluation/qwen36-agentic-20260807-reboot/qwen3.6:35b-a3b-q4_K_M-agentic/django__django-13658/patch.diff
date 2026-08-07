@@ -1,0 +1,12 @@
+--- a/django/core/management/__init__.py
++++ b/django/core/management/__init__.py
+@@ -158,7 +158,11 @@ class ManagementUtility:
+         if self.prog_name == '__main__.py':
+             self.prog_name = 'python -m django'
+ 
+-        parser = CommandParser(usage='%(prog)s subcommand [options] [args]', add_help=False, allow_abbrev=False)
++        parser = CommandParser(
++            prog=self.prog_name,
++            usage='%(prog)s subcommand [options] [args]',
++            add_help=False,
++            allow_abbrev=False)

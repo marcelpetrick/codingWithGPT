@@ -1,0 +1,23 @@
+--- a/django/urls/resolvers.py
++++ b/django/urls/resolvers.py
+@@ -37,7 +37,11 @@ class ResolverMatch:
+     def __init__(self, func, args, kwargs, url_name, app_names, namespaces,
+                  urlconf_name=None, app_name=None, namespace=None, path=None):
+-        self.func = func
++        # Unwrap functools.partial objects.
++        if isinstance(func, functools.partial):
++            self._partial = func
++            self.func = func.func
++        else:
++            self.func = func
+         self.args = args
+         self.kwargs = kwargs
+@@ -56,8 +60,11 @@ class ResolverMatch:
+         return self.url_name.startswith(self.app_name)
+ 
+     def __repr__(self):
++        func = getattr(self, '_partial', self.func)
+         return 'ResolverMatch(view=%r, args=%r, kwargs=%r, url_name=%r, app_names=%r, namespaces=%r)' % (
+-            self.func, self.args, self.kwargs, self.url_name, self.app_names, self.namespaces,
++            func, self.args, self.kwargs, self.url_name, self.app_names, self.namespaces,
+         )

@@ -1,0 +1,9 @@
+--- a/django/contrib/auth/tokens.py
++++ b/django/contrib/auth/tokens.py
+@@ -107,6 +107,7 @@ class PasswordResetTokenGenerator(SafePingbackTokenGenerator):
+         return (
+             str(user.pk) +
+             str(user.last_login) +
++            str(user.email) +
+             str(timestamp)
+         )

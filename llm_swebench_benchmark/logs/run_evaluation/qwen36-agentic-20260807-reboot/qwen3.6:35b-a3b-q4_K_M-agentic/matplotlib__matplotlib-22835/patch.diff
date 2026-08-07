@@ -1,0 +1,18 @@
+--- a/lib/matplotlib/artist.py
++++ b/lib/matplotlib/artist.py
+@@ -1300,8 +1300,13 @@ class ScalarMappable(Artist):
+         if not np.isfinite(normed):
+             return ''
+         # Midpoints of neighboring color intervals.
+         n = cmap.N
+-        neighbors = self.norm.inverse(
+-            (int(normed * n) + np.array([0, 1])) / n)
++        try:
++            neighbors = self.norm.inverse(
++                (int(normed * n) + np.array([0, 1])) / n)
++        except ValueError:
++            # Non-invertible norms (e.g., BoundaryNorm) use integer indices.
++            # Just use the data value itself for display.
++            neighbors = (data, data)
+         # Use log format for log-normed scalars
+         if isinstance(self.norm, mnorm.LogNorm):

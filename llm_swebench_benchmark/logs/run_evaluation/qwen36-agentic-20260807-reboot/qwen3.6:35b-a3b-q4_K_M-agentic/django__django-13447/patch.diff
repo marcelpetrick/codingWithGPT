@@ -1,0 +1,33 @@
+--- a/django/contrib/admin/views.py
++++ b/django/contrib/admin/views.py
+@@ -16,7 +16,7 @@ from django.contrib.admin.templatetags.admin_list import result_list
+ from django.core.exceptions import PermissionDenied
+ from django.db import models
+ from django.utils.translation import gettext_lazy as _
+ 
+-def _build_app_dict(request, label=None):
++def build_app_dict(request, label=None):
+     """
+     Create an app dict.
+ 
+@@ -90,6 +90,7 @@ def _build_app_dict(request, label=None):
+             if app_label not in model_dict:
+                 model_dict[app_label] = {
++                    'app_label': app_label,
+                     'name': model_opts.verbose_name_plural,
+                     'app_url': reverse('admin:app_list', kwargs={'app_label': app_label}),
+                     'models': [],
+@@ -128,7 +129,7 @@ def index(request, extra_context=None):
+         extra_context = {}
+     extra_context['title'] = _('Site administration')
+-    app_dict = _build_app_dict(request)
++    app_dict = build_app_dict(request)
+     extra_context['app_list'] = app_dict
+     return TemplateResponse(request, 'admin/index.html', extra_context)
+ 
+@@ -156,7 +157,7 @@ def app_index(request, app_label, extra_context=None):
+     app = admin_site.app_index[app_label]
+-    app_dict = _build_app_dict(request, label=app_label)
++    app_dict = build_app_dict(request, label=app_label)
+     extra_context['app_list'] = [app_dict]
+     extra_context['app_label'] = app_label

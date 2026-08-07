@@ -1,0 +1,8 @@
+--- a/django/db/models/lookups.py
++++ b/django/db/models/lookups.py
+@@ -573,7 +573,7 @@ class EmptyInNode:
+         return '0', ()
+ 
+     def negate(self):
+-        return self
++        return 1

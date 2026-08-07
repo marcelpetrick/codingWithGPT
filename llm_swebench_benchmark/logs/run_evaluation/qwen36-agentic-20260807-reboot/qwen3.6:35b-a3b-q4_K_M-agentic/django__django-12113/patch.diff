@@ -1,0 +1,58 @@
+--- a/django/db/backends/sqlite3/base.py
++++ b/django/db/backends/sqlite3/base.py
+@@ -1,5 +1,6 @@
+ import os
++import hashlib
+ import re
+ import tempfile
+ from django.db.backends.base.base import BaseDatabaseWrapper
+@@ -426,6 +427,18 @@ class DatabaseWrapper(BaseDatabaseWrapper):
+             raise DatabaseError('The SQLite backend does not support '
+                                 'multiple threads.')
+ 
++    def test_db_signature(self):
++        """
++        Return a signature suitable for creating test database names.
++
++        Used for determining the name to be used for the test database.
++        """
++        if self.in_memory:
++            return ''
++        return hashlib.sha256(
++            str(self.connection).encode('utf-8')
++        ).hexdigest()[:12]
++
+     def _close(self):
+         with self.wrap_database_errors:
+             self._close_internal()
+--- a/tests/backends/sqlite/__init__.py
++++ b/tests/backends/sqlite/__init__.py
+@@ -0,0 +1 @@
++
+--- a/tests/backends/sqlite/test_creation.py
++++ b/tests/backends/sqlite/test_creation.py
+@@ -0,0 +1,27 @@
++from django.test import SimpleTestCase
++from unittest import mock
++
++from django.db.backends.sqlite3.base import DatabaseWrapper
++
++
++class TestDbSignatureTests(SimpleTestCase):
++    def test_returns_empty_string_for_in_memory(self):
++        wrapper = DatabaseWrapper({})
++        wrapper.in_memory = True
++        self.assertEqual(wrapper.test_db_signature(), '')
++
++    @mock.patch.object(DatabaseWrapper, 'connection')
++    def test_returns_hash_for_file_based(self, mock_connection):
++        wrapper = DatabaseWrapper({})
++        wrapper.in_memory = False
++        # Simulate an existing connection
++        mock_connection.__str__ = lambda self: 'sqlite3.dbapi2.Connection object at 0x7f...'
++        signature = wrapper.test_db_signature()
++        self.assertIsInstance(signature, str)
++        # SHA256 hexdigest is 64 chars, we take [:12]
++        self.assertEqual(len(signature), 12)
++        # Ensure it's valid hex
++        int(signature, 16)

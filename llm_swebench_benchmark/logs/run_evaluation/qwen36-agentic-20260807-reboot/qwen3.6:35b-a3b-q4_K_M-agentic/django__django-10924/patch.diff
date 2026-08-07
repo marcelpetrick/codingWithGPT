@@ -1,0 +1,29 @@
+--- a/django/db/models/fields/files.py
++++ b/django/db/models/fields/files.py
+@@ -123,6 +123,8 @@ class FilePathField(Field):
+         self.path = path
+         self.recursive = recursive
+         self.match = match
+         self.allow_files = allow_files
+         self.allow_folders = allow_folders
++        if callable(self.path):
++            self.path = self.path()
+ 
+     def deconstruct(self):
+diff --git a/django/forms/fields.py b/django/forms/fields.py
+--- a/django/forms/fields.py
++++ b/django/forms/fields.py
+@@ -1098,7 +1098,11 @@ class FilePathField(CharField):
+         self.path = path
+         self.recursive = recursive
+         self.match = match
+         self.allow_files = allow_files
+         self.allow_folders = allow_folders
+-        if path is not None and not os.path.isabs(path):
++        if callable(self.path):
++            self.path = self.path()
++        if self.path is not None and not os.path.isabs(self.path):
+             raise ImproperlyConfigured(
+                 'FilePathField can only use modules that are in a path with an absolute path.'
+             )
+```

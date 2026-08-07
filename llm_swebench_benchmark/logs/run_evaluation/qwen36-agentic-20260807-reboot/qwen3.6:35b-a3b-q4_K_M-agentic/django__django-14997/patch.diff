@@ -1,0 +1,9 @@
+--- a/django/db/models/expressions.py
++++ b/django/db/models/expressions.py
+@@ -1320,6 +1320,8 @@ class Col(Expression):
+ 
+     def rename_table_references(self, old_table, new_table):
++        if self.alias:
++            return
+         if self.table == old_table:
+             self.table = new_table

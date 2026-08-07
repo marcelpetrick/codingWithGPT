@@ -1,0 +1,10 @@
+--- a/django/utils/decorators.py
++++ b/django/utils/decorators.py
+@@ ...
+     def method_decorator(decorator, name=None, allow_reserved=True, method_name=None, allow_none=True):
+         def apply_method_decorator(method):
+             return decorator(method)
+-        return partial(apply_method_decorator, name=name, allow_reserved=allow_reserved, method_name=method_name, allow_none=allow_none)
++        wrapper = partial(apply_method_decorator, name=name, allow_reserved=allow_reserved, method_name=method_name, allow_none=allow_none)
++        functools.update_wrapper(wrapper, decorator, updated=())
++        return wrapper

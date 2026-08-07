@@ -1,0 +1,9 @@
+--- a/django/db/models/constraints.py
++++ b/django/db/models/constraints.py
+@@ -103,6 +103,7 @@ class UniqueConstraint(BaseConstraint):
+                 )
+             )
+         else:
++            issues.extend(obj._check_local_fields(self.fields))
+             issues.extend(self._check_fields(obj))
+         return issues

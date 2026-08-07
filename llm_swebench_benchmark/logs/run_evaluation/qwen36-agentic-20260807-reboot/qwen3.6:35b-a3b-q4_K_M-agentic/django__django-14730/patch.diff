@@ -1,0 +1,39 @@
+--- a/django/core/checks/model_checks.py
++++ b/django/core/checks/model_checks.py
+@@ -1,5 +1,6 @@
+ """System checks for models."""
+ 
++from django.core.checks.messages import Warning
+ from django.core.checks import Tags, register
+ from django.db import models
+ 
+@@ -98,6 +99,33 @@ def check_related_names(app_config, **kwargs):
+     return errors
+ 
+ 
++@register(Tags.models)
++def check_symmetrical_m2m_related_name(app_config, **kwargs):
++    errors = []
++    for model in app_config.get_models():
++        for field in model._meta.local_many_to_many:
++            if field.remote_field.symmetrical and field.related_name is not None:
++                if field.remote_field.through is None:
++                    errors.append(
++                        Warning(
++                            "'%s.%s' defines a related_name on a symmetrical ManyToManyField. "
++                            "This related_name will have no effect because the related field "
++                            "on the target model is not created for symmetrical relationships. "
++                            "Either remove the related_name or set symmetrical=False." % (
++                                model._meta.label,
++                                field.name,
++                            ),
++                            field=models.ManyToManyField,
++                            obj=field,
++                            id='models.W317',
++                        )
++                    )
++    return errors
++
++
+ def check_models(app_config, **kwargs):
+     return [

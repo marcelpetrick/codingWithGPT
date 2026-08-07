@@ -1,0 +1,17 @@
+--- a/django/core/management/commands/dbshell.py
++++ b/django/core/management/commands/dbshell.py
+@@ -113,11 +113,10 @@ class Command(BaseCommand):
+         for arg, value in self.connection.ops.dbshell_args.items():
+             args.extend([arg, value])
+-        if self.db_name:
+-            args.append(self.db_name)
+-        if options["args"]:
+-            self.db = args + options["args"]
+-        else:
+-            self.db = args
++        self.db = args + options["args"]
++        if self.db_name:
++            self.db.append(self.db_name)
+ 
+     def handle(self, *args, **options):
+         # Handle the command.

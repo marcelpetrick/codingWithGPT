@@ -1,0 +1,33 @@
+--- a/lib/matplotlib/legend.py
++++ b/lib/matplotlib/legend.py
+@@ -333,7 +333,7 @@ class Legend(ProxyArtist):
+                  labelspacing=0.5, framealpha=None, edgecolor=None, facecolor=None,
+                  frameon=True, fancybox=True, shadow=False, fontsize=None,
+                  title=None, title_fontsize=None, **kwargs):
+-        ...
++        ...
+ 
+@@ -354,6 +354,7 @@ class Legend(ProxyArtist):
+         # Initialize drag handling
+         self._draggable = None
+ 
++        self.set_draggable(draggable)
+         super().__init__()
+ 
+@@ -880,8 +881,14 @@ class Legend(ProxyArtist):
+ 
+     def draggable(self, draggable=None):
+-        self.set_draggable(draggable)
+-        return self
++        import warnings
++        from matplotlib._api.deprecation import MatplotlibDeprecationWarning
++
++        warnings.warn(
++            "The method `Legend.draggable` is deprecated and will be removed in a "
++            "future version. Use `Legend.set_draggable()` or `Legend.is_draggable()` "
++            "instead.",
++            MatplotlibDeprecationWarning, stacklevel=2)
++        return self.set_draggable(draggable)
+ 
+     def get_draggable(self):
+```

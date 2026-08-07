@@ -1,0 +1,52 @@
+--- a/django/core/management/commands/inspectdb.py
++++ b/django/core/management/commands/inspectdb.py
+@@ -79,6 +79,7 @@ class Command(BaseCommand):
+ 
+     def handle_inspection(self, options):
+         connection = connections[options.get('database')]
++        related_names = set()
+         table_converters = {
+             'table_name': self.convert_table_name_style,
+             'column_name': self.convert_column_name_style,
+@@ -103,6 +104,7 @@ class Command(BaseStaffCommand):
+             model_name = convert('model_name', connection.introspection.table_name_converter(table_name))
+ 
+             for field_name, field_info in connection.introspection.get_table_description(connection.cursor(), table_name).items():
++                related_name = None
+                 if field_info[1] in ('auto', 'serial'):
+                     # We need to skip fields of types 'auto' and 'serial'.
+                     # These will be handled automatically by Django.
+@@ -116,12 +118,14 @@ class Command(BaseStaffCommand):
+                     # field_name = convert('field_name', field_name)
+                     # Add the primary key definition to the model.
+                     field_output = [
+                         '%s = models.BigAutoField(primary_key=True)' % field_name,
+                     ]
+                 elif field_info[1] == 'boolean':
+                     # Handle booleans...
+                     field_output = [
+                         '%s = models.BooleanField(%s)' % (field_name, convert('field_output', field_info[4])),
+                     ]
+                 elif field_info[1] in ('serial', 'auto', 'integer'):
+                     # ...
+                     pass
+                 elif field_info[1] in ('decimal', 'numeric'):
+                     field_output = [
+                         '%s = models.DecimalField(max_digits=%s, decimal_places=%s)' % (
+                             field_name, field_info[0], field_info[0],
+                         ),
++                    ]
++                # Handle foreign keys with related_name
++                if field_info[4]:
++                    related_name = convert('related_name', field_info[4])
++                else:
++                    # Generate a unique related name if not specified
++                    related_name = '%s_set' % model_name.lower()
++                    counter = 1
++                    while related_name in related_names:
++                        related_name = '%s_%d_set' % (model_name.lower(), counter)
++                        counter += 1
++                    related_names.add(related_name)
++                
++                if related_name:
++                    field_output.append('related_name=%s' % related_name)

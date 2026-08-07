@@ -1,0 +1,5 @@
+--- a/django/urls/resolvers.py
++++ b/django/urls/resolvers.py
+@@ ... @@
+-        self._args_count = len([g for g in self.regex.groups if g[0][0] == '('])
++        self._args_count = len([g for g in self.regex.groups if g[0][0] == '(' and g[0][1] != '?' and g[0].count('(') == 1])

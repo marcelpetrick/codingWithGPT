@@ -1,0 +1,15 @@
+--- a/django/db/models/deletion.py
++++ b/django/db/models/deletion.py
+@@ -276,9 +276,11 @@ def delete_objects(deletion_tracker):
+             for obj in objs:
+                 obj._delete_batch()
+         for objs in fast_deletable:
+-            if hasattr(obj, '_prefetched_objects_cache'):
+-                obj._prefetched_objects_cache.clear()
+-                del obj._prefetched_objects_cache
++            for obj in objs:
++                obj.pk = None
++                if hasattr(obj, '_prefetched_objects_cache'):
++                    obj._prefetched_objects_cache.clear()
++                    del obj._prefetched_objects_cache
+         if non_fast_deletable:

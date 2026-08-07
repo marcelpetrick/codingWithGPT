@@ -1,0 +1,11 @@
+--- a/django/utils/http.py
++++ b/django/utils/http.py
+@@ -64,6 +64,8 @@ def http_date(tstamp):
+ def parse_http_date(date):
+     """
+     Parse an HTTP date string and return a datetime object.
+     """
+     from email.utils import parsedate_to_datetime
++    if not date:
++        return None
+     return parsedate_to_datetime(date)

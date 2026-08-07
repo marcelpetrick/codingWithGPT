@@ -1,0 +1,9 @@
+--- a/django/contrib/admin/templatetags/admin_modify.py
++++ b/django/contrib/admin/templatetags/admin_modify.py
+@@ -99,7 +99,7 @@ def submit_row(context):
+         return {
+             'show_delete_link': perms_lacks and has_module_perms,
+-            'show_save_as_new': not is_popup and has_change_permission and change and save_as,
++            'show_save_as_new': not is_popup and has_add_permission and has_change_permission and change and save_as,
+             'show_save': show_save,
+             'show_save_and_add_another': show_save and not add and not is_popup,

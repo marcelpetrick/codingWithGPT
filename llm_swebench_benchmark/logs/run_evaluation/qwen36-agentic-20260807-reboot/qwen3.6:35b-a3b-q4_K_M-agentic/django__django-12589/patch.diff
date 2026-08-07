@@ -1,0 +1,14 @@
+--- a/django/db/models/sql/query.py
++++ b/django/db/models/sql/query.py
+@@ -1941,6 +1941,11 @@ class Query:
+         if group_by is not None:
+             self.group_by = group_by
+             if self.group_by.collapse:
+                 self.group_by_cols, self.group_by_aliases = \
+                     self.group_by.get_group_by_cols()
++                if self.col_aliases:
++                    for col, alias in self.group_by_aliases.items():
++                        if col.alias is not None and col.column in self.col_aliases:
++                            col.alias = None
+             else:
+                 self.group_by_cols = self.group_by_cols or ()

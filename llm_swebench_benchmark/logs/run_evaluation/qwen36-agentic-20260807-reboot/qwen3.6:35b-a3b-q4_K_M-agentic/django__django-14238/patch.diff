@@ -1,0 +1,12 @@
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -314,8 +314,10 @@ class AutoFieldMeta(type):
+     _subclasses = frozenset()
+ 
+     def __subclasscheck__(cls, sub):
+-        if cls is AutoField and not issubclass(sub, (BigAutoField, SmallAutoField)):
++        if cls is AutoField:
++            if issubclass(sub, (BigAutoField, SmallAutoField)):
++                return True
+             return sub in AutoField._subclasses
+         return False

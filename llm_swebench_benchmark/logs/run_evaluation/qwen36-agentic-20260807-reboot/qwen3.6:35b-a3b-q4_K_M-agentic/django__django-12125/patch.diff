@@ -1,0 +1,12 @@
+--- a/django/db/migrations/serializer.py
++++ b/django/db/migrations/serializer.py
+@@ -263,7 +263,7 @@ class TypeSerializer:
+         __import__(module_path)
+         return getattr(sys.modules[module_path], name)
+ 
+     def serialize(self, value):
+         module = value.__module__
+         if module in ('builtins', 'enum'):
+             return '%s.%s' % (module, value.__name__)
+-        return '%s.%s' % (module, value.__name__)
++        return '%s.%s' % (module, value.__qualname__)

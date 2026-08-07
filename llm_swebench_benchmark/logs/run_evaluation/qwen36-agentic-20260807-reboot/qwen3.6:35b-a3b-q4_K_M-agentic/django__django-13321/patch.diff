@@ -1,0 +1,12 @@
+--- a/django/contrib/sessions/backends/base.py
++++ b/django/contrib/sessions/backends/base.py
+@@ -118,10 +118,9 @@ class SessionBase:
+     def _legacy_decode(self, session_data):
+         try:
+             return self._serializer().decode(
+                 base64.b64decode(session_data.encode('ascii'))
+             )
+-        except (KeyError, ValueError):
+-            raise
++        except (KeyError, ValueError, binascii.Error):
++            return None

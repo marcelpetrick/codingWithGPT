@@ -1,0 +1,11 @@
+--- a/mpl_toolkits/mplot3d/axes3d.py
++++ b/mpl_toolkits/mplot3d/axes3d.py
+@@ -1623,6 +1623,9 @@ class Axes3D(Axes):
+         )
+ 
+     def draw(self, renderer):
++        if not self.get_visible():
++            return
+         if not self.stale:
+             return
+         _axinfo = self._axinfo

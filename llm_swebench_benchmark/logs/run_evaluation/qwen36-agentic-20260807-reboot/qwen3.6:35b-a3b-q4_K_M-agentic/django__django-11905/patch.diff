@@ -1,0 +1,16 @@
+--- a/django/db/models/lookups.py
++++ b/django/db/models/lookups.py
+@@ -463,6 +463,12 @@ class IsNull(BuiltinLookup):
+     prepare_rhs = False
+ 
+     def as_sql(self, compiler, connection):
++        if not isinstance(self.rhs, bool):
++            warnings.warn(
++                'The QuerySet value for an isnull lookup must be True or '
++                'False.',
++                RemovedInDjango40Warning,
++                stacklevel=2,
++            )
+         sql, params = compiler.compile(self.lhs)
+         if self.rhs:
+             return "%s IS NULL" % sql, params

@@ -1,0 +1,15 @@
+--- a/lib/matplotlib/figure.py
++++ b/lib/matplotlib/figure.py
+@@ -2909,6 +2909,16 @@ class Figure(abc.ABC):
+ 
+     def __setstate__(self, state):
++        dpi = state['dpi']
++        # XXX: This is a workaround for the MacOSX backend doubling the
++        # figure dpi for high-DPI displays. When we pickle the figure,
++        # we pickle the doubled dpi.  When we unpickle, we restore the
++        # doubled dpi, but then the MacOSX backend doubles it again.
++        # So we halve it back here.
++        if dpi == rcParams['figure.dpi'] * 2:
++            state['dpi'] = dpi / 2
++
+         self.__dict__.update(state)

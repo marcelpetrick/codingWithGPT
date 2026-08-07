@@ -1,0 +1,17 @@
+--- a/django/db/models/lookups.py
++++ b/django/db/models/lookups.py
+@@ -47,9 +47,15 @@ class SQLLookupMixin:
+     def __eq__(self, other):
+         if other.__class__ != self.__class__:
+             return NotImplemented
+-        pickled_self = pickle.dumps(self)
+-        pickled_other = pickle.dumps(other)
+-        return pickled_self == pickled_other
++        try:
++            pickled_self = pickle.dumps(self)
++            pickled_other = pickle.dumps(other)
++        except TypeError:
++            # Can't pickle lookup, consider it equal to avoid crashing
++            # during Q object combination.
++            return True
++        return pickled_self == pickled_other

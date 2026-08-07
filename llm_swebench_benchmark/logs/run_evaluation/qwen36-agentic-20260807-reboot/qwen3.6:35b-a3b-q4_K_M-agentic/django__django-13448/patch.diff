@@ -1,0 +1,23 @@
+--- a/django/db/backends/base/creation.py
++++ b/django/db/backends/base/creation.py
+@@ -69,6 +69,22 @@ class BaseDatabaseCreation:
+ 		database=self.connection.alias,
+ 		run_syncdb=True,
+ 	)
++	else:
++		try:
++			old = settings.MIGRATION_MODULES
++			settings.MIGRATION_MODULES = {
++				app.label: None
++				for app in apps.get_app_configs()
++			}
++			call_command(
++				'migrate',
++				verbosity=max(verbosity - 1, 0),
++				interactive=False,
++				database=self.connection.alias,
++				run_syncdb=True,
++			)
++		finally:
++			settings.MIGRATION_MODULES = old
+```

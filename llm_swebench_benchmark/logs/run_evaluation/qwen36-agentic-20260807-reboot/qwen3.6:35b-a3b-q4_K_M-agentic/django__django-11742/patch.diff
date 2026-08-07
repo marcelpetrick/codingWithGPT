@@ -1,0 +1,18 @@
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -1812,6 +1812,16 @@ class Field:
+     def check(self, **kwargs):
+         errors = super().check(**kwargs)
++        if self.choices:
++            longest = max(len(str(choice[0])) for choice in self.choices)
++            if self.max_length and longest > self.max_length:
++                errors.append(
++                    checks.Error(
++                        'max_length should be at least as long as the longest choice (%d).' % longest,
++                        obj=self,
++                        id='fields.E001',
++                    )
++                )
+         return errors
+ 
+     def deconstruct(self):

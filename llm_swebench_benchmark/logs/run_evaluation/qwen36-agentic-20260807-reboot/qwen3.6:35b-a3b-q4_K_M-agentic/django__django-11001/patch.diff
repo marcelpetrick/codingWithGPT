@@ -1,0 +1,34 @@
+--- a/django/db/models/sql/compiler.py
++++ b/django/db/models/sql/compiler.py
+@@ -1406,6 +1406,8 @@ class SQLCompiler:
+                 if self._select and not self.query.distinct:
+                     without_ordering = self.ordering_parts.search(sql).group(1)
+                 else:
+                     without_ordering = sql
++                # Normalize whitespace to handle multiline SQL.
++                without_ordering = ' '.join(without_ordering.split())
+                 if without_ordering in seen:
+                     seen.add(without_ordering)
+                     continue
+
+--- a/tests/db_functions/test_misc.py
++++ b/tests/db_functions/test_misc.py
+@@ -75,6 +75,21 @@ class RawSQLTests(TestCase):
+     def test_raw_sql(self):
+         qs = models.RawSQL('concat(name, " is " || status)', []).filter(id=1)
+         self.assertIn('CONCAT', qs.query.sql)
++
++    def test_raw_sql_order_by_multiline(self):
++        # Regression for #30515
++        from tests.db_functions.models import User
++
++        q = User.objects.all()
++        q.query.add_order_by(
++            RawSQL('''
++                case when status in ("a")
++                        then 2 else 1 end''', []).desc(),
++            RawSQL('''
++                case when status in ("a")
++                        then 2 else 1 end''', []).asc(),
++        )
++        self.assertEqual(len(q.query.order_by), 2)

@@ -1,0 +1,9 @@
+--- a/lib/matplotlib/backends/backend_ps.py
++++ b/lib/matplotlib/backends/backend_ps.py
+@@ -666,6 +666,7 @@
+             fontprop, fontsize, renderer, text, transform, rotation
+         )
++        if curr_stream:
+         for ps_name, xs_names in stream:
+             if ps_name == 'ps':
+                 curr_stream.write(ps_text)

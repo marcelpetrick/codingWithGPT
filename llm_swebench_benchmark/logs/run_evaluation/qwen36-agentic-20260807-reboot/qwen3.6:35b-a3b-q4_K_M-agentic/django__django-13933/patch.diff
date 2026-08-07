@@ -1,0 +1,15 @@
+--- a/django/forms/models.py
++++ b/django/forms/models.py
+@@ -1220,7 +1220,7 @@ class ModelChoiceField(ChoiceField):
+     empty_label = _('---------')
+     to_field_name = None
+ 
+     default_error_messages = {
+-        'invalid_choice': _('Select a valid choice. That choice is not one of the available choices.'),
++        'invalid_choice': _('Select a valid choice. %(value)s is not one of the available choices.'),
+     }
+ 
+@@ -1296,7 +1296,7 @@ class ModelChoiceField(ChoiceField):
+         except (ValueError, self.queryset.model.DoesNotExist):
+-            raise ValidationError(self.error_messages['invalid_choice'], code='invalid_choice')
++            raise ValidationError(self.error_messages['invalid_choice'], code='invalid_choice', params={'value': value})

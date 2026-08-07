@@ -1,0 +1,91 @@
+--- a/django/forms/widgets.py
++++ b/django/forms/widgets.py
+@@ -1,5 +1,6 @@
+ import copy
+ import re
++from collections import deque
+ import warnings
+ from django.conf import settings
+ from django.core.exceptions import ImproperlyConfigured
+@@ -142,10 +143,54 @@ class Media:
+     def __repr__(self):
+         return '<%s: css=%s js=%s>' % (self.__class__.__name__, self._css, self._js)
+ 
+-    @property
+-    def _js(self):
++    def _unconditional_merge(self, lists, warn_for):
++        """
++        Unconditionally merge a list of lists of files. Deduplicating while
++        preserving the order of the files in the lists.
++        """
++        seen = set()
++        result = []
++        for lst in lists:
++            for item in lst:
++                if item not in seen:
++                    seen.add(item)
++                    result.append(item)
++        if not result:
++            return []
++        # Build dependency graph and in-degree count
++        graph = {item: set() for item in result}
++        in_degree = {item: 0 for item in result}
++        for lst in lists:
++            for i, item in enumerate(lst):
++                for prev in lst[:i]:
++                    if prev != item and item in graph and prev in graph:
++                        if prev not in graph[item]:
++                            graph[item].add(prev)
++                            in_degree[item] += 1
++        # Topological sort (Kahn's algorithm)
++        queue = deque([item for item in result if in_degree[item] == 0])
++        sorted_result = []
++        while queue:
++            node = queue.popleft()
++            sorted_result.append(node)
++            for item in result:
++                if node in graph[item]:
++                    graph[item].discard(node)
++                    in_degree[item] -= 1
++                    if in_degree[item] == 0:
++                        queue.append(item)
++        if len(sorted_result) != len(result):
++            warnings.warn(
++                'Media order conflict detected. Some files are in a cyclic dependency.',
++                MediaOrderConflictWarning,
++            )
++            return result
++        return sorted_result
++
++    @property
++    def _js(self):
+         if not hasattr(self, '_js_lists'):
+             self._js_lists = [js] if js else []
+-        return self._js_lists
++        return self._unconditional_merge(self._js_lists, warn_for='js')
+ 
+     @property
+     def _css(self):
+         if not hasattr(self, '_css_lists'):
+             self._css_lists = dict(self._css) if self._css else {}
+-        return self._css_lists
++        return self._unconditional_merge(self._css_lists, warn_for='css')
+ 
+     def merge(self, other, *args, **kwargs):
+diff --git a/tests/forms_tests/tests/test_media.py b/tests/forms_tests/tests/test_media.py
+--- a/tests/forms_tests/tests/test_media.py
++++ b/tests/forms_tests/tests/test_media.py
+@@ -571,3 +571,12 @@ class FormsMediaTestCase(SimpleTestCase):
+         # was never specified.
+         merged = widget3 + form1 + form2
+         self.assertEqual(merged._css, {'screen': ['a.css', 'b.css'], 'all': ['c.css']})
++
++    def test_merge_js_some_more(self):
++        widget1 = Media(js=['color-picker.js'])
++        widget2 = Media(js=['text-editor.js'])
++        widget3 = Media(js=['text-editor.js', 'text-editor-extras.js', 'color-picker.js'])
++
++        merged = widget1 + widget2 + widget3
++
++        self.assertEqual(merged._js, ['text-editor.js', 'text-editor-extras.js', 'color-picker.js'])
+```

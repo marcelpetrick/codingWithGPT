@@ -1,0 +1,11 @@
+--- a/django/contrib/auth/admin.py
++++ b/django/contrib/auth/admin.py
+@@ -169,7 +169,7 @@ class UserChangeForm(forms.ModelForm):
+         super().__init__(*args, **kwargs)
+         password = self.fields.get("password")
+         if password:
+-            password.help_text = password.help_text.format("../password/")
++            password.help_text = password.help_text.format(f"../../{self.instance.pk}/password/")
+ 
+     def get_readonly_fields(self, request, obj=None):
+         if self.instance.pk is None:

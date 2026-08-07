@@ -1,0 +1,12 @@
+--- a/django/db/models/fields/related.py
++++ b/django/db/models/fields/related.py
+@@ -1452,7 +1452,7 @@ class ManyToManyField(RelatedField):
+                 if related_model is self.model:
+                     hint = (
+                         'If you want to create a recursive relationship, '
+-                        'use ForeignKey("%s", symmetrical=False, through="%s").'
++                        'use ManyToManyField("%s", symmetrical=False, through="%s").'
+                         % (
+                             model.__name__,
+                             model._meta.app_label,
+                         )

@@ -1,0 +1,17 @@
+--- a/django/db/migrations/serializer.py
++++ b/django/db/migrations/serializer.py
+@@ -216,9 +216,13 @@ class DecimalSerializer(BaseSerializer):
+ 
+ class EnumSerializer(BaseSerializer):
+     def serialize(self, value):
+-        name = value.name
+-        if name is None:
+-            return repr(value.value)
+-        return "%s.%s" % (type(value).__qualname__, name)
++        items = enum._decompose(type(value), value)
++        if len(items) == 1:
++            return "%s.%s" % (type(value).__qualname__, items[0].name)
++        return " | ".join(
++            "%s.%s" % (type(value).__qualname__, item.name)
++            for item in items
++        )

@@ -1,0 +1,52 @@
+2026-08-07 15:12:51,961 - INFO - Creating container for django__django-12915...
+2026-08-07 15:12:52,020 - INFO - Container for django__django-12915 created: 68d4128641fb01889327894a270cff4f0c67d4f0c1a0ff9732eb7f8f23f0ca20
+2026-08-07 15:12:52,221 - INFO - Container for django__django-12915 started: 68d4128641fb01889327894a270cff4f0c67d4f0c1a0ff9732eb7f8f23f0ca20
+2026-08-07 15:12:52,221 - INFO - Intermediate patch for django__django-12915 written to logs/run_evaluation/qwen36-agentic-20260807-reboot/qwen3.6:35b-a3b-q4_K_M-agentic/django__django-12915/patch.diff, now applying to container...
+2026-08-07 15:12:52,294 - INFO - Failed to apply patch to container: git apply --verbose
+2026-08-07 15:12:52,339 - INFO - Failed to apply patch to container: git apply --verbose --reject
+2026-08-07 15:12:52,383 - INFO - >>>>> Applied Patch:
+patching file django/contrib/staticfiles/handlers.py
+patch unexpectedly ends in middle of line
+Hunk #1 succeeded at 69 with fuzz 3 (offset 5 lines).
+
+2026-08-07 15:12:52,891 - INFO - Git diff before:
+diff --git a/django/contrib/staticfiles/handlers.py b/django/contrib/staticfiles/handlers.py
+index 711d8864ad..df6b137557 100644
+--- a/django/contrib/staticfiles/handlers.py
++++ b/django/contrib/staticfiles/handlers.py
+@@ -68,6 +68,9 @@ class StaticFilesHandler(StaticFilesHandlerMixin, WSGIHandler):
+             return self.application(environ, start_response)
+         return super().__call__(environ, start_response)
+ 
++    def get_response_async(self, request):
++        return self.get_response(request)
++
+ 
+ class ASGIStaticFilesHandler(StaticFilesHandlerMixin, ASGIHandler):
+     """
+2026-08-07 15:12:52,892 - INFO - Eval script for django__django-12915 written to logs/run_evaluation/qwen36-agentic-20260807-reboot/qwen3.6:35b-a3b-q4_K_M-agentic/django__django-12915/eval.sh; copying to container...
+2026-08-07 15:13:00,007 - INFO - Test runtime: 7.08 seconds
+2026-08-07 15:13:00,007 - INFO - Test output for django__django-12915 written to logs/run_evaluation/qwen36-agentic-20260807-reboot/qwen3.6:35b-a3b-q4_K_M-agentic/django__django-12915/test_output.txt
+2026-08-07 15:13:00,040 - INFO - Git diff after:
+diff --git a/django/contrib/staticfiles/handlers.py b/django/contrib/staticfiles/handlers.py
+index 711d8864ad..df6b137557 100644
+--- a/django/contrib/staticfiles/handlers.py
++++ b/django/contrib/staticfiles/handlers.py
+@@ -68,6 +68,9 @@ class StaticFilesHandler(StaticFilesHandlerMixin, WSGIHandler):
+             return self.application(environ, start_response)
+         return super().__call__(environ, start_response)
+ 
++    def get_response_async(self, request):
++        return self.get_response(request)
++
+ 
+ class ASGIStaticFilesHandler(StaticFilesHandlerMixin, ASGIHandler):
+     """
+2026-08-07 15:13:00,040 - INFO - Grading answer for django__django-12915...
+2026-08-07 15:13:00,042 - INFO - report: {'django__django-12915': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['test_get_async_response (staticfiles_tests.test_handlers.TestASGIStaticFilesHandler)', 'test_get_async_response_not_found (staticfiles_tests.test_handlers.TestASGIStaticFilesHandler)', 'test_static_file_response (asgi.tests.ASGITest)']}, 'PASS_TO_PASS': {'success': ['test_disconnect (asgi.tests.ASGITest)', 'test_file_response (asgi.tests.ASGITest)', 'test_get_asgi_application (asgi.tests.ASGITest)', 'test_get_query_string (asgi.tests.ASGITest)', 'test_headers (asgi.tests.ASGITest)', 'test_non_unicode_query_string (asgi.tests.ASGITest)', 'test_request_lifecycle_signals_dispatched_with_thread_sensitive (asgi.tests.ASGITest)', 'test_wrong_connection_type (asgi.tests.ASGITest)'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for django__django-12915: resolved: False
+2026-08-07 15:13:00,042 - INFO - Attempting to stop container sweb.eval.django__django-12915.qwen36-agentic-20260807-reboot...
+2026-08-07 15:13:15,222 - INFO - Attempting to remove container sweb.eval.django__django-12915.qwen36-agentic-20260807-reboot...
+2026-08-07 15:13:15,240 - INFO - Container sweb.eval.django__django-12915.qwen36-agentic-20260807-reboot removed.
+2026-08-07 15:13:15,241 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.django_1776_django-12915:latest...
+2026-08-07 15:13:16,310 - INFO - Image swebench/sweb.eval.x86_64.django_1776_django-12915:latest removed.

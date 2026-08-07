@@ -1,0 +1,23 @@
+--- a/django/db/migrations/autodetector.py
++++ b/django/db/migrations/autodetector.py
+@@ -378,6 +378,21 @@ class MigrationAutodetector:  # noqa: C901
+                 )
+             )
+ 
++            # Move AlterOrderWithRespectTo to execute before AddIndex.
++            # The _order field is created by AlterOrderWithRespectTo, so
++            # indexes on _order must be created after.
++            alter_idx = None
++            index_idx = None
++            for i, op in enumerate(operations):
++                if isinstance(op, migrations.AlterOrderWithRespectTo):
++                    alter_idx = i
++                elif isinstance(op, migrations.AddIndex) and index_idx is None:
++                    index_idx = i
++            if alter_idx is not None and index_idx is not None and alter_idx > index_idx:
++                op = operations.pop(alter_idx)
++                operations.insert(index_idx, op)
++
+             if operations:
+                 self.plan.append(
+                     (app_label, model_name, operations),

@@ -1,0 +1,19 @@
+--- a/django/contrib/auth/migrations/0011_update_proxy_permissions.py
++++ b/django/contrib/auth/migrations/0011_update_proxy_permissions.py
+@@ -14,13 +14,10 @@ def update_proxy_permissions(apps, schema_editor):
+                 for codename, name in get_proxy_codenames(model):
+                     try:
+-                        Permission.objects.create(
+-                            content_type=content_type,
+-                            codename=codename,
+-                            name=name,
+-                        )
+-                    except IntegrityError:
+-                        pass
++                        Permission.objects.update_or_create(
++                            content_type=content_type,
++                            codename=codename,
++                            defaults=dict(name=name),
++                        )
+                     except:
+                         pass

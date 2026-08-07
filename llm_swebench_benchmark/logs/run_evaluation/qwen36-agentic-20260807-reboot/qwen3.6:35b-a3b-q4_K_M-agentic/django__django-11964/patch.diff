@@ -1,0 +1,9 @@
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -1132,6 +1132,8 @@ class Field:
+     def __set__(self, obj, value):
+         if obj is None:
+             return self
++        if value is not None and self.choices and isinstance(value, type(self._choices[0][0]) if self._choices else type(None)):
++            value = value.value
+         obj.__dict__[self.attname] = value

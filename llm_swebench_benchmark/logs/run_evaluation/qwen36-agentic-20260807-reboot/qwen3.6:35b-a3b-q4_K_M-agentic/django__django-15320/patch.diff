@@ -1,0 +1,11 @@
+--- a/django/db/models/sql/subqueries.py
++++ b/django/db/models/sql/subqueries.py
+@@ -143,6 +143,7 @@ class Subquery(Expression):
+     def __init__(self, queryset, **extra_args):
+         super().__init__(**extra_args)
+-        self.query = queryset.query
++        self.query = queryset.query.clone()
++        self.query.subquery = True
+ 
+     def as_sql(self, compiler, connection):
+         if self.query.combinator:

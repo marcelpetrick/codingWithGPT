@@ -1,0 +1,27 @@
+--- a/django/db/migrations/operations/fields.py
++++ b/django/db/migrations/operations/fields.py
+@@ -878,6 +878,8 @@ class AlterField(FieldOperation):
+ 
+     def reduce(self, operation, *args, **kwargs):
+         if isinstance(operation, AddField):
+             return []
++        if isinstance(operation, AlterField) and self.model_name == operation.model_name and self.name == operation.name:
++            return [operation]
+         return super().reduce(operation, *args, **kwargs)
+ 
+
+--- a/tests/migrations/test_optimizer.py
++++ b/tests/migrations/test_optimizer.py
+@@ -146,6 +146,17 @@ class MigrationOptimizerTests(TestCase):
+             },
+             app_label="testapp1",
+         )
+ 
+     def test_optimize_multiple_alter_fields(self):
+         optimizer = migrations.MigrationOptimizer()
+         op1 = migrations.AlterField("book", "title", models.CharField(max_length=128))
+         op2 = migrations.AlterField("book", "title", models.CharField(max_length=64))
+         op3 = migrations.AlterField("book", "title", models.CharField(max_length=32))
+         result = optimizer.optimize([op1, op2, op3], "testapp")
+         self.assertEqual(len(result), 1)
+         self.assertEqual(result[0].name, "title")

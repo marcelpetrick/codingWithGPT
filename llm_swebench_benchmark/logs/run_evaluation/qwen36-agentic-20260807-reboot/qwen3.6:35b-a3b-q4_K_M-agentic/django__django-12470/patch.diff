@@ -1,0 +1,10 @@
+--- a/django/db/models/options.py
++++ b/django/db/models/options.py
+@@ -380,6 +380,10 @@ class Options:
+         # Handle 'pk' alias.
+         if name == 'pk':
++            if model._meta.pk.remote_field and model._meta.pk.remote_field.parent_link:
++                name = model._meta.pk.remote_field.model._meta.pk.name
++            else:
+                 name = model._meta.pk.name
+             return name, is_desc

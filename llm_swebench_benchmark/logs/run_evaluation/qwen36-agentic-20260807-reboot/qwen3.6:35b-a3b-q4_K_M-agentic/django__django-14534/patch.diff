@@ -1,0 +1,11 @@
+--- a/django/forms/widgets.py
++++ b/django/forms/widgets.py
+@@ -2034,7 +2034,7 @@ class BoundWidget:
+         return repr(self.data)
+ 
+     def id_for_label(self):
+-        return 'id_%s_%s' % (self.data['name'], self.data['index'])
++        return self.data['attrs']['id']
+ 
+     def __iter__(self):
+         return iter(self.render())

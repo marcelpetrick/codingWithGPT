@@ -1,0 +1,15 @@
+--- a/astropy/io/ascii/qdp.py
++++ b/astropy/io/ascii/qdp.py
+@@ -106,7 +106,7 @@
+     _qdp_cmd_re = re.compile(
+         r"""^
+         \s*
+         (READ SERR|READ ERR|TABLE ID)
+         \s*
+         (.*?)
+         \s*
+         $
+         """,
+-        re.VERBOSE,
++        re.VERBOSE | re.IGNORECASE,
+     )

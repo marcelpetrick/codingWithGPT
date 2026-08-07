@@ -1,0 +1,54 @@
+--- a/django/utils/html.py
++++ b/django/utils/html.py
+@@ -227,7 +227,7 @@ def format_html(format_string, *args, **kwargs):
+     return format_html_conditional(format_string, *args, **kwargs)
+ 
+ 
+-def json_script(text, escaped_id=None, encoder=DjangoJSONEncoder):
++def json_script(text, escaped_id=None, encoder=None):
+     """
+     Serialize *text* to a JSON-formatted string for use in templates.
+ 
+@@ -234,6 +234,12 @@ def json_script(text, escaped_id=None, encoder=DjangoJSONEncoder):
+     :htmlelement:`<script>` element, so it can be accessed from client-side
+     JavaScript.
+ 
+     .. versionadded:: 4.2
++
++    .. versionchanged:: 4.2.4
++       Added the *encoder* argument.
++    """
++    if encoder is None:
++        encoder = DjangoJSONEncoder
++
+     if not isinstance(escaped_id, str):
+         raise TypeError(
+             "json_script expected a string, got %s."
+--- a/docs/ref/utils.txt
++++ b/docs/ref/utils.txt
+@@ -1240,6 +1240,28 @@ format_html_concat
+ ------------
+ json_script
+ ------------
+
++.. function:: json_script(text, escaped_id=None, encoder=None)
++
++   Serialize *text* to a JSON-formatted string for use in templates. The
++   value is embedded in a :htmlref:`<script>` element, so it can be accessed
++   from client-side JavaScript.
++
++   The *text* argument is the object to serialize. The default is ``None``,
++   in which case a JSON ``null`` string is returned.
++
++   The *escaped_id* argument is an optional string identifier for the
++   :htmlelement:`<script>` element. The default is ``None``, in which case
++   the :htmlelement:`<script>` element will not have an ``id`` attribute.
++
++   The *encoder* argument is used to customize JSON encoding of *text*. The
++   default is :class:`~django.core.serializers.json.DjangoJSONEncoder`.
++
++   .. versionadded:: 4.2
++
++   .. versionchanged:: 4.2.4
++      Added the *encoder* argument.
++

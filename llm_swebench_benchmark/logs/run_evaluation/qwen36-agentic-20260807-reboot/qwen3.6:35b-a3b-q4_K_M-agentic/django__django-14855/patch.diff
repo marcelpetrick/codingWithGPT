@@ -1,0 +1,15 @@
+--- a/django/contrib/admin/helpers.py
++++ b/django/contrib/admin/helpers.py
+@@ -83,7 +83,11 @@ def get_admin_url(model_admin, remote_obj, admin_site):
+     """
+     app_label = model_admin.model._meta.app_label
+     model_name = model_admin.model._meta.model_name
+     url_name = '%s:%s_%s_change' % (
+         admin_site.name, app_label, model_name
+     )
+-    return reverse(url_name, args=[quote(remote_obj.pk)])
++    return reverse(
++        url_name,
++        args=[quote(remote_obj.pk)],
++        current_app=model_admin.admin_site.name,
++    )

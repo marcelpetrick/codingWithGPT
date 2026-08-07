@@ -1,0 +1,15 @@
+--- a/django/db/backends/base/schema.py
++++ b/django/db/backends/base/schema.py
+@@ -372,7 +372,9 @@ class BaseDatabaseSchemaEditor:
+         constraints = [
+             constraint for constraint in model._meta.constraints
+             if constraint.columns == columns and
+-               (constraint.unique == unique if hasattr(constraint, 'unique') else True)
++               (
++                   constraint.unique == unique
++                   if hasattr(constraint, 'unique')
++                   else not unique
++               )
+         ]
+         if len(constraints) != 1:
+             raise ValueError(

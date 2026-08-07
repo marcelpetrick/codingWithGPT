@@ -1,0 +1,9 @@
+--- a/lib/matplotlib/__init__.py
++++ b/lib/matplotlib/__init__.py
+@@ -20,6 +20,9 @@
+ import matplotlib
+ 
+ __version__ = "VERSION"  # May be overridden by Meson or setuptools_scm.
++
++# Expose version info as a tuple for easy comparison
++__version_info__ = tuple(int(x) for x in __version__.split('.')[:3])

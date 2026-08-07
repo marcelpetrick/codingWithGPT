@@ -1,0 +1,11 @@
+--- a/django/contrib/admin/options.py
++++ b/django/contrib/admin/options.py
+@@ -150,7 +150,9 @@ class InlineModelAdminOptions(BaseModelAdminOptions):
+                 if not opts.verbose_name:
+                     opts.verbose_name = capfirst(opts.opts.verbose_name)
+                 if not opts.verbose_name_plural:
+-                    opts.verbose_name_plural = capfirst(opts.opts.verbose_name_plural)
++                    if opts.verbose_name:
++                        opts.verbose_name_plural = capfirst(opts.verbose_name)
++                    else:
++                        opts.verbose_name_plural = capfirst(opts.opts.verbose_name_plural)

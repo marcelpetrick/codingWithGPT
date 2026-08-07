@@ -1,0 +1,9 @@
+--- a/django/db/models/query_utils.py
++++ b/django/db/models/query_utils.py
+@@ -68,7 +68,7 @@ class Q(Combinable):
+     def _combine(self, other, conn):
+-        if not isinstance(other, Q):
++        if not isinstance(other, (Q, Combinable)):
+             raise TypeError(other)
+ 
+         # If the other Q() is empty, ignore it and just use `self`.

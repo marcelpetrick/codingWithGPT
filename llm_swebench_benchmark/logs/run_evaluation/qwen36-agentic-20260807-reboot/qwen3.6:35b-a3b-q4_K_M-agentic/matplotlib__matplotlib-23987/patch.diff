@@ -1,0 +1,11 @@
+--- a/lib/matplotlib/figure.py
++++ b/lib/matplotlib/figure.py
+@@ -2425,7 +2425,7 @@ class Figure(_Figure):
+         if not kwargs:
+             return
+ 
+-        if self.get_constrained_layout():
++        if self.get_constrained_layout() is True:
+             warnings.warn(
+                 "This figure was using a layout engine that is incompatible "
+                 "with subplots_adjust and/or tight_layout; not calling "

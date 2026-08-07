@@ -1,0 +1,23 @@
+--- a/django/utils/numberformat.py
++++ b/django/utils/numberformat.py
+@@ -107,7 +107,7 @@ def format(number, decimal_sep, decimal_pos=None, grouping=0, thousand_sep='',
+     # Handle negative numbers.
+     str_number = '%s%s' % (intpart, decpart)
+-    if str_number[0] == '-':
++    if str_number.startswith('-'):
+         str_number = str_number[1:]
+         sign = '-'
+     else:
+
+diff --git a/tests/utils/test_numberformat.py b/tests/utils/test_numberformat.py
+--- a/tests/utils/test_numberformat.py
++++ b/tests/utils/test_numberformat.py
+@@ -21,6 +21,14 @@ class NumberFormatTests(TestCase):
+     def test_empty_number(self):
+         """
+         Regression test for when `number` is an empty string.
+         Before this change, accessing str_number[0] raised an IndexError.
+         """
+         from django.utils.numberformat import format
+         self.assertEqual(format('', '.', 0), '')
+```

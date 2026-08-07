@@ -1,0 +1,6 @@
+--- a/django/core/management/templates.py
++++ b/django/core/management/templates.py
+@@ -74,7 +74,7 @@ class BaseTemplateCommand(BaseCommand):
+             self.validate_name(os.path.basename(target), 'directory')
+-            self.validate_name(os.path.basename(target.rstrip(os.sep)), 'directory')
++            self.validate_name(os.path.basename(target.rstrip(os.sep)), 'directory')

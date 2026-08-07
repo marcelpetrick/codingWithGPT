@@ -1,0 +1,14 @@
+--- a/django/utils/autoreload.py
++++ b/django/utils/autoreload.py
+@@ -129,7 +129,9 @@ def iter_modules_and_files(modules, ignored_caches):
+             if not path:
+                 continue
+             try:
+                 results.add(path.resolve().absolute())
+-            except OSError:
++            except (OSError, ValueError):
+                 # A file may have been removed between calls.
++                # ValueError is raised by os.readlink() on macOS
++                # when encountering a symlink with an embedded null byte.
+                 pass
+         return results

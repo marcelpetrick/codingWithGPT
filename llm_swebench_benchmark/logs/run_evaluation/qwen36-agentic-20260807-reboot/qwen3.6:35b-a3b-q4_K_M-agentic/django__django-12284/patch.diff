@@ -1,0 +1,11 @@
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -378,7 +378,7 @@ class Field(RegisterLookupMixin):
+             self.set_attributes_from_name(name)
+             self.contribute_to_class(obj, name)
+         if self.choices:
+-            if not hasattr(cls, 'get_%s_display' % self.name):
++            if 'get_%s_display' % self.name not in cls.__dict__:
+                 setattr(
+                     cls, 'get_%s_display' % self.name,
+                     partialmethod(cls._get_FIELD_display, field=self),

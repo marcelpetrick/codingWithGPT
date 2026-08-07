@@ -1,0 +1,57 @@
+2026-08-07 15:11:13,403 - INFO - Creating container for django__django-12308...
+2026-08-07 15:11:13,619 - INFO - Container for django__django-12308 created: 82dcf0daec7af000a0d7ea4e96d38852b1a3923e693a0428e15915cca4d0441b
+2026-08-07 15:11:13,746 - INFO - Container for django__django-12308 started: 82dcf0daec7af000a0d7ea4e96d38852b1a3923e693a0428e15915cca4d0441b
+2026-08-07 15:11:13,746 - INFO - Intermediate patch for django__django-12308 written to logs/run_evaluation/qwen36-agentic-20260807-reboot/qwen3.6:35b-a3b-q4_K_M-agentic/django__django-12308/patch.diff, now applying to container...
+2026-08-07 15:11:13,828 - INFO - Failed to apply patch to container: git apply --verbose
+2026-08-07 15:11:13,861 - INFO - Failed to apply patch to container: git apply --verbose --reject
+2026-08-07 15:11:13,902 - INFO - >>>>> Applied Patch:
+patching file django/contrib/admin/utils.py
+Hunk #1 succeeded at 394 with fuzz 4.
+patch unexpectedly ends in middle of line
+patch unexpectedly ends in middle of line
+
+2026-08-07 15:11:14,446 - INFO - Git diff before:
+diff --git a/django/contrib/admin/utils.py b/django/contrib/admin/utils.py
+index e4ddc8f017..3f469d079e 100644
+--- a/django/contrib/admin/utils.py
++++ b/django/contrib/admin/utils.py
+@@ -395,6 +395,11 @@ def display_for_field(value, field, empty_value_display):
+     elif isinstance(field, models.DecimalField):
+         return formats.number_format(value, field.decimal_places)
+     elif isinstance(field, (models.IntegerField, models.FloatField)):
++        if isinstance(field, models.JSONField):
++            if value is None:
++                return ''
++            return json.dumps(value, cls=serializers.JSONEncoder)
++
+         return formats.number_format(value)
+     elif isinstance(field, models.FileField) and value:
+         return format_html('<a href="{}">{}</a>', value.url, value)
+2026-08-07 15:11:14,447 - INFO - Eval script for django__django-12308 written to logs/run_evaluation/qwen36-agentic-20260807-reboot/qwen3.6:35b-a3b-q4_K_M-agentic/django__django-12308/eval.sh; copying to container...
+2026-08-07 15:11:20,447 - INFO - Test runtime: 5.96 seconds
+2026-08-07 15:11:20,448 - INFO - Test output for django__django-12308 written to logs/run_evaluation/qwen36-agentic-20260807-reboot/qwen3.6:35b-a3b-q4_K_M-agentic/django__django-12308/test_output.txt
+2026-08-07 15:11:20,500 - INFO - Git diff after:
+diff --git a/django/contrib/admin/utils.py b/django/contrib/admin/utils.py
+index e4ddc8f017..3f469d079e 100644
+--- a/django/contrib/admin/utils.py
++++ b/django/contrib/admin/utils.py
+@@ -395,6 +395,11 @@ def display_for_field(value, field, empty_value_display):
+     elif isinstance(field, models.DecimalField):
+         return formats.number_format(value, field.decimal_places)
+     elif isinstance(field, (models.IntegerField, models.FloatField)):
++        if isinstance(field, models.JSONField):
++            if value is None:
++                return ''
++            return json.dumps(value, cls=serializers.JSONEncoder)
++
+         return formats.number_format(value)
+     elif isinstance(field, models.FileField) and value:
+         return format_html('<a href="{}">{}</a>', value.url, value)
+2026-08-07 15:11:20,500 - INFO - Grading answer for django__django-12308...
+2026-08-07 15:11:20,501 - INFO - report: {'django__django-12308': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['test_json_display_for_field (admin_utils.tests.UtilsTests)', 'test_label_for_field (admin_utils.tests.UtilsTests)']}, 'PASS_TO_PASS': {'success': ['test_cyclic (admin_utils.tests.NestedObjectsTests)', 'test_non_added_parent (admin_utils.tests.NestedObjectsTests)', 'test_on_delete_do_nothing (admin_utils.tests.NestedObjectsTests)', 'test_queries (admin_utils.tests.NestedObjectsTests)', 'test_relation_on_abstract (admin_utils.tests.NestedObjectsTests)', 'test_siblings (admin_utils.tests.NestedObjectsTests)', 'test_unrelated_roots (admin_utils.tests.NestedObjectsTests)', 'test_flatten (admin_utils.tests.UtilsTests)', 'test_flatten_fieldsets (admin_utils.tests.UtilsTests)', 'test_label_for_field_form_argument (admin_utils.tests.UtilsTests)', 'test_label_for_property (admin_utils.tests.UtilsTests)', 'test_list_display_for_value (admin_utils.tests.UtilsTests)', 'test_list_display_for_value_boolean (admin_utils.tests.UtilsTests)', 'test_null_display_for_field (admin_utils.tests.UtilsTests)', 'test_number_formats_display_for_field (admin_utils.tests.UtilsTests)', 'test_number_formats_with_thousand_separator_display_for_field (admin_utils.tests.UtilsTests)', 'test_quote (admin_utils.tests.UtilsTests)', 'test_related_name (admin_utils.tests.UtilsTests)', 'test_safestring_in_field_label (admin_utils.tests.UtilsTests)', 'test_values_from_lookup_field (admin_utils.tests.UtilsTests)'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for django__django-12308: resolved: False
+2026-08-07 15:11:20,501 - INFO - Attempting to stop container sweb.eval.django__django-12308.qwen36-agentic-20260807-reboot...
+2026-08-07 15:11:35,892 - INFO - Attempting to remove container sweb.eval.django__django-12308.qwen36-agentic-20260807-reboot...
+2026-08-07 15:11:35,920 - INFO - Container sweb.eval.django__django-12308.qwen36-agentic-20260807-reboot removed.
+2026-08-07 15:11:35,920 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.django_1776_django-12308:latest...
+2026-08-07 15:11:36,065 - INFO - Image swebench/sweb.eval.x86_64.django_1776_django-12308:latest removed.

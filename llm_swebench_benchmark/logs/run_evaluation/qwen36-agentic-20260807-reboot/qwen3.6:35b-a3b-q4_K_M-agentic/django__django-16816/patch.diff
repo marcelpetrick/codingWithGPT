@@ -1,0 +1,10 @@
+--- a/django/contrib/admin/checks.py
++++ b/django/contrib/admin/checks.py
+@@ -898,6 +898,8 @@ class ModelAdminChecks(BaseModelAdminChecks):
+             try:
+                 field = obj.model._meta.get_field(item)
++                if isinstance(field, ManyToOneRel):
++                    raise FieldDoesNotExist
+             except FieldDoesNotExist:
+                 try:
+                     field = getattr(obj.model, item)

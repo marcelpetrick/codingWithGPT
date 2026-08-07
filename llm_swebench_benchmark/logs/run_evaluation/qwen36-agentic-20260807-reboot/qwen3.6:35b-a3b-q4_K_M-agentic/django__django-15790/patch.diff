@@ -1,0 +1,12 @@
+--- a/django/template/utils.py
++++ b/django/template/utils.py
+@@ -146,7 +146,9 @@ def check_for_template_tags_with_the_same_name(templates):
+     for template_engine in templates:
+         if "OPTIONS" in template_engine:
+             for library_name, library_module in template_engine["OPTIONS"].get("libraries", {}).items():
+-                tag_libraries[library_name].append(library_module)
++                if library_module not in tag_libraries[library_name]:
++                    tag_libraries[library_name].append(library_module)
+     for library_name, modules in tag_libraries.items():
+         if len(set(modules)) != len(modules):
+             errors.append(

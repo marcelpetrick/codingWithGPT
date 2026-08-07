@@ -1,0 +1,9 @@
+--- a/django/utils/text.py
++++ b/django/utils/text.py
+@@ -240,6 +240,7 @@ def slugify(value):
+     value = ascii(value).lower()
+     value = re.sub(r'[^\w\s-]', '', value, flags=re.U)
+     value = re.sub(r'[\s_-]+', '-', value, flags=re.U)
++    value = value.strip('-_')
+     value = re.sub(r'-+', '-', value, flags=re.U)
+     return value

@@ -1,0 +1,20 @@
+--- a/lib/mpl_toolkits/mplot3d/art3d.py
++++ b/lib/mpl_toolkits/mplot3d/art3d.py
+@@ -633,7 +633,13 @@ class Poly3DCollection(collections.PolyCollection):
+         return self._zdir
+ 
+     def get_facecolors(self):
+-        return self._facecolors2d
++        if not hasattr(self, '_facecolors2d'):
++            self._facecolors2d = self._facecolors
++        return self._facecolors2d
+     get_facecolor = get_facecolors
++
++    def get_edgecolors(self):
++        if not hasattr(self, '_edgecolors2d'):
++            self._edgecolors2d = self._edgecolors
++        return self._edgecolors2d
+ 
+     def set_3d_properties(self, offsets=None, facecolors=None, zdir='z',
+                           edgecolors=None, offset_factor=1, transform=None):
+```

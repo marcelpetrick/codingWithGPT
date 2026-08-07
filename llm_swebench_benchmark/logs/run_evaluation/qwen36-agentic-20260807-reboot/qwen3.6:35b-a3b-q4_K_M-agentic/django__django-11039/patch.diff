@@ -1,0 +1,27 @@
+--- a/django/core/management/commands/sqlmigrate.py
++++ b/django/core/management/commands/sqlmigrate.py
+@@ -221,7 +221,7 @@ class Command(BaseCommand):
+         app_label = migration.app_label
+ 
+         # Determine whether the transaction should wrap the database schema changes.
+-        self.output_transaction = migration.atomic
++        self.output_transaction = migration.atomic and connection.features.can_rollback_ddl
+         # Emit the SQL for the migration's changes.
+         self.emit_sql = []
+         for change in migration.operations:
+
+--- a/tests/migrations/test_commands.py
++++ b/tests/migrations/test_commands.py
+@@ -962,6 +962,16 @@ class TestCommands(SimpleTestCase):
+         self.assertNotIn('COMMIT', output.getvalue())
+ 
++    @mock.patch.object(connection.features, 'can_rollback_ddl', False)
++    def test_sqlmigrate_non_rollback_ddl(self):
++        output = io.StringIO()
++        call_command('sqlmigrate', 'testapp', '0001', stdout=output)
++        self.assertNotIn('BEGIN', output.getvalue())
++        self.assertNotIn('COMMIT', output.getvalue())
++
+     def test_makemigrations_no_apps(self):
+         with self.temporary_migration_module() as migration_dir:
+             call_command('makemigrations', 'testapp')
