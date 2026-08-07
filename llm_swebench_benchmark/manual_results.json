@@ -1,0 +1,102 @@
+[
+  {
+    "instance_id": "astropy__astropy-12907",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:12\n"
+  },
+  {
+    "instance_id": "astropy__astropy-14182",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:3\n"
+  },
+  {
+    "instance_id": "astropy__astropy-14365",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:11\n"
+  },
+  {
+    "instance_id": "astropy__astropy-14995",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:10\n"
+  },
+  {
+    "instance_id": "astropy__astropy-6938",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:11\n"
+  },
+  {
+    "instance_id": "astropy__astropy-7746",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:11\n"
+  },
+  {
+    "instance_id": "django__django-10914",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:9\n"
+  },
+  {
+    "instance_id": "django__django-10924",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:29\n"
+  },
+  {
+    "instance_id": "django__django-11001",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:34\n"
+  },
+  {
+    "instance_id": "django__django-11019",
+    "status": "patch_failed",
+    "error": "error: patch failed: django/forms/widgets.py:1\nerror: django/forms/widgets.py: patch does not apply\n"
+  },
+  {
+    "instance_id": "django__django-11039",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:27\n"
+  },
+  {
+    "instance_id": "django__django-11049",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:10\n"
+  },
+  {
+    "instance_id": "django__django-11099",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:9\n"
+  },
+  {
+    "instance_id": "django__django-11133",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:10\n"
+  },
+  {
+    "instance_id": "django__django-11179",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:15\n"
+  },
+  {
+    "instance_id": "django__django-11283",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:19\n"
+  },
+  {
+    "instance_id": "django__django-11422",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:20\n"
+  },
+  {
+    "instance_id": "django__django-11564",
+    "status": "patch_failed",
+    "error": "error: corrupt patch at <stdin>:22\n"
+  },
+  {
+    "instance_id": "django__django-11583",
+    "status": "patch_failed",
+    "error": "error: patch failed: django/utils/autoreload.py:129\nerror: django/utils/autoreload.py: patch does not apply\n"
+  },
+  {
+    "instance_id": "django__django-11620",
+    "status": "patch_failed",
+    "error": "error: patch fragment without header at <stdin>:13: @@ -483,7 +483,7 @@ def technical_404_response(request, exception, request_repr, exc_info):\n"
+  }
+]

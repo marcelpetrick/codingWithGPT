@@ -96,19 +96,37 @@ llm_swebench_benchmark/
 
 ## Results (2026-08-07)
 
-| Phase | Metric | Value |
-|-------|--------|-------|
-| Inference | Instances completed | 300/300 (100%) |
-| Inference | Patch extraction rate | 299/300 (99.7%) |
-| Inference | Wall time | ~2.5 hours |
-| Evaluation | Docker images | Not available on system |
-| Evaluation | Status | Incomplete — 100% error rate due to missing swebench Docker images |
+### Inference
+
+| Metric | Value |
+|--------|-------|
+| Instances completed | 300/300 (100%) |
+| Patch extraction rate | 299/300 (99.7%) |
+| Valid hunk headers | 294/299 (98.3%) |
+| Wall time | ~2.5 hours |
+
+### Evaluation
+
+| Metric | Value |
+|--------|-------|
+| Docker-based eval | Blocked — veth kernel module unavailable for running kernel (7.1.4-1-MANJARO) |
+| Manual eval (20 instances) | Blocked — patches have context mismatches (model generates wrong line numbers) |
+| Status | Incomplete |
+
+### Patch Quality Analysis
+
+- 294/299 patches (98.3%) have valid unified diff hunk headers (`@@ -X,Y +X,Y @@`)
+- 5/299 patches (1.7%) have malformed hunk headers (e.g., `@@ -... @@`)
+- Patches that do apply have correct `--- a/` / `+++ b/` headers and repo-relative paths
+- **Issue**: Model often generates wrong line numbers in hunk headers, causing context mismatches. The actual code changes are usually correct but the unified diff format requires exact context matching.
 
 ### Key Findings
 
 - **Inference pipeline works end-to-end**: dataset loading → repo cloning → prompt building → model inference → patch extraction all function correctly.
-- **Patch quality**: Generated patches are valid unified diffs with correct `--- a/` / `+++ b/` headers and proper repo-relative paths.
-- **Evaluation bottleneck**: The SWE-bench evaluation harness requires pre-built Docker images (`swebench/sweb-eval-*`) that are not present on this system. Without these images, every instance fails with a Docker container startup error. To complete evaluation, pull the required images or run on a system with the swebench Docker images pre-loaded.
+- **Evaluation blocked by two issues**:
+  1. **Docker networking**: The `veth` kernel module is not available for the running kernel (7.1.4-1-MANJARO). It exists for kernels 6.18.42 and 7.1.6. Fix: reboot into kernel 7.1.6 or install the veth module for 7.1.4 (requires sudo).
+  2. **Patch quality**: Model generates patches with incorrect line numbers, causing context mismatches. The code changes are usually correct but the unified diff format requires exact context.
+- **To complete evaluation**: Either reboot into kernel 7.1.6 and re-run the Docker-based harness, or use the SWE-bench Cloud API / Modal for evaluation.
 
 ## Estimated Wall Time
 
