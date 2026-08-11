@@ -1,0 +1,5 @@
+# Run logs from muse-bench.sh. Regenerable, timestamped, noisy in diffs; the
+# measured data (results/agentic/*.tsv and the tables in muse_ollama.md) is
+# committed instead. Same convention as ../ollamaClaudeCode_v1.
+results/*.log
+results/*.log.done
