@@ -100,14 +100,46 @@ those bytes. The registry refused `.67` because `.67` announced `0.32.5`, not be
 of who we are. Ollama even exposes `POST /api/blobs/sha256:<digest>`, so the weights
 could be uploaded to `.67` over HTTP and assembled with `/api/create`, no SSH needed.
 
-That would defeat the gate and still leave us with nothing. The GGUF declares
-`general.architecture = muse-glimmer`, and 0.32.8's changelog entry is *"Add Muse
-Glimmer support for NVIDIA, AMD, and additional platforms"* — the inference engine in
-0.32.5 has no such architecture and cannot execute those tensors. The `requires` field
-is not a policy, it is a description of a real runtime capability. Sideloading buys a
-model that is present and unloadable.
+That would defeat the gate and still leave us with nothing — and this is now
+demonstrated rather than argued. Comparing the old `0.32.6` install still on this
+laptop against the `0.32.8` tree, by symbol:
 
-**The upgrade is genuinely required. There is no clever way around it.**
+| component | 0.32.6 | 0.32.8 | what it is |
+|---|---|---|---|
+| `libllama.so` — `muse-glimmer` | **0** | **2** (`muse-glimmer.cpp`) | the architecture: graph construction |
+| `libllama.so` — `kv_cache_iswa` | 59 | 59 | generic hybrid-cache machinery — **already there** |
+| `libmtmd.so` — `muse-glimmer` | **0** | **1** | the vision projector path |
+| `ollama` binary — `glimmer` | **0** | **137** | the renderer and the tool/thinking parser |
+
+Three separate layers had no code for this model, and the reason it is *three* is
+instructive. The generic parts were already reusable: `kv_cache_iswa` is unchanged at
+59 occurrences, and `final_logit_softcapping` / `sliding_window_pattern` are present
+in both — Gemma already needed those. What had to be written was the
+architecture-specific glue.
+
+The third row is the one that closes the sideloading question. Those 137 symbols are
+Go code — `model/parsers/glimmer.go` implementing a stateful streaming
+`GlimmerParser` (`consumeHeader`, `consumeBody`, `parseGlimmerATEM`,
+`glimmerTrimStrayMessageTag`, `HasToolSupport`, `HasThinkingSupport`) and
+`model/renderers.glimmerCompositeValue` for the outbound prompt. **None of that lives
+in the GGUF.** It is selected by the `"renderer":"glimmer","parser":"glimmer"` fields
+in the registry config blob, and it is compiled in.
+
+So the failure modes without an upgrade are layered, and only the first is loud:
+
+1. **No `muse-glimmer.cpp`** → the graph cannot be built. The model does not load at
+   all. This alone makes sideloading pointless.
+2. **No glimmer renderer** → tools and messages are never formatted into the protocol
+   the model was trained on, so it does not know what tools exist.
+3. **No `GlimmerParser`** → even if it generated correctly, Ollama could not tell
+   thinking from answer from tool call. Muse Glimmer does not emit JSON tool calls;
+   it uses a channel/recipient protocol with header and body sections and an "ATEM
+   invoke" wrapper. Unparsed, that surfaces as raw markup in the text and **zero
+   `tool_use` blocks** — precisely the `qwen2.5-coder` failure documented in
+   `../ollamaClaudeCode_v0/LOCAL_OLLAMA_BACKEND.md`.
+
+**The upgrade is genuinely required. There is no clever way around it**, and the
+`requires` field is an honest description of that, not a policy.
 
 ---
 
