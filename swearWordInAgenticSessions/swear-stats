@@ -1,0 +1,6 @@
+#!/usr/bin/env python3
+"""Run Agentic Swear Jar directly from a source checkout."""
+
+from swearstats.cli import main
+
+raise SystemExit(main())

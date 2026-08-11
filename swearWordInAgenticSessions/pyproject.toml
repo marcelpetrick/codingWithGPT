@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=83.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swear-stats"
+version = "1.0.0"
+description = "Private, local profanity statistics for Claude Code and Codex CLI histories"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
+authors = [{ name = "Marcel Petrick" }]
+dependencies = []
+
+[project.scripts]
+swear-stats = "swearstats.cli:main"
+
+[tool.setuptools]
+packages = ["swearstats"]
+
+[tool.setuptools.package-data]
+swearstats = ["data/*.tsv"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+files = ["swearstats", "tests"]
