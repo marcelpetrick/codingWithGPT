@@ -529,6 +529,96 @@ Everything downstream is ready: `./muse-bench.sh --host 192.168.100.67` runs sta
 1–7 unattended and writes to `results/`. Expected wall-clock is dominated by the
 ~18 GB pull and the large-context gates.
 
+## 7b. Measured results, 2026-08-11 — local run
+
+Run on **this laptop**, not on `.67`: Ollama 0.32.8 installed user-local (tarball
+into `~/.local`, no sudo, no systemd unit, nothing outside `$HOME`), serving on
+`127.0.0.1:11434`. RTX A2000 8 GB, so only 13–15 of 53 layers were GPU-resident.
+
+**Every capability result below is a property of the model and transfers to `.67`.
+Every speed number is a property of this laptop and does not.**
+
+### Tool calling — the gates that decide Claude Code compatibility
+
+Run with v1's `agentic-test.sh`, unmodified.
+
+| gate | result |
+|---|---|
+| T1 single tool, simple schema | **PASS** — correct args |
+| T2 tool selection among 4 tools | **PASS** — chose `search_code` |
+| T3 multi-turn with `tool_result` | **PASS** — consumed its own tool output |
+| T4 parallel tool calls | **PASS** — 2 calls in one turn |
+| T5 complex nested schema | **PASS** — exact, 2 edits, no drift |
+
+Five for five. The new `glimmer` parser emits real `tool_use` blocks through
+`/v1/messages`, including parallel calls and nested enum/array schemas. **This is the
+result that matters most, and it is unambiguous.**
+
+### Long-context retrieval — and a harness bug that hid it
+
+The first run scored T6 **FAIL at every depth**, including 3563 tokens. That was
+wrong, and the raw responses show why:
+
+```json
+{"message":{"content":"CRIMSON-PANG"},"done_reason":"length","eval_count":64}
+```
+
+The model found the needle. v1's harness sends `num_predict: 64`, Muse Glimmer needed
+**70**, and it was cut off three characters into the passphrase — so the grep for
+`CRIMSON-PANGOLIN-4471` missed and the row was recorded as a miss. **Six tokens.**
+That is the same budget artifact `review2.md` documented for tool calls at
+`max_tokens=1200`; it was fixed there and left at 64 in the needle path.
+
+Re-run with `needle-v2.sh` (`num_predict 512`, everything else identical to v1's
+generator, against the `ctx128k` variant):
+
+| depth | result | prompt tokens actually processed | gen |
+|---|---|---|---|
+| 4k | **PASS** | 3,563 | 70 |
+| 16k | **PASS** | 13,741 | 70 |
+| 60k | **PASS** | 56,311 | 84 |
+| **120k** | **PASS** | **114,487** | 72 |
+
+**Muse Glimmer retrieves a mid-document needle at 114,487 prompt tokens.** For
+comparison, v1's `needle-retest.log` has `qwen3.6:27b-q4_K_M-ctx128k` passing 4k/16k/
+60k and **failing at 120k**. The 128K window is real, not nominal — which is exactly
+what the sliding-window architecture and the cheap KV were promising in §2.
+
+### The half-window overflow bug is still present in Ollama 0.32.8
+
+Worth recording separately, because it caused the other four false failures and it is
+a *server* bug, not a model trait. Against the `ctx32k` variant, prompts larger than
+the window reported `prompt_eval_count = 16387` — half of 32768, plus framing:
+
+| requested | num_ctx | processed | outcome |
+|---|---|---|---|
+| ~60k tokens | 32768 | **16,387** | needle discarded → FAIL |
+| ~120k tokens | 32768 | **16,387** | needle discarded → FAIL |
+| T7 tool call at long ctx | 32768 | **16,387** | 0/3, no `tool_use` |
+
+`review2.md` measured this on 0.32.5 and called it a regression. **It is unfixed in
+0.32.8.** The operational consequence is the same as the 16K cliff: overflow your
+baked `num_ctx` and you silently lose half the window *and* tool calling, with no
+error. Size the variant for the real workload; do not rely on graceful degradation.
+
+### Speed — laptop only, reported for completeness
+
+| prompt tokens | prefill | generation |
+|---|---|---|
+| 3,563 | 195.1 tok/s | 2.86 tok/s |
+| 13,741 | 119.0 tok/s | 2.45 tok/s |
+| 56,311 | 112.1 tok/s | 1.60 tok/s |
+| 114,487 | 103.0 tok/s | 0.80 tok/s |
+
+With 13 of 53 layers on an 8 GB laptop GPU and the rest streaming from system RAM and
+swap, these say nothing about `.67` beyond one useful shape: **prefill degrades
+gently across the full window** (195 → 103 tok/s from 3.5k to 114k), which is the
+sliding-window attention behaving as designed. Generation falls off because the box
+is swapping, not because of the model.
+
+**The `.67` throughput estimate of ~25–32 tok/s in §5 remains an estimate.** It cannot
+be measured without the server, and nothing here changes it.
+
 ## 8. Plan
 
 | # | step | status |
@@ -539,8 +629,13 @@ Everything downstream is ready: `./muse-bench.sh --host 192.168.100.67` runs sta
 | 4 | Decide the context window | **done** — §4, `131072`, baked into a Modelfile variant |
 | 5 | Decide the quantization | **done** — §2b, Q4_K_M; **q8_0 rejected with reasons** |
 | 6 | Build the benchmark runner | **done** — `muse-bench.sh`, drives the v1 harness |
-| 7 | Run stages 1–7 and replace every estimate with a measurement | **waiting on step 2** |
-| 8 | SWE-bench Lite through Claude Code, versus the incumbent's 8.0% | **waiting on step 7** |
+| 7 | Run the capability gates | **done locally** — §7b, 5/5 tool gates and 4/4 needles pass |
+| 8 | Measure throughput on `.67` | **waiting on step 2** — laptop numbers do not transfer |
+
+SWE-bench Lite was dropped from scope on 2026-08-11 at the user's direction: the
+question is capability and speed, and a day-scale resolve-rate run answers neither
+quickly. The 8.0% figure stays in §5 as context for reading published benchmarks, not
+as a test to repeat.
 
 **The one action that unblocks steps 2, 7 and 8**, on `192.168.100.67`:
 

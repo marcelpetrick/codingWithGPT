@@ -1,0 +1,10 @@
+=== needle-v2 on 127.0.0.1: muse-glimmer:30b-ctx128k-agentic (baked num_ctx=131072, num_predict=512) ===
+      2706 words, num_ctx 13592
+  4k     PASS      prompt_eval=3563    eval=70    done=stop     answer='CRIMSON-PANGOLIN-4471'
+      10703 words, num_ctx 29592
+  16k    PASS      prompt_eval=13741   eval=70    done=stop     answer='CRIMSON-PANGOLIN-4471'
+      40007 words, num_ctx 88192
+  60k    PASS      prompt_eval=56311   eval=84    done=stop     answer='CRIMSON-PANGOLIN-4471'
+      80003 words, num_ctx 131072
+  120k   PASS      prompt_eval=114487  eval=72    done=stop     answer='CRIMSON-PANGOLIN-4471'
+=== finished ===
