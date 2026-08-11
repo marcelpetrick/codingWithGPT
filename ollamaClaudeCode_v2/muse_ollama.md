@@ -164,15 +164,17 @@ NVIDIA box with 36.1 GB usable:
 | `30b-bf16` / `-dflash` | 57 / 59 GB | does not fit |
 | `30b-mlx*` | — | Apple Silicon only, useless here |
 
-**q8_0 is the wrong pick, and this repo already measured why.** Three independent
-reasons, none of them speculative:
+**q8_0 is the wrong pick — but for one reason, not the three I first wrote.**
 
-1. **It lands on the spill cliff.** 31 GB of weights plus KV puts the footprint at
-   32.8 GB (if Ollama honours the sliding window) or **38.0 GB (if it does not,
-   which would exceed the 36.1 GB usable)**. Which of the two applies is exactly
-   what we cannot verify until the model loads. `review2.md` measured a **12.5%
-   spill costing 5.3× throughput** — betting the deployment on an unverified KV
-   assumption with 3 GB of margin is how you buy that 5.3×.
+> **Corrected 2026-08-11, by the measurement in §3.** My first argument here was that
+> q8_0 might not fit: 31 GB plus a KV cache that could be either 1.85 GB or 6.98 GB,
+> and the 6.98 GB case would have blown past the 36.1 GB ceiling. The measurement
+> settled it in q8_0's favour — Ollama honours the sliding window, KV is 1.85 GB, and
+> **q8_0 would fit in about 33.2 GB with roughly 3 GB to spare.** The spill argument
+> is dead and I have removed it rather than quietly reworded it. The recommendation
+> does not change, because the reason that actually decides it was never the fit:
+
+1. ~~It lands on the spill cliff.~~ **Withdrawn — it fits.** See above.
 2. **It is the profile `fitting_models.md` called "the worst possible pick for this
    hardware" — dense *and* q8.** Token generation here is memory-bandwidth-bound, so
    a dense q8 streams its full text-weight footprint every token — ~29.6 GB, once
@@ -185,9 +187,11 @@ reasons, none of them speculative:
 3. **31 GB must split across two GPUs**, paying the interconnect cost `review.md`
    documents, where 18 GB does not.
 
-What you would buy for that: the Q4_K_M → Q8_0 quality delta on a 28B dense model,
-which is small — and Ollama's Q4_K_M is a k-quant, not a naive round. It is not worth
-roughly halving throughput and taking on spill risk.
+So the case rests on throughput, and it is enough on its own: **roughly half the
+tokens per second, for the Q4_K_M → Q8_0 quality delta on a 28B dense model, which is
+small** — Ollama's Q4_K_M is a k-quant, not a naive round. On a box whose whole point
+is agentic runs that generate a lot of tokens, that is a bad trade even though the
+weights fit.
 
 **Go with `muse-glimmer:30b` (Q4_K_M, 18 GB).** If quality later proves to be the
 binding constraint, the honest next step is Unsloth's `UD-Q6_K_XL` (20–22 GB, still
@@ -217,22 +221,46 @@ At the full native `num_ctx = 131072`:
 | **KV total, if Ollama honours the sliding window** | | **1.83** |
 | KV total, if Ollama allocates full-length for all 52 layers | 6,979,321,856 | **6.98** |
 
-Whether Ollama's `muse-glimmer` implementation trims the SWA layers is **not yet
-verified** — it needs the model resident to check. So bound it both ways:
+### Resolved by measurement, 2026-08-11 — Ollama honours the sliding window
 
-| | SWA-aware | naive worst case |
+This was the open question the whole budget hung on, and it is now settled. Loading
+the model at `num_ctx=32768` makes the runtime print its own allocation:
+
+```
+llama_kv_cache_iswa: creating non-SWA KV cache, size = 32768 cells
+llama_kv_cache: size = 416.00 MiB ( 32768 cells, 13 layers, 1/1 seqs), K (f16): 208.00 MiB, V (f16): 208.00 MiB
+llama_kv_cache_iswa: creating     SWA KV cache, size =  2560 cells
+llama_kv_cache: size =  97.50 MiB (  2560 cells, 39 layers, 1/1 seqs), K (f16):  48.75 MiB, V (f16):  48.75 MiB
+```
+
+Two caches, split exactly 13 / 39 as the GGUF pattern predicted. And the rate checks
+out to the byte: 416 MiB ÷ 32768 cells ÷ 13 layers = **1024 bytes per token per
+layer**, the figure derived above. The SWA cache is allocated at 2560 cells rather
+than 2048 — a batch-padded window — which is the only correction the measurement
+makes to the estimate.
+
+So the real numbers at the full `num_ctx = 131072`:
+
+| | measured basis | GB |
 |---|---|---|
-| text weights | 16.76 | 16.76 |
-| vision projector | 1.40 | 1.40 |
-| KV @ 131072 | 1.83 | 6.98 |
-| **total** | **≈ 20.0 GB** | **≈ 25.1 GB** |
-| headroom against 36.1 GB usable | 16.1 GB | 11.0 GB |
+| 13 full-attention layers × 1024 × 131072 | confirmed 1024 B/tok/layer | **1.745** |
+| 39 sliding-window layers × 1024 × 2560 | confirmed 2560-cell window | **0.102** |
+| **KV total at 131072** | | **1.85** |
+| text weights | | 16.76 |
+| compute buffers / overhead | measured 17.58 total at ctx32768 | ~0.30 |
+| **text-only total at full 128K context** | | **≈ 18.9 GB** |
+| vision projector, when an image is sent | | +1.40 |
+| **total with vision** | | **≈ 20.3 GB** |
 
-**The conclusion is the same under either assumption, which is what makes it safe to
-act on: the full 128K window fits with double-digit GB to spare.** No spill. That
-matters more than it sounds — `review2.md` measured a **12.5% VRAM spill costing
-5.3× throughput**, so staying comfortably inside the budget is worth more than any
-sampling tweak.
+Against 36.1 GB usable on `.67`, that is **16–17 GB of headroom at the full native
+context**. No spill anywhere near it — and `review2.md` measured a 12.5% spill costing
+**5.3× throughput**, so headroom is worth more than any sampling tweak.
+
+A second measured finding, free from the same load: `/api/ps` reported 17.58 GB total
+with the 0.54 GB of KV subtracted leaving ~17.04 GB, against a 16.76 GB text model.
+**The 1.4 GB vision projector is not resident for text-only requests** — it is paged
+in when an image arrives. Text-only agentic work does not pay for the vision
+capability.
 
 ---
 
