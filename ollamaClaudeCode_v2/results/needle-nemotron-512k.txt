@@ -1,0 +1,10 @@
+=== needle-v2 on 192.168.100.67: nemotron-3.5-lightning:30b-ctx512k-agentic (baked num_ctx=524288, num_predict=512) ===
+      80003 words, num_ctx 168192
+  160k   PASS      prompt_eval=161516  eval=14    done=stop     answer='CRIMSON-PANGOLIN-4471'
+      130009 words, num_ctx 268192
+  260k   PASS      prompt_eval=267439  eval=14    done=stop     answer='CRIMSON-PANGOLIN-4471'
+      200002 words, num_ctx 408192
+  400k   FAIL      prompt_eval=204098  eval=16    done=stop     answer='The deployment passphrase is: deploy-passphrase-2024.'
+      240009 words, num_ctx 488192
+  480k   FAIL      prompt_eval=244098  eval=17    done=stop     answer='The deployment passphrase is: deploy-passphrase-12345.'
+=== finished ===

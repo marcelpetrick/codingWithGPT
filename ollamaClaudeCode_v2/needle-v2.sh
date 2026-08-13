@@ -29,6 +29,10 @@ set -uo pipefail
 
 HOST="127.0.0.1"; PORT="11434"; MODEL="muse-glimmer:30b-ctx128k-agentic"
 NUM_PREDICT=512; TIMEOUT=3600
+# Default depths in WORDS of filler. The four below map to roughly 4k/16k/60k/120k
+# tokens and are what every model in this directory was measured at, so changing
+# them breaks comparability -- override only to probe a window nothing else has.
+DEPTHS="2700 10700 40000 80000"
 while [ $# -gt 0 ]; do
   case "$1" in
     --host)        HOST="$2"; shift 2 ;;
@@ -36,6 +40,7 @@ while [ $# -gt 0 ]; do
     --model)       MODEL="$2"; shift 2 ;;
     --num-predict) NUM_PREDICT="$2"; shift 2 ;;
     --timeout)     TIMEOUT="$2"; shift 2 ;;
+    --depths)      DEPTHS="$2"; shift 2 ;;
     *) echo "unknown: $1" >&2; exit 2 ;;
   esac
 done
@@ -76,7 +81,14 @@ q=("Answer only the question, using the document below.\n"
    "=== DOCUMENT START ===\n"+doc+"\n=== DOCUMENT END ===\n\n"
    "QUESTION (repeat): What is the deployment passphrase? "
    "Reply with the passphrase only, nothing else.")
-ctx=min(int(w*2.0)+8192, baked)
+# Words -> tokens. The old factor of 2.0 was calibrated on Muse Glimmer and is an
+# UNDER-estimate for models with a less efficient tokenizer: Nemotron needs ~2.06
+# tokens per word on this filler, so a 200k-word document is ~411k tokens but was
+# being given a 408k window. Overflowing num_ctx does not error -- it silently
+# halves the window (see muse_ollama.md §4) -- so the run scored FAIL and looked
+# like a retrieval limit when it was the harness mis-sizing the request.
+# 2.4 leaves headroom for any tokenizer here; the clamp to `baked` still applies.
+ctx=min(int(w*2.4)+8192, baked)
 json.dump({"model":model,"stream":False,"think":False,
            "options":{"num_predict":npred,"num_ctx":ctx,"temperature":0},
            "messages":[{"role":"user","content":q}]}, open(out,"w"))
@@ -105,8 +117,9 @@ print('  %-6s %-9s prompt_eval=%-7s eval=%-5s done=%-8s answer=%r'%(
 " | tee -a "$LOG"
 }
 
-needle 2700  4k
-needle 10700 16k
-needle 40000 60k
-needle 80000 120k
+for W in $DEPTHS; do
+  # Label the row by its approximate token count rather than its word count, so
+  # the output reads the same as every earlier run in results/.
+  needle "$W" "$(python3 -c "print('%dk'%round($W*2/1000))")"
+done
 printf '=== finished ===\n' | tee -a "$LOG"

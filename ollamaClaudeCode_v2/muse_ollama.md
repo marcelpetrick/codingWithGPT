@@ -1498,3 +1498,81 @@ curl -X POST http://192.168.100.67:11434/api/create -H 'Content-Type: applicatio
    constrained option, exactly as `fitting_models.md` predicted for dense + q8 on this
    hardware. §2b's argument is confirmed by direct measurement.
 5. **`muse-glimmer:30b-ctx128k-agentic`** — not recommended (§11.3).
+
+---
+
+## 12. The 524288 window, and the `claude-ol-nemo` alias
+
+### 12.1 Does Nemotron's 512k window actually work? Yes, to at least 267,439 tokens
+
+Effort turned out to be **minutes, not hours**: §7c's `kv-probe` sweep had already shown
+524288 loading at 100% GPU, so all that remained was to create the variant and prove the
+window is real rather than nominal.
+
+```
+nemotron-3.5-lightning:30b-ctx512k-agentic   total 32.38 GB  vram 32.38 GB  100% GPU  ctx=524288
+```
+
+Needle retrieval past the point where every other model on the box runs out of window:
+
+| depth | prompt tokens processed | result |
+|---|---|---|
+| 160k | 161,516 | **PASS** |
+| **260k** | **267,439** | **PASS** |
+| 400k | 204,098 | FAIL — *harness bug, see below* |
+| 480k | 244,098 | FAIL — *harness bug, see below* |
+
+**267,439 tokens retrieved, fully GPU-resident.** That is past 262144, so it is
+genuinely beyond what `claude-ol2`'s model can hold at all, and it is the one capability
+on this server that only Nemotron has.
+
+### 12.2 The two deep FAILs were my harness, not the model
+
+Worth recording because it is the *fourth* time the half-window bug (§4) has produced a
+result that looks like a model limit:
+
+```
+400k row:  num_ctx 408192 requested -> prompt_eval 204,098   (408192 / 2 = 204,096)
+480k row:  num_ctx 488192 requested -> prompt_eval 244,098   (488192 / 2 = 244,096)
+```
+
+Both are exactly half their requested window. `needle-v2.sh` sized `num_ctx` from a
+words→tokens factor of **2.0**, which was calibrated on Muse Glimmer. Nemotron needs
+**~2.06** tokens per word on this filler, so a 200k-word document is ~411k tokens and
+was handed a 408k window — a 1% overshoot, and the penalty for a 1% overshoot is losing
+**half** the context. The factor is now 2.4 with a comment explaining why.
+
+**One detail here is a genuine agentic hazard, independent of the harness.** On both
+truncated runs the model did not say it could not find the passphrase. It invented one:
+
+```
+"The deployment passphrase is: deploy-passphrase-2024."
+"The deployment passphrase is: deploy-passphrase-12345."
+```
+
+Confident, plausible, entirely fabricated. **Silent context truncation plus a model that
+confabulates rather than abstaining is the worst failure mode on this box** — there is
+no error, no refusal, and no signal in the output that anything went wrong. This is the
+strongest practical argument for keeping `CLAUDE_CODE_MAX_CONTEXT_TOKENS` well below the
+baked `num_ctx` (§12.3), rather than trusting a model to notice.
+
+### 12.3 The `claude-ol-nemo` alias
+
+Wired into `~/.zshrc` as a **function**, matching the existing `claude-ol2` pattern.
+Full rationale in [`shell_aliases.md`](shell_aliases.md); the four decisions in brief:
+
+| decision | measured reason |
+|---|---|
+| a function, not a plain alias | 31.21 GB cold load stalls the first prompt ~18 s; the function pre-warms with `keep_alive: 2h` and reports failure loudly |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` = the same tag | the usable ceiling is ≈35.5 GB and this model holds 31.21, so **any** second model evicts it — v1 measured a 70 s reload caused by exactly one background Haiku call |
+| `CLAUDE_CODE_MAX_CONTEXT_TOKENS=200000` | prompt + generation must stay under `num_ctx`; overflow silently halves the window and stops tool calling (§4), and §12.2 shows the model will confabulate rather than admit it |
+| never a bare tag | `/v1/messages` caps bare tags at 16,386 tokens (§4) |
+
+It points at the **262144** variant, not the 512k one. The 512k variant costs 1.17 GB
+more for a window that only matters past 262k tokens, and `CLAUDE_CODE_MAX_CONTEXT_TOKENS`
+would need raising to ~400000 to reach it — at which point a single overshoot costs
+262k tokens of silently discarded context. Switch the tag in the function only for a
+task that genuinely needs it.
+
+**Use `claude-ol2` by default.** `claude-ol-nemo` is 2.9× slower and has no vision; it
+earns its place only when the working set will not fit in 262144 tokens.
