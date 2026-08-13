@@ -26,7 +26,8 @@ public:
             return QString();
         }
 
-        QStringList lines = markdown.split('\n', Qt::SkipEmptyParts);
+        // Split into lines preserving empty lines (unlike Qt::SkipEmptyParts)
+        QStringList lines = markdown.split('\n');
         QStringList resultLines;
 
         for (const QString &line : lines) {
@@ -40,7 +41,7 @@ public:
     static QString convertLine(const QString &line) {
         QString result = line;
 
-        // Skip empty lines
+        // Skip empty lines - pass through unchanged
         if (result.trimmed().isEmpty()) {
             return result;
         }
@@ -51,30 +52,41 @@ public:
             return QString(qMax(result.size(), 40), QChar(0x2501));
         }
 
-        // 2. Headings: # ## ### #### ##### ######
+        // 2. Code fences: ``` or ~~~
+        result = convertCodeFence(result);
+
+        // 3. Headings: # ## ### #### ##### ######
         result = convertHeading(result);
 
-        // 3. Bold **text** or __text__
+        // 4. Combined bold+italic ***text*** (MUST come before individual bold/italic)
+        result = convertBoldItalic(result);
+
+        // 5. Bold **text** or __text__
         result = convertBold(result);
 
-        // 4. Italic *text* or _text_
+        // 6. Italic *text* or _text_
         result = convertItalic(result);
 
-        // 5. Strikethrough ~~text~~
+        // 7. Strikethrough ~~text~~
         result = convertStrikethrough(result);
 
-        // 6. Lists: lines starting with * or - followed by space
+        // 8. Lists: lines starting with * or - followed by space
         if ((result.startsWith('*') || result.startsWith('-')) &&
             result.size() > 1 && result.at(1).isSpace()) {
             result = convertListItem(result);
         }
 
-        // 7. Blockquotes: lines starting with >
+        // 9. Numbered lists: lines starting with digits followed by . and space
+        if (QRegularExpression("^[0-9]+\\.\\s").match(result).hasMatch()) {
+            result = convertNumberedListItem(result);
+        }
+
+        // 10. Blockquotes: lines starting with >
         if (result.startsWith('>')) {
             result = convertBlockquote(result);
         }
 
-        // 8. Inline code `text`
+        // 11. Inline code `text`
         result = convertInlineCode(result);
 
         return result;
@@ -124,6 +136,49 @@ private:
         }
 
         return line;
+    }
+
+    /// Convert code fences (``` or ~~~) to unicode-framed blocks.
+    static QString convertCodeFence(QString result) {
+        // Opening fence: ```text or ~~~
+        if (result.trimmed().startsWith("```") || result.trimmed().startsWith("~~~")) {
+            QString lang = result.trimmed().mid(3);
+            QString label = lang.isEmpty() ? "code" : lang;
+            QString topLine = QChar(0x250C) + QString(qMax(label.size() + 4, 10), QChar(0x2500)) + QChar(0x2510);
+            QString bottomLine = QChar(0x2514) + QString(qMax(label.size() + 4, 10), QChar(0x2500)) + QChar(0x2518);
+            QString middleLine = QString(QChar(0x2502)) + " " + label + " " + QChar(0x2502);
+            return topLine + "\n" + middleLine + "\n" + bottomLine;
+        }
+
+        // Closing fence: ``` or ~~~
+        if (result.trimmed() == "```" || result.trimmed() == "~~~") {
+            QString line = QString(qMax(result.size(), 10), QChar(0x2501));
+            return QString(QChar(0x250C)) + line + QChar(0x2510);
+        }
+
+        return result;
+    }
+
+    /// Convert ***bold+italic*** to unicode combined emphasis.
+    /// This MUST be processed before individual bold/italic to avoid
+    /// greedy matching of the last ** in *** leaving a stray *.
+    static QString convertBoldItalic(QString result) {
+        int pos = 0;
+        while ((pos = result.indexOf("***", pos)) != -1) {
+            int endPos = result.indexOf("***", pos + 3);
+            if (endPos != -1) {
+                QString inner = result.mid(pos + 3, endPos - pos - 3);
+                // Replace ***text*** with combined unicode emphasis
+                QString emphasized = QString(QChar(0x25C8)) + QString(QChar(0x2039))
+                                     + inner
+                                     + QString(QChar(0x00BB)) + QString(QChar(0x25C9));
+                result.replace(pos, endPos - pos + 3, emphasized);
+                pos += emphasized.size();
+            } else {
+                break;
+            }
+        }
+        return result;
     }
 
     /// Convert **bold** or __double underscore__ to unicode bracketed emphasis.
@@ -221,7 +276,6 @@ private:
     }
 
     /// Convert ~~strikethrough~~ to unicode strikethrough markers.
-    /// Uses ̶ (U+0336 combining macron below) for visual strikethrough effect.
     static QString convertStrikethrough(QString result) {
         int pos = 0;
         while ((pos = result.indexOf("~~", pos)) != -1) {
@@ -229,7 +283,7 @@ private:
             if (endPos != -1) {
                 QString inner = result.mid(pos + 2, endPos - pos - 2);
                 // Replace ~~text~~ with unicode strikethrough markers
-                QString emphasized = QString(QChar(0x23CD)) + inner + QString(QChar(0x23CE)); // ⏍text⏎
+                QString emphasized = QString(QChar(0x23CD)) + inner + QString(QChar(0x23CE));
                 result.replace(pos, endPos - pos + 2, emphasized);
                 pos += emphasized.size();
             } else {
@@ -251,6 +305,32 @@ private:
         }
 
         return QString(QChar(0x2022)) + " " + line; // • bullet character
+    }
+
+    /// Convert numbered list items (1. 2. 3.) to unicode numbered format.
+    static QString convertNumberedListItem(QString line) {
+        QRegularExpression re("^([0-9]+)\\.\\s+(.*)");
+        QRegularExpressionMatch match = re.match(line);
+        if (match.hasMatch()) {
+            QString num = match.captured(1);
+            QString text = match.captured(2);
+            // Use unicode subscript numbers for 1-9, regular for 10+
+            static const QChar subscriptNums[] = {
+                QChar(0x2080), QChar(0x2081), QChar(0x2082), QChar(0x2083),
+                QChar(0x2084), QChar(0x2085), QChar(0x2086), QChar(0x2087),
+                QChar(0x2088), QChar(0x2089)
+            };
+            QString numStr;
+            for (QChar c : num) {
+                if (c.isDigit()) {
+                    numStr += subscriptNums[c.digitValue()];
+                } else {
+                    numStr += c;
+                }
+            }
+            return numStr + QString(QChar(0x2022)) + " " + text; // e.g. ₁• First step
+        }
+        return line;
     }
 
     /// Convert blockquotes (> prefix) to unicode-indented text.
@@ -308,11 +388,14 @@ public:
 private:
     /// Set up the user interface with splitter panes and log panel.
     void setupUI() {
-        // Central widget with horizontal splitter for input/output panes
-        QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
+        // Outer vertical splitter: top = input/output panes, bottom = log panel
+        QSplitter *outerSplitter = new QSplitter(Qt::Vertical, this);
+
+        // Inner horizontal splitter for input/output panes
+        QSplitter *innerSplitter = new QSplitter(Qt::Horizontal, outerSplitter);
 
         // Left pane - Markdown input
-        inputText = new QTextEdit(this);
+        inputText = new QTextEdit(innerSplitter);
         inputText->setPlaceholderText("Enter markdown here...\n"
                                       "Supported syntax:\n"
                                       "  # Heading levels\n"
@@ -337,7 +420,7 @@ private:
         );
 
         // Right pane - Unicode output display
-        outputText = new QTextEdit(this);
+        outputText = new QTextEdit(innerSplitter);
         outputText->setReadOnly(true);
         outputText->setPlaceholderText("Converted unicode output will appear here...");
         outputText->setFont(QFont("Consolas", 11));
@@ -352,13 +435,12 @@ private:
         );
 
         // Log panel at bottom of window
-        logLabel = new QLabel(this);
+        logLabel = new QLabel(outerSplitter);
         logLabel->setMinimumHeight(32);
         logLabel->setStyleSheet(
             "QLabel {"
             "  background-color: #2d2d2d;"
             "  color: #d4d4d4;"
-            "  border-top: 2px solid #404040;"
             "  font-size: 11pt;"
             "  font-family: Consolas, monospace;"
             "  padding: 6px 10px;"
@@ -369,16 +451,16 @@ private:
         // Connect input text changed signal to conversion slot
         connect(inputText, &QTextEdit::textChanged, this, &MarkdownViewerWindow::onInputChanged);
 
-        // Add panes to splitter
-        splitter->addWidget(inputText);
-        splitter->addWidget(outputText);
-
         // Set splitter proportions: input 40%, output 60%
-        splitter->setStretchFactor(0, 2);
-        splitter->setStretchFactor(1, 3);
+        innerSplitter->setStretchFactor(0, 2);
+        innerSplitter->setStretchFactor(1, 3);
 
-        // Style the splitter handle
-        splitter->setStyleSheet(
+        // Set splitter proportions: top 85%, log 15%
+        outerSplitter->setStretchFactor(0, 17);
+        outerSplitter->setStretchFactor(1, 3);
+
+        // Style the splitter handles
+        innerSplitter->setStyleSheet(
             "QSplitter::handle {"
             "  background-color: #cccccc;"
             "  border: 1px solid #999999;"
@@ -388,8 +470,18 @@ private:
             "}"
         );
 
-        // Set central widget to the splitter
-        setCentralWidget(splitter);
+        outerSplitter->setStyleSheet(
+            "QSplitter::handle {"
+            "  background-color: #cccccc;"
+            "  border: 1px solid #999999;"
+            "}"
+            "QSplitter::handle:vertical {"
+            "  height: 4px;"
+            "}"
+        );
+
+        // Set central widget to the outer splitter
+        setCentralWidget(outerSplitter);
     }
 
     /// Slot: called whenever input text changes, converts and displays output.
