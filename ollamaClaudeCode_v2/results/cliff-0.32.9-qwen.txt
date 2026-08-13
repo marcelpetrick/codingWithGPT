@@ -1,0 +1,25 @@
+### qwen3.6:27b-q4_K_M ###
+   200 lines (~ 4k tok sent):
+   input_tokens=4090     stop=tool_use     tool_use=YES
+   800 lines (~16k tok sent):
+   input_tokens=16090    stop=tool_use     tool_use=YES
+  1600 lines (~32k tok sent):
+   input_tokens=16386    stop=end_turn     tool_use=NO
+  2500 lines (~50k tok sent):
+   input_tokens=16386    stop=end_turn     tool_use=NO
+### qwen3.6:27b-q4_K_M-ctx128k ###
+   200 lines (~ 4k tok sent):
+   input_tokens=4090     stop=tool_use     tool_use=YES
+   800 lines (~16k tok sent):
+   input_tokens=16090    stop=tool_use     tool_use=YES
+  1600 lines (~32k tok sent):
+   input_tokens=33290    stop=tool_use     tool_use=YES
+  2500 lines (~50k tok sent):
+   input_tokens=53090    stop=tool_use     tool_use=YES
+
+### overflow disambiguation, ollama 0.32.9 on .67 ###
+qwen3.6:27b-q8_0-ctx60k, ~120k tokens sent via /v1/messages:
+  input_tokens=30002  stop=end_turn  tool_use=NO
+Half of the 60k window. Confirms the half-window discard is real and is a
+SEPARATE failure from the 16384 default cap; at num_ctx=32768 both produce
+~16386 and cannot be told apart.

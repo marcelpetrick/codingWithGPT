@@ -1,0 +1,7 @@
+image: ../ollamaClaudeCode_v0/failingOutput.png (143 KB base64)
+wall: 38.3s
+prompt_eval=1177 eval=300  gen=28.9 tok/s
+---
+The image is a screenshot of a Linux terminal emulator window – **Konsole** – whose title bar reads
+
+`ollamaClaudeCodeTest : cl

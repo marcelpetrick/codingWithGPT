@@ -1,31 +1,68 @@
-# Muse Glimmer on the 40 GB server (`192.168.100.67`)
+# Muse Glimmer and Nemotron 3.5 Lightning on the 40 GB server (`192.168.100.67`)
 
-Written 2026-08-11. Continues the work in `../ollamaClaudeCode_v1/` (measurement
-harness, `review2.md`, `fitting_models.md`) and `../ollamaClaudeCode_v0/`
-(`OLLAMA_PULL.md`, `LOCAL_OLLAMA_BACKEND.md`).
+Written 2026-08-11, **substantially revised 2026-08-13** after `.67` was upgraded.
+Continues the work in `../ollamaClaudeCode_v1/` (measurement harness, `review2.md`,
+`fitting_models.md`) and `../ollamaClaudeCode_v0/` (`OLLAMA_PULL.md`,
+`LOCAL_OLLAMA_BACKEND.md`).
 
-> **Status: the install is blocked, and not by anything on our side.**
-> `muse-glimmer` declares `"requires": "0.32.8"` in its registry config.
-> `.67` runs Ollama **0.32.5**. The pull is refused by the registry with HTTP 412
-> before a single byte of weights is transferred. Everything downstream of the
-> upgrade is prepared below and is copy-paste runnable the moment `.67` is on
-> 0.32.8.
+> **Status 2026-08-13: unblocked and installed.** `.67` now runs Ollama **0.32.9**,
+> which satisfies `muse-glimmer`'s `requires: 0.32.8`. Both models were pulled onto
+> the server and benchmarked there. §7b's laptop numbers are superseded by §7c, which
+> is measured on the real hardware; the laptop install has been deleted.
+
+### Revision note — what changed on 2026-08-13, and what did not
+
+The server moved under this document, so every claim about it was re-checked against
+the wire rather than carried forward. Recording both outcomes, because "still true"
+is as much a result as "was wrong":
+
+| claim | status on 0.32.9 |
+|---|---|
+| `.67` runs Ollama 0.32.5 | **wrong now** — 0.32.9. The 412 gate is gone |
+| the install is blocked | **wrong now** — both models pulled fine |
+| incumbent qwen3.6 MoE does 131.5 tok/s | **still true** — re-measured 131.4 tok/s |
+| bare tags cap at ~16K and lose `tool_use` | **still true** — re-measured, see §4 |
+| overflowing a baked window discards half of it | **still true, and now proven properly** — see §4 |
+| `.67` = 40.4 GB | **unverified, and unverifiable over HTTP** — see §1 |
+| Muse Glimmer throughput ≈ 25–32 tok/s (estimate) | **superseded by measurement** — §7c |
+
+One earlier claim also turned out to be under-evidenced rather than wrong, and is
+corrected in §4: the "half window" finding had been measured only at `num_ctx=32768`,
+where a half-window discard and a fallback to the 16384 default are the *same number*.
+It has now been re-run at a 60k window, which separates them.
 
 ---
 
-## 1. What was done, and where it stopped
+## 1. What was done
 
 Host discovery first, using the project in `~/repos/ollamaFarm/`. Its default host
 list is `192.168.100.37 192.168.100.67`; a full `/24` sweep of `/api/version`
 confirms that list is still complete — `.13` and `.99`, which appear in the
 ollamaFarm README, are not currently on the network.
 
-| host | Ollama | VRAM | note |
+| host | Ollama (2026-08-13) | VRAM | note |
 |---|---|---|---|
-| `192.168.100.37` | 0.30.6 | 12.3 GB | too small for a 28B anyway |
-| **`192.168.100.67`** | **0.32.5** | **40.4 GB total / 36.1 GB measured usable** | the target |
+| `192.168.100.37` | 0.30.6 | 12.3 GB | too small for a 28B, **and too old for either model** |
+| **`192.168.100.67`** | **0.32.9** | **40.4 GB (stated, not measured — see below)** | the target |
+| `192.168.100.13`, `.99` | offline | — | in the ollamaFarm README, not on the network |
 
-The pull, against `.67`:
+`.37` was not upgraded and is a non-target twice over: 0.30.6 is below Muse Glimmer's
+`requires: 0.32.8`, and 12.3 GB will not hold either model regardless.
+
+**On the 40.4 GB figure — it is stated, not measured, and cannot be measured from
+here.** It comes from ollamaFarm's hardcoded `VRAM_TOTAL` table
+(`declare -A VRAM_TOTAL=( [192.168.100.37]=12.3 [192.168.100.67]=40.4 )`), whose own
+`docs/vram-discovery.md` is explicit that **the Ollama HTTP API exposes no total-VRAM,
+free-VRAM or GPU-count field anywhere** — `/api/ps` gives per-model `size` and
+`size_vram` and nothing else. So 40.4 GB is a number a human stands behind, not one
+this document verified. What *was* verified is the only thing that actually matters
+operationally: everything loaded during this evaluation reported **100% GPU
+residency** with no split (§7c), and a 24 GB model plus a 19 GB model both sat there
+without spilling.
+
+### Why the pull used to fail, and why it now does not
+
+The refusal was never about access. Until 2026-08-12 the request came back as:
 
 ```console
 $ curl -s -X POST http://192.168.100.67:11434/api/pull -d '{"model":"muse-glimmer:30b"}'
@@ -34,7 +71,7 @@ $ curl -s -X POST http://192.168.100.67:11434/api/pull -d '{"model":"muse-glimme
 a newer version of Ollama.\n\nPlease download the latest version at:\n\n\thttps://ollama.com/download\n"}
 ```
 
-This is not a guess about which version is needed. The registry config blob says so
+This was not a guess about which version was needed. The registry config blob says so
 outright:
 
 ```console
@@ -48,17 +85,15 @@ And it matches the upstream release history:
 
 | release | date | relevance |
 |---|---|---|
-| v0.32.5 | 2026-07-27 | **what `.67` runs** |
+| v0.32.5 | 2026-07-27 | what `.67` ran until 2026-08-12 |
 | v0.32.7 | 2026-08-10 | Muse Glimmer, **Apple Silicon / MLX only** |
 | **v0.32.8** | **2026-08-10** | *"Add Muse Glimmer support for NVIDIA, AMD, and additional platforms"* |
+| **v0.32.9** | — | **what `.67` runs now** — satisfies the gate |
 
-`.67` is an NVIDIA box, so 0.32.7 would not have been enough either. **0.32.8 is the
-floor.**
-
-I cannot perform the upgrade myself: `ssh 192.168.100.67` returns
-`Permission denied (publickey,password)`, and `ollamaFarm`'s `AGENTS.md` records
-`.67` as a shared machine whose host-level access "never arrived". The upgrade is a
-one-line action for whoever administers the box (§6).
+`.67` is an NVIDIA box, so 0.32.7 would not have been enough either; 0.32.8 was the
+floor and 0.32.9 clears it. The upgrade was performed by the box's administrator, not
+by me — `ssh 192.168.100.67` still returns `Permission denied (publickey,password)`,
+and every operation in this document is done over HTTP.
 
 ### 1b. "But putting models on that server always worked before" — it did, and it still does
 
@@ -78,20 +113,25 @@ from this machine. That path is untouched and still open.
 per-model, and until now no model we wanted had ever asked for more than `.67`
 provides:
 
-| model | `requires` | satisfied by `.67`'s 0.32.5? |
-|---|---|---|
-| `qwen3.6:35b-a3b-q4_K_M` | *(none)* | yes |
-| `qwen3.6:27b-q8_0` | *(none)* | yes |
-| `qwen3.5:9b` | `0.17.1` | yes |
-| **`muse-glimmer:30b`** | **`0.32.8`** | **no** |
+| model | `requires` | old 0.32.5 | current 0.32.9 |
+|---|---|---|---|
+| `qwen3.6:35b-a3b-q4_K_M` | *(none)* | yes | yes |
+| `qwen3.6:27b-q8_0` | *(none)* | yes | yes |
+| `qwen3.5:9b` | `0.17.1` | yes | yes |
+| **`muse-glimmer:30b`** | **`0.32.8`** | **no** | **yes** |
+| **`nemotron-3.5-lightning:30b`** | *(none declared)* | — | yes |
 
-So this is not a permissions problem, a network problem, or a procedure we have
-forgotten. It is a model released *the day before yesterday* that demands a runtime
-released *yesterday*, on a server last updated on 2026-07-27.
+So it was never a permissions problem, a network problem, or a procedure we had
+forgotten. It was a model released *the day before yesterday* demanding a runtime
+released *yesterday*, on a server last updated 2026-07-27. One `apt`-scale action on
+the host cleared it, and the `/api/pull` + `/api/create` path described above worked
+unchanged the moment it did.
 
-### 1c. Why sideloading around the gate does not help
+### 1c. Why the gate was real, and why sideloading around it would not have helped
 
-Worth stating, because it looks like an obvious escape hatch and it is a dead end.
+Kept after the upgrade, because it answers the question *"why does the server need a
+newer Ollama at all?"* — and because it is the evidence that waiting for the upgrade
+was the right call rather than an admission of defeat.
 
 The registry gate is only a version handshake, and it is trivially bypassable: the
 manifest, the config blob, the params blob and the GGUF header were all fetched from
@@ -236,6 +276,74 @@ one variable here with real upside. Add it to the §6 step-5 benchmark.
 
 ---
 
+## 2c. The second candidate: Nemotron 3.5 Lightning
+
+Added to scope on 2026-08-13. Same method as §2 — everything below is read out of the
+registry manifest, the config blob and the GGUF metadata header, not the model card.
+
+```console
+$ curl -sL https://registry.ollama.ai/v2/library/nemotron-3.5-lightning/blobs/sha256:7101a4a1d9e3…
+{"model_format":"gguf","model_family":"nemotron_h_moe","model_families":["nemotron_h_moe"],
+ "model_type":"32.9B","file_type":"Q4_K_M","renderer":"nemotron-3.5-nano",
+ "parser":"nemotron-3.5-nano","requires":"0.32.9","architecture":"amd64","os":"linux"}
+```
+
+Two things to flag immediately, because both contradict the library web page:
+
+- **It declares `requires: 0.32.9`.** The Ollama library page lists no minimum
+  version. `.67` clears this by exactly one patch release — had the administrator
+  stopped at 0.32.8, Muse Glimmer would have installed and this one would not. It also
+  ships its own `nemotron-3.5-nano` renderer and parser, so §1c's argument applies
+  verbatim: that code is compiled into the binary, not carried in the GGUF.
+- **The GGUF says 32.9B and `128x2.5B`, not "30B".** There is no vision projector
+  layer in the manifest — `model`, `template`, `license`, `params` and nothing else —
+  confirming it is **text-only**.
+
+| property | value | source |
+|---|---|---|
+| architecture | **`nemotron_h_moe` — hybrid Mamba-2 SSM + attention MoE** | GGUF `general.architecture` |
+| parameters | 32.9B total, **128 experts, 6 active + 1 shared** | config / `expert_count`, `expert_used_count` |
+| weights on disk | **25.431 GB** (Q4_K_M) | manifest |
+| layers | **53** | `block_count` |
+| **attention layers** | **7 of 53** — indices 5, 12, 19, 26, 33, 42, 52 | `head_count_kv` array |
+| SSM layers | **46 of 53** (`conv_kernel 4`, `state_size 128`, `group_count 8`, `inner_size 4096`) | `ssm.*` |
+| native context | **1048576 (1M)** | `context_length` |
+| embedding dim | **2688** (small — it is a wide-MoE, narrow-residual design) | `embedding_length` |
+| attention heads | 32 query / 2 KV | `head_count` / `head_count_kv` |
+| expert FFN / shared FFN | 1856 / 3712, `expert_weights_scale 2.5`, norm on | `expert_*` |
+| speculative decoding | **`nextn_predict_layers 1`** — MTP head built in | GGUF |
+| RoPE base | 10000 (vs Muse's 500000) | `rope.freq_base` |
+| capabilities | tools, thinking. **No vision** | manifest / model card |
+
+**The layer map is the whole story.** Rendering `head_count_kv` per block, `A` for an
+attention layer and `~` for an SSM/MoE one:
+
+```
+~~~~~A~~~~~~A~~~~~~A~~~~~~A~~~~~~A~~~~~~~~A~~~~~~~~~A
+```
+
+A Mamba-2 layer carries a fixed-size recurrent state; its cost does not grow with
+sequence length. Only the 7 attention layers keep a KV cache. At the same
+1024 B/token/layer this document derived in §3:
+
+| num_ctx | KV cache (7 attention layers) | + 25.43 GB weights |
+|---|---|---|
+| 131072 | **0.94 GB** | ≈ 26.4 GB |
+| 262144 | **1.88 GB** | ≈ 27.3 GB |
+| 1048576 | **7.52 GB** | ≈ 32.9 GB |
+
+So on paper the **full 1M window fits on a 40 GB box**, which nothing else on this
+farm can claim. Muse Glimmer gets its cheap KV from sliding windows (39 of 52 layers
+capped at 2048); Nemotron gets it by not having attention in 46 of 53 layers at all.
+Different mechanism, same consequence, and Nemotron's scales further.
+
+**MoE with 6 of 128 experts active is the profile `fitting_models.md` said this
+hardware wants** — the opposite of Muse Glimmer's dense 16.76 GB per token. That is
+the reason to expect it to be the faster of the two despite being the larger download,
+and §7c measures whether it is.
+
+---
+
 ## 3. VRAM budget on `.67`
 
 Per token, per full-attention layer, at f16:
@@ -294,6 +402,14 @@ with the 0.54 GB of KV subtracted leaving ~17.04 GB, against a 16.76 GB text mod
 in when an image arrives. Text-only agentic work does not pay for the vision
 capability.
 
+> **Corrected 2026-08-13 on `.67`.** Both halves of the paragraph above need adjusting,
+> and in the useful direction. Measured on the server at the full `num_ctx=131072`, the
+> model reports **19.45 GB** — and it still reports **19.45 GB after a real image
+> request**, unchanged. So the "+1.40 GB with vision" row in the table above never
+> materialises: **vision is free**, not paged in on top. The right budget line for
+> Muse Glimmer at its full native window, text or image, is **19.45 GB**, leaving
+> ~17 GB spare. See §7c.
+
 ---
 
 ## 4. Best context window: `131072`, and it must be baked in
@@ -302,14 +418,46 @@ capability.
 saved GB, and nothing above it to reach for.**
 
 The non-obvious half is that setting it at request time does not work for our use
-case, and failing to bake it in fails *silently*. From `../ollamaClaudeCode_v1/ctx-cliff.sh`,
-measured on this same server:
+case, and failing to bake it in fails *silently*.
 
-> A model whose Modelfile leaves `num_ctx` unset inherits the server default, and the
-> Anthropic-compatible `/v1/messages` endpoint has no `num_ctx` knob. The cap is
-> **16384 tokens**. Past it the tail of the prompt — which is where the instruction
-> lives — is cut off, and the model **stops emitting `tool_use` blocks entirely. No
-> error is returned.**
+### Re-measured on 0.32.9, 2026-08-13 — both traps survive the upgrade
+
+There are **two** distinct silent-truncation failures, not one. They were conflated
+in the earlier draft because at `num_ctx = 32768` they produce the same number.
+`./cliff-probe.sh --host 192.168.100.67 --port 11434`, run against models already on
+the box so the result is about the *server*, not about Muse Glimmer:
+
+| model | prompt | processed | `tool_use` |
+|---|---|---|---|
+| `qwen3.6:27b-q4_K_M` *(bare tag)* | ~4k | 4,090 | YES |
+| `qwen3.6:27b-q4_K_M` *(bare tag)* | ~16k | 16,090 | YES |
+| `qwen3.6:27b-q4_K_M` *(bare tag)* | ~32k | **16,386** | **NO** |
+| `qwen3.6:27b-q4_K_M` *(bare tag)* | ~50k | **16,386** | **NO** |
+| `qwen3.6:27b-q4_K_M-ctx128k` | ~32k | 33,290 | YES |
+| `qwen3.6:27b-q4_K_M-ctx128k` | ~50k | 53,090 | YES |
+
+**Trap 1 — the bare tag inherits a 16384 default.** `/v1/messages` has no `num_ctx`
+knob, so a model whose Modelfile leaves it unset is capped at 16,386 processed tokens
+no matter how much you send. The tail of the prompt — where the instruction lives — is
+discarded, and `tool_use` stops entirely. **No error is returned.** Unchanged from
+0.32.5; the upgrade did not fix it.
+
+**Trap 2 — overflowing a baked window costs you half of it.** This one had been
+asserted on weaker evidence than it deserved. The earlier measurement used a 32768
+variant and saw 16,387 processed — but "half of 32768" and "fell back to the 16384
+default" are the same number, so that run could not tell the two apart. Re-run at a
+window where they differ, using the 60k variant already on the box:
+
+```
+qwen3.6:27b-q8_0-ctx60k, ~120k tokens sent via /v1/messages:
+  input_tokens = 30002   stop = end_turn   tool_use = NO
+```
+
+**30,002 — half the window, not 16,386.** The half-window discard is real, it is
+separate from trap 1, and it is still present in 0.32.9. The operational consequence
+is the same in both cases and worth stating plainly: **overflow your window and you
+silently lose both context and tool calling.** Size the variant for the real workload;
+do not rely on graceful degradation, because there is none.
 
 A model advertising 128K, that fits 131072 in VRAM comfortably, still hands Claude
 Code a silent 16K window unless `num_ctx` is baked into a Modelfile variant. This is
@@ -338,22 +486,55 @@ Keep `top_k 64` / `top_p 0.95` as shipped; at `temperature 0` they are inert.
 
 ---
 
-## 5. Is it worth using for tool calls, agentic runs, and software development?
+## 5. Verdict: are these worth using as a Claude Code driver?
 
-Honest answer, given the incumbent: **yes, but as a second model for a specific job —
-not as a replacement for the throughput champion.**
+**Everything in this section is now measured on `.67`.** The three-way summary, all
+from §7c, with the server idle before every run:
 
-The incumbent on `.67` is `qwen3.6:35b-a3b-q4_K_M-agentic`, **measured 131.5 tok/s**,
-full 262144 context resident at 33.08 GB, all ten agentic gates passing.
+| | `qwen3.6:35b-a3b-q4_K_M-agentic` *(incumbent)* | `muse-glimmer:30b` | `nemotron-3.5-lightning:30b` |
+|---|---|---|---|
+| **generation** | **131.4 tok/s** | 27.9–28.9 tok/s | **44.9–48.5 tok/s** |
+| **prefill** (~35k prompt) | **3,988 tok/s** | 1,962 tok/s | 3,050 tok/s |
+| resident / window | 33.08 GB @ 262144 | **19.45 GB @ 131072** | 31.21 GB @ 262144 |
+| GPU residency | 100% | 100% | 100% |
+| tool gates T1–T5 | pass | **5/5** | **5/5** |
+| needle, deepest pass | **fails at 120k** | **114,487 tok** | **161,516 tok** |
+| max window at 100% GPU | 262144 | 131072 (native) | **524288** |
+| vision | no | **yes** | no |
+| thinking dial | no | `low`/`medium`/`high` | yes |
 
-Muse Glimmer's throughput has **not been measured** — the model will not load. But its
-profile is bounded well enough to plan with. Extrapolating from the two dense
-reference points measured on this exact box (`qwen3.6:27b-q8_0`, 29.97 GB → 18.1 tok/s
-⇒ ~542 GB/s effective; `llama3.1:8b`, ~4.9 GB → 86.9 tok/s ⇒ ~426 GB/s), a dense
-16.76 GB streamed per token lands at:
+**The headline: the incumbent is still 3–4.5× faster than either newcomer, and neither
+displaces it for bulk work.** But both beat it on the thing that actually breaks long
+agentic sessions — deep-context retrieval — and one of them can read a screenshot.
 
-> **~25–32 tok/s — an estimate, not a measurement. Roughly 4–5× slower than the
-> qwen3.6 MoE currently deployed.**
+Between the two new models, **Nemotron is the better general pick**: 1.6× Muse's
+generation rate, 1.55× its prefill, a deeper working window, and the same perfect tool
+score. Muse Glimmer earns its place only where vision matters.
+
+Two caveats that the raw table hides:
+
+- **Nemotron's tokenizer is less efficient on code-like text.** The identical needle
+  document measured 3,563 tokens for Muse and **4,916 for Nemotron — 38% more**. Its
+  context advantage in *characters* is therefore meaningfully smaller than its
+  advantage in tokens, and its effective speed lead shrinks on token-dense input.
+- **Muse's dense architecture is the reason it is slow**, and that will not improve.
+  §2 predicted this and §7c confirms it: 16.76 GB streamed per generated token against
+  Nemotron's ~6 active experts.
+
+The rest of this section — the pre-measurement estimate and the published-benchmark
+table — is kept for the record.
+
+### The original estimate, and how it held up
+
+Before the server was upgraded, throughput was extrapolated from two dense reference
+points on this box (`qwen3.6:27b-q8_0`, 29.97 GB → 18.1 tok/s; `llama3.1:8b`, ~4.9 GB
+→ 86.9 tok/s) to:
+
+> **~25–32 tok/s — an estimate, not a measurement.**
+
+**Measured: 27.9–28.9 tok/s.** The bandwidth derivation was sound, and it is recorded
+here as a check on the method rather than to claim credit — the same method predicted
+q8_0 would spill, and §2b shows that one was wrong.
 
 That is the cost. Against it:
 
@@ -412,106 +593,124 @@ most recent commit in this repo: *"fix: prompt showed test files, never the sour
 files to edit."*
 
 **So read the 76.0 above as evidence Muse Glimmer belongs in the running, not as a
-prediction of what it will resolve here.** The only number that will answer the
-user's actual question is a SWE-bench Lite run through the same harness — which is
-step 8 of §6, and which cannot start until the server is upgraded.
+prediction of what it will resolve here.** A SWE-bench Lite run through this harness is
+the only thing that would settle it, and it was dropped from scope (§8) — so this table
+stays what it always was: third-party context, not a result.
 
-**Recommended split, once measured:** keep `qwen3.6:35b-a3b-q4_K_M-agentic` as the
-default driver for bulk agentic coding — 131.5 tok/s is not a number you give up
-lightly on a long SWE-bench-style run. Reach for `muse-glimmer:30b-ctx128k-agentic`
-for the two things it can do that the MoE cannot: **anything with an image in the
-loop**, and **hard multi-step tasks where `xhigh` reasoning and failure recovery beat
-raw token rate**.
+**Recommended split, now measured:** keep `qwen3.6:35b-a3b-q4_K_M-agentic` as the
+default driver for bulk agentic coding — **131.4 tok/s** is not a number you give up
+lightly on a long run. Reach for **`nemotron-3.5-lightning:30b-ctx256k-agentic`** when
+the working set is large: it retrieves at **161k tokens** where the incumbent fails at
+120k, and at 44.9 tok/s it costs less than Muse for the privilege. Reach for
+**`muse-glimmer:30b-ctx128k-agentic`** for the one thing neither of the others can do
+at all: **anything with an image in the loop**.
 
-Both fit on `.67` simultaneously in principle (20–25 GB + 33 GB > 36.1 GB — they do
-*not*, in fact, co-reside). Expect an eviction and a reload penalty when switching;
-`ollamaFarm` will show it.
+The `xhigh` reasoning level that earlier drafts leaned on as a Muse selling point is
+**not available** — Ollama 0.32.9 rejects it (§7c). Three levels, not four.
+
+**None of the three co-reside**: 19.45 + 31.21 + 33.08 GB against ~40 GB. Switching
+models costs an eviction and an ~18 s reload, measured. `ollamaFarm` will show it.
 
 ---
 
-## 6. Install procedure — ready to run after the upgrade
+## 6. Install procedure — as actually performed on 2026-08-13
 
-### Step 0 — upgrade `.67` to ≥ 0.32.8 *(requires host access; blocked for me)*
+### Step 0 — upgrade `.67` to ≥ 0.32.8 *(done by the box's administrator)*
 
 ```shell
 # on 192.168.100.67
 curl -fsSL https://ollama.com/install.sh | sh
 sudo systemctl restart ollama
-ollama --version          # must report 0.32.8 or newer
+ollama --version          # reports 0.32.9
 ```
+
+Note the version actually landed on: **0.32.9, not 0.32.8**. That turned out to
+matter — `nemotron-3.5-lightning` declares `requires: 0.32.9` (§2c), so 0.32.8 would
+have installed Muse Glimmer and refused Nemotron.
 
 ### Step 1 — pull, from anywhere on the LAN
 
+No SSH involved; the *server* does the downloading.
+
 ```shell
 export OLLAMA_HOST=http://192.168.100.67:11434
-ollama list                       # sanity: must show the server's models, not local
-ollama pull muse-glimmer:30b      # ~18.2 GB, downloaded by the server
+ollama list                              # sanity: the server's models, not local
+ollama pull muse-glimmer:30b             # 16.76 GB text + 1.40 GB vision projector
+ollama pull nemotron-3.5-lightning:30b   # 25.43 GB
 ```
 
-Do **not** pull `muse-glimmer:30b-mlx` — that is the Apple Silicon build and is
-useless on an NVIDIA host.
-
-### Step 2 — create the deployable variant
+Or equivalently, which is what was used here so progress could be logged:
 
 ```shell
-cat > /tmp/Modelfile-muse-agentic <<'EOF'
-FROM muse-glimmer:30b
-PARAMETER num_ctx 131072
-PARAMETER temperature 0
-PARAMETER presence_penalty 0
-EOF
-ollama create muse-glimmer:30b-ctx128k-agentic -f /tmp/Modelfile-muse-agentic
+curl -X POST http://192.168.100.67:11434/api/pull \
+  -H 'Content-Type: application/json' -d '{"model":"muse-glimmer:30b","stream":true}'
 ```
 
-### Steps 1–3, automated: `./muse-bench.sh`
+Do **not** pull the `-mlx` tags of either model — those are Apple Silicon builds and
+are useless on an NVIDIA host.
 
-Steps 1 and 2 above, plus the whole verification sequence below, are wired into
-**`muse-bench.sh`** in this directory. It is deliberately thin — the seven agentic
-gates, the context-cliff probe and the throughput harness were written and validated
-in `../ollamaClaudeCode_v1`, take `--host` and a model as arguments, and are driven
-as-is rather than reimplemented. It adds only what v1 could not test, because nothing
-on the farm could do it: **vision** and the **reasoning-effort dial**.
+### Step 2 — create the deployable variants
+
+The bare tag is never the deployable artifact, for the reason measured in §4.
 
 ```shell
-./muse-bench.sh --host 192.168.100.67          # everything
-./muse-bench.sh --host 192.168.100.67 --stage cliff   # one stage
+curl -X POST http://192.168.100.67:11434/api/create -H 'Content-Type: application/json' \
+  -d '{"model":"muse-glimmer:30b-ctx128k-agentic","from":"muse-glimmer:30b",
+       "parameters":{"num_ctx":131072,"temperature":0,"presence_penalty":0},"stream":false}'
+
+curl -X POST http://192.168.100.67:11434/api/create -H 'Content-Type: application/json' \
+  -d '{"model":"nemotron-3.5-lightning:30b-ctx256k-agentic","from":"nemotron-3.5-lightning:30b",
+       "parameters":{"num_ctx":262144,"temperature":0,"presence_penalty":0},"stream":false}'
 ```
 
-It refuses to run against an Ollama below 0.32.8 and prints the upgrade command,
-because the interesting failure mode is not a crash: on 0.32.5 nothing gets
-installed, so every stage would "run" against an absent model and emit a wall of
-FAILs that read like model defects.
+### Step 3 — the benchmark battery: `./head2head.sh`
 
-### Step 3 — verify before trusting it
+This is what actually produced §7c, and it replaced `muse-bench.sh` as the entry point
+once there were **two** models to compare rather than one to characterise.
 
-Run in this order; each step catches a failure the next one would misattribute.
-Stages 1–7 are what `muse-bench.sh` executes.
+```shell
+./head2head.sh --host 192.168.100.67 \
+    muse-glimmer:30b-ctx128k-agentic \
+    nemotron-3.5-lightning:30b-ctx256k-agentic
+```
 
-1. **Residency.** `/api/ps` after a first prompt — the whole thing must read
-   `100% GPU`. Any CPU split means the estimate in §3 is wrong and throughput will
-   fall off a cliff.
-2. **Real KV cost.** Compare resident size against §3's two bounds to settle whether
-   Ollama honours the sliding window. This is the measurement the q8_0 question in
-   §2b turns on — record the answer here when it lands.
-3. **The 16K cliff.** The bare tag is expected to cap at 16386 processed tokens with
-   `tool_use=NO`; the variant must process the full prompt with `tool_use=YES`. If
-   the variant also caps, stop and fix that before anything else — every later result
-   would be measuring a 16K model.
-4. **Agentic gates.** All seven from v1: single tool, tool selection, multi-turn with
-   `tool_result`, parallel calls, nested schema, needle retrieval, and tool use at
-   large context. Gates 6 and 7 are the ones that decide repo-scale usability.
-5. **Throughput.** Replaces the §5 estimate with a measurement, benchmarked head to
-   head against the incumbent in the same run. Delete the estimate once it does.
-   Add `muse-glimmer:30b-q4_K_M-dflash` here — it is the one variable with real
-   upside (§2b).
-6. **Vision** — post an image and confirm a coherent description.
-7. **Reasoning effort** — confirm how `low`/`medium`/`high`/`xhigh` are plumbed
-   through Ollama's API and what each costs. If the dial is not exposed per-request,
-   it has to be baked into four variants the way `num_ctx` was.
-8. **SWE-bench Lite through Claude Code** — *not* in `muse-bench.sh`, because it is a
-   day-scale run, not a stage. This is the only test that answers the actual question
-   (§5): the incumbent scored **24/300 = 8.0%** through this harness. Reuse the v2
-   runner and compare like for like, same prompt construction, same 300 instances.
+Per model it runs throughput → residency/KV → tool gates T1–T5 → needle retrieval, and
+between **every** stage it calls `./idle.sh`, which unloads whatever is resident and
+polls `/api/ps` until the server is genuinely empty. That gate is the point of the
+script. `.67` holds ~40 GB; these models are 19.45 and 31.21 GB, so two of them cannot
+co-reside, and a benchmark that starts against a busy box measures eviction, reload and
+spill instead of the model. `review2.md` put a 12.5% spill at **5.3× slower** — larger
+than the real difference between any two models here, so a co-resident run would have
+produced a confident, wrong verdict. If the server will not empty, `head2head.sh`
+aborts rather than producing a number.
+
+Supporting scripts, each usable alone:
+
+| script | what it answers |
+|---|---|
+| `./idle.sh` | is the server empty? make it so, or fail |
+| `./tokrate.sh` | prefill and generation tok/s from Ollama's own counters |
+| `./cliff-probe.sh` | do bare tags still silently truncate? (§4) |
+| `./needle-v2.sh` | retrieval depth, with a generation budget that does not manufacture failures |
+| `./kv-probe.sh` | how does footprint scale with `num_ctx`? |
+| `./muse-bench.sh` | the original single-model runner; superseded, kept because its preflight documents the 0.32.8 gate |
+
+### Step 3b — the order to verify in, and why
+
+Each check catches a failure the next one would misattribute:
+
+1. **Residency first.** `/api/ps` must read `100% GPU`. Any CPU split and every later
+   number is measuring the spill, not the model. *(Result: 100% for both.)*
+2. **Real footprint vs. prediction.** Sweep `num_ctx` and find where residency stops
+   being 100%. *(Result: Nemotron holds to 524288 and spills at 1048576.)*
+3. **The truncation traps.** The bare tag must cap at ~16386 with `tool_use=NO`, the
+   variant must process the full prompt. If the *variant* caps too, stop — everything
+   after would be measuring a 16K model. *(Result: both traps confirmed live, §4.)*
+4. **Agentic gates.** T1–T5 decide Claude Code compatibility at all. *(Result: 10/10.)*
+5. **Needle retrieval** with an adequate `num_predict` — **not** v1's T6, which sends
+   64 and truncates Muse mid-passphrase. *(Result: 8/8.)*
+6. **Throughput**, on an idle box, head to head with the incumbent in the same session.
+7. **Vision** and **reasoning effort** — the two things v1 could not test at all.
 
 ### Step 4 — point Claude Code at it
 
@@ -540,35 +739,201 @@ verifies what `launch` actually sends.
 
 Keeping the `ollamaFarm` house rule: never present an estimate as a measurement.
 
-**Measured / exact** — every figure in §2, taken from the GGUF header and registry
-manifest; the 412 refusal and both server versions in §1; the arithmetic in §3;
-the 16K cliff, the 5.3× spill cost, the `presence_penalty` and `temperature`
-findings, and the 131.5 tok/s incumbent, all from `../ollamaClaudeCode_v1/review2.md`.
+**Measured on `.67`** — everything in §7c: throughput for all three models, residency
+and GPU split, the context sweep to 1M, all ten tool gates, all eight needle depths,
+vision, and the reasoning-effort dial. Plus the two truncation bugs re-measured in §4.
 
-**Estimated, and labelled as such** — the ~25–32 tok/s in §5. Bandwidth-derived from
-two dense measurements on this box. Replace it with step 5 of §3's checklist.
+**Measured / exact, from primary sources** — every figure in §2 and §2c, taken from the
+GGUF metadata headers and registry manifests, and cross-checked against `/api/show` on
+the server after install.
 
-**Unknown until the model loads** — whether Ollama trims KV for the sliding-window
-layers; tool-call reliability of the new `glimmer` parser through `/v1/messages`;
-vision throughput and whether the projector stays resident on text-only runs; how
-reasoning effort is plumbed; real behaviour at 100k+ prompt tokens.
+**Inherited from v1 and re-verified where it mattered** — the 131.5 tok/s incumbent
+(re-measured 131.4), the 16K cliff (re-measured), the half-window discard (re-measured
+*and* strengthened). The 5.3× spill cost and the `presence_penalty`/`temperature`
+findings are carried over from `review2.md` and were **not** re-run here.
 
-**Third-party, not ours** — the entire benchmark table in §5. Published by the vendor
-and by Unsloth, against a sibling of our incumbent rather than the incumbent itself.
+**Estimated, and superseded** — the ~25–32 tok/s in §5 was an estimate; it measured
+27.9–28.9. It is kept only as a check on the estimation method.
 
-**Blocked** — the upgrade of `.67` to 0.32.8, which needs host access I do not have.
-Everything downstream is ready: `./muse-bench.sh --host 192.168.100.67` runs stages
-1–7 unattended and writes to `results/`. Expected wall-clock is dominated by the
-~18 GB pull and the large-context gates.
+**Stated by a human, not verifiable here** — `.67` = 40.4 GB. The Ollama HTTP API has
+no VRAM field at all (§1). What is verified is that everything loaded stayed at 100%
+GPU up to 32.38 GB, and spilled at 34.17 GB — which brackets the true ceiling between
+those two figures without confirming 40.4.
 
-## 7b. Measured results, 2026-08-11 — local run
+**Still unknown** — why Nemotron's per-token footprint is ~21.5 kB rather than the
+~7 kB its 7 attention layers imply (§7c); whether `-dflash` tags are faster, which was
+dropped to keep the run serial; and how either model behaves over a multi-hour Claude
+Code session rather than a gate.
+
+**Third-party, not ours** — the entire published benchmark table in §5, from the vendor
+and Unsloth, against a sibling of our incumbent rather than the incumbent itself.
+
+**No longer blocked** — `.67` is on 0.32.9 and both models are installed and measured.
+
+## 7c. Measured results, 2026-08-13 — on `.67`, the real hardware
+
+**These supersede §7b.** Every number below was taken on `192.168.100.67`
+(Ollama 0.32.9) with the server verified idle before each stage by `./idle.sh`, and
+one model resident at a time — 17 GB and 25 GB cannot co-reside in ~40 GB, and a
+partial offload would have been measured as a model defect rather than a scheduling
+one. Driven by `./head2head.sh --host 192.168.100.67 <model>`; raw logs in
+`results/h2h-muse.log` and `results/h2h-nemotron.log`.
+
+### Throughput (`./tokrate.sh`, Ollama's own counters, `temperature 0`, `seed 42`)
+
+| model | prompt tok | prefill tok/s | **generation tok/s** | cold load |
+|---|---|---|---|---|
+| `qwen3.6:35b-a3b-q4_K_M-agentic` | 25 | 92 | **123.30** | 11.6 s |
+| *(incumbent)* | 3,180 | 3,017 | **131.37** | — |
+| | 35,102 | 3,988 | **112.32** | — |
+| `muse-glimmer:30b-ctx128k-agentic` | 69 | 317 | **28.91** | 18.4 s |
+| | 2,624 | 1,168 | **28.54** | — |
+| | 27,180 | 1,963 | **27.91** | — |
+| `nemotron-3.5-lightning:30b-ctx256k-agentic` | 29 | 3 | **48.45** | 18.2 s |
+| | 3,457 | 2,619 | **43.91** | — |
+| | 37,836 | 3,050 | **44.93** | — |
+
+The incumbent's **131.4 tok/s reproduces v1's 131.5** on the newer runtime, which is
+what makes the other two rows comparable to the v1 corpus at all.
+
+Generation is essentially flat with prompt length for all three — the models are
+memory-bandwidth-bound on weights, not on context. **Nemotron is 1.6× Muse**, exactly
+as §2c predicted from 6-of-128 active experts versus a dense 16.76 GB.
+
+### Residency and the real context ceiling
+
+```
+muse-glimmer:30b-ctx128k-agentic       total 19.45 GB  vram 19.45 GB  100% GPU  ctx=131072
+nemotron-3.5-lightning:30b-ctx256k…    total 31.21 GB  vram 31.21 GB  100% GPU  ctx=262144
+```
+
+Muse at **19.45 GB** against §3's predicted ≈18.9 GB — close, and comfortably inside
+budget with ~17 GB spare at its full native window.
+
+**A correction to §3:** that section predicted vision would add +1.40 GB on top. It
+does not. After a real image request the model still reported **19.45 GB, unchanged**.
+The projector is inside the figure already; vision is free on this box.
+
+Nemotron's footprint was swept with `./kv-probe.sh` (`results/kv-nemotron.txt`):
+
+| `num_ctx` | resident | GPU |
+|---|---|---|
+| 32768 | 26.28 GB | 100% |
+| 131072 | 28.39 GB | 100% |
+| 262144 | 31.21 GB | 100% |
+| **524288** | **32.38 GB** | **100%** |
+| 1048576 | **34.17 GB** | **96% — spills 1.3 GB** |
+
+**The full 1M window loads but does not fit.** At 96% GPU, 1.3 GB sits in system RAM,
+and `review2.md` measured a 12.5% spill costing **5.3× throughput**. So the honest
+ceiling is **524288 at 100% GPU**, and 262144 is the safe production setting.
+
+Note also that the growth is **not linear** — ~21.5 kB/token between 32k and 262k, then
+~4.5 kB/token beyond. So the §2c estimate of 1024 B/token × 7 attention layers is *not*
+what Ollama actually allocates, and the naive/SWA verdict line `kv-probe.sh` prints is
+calibrated for Muse's geometry and is **meaningless for Nemotron** — read the table,
+not the verdict. Why the per-token cost is ~3× the KV arithmetic is unexplained and is
+recorded as unknown rather than guessed at.
+
+### Tool calling — the gates that decide Claude Code compatibility
+
+Run with v1's `agentic-test.sh`, unmodified, through `/v1/messages`.
+
+| gate | Muse Glimmer | Nemotron |
+|---|---|---|
+| T1 single tool, simple schema | **PASS** | **PASS** |
+| T2 tool selection among 4 tools | **PASS** | **PASS** |
+| T3 multi-turn with `tool_result` | **PASS** | **PASS** |
+| T4 parallel tool calls | **PASS** | **PASS** |
+| T5 complex nested schema | **PASS** | **PASS** |
+
+**Ten for ten.** Both new renderers/parsers (`glimmer`, `nemotron-3.5-nano`) emit real
+`tool_use` blocks including parallel calls and nested enum/array schemas. This is the
+result that matters most for using either as a Claude Code driver, and it is
+unambiguous.
+
+### Long-context retrieval
+
+`./needle-v2.sh`, `num_predict 512`. Both models, mid-document needle:
+
+| depth | Muse: processed | result | Nemotron: processed | result |
+|---|---|---|---|---|
+| 4k | 3,563 | **PASS** | 4,916 | **PASS** |
+| 16k | 13,741 | **PASS** | 19,820 | **PASS** |
+| 60k | 56,311 | **PASS** | 79,706 | **PASS** |
+| 120k | **114,487** | **PASS** | **161,516** | **PASS** |
+
+**Both retrieve where the incumbent fails.** v1's `needle-retest.log` has
+`qwen3.6:27b-q4_K_M-ctx128k` passing 4k/16k/60k and **failing at 120k**. The 128K and
+256K windows here are real, not nominal.
+
+The token counts in the two "processed" columns are the same document: **Nemotron
+needs 38% more tokens to represent it**. That is a tokenizer difference and it is worth
+remembering whenever a context budget is quoted in tokens.
+
+### The `num_predict 64` harness artifact reproduces on the server
+
+Worth recording because it is a trap in the *harness*, not either model. v1's
+`agentic-test.sh` T6 still sends `num_predict: 64`:
+
+```
+T6_needle_4k    FAIL    missed_at_3563_prompt_tokens     <- muse, via v1 harness
+4k              PASS    prompt_eval=3563  eval=70        <- same model, needle-v2.sh
+```
+
+Muse Glimmer needs **70** tokens to emit `CRIMSON-PANGOLIN-4471` and gets cut off at
+64, three characters into the passphrase. Nemotron is terser (**14** tokens) and passes
+the same gate, which is exactly why a budget artifact like this masquerades as a model
+difference. **Use `needle-v2.sh`, not v1's T6.**
+
+### Vision — Muse Glimmer only
+
+```
+image: ../ollamaClaudeCode_v0/failingOutput.png   prompt_eval=1,177   gen=28.9 tok/s   wall=38.3 s
+"The image is a screenshot of a Linux terminal emulator window - **Konsole** -
+ whose title bar reads `ollamaClaudeCodeTest : cl…`"
+```
+
+Correct: right application, right window title, read off the pixels. A screenshot costs
+**~1,177 prompt tokens**, generation runs at the same 28.9 tok/s as text, and residency
+does not move. Nothing else on the farm can do this at all.
+
+### Reasoning effort — and one documented capability that is not exposed
+
+| `think` | thinking (approx. tok) | answer tok | wall |
+|---|---|---|---|
+| `false` | 0 | 562 | 32.5 s |
+| `"low"` | ~160 | 516 | 18.6 s |
+| `"medium"` | ~277 | 711 | 25.4 s |
+| `"high"` | ~635 | 1,139 | 40.4 s |
+| `"xhigh"` | — | — | **rejected** |
+
+The dial works and is plumbed through `/api/chat`'s `think` field, costing roughly
+linear time in effort. But:
+
+```json
+{"error":"invalid think value: \"xhigh\" (must be \"high\", \"medium\", \"low\", …)"}
+```
+
+**`xhigh` is advertised on the model card and is not accepted by Ollama 0.32.9.** Three
+levels, not four. Anything planned around `xhigh` needs to wait for upstream.
+
+## 7b. Superseded — local laptop run, 2026-08-11
+
+> **Kept only as provenance. Read §7c instead.** This run happened while `.67` was
+> still on 0.32.5 and the only way to see the model work at all was to install Ollama
+> on the laptop. **That install has since been deleted** at the user's instruction —
+> the three `muse-glimmer` tags, the `~/.local/ollama-0.32.8` tree and the local
+> server are all gone, and the laptop's pre-existing models were left untouched. Only
+> the server is in scope now.
 
 Run on **this laptop**, not on `.67`: Ollama 0.32.8 installed user-local (tarball
 into `~/.local`, no sudo, no systemd unit, nothing outside `$HOME`), serving on
 `127.0.0.1:11434`. RTX A2000 8 GB, so only 13–15 of 53 layers were GPU-resident.
 
 **Every capability result below is a property of the model and transfers to `.67`.
-Every speed number is a property of this laptop and does not.**
+Every speed number is a property of this laptop and does not** — and the speed numbers
+have now been replaced by real ones in §7c.
 
 ### Tool calling — the gates that decide Claude Code compatibility
 
@@ -656,21 +1021,41 @@ be measured without the server, and nothing here changes it.
 | # | step | status |
 |---|---|---|
 | 1 | Discover the target server, confirm it is the 40 GB box | **done** — `.67`, via `~/repos/ollamaFarm` |
-| 2 | Pull `muse-glimmer` onto it | **blocked** — HTTP 412, needs Ollama ≥ 0.32.8 |
-| 3 | Establish the architecture from primary sources | **done** — §2, from the GGUF header and registry blobs |
-| 4 | Decide the context window | **done** — §4, `131072`, baked into a Modelfile variant |
+| 2 | Pull `muse-glimmer` onto it | **done** — 2026-08-13, after the 0.32.9 upgrade |
+| 3 | Establish the architecture from primary sources | **done** — §2, GGUF header + registry blobs |
+| 4 | Decide the context window | **done** — §4, `131072` baked into a variant |
 | 5 | Decide the quantization | **done** — §2b, Q4_K_M; **q8_0 rejected with reasons** |
-| 6 | Build the benchmark runner | **done** — `muse-bench.sh`, drives the v1 harness |
-| 7 | Run the capability gates | **done locally** — §7b, 5/5 tool gates and 4/4 needles pass |
-| 8 | Measure throughput on `.67` | **waiting on step 2** — laptop numbers do not transfer |
+| 6 | Build the benchmark runner | **done** — `head2head.sh` + `idle.sh` + `tokrate.sh` |
+| 7 | Run the capability gates | **done on `.67`** — §7c, 10/10 tool gates, 8/8 needles |
+| 8 | Measure throughput on `.67` | **done** — §7c, all three models |
+| 9 | Add Nemotron 3.5 Lightning | **done** — §2c architecture, §7c measurements |
+| 10 | Re-verify the stale `.67` claims | **done** — revision note at the top |
 
-SWE-bench Lite was dropped from scope on 2026-08-11 at the user's direction: the
-question is capability and speed, and a day-scale resolve-rate run answers neither
-quickly. The 8.0% figure stays in §5 as context for reading published benchmarks, not
-as a test to repeat.
+Dropped from scope, deliberately:
 
-**The one action that unblocks steps 2, 7 and 8**, on `192.168.100.67`:
+- **SWE-bench Lite**, on 2026-08-11 at the user's direction: the question is capability
+  and speed, and a day-scale resolve-rate run answers neither quickly. The 8.0% figure
+  stays in §5 as context for reading published benchmarks, not as a test to repeat.
+- **The `-dflash` variants** (§2b). Each would have meant another ~20 GB pull and a
+  second serialized battery; the models must be benchmarked one at a time on this box,
+  so the cost is wall-clock, not curiosity. Still the one remaining variable with
+  plausible upside.
+
+### What to actually deploy
 
 ```shell
-curl -fsSL https://ollama.com/install.sh | sh && sudo systemctl restart ollama
+export ANTHROPIC_BASE_URL=http://192.168.100.67:11434
+export ANTHROPIC_AUTH_TOKEN=ollama
+
+# bulk agentic coding — still the fastest thing on the farm by 3x
+export ANTHROPIC_MODEL=qwen3.6:35b-a3b-q4_K_M-agentic
+
+# deep-context work: retrieves at 161k where the incumbent fails at 120k
+export ANTHROPIC_MODEL=nemotron-3.5-lightning:30b-ctx256k-agentic
+
+# anything with an image in the loop — the only model here that can
+export ANTHROPIC_MODEL=muse-glimmer:30b-ctx128k-agentic
 ```
+
+Never the bare tag, for the reason measured in §4. Expect an eviction and an ~18 s
+reload when switching — they do not co-reside in 40 GB.

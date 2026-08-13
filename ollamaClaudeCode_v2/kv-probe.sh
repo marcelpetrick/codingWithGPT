@@ -60,7 +60,15 @@ print(t, v, (100*v/t if t else 0))
     "$(python3 -c "print($TOT/1e9)")" "$(python3 -c "print($VRAM/1e9)")" "$PCT"
   RESULTS="$RESULTS$N $TOT
 "
-  curl -s -X POST "$API/api/delete" -H "Content-Type: application/json" -d "{\"model\":\"$TAG\"}" >/dev/null
+  # Unload BEFORE deleting. Ollama refuses to delete a model that is still
+  # resident, and the keep_alive above guarantees it is -- the first run of this
+  # script left four orphaned probe tags on a shared server because the delete
+  # silently failed and its status was discarded to /dev/null.
+  curl -s -m 30 -X POST "$API/api/generate" -H "Content-Type: application/json" \
+    -d "{\"model\":\"$TAG\",\"keep_alive\":0}" >/dev/null
+  DC=$(curl -s -o /dev/null -w '%{http_code}' -X DELETE "$API/api/delete" \
+       -H "Content-Type: application/json" -d "{\"model\":\"$TAG\"}")
+  [ "$DC" = "200" ] || echo "  WARNING: could not delete $TAG (HTTP $DC) -- remove it by hand" >&2
 done
 
 echo

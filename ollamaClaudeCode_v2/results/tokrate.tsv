@@ -1,0 +1,10 @@
+model	prompt_words	prompt_tok	gen_tok	prefill_tps	gen_tps	load_s	total_s
+qwen3.6:35b-a3b-q4_K_M-agentic	0	25	108	92.3	123.30	11.6	12.7
+qwen3.6:35b-a3b-q4_K_M-agentic	2000	3180	95	3017.4	131.37	0.5	2.4
+qwen3.6:35b-a3b-q4_K_M-agentic	20000	35102	78	3987.9	112.32	0.5	10.4
+muse-glimmer:30b-ctx128k-agentic	0	69	256	316.7	28.91	18.4	27.5
+muse-glimmer:30b-ctx128k-agentic	2000	2624	221	1167.8	28.54	0.5	10.6
+muse-glimmer:30b-ctx128k-agentic	20000	27180	256	1962.5	27.91	0.5	24.0
+nemotron-3.5-lightning:30b-ctx256k-agentic	0	29	208	3.2	48.45	18.2	31.5
+nemotron-3.5-lightning:30b-ctx256k-agentic	2000	3457	96	2619.1	43.91	0.3	3.9
+nemotron-3.5-lightning:30b-ctx256k-agentic	20000	37836	143	3049.6	44.93	0.3	16.1

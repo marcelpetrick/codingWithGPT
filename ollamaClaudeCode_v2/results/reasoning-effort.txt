@@ -1,0 +1,6 @@
+think      status    think_tok  ans_tok    wall_s  answer_head
+False      OK               0      562      32.5  The first train has a head start of $0.5\;{\rm h}$.  Let $t$
+low        OK             160      516      18.6  Let $t$ be the time in hours measured from the instant the f
+medium     OK             277      711      25.4  The first train has a head start of $0.5\;{\rm h}$.  Let $t$
+high       OK             635     1139      40.4  The first train has a 30 min = 0.5 h head start.  In that ha
+xhigh      REJECT           -        -         -  b'{"error":"invalid think value: \\"xhigh\\" (must be \\"high\\", \\"medium\\", \\"low\\",
