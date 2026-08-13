@@ -17,7 +17,7 @@ argument. This is the summary.
 |---|---|---|
 | **1** | `qwen3.6:35b-a3b-mtp-q4_K_M-agentic` @ 262144 | 129 tok/s at the full native window for only 28.89 GB — best speed per GB on the box |
 | **2** | `qwen3.6:35b-a3b-q4_K_M-agentic` @ 262144 | same speed (131 tok/s), 3.65 GB heavier, but no `draft_num_predict 0` override to depend on |
-| **3** | `nemotron-3.5-lightning:30b-ctx512k-agentic` @ 524288 | the only model that stays 100% GPU-resident past 262k tokens, at 2.9× the cost in speed |
+| **3** | `nemotron-3.5-lightning:30b-ctx256k-agentic` @ 262144 | the deep-context option at 2.9× the cost in speed; a 512k variant exists and works, but see below |
 
 Shell aliases are wired for the top two: `claude-ol2` and `claude-ol-nemo`
 (see [`shell_aliases.md`](shell_aliases.md)).
@@ -64,7 +64,13 @@ clear it.
 `draft_num_predict`: 0 → 129.2 tok/s, 2 → 105.1, **4 (shipped default) → 100.6**,
 8 → 58.9. It nearly halves prefill the moment it is enabled. Our variant bakes **0**.
 
-**6. The box has ≈35.5 GB usable, not 40.4 GB.**
+**6. Nemotron's 524288 window is real but not interactive.**
+Verified: it retrieved a needle at **512,439 tokens**, essentially the whole window,
+100% GPU-resident. That query took **16 minutes** — ~380 s just to allocate the KV cache
+at load (vs 18 s at 262144) plus ~589 s of prefill. Use `num_ctx 262144` for agentic
+work; the 512k variant is for a deliberate one-off, not a loop that re-prefills.
+
+**7. The box has ≈35.5 GB usable, not 40.4 GB.**
 Measured: at `num_ctx 131072` the q8_0 asked for 38.33 GB and only 35.56 GB stayed
 resident. The Ollama API exposes **no** VRAM field at all, so 40.4 was always a
 human-supplied number. Roughly 5 GB of it is not spendable.

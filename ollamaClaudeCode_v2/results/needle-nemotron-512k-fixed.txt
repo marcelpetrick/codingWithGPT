@@ -1,2 +1,6 @@
 === needle-v2 on 192.168.100.67: nemotron-3.5-lightning:30b-ctx512k-agentic (baked num_ctx=524288, num_predict=512) ===
       200002 words, num_ctx 488196
+  400k   PASS      prompt_eval=423332  eval=14    done=stop     answer='CRIMSON-PANGOLIN-4471'
+      240009 words, num_ctx 524288
+  480k   PASS      prompt_eval=512439  eval=14    done=stop     answer='CRIMSON-PANGOLIN-4471'
+=== finished ===

@@ -1515,16 +1515,34 @@ nemotron-3.5-lightning:30b-ctx512k-agentic   total 32.38 GB  vram 32.38 GB  100%
 
 Needle retrieval past the point where every other model on the box runs out of window:
 
-| depth | prompt tokens processed | result |
-|---|---|---|
-| 160k | 161,516 | **PASS** |
-| **260k** | **267,439** | **PASS** |
-| 400k | 204,098 | FAIL — *harness bug, see below* |
-| 480k | 244,098 | FAIL — *harness bug, see below* |
+| depth | prompt tokens processed | result | total wall time |
+|---|---|---|---|
+| 160k | 161,516 | **PASS** | — |
+| 260k | 267,439 | **PASS** | — |
+| 400k | **423,332** | **PASS** | 127 s (warm) |
+| **480k** | **512,439** | **PASS** | **971 s (~16 min)** |
 
-**267,439 tokens retrieved, fully GPU-resident.** That is past 262144, so it is
-genuinely beyond what `claude-ol2`'s model can hold at all, and it is the one capability
-on this server that only Nemotron has.
+**512,439 tokens retrieved — essentially the entire 524288 window, fully GPU-resident.**
+That is roughly double what `claude-ol2`'s model can hold at all, and it is the one
+capability on this server that only Nemotron has. The window is real, not nominal.
+
+**But it is not interactive at that depth, and that is the finding that decides how to
+use it.** The 512k query cost **16 minutes end to end**: ~380 s of model load (against
+18 s at `num_ctx 262144` — allocating a half-million-cell KV cache is itself expensive)
+plus ~589 s of prefill. Effective throughput across the whole request was **528 tok/s**,
+against 3,050 tok/s at a 35k prompt — prefill degrades about 3.5× by the time the window
+is full.
+
+> **Caveat on these timings.** Ollama's per-phase counters contradict themselves at this
+> scale: for the same 512,439-token request, `prompt_eval_duration` was reported as
+> 588.9 s in one record and 1.2 s in others, while `load_duration` absorbed ~380 s.
+> Only `total_duration` is self-consistent, so the wall-clock column above is what
+> should be quoted. This is a caveat on §9.2's method — the counters that make short
+> runs comparable stop being trustworthy at half a million tokens.
+
+**Practical consequence:** keep `claude-ol-nemo` on the 262144 variant (§12.3). The
+512k variant is for a deliberate one-off — "read this entire corpus and answer once" —
+not for an agentic loop where every turn re-prefills.
 
 ### 12.2 The two deep FAILs were my harness, not the model
 
@@ -1536,8 +1554,10 @@ result that looks like a model limit:
 480k row:  num_ctx 488192 requested -> prompt_eval 244,098   (488192 / 2 = 244,096)
 ```
 
-Both are exactly half their requested window. `needle-v2.sh` sized `num_ctx` from a
-words→tokens factor of **2.0**, which was calibrated on Muse Glimmer. Nemotron needs
+Both are exactly half their requested window. Re-run with the factor corrected, the
+same two depths **both PASS** (423,332 and 512,439 tokens) — confirming the failures
+were entirely the harness. `needle-v2.sh` sized `num_ctx` from a words→tokens factor of
+**2.0**, which was calibrated on Muse Glimmer. Nemotron needs
 **~2.06** tokens per word on this filler, so a 200k-word document is ~411k tokens and
 was handed a 408k window — a 1% overshoot, and the penalty for a 1% overshoot is losing
 **half** the context. The factor is now 2.4 with a comment explaining why.
