@@ -1,25 +1,26 @@
-MODEL                                          SIZE PARAMS  QUANT   num_ctx   temp  pp   CAPABILITIES         MODIFIED
---------------------------------------------------------------------------------------------------------------------------
-qwen3.6:27b-mtp-q8_0-ctx60k                29.98 GB 27.3B   Q8_0    60000     0.6   1.5  thinking,tools,vision 2026-08-05
-qwen3.6:27b-mtp-q8_0-ctx128k               29.98 GB 27.3B   Q8_0    131072    1     1.5  thinking,tools,vision 2026-08-06
-qwen3.6:27b-mtp-q8_0                       29.98 GB 27.3B   Q8_0    -         1     1.5  thinking,tools,vision 2026-08-05
-qwen3.6:27b-q8_0-ctx60k                    29.97 GB 27.8B   Q8_0    60000     0.6   1.5  thinking,tools,vision 2026-08-05
-qwen3.6:27b-q8_0                           29.97 GB 27.8B   Q8_0    -         1     1.5  thinking,tools,vision 2026-08-04
-nemotron-3.5-lightning:30b-ctx256k-agentic 25.43 GB 32.9B   Q4_K_M  262144    0     0    thinking,tools       2026-08-13
-nemotron-3.5-lightning:30b                 25.43 GB 32.9B   Q4_K_M  -         1     -    thinking,tools       2026-08-13
-qwen3.6:35b-a3b-q4_K_M-ctx128k             23.94 GB 36.0B   Q4_K_M  131072    1     1.5  thinking,tools,vision 2026-08-06
-qwen3.6:35b-a3b-q4_K_M-ctx256k             23.94 GB 36.0B   Q4_K_M  262144    1     1.5  thinking,tools,vision 2026-08-06
-qwen3.6:35b-a3b-q4_K_M-isot0               23.94 GB 36.0B   Q4_K_M  262144    0     1.5  thinking,tools,vision 2026-08-06
-qwen3.6:35b-a3b-q4_K_M-agentic             23.94 GB 36.0B   Q4_K_M  262144    0     0    thinking,tools,vision 2026-08-06
-qwen3.6:35b-a3b-q4_K_M-isopp0              23.94 GB 36.0B   Q4_K_M  262144    1     0    thinking,tools,vision 2026-08-06
-qwen3.6:35b-a3b-q4_K_M                     23.94 GB 36.0B   Q4_K_M  -         1     1.5  thinking,tools,vision 2026-08-06
-qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k         22.62 GB 35.5B   Q4_K_M  131072    1     1.5  thinking,tools,vision 2026-08-06
-qwen3.6:35b-a3b-mtp-q4_K_M                 22.62 GB 35.5B   Q4_K_M  -         1     1.5  thinking,tools,vision 2026-08-06
-muse-glimmer:30b-ctx128k-agentic           18.16 GB 27.9B   Q4_K_M  131072    0     0    thinking,tools,vision 2026-08-13
-muse-glimmer:30b                           18.16 GB 27.9B   Q4_K_M  -         1     -    thinking,tools,vision 2026-08-13
-qwen3.6:27b-q4_K_M-ctx128k                 17.42 GB 27.8B   Q4_K_M  131072    1     1.5  thinking,tools,vision 2026-08-06
-qwen3.6:27b-q4_K_M                         17.42 GB 27.8B   Q4_K_M  -         1     1.5  thinking,tools,vision 2026-08-06
-qwen3.5:9b-ctx80k                           6.59 GB 9.7B    Q4_K_M  81920     1     1.5  thinking,tools,vision 2026-08-04
-qwen3.5:9b                                  6.59 GB 9.7B    Q4_K_M  -         1     1.5  thinking,tools,vision 2026-08-04
+MODEL                                          SIZE PARAMS  QUANT   num_ctx  temp  pp   draft  CAPS
+qwen3.6:27b-mtp-q8_0-ctx60k                29.98 GB 27.3B   Q8_0    60000    0.6   1.5  4      thinking,tools,vision
+qwen3.6:27b-mtp-q8_0-ctx128k               29.98 GB 27.3B   Q8_0    131072   1     1.5  4      thinking,tools,vision
+qwen3.6:27b-mtp-q8_0                       29.98 GB 27.3B   Q8_0    -        1     1.5  4      thinking,tools,vision
+qwen3.6:27b-q8_0-ctx60k                    29.97 GB 27.8B   Q8_0    60000    0.6   1.5  -      thinking,tools,vision
+qwen3.6:27b-q8_0                           29.97 GB 27.8B   Q8_0    -        1     1.5  -      thinking,tools,vision
+qwen3.6:27b-q8_0-agentic                   29.97 GB 27.8B   Q8_0    81920    0     0    -      thinking,tools,vision
+nemotron-3.5-lightning:30b-ctx256k-agentic 25.43 GB 32.9B   Q4_K_M  262144   0     0    2      thinking,tools
+nemotron-3.5-lightning:30b                 25.43 GB 32.9B   Q4_K_M  -        1     -    2      thinking,tools
+qwen3.6:35b-a3b-q4_K_M-isot0               23.94 GB 36.0B   Q4_K_M  262144   0     1.5  -      thinking,tools,vision
+qwen3.6:35b-a3b-q4_K_M-ctx256k             23.94 GB 36.0B   Q4_K_M  262144   1     1.5  -      thinking,tools,vision
+qwen3.6:35b-a3b-q4_K_M-ctx128k             23.94 GB 36.0B   Q4_K_M  131072   1     1.5  -      thinking,tools,vision
+qwen3.6:35b-a3b-q4_K_M-isopp0              23.94 GB 36.0B   Q4_K_M  262144   1     0    -      thinking,tools,vision
+qwen3.6:35b-a3b-q4_K_M-agentic             23.94 GB 36.0B   Q4_K_M  262144   0     0    -      thinking,tools,vision
+qwen3.6:35b-a3b-q4_K_M                     23.94 GB 36.0B   Q4_K_M  -        1     1.5  -      thinking,tools,vision
+qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k         22.62 GB 35.5B   Q4_K_M  131072   1     1.5  4      thinking,tools,vision
+qwen3.6:35b-a3b-mtp-q4_K_M                 22.62 GB 35.5B   Q4_K_M  -        1     1.5  4      thinking,tools,vision
+qwen3.6:35b-a3b-mtp-q4_K_M-agentic         22.62 GB 35.5B   Q4_K_M  262144   0     0    0      thinking,tools,vision
+muse-glimmer:30b-ctx128k-agentic           18.16 GB 27.9B   Q4_K_M  131072   0     0    -      thinking,tools,vision
+muse-glimmer:30b                           18.16 GB 27.9B   Q4_K_M  -        1     -    -      thinking,tools,vision
+qwen3.6:27b-q4_K_M-ctx128k                 17.42 GB 27.8B   Q4_K_M  131072   1     1.5  -      thinking,tools,vision
+qwen3.6:27b-q4_K_M                         17.42 GB 27.8B   Q4_K_M  -        1     1.5  -      thinking,tools,vision
+qwen3.5:9b-ctx80k                           6.59 GB 9.7B    Q4_K_M  81920    1     1.5  -      thinking,tools,vision
+qwen3.5:9b                                  6.59 GB 9.7B    Q4_K_M  -        1     1.5  -      thinking,tools,vision
 
-21 tags total: 13 with a baked num_ctx (deployable), 8 bare
+23 tags

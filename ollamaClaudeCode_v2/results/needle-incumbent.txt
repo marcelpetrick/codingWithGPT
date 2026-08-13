@@ -1,0 +1,10 @@
+=== needle-v2 on 192.168.100.67: qwen3.6:35b-a3b-q4_K_M-agentic (baked num_ctx=262144, num_predict=512) ===
+      2706 words, num_ctx 13592
+  4k     PASS      prompt_eval=4411    eval=13    done=stop     answer='CRIMSON-PANGOLIN-4471'
+      10703 words, num_ctx 29592
+  16k    PASS      prompt_eval=17861   eval=13    done=stop     answer='CRIMSON-PANGOLIN-4471'
+      40007 words, num_ctx 88192
+  60k    PASS      prompt_eval=72419   eval=13    done=stop     answer='CRIMSON-PANGOLIN-4471'
+      80003 words, num_ctx 168192
+  120k   PASS      prompt_eval=146957  eval=13    done=stop     answer='CRIMSON-PANGOLIN-4471'
+=== finished ===

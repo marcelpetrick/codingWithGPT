@@ -1,0 +1,14 @@
+num_ctx          total_GB        vram_GB        pct_gpu
+16384              29.673         29.673           100%
+32768              30.407         30.407           100%
+65536              32.823         32.823           100%
+131072             38.332         35.557            93%
+
+fit: total_bytes = 28073100345 + 77076.6 * num_ctx
+  weights (intercept)      28.07 GB
+  KV cost per token        77077 bytes
+  SWA-aware prediction     13312 bytes/token  (13 full layers)
+  naive prediction         53248 bytes/token  (all 52 layers)
+  -> NAIVE (full KV for all 52 layers)
+  implied KV at 131072     10.10 GB
+  implied total at 131072  38.18 GB

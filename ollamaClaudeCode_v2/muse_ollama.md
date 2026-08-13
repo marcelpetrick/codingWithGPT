@@ -23,8 +23,14 @@ is as much a result as "was wrong":
 | incumbent qwen3.6 MoE does 131.5 tok/s | **still true** — re-measured 131.4 tok/s |
 | bare tags cap at ~16K and lose `tool_use` | **still true** — re-measured, see §4 |
 | overflowing a baked window discards half of it | **still true, and now proven properly** — see §4 |
-| `.67` = 40.4 GB | **unverified, and unverifiable over HTTP** — see §1 |
+| `.67` = 40.4 GB | **not spendable** — measured usable ceiling is ≈35.5 GB (§11.4) |
 | Muse Glimmer throughput ≈ 25–32 tok/s (estimate) | **superseded by measurement** — §7c |
+
+**A second round on 2026-08-13** added `qwen3.6:35b-a3b-mtp-q4_K_M` and
+`qwen3.6:27b-q8_0` for a five-model comparison, and in doing so **found three errors in
+this document's own earlier conclusions** — the incumbent's retrieval depth, Muse
+Glimmer's vision exclusivity, and the recommendation built on both. All are corrected in
+**§11**, which is the section to read if you only read one.
 
 One earlier claim also turned out to be under-evidenced rather than wrong, and is
 corrected in §4: the "half window" finding had been measured only at `num_ctx=32768`,
@@ -491,25 +497,34 @@ Keep `top_k 64` / `top_p 0.95` as shipped; at `temperature 0` they are inert.
 **Everything in this section is now measured on `.67`.** The three-way summary, all
 from §7c, with the server idle before every run:
 
+> **Superseded by §11, which corrects two errors in the table below.** Two of this
+> table's cells were wrong and both flattered the newcomers: the incumbent does **not**
+> fail at 120k (it passes at 146,957 — the "fails" datum belonged to a different model),
+> and vision is **not** unique to Muse Glimmer (every `qwen3.6` tag has it, and the
+> incumbent is 4.5× faster at it). **Read §11.** The table is kept as written so the
+> correction is legible rather than silently patched.
+
 | | `qwen3.6:35b-a3b-q4_K_M-agentic` *(incumbent)* | `muse-glimmer:30b` | `nemotron-3.5-lightning:30b` |
 |---|---|---|---|
 | **generation** | **131.4 tok/s** | 27.9–28.9 tok/s | **44.9–48.5 tok/s** |
 | **prefill** (~35k prompt) | **3,988 tok/s** | 1,962 tok/s | 3,050 tok/s |
-| resident / window | 33.08 GB @ 262144 | **19.45 GB @ 131072** | 31.21 GB @ 262144 |
+| resident / window | 32.54 GB @ 262144 | **19.45 GB @ 131072** | 31.21 GB @ 262144 |
 | GPU residency | 100% | 100% | 100% |
 | tool gates T1–T5 | pass | **5/5** | **5/5** |
-| needle, deepest pass | **fails at 120k** | **114,487 tok** | **161,516 tok** |
+| needle, deepest pass | ~~fails at 120k~~ **PASS @146,957** | **114,487 tok** | **161,516 tok** |
 | max window at 100% GPU | 262144 | 131072 (native) | **524288** |
-| vision | no | **yes** | no |
+| vision | ~~no~~ **yes, and faster** | yes | no |
 | thinking dial | no | `low`/`medium`/`high` | yes |
 
-**The headline: the incumbent is still 3–4.5× faster than either newcomer, and neither
-displaces it for bulk work.** But both beat it on the thing that actually breaks long
-agentic sessions — deep-context retrieval — and one of them can read a screenshot.
+**The headline, as revised:** the incumbent is 3–4.5× faster than either newcomer,
+retrieves as deeply, and does vision better. **Neither newcomer displaces it for any
+workload except one** — Nemotron is the only model that stays fully GPU-resident beyond
+262144 tokens.
 
-Between the two new models, **Nemotron is the better general pick**: 1.6× Muse's
-generation rate, 1.55× its prefill, a deeper working window, and the same perfect tool
-score. Muse Glimmer earns its place only where vision matters.
+~~Between the two new models, Nemotron is the better general pick … Muse Glimmer earns
+its place only where vision matters.~~ **Withdrawn.** Nemotron's apparent retrieval
+advantage was a tokenizer artifact (§11.1) and Muse Glimmer's vision advantage does not
+exist (§11.2). See §11.6 for the recommendation that replaces this.
 
 Two caveats that the raw table hides:
 
@@ -1043,22 +1058,32 @@ Dropped from scope, deliberately:
 
 ### What to actually deploy
 
+> **Revised by §11.6** after two more models were measured. The block below is the
+> superseded version; its middle and last entries rest on the two errors §11 corrects.
+
 ```shell
 export ANTHROPIC_BASE_URL=http://192.168.100.67:11434
 export ANTHROPIC_AUTH_TOKEN=ollama
 
-# bulk agentic coding — still the fastest thing on the farm by 3x
+# --- current recommendation, per §11.6 ---
+# default: 129.0 tok/s, full 262144 window, 3.65 GB lighter than the incumbent
+export ANTHROPIC_MODEL=qwen3.6:35b-a3b-mtp-q4_K_M-agentic
+# equally good, 131.4 tok/s, no draft_num_predict override to depend on
 export ANTHROPIC_MODEL=qwen3.6:35b-a3b-q4_K_M-agentic
-
-# deep-context work: retrieves at 161k where the incumbent fails at 120k
+# only when the working set exceeds 262144 tokens — its sole remaining advantage
 export ANTHROPIC_MODEL=nemotron-3.5-lightning:30b-ctx256k-agentic
 
-# anything with an image in the loop — the only model here that can
-export ANTHROPIC_MODEL=muse-glimmer:30b-ctx128k-agentic
+# --- superseded ---
+# "deep-context work: retrieves at 161k where the incumbent fails at 120k"
+#   -> the incumbent does not fail; it passes at 146,957 (§11.1)
+# "anything with an image in the loop — the only model here that can"
+#   -> the incumbent does vision too, 4.5x faster and more accurately (§11.2)
+export ANTHROPIC_MODEL=muse-glimmer:30b-ctx128k-agentic   # not recommended
 ```
 
 Never the bare tag, for the reason measured in §4. Expect an eviction and an ~18 s
-reload when switching — they do not co-reside in 40 GB.
+reload when switching — they do not co-reside, and the usable ceiling is ≈35.5 GB, not
+40.4 GB (§11.4).
 
 ---
 
@@ -1218,7 +1243,8 @@ Stated because they bound how far the numbers should be pushed:
 ## 10. Every model on `192.168.100.67`
 
 Generated by the script embedded in §10.1; raw output in `results/inventory-67.txt`.
-21 tags as of **2026-08-13**.
+**23 tags** as of 2026-08-13 — the two `-agentic` variants of §11.5 were added after
+this table was first written, and are listed in §11 rather than repeated here.
 
 | model | size | params | quant | `num_ctx` | temp | `pp` | capabilities |
 |---|---|---|---|---|---|---|---|
@@ -1244,21 +1270,25 @@ Generated by the script embedded in §10.1; raw output in `results/inventory-67.
 | `qwen3.5:9b-ctx80k` | 6.59 GB | 9.7B | Q4_K_M | 81920 | 1 | **1.5** | thinking, tools, vision |
 | `qwen3.5:9b` | 6.59 GB | 9.7B | Q4_K_M | *bare* | 1 | **1.5** | thinking, tools, vision |
 
-**13 of 21 tags carry a baked `num_ctx`; 8 are bare** and therefore subject to the
+**15 of 23 tags carry a baked `num_ctx`; 8 are bare** and therefore subject to the
 16,386-token cap of §4 whenever they are driven through `/v1/messages`.
 
 Three things this table makes visible that a plain `ollama list` does not:
 
-- **`presence_penalty 1.5` is on 15 of the 21 tags.** `review2.md` measured that
+- **`presence_penalty 1.5` is on 15 of the 23 tags.** `review2.md` measured that
   vendor default costing **35–53% of throughput** on this hardware. Only the four
   `-agentic` / `-isopp0` variants clear it. **Prefer an `-agentic` tag for anything
   that generates a lot of tokens** — the difference is free.
-- **Only three tags are fully tuned for agentic use** (`num_ctx` baked, `temperature 0`,
+- **Five tags are now fully tuned for agentic use** (`num_ctx` baked, `temperature 0`,
   `presence_penalty 0`): `qwen3.6:35b-a3b-q4_K_M-agentic`,
+  `qwen3.6:35b-a3b-mtp-q4_K_M-agentic`, `qwen3.6:27b-q8_0-agentic`,
   `nemotron-3.5-lightning:30b-ctx256k-agentic` and `muse-glimmer:30b-ctx128k-agentic`.
-  Those are the three in the deploy block at the end of §8.
-- **Nothing here is larger than 33 GB resident.** The q8_0 tags at ~30 GB on disk are
-  the closest to the ceiling, which is what §2b's throughput argument was about.
+  These are the five benchmarked in §11.
+- **Nothing here is larger than ~34 GB resident, and the measured GPU ceiling is
+  ≈35.5 GB** (§11.4) — so the real headroom is far thinner than the stated 40.4 GB
+  suggests. The q8_0 tags sit closest to it: `qwen3.6:27b-q8_0-agentic` is at 34.03 GB
+  and could not be given a window larger than 81,920 without spilling. That is exactly
+  what §2b's throughput argument was about.
 
 The `-isot0` and `-isopp0` tags are v1's **isolation variants** — one changes only
 `temperature`, the other only `presence_penalty`, against the same base — which is how
@@ -1284,3 +1314,187 @@ The `num_ctx` / `temperature` / `presence_penalty` and capability columns need o
 shared machine. Everything added this session is additive (`muse-glimmer:*`,
 `nemotron-3.5-lightning:*`); no pre-existing tag was modified or removed, and the four
 temporary `*-kvprobe-*` tags created by `kv-probe.sh` were deleted afterwards.
+
+---
+
+## 11. Five models, measured the same way — and three corrections
+
+Added 2026-08-13. Two more models were tuned and put through the identical battery so
+the comparison covers everything on `.67` worth considering as a Claude Code driver.
+**Running them exposed three errors in the earlier sections of this document**, all of
+which flattered the newer models. They are corrected below and at the source.
+
+### 11.0 The chart
+
+| | `qwen3.6:35b-a3b-q4_K_M` **-agentic** | `qwen3.6:35b-a3b-mtp-q4_K_M` **-agentic** | `qwen3.6:27b-q8_0` **-agentic** | `muse-glimmer:30b` **-ctx128k-agentic** | `nemotron-3.5-lightning:30b` **-ctx256k-agentic** |
+|---|---|---|---|---|---|
+| architecture | MoE, 3B active | MoE + MTP head | **dense** | **dense** | hybrid Mamba-2 + MoE |
+| **generation** | **131.4 tok/s** | **129.0 tok/s** | 18.1 tok/s | 28.9 tok/s | 44.9 tok/s |
+| **prefill** (35k) | **3,988 tok/s** | 3,369 tok/s | 1,464 tok/s | 1,963 tok/s | 3,050 tok/s |
+| resident | 32.54 GB | **28.89 GB** | 34.03 GB | **19.45 GB** | 31.21 GB |
+| GPU residency | 100% | 100% | 100% | 100% | 100% |
+| **max `num_ctx` at 100% GPU** | 262144 | 262144 | **81920** | 131072 | **524288** |
+| tool gates T1–T5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 |
+| **needle, 80k-word doc** | **PASS** @146,957 | **PASS** @146,957 | **FAIL** — window | **PASS** @114,487 | **PASS** @161,516 |
+| vision | **yes** | yes | yes | yes | **no** |
+| cold load | 11.6 s | 12.3 s | 14.2 s | 18.4 s | 18.2 s |
+
+Every cell measured on `.67`, Ollama 0.32.9, server idle before each stage.
+
+**The q8_0 "FAIL" is not a retrieval failure.** Its window is 81,920 and the prompt was
+~147k tokens, so the overflow bug of §4 halved it: `prompt_eval = 40,962`, exactly half.
+The needle was in the discarded half. Within its window it retrieves fine (72,419 at
+the 60k depth). This is a **third independent confirmation** of trap 2, at a third
+window size — 32768 → 16,387, 61440 → 30,002, 81920 → 40,962.
+
+### 11.1 Correction 1 — the incumbent does *not* fail at 120k
+
+§5 and §7c claimed the incumbent "fails at 120k". **That was wrong.** The figure came
+from v1's `needle-retest.log`, which measured **`qwen3.6:27b-q4_K_M-ctx128k`** — a
+different model, a different size, a different quant. I attributed it to the `35b-a3b`
+MoE because both are "the qwen on `.67`".
+
+Measured directly (`results/needle-incumbent.txt`), the incumbent **passes all four
+depths, including 146,957 prompt tokens**. So the claim that "both newcomers beat it
+at depth" is false and is withdrawn.
+
+Worse for the newcomers, the token counts are not comparable across models. All four
+passing models were given the **same 80,003-word document**; they merely tokenize it
+differently:
+
+| model | tokens for the same document |
+|---|---|
+| `qwen3.6` family | 146,957 |
+| `muse-glimmer` | 114,487 *(and this is its ceiling — window is 131072)* |
+| `nemotron` | 161,516 |
+
+**Nemotron's 161,516 is not more retrieval, it is a less efficient tokenizer.** In
+characters of real document, all four retrieved identically. The only honest ranking
+here is by *window headroom*, where Nemotron genuinely leads (524288 at 100% GPU).
+
+### 11.2 Correction 2 — vision is not unique to Muse Glimmer
+
+§5 listed vision as something "nothing else on the farm" can do. **Every `qwen3.6` tag
+on `.67` reports the `vision` capability**, which §10's inventory shows plainly and
+which I did not act on when writing §5.
+
+Tested head to head on the same screenshot (`results/vision-incumbent.txt`):
+
+| | prompt tokens | generation | what it reported |
+|---|---|---|---|
+| `muse-glimmer` | 1,177 | 28.9 tok/s | "Konsole", read the window title |
+| **incumbent** | **869** | **129.8 tok/s** | **"Claude Code v2.1.156"**, read the invoked command and its flag |
+
+The incumbent is **4.5× faster at vision, uses fewer prompt tokens for the same image,
+and extracted more from it.** Muse Glimmer's one remaining differentiator does not
+survive contact with a measurement.
+
+### 11.3 Correction 3 — what follows for Muse Glimmer
+
+Combining the two corrections: against the incumbent, Muse Glimmer is **4.5× slower,
+has half the context window, retrieves less document, and loses the vision comparison
+it was recommended for.** Its `xhigh` reasoning level, the other pillar of the earlier
+recommendation, is rejected by Ollama (§7c).
+
+**There is no workload on this box where Muse Glimmer is the right choice.** It is a
+capable model — 5/5 tool gates, real 128K retrieval — that happens to be outclassed by
+what was already installed. Keeping it costs nothing but it should not be deployed, and
+the §8 recommendation to reach for it "for anything with an image in the loop" is
+withdrawn.
+
+### 11.4 How the parameters for the two new models were chosen
+
+Not assumed — measured, and in each case the shipped default lost.
+
+**Context window: sweep until residency stops being 100%.** `./kv-probe.sh` at several
+`num_ctx`, watching `size_vram / size`:
+
+| `qwen3.6:27b-q8_0` | resident | GPU | | `qwen3.6:35b-a3b-mtp` | resident | GPU |
+|---|---|---|---|---|---|---|
+| 16384 | 29.67 GB | 100% | | 131072 | 26.15 GB | 100% |
+| 32768 | 30.41 GB | 100% | | **262144** | **27.57 GB** | **100%** |
+| 65536 | 32.82 GB | 100% | | *(262144 is the architectural max)* | | |
+| **81920** | **34.03 GB** | **100%** | | | | |
+| 98304 | 36.08 GB | **95%** | | | | |
+| 131072 | 38.33 GB | **93%** | | | | |
+
+So **81920** for the q8_0 — notably better than the 60000 the pre-existing `-ctx60k`
+tag used — and the full **262144** for the MoE.
+
+This sweep also yields the most useful number in this document for future planning:
+**at `num_ctx=131072` the q8_0 asked for 38.33 GB and only 35.56 GB stayed on the GPU.
+The usable ceiling is therefore ≈35.5 GB, not the 40.4 GB in ollamaFarm's table.** That
+independently corroborates v1's "36.1 GB measured usable" and means roughly 5 GB of the
+stated 40.4 is not spendable on a model.
+
+**`draft_num_predict` — the MTP knob, and the shipped default is wrong.** The `-mtp`
+tags carry a multi-token-prediction head for speculative decoding and ship
+`draft_num_predict 4`. Four variants, identical but for that value, measured on an idle
+server:
+
+| `draft_num_predict` | generation | prefill (35k) | vs. off |
+|---|---|---|---|
+| **0 — off** | **129.2 tok/s** | **3,384 tok/s** | — |
+| 2 | 105.1 tok/s | 1,958 tok/s | **−19%** |
+| **4 — shipped default** | 100.6 tok/s | 1,950 tok/s | **−22%** |
+| 8 | 58.9 tok/s | 1,945 tok/s | **−54%** |
+
+**Speculative decoding is a net loss here at every setting, and the deeper the draft the
+worse it gets.** It costs prefill too — nearly halved the moment it is enabled at all.
+The plausible reading is that draft-token rejection dominates: on a 3B-active MoE the
+target model is already cheap per token, so verifying speculative tokens costs more than
+it saves. Whatever the cause, the measurement is unambiguous, so
+`qwen3.6:35b-a3b-mtp-q4_K_M-agentic` bakes **`draft_num_predict 0`**.
+
+With MTP off, the MTP tag is within noise of the plain incumbent (129.0 vs 131.4) while
+using **3.65 GB less memory** (28.89 vs 32.54 GB) at the same 262144 window. That makes
+it a mildly better default than the incumbent if memory is tight, and otherwise a wash.
+
+**`presence_penalty 0` — re-verified rather than inherited.** v1 measured the vendor
+default of 1.5 costing 35–53% of throughput. Re-run on 0.32.9, same base model, same
+window, **only `presence_penalty` differing**:
+
+| prompt | `pp 0` | `pp 1.5` | cost |
+|---|---|---|---|
+| 25 tok | 124.5 tok/s | 81.2 tok/s | **−35%** |
+| 3,180 tok | 129.2 tok/s | 85.3 tok/s | **−34%** |
+| 35,102 tok | 111.8 tok/s | 77.2 tok/s | **−31%** |
+
+**Confirmed at the low end of v1's range: 31–35%.** Since 15 of the 21 tags on `.67`
+carry `presence_penalty 1.5` (§10), this is the single cheapest performance win
+available on that server.
+
+**`temperature 0`** is carried over from v1 on reliability grounds (it fixed run-to-run
+gate flapping) rather than speed; the table above shows it is not a throughput factor.
+
+### 11.5 The two new deployable tags
+
+```shell
+# MoE + MTP head, with MTP disabled because it costs 22%
+curl -X POST http://192.168.100.67:11434/api/create -H 'Content-Type: application/json' \
+  -d '{"model":"qwen3.6:35b-a3b-mtp-q4_K_M-agentic","from":"qwen3.6:35b-a3b-mtp-q4_K_M",
+       "parameters":{"num_ctx":262144,"temperature":0,"presence_penalty":0,
+                     "draft_num_predict":0},"stream":false}'
+
+# dense q8_0, window sized to the measured 100%-GPU ceiling
+curl -X POST http://192.168.100.67:11434/api/create -H 'Content-Type: application/json' \
+  -d '{"model":"qwen3.6:27b-q8_0-agentic","from":"qwen3.6:27b-q8_0",
+       "parameters":{"num_ctx":81920,"temperature":0,"presence_penalty":0},"stream":false}'
+```
+
+### 11.6 Revised recommendation
+
+1. **`qwen3.6:35b-a3b-mtp-q4_K_M-agentic`** — new default. 129.0 tok/s, full 262144
+   window, 3.65 GB lighter than the incumbent, vision, 5/5 gates.
+2. **`qwen3.6:35b-a3b-q4_K_M-agentic`** — the incumbent, 131.4 tok/s. Interchangeable
+   with the above; pick it if you would rather not depend on a `draft_num_predict 0`
+   override being respected.
+3. **`nemotron-3.5-lightning:30b-ctx256k-agentic`** — only when the working set exceeds
+   262144 tokens. It is the sole model that stays 100% GPU-resident at 524288, and that
+   is now its *only* advantage: at 44.9 tok/s it is 2.9× slower than the default, and
+   its deeper needle result was a tokenizer artifact, not better retrieval.
+4. **`qwen3.6:27b-q8_0-agentic`** — only to check whether a q8 quant fixes a specific
+   quality problem. At 18.1 tok/s and a 81,920 window it is the slowest and most
+   constrained option, exactly as `fitting_models.md` predicted for dense + q8 on this
+   hardware. §2b's argument is confirmed by direct measurement.
+5. **`muse-glimmer:30b-ctx128k-agentic`** — not recommended (§11.3).

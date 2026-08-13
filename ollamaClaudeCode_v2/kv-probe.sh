@@ -38,7 +38,11 @@ API="http://${HOST}:${PORT}"
 printf '%-10s %14s %14s %14s\n' num_ctx total_GB vram_GB pct_gpu
 RESULTS=""
 for N in $CTXS; do
-  TAG="muse-kvprobe-$N"
+  # Temp tag names carry the model they came from. The first version hardcoded
+  # "muse-" and was later pointed at other models, which left tags on a shared
+  # server that lied about what they were.
+  SAFE=$(printf '%s' "$MODEL" | tr ':/.' '---' | cut -c1-28)
+  TAG="kvprobe-${SAFE}-$N"
   curl -s -X POST "$API/api/create" -H "Content-Type: application/json" \
     -d "{\"model\":\"$TAG\",\"from\":\"$MODEL\",\"parameters\":{\"num_ctx\":$N},\"stream\":false}" >/dev/null
 

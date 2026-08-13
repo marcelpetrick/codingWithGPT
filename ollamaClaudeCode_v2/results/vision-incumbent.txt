@@ -1,0 +1,15 @@
+qwen3.6:35b-a3b-q4_K_M-agentic  wall=19.5s  prompt_eval=869  gen=129.8 tok/s
+---
+This screenshot shows a terminal window running **Claude Code v2.1.156**, an AI-powered coding assistant that integrates with the command line. The interface is from a Linux-based system (likely Ubuntu or similar), as indicated by the Konsole terminal emulator title bar and file paths.
+
+---
+
+### What’s Happening:
+
+The user has invoked Claude Code with the command:
+
+```
+claude-ol --dangerously-skip-permissions
+```
+
+This bypasses permission checks for faster execution (not recommended in productio
