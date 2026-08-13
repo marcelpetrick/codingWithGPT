@@ -17,15 +17,21 @@
 # not a command, so this polls /api/ps until it is actually empty instead of
 # sleeping a guessed interval.
 #
-# Usage: ./idle.sh [--host H] [--port P] [--timeout S]
+# Usage: ./idle.sh [--host H] [--port P] [--timeout S] [--wait S] [--force]
+#
+# Unloads only models this project owns. A foreign model is waited out, never
+# evicted -- see the shared-server guard below.
 set -uo pipefail
 
 HOST="192.168.100.67"; PORT="11434"; TMO=180
+WAIT=600   # how long to wait for a FOREIGN model to free itself before giving up
 while [ $# -gt 0 ]; do
   case "$1" in
     --host) HOST="$2"; shift 2 ;;
     --port) PORT="$2"; shift 2 ;;
     --timeout) TMO="$2"; shift 2 ;;
+    --wait)    WAIT="$2"; shift 2 ;;
+    --force)   FORCE=1; shift ;;
     *) echo "unknown: $1" >&2; exit 2 ;;
   esac
 done
@@ -43,6 +49,50 @@ R=$(resident)
 if [ -z "$R" ]; then
   echo "idle: nothing resident on $HOST"
   exit 0
+fi
+
+# --- the shared-server guard -------------------------------------------------
+# .67 belongs to a colleague (see ~/repos/ollamaFarm/AGENTS.md). Unloading is
+# safe for models THIS harness put there and rude for anything else: on
+# 2026-08-13 a benchmark was started while a colleague's claude-ol2 session held
+# 32.54 GB with a 2h keep_alive, and an unguarded unload would have evicted them
+# mid-session with no warning.
+#
+# So: only ever unload tags this project benchmarks or creates. Anything else
+# means WAIT (default) -- polling read-only until it goes away on its own -- or
+# bail out. --force is the explicit override for "I know that model is mine".
+#
+# KNOWN LIMITATION, stated rather than hidden: ownership is guessed from the tag
+# name, and it cannot be done properly. The qwen3.6 variants this project also
+# benchmarks (-mtp-q4_K_M-agentic, 27b-q8_0-agentic) are indistinguishable by
+# name from qwen3.6:35b-a3b-q4_K_M-agentic, which is what a colleague's
+# claude-ol2 session loads. Erring toward "foreign" means re-benchmarking those
+# two needs either a free server or an explicit --force. That is the right way
+# round: a needless wait costs minutes, evicting someone's session costs a
+# 70-second reload plus their goodwill.
+#
+# Do NOT run this script while one of your own benchmarks is in flight -- it will
+# unload the model being measured. That happened once on 2026-08-13, to this
+# author, while "just checking the new guard works".
+OURS='^(muse-glimmer:|nemotron-3\.5-lightning:|kvprobe-|tune-)'
+foreign() { printf '%s\n' $R | grep -Ev "$OURS" || true; }
+
+F=$(foreign)
+if [ -n "$F" ] && [ "${FORCE:-0}" != "1" ]; then
+  echo "idle: someone else's model is resident -- waiting, NOT unloading:" >&2
+  printf '  %s\n' $F >&2
+  W=0
+  while [ $W -lt "$WAIT" ]; do
+    sleep 30; W=$((W+30))
+    R=$(resident)
+    [ -z "$R" ] && { echo "idle: server freed itself after ${W}s"; exit 0; }
+    [ -z "$(foreign)" ] && break   # only our own models left; fall through to unload
+  done
+  if [ -n "$(foreign)" ]; then
+    echo "idle: STILL busy after ${WAIT}s. Refusing to evict a foreign model." >&2
+    echo "  re-run when it is free, or FORCE=1 if that model is yours." >&2
+    exit 2
+  fi
 fi
 
 echo "idle: unloading ->"
