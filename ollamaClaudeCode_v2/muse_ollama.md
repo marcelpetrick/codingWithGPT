@@ -1059,3 +1059,228 @@ export ANTHROPIC_MODEL=muse-glimmer:30b-ctx128k-agentic
 
 Never the bare tag, for the reason measured in §4. Expect an eviction and an ~18 s
 reload when switching — they do not co-reside in 40 GB.
+
+---
+
+## 9. How this was benchmarked
+
+Written so the numbers in §7c can be reproduced, disputed, or re-run against the next
+model without re-deriving the method. The house rule from `~/repos/ollamaFarm/AGENTS.md`
+applies throughout: **never fabricate a measurement**, and label anything that is not one.
+
+### 9.1 The environment, and the one thing that had to be controlled
+
+All measurements ran against `192.168.100.67`, Ollama **0.32.9**, over HTTP from this
+laptop. No SSH — every operation is `/api/pull`, `/api/create`, `/api/chat`,
+`/api/show`, `/api/ps`, `/api/delete` or `/v1/messages`.
+
+The single most important control is **residency**. `.67` holds roughly 40 GB and the
+models under test are 19.45 GB and 31.21 GB. They cannot co-reside. If a benchmark
+starts while the previous model is still held by `keep_alive`, one of three things
+happens and all of them silently corrupt the result:
+
+1. the incoming model is evicted and reloaded mid-run, and `load_duration` leaks into
+   the timings;
+2. the incoming model is **partially offloaded to system RAM** — `review2.md` measured
+   a 12.5% spill costing **5.3× throughput**, which is larger than the true difference
+   between any two models here, so this failure produces a confident wrong verdict
+   rather than an obviously broken one;
+3. somebody else's model gets evicted, which is rude on a shared box.
+
+So `./idle.sh` is a hard gate, not a courtesy: it asks every resident model to unload
+with `keep_alive: 0`, then **polls `/api/ps` until it is actually empty** rather than
+sleeping a guessed interval, and exits non-zero if it cannot. `./head2head.sh` calls it
+between *every* stage and **aborts the run** rather than benchmark into a busy server.
+Each `-- residency / KV --` block in `results/h2h-*.log` shows the gate firing.
+
+### 9.2 What "tokens per second" means here
+
+Two rates, both taken from **Ollama's own counters** in the `/api/chat` response, never
+from wall-clock:
+
+```
+prefill    tok/s = prompt_eval_count / prompt_eval_duration
+generation tok/s = eval_count        / eval_duration
+```
+
+`eval_duration` excludes model load, which is what makes a cold and a warm run
+comparable; `load_duration` is reported in its own column instead of being folded in,
+because an 18 s cold load would otherwise dominate a 10 s generation.
+
+Controls in `tokrate.sh`, so the model is the only variable:
+
+- **`temperature 0` and `seed 42`** — deterministic, and it removes sampling cost as a
+  confound.
+- **fixed `num_predict 256`** rather than letting each model stop where it likes. A
+  chatty model would otherwise look slower purely by generating more, and a terse one
+  would post a rate measured over a handful of tokens. *(Nemotron still stopped early
+  on some rows — see 9.6.)*
+- **three prompt sizes** — 0, 2000 and 20000 words — to separate "slow model" from
+  "slow at long context". All three models turned out to be essentially flat, which is
+  itself the finding: they are bandwidth-bound on weights, not on context.
+- **the same filler text** as `needle-v2.sh`, so token counts stay comparable across
+  every script in this directory.
+
+### 9.3 Capability gates
+
+**Tool calling** uses `../ollamaClaudeCode_v1/agentic-test.sh` **unmodified**. That
+matters: it was written and validated against the incumbent, so reusing it verbatim
+means a pass here is comparable to a pass there rather than to a fresh harness that
+might be easier. It drives `/v1/messages` — the Anthropic-compatible endpoint Claude
+Code actually speaks, not `/api/chat` — because the question is whether these models
+work *as a Claude Code driver*, and the renderer/parser layer (§1c) is exactly what
+that endpoint exercises. T1–T5 cover a single tool, selection among four, a multi-turn
+exchange consuming a `tool_result`, parallel calls in one turn, and a nested
+enum/array schema.
+
+**Retrieval** uses `./needle-v2.sh`, not v1's built-in T6. A secret passphrase is
+buried at the **midpoint** of generated filler prose — mid-document, because that is
+where the half-window discard (§4) would silently eat it — and the model is asked for
+the passphrase alone. Four depths: ~4k, 16k, 60k, 120k. Every row reports
+`prompt_eval_count`, so a truncated prompt is visible rather than being scored as a
+retrieval failure.
+
+**Context truncation** uses `./cliff-probe.sh` against models *already on the box*, so
+the result is a property of the **server**, not of either new model.
+
+**Footprint scaling** uses `./kv-probe.sh`: build a variant at each `num_ctx`, load it,
+read `size` and `size_vram` from `/api/ps`, delete it.
+
+**Vision** posts a real screenshot (`../ollamaClaudeCode_v0/failingOutput.png`) and
+checks the description against what is actually in the image.
+
+**Reasoning effort** sweeps `think: false|low|medium|high|xhigh` on one fixed word
+problem and records thinking length, answer length and wall time.
+
+### 9.4 The exact commands that produced §7c
+
+```shell
+./idle.sh       --host 192.168.100.67
+./tokrate.sh    --host 192.168.100.67 qwen3.6:35b-a3b-q4_K_M-agentic
+./cliff-probe.sh --host 192.168.100.67 --port 11434 \
+                 qwen3.6:27b-q4_K_M qwen3.6:27b-q4_K_M-ctx128k
+./head2head.sh  --host 192.168.100.67 muse-glimmer:30b-ctx128k-agentic
+./head2head.sh  --host 192.168.100.67 nemotron-3.5-lightning:30b-ctx256k-agentic
+./kv-probe.sh   --host 192.168.100.67 --port 11434 \
+                 --model nemotron-3.5-lightning:30b --ctxs "32768 131072 262144 524288"
+```
+
+Artefacts, all committed:
+
+| file | contents |
+|---|---|
+| `results/tokrate.tsv` | every throughput row, machine-readable |
+| `results/h2h-muse.log`, `results/h2h-nemotron.log` | full battery transcripts incl. the idle gate |
+| `results/agentic/*.tsv`, `*.raw.jsonl` | tool gates, verdicts and raw responses |
+| `results/needle-v2.log`, `*.raw.jsonl` | retrieval, with `prompt_eval_count` per row |
+| `results/cliff-0.32.9-qwen.txt` | both truncation traps, incl. the 60k disambiguation |
+| `results/kv-nemotron.txt` | the `num_ctx` footprint sweep |
+| `results/vision-muse.txt`, `results/reasoning-effort.txt` | the two v1 could not test |
+| `results/inventory-67.txt` | §10, regenerable |
+
+### 9.5 Verifying against a claim rather than trusting the harness
+
+Two checks kept the harness honest:
+
+- **A known-good control.** The incumbent was re-measured first. It came back at
+  **131.4 tok/s** against v1's **131.5** on the older runtime. Had that drifted, every
+  other number this session would have been suspect and the comparison to the v1 corpus
+  invalid.
+- **A prediction made before the measurement.** §5 estimated Muse at 25–32 tok/s from
+  bandwidth arithmetic, published before the server was reachable. It measured 27.9–28.9.
+  The same method predicted q8_0 would spill and was **wrong** (§2b), so this is
+  reported as one hit and one miss, not as a validated method.
+
+### 9.6 Known limitations of this methodology
+
+Stated because they bound how far the numbers should be pushed:
+
+- **`num_predict 256` was not always reached.** Several rows stopped early (Nemotron at
+  96 and 143 tokens, the incumbent at 78–108). The rates are still computed over what
+  was generated, but a rate measured over ~80 tokens is noisier than one over 256.
+- **Single run per cell.** No repeats, no error bars. The 3–4× gaps discussed here are
+  far larger than plausible run-to-run variance, but two models within ~10% of each
+  other could not be separated by this data.
+- **One needle, one position.** The passphrase sits at the midpoint every time. This
+  finds the half-window discard by construction, but it does **not** sweep depth, so it
+  is not a full "needle in a haystack" grid.
+- **`prompt_eval_duration` on tiny prompts is meaningless.** Nemotron's 3.2 tok/s
+  prefill on a 29-token prompt is measurement floor, not a result.
+- **Gates are not a session.** T1–T5 prove the protocol works. They say nothing about
+  whether a model stays coherent over a multi-hour Claude Code run — the thing that
+  actually decides day-to-day usability, and the reason the 8.0% SWE-bench figure in §5
+  is worth remembering.
+- **`-dflash` was not tested.** Each variant means another ~20 GB pull and another
+  serialized battery. It remains the one untested variable with plausible upside.
+
+---
+
+## 10. Every model on `192.168.100.67`
+
+Generated by the script embedded in §10.1; raw output in `results/inventory-67.txt`.
+21 tags as of **2026-08-13**.
+
+| model | size | params | quant | `num_ctx` | temp | `pp` | capabilities |
+|---|---|---|---|---|---|---|---|
+| `qwen3.6:27b-mtp-q8_0-ctx60k` | 29.98 GB | 27.3B | Q8_0 | 60000 | 0.6 | **1.5** | thinking, tools, vision |
+| `qwen3.6:27b-mtp-q8_0-ctx128k` | 29.98 GB | 27.3B | Q8_0 | 131072 | 1 | **1.5** | thinking, tools, vision |
+| `qwen3.6:27b-mtp-q8_0` | 29.98 GB | 27.3B | Q8_0 | *bare* | 1 | **1.5** | thinking, tools, vision |
+| `qwen3.6:27b-q8_0-ctx60k` | 29.97 GB | 27.8B | Q8_0 | 60000 | 0.6 | **1.5** | thinking, tools, vision |
+| `qwen3.6:27b-q8_0` | 29.97 GB | 27.8B | Q8_0 | *bare* | 1 | **1.5** | thinking, tools, vision |
+| **`nemotron-3.5-lightning:30b-ctx256k-agentic`** | 25.43 GB | 32.9B | Q4_K_M | **262144** | **0** | **0** | thinking, tools |
+| `nemotron-3.5-lightning:30b` | 25.43 GB | 32.9B | Q4_K_M | *bare* | 1 | — | thinking, tools |
+| `qwen3.6:35b-a3b-q4_K_M-ctx128k` | 23.94 GB | 36.0B | Q4_K_M | 131072 | 1 | **1.5** | thinking, tools, vision |
+| `qwen3.6:35b-a3b-q4_K_M-ctx256k` | 23.94 GB | 36.0B | Q4_K_M | 262144 | 1 | **1.5** | thinking, tools, vision |
+| `qwen3.6:35b-a3b-q4_K_M-isot0` | 23.94 GB | 36.0B | Q4_K_M | 262144 | 0 | **1.5** | thinking, tools, vision |
+| **`qwen3.6:35b-a3b-q4_K_M-agentic`** | 23.94 GB | 36.0B | Q4_K_M | **262144** | **0** | **0** | thinking, tools, vision |
+| `qwen3.6:35b-a3b-q4_K_M-isopp0` | 23.94 GB | 36.0B | Q4_K_M | 262144 | 1 | 0 | thinking, tools, vision |
+| `qwen3.6:35b-a3b-q4_K_M` | 23.94 GB | 36.0B | Q4_K_M | *bare* | 1 | **1.5** | thinking, tools, vision |
+| `qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k` | 22.62 GB | 35.5B | Q4_K_M | 131072 | 1 | **1.5** | thinking, tools, vision |
+| `qwen3.6:35b-a3b-mtp-q4_K_M` | 22.62 GB | 35.5B | Q4_K_M | *bare* | 1 | **1.5** | thinking, tools, vision |
+| **`muse-glimmer:30b-ctx128k-agentic`** | 18.16 GB | 27.9B | Q4_K_M | **131072** | **0** | **0** | thinking, tools, **vision** |
+| `muse-glimmer:30b` | 18.16 GB | 27.9B | Q4_K_M | *bare* | 1 | — | thinking, tools, vision |
+| `qwen3.6:27b-q4_K_M-ctx128k` | 17.42 GB | 27.8B | Q4_K_M | 131072 | 1 | **1.5** | thinking, tools, vision |
+| `qwen3.6:27b-q4_K_M` | 17.42 GB | 27.8B | Q4_K_M | *bare* | 1 | **1.5** | thinking, tools, vision |
+| `qwen3.5:9b-ctx80k` | 6.59 GB | 9.7B | Q4_K_M | 81920 | 1 | **1.5** | thinking, tools, vision |
+| `qwen3.5:9b` | 6.59 GB | 9.7B | Q4_K_M | *bare* | 1 | **1.5** | thinking, tools, vision |
+
+**13 of 21 tags carry a baked `num_ctx`; 8 are bare** and therefore subject to the
+16,386-token cap of §4 whenever they are driven through `/v1/messages`.
+
+Three things this table makes visible that a plain `ollama list` does not:
+
+- **`presence_penalty 1.5` is on 15 of the 21 tags.** `review2.md` measured that
+  vendor default costing **35–53% of throughput** on this hardware. Only the four
+  `-agentic` / `-isopp0` variants clear it. **Prefer an `-agentic` tag for anything
+  that generates a lot of tokens** — the difference is free.
+- **Only three tags are fully tuned for agentic use** (`num_ctx` baked, `temperature 0`,
+  `presence_penalty 0`): `qwen3.6:35b-a3b-q4_K_M-agentic`,
+  `nemotron-3.5-lightning:30b-ctx256k-agentic` and `muse-glimmer:30b-ctx128k-agentic`.
+  Those are the three in the deploy block at the end of §8.
+- **Nothing here is larger than 33 GB resident.** The q8_0 tags at ~30 GB on disk are
+  the closest to the ceiling, which is what §2b's throughput argument was about.
+
+The `-isot0` and `-isopp0` tags are v1's **isolation variants** — one changes only
+`temperature`, the other only `presence_penalty`, against the same base — which is how
+review2.md attributed the 35–53% cost to `presence_penalty` specifically rather than to
+"the agentic settings" as a bundle. Keep them; they are the control group.
+
+### 10.1 Regenerating this table
+
+```shell
+curl -s http://192.168.100.67:11434/api/tags | python3 -c '
+import sys,json
+ms=json.load(sys.stdin)["models"]
+for m in sorted(ms,key=lambda x:-x["size"]):
+    d=m.get("details",{})
+    print("%8.2f GB  %-46s %-7s %s"%(m["size"]/1e9,m["name"],
+          d.get("parameter_size","?"),d.get("quantization_level","?")))'
+```
+
+The `num_ctx` / `temperature` / `presence_penalty` and capability columns need one
+`POST /api/show` per tag — `results/inventory-67.txt` is the full output.
+
+**Read-only, and deliberately so.** `ollamaFarm`'s `AGENTS.md` records `.67` as a
+shared machine. Everything added this session is additive (`muse-glimmer:*`,
+`nemotron-3.5-lightning:*`); no pre-existing tag was modified or removed, and the four
+temporary `*-kvprobe-*` tags created by `kv-probe.sh` were deleted afterwards.
