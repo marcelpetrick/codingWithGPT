@@ -12,24 +12,13 @@
 #include <QMap>
 #include <QDateTime>
 
-// Simple markdown-to-unicode converter for common formatting elements.
-/*
-  Converts markdown syntax to unicode characters that provide visual enhancement.
-  Uses widely-supported unicode characters to ensure correct rendering across fonts.
-  Processes text line by line with prioritized transformations.
- 
-  Design note: This class can be used statically for quick conversions, or
-  instantiated for configurable conversion behavior. Instances can hold conversion
-  options (e.g., which transformation categories to enable) in future extensions.
- */
+/// Simple markdown-to-unicode converter for common formatting elements.
 /**
  Converts markdown syntax to unicode characters that provide visual enhancement.
  Uses widely-supported unicode characters to ensure correct rendering across fonts.
  Processes text line by line with prioritized transformations.
  */
 class MarkdownToUnicodeConverter {
-    /// Default constructor. Creates a converter with default (all transformations enabled) settings.
-    MarkdownToUnicodeConverter() {}
 public:
     /// Convert a full markdown document to unicode-enhanced text.
     static QString convert(const QString &markdown) {
@@ -37,51 +26,15 @@ public:
             return QString();
         }
 
-        // Split into paragraphs (groups of non-empty lines separated by empty lines)
-        // This allows proper handling of multi-line constructs like fenced code blocks
-        // and multi-paragraph lists.
-        QStringList paragraphs;
+        // Split into lines preserving empty lines (unlike Qt::SkipEmptyParts)
         QStringList lines = markdown.split('\n');
-        QString currentParagraph;
-
-        for (int i = 0; i < lines.size(); i++) {
-            const QString &line = lines.at(i);
-            if (line.trimmed().isEmpty()) {
-                // Empty line ends the current paragraph
-                if (!currentParagraph.isEmpty()) {
-                    paragraphs.append(currentParagraph);
-                    currentParagraph.clear();
-                }
-            } else {
-                if (!currentParagraph.isEmpty()) {
-                    currentParagraph += '\n' + line;
-                } else {
-                    currentParagraph = line;
-                }
-            }
-        }
-        // Don't forget the last paragraph
-        if (!currentParagraph.isEmpty()) {
-            paragraphs.append(currentParagraph);
-        }
-
-        if (paragraphs.isEmpty()) {
-            return markdown; // Return original if no paragraphs found
-        }
-
         QStringList resultLines;
-        for (const QString &para : paragraphs) {
-            // Process each paragraph - split by newline within paragraph for line-by-line conversion
-            QStringList paraLines = para.split('\n');
-            QStringList resultParaLines;
-            for (const QString &line : paraLines) {
-                resultParaLines.append(convertLine(line));
-            }
-            // Join with newlines within the paragraph, then paragraphs with double newlines
-            resultLines.append(resultParaLines.join("\n"));
+
+        for (const QString &line : lines) {
+            resultLines.append(convertLine(line));
         }
 
-        return resultLines.join("\n\n");
+        return resultLines.join("\n");
     }
 
     /// Convert a single line of markdown to unicode-enhanced text.
@@ -106,31 +59,20 @@ public:
         result = convertHeading(result);
 
         // 4. Combined bold+italic ***text*** (MUST come before individual bold/italic)
-        // This must be processed first because *** contains both ** and * markers inside.
-        // Processing it first ensures that ***text*** is fully converted before individual
-        // ** or * patterns are evaluated, preventing partial conversions.
         result = convertBoldItalic(result);
 
         // 5. Bold **text** or __text__
-        // After bold+italic has been processed, remaining ** and __ markers are from
-        // original bold syntax only, not overlapping with *** patterns.
         result = convertBold(result);
 
         // 6. Italic *text* or _text_
-        // After bold+italic has been processed, remaining single * markers (not part of **)
-        // and _ markers are from original italic syntax only.
         result = convertItalic(result);
 
         // 7. Strikethrough ~~text~~
         result = convertStrikethrough(result);
 
         // 8. Lists: lines starting with * or - followed by space
-        // Detect list markers on the original line text (not the transformed result)
-        // to avoid missing list items whose prefix was modified or removed by earlier
-        // transformations like bold/italic conversion. The `line` parameter at the start
-        // of convertLine() preserves the original marker characters.
-        if ((line.startsWith('*') || line.startsWith('-')) &&
-            line.size() > 1 && line.at(1).isSpace()) {
+        if ((result.startsWith('*') || result.startsWith('-')) &&
+            result.size() > 1 && result.at(1).isSpace()) {
             result = convertListItem(result);
         }
 
@@ -445,55 +387,26 @@ private:
     }
 
     /// Convert inline code `text` to unicode-marked format.
-    /// Handles simple inline code spans, skips triple-backtick fences,
-    /// and avoids corrupting code that contains backtick characters.
     static QString convertInlineCode(QString result) {
-        // Use a simple approach: find pairs of single backticks that are
-        // not part of triple-backtick fences (```).
-        // We scan through the string, tracking backtick sequences.
         int pos = 0;
-        while (pos < result.size()) {
-            // Find next backtick
-            int btPos = result.indexOf(QChar('`'), pos);
-            if (btPos == -1) break;
+        while ((pos = result.indexOf('`', pos)) != -1) {
+            int endPos = result.indexOf('`', pos + 1);
+            if (endPos != -1) {
+                QString inner = result.mid(pos + 1, endPos - pos - 1);
 
-            // Check if this backtick starts a triple-fence ``` 
-            if (btPos + 2 < result.size() &&
-                result.at(btPos + 1) == QChar('`') &&
-                result.at(btPos + 2) == QChar('`')) {
-                // Skip this triple-backtick sequence - it's a fence, not inline code
-                pos = btPos + 3;
-                continue;
-            }
-
-            // Find the closing backtick - must be a single backtick (not part of a sequence)
-            int closePos = btPos + 1;
-            while (closePos < result.size()) {
-                if (result.at(closePos) == QChar('`')) {
-                    // Check if this is part of a multi-backtick sequence
-                    int saveCount = 1;
-                    int checkPos = closePos + 1;
-                    while (checkPos < result.size() && result.at(checkPos) == QChar('`')) {
-                        saveCount++;
-                        checkPos++;
-                    }
-                    if (saveCount == 1) {
-                        // This is a valid closing backtick for inline code
-                        QString inner = result.mid(btPos + 1, closePos - btPos - 1);
-                        QString wrapped = QString(QChar(0x25B8)) + inner + QString(QChar(0x25C2)); // ▸text◂
-                        result.replace(btPos, closePos - btPos + 1, wrapped);
-                        pos = btPos + wrapped.size();
-                        break;
-                    }
+                // Skip triple backticks (fence)
+                if (endPos + 1 < result.size() && result.at(endPos + 1) == '`') {
+                    pos = endPos + 2;
+                    continue;
                 }
-                closePos++;
+
+                // Wrap in visible unicode code markers
+                QString wrapped = QString(QChar(0x25B8)) + inner + QString(QChar(0x25C2)); // ▸text◂
+                result.replace(pos, endPos - pos + 2, wrapped);
+                pos += wrapped.size();
+            } else {
+                break;
             }
-            if (closePos >= result.size()) {
-                // No matching closing backtick found; leave as-is
-                pos = btPos + 1;
-                continue;
-            }
-            pos = closePos + 1;
         }
         return result;
     }
@@ -613,12 +526,6 @@ private:
     /// Slot: called whenever input text changes, converts and displays output.
     void onInputChanged() {
         QString markdown = inputText->toPlainText();
-        convertAndUpdate(markdown);
-    }
-
-    /// Convert input text and update the output/log panes.
-    /// Decouples conversion logic from UI update for better maintainability.
-    void convertAndUpdate(const QString &markdown) {
         bool hasError = false;
         QString errorMsg;
 
@@ -633,7 +540,14 @@ private:
             // Display the result
             outputText->setPlainText(converted);
 
-            updateConversionStatus(converted, inputText->document()->characterCount());
+            if (converted.isEmpty() || converted == markdown) {
+                logMessage("No conversion changes detected", "info");
+            } else {
+                logMessage("Conversion complete - " +
+                           QString::number(inputText->document()->characterCount()) +
+                           " chars → " + QString::number(converted.size()) + " chars",
+                           "success");
+            }
 
             statusBar()->showMessage("Converted successfully", 3000);
         } catch (const std::exception &e) {
@@ -654,23 +568,6 @@ private:
         // Update status bar
         if (hasError) {
             statusBar()->showMessage("Error: " + errorMsg, 5000);
-        }
-    }
-
-    /// Determine and log the conversion result status.
-    /// Separates status-logic from the main conversion flow for maintainability.
-    void updateConversionStatus(const QString &converted, int originalCharCount) {
-        if (converted.isEmpty()) {
-            logMessage("No conversion changes detected", "info");
-        } else if (converted == QString()) {  // empty original would have been caught earlier
-            logMessage("No conversion changes detected", "info");
-        } else if (converted == inputText->toPlainText()) {
-            logMessage("No conversion changes detected", "info");
-        } else {
-            logMessage("Conversion complete - " +
-                       QString::number(originalCharCount) +
-                       " chars → " + QString::number(converted.size()) + " chars",
-                       "success");
         }
     }
 
