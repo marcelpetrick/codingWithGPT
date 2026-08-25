@@ -16,14 +16,17 @@ with. The incumbent to beat is `qwen3.6:35b-a3b-q4_K_M-agentic` @ 262144 at **13
 pull with HTTP 412 (`market_research.md` §1). We have no SSH to `.67` and the box belongs to
 a colleague, so the upgrade is not ours to do.
 
-> **Decision 1 — the upgrade.** Ask the owner of `.67` to move it to **0.32.15** (current
-> stable; clears the gate and carries the two Qwen3.8 message-handling fixes). Not 0.33.0 —
-> it is a pre-release and would add a second variable to every measurement.
+> **Decision 1 — the upgrade. SETTLED 2026-08-25: requested from the owner of `.67`, not
+> possible right now.** The target is **0.32.15** (current stable; clears the gate, carries
+> the two Qwen3.8 message-handling fixes) rather than the 0.33.0 pre-release. Consequence:
+> **Stage A is parked and Stage B runs first.** When the upgrade lands, Stage A runs *and*
+> the control is re-measured on the new runtime — see §6.
 
-> **Decision 2 — disk.** Stage A+B pulls ≈ **92 GB** of q4 weights, and the optional q8 rung
-> adds 30 GB. Free space on `.67` is not exposed by any API and we have no shell, so we
-> cannot check it. Is that budget available, and **may we delete the tags that lose?**
-> v2's harness only ever *unloads*; it has never deleted anything on that box.
+> **Decision 2 — disk. SETTLED 2026-08-25: pull everything, delete nothing.** Every tag this
+> project pulls stays on `.67`. Peak footprint is ≈92 GB of q4 weights plus 30 GB if the q8
+> rung runs. Free space is not exposed by any API and we have no shell, so the first symptom
+> of a full disk would be a failed write — which is why pulls are sequential, and why Stage B
+> going first limits the blast radius to models we can bench today.
 
 **Stage B does not depend on either decision** — `laguna-xs-2.1`, `north-mini-code-1.0` and
 `gemma4:26b-a4b` all clear 0.32.9 today. If the upgrade is slow to arrive, B runs first and
@@ -126,7 +129,11 @@ interprets it, not separately.
 
 - **The upgrade does not happen.** Then Stage A is dead, v3 becomes a three-model report on
   Laguna / North-mini / Gemma4, and it should say so in the title rather than quietly
-  shipping a Qwen3.8 report without Qwen3.8 in it.
+  shipping a Qwen3.8 report without Qwen3.8 in it. As of 2026-08-25 this is the live risk,
+  not a hypothetical: the upgrade is requested but cannot happen yet.
+- **There is no MoE Qwen3.8 to fall back on.** Checked rather than assumed — Qwen publishes
+  the dense 27B and the 2.4T-A95B Max, nothing between. `Qwen3.8-35B-A3B` is an unreleased
+  leak. So "wait for the fast one" is not a strategy available to this project.
 - **The upgrade happens mid-run.** Worse than either end state: half the numbers would be
   0.32.9 and half 0.32.15. If it lands mid-run, everything measured before it is discarded
   and re-run.

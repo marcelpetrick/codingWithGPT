@@ -51,6 +51,10 @@ is not ours to perform. See [`plan.md`](plan.md) §1 for what we need from you.
 carries the two Qwen3.8 message-handling fixes. 0.33.0 is a pre-release and would put a
 second variable into every measurement.
 
+**Status 2026-08-25:** the upgrade has been **requested from the owner of `.67`, and cannot
+happen right now**. Stage A is therefore parked; Stage B, which needs nothing newer than
+0.32.9, runs first.
+
 ## 2. Qwen3.8 — what it is
 
 Dense **27B**, Apache-2.0, weights published **2026-08-14**. 256K native context, vision
@@ -85,6 +89,30 @@ The tags that matter, with sizes read from the registry manifests rather than th
 | `qwen3.8:27b-mxfp8` | ~32 GB | no useful window left | |
 | `qwen3.8:27b-nvfp4` | ~18 GB | needs Blackwell; `.67`'s GPUs are unknown to us | |
 | `27b-bf16`, `27b-mlx*` | 56–68 GB | no | MLX is Apple-only |
+
+### 2b. There is no Qwen3.8 MoE — checked, not assumed
+
+The obvious escape from "dense is slow on this box" would be a Qwen3.8 in the incumbent's
+shape. There isn't one. Qwen's Hugging Face org publishes exactly two Qwen3.8 model shapes:
+
+```console
+$ curl -s "https://huggingface.co/api/models?author=Qwen&search=Qwen3.8"
+Qwen/Qwen3.8-27B            2,945,415 downloads     dense
+Qwen/Qwen3.8-27B-FP8        3,363,900 downloads     dense
+Qwen/Qwen3.8-2.4T-A95B         20,616 downloads     MoE, 2.4T total / 95B active
+Qwen/Qwen3.8-2.4T-A95B-FP8     21,808 downloads     MoE
+```
+
+The MoE one is Qwen3.8-Max: ~1.2 TB at FP8, roughly **34× the usable VRAM on `.67`**.
+
+`Qwen3.8-35B-A3B` — the variant that would actually fit and would actually be fast — is **a
+leak, not a release**. It surfaced as a commit in Alibaba's ModelScope `ms-swift` repository
+and as an open community request thread on `Qwen/Qwen3.8-27B`. No weights exist on Hugging
+Face or in the Ollama registry (`qwen3.8-flash`, `-max`, `-moe`, `-coder`, `-plus` all
+return 404 from `registry.ollama.ai`).
+
+So on this hardware, **dense 27B is the only Qwen3.8 there will ever be**, and the project's
+central question is not "which Qwen3.8 tag" but "is dense fast enough here at all".
 
 The shipped params blob is worth reading, because two of v2's findings show up in it:
 
