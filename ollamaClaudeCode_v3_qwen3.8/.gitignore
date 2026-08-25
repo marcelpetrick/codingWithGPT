@@ -6,3 +6,10 @@
 *.log.done
 results/*.log
 results/*.log.done
+
+# cc-session fixture working trees. Each is its own throwaway git repository
+# rebuilt from scratch by cc-session.sh on every run, so committing them would
+# nest a repo inside this one and freeze a regenerable artefact. The transcript
+# (cc-*.jsonl), the verdict table (cc-session.tsv) and the inspected diffs in
+# measurements.md are the evidence that is kept.
+results/cc-*/

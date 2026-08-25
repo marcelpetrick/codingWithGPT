@@ -240,6 +240,46 @@ tokeniser advantage, which makes its 500,000 tokens hold more real source than N
 a change in a real repository.
 
 
-## 7. End-to-end Claude Code sessions
+## 7. End-to-end Claude Code sessions — all four pass, and that is the finding
 
-*Running. Results land here.*
+`./cc-session.sh`, real `claude -p` against a fixture repository whose `median()` returns
+the upper middle value instead of the mean of the two. Scored from the repository
+afterwards, not from the model's summary. Raw: `results/cc-session.tsv`,
+`results/cc-*.jsonl`.
+
+| model | verdict | wall | turns | tools |
+|---|---|---|---|---|
+| `qwen3.6:35b-a3b` *(incumbent)* | **PASS** | 46 s | 16 | Bash×4, Read×3, Edit×1 |
+| `laguna-xs-2.1` | **PASS** | 42 s | 18 | Bash×4, Read×2, Edit×1 |
+| `north-mini-code-1.0` | **PASS** | 60 s | 22 | Read×5, Bash×5, Edit×1 |
+| `gemma4:26b-a4b` | **PASS** | 60 s | 16 | Bash×3, Read×2, Edit×2 |
+
+No `CHEAT`, no `FAIL`. Every one read the failing test, edited `stats.py` only, and re-ran
+pytest to confirm. The diffs were inspected by hand rather than taken on trust, and all four
+are correct and idiomatic — each independently produced the even/odd branch, one of them
+with explanatory comments:
+
+```python
+-    return ordered[len(ordered) // 2]
++    mid = len(ordered) // 2
++    if len(ordered) % 2 == 0:
++        return (ordered[mid - 1] + ordered[mid]) / 2
++    return ordered[mid]
+```
+
+Every model also reached for the right tools in the right order — Read before Edit, Bash to
+run the suite — and none of them blind-wrote the file with Write, which was the specific
+behaviour this test was built to catch.
+
+**The honest reading: this task does not discriminate.** Four models spanning 70 to 130
+tok/s and 8/10 to 10/10 on the gates all cleared it inside a minute. That is worth knowing —
+every candidate in the 2026-08 field can drive Claude Code through a real single-file
+change, which was not a given — but it means **the gates in §3, not this test, are what
+separate them.** Laguna's T4 and T7 failures did not surface here because a one-file fix
+never needs two parallel tool calls and never reaches 53k tokens of context.
+
+A test that *would* discriminate needs the conditions Laguna actually failed under: several
+independent files to read in one turn, and a context deep enough to be in T7 territory
+before the first edit. That is not built, and until it is, **no claim is made here about
+these models on repository-scale work.** What is claimed is narrow and measured: on a
+single-file fix, all four work.
