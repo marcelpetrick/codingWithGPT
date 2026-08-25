@@ -1,0 +1,12 @@
+model	num_ctx	total_GB	vram_GB	pct_gpu	ps_reported_ctx
+laguna-xs-2.1:q4_K_M	32768	21.248	21.248	100	-
+laguna-xs-2.1:q4_K_M	131072	22.858	22.858	100	131072
+laguna-xs-2.1:q4_K_M	262144	25.006	25.006	100	262144
+north-mini-code-1.0:q4_K_M	32768	20.035	20.035	100	-
+north-mini-code-1.0:q4_K_M	131072	21.646	21.646	100	131072
+north-mini-code-1.0:q4_K_M	262144	21.335	21.335	100	262144
+north-mini-code-1.0:q4_K_M	393216	22.409	22.409	100	-
+north-mini-code-1.0:q4_K_M	500000	23.285	23.285	100	500000
+gemma4:26b-a4b-it-q4_K_M	32768	18.388	18.388	100	-
+gemma4:26b-a4b-it-q4_K_M	131072	22.895	22.895	100	131072
+gemma4:26b-a4b-it-q4_K_M	262144	22.146	22.146	100	262144
