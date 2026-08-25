@@ -184,6 +184,11 @@ Every model returned the exact passphrase with `done_reason=stop`. North-mini's 
 counts at identical depths are the tokeniser of §2a, not weaker retrieval — the document is
 byte-identical.
 
+**These are the four standard depths only.** North-mini was later pushed much further (§8) and
+retrieves reliably to **201,737 tokens**; the 114,457 in this row is where the 160k-word
+document lands in *its* tokeniser, not a ceiling. The other three were not re-tested past
+160k.
+
 Worth naming: **Laguna passes at 143k despite its 262144 window being YaRN-extended from a
 native 8192** (`rope.scaling.factor = 32`). That was the specific risk flagged in its model
 card, and it did not materialise at this depth.
@@ -430,6 +435,19 @@ assertion. Throughput, gates and needle for `nemotron-3.5-lightning`, `muse-glim
 `qwen3.6:27b-q8_0` are v2's, taken on this same Ollama 0.32.9 and left untouched (§5 shows
 that runtime reproduces to within 2%). What did not exist for any of them — and now does — is
 an **end-to-end Claude Code session**.
+
+**Where their raw data lives.** This directory's `results/` holds only what v3 measured. The
+three carried-over models' rows are in v2 and were not copied, so that there is exactly one
+copy of each measurement:
+
+| model | throughput | gates | needle |
+|---|---|---|---|
+| `nemotron-3.5-lightning` | `../ollamaClaudeCode_v2/results/tokrate.tsv` | `../ollamaClaudeCode_v2/results/agentic/nemotron-3.5-lightning_30b-ctx256k-agentic.tsv` | `../ollamaClaudeCode_v2/results/needle-v2.log` |
+| `muse-glimmer` | same file | `…/agentic/muse-glimmer_30b-ctx128k-agentic.tsv` | same file |
+| `qwen3.6:27b-q8_0` | same file | `…/agentic/qwen3.6_27b-q8_0-agentic.tsv` | same file |
+
+Their **cc-session** rows are v3's own, in `results/cc-session.tsv` — that gate did not exist
+in v2.
 
 ### 10a. Dense 27B q4 — the Qwen3.8 proxy, full battery
 

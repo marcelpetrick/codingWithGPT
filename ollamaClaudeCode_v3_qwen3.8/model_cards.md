@@ -158,7 +158,8 @@ Whether 500,000 *fits on this box* is a different question, and the KV ladder an
 | prefill @20k words | 4,331 tok/s (+11% vs incumbent) |
 | resident @262144 / @500000 | **21.34 GB** / 23.29 GB, 100% GPU |
 | tool gates | **10/10** |
-| needle @160k | PASS @ 114,457 tok |
+| needle @160k depth | PASS @ 114,457 tok |
+| **deepest verified retrieval** | **201,737 tok** |
 | retrieval at depth | reliable to **201,737**; unexplained failure at 230,825 |
 | Claude Code session | PASS, 60 s, 22 turns |
 

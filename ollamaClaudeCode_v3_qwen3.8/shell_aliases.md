@@ -4,6 +4,11 @@ What changes in `~/.zshrc` as a result of the 2026-08-25 measurements, and why. 
 document ([`../ollamaClaudeCode_v2/shell_aliases.md`](../ollamaClaudeCode_v2/shell_aliases.md))
 still explains every environment variable in detail; this records only the delta.
 
+**Status: `claude-ol-north` is wired into `~/.zshrc`** as of 2026-08-25, immediately after
+`claude-ol-nemo`, which is left in place rather than removed — deleting a colleague-visible
+alias is not this project's call. `claude-ol2` needed no change: it already points at
+`qwen3.6:35b-a3b-q4_K_M-agentic`, which v3 re-measured and re-confirmed as the default.
+
 ## The delta
 
 | command | before (v2) | after (v3) |
@@ -52,11 +57,19 @@ mode on this box". North-mini says it cannot find the thing.
 
 ## Why `-ctx256k` and not `-ctx500k`
 
-The 500,000-token variant exists on `.67` and it loads, 100% GPU, in 23.29 GB. **Do not point
-an alias at it.** It allocates that window but does not retrieve across it: reproducible
-failures at 230,825 / 398,089 / 456,281 tokens against a reproducible pass at 347,193
-(`measurements.md` §8). A window that holds your context but cannot answer from it is worse
-than a smaller one, because nothing in the transcript tells you which regime you are in.
+The 500,000-token variant allocated that window at 100% GPU in 23.29 GB — and did not
+retrieve across it. Measured: reliable to **201,737 tokens**, then a failure at 230,825 that
+reproduced **5 times out of 5** across two baked windows, three request windows, three
+generation budgets and both thinking modes, while 347,193 — deeper — passed 3/3
+(`measurements.md` §8). Unexplained, and enough to disqualify the window.
+
+**`CLAUDE_CODE_MAX_CONTEXT_TOKENS=200000` therefore sits below a *measured* retrieval ceiling,
+not merely below the allocation ceiling.** That is the useful property: a window that holds
+your context but cannot answer from it is worse than a smaller one, because nothing in the
+transcript tells you which regime you are in.
+
+The `-ctx500k` variant has since been deleted from `.67`; re-create it with one `/api/create`
+call if you want to probe further.
 
 ## When to use which
 
@@ -67,5 +80,6 @@ than a smaller one, because nothing in the transcript tells you which regime you
 - **`gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic`** — no alias, but worth knowing: the fastest
   prefill on the box (5,740 tok/s, +44%) with vision and 10/10 gates, at the cost of 47%
   slower generation. Reach for it on read-heavy, edit-light work.
-- **`laguna-xs-2.1`** — no alias, deliberately. Fastest challenger, and the only model that
-  failed a gate: it serialises parallel tool calls and dropped one call in three at 53k tokens.
+- **`laguna-xs-2.1`** — no alias, deliberately, and **deleted from `.67`**. Fastest challenger
+  (119.5 tok/s) and the only model that failed a gate: it serialises parallel tool calls and
+  dropped one call in three at 53k tokens. Re-pullable in ~10 minutes if a new version ships.

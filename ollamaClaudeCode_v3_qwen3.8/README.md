@@ -119,7 +119,7 @@ finishes the end-to-end task in 42–60 s; every dense model runs 19–31 tok/s 
 usable windows. On a memory-bandwidth-bound box, active parameters per token is the number
 that predicts everything else.
 
-**6. Every tag on the box is still a bare tag until you bake one.** All three new models ship
+**6. Every model here is unusable as pulled until you bake a window.** Every base tag ships
 without `num_ctx` (see [`results/inventory-67.txt`](results/inventory-67.txt)) — so as pulled,
 not one of them is usable with Claude Code past 16,384 tokens. The good news: **none of them
 ships `presence_penalty`**, so v2's single cheapest win (31–35% of throughput) is now fixed
@@ -173,7 +173,8 @@ tag-name test can tell a colleague's `claude-ol2` session from our control run.
 | `results/tokrate.tsv` | throughput rows, machine-readable |
 | `results/kv-ladder.tsv` | context ladders |
 | `results/cc-session.tsv` | end-to-end session verdicts |
-| `results/agentic/*.tsv` | T1–T7 gate results per model |
+| `results/agentic/*.tsv` | T1–T7 gate results, for the five models v3 measured |
+| `../ollamaClaudeCode_v2/results/` | raw data for nemotron, muse-glimmer and 27b-q8_0, quoted here but not duplicated — see `measurements.md` §10 |
 | `results/inventory-67.txt` | every tag on `.67` with its baked window and capabilities |
 | `comparison.md` | the full eight-model comparison, written to be read outside this repo |
 
