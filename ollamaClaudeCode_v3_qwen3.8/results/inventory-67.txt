@@ -1,38 +1,31 @@
-# Inventory of 192.168.100.67 — 2026-08-25 13:15:21
+# Inventory of 192.168.100.67 — 2026-08-25 13:59:30
 # Ollama 0.32.9
+# 23 tags / 145.24 GiB of unique weight blobs after the 2026-08-25 cleanup.
 #
-# num_ctx: baked window. A tag with none is a BARE TAG — on /v1/messages it
+# num_ctx: baked window. BARE = no baked window; on /v1/messages such a tag
 # inherits 16384 and tool calling silently stops past it.
 
-TAG                                             SIZE_GB    NUM_CTX CAPABILITIES                 PARAMS
-gemma4:26b-a4b-it-q4_K_M                          17.99       BARE vision,tools,thinking        temperature                    1 top_k                      
-gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic          17.99     262144 vision,tools,thinking        temperature                    1 top_k                      
-laguna-xs-2.1:q4_K_M                              20.27       BARE tools,thinking               -
-laguna-xs-2.1:q4_K_M-ctx256k-agentic              20.27     262144 tools,thinking               -
-muse-glimmer:30b                                  18.16       BARE vision,tools,thinking        top_p                          0.95 temperature             
-muse-glimmer:30b-ctx128k-agentic                  18.16     131072 vision,tools,thinking        presence_penalty               0 temperature                
-nemotron-3.5-lightning:30b                        25.43       BARE tools,thinking               draft_num_predict              2 temperature                
-nemotron-3.5-lightning:30b-ctx256k-agentic        25.43     262144 tools,thinking               draft_num_predict              2 presence_penalty           
-nemotron-3.5-lightning:30b-ctx512k-agentic        25.43     524288 tools,thinking               draft_num_predict              2 presence_penalty           
-north-mini-code-1.0:q4_K_M                        18.59       BARE tools,thinking               temperature                    1 top_p                      
-north-mini-code-1.0:q4_K_M-ctx256k-agentic        18.59     262144 tools,thinking               temperature                    1 top_p                      
-north-mini-code-1.0:q4_K_M-ctx500k-agentic        18.59     500000 tools,thinking               temperature                    1 top_p                      
-qwen3.5:9b                                         6.59       BARE vision,tools,thinking        top_p                          0.95 presence_penalty        
-qwen3.5:9b-ctx80k                                  6.59      81920 vision,tools,thinking        presence_penalty               1.5 temperature              
-qwen3.6:27b-mtp-q8_0                              29.98       BARE vision,tools,thinking        top_k                          20 top_p                     
-qwen3.6:27b-mtp-q8_0-ctx128k                      29.98     131072 vision,tools,thinking        top_k                          20 top_p                     
-qwen3.6:27b-mtp-q8_0-ctx60k                       29.98      60000 vision,tools,thinking        top_p                          0.95 draft_num_predict       
-qwen3.6:27b-q4_K_M                                17.42       BARE vision,tools,thinking        repeat_penalty                 1 temperature                
-qwen3.6:27b-q4_K_M-ctx128k                        17.42     131072 vision,tools,thinking        presence_penalty               1.5 repeat_penalty           
-qwen3.6:27b-q8_0                                  29.97       BARE vision,tools,thinking        repeat_penalty                 1 temperature                
-qwen3.6:27b-q8_0-agentic                          29.97      81920 vision,tools,thinking        presence_penalty               0 repeat_penalty             
-qwen3.6:27b-q8_0-ctx60k                           29.97      60000 vision,tools,thinking        repeat_penalty                 1 temperature                
-qwen3.6:35b-a3b-mtp-q4_K_M                        22.62       BARE vision,tools,thinking        min_p                          0 presence_penalty           
-qwen3.6:35b-a3b-mtp-q4_K_M-agentic                22.62     262144 vision,tools,thinking        temperature                    0 top_k                      
-qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k                22.62     131072 vision,tools,thinking        top_k                          20 top_p                     
-qwen3.6:35b-a3b-q4_K_M                            23.94       BARE vision,tools,thinking        min_p                          0 presence_penalty           
-qwen3.6:35b-a3b-q4_K_M-agentic                    23.94     262144 vision,tools,thinking        top_k                          20 top_p                     
-qwen3.6:35b-a3b-q4_K_M-ctx128k                    23.94     131072 vision,tools,thinking        presence_penalty               1.5 repeat_penalty           
-qwen3.6:35b-a3b-q4_K_M-ctx256k                    23.94     262144 vision,tools,thinking        top_k                          20 top_p                     
-qwen3.6:35b-a3b-q4_K_M-isopp0                     23.94     262144 vision,tools,thinking        min_p                          0 presence_penalty           
-qwen3.6:35b-a3b-q4_K_M-isot0                      23.94     262144 vision,tools,thinking        top_k                          20 top_p                     
+TAG                                             SIZE_GB    NUM_CTX CAPABILITIES                
+gemma4:26b-a4b-it-q4_K_M                          17.99       BARE vision,tools,thinking       
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic          17.99     262144 vision,tools,thinking       
+nemotron-3.5-lightning:30b                        25.43       BARE tools,thinking              
+nemotron-3.5-lightning:30b-ctx256k-agentic        25.43     262144 tools,thinking              
+nemotron-3.5-lightning:30b-ctx512k-agentic        25.43     524288 tools,thinking              
+north-mini-code-1.0:q4_K_M                        18.59       BARE tools,thinking              
+north-mini-code-1.0:q4_K_M-ctx256k-agentic        18.59     262144 tools,thinking              
+north-mini-code-1.0:q4_K_M-ctx500k-agentic        18.59     500000 tools,thinking              
+qwen3.6:27b-q4_K_M                                17.42       BARE vision,tools,thinking       
+qwen3.6:27b-q4_K_M-ctx128k                        17.42     131072 vision,tools,thinking       
+qwen3.6:27b-q4_K_M-ctx128k-agentic                17.42     131072 vision,tools,thinking       
+qwen3.6:27b-q8_0                                  29.97       BARE vision,tools,thinking       
+qwen3.6:27b-q8_0-agentic                          29.97      81920 vision,tools,thinking       
+qwen3.6:27b-q8_0-ctx60k                           29.97      60000 vision,tools,thinking       
+qwen3.6:35b-a3b-mtp-q4_K_M                        22.62       BARE vision,tools,thinking       
+qwen3.6:35b-a3b-mtp-q4_K_M-agentic                22.62     262144 vision,tools,thinking       
+qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k                22.62     131072 vision,tools,thinking       
+qwen3.6:35b-a3b-q4_K_M                            23.94       BARE vision,tools,thinking       
+qwen3.6:35b-a3b-q4_K_M-agentic                    23.94     262144 vision,tools,thinking       
+qwen3.6:35b-a3b-q4_K_M-ctx128k                    23.94     131072 vision,tools,thinking       
+qwen3.6:35b-a3b-q4_K_M-ctx256k                    23.94     262144 vision,tools,thinking       
+qwen3.6:35b-a3b-q4_K_M-isopp0                     23.94     262144 vision,tools,thinking       
+qwen3.6:35b-a3b-q4_K_M-isot0                      23.94     262144 vision,tools,thinking       
