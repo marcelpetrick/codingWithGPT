@@ -233,8 +233,14 @@ Nothing here displaces the incumbent as the default driver: it is fastest at gen
 clean on every gate, and retrieves deepest. What has changed is the **deep-context** slot,
 which v2 gave to Nemotron at 44.9 tok/s and 31.21 GB. North-mini holds a comparable window
 for 8 GB less, passes every gate, and generates **1.9× faster** — and that is before its 21%
-tokeniser advantage, which makes its 500,000 tokens hold more real source than Nemotron's
-524,288.
+tokeniser advantage.
+
+> **Corrected in §8.** The sentence above originally continued "…which makes its 500,000
+> tokens hold more real source than Nemotron's 524,288", and recommended north-mini *at its
+> 500,000 window*. That was written from allocation plus retrieval verified only to 114,457
+> tokens, and §8 shows it does not hold. North-mini keeps the deep-context slot, **at
+> 262144**. The claim is left visible rather than edited away, because the correction is the
+> useful part.
 
 §7 is the test that can still overturn this: none of the above proves any of them can finish
 a change in a real repository.
@@ -283,3 +289,59 @@ independent files to read in one turn, and a context deep enough to be in T7 ter
 before the first edit. That is not built, and until it is, **no claim is made here about
 these models on repository-scale work.** What is claimed is narrow and measured: on a
 single-file fix, all four work.
+
+---
+
+## 8. How deep does North-mini actually retrieve? — not as deep as it allocates
+
+§1 established that it *allocates* 500,000 tokens in 23.29 GB. That is a memory result, and
+a memory result cannot tell you whether the model attends across the window. This is the
+retrieval test, same document, needle at the midpoint in every case.
+
+| prompt tokens | request `num_ctx` | `num_predict` | runs | result |
+|---|---|---|---|---|
+| 114,457 | 262144 | 512 | 1 | **PASS** |
+| **230,825** | 392192 | 512 | 1 | FAIL — `done=length` |
+| **230,825** | 392192 | 2048 | 1 | FAIL — `done=length` |
+| **230,825** | **500000** | 2048 | 1 | FAIL — `done=length` |
+| **347,193** | 500000 | 512 | 1 | **PASS** — `done=stop`, `eval=13` |
+| **347,193** | 500000 | 2048 | 2 | **PASS** ×2 — identical, `eval=13` |
+| 398,089 | 500000 | 2048 | 1 | FAIL — `done=stop`, restates the question |
+| 456,281 | 500000 | 512 | 1 | FAIL — `done=stop`, "the document does not contain…" |
+
+**The result is non-monotonic and reproducible in both directions.** 230,825 tokens fails
+three times out of three; 347,193 — deeper — passes three times out of three, each time
+emitting the exact passphrase in 13 tokens. That is not a ceiling with noise around it.
+
+Two explanations were tested and both are dead:
+
+- **Harness budget.** The first 230k failure was `done=length` with the model still
+  reasoning, which looks exactly like v1's `num_predict 64` mistake. Re-run at 2048: same
+  failure, 2048 tokens of restating the prompt without answering. **Not the budget.**
+- **Harness window sizing.** needle-v2 sizes each request's `num_ctx` from the word count
+  (`min(w*2.4+8192, baked)`), so the 230k runs got 392192 while the passing 347k runs got
+  500000 — and v2 established that overflowing `num_ctx` silently halves it. Re-sent the
+  identical document with `num_ctx` pinned to 500000: **same failure.** Not the sizing either.
+
+So it is the model, and **we cannot explain it.** What can be said is what was observed: at
+230,825 tokens North-mini reliably restates the question and rambles instead of answering,
+and at 347,193 it reliably answers instantly.
+
+### 8a. The failure mode is the good one, at least
+
+At 456,281 tokens it answered *"The document does not contain any information about a deploy…"*
+— it reported not finding the needle. Compare v2's worst-in-class result: Nemotron, truncated,
+**invented a plausible passphrase** (`deploy-passphrase-2024`) with no error and no signal.
+For an agent that acts on what it reads, an honest "not found" and a confident fabrication are
+not the same class of failure.
+
+### 8b. What this changes
+
+**Deploy North-mini at `num_ctx 262144`, not 500000.** Its 262144 variant is 21.34 GB, passes
+10/10 gates and retrieves cleanly at 114,457 tokens — and at that window it is still a
+straight upgrade on the deep-context slot v2 gave to Nemotron: 8 GB lighter, 1.9× faster,
+same gate score.
+
+The 500000 variant stays on the box for anyone who wants to probe further, but it is not a
+recommendation. **Not tested:** where between 114,457 and 230,825 the reliable ceiling
+actually falls. That bisect is the obvious next measurement and it was not run.
