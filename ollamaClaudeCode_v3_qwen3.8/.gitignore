@@ -1,0 +1,8 @@
+# Pull and benchmark run logs. Timestamped, noisy in diffs, and regenerable by
+# re-running the script that wrote them. The measured data (results/*.tsv and
+# the tables in the documents) is committed instead — same convention as
+# ../ollamaClaudeCode_v1 and ../ollamaClaudeCode_v2.
+*.log
+*.log.done
+results/*.log
+results/*.log.done
