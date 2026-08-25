@@ -94,8 +94,27 @@ version, and neither was run by us.
 - loads at **21.25 GB, 100% GPU**, 18.8 s cold; a 16-token smoke generation ran at
   105.6 tok/s (too short to be a throughput measurement — it is here to show it runs)
 
-**What v3 measures:** tok/s against 131.4, the real `num_ctx` ceiling against 262144, and
-whether Poolside's tool-calling template survives `/v1/messages`.
+**MEASURED, 2026-08-25 — fastest challenger, and the only model that failed a gate.**
+
+| | |
+|---|---|
+| generation @2k / @20k words | **119.5** / 93.5 tok/s |
+| prefill @20k words | **4,882 tok/s** (+22% vs incumbent) |
+| resident @262144 | 25.01 GB, 100% GPU |
+| tool gates | **8/10** — T4 PARTIAL, T7 FLAKY |
+| needle @160k | PASS @ 143,353 tok |
+| Claude Code session | PASS, 42 s, 18 turns |
+
+It is 9% off the incumbent's generation and beats it on prefill — and it still is not
+recommended, because of the two gates. **T4:** it emits one tool call where two independent
+ones were available; Claude Code batches by design, so every serialised call costs a full
+round trip and eats the prefill win. **T7:** tool calling at 53,145 tokens passed twice and
+failed once. A flaky gate fails on turn three of a long session, once the context is
+expensive to rebuild — worse to live with than an outright failure, and invisible to every
+speed benchmark.
+
+The YaRN risk this card flagged did **not** materialise: it retrieved cleanly at 143k despite
+the window being extended from a native 8192.
 
 ---
 
@@ -131,8 +150,31 @@ Whether 500,000 *fits on this box* is a different question, and the KV ladder an
   Laguna its long window is native rather than YaRN-extended
 - loads at **20.04 GB, 100% GPU**, 23.1 s cold; 81.7 tok/s on a 16-token smoke generation
 
-**What v3 measures:** T1–T5 first — if the tool gates fail, nothing else about this model
-matters. Then tok/s, and how much of 500,000 this box can actually hold.
+**MEASURED, 2026-08-25 — takes the deep-context slot, but not at the window it advertises.**
+
+| | |
+|---|---|
+| generation @2k / @20k words | 83.6 / 78.2 tok/s |
+| prefill @20k words | 4,331 tok/s (+11% vs incumbent) |
+| resident @262144 / @500000 | **21.34 GB** / 23.29 GB, 100% GPU |
+| tool gates | **10/10** |
+| needle @160k | PASS @ 114,457 tok |
+| retrieval at depth | **unreliable past ~115k** — see below |
+| Claude Code session | PASS, 60 s, 22 turns |
+
+Against the deep-context option v2 recommended (`nemotron-3.5-lightning`, 44.9 tok/s,
+31.21 GB at 262144), this is **8 GB lighter, 1.9× faster and equal on gates**. It takes the
+slot.
+
+**But not at 500,000.** It *allocates* the full window in 23.29 GB; it does not retrieve
+across it. Measured: FAIL at 230,825 tokens (3/3, including with `num_ctx` pinned to 500000
+and a 2048-token budget — both candidate harness explanations tested and dead), **PASS at
+347,193 (3/3)**, FAIL at 398,089 and 456,281. Non-monotonic, reproducible in both directions,
+and unexplained. Deploy the **`-ctx256k`** variant.
+
+One thing in its favour when it does fail: at 456,281 tokens it answered *"the document does
+not contain any information about a deploy…"*. It reports not finding the needle. v2's
+Nemotron, truncated, invented `deploy-passphrase-2024` instead.
 
 ---
 
@@ -167,8 +209,21 @@ the tags were refreshed.
   response body is a client-breaking failure rather than a quality one, but one occurrence
   is not a finding — it needs reproducing before it is claimed
 
-**What v3 measures:** whether a non-Qwen template passes T1–T5 cleanly, and what 4B-active
-costs against 3B-active on tok/s.
+**MEASURED, 2026-08-25 — slowest to generate, fastest to read, and clean on every gate.**
+
+| | |
+|---|---|
+| generation @2k / @20k words | 70.0 / 65.4 tok/s |
+| prefill @20k words | **5,740 tok/s** — the fastest measured on this box, +44% vs incumbent |
+| resident @262144 | 22.15 GB, 100% GPU |
+| tool gates | **10/10** |
+| needle @160k | PASS @ 143,324 tok |
+| Claude Code session | PASS, 60 s, 16 turns |
+
+The diversity control earned its place: a non-Qwen tool-calling template passed all seven
+gates, which retires the worry that a template bug was hiding behind a field of Qwen
+derivatives. Its 47% generation deficit is real and rules it out as a default driver, but the
+prefill number is the highest on the box and it is one of only two candidates with vision.
 
 ---
 
@@ -196,8 +251,21 @@ is being compared against. A control is not a formality here; without it, v3 wou
 comparing new models on a new runtime against old models on an old one and calling the
 difference a model difference.
 
-**What v3 measures:** the same battery as everyone else, twice if the upgrade lands
-mid-project — once before, once after.
+**RE-MEASURED, 2026-08-25 — reproduces v2 to within 2%, and still wins.**
+
+| | v2 (08-13) | v3 (08-25) |
+|---|---|---|
+| generation @2k | 131.4 | **130.0** |
+| prefill @20k | 3,988 | 3,911 |
+| resident @262144 | 32.54 GB | 32.54 GB |
+| gates | 10/10 | **10/10** |
+| needle @160k | PASS @ 146,957 | PASS @ **146,957** |
+| Claude Code session | — | PASS, 46 s, 16 turns |
+
+The 160k needle landed on the *same token count* twelve days apart, and throughput drifted
+under 2%. So v2's numbers are valid comparators while `.67` stays on 0.32.9 — and the
+incumbent remains the fastest generator, is clean on every gate, and retrieves deepest of
+anything measured. Nothing in the 2026-08 field displaced it.
 
 ---
 
