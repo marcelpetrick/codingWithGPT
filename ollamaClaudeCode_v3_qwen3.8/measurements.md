@@ -519,6 +519,31 @@ their measurements are preserved above.
 `qwen3.6` tag; and `qwen3.6:35b-a3b-mtp-q4_K_M`, which v2 measured at 129 tok/s and 28.89 GB
 resident — 3.65 GB lighter than the incumbent and still the best speed-per-GB on the box.
 
-**Not deleted, deliberately:** the bare tags of models being kept. Removing them would free
-zero bytes (shared blobs) and `.67` is shared — a colleague may have an alias pointing at one.
-The footgun they represent is documented in `results/inventory-67.txt` instead.
+### 11a. Second pass — project-created tags, 2026-08-25
+
+A follow-up pass removed five more tags, all created by this project and none of them needed:
+`qwen3.6:35b-a3b-q4_K_M-isot0` and `-isopp0` (v2's finished sampling ablations),
+`north-mini-code-1.0:q4_K_M-ctx500k-agentic` (§8 says do not deploy it) and the bare
+`north-mini-code-1.0:q4_K_M` and `gemma4:26b-a4b-it-q4_K_M` tags pulled by v3.
+
+**It freed 0.00 GiB, exactly as predicted** — every one shares a blob with a tag being kept.
+That is the §11 rule demonstrated rather than asserted: 23 → 18 tags, 145.24 GiB unchanged.
+
+**Deliberately left alone: everything that predates v2/v3.** Twelve of the eighteen remaining
+tags are pre-existing `qwen3.6` variants that a colleague may have an alias pointing at, and
+deleting them would free nothing anyway. The bare-tag footgun they represent is documented in
+`results/inventory-67.txt` rather than fixed by deletion.
+
+### 11b. Final state
+
+| | |
+|---|---|
+| unique weight blobs on disk | **145.24 GiB** |
+| what summing tag sizes reports | 389.91 GiB |
+| tags | 18 (from 32) |
+| freed by this project's cleanup | **69.85 GiB** |
+| of which pre-existing tags removed | `qwen3.6:27b-mtp-q8_0` ×3 and `qwen3.5:9b` ×2, both on explicit instruction |
+
+Six tags are ours and stay: the `nemotron-3.5-lightning` family (kept on request),
+`north-mini-code-1.0:q4_K_M-ctx256k-agentic`, `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic`, and
+`qwen3.6:27b-q4_K_M-ctx128k-agentic` — the dense proxy Stage A will be compared against.
