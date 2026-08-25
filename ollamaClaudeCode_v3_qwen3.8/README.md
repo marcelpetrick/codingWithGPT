@@ -56,7 +56,7 @@ this MoE field's 70–130. That is the question Stage A exists to settle.
 | resident @262144 | 32.54 GB | 25.01 GB | **21.34 GB** | 22.15 GB |
 | max window @100% GPU | 262144 | 262144 | **500000** (allocates) | 262144 |
 | **tool gates T1–T7** | **10/10** | **8/10** | **10/10** | **10/10** |
-| needle @160k | PASS @ 146,957 | PASS @ 143,353 | PASS @ 114,457 | PASS @ 143,324 |
+| needle, deepest verified | PASS @ 146,957 | PASS @ 143,353 | PASS @ **201,737** | PASS @ 143,324 |
 | Claude Code session | PASS 46 s | PASS 42 s | PASS 60 s | PASS 60 s |
 | vision | **yes** | no | no | **yes** |
 

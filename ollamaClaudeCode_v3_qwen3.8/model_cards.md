@@ -159,7 +159,7 @@ Whether 500,000 *fits on this box* is a different question, and the KV ladder an
 | resident @262144 / @500000 | **21.34 GB** / 23.29 GB, 100% GPU |
 | tool gates | **10/10** |
 | needle @160k | PASS @ 114,457 tok |
-| retrieval at depth | **unreliable past ~115k** — see below |
+| retrieval at depth | reliable to **201,737**; unexplained failure at 230,825 |
 | Claude Code session | PASS, 60 s, 22 turns |
 
 Against the deep-context option v2 recommended (`nemotron-3.5-lightning`, 44.9 tok/s,

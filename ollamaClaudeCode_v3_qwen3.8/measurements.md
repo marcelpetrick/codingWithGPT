@@ -298,22 +298,30 @@ single-file fix, all four work.
 a memory result cannot tell you whether the model attends across the window. This is the
 retrieval test, same document, needle at the midpoint in every case.
 
-| prompt tokens | request `num_ctx` | `num_predict` | runs | result |
-|---|---|---|---|---|
-| 114,457 | 262144 | 512 | 1 | **PASS** |
-| **230,825** | 392192 | 512 | 1 | FAIL — `done=length` |
-| **230,825** | 392192 | 2048 | 1 | FAIL — `done=length` |
-| **230,825** | **500000** | 2048 | 1 | FAIL — `done=length` |
-| **347,193** | 500000 | 512 | 1 | **PASS** — `done=stop`, `eval=13` |
-| **347,193** | 500000 | 2048 | 2 | **PASS** ×2 — identical, `eval=13` |
-| 398,089 | 500000 | 2048 | 1 | FAIL — `done=stop`, restates the question |
-| 456,281 | 500000 | 512 | 1 | FAIL — `done=stop`, "the document does not contain…" |
+| prompt tokens | baked window | request `num_ctx` | `num_predict` | runs | result |
+|---|---|---|---|---|---|
+| 114,457 | 262144 | 262144 | 512 | 1 | **PASS** |
+| **172,649** | 262144 | 262144 | 2048 | 1 | **PASS** — `eval=13` |
+| **201,737** | 262144 | 262144 | 2048 | 1 | **PASS** — `eval=13` |
+| **230,825** | 500000 | 392192 | 512 | 1 | FAIL — `done=length` |
+| **230,825** | 500000 | 392192 | 2048 | 1 | FAIL — `done=length` |
+| **230,825** | 500000 | **500000** | 2048 | 1 | FAIL — `done=length` |
+| **230,825** | **262144** | 262144 | 2048 | 1 | FAIL — `done=length` |
+| **230,825** | 262144 | 262144 | 4096, `think:true` | 1 | FAIL — `done=stop`, `eval=823` |
+| **347,193** | 500000 | 500000 | 512 | 1 | **PASS** — `done=stop`, `eval=13` |
+| **347,193** | 500000 | 500000 | 2048 | 2 | **PASS** ×2 — identical, `eval=13` |
+| 398,089 | 500000 | 500000 | 2048 | 1 | FAIL — `done=stop`, restates the question |
+| 456,281 | 500000 | 500000 | 512 | 1 | FAIL — `done=stop`, "the document does not contain…" |
 
-**The result is non-monotonic and reproducible in both directions.** 230,825 tokens fails
-three times out of three; 347,193 — deeper — passes three times out of three, each time
-emitting the exact passphrase in 13 tokens. That is not a ceiling with noise around it.
+**Reliable retrieval reaches 201,737 tokens.** The 114,457 figure first published here was
+simply the deepest point tested at the time, not a ceiling; bisecting upward found clean
+passes at 172,649 and 201,737, each answering in 13 tokens.
 
-Two explanations were tested and both are dead:
+**The result is still non-monotonic and reproducible in both directions.** 230,825 tokens now
+fails **five times out of five**; 347,193 — deeper — passes three times out of three. That is
+not a ceiling with noise around it.
+
+Four explanations were tested and all four are dead:
 
 - **Harness budget.** The first 230k failure was `done=length` with the model still
   reasoning, which looks exactly like v1's `num_predict 64` mistake. Re-run at 2048: same
@@ -322,10 +330,23 @@ Two explanations were tested and both are dead:
   (`min(w*2.4+8192, baked)`), so the 230k runs got 392192 while the passing 347k runs got
   500000 — and v2 established that overflowing `num_ctx` silently halves it. Re-sent the
   identical document with `num_ctx` pinned to 500000: **same failure.** Not the sizing either.
+- **The baked window itself.** Every failure so far had been on the `-ctx500k` variant and the
+  one pass on `-ctx256k`, so the 500,000-token bake was a live suspect — it would have meant
+  the model degrades at *every* depth when built with an oversized window. 230,825 tokens fits
+  inside 262,144, so the identical document was sent to the **`-ctx256k`** variant:
+  **same failure.** The baked window is not the variable; depth is.
+- **Leaked reasoning rather than lost retrieval.** Every failure begins
+  `'The user asks: "Answer only the question…'` and either loops to the cap or stops after
+  restating — the signature of reasoning text arriving in `content`, and v2 found Ollama does
+  not honour `think:false` on every family. Re-sent with **`think:true`** and a 4096-token
+  budget: `thinking` came back **empty**, `content` held 4,247 characters of reasoning-style
+  prose, and **the passphrase appears in neither**. Not a thinking-mode artifact — the model
+  genuinely does not retrieve at this depth.
 
 So it is the model, and **we cannot explain it.** What can be said is what was observed: at
 230,825 tokens North-mini reliably restates the question and rambles instead of answering,
-and at 347,193 it reliably answers instantly.
+and at 347,193 it reliably answers instantly. Five failures and three passes, across two
+baked windows, three request windows, three generation budgets and both thinking modes.
 
 ### 8a. The failure mode is the good one, at least
 
@@ -338,13 +359,18 @@ not the same class of failure.
 ### 8b. What this changes
 
 **Deploy North-mini at `num_ctx 262144`, not 500000.** Its 262144 variant is 21.34 GB, passes
-10/10 gates and retrieves cleanly at 114,457 tokens — and at that window it is still a
+10/10 gates and retrieves cleanly to **201,737 tokens** — and at that window it is still a
 straight upgrade on the deep-context slot v2 gave to Nemotron: 8 GB lighter, 1.9× faster,
 same gate score.
 
+**The practical ceiling is ~200k tokens, and that is comfortably more than Claude Code will
+ask of it.** `CLAUDE_CODE_MAX_CONTEXT_TOKENS=200000` in the alias sits just under the
+measured limit, which is the right side of it by construction rather than by luck.
+
 The 500000 variant stays on the box for anyone who wants to probe further, but it is not a
-recommendation. **Not tested:** where between 114,457 and 230,825 the reliable ceiling
-actually falls. That bisect is the obvious next measurement and it was not run.
+recommendation. **Still not explained:** why 230,825 fails while 347,193 passes. Five
+attempts at the failing depth and three at the passing one, with every environmental
+variable we can reach held constant or varied deliberately, leave the inversion intact.
 
 ---
 

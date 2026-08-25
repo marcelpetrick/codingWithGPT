@@ -63,7 +63,7 @@ parameters for every token it writes, an MoE reads ~3B.
 | weights | 23.94 GB | 18.59 GB | **17.99 GB** | 25.43 GB | 17.42 GB | 29.97 GB |
 | max window @100% GPU | 262,144 | **500,000** | 262,144 | **524,288** | **131,072** | **81,920** |
 | resident there | 32.54 GB | 23.29 GB | 22.15 GB | 31.21 GB | 30.17 GB | 34.03 GB |
-| **retrieval verified to** | **146,957** | 114,457 | 143,324 | **161,516** | 72,419 | 72,419 |
+| **retrieval verified to** | **146,957** | **201,737** | 143,324 | **161,516** | 72,419 | 72,419 |
 | KV bytes / token | — | — | — | — | **64,784** | — |
 
 **Dense KV costs 4× more per token.** Measured on `qwen3.6:27b-q4`: 64,784 bytes/token
@@ -138,6 +138,30 @@ afterwards (tests green + source changed + test file untouched), not from the mo
 **All eight pass.** Every one read the failing test, edited only the source, re-ran the suite,
 and produced a correct even/odd branch. None blind-wrote the file. Capability is not what
 separates these models on a task this size.
+
+### North-mini's retrieval at depth — the one anomaly this report cannot explain
+
+It *allocates* 500,000 tokens in 23.29 GB. It does not retrieve across all of them.
+
+| prompt tokens | runs | result |
+|---|---|---|
+| 114,457 · 172,649 · **201,737** | 3 | **PASS** — each answering in 13 tokens |
+| **230,825** | **5** | **FAIL** — every time |
+| **347,193** | 3 | **PASS** — every time |
+| 398,089 · 456,281 | 2 | FAIL |
+
+Reliable retrieval reaches **201,737 tokens**. Past that the result inverts and stays
+inverted: 230,825 fails five times out of five, while 347,193 — deeper — passes three out of
+three. Four explanations were tested and all four are dead: the generation budget (re-run at
+2048 and 4096), the harness's request-window sizing (re-sent pinned to 500,000), the baked
+window itself (the identical document fails on the 262,144 variant too), and leaked reasoning
+(with `think:true` the `thinking` field is empty and the passphrase appears nowhere).
+
+**Practical consequence: deploy at `num_ctx 262144`.** The ~200k reliable ceiling sits above
+anything Claude Code will ask of it — the alias caps context at 200,000 — so the anomaly is
+documented rather than load-bearing. When it does fail past that, it *reports* failure
+("the document does not contain…") rather than inventing an answer, which the previous
+deep-context pick did.
 
 **What separates them is 4.3× of wall clock** — 42 s to 179 s for identical work. With eight
 models the pattern the four-model table could not show is unmistakable: the four MoE models
