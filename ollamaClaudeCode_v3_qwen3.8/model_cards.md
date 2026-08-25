@@ -82,6 +82,18 @@ roughly 130 tok/s, it is strictly worse than what is already installed. Its Term
 2.0 number is not comparable to Qwen3.8's Terminal-Bench **2.1** number; different harness
 version, and neither was run by us.
 
+**On arrival, 2026-08-25** (`/api/show` + a smoke load; *not* the benchmark):
+
+- capabilities `completion, tools, thinking` — no vision
+- **bakes no parameters at all.** No `presence_penalty`, so v2's 31–35% vendor tax is
+  absent; but also no `num_ctx`, so it is a **bare tag** and inherits the default window
+- 40 blocks, 256 experts, 8 used per token, 1 shared, 8 KV heads
+- **its 262144 is YaRN, not native.** `rope.scaling.original_context_length = 8192`,
+  `type = yarn`, `factor = 32` → 8192 × 32 = 262144. Extended windows are exactly where
+  retrieval quietly degrades, which makes the needle test load-bearing for this model
+- loads at **21.25 GB, 100% GPU**, 18.8 s cold; a 16-token smoke generation ran at
+  105.6 tok/s (too short to be a throughput measurement — it is here to show it runs)
+
 **What v3 measures:** tok/s against 131.4, the real `num_ctx` ceiling against 262144, and
 whether Poolside's tool-calling template survives `/v1/messages`.
 
@@ -105,8 +117,22 @@ exist because Ollama's `tools` capability label is a manifest field rather than 
 Note also the mismatch worth resolving: Cohere's card says 256K, the Ollama library listing
 says 488K. One of them is wrong, and the KV ladder will say which.
 
+**On arrival, 2026-08-25** — and the context contradiction is **resolved**:
+
+The GGUF says `cohere2moe.context_length = **500000**`. Ollama's library page shows "488K"
+because 500000 ÷ 1024 = 488.28 — a display artifact, not a second number. So Ollama and the
+weights agree at 500,000 tokens, and it is **Cohere's own card understating it at 256K**.
+Whether 500,000 *fits on this box* is a different question, and the KV ladder answers it.
+
+- capabilities `completion, tools, thinking` — no vision
+- bakes `temperature 1`, `top_p 0.95`. No `presence_penalty` (good), no `num_ctx` — **bare
+  tag**, same 16,384 trap as the others
+- 49 blocks, 128 experts, 8 used per token, 4 KV heads, rope scaling `none` — so unlike
+  Laguna its long window is native rather than YaRN-extended
+- loads at **20.04 GB, 100% GPU**, 23.1 s cold; 81.7 tok/s on a 16-token smoke generation
+
 **What v3 measures:** T1–T5 first — if the tool gates fail, nothing else about this model
-matters. Then tok/s, and which context number is real.
+matters. Then tok/s, and how much of 500,000 this box can actually hold.
 
 ---
 
@@ -126,6 +152,20 @@ that hits everything except Gemma would be indistinguishable from "these models 
 without it. Its LiveCodeBench is well under Qwen3.8's 90.3. Also unclear whether it is new
 at all — its manifests require Ollama 0.20.0, which suggests the family predates v2 and only
 the tags were refreshed.
+
+**On arrival, 2026-08-25:**
+
+- capabilities `completion, vision, tools, thinking` — the only candidate here with vision
+- bakes `temperature 1`, `top_k 64`, `top_p 0.95`; no `presence_penalty`, no `num_ctx` —
+  **bare tag** like the other two
+- 30 blocks, 128 experts, 8 used per token, plus a 27-block vision tower
+- loads at **18.39 GB, 100% GPU**, 12.9 s cold — the lightest and fastest-loading of the
+  three; 73.5 tok/s on a 64-token smoke generation
+- **observed once, not yet reproduced:** one `/api/chat` response carried a raw control
+  character inside a JSON string, which a strict JSON parser rejects (`Invalid control
+  character at line 1 column 186`). The retry parsed cleanly. Recorded because a malformed
+  response body is a client-breaking failure rather than a quality one, but one occurrence
+  is not a finding — it needs reproducing before it is claimed
 
 **What v3 measures:** whether a non-Qwen template passes T1–T5 cleanly, and what 4B-active
 costs against 3B-active on tok/s.
@@ -158,6 +198,21 @@ difference a model difference.
 
 **What v3 measures:** the same battery as everyone else, twice if the upgrade lands
 mid-project — once before, once after.
+
+---
+
+## What all three have in common, and it is a trap
+
+**None of the three bakes a `num_ctx`.** Every one is a bare tag in v2's sense, and v2
+measured what that costs: on `/v1/messages` a bare tag inherits a **16,384** window, past
+which the prompt tail is discarded and **tool calling stops entirely, with no error**. The
+models are not at fault and neither is the vendor — it is how Ollama's endpoint behaves — but
+it means *not one of these models can be used with Claude Code as pulled*. Each needs an
+`-agentic` variant with the window baked in, and that is step 1 of the battery.
+
+The good news, and it is a genuine change since v2: **none of them ships
+`presence_penalty`.** That vendor default cost 31–35% of throughput on the Qwen3.6 tags and
+was the single cheapest win in v2. The 2026-08 field appears to have dropped it.
 
 ---
 

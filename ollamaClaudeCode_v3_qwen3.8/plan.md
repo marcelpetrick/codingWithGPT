@@ -75,6 +75,14 @@ cost real time to discover. v3 gets **copies** of `idle.sh`, `tokrate.sh`, `head
 Copies rather than edits in place: v2's README is a published verdict, and mutating the
 harness that produced it would break its provenance.
 
+**Footgun, hit on the first run:** `kv-probe.sh` defaults to `127.0.0.1:11435`, not to
+`.67:11434`. Passing `--host` without `--port` sends every create, load and `/api/ps` to a
+port with nothing behind it, and the failure surfaces as a JSON decode error rather than a
+connection error — which reads like a broken model. **Always pass `--port 11434`.** The
+default is left alone rather than patched, to keep the v3 harness diff to the one documented
+change; the cost is this line of documentation. Confirmed harmless: because the creates went
+nowhere, no probe tags were orphaned on `.67`.
+
 Per model, in this order, with `./idle.sh` asserted between **every** stage:
 
 | step | what | why it is not optional |
