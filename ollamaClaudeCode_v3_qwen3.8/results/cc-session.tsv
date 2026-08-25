@@ -3,3 +3,7 @@ qwen3.6:35b-a3b-q4_K_M-agentic	PASS	46	16	Bashx4,Readx3,Editx1
 laguna-xs-2.1:q4_K_M-ctx256k-agentic	PASS	42	18	Bashx4,Readx2,Editx1	
 north-mini-code-1.0:q4_K_M-ctx256k-agentic	PASS	60	22	Readx5,Bashx5,Editx1	
 gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	PASS	60	16	Bashx3,Readx2,Editx2	
+muse-glimmer:30b-ctx128k-agentic	PASS	160	20	Bashx5,Readx4,Editx1	
+nemotron-3.5-lightning:30b-ctx256k-agentic	PASS	113	24	Readx5,Bashx4,Editx1	
+qwen3.6:27b-q4_K_M-ctx128k-agentic	PASS	140	16	Bashx4,Readx3,Editx1	
+qwen3.6:27b-q8_0-agentic	PASS	179	15	Bashx4,Readx2,Editx1	

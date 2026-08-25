@@ -269,7 +269,53 @@ anything measured. Nothing in the 2026-08 field displaced it.
 
 ---
 
-## What all three have in common, and it is a trap
+## The reference models — measured for contrast, mostly not recommended
+
+Added so that "dense is slow on this box" is a measurement rather than an assertion.
+
+### `qwen3.6:27b-q4_K_M-ctx128k-agentic` — the Qwen3.8 stand-in · **KEEP**
+
+Same vendor, same 27B dense shape, same Q4_K_M as the blocked `qwen3.8:27b-q4_K_M`
+(17.42 GB against 17.74 GB). Never cleanly measured before — v1's run spilled to CPU
+(`9.60/17.37 SPLIT`) and the `-ctx128k` tag on the box bakes `presence_penalty 1.5`, the
+vendor default worth 31–35%. A clean variant was baked for this report.
+
+**31.0 tok/s · 1,307 prefill · 131,072 max window · 30.17 GB · 9/10 gates · 140 s session.**
+Against the incumbent that is **4.2× slower to generate, 3.0× slower to prefill, half the
+window, 3.0× slower end to end**. Its KV costs **64,784 bytes/token** against an MoE's
+~16,384. Keep it until Stage A: it is the baseline Qwen3.8 gets compared against.
+
+### `nemotron-3.5-lightning:30b-ctx256k-agentic` — the outgoing deep-context pick · **KEEP**
+
+Mamba-2 + MoE hybrid, 32.9 B total / 3 B active. **43.9 tok/s · 3,050 prefill · 524,288 max
+window · 31.21 GB · 10/10 gates · needle to 161,516 · 113 s session.** Still the only model
+on the box that holds more than 500k tokens, and it retrieves deeper than anything else
+measured. Superseded for everyday deep-context work by north-mini — 8 GB lighter and 1.9×
+faster for the same job — but kept, because its window ceiling is genuinely unmatched.
+
+Its documented failure mode remains the worst on this hardware: on a truncated prompt it
+**invented** a plausible passphrase (`deploy-passphrase-2024`), with no error and no signal.
+
+### `muse-glimmer:30b-ctx128k-agentic` — dense, and it shows · **DELETED**
+
+**28.5 tok/s · 1,963 prefill · 131,072 window · 19.45 GB · 10/10 gates\* · needle to 114,487 ·
+160 s session** — 4.6× slower than the incumbent end to end. The lightest resident footprint
+measured (19.45 GB), which is its one real advantage, and not enough of one.
+
+\* Its raw `agentic-test.sh` T6 rows read FAIL; that is v1's `num_predict 64` artifact —
+Muse needs ~70 tokens to answer and the log shows `eval=70–84`. Under a 512-token budget it
+passes all four depths.
+
+### `qwen3.6:27b-q8_0-agentic` — the quality rung nobody should climb · **KEPT, unused**
+
+**19.5 tok/s · 1,464 prefill · 81,920 window · 34.03 GB · 9/10 gates · 179 s session.** The
+slowest model measured on this box in every dimension, with the smallest window and the
+largest footprint. Past its window it fabricates: the 160k needle returned `'5276'` at
+`prompt_eval=40962`, exactly half of 81,920.
+
+---
+
+## What they all have in common, and it is a trap
 
 **None of the three bakes a `num_ctx`.** Every one is a bare tag in v2's sense, and v2
 measured what that costs: on `/v1/messages` a bare tag inherits a **16,384** window, past

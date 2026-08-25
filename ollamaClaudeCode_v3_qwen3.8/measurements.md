@@ -345,3 +345,154 @@ same gate score.
 The 500000 variant stays on the box for anyone who wants to probe further, but it is not a
 recommendation. **Not tested:** where between 114,457 and 230,825 the reliable ceiling
 actually falls. That bisect is the obvious next measurement and it was not run.
+
+---
+
+## 9. The dense 27B — a measured proxy for the Qwen3.8 we cannot run
+
+Qwen3.8 is blocked (§ `market_research.md` 1) and it is **dense**. `qwen3.6:27b-q4_K_M` is
+the same vendor, the same 27B dense shape and the same quantisation as
+`qwen3.8:27b-q4_K_M` — so measuring it converts "is a dense 27B fast enough here?" from
+speculation into a number.
+
+It had never been measured cleanly: v1's run spilled to CPU (`9.60/17.37 SPLIT`) and its
+numbers are unusable, and the `-ctx128k` tag on the box bakes `presence_penalty 1.5` — the
+vendor default worth 31–35%. A clean variant was baked for this:
+`qwen3.6:27b-q4_K_M-ctx128k-agentic`, `num_ctx 131072`, `presence_penalty 0`.
+
+### 9a. Dense KV is 4× heavier per token, and it changes the window
+
+| num_ctx | resident | GPU |
+|---|---|---|
+| 32,768 | 19.29 GB | 100% |
+| 81,920 | 25.34 GB | 100% |
+| 131,072 | **30.17 GB** | **100%** |
+| 262,144 | 34.97 GB | **96%** — 1.28 GB in system RAM |
+
+`fit: total_bytes = 19.21 GB + **64,784** × num_ctx`
+
+Against the MoE field, that slope is the whole story:
+
+| model | bytes per token of KV |
+|---|---|
+| `qwen3.6:27b-q4_K_M` **(dense)** | **64,784** |
+| `laguna-xs-2.1` (MoE) | 16,384 |
+
+**4.0× the KV cost per token**, because a dense model has no sparse attention layout to
+exploit — and v2 measured a 12.5% spill at **5.3× slower**, so the 96% row is not a near-miss,
+it is a cliff.
+
+### 9b. What this predicts for Qwen3.8, stated as a prediction
+
+`qwen3.8:27b-q4_K_M` is 27.3B dense at Q4_K_M, essentially this model's shape with 17.74 GB
+of weights against this one's 17.42 GB. If its KV layout is comparable — the same family
+string `qwen35` appears in both manifests — then:
+
+> **Qwen3.8's advertised 256K window will not fit at 100% GPU on this box.** The dense
+> ceiling measured here is **131,072**, and 262,144 spills. Expect to bake Qwen3.8 at
+> 131072, not at its native 262144.
+
+This is an extrapolation from one model to another, not a measurement of Qwen3.8. It is
+recorded so that Stage A has a falsifiable prediction to check rather than a blank page.
+
+---
+
+## 10. The dense proxy and the v2 models, measured end to end
+
+The field was widened to eight so that "dense vs MoE" is a measured contrast rather than an
+assertion. Throughput, gates and needle for `nemotron-3.5-lightning`, `muse-glimmer` and
+`qwen3.6:27b-q8_0` are v2's, taken on this same Ollama 0.32.9 and left untouched (§5 shows
+that runtime reproduces to within 2%). What did not exist for any of them — and now does — is
+an **end-to-end Claude Code session**.
+
+### 10a. Dense 27B q4 — the Qwen3.8 proxy, full battery
+
+| | value |
+|---|---|
+| generation @0 / @2k / @20k words | 31.20 / 31.04 / 27.84 tok/s |
+| prefill @2k / @20k words | 873.5 / 1,307.3 tok/s |
+| max window @100% GPU | **131,072** (262,144 spills to 96%) |
+| resident there | 30.17 GB |
+| tool gates | **9/10** |
+| needle | PASS to 72,419; **FAIL at 160k** |
+| Claude Code session | **PASS, 140 s**, 16 turns |
+
+The one gate failure is a *window* failure, not a capability failure — and its shape is the
+important part. At the 160k depth the needle harness sent a document larger than 131,072
+tokens; `prompt_eval` came back as **65,538**, exactly half the baked window, and the model
+answered `'standard policy'` — a fragment of the filler text. No error, no refusal. That is
+v2's silent-halving cliff reproduced on a third model, and it fabricates rather than fails.
+
+`qwen3.6:27b-q8_0` behaves identically one rung down: `prompt_eval=40962` against an 81,920
+window, answering `'5276'`.
+
+### 10b. End-to-end sessions, all eight
+
+| model | shape | verdict | wall | turns |
+|---|---|---|---|---|
+| laguna-xs-2.1 | MoE-3B | PASS | **42 s** | 18 |
+| qwen3.6:35b-a3b | MoE-3B | PASS | 46 s | 16 |
+| north-mini-code-1.0 | MoE-3B | PASS | 60 s | 22 |
+| gemma4:26b-a4b | MoE-4B | PASS | 60 s | 16 |
+| nemotron-3.5-lightning | Mamba-2+MoE | PASS | 113 s | 24 |
+| qwen3.6:27b-q4 | **dense** | PASS | 140 s | 16 |
+| muse-glimmer:30b | **dense** | PASS | 160 s | 20 |
+| qwen3.6:27b-q8 | **dense** | PASS | 179 s | 15 |
+
+**All eight pass, and the null result from §7 now has a shape.** With four models the session
+test looked like it discriminated on nothing. With eight it discriminates cleanly on
+*architecture*: every MoE finishes in 42–60 s, every dense or hybrid model in 113–179 s —
+**4.3× between fastest and slowest for identical work**. Capability is flat; throughput is
+not, and on a real workload that gap is the entire difference.
+
+Turn counts do not track wall clock (15 turns for the slowest, 18 for the fastest), which is
+the expected result: the models differ in how fast they emit tokens, not in how many steps
+they need.
+
+### 10c. Muse Glimmer's gate score needs an asterisk
+
+`agentic-test.sh` reports T6 FAIL at 4k/16k/60k for Muse. Those are v1's `num_predict 64`
+artifact, not retrieval failures — Muse needs ~70 tokens to emit the passphrase, and the raw
+log shows it using `eval=70–84`. Re-run under `needle-v2.sh` with a 512-token budget it passes
+**all four depths, deepest 114,487 tokens**. Scoring it from the raw rows would put 6/10 next
+to other models' 10/10 and misrepresent it, so this report scores it 10/10 with the asterisk
+visible.
+
+---
+
+## 11. Housekeeping — the tag sum lies, and what was deleted
+
+**Ollama tags share weight blobs.** `qwen3.6:35b-a3b-q4_K_M` and its five variants are one
+22.29 GiB blob with six manifests pointing at it. Summing `/api/tags` sizes therefore
+counts that blob six times:
+
+```
+sum of all tag sizes :  653.51 GiB   <- what a naive jq sum reports
+unique weight blobs  :  215.09 GiB   <- real disk
+double-counted       :  438.42 GiB
+```
+
+The operational consequence: **deleting a redundant variant frees exactly zero bytes.** Space
+returns only when the last tag referencing a blob goes.
+
+Deleted 2026-08-25, after every measurement was taken and committed:
+
+| removed | tags | freed |
+|---|---|---|
+| `qwen3.6:27b-mtp-q8_0` + `-ctx128k` + `-ctx60k` | 3 | 27.92 GiB |
+| `laguna-xs-2.1:q4_K_M` + `-ctx256k-agentic` | 2 | 18.88 GiB |
+| `muse-glimmer:30b` + `-ctx128k-agentic` | 2 | 16.91 GiB |
+| `qwen3.5:9b` + `-ctx80k` | 2 | 6.14 GiB |
+| **total** | **9** | **69.85 GiB** |
+
+Verified by measuring unique-blob totals before and after: **215.09 → 145.24 GiB**, 32 → 23
+tags. Every deleted model is re-pullable in ~10 minutes at the 32 MB/s this box gets, and
+their measurements are preserved above.
+
+**Kept by explicit decision:** the whole `nemotron-3.5-lightning` family; every non-MTP
+`qwen3.6` tag; and `qwen3.6:35b-a3b-mtp-q4_K_M`, which v2 measured at 129 tok/s and 28.89 GB
+resident — 3.65 GB lighter than the incumbent and still the best speed-per-GB on the box.
+
+**Not deleted, deliberately:** the bare tags of models being kept. Removing them would free
+zero bytes (shared blobs) and `.67` is shared — a colleague may have an alias pointing at one.
+The footgun they represent is documented in `results/inventory-67.txt` instead.
