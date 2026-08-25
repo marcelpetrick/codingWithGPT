@@ -1,0 +1,13 @@
+model	prompt_words	prompt_tok	gen_tok	prefill_tps	gen_tps	load_s	total_s
+laguna-xs-2.1:q4_K_M-ctx256k-agentic	0	55	125	220.8	115.50	10.6	12.0
+laguna-xs-2.1:q4_K_M-ctx256k-agentic	2000	3120	113	3568.4	119.52	0.2	2.0
+laguna-xs-2.1:q4_K_M-ctx256k-agentic	20000	34224	110	4882.1	93.51	0.2	8.8
+north-mini-code-1.0:q4_K_M-ctx256k-agentic	0	39	256	161.5	89.81	11.5	14.6
+north-mini-code-1.0:q4_K_M-ctx256k-agentic	2000	2594	256	2974.0	83.55	0.4	4.4
+north-mini-code-1.0:q4_K_M-ctx256k-agentic	20000	27150	256	4330.9	78.17	0.5	10.7
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	0	26	256	98.7	71.65	14.4	18.2
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	2000	3091	239	3211.7	70.02	0.7	5.2
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	20000	34195	256	5740.5	65.44	0.7	11.3
+qwen3.6:35b-a3b-q4_K_M-agentic	0	25	108	92.3	123.60	17.3	18.4
+qwen3.6:35b-a3b-q4_K_M-agentic	2000	3180	95	2960.8	130.04	0.5	2.4
+qwen3.6:35b-a3b-q4_K_M-agentic	20000	35102	78	3911.1	112.15	0.5	10.5
