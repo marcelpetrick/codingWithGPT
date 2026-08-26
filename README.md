@@ -6,9 +6,9 @@ Once a package becomes functional and ready for announcement, it is moved into i
 
 **Author: Marcel Petrick <mail@marcelpetrick.it>**
 
-**Note: projected is generated with AI.**
-
 **License: GPLv3 or later. See `LICENSE`.**
+
+**Note: project is generated with AI.**
 
 ## Languages Used
 
