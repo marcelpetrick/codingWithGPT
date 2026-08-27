@@ -22,18 +22,28 @@ BASE="http://${HOST}:11434"
 DIR="$(dirname "$(readlink -f "$0")")"
 LOG="$DIR/pull-queue.log"
 
-# Stage B of plan.md: the three new MoEs that clear .67's Ollama 0.32.9 today.
-# Stage A (qwen3.8:*) is deliberately absent — every qwen3.8 manifest requires
-# 0.32.12 and the registry answers 412, so queueing it here would only produce
-# an error loop. It gets added once .67 is upgraded.
+# Stage A of plan.md: the Qwen3.8 rungs. Unblocked 2026-08-27 — .67 moved from
+# Ollama 0.32.9 to 0.32.15, so the registry's HTTP 412 gate ("requires":"0.32.12")
+# is cleared and these manifests resolve.
+#
+# The Stage B list this file carried on 2026-08-25 (laguna-xs-2.1,
+# north-mini-code-1.0, gemma4:26b-a4b-it) is gone from MODELS but not from the
+# record: its pulls are in pull-queue.log above this run's entries.
+#
+# A1 and A2 share one weight blob (sha256:f5f1dd8920d4, 15.656 GiB) and differ
+# only in the params layer — A2 adds "draft_num_predict":4. So A2 costs one
+# small layer, not a second 16 GB download, and re-testing v2's MTP finding is
+# effectively free.
 MODELS=(
-  "laguna-xs-2.1:q4_K_M"          # 33B MoE, 3B active — the only new model shaped
-                                  # like the incumbent, so the only plausible
-                                  # challenger on tok/s
-  "north-mini-code-1.0:q4_K_M"    # Cohere 30B MoE, 3B active, trained for agentic
-                                  # SWE, advertises a 488K window
-  "gemma4:26b-a4b-it-q4_K_M"      # 4B active, vision + audio, a different vendor's
-                                  # tool-calling template
+  "qwen3.8:27b-q4_K_M"            # A1 — dense 27B, 256K, vision. The model the
+                                  # project was commissioned to benchmark.
+  "qwen3.8:27b-mtp-q4_K_M"        # A2 — same weights + MTP head. v2 measured MTP
+                                  # as a net loss (129.2 -> 100.6 tok/s at the
+                                  # shipped draft_num_predict 4); re-test is free.
+  # A3 "qwen3.8:27b-q8_0" is deliberately NOT queued. plan.md §2 gates it on
+  # "runs only if A1 earns it", and pulling 27 GB onto a shared, df-less box
+  # would also have a large disk write in flight underneath A1's own benchmark.
+  # It gets pulled by hand if and only if A1's numbers justify a quality rung.
 )
 
 log() { printf '%s  %s\n' "$(date '+%F %T')" "$*" >> "$LOG"; }
