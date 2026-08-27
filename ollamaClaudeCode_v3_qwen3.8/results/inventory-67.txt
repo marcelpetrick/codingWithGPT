@@ -1,8 +1,14 @@
-24 tags
+30 tags
   gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic           16.75 GiB
+  gemma4:31b-it-q4_K_M                               18.50 GiB
+  gemma4:31b-it-q4_K_M-ctx128k-agentic               18.50 GiB
+  granite4.2:30b                                     16.50 GiB
+  granite4.2:30b-ctx64k-agentic                      16.50 GiB
   nemotron-3.5-lightning:30b                         23.68 GiB
   nemotron-3.5-lightning:30b-ctx256k-agentic         23.68 GiB
   nemotron-3.5-lightning:30b-ctx512k-agentic         23.68 GiB
+  nemotron-cascade-2:30b                             22.61 GiB
+  nemotron-cascade-2:30b-ctx256k-agentic             22.61 GiB
   north-mini-code-1.0:q4_K_M-ctx256k-agentic         17.32 GiB
   qwen3.6:27b-q4_K_M                                 16.22 GiB
   qwen3.6:27b-q4_K_M-ctx128k                         16.22 GiB

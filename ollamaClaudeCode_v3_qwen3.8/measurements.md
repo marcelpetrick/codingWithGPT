@@ -1041,3 +1041,185 @@ session, and the session is recorded here as the place where the effect did not 
 by typing the obvious tag name. A3 costs 36% of the generation speed and half the window to
 buy precision this workload has not been shown to need — every capability gate it passes,
 A1 also passes, and A1 passes one more.
+
+---
+
+# Stage D — the 2026-08-27 re-survey, measured
+
+Three candidates from `market_research.md` §7, all on Ollama 0.32.15, all q4_K_M. The
+selection rule was stated in advance: hybrids first because *active parameters per token* had
+predicted every previous result, and one dense model (`gemma4:31b`) in the queue as the
+falsifier. §24 scores that rule.
+
+## 22. What the three are
+
+| | `nemotron-cascade-2:30b` | `granite4.2:30b` | `gemma4:31b-it` |
+|---|---|---|---|
+| `model_family` | `nemotron_h_moe` | `granite` | `gemma4` |
+| shape | **Mamba-2 SSM + MoE**, 31.6B, 128 experts, **6 used** + 1 shared | **dense** 29.3B, 64 blocks, `head_count_kv 8` | **dense** 31.3B, 60 blocks, `sliding_window 1024` |
+| native context | 262,144 | 131,072 | 262,144 |
+| capabilities | tools, thinking | tools, thinking | tools, thinking, **vision** |
+| q4_K_M on disk | 22.61 GiB | **16.50 GiB** | 18.50 GiB |
+
+Neither granite4.2 nor gemma4:31b exposes an `expert_count`; both carry a full
+`head_count_kv` and no SSM block. They are **dense**, which is the prediction the selection
+rule was built on.
+
+### 22a. `granite4.2` is the first model in this project that ships a baked window
+
+```
+granite4.2:30b  parameters: num_ctx 131072 · temperature 1 · top_p 0.95
+```
+
+Every other model measured across v1, v2 and v3 shipped **without** `num_ctx` and therefore
+inherited the 16,384 default — `README.md` finding #6. Granite4.2 is the first exception.
+
+**And it is a trap, not a fix.** §23 shows the box cannot hold 131,072 for this model: it
+spills to 72% GPU. So the one model that ships a window ships one that does not fit, and a
+user who trusts the default gets a 28% spill instead of a silent 16k cap. Finding #6 needs
+re-wording rather than retiring: *check the baked window, do not assume its absence and do
+not trust its presence.*
+
+## 23. Windows — one wins, two are capped
+
+| num_ctx | `nemotron-cascade-2` | `granite4.2` | `gemma4:31b` |
+|---|---|---|---|
+| 32,768 | — | 27.654 GB · 100% | — |
+| 65,536 | 25.937 GB · **100%** | **35.724 GB · 100%** | 22.447 GB · 100% |
+| 131,072 | 27.413 GB · **100%** | 53.279 / 38.338 · **72%** | **21.576 GB · 100%** |
+| 262,144 | **30.366 GB · 100%** | *(above native)* | 24.527 / 18.544 · **76%** |
+
+| | usable window | KV B/token |
+|---|---|---|
+| `nemotron-cascade-2` | **262,144** — its full native window | **22,528** |
+| `granite4.2` | **65,536** — half its native, and half what it ships baked | **261,698** |
+| `gemma4:31b` | **131,072** — half its native | ~12,283 |
+
+**`nemotron-cascade-2` holds its entire native window at 100% GPU in 30.37 GB**, because a
+Mamba-2 state is constant-size — it does not grow with context the way a KV cache does. Its
+22,528 B/token is the cheapest measured in this project.
+
+**`granite4.2`'s 261,698 B/token is the most expensive measured** — 3.6× Qwen3.8's dense
+73,730 and 11.6× cascade's. With 64 blocks and 8 KV heads and no sliding-window attention, it
+pays full KV on every layer. That is what caps a 16.50 GiB model — the lightest weights in
+the field — at 65,536 tokens. **Weights are a poor predictor of usable window.**
+
+`gemma4:31b`'s ladder crosses an allocation regime — 131,072 costs *less* than 65,536,
+reproducibly — exactly as `README.md` already documents for the 26b-a4b. Its fitted slope is
+therefore not quoted as a real per-token cost.
+
+## 24. Throughput — and the selection rule scores 3 for 3
+
+| model | words | prefill tok/s | **gen tok/s** |
+|---|---|---|---|
+| **`nemotron-cascade-2`** *(2 runs)* | 2,000 | 3,671 | **150.37 / 147.16** |
+| | 20,000 | **6,740 / 6,672** | 138.0 / 139.2 |
+| `granite4.2` | 2,000 | 1,493 | **28.84** |
+| | 20,000 | 1,476 | 21.88 |
+| `gemma4:31b-it` | 2,000 | 916 | **25.39** |
+| | 20,000 | 1,378 | 22.79 |
+
+**`nemotron-cascade-2` is the fastest model ever measured on this box, on both axes at once:**
+
+| | cascade | previous best | margin |
+|---|---|---|---|
+| generation @2k | **148.8** *(mean of 2)* | 138.1 nemotron-3.5-L | **+7.7%** |
+| prefill @35k | **6,706** *(mean of 2)* | 5,774 gemma4:26b-a4b | **+16.1%** |
+| 20k-word turn, total | **7.0 s** | 9.1 s north-mini | **−23%** |
+
+Nothing has previously led both columns — every prior leader traded one for the other.
+
+### 24a. The rule held, and the falsifier confirmed it
+
+`market_research.md` §7 committed in advance: *"the two hybrid MoEs go first and the dense
+models go last. **If `gemma4:31b` (dense) beats either hybrid, that rule is broken.**"*
+
+| | predicted band | measured |
+|---|---|---|
+| `nemotron-cascade-2` (hybrid MoE) | MoE: 104–138 | **148.8** — above the band |
+| `granite4.2` (dense) | dense: 19–31 | **28.8** — inside |
+| `gemma4:31b` (dense) | dense: 19–31 | **25.4** — inside |
+
+**Thirteen models deep, no exception.** The falsifier did not falsify: the dense 31B landed at
+25.4 tok/s, and being 31B rather than 27B moved it *down*, not up. Active parameters per token
+remains the only number needed to predict throughput on this box.
+
+## 25. Tool gates — the fastest model on the box is the worst tool caller
+
+```
+nemotron-cascade-2   T1 PASS  T2 FAIL(chose_search_phrase)  T3 PASS
+                     T4 PARTIAL(1_call_only)  T5 FAIL(edits_not_an_array)
+                     T6 4k/16k/60k/120k all PASS (needle @161,526)
+                     T7 PASS 3/3 at 60,901
+granite4.2           9/10 — T6_120k ERROR 400 "request (118092 tokens) exceeds"
+gemma4:31b-it        9/10 — T6_120k FAIL missed_at_65539_prompt_tokens
+```
+
+§19f established that this battery runs at the shipped **temperature 1** and that single-shot
+gate results can flip. So cascade's three failures were re-run 8× each before being believed.
+
+### 25a. They are systematic, not sampling noise
+
+| gate | result over n=8 | failure rate |
+|---|---|---|
+| **T2** tool selection | 7× `search_code`, 1× **`search__code`** | **12.5%** — and the failure is an *invented tool name* that does not exist. The harness run produced a third name, `search_phrase` |
+| **T4** parallel calls | 4× two calls, 4× **one call** | **50%** |
+| **T5** nested schema | 1× correct; 5× `edits` emitted as a **string** instead of an array; 1× `edits` null; 1× no tool call | **87.5%** |
+
+T5 is the disqualifying one. A strict tool runtime rejects `"edits": "<string>"` outright, and
+it happened in five runs out of eight. This is not a model that occasionally slips — on nested
+schemas it is wrong far more often than it is right.
+
+`laguna-xs-2.1` was excluded from the v3 recommendation for exactly this class of defect at
+8/10. Cascade is **7/10 with a 50% and an 87.5% failure rate underneath it.**
+
+### 25b. The truncation artifact, a third and fourth time
+
+`gemma4:31b` fails T6_120k at `prompt_eval = 65,539` = `131072 / 2 + 2`. Same signature as
+Qwen3.8's q4 (65,538 at num_ctx 131,072) and q8 (32,770 at num_ctx 65,536). **Three models,
+three window sizes, identical arithmetic** — `README.md` finding #6 is as solid as anything
+in this repository.
+
+`granite4.2` is the one exception, and it is a *good* one: it returns an explicit
+**HTTP 400 — "request (118092 tokens) exceeds"** instead of silently discarding half the
+prompt. That is the behaviour every other model should have. Recorded as observed; the cause
+was not chased, and one model is not enough to say whether it is the runtime or the template.
+
+## 26. End to end — where the whole thing comes apart
+
+| model | verdict | wall | turns | tools |
+|---|---|---|---|---|
+| `gemma4:31b-it` | PASS | **94 s** | **12** | `Bashx3,Readx1,Editx1` |
+| `granite4.2` | PASS | 235 s | 19 | `Bashx4,Readx3,TaskCreatex1,Editx1,TaskUpdatex1` |
+| **`nemotron-cascade-2`** | PASS | **256 s** | **84** | **`Bashx29`**,`Readx8`,**`Writex2`**,`Editx1` |
+
+**The fastest model on the box produced the slowest session ever measured in this project.**
+
+150 tok/s and 256 seconds. It is 5.9× faster per token than `qwen3.8:27b-q4_K_M` (30.4 tok/s)
+and took **2.3× longer to do the same one-file fix** — because it needed **84 turns and 29
+Bash calls** where the field needs 12–19 turns and 3–5.
+
+And it reached for `Write` twice. `cc-session.sh`'s own docstring calls that out in advance:
+
+> *"A model that solves it with Read+Edit is behaving; one that solves it by rewriting the
+> file blind with Write is technically passing and practically unusable on a large
+> repository."*
+
+The scoring says PASS — pytest is green, `stats.py` changed, `tests/` untouched. **The verdict
+column is the least informative thing in this table**, which is why turns and the tool
+histogram are recorded next to it.
+
+The contrast that makes the point: `gemma4:31b` generates at **25.4 tok/s**, one sixth of
+cascade's speed, and finished in **94 s against 256 s** with **12 turns against 84**. On this
+fixture, turn economy beat raw throughput by 2.7×.
+
+## 27. Stage D verdict — nothing here displaces the recommendation
+
+| model | verdict |
+|---|---|
+| `nemotron-cascade-2:30b` | **Not recommended, despite winning every speed measurement.** 7/10 gates with a 50% parallel-call failure and an 87.5% nested-schema failure, and 84 turns / 256 s end to end. Keep the tag: it is the fastest generator *and* prefiller on the box, so if a future release fixes the tool template it becomes the obvious default overnight |
+| `granite4.2:30b` | **Not recommended.** Dense, 28.8 tok/s, and the most expensive KV measured (261,698 B/tok) caps the lightest weights in the field at 65,536 tokens. Notable for two things: the first baked `num_ctx` in the project, and the only model that *errors* instead of silently truncating |
+| `gemma4:31b-it` | **Not recommended over its own 26B sibling.** 25.4 tok/s against the 26b-a4b's 104.1, and half the usable window — for the same vision capability. **The 26B MoE is the better gemma4 for this box, decisively** |
+
+`north-mini-code-1.0` remains the default. `gemma4:26b-a4b-it` remains the vision pick, and
+Stage D strengthens that: its bigger sibling is 4.1× slower with half the window.

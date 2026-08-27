@@ -41,3 +41,15 @@ north-mini-code-1.0:q4_K_M-ctx256k-agentic	20000	27150	256	4384.2	112.81	0.0	9.1
 qwen3.8:27b-q8_0-ctx64k-agentic	0	25	137	84.2	19.49	14.3	21.6
 qwen3.8:27b-q8_0-ctx64k-agentic	2000	3180	153	1246.0	19.41	0.0	10.7
 qwen3.8:27b-q8_0-ctx64k-agentic	20000	35102	138	1486.9	18.17	0.0	32.0
+nemotron-cascade-2:30b-ctx256k-agentic	0	29	128	97.6	143.63	13.4	14.6
+nemotron-cascade-2:30b-ctx256k-agentic	2000	3460	113	3671.9	150.37	0.0	1.8
+nemotron-cascade-2:30b-ctx256k-agentic	20000	37839	136	6740.3	138.02	0.0	7.0
+granite4.2:30b-ctx64k-agentic	0	29	99	210.2	30.06	9.9	13.4
+granite4.2:30b-ctx64k-agentic	2000	2678	165	1492.9	28.84	0.0	7.6
+granite4.2:30b-ctx64k-agentic	20000	28052	111	1476.2	21.88	0.0	24.8
+gemma4:31b-it-q4_K_M-ctx128k-agentic	0	26	256	121.7	26.87	13.0	22.8
+gemma4:31b-it-q4_K_M-ctx128k-agentic	2000	3091	226	916.1	25.39	0.0	12.5
+gemma4:31b-it-q4_K_M-ctx128k-agentic	20000	34195	256	1378.1	22.79	0.0	39.4
+nemotron-cascade-2:30b-ctx256k-agentic	0	29	128	106.4	145.15	12.0	13.2
+nemotron-cascade-2:30b-ctx256k-agentic	2000	3460	113	3670.6	147.16	0.0	1.8
+nemotron-cascade-2:30b-ctx256k-agentic	20000	37839	136	6671.7	139.21	0.0	7.1
