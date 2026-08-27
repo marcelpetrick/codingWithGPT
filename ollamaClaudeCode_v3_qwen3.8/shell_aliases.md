@@ -132,10 +132,46 @@ And bake a window first, as always — `qwen3.8` ships without `num_ctx`, so the
 at 16,386 tokens and **stops calling tools entirely**, with no error. Confirmed still true on
 0.32.15 (§17).
 
+## The functions, as installed
+
+| function | model | max context | why that cap |
+|---|---|---|---|
+| `claude-ol2` | `qwen3.6:35b-a3b-q4_K_M-agentic` | 200,000 | below the baked 262144 |
+| `claude-ol-north` | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | 200,000 | below the baked 262144 **and** below the measured 201,737 retrieval ceiling |
+| **`claude-ol-ornith`** | `ornith:35b-ctx256k-agentic` | **220,000** | below the baked 262144 **and** below the measured **254,061** ceiling — 20k more usable context than north-mini, which is the entire reason this alias exists |
+| `claude-ol-nemo` | `nemotron-3.5-lightning:30b-ctx256k-agentic` | 200,000 | below the baked 262144 |
+
+`claude-ol-ornith` is the only one that departs from 200,000, and it does so on measured
+grounds rather than optimism: ornith is the only model whose retrieval was *verified* past
+250k (§31), so it is the only one where a higher cap is defensible. 220,000 still leaves
+~42k of generation headroom under the baked window, well clear of the truncation cliff.
+
+## `claude-ol-ornith` — and the caveat that ships with it
+
+Its comment block in `~/.zshrc` carries the warning in full, because this is the one alias
+that can disappoint:
+
+**One real session took 308 s against north-mini's 57 s** — the slowest measured in the
+project. It was *not* thrashing: 15 turns, a clean `Bashx3,Readx3,Editx1` transcript, fewer
+turns than north-mini needed. It did the right things and took five times as long.
+
+**The suspected cause is unverified and the alias says so.** Ornith is a thinking model; the
+128.5 tok/s figure was measured with `think:false`, while a real session does not disable
+thinking. ~20.5 s/turn at 128 tok/s implies ~2,600 tokens emitted per turn — the right order
+for heavy reasoning output. The measurement that would settle it was abandoned when a
+colleague's session took the box. **If it feels slow, lower the reasoning effort before
+blaming the model.**
+
+So: reach for it when the working set is genuinely 200k+ and you need recall you can trust.
+Do not make it the default.
+
 ## When to use which
 
-- **`claude-ol2` / `claude-ol-north`** — everything, by default. 132.9 tok/s, 262144, 10/10
-  gates, retrieves to 201,737, 21.34 GB. **No vision.**
+- **`claude-ol-north`** — everything, by default. 132.9 tok/s, 262144, 10/10 gates, retrieves
+  to 201,737, 21.34 GB. **No vision.** (`claude-ol2` still points at the old default; repoint
+  it or just use this name.)
+- **`claude-ol-ornith`** — genuinely long documents. Deepest verified recall on the box
+  (254,061) and 10/10 gates, at 220,000 usable context — but see the 308 s caveat above.
 - **`claude-ol-vision`** — screenshots, and read-heavy/edit-light work generally. Fastest
   prefill and fastest session on the box.
 - **`claude-ol-nemo`** — only when you genuinely need more than 262,144 tokens. Watch for
