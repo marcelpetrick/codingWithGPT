@@ -565,3 +565,316 @@ deleting them would free nothing anyway. The bare-tag footgun they represent is 
 Six tags are ours and stay: the `nemotron-3.5-lightning` family (kept on request),
 `north-mini-code-1.0:q4_K_M-ctx256k-agentic`, `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic`, and
 `qwen3.6:27b-q4_K_M-ctx128k-agentic` — the dense proxy Stage A will be compared against.
+
+---
+
+# Stage A — Qwen3.8, measured
+
+Everything from §12 on was measured on **2026-08-27**, on **Ollama 0.32.15**. Everything
+before it was measured on **0.32.9**. §13 establishes what that difference is worth, and it
+is not nothing — read it before comparing a Stage A number to a Stage B one.
+
+## 12. The blocker cleared, and what the registry actually ships
+
+`plan.md` §1 parked this stage behind one thing: `.67` ran Ollama 0.32.9 and every Qwen3.8
+manifest carries `"requires":"0.32.12"`, so the registry answered HTTP 412 before a byte
+moved. On 2026-08-27 both boxes report **0.32.15** — the target `market_research.md` §1
+recommended over the 0.33.0 pre-release.
+
+```console
+$ curl -s http://192.168.100.67:11434/api/version
+{"version":"0.32.15"}
+$ curl -s http://192.168.100.37:11434/api/version
+{"version":"0.32.15"}
+```
+
+Manifests resolved before pulling, so the layer geometry is known rather than inferred:
+
+| tag | weights blob | total | params digest |
+|---|---|---|---|
+| `qwen3.8:27b-q4_K_M` | `f5f1dd8920d4` 15.656 GiB | 16.52 GiB | `448d2943…` |
+| `qwen3.8:27b-mtp-q4_K_M` | `f5f1dd8920d4` **same blob** | 16.52 GiB | `906ee87b…` |
+| `qwen3.8:27b` *(default tag)* | `f5f1dd8920d4` **same blob** | 16.52 GiB | `906ee87b…` **identical to mtp** |
+| `qwen3.8:27b-q8_0` | `2bb227142898` 27.052 GiB | 27.92 GiB | `448d2943…` |
+
+Three findings, none of which needed a benchmark:
+
+**12a. MTP is a params layer, not a model.** A1 and A2 are the same 15.656 GiB blob. Measured
+cost of the second tag: **1 second**.
+
+```console
+$ time curl -sN .../api/pull -d '{"model":"qwen3.8:27b-mtp-q4_K_M"}'
+"status":"pulling 906ee87bde6c" … "status":"success"
+A2 pull took 1 s
+```
+
+**12b. `qwen3.8:27b` — the tag a person types — is the MTP build.** Its params digest is
+byte-identical to `27b-mtp-q4_K_M`'s. Pulling the obvious name silently enables speculative
+decoding. §15 measures what that costs, and it is not free.
+
+**12c. The shipped params are clean of v2's expensive footgun, and still need baking.**
+
+```
+27b-q4_K_M      min_p 0  presence_penalty 0  repeat_penalty 1  temperature 1  top_k 20  top_p 0.95
+27b-mtp-q4_K_M  draft_num_predict 4  + the same six
+```
+
+`presence_penalty` is 0 — v2's 31–35% throughput tax is fixed upstream. **Neither ships
+`num_ctx`**, so both inherit the 16,384 default. §17 confirms the cliff that creates is
+still live on 0.32.15.
+
+A1 pulled in **10m18s** for 16.81 GB — **≈27 MB/s**, not the 12 MB/s v1's log gave. The
+`plan.md` §4 budget of ~25 min per q4 tag was 2.4× pessimistic.
+
+### 12d. What `/api/show` says
+
+```
+capabilities: ['completion', 'vision', 'tools', 'thinking']
+family qwen35 · parameter_size 27.3B · quantization Q4_K_M
+qwen35.block_count                  65
+qwen35.context_length               262144
+qwen35.attention.head_count         24
+qwen35.attention.head_count_kv      4
+qwen35.attention.key_length         256
+qwen35.attention.value_length       256
+qwen35.full_attention_interval      4      <-- the important one
+qwen35.rope.freq_base               10000000
+```
+
+**`full_attention_interval 4` means Qwen3.8 is not a naive dense model.** Only every fourth
+layer runs full attention; the rest are sliding-window. §14 measures whether Ollama honours
+that, because it decides whether a "dense 27B" can hold a Claude Code window at all.
+
+## 13. The version delta — 0.32.15 re-ranks the entire field
+
+**This is the largest finding of Stage A, and it is not about Qwen3.8.**
+
+`plan.md` §2 C1 required the control be re-measured on the new runtime before any Qwen3.8
+number was taken, because otherwise every comparison in this repo confounds *model* with
+*runtime version*. `stage_a_plan.md` §5 set the decision rule in advance: within ±5% the v3
+tables stand; outside it, every cross-version comparison gets annotated and the delta is
+reported as a finding in its own right.
+
+Two models were re-measured rather than one, on the reasoning that one model moving could be
+that model and two models moving is the runtime. It turned out to need all four.
+
+Generation tok/s at the 2,000-word prompt, same harness, same seed, same box:
+
+| model | 0.32.9 | 0.32.15 | delta |
+|---|---|---|---|
+| `qwen3.6:35b-a3b-q4_K_M-agentic` *(control)* | 130.04 | **130.04** | **0.0%** |
+| `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | 70.02 | **104.14** | **+48.7%** |
+| `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | 83.55 | **133.73** / 131.98 | **+60.1%** |
+| `nemotron-3.5-lightning:30b-ctx256k-agentic` | 43.9 † | **140.75** / 135.47 | **+221%** |
+
+† nemotron's baseline is v2's number, quoted in §10, not a v3 re-run.
+
+The two outliers were each run twice because a +221% single measurement is not a result.
+Both reproduce: nemotron 140.75 then 135.47; north-mini 133.73 then 131.98.
+
+**The control is the point.** It did not move — 130.04 both times, to two decimals, with
+prefill up 1.7%. So this is not a box that got faster, a thermal difference, or a harness
+change. **0.32.15 contains an optimisation that the qwen3.6 MoE path does not benefit from
+and the Cohere, Gemma and Mamba-2 paths benefit from enormously.**
+
+### 13a. Consequences, stated plainly
+
+**The v3 verdict was measured on a runtime that no longer exists on this box, and the
+ranking it produced is no longer the ranking.** Generation @2k, then and now:
+
+| | on 0.32.9 | on 0.32.15 |
+|---|---|---|
+| 1 | **incumbent 130.0** | **nemotron 138.1** *(mean of 2)* |
+| 2 | laguna 119.5 | **north-mini 132.9** *(mean of 2)* |
+| 3 | north-mini 83.6 | **incumbent 130.0** |
+| 4 | gemma4 70.0 | gemma4 104.1 |
+
+The incumbent went from *first by 9%* to *third*, without changing. Prefill @35k moved much
+less — gemma4 5,740 → 5,774 (+0.6%), the incumbent 3,911 → 3,996 (+2.2%), north-mini
+4,331 → 4,384 (+1.2%), nemotron 3,050 → 2,797 (−8.3%) — so the optimisation is in the decode
+path, not the prefill path.
+
+**Not re-measured, and therefore not comparable:** `laguna-xs-2.1`, `muse-glimmer` and
+`qwen3.6:27b-q8_0` were deleted in §11 and their numbers are 0.32.9 only. Laguna's 119.5 in
+particular cannot be ranked against the table above — it is not a fair third place, it is an
+unmeasured one. Every laguna and muse-glimmer figure in this repository should be read as
+"on 0.32.9", and the T1–T7 gate results, being pass/fail, are the only part of their record
+that survives the version change unqualified.
+
+## 14. The window — 131,072, and hybrid attention is why
+
+`kv-probe.sh`, `--port 11434` as always:
+
+| num_ctx | total | in VRAM | % GPU |
+|---|---|---|---|
+| 32,768 | 19.602 GB | 19.602 | **100%** |
+| 65,536 | 21.410 GB | 21.410 | **100%** |
+| 131,072 | 26.242 GB | 26.242 | **100%** |
+| 262,144 | 35.280 GB | 33.982 | **96%** — spills |
+
+**Usable window: `num_ctx 131072`.** 262,144 allocates but pushes 1.3 GB into system RAM, and
+`README.md` finding #2 puts the cost of a 12.5% spill at 5.3×. A 4% spill is not worth
+finding the exact price of.
+
+`stage_a_plan.md` §3 predicted, before the measurement: *"A1 reaches 131,072 at 100% GPU and
+does not reach 262,144."* That is what happened.
+
+### 14a. Ignore the probe's own SWA verdict here
+
+`kv-probe.sh` prints `-> NAIVE (full KV for all 52 layers)`. **That line is wrong for this
+model** and must not be quoted. Its two reference constants (13,312 and 53,248 B/tok) are
+hardcoded for muse-glimmer's 52-layer geometry. Qwen3.8 has 65 layers with
+`head_count_kv 4` and `key_length 256`, so the correct predictions are:
+
+| | B/token | at 131,072 |
+|---|---|---|
+| naive — all 65 layers full | 266,240 | 34.9 GB |
+| SWA-aware — 65/4 = 16.25 full layers | 66,560 | 8.7 GB |
+| **measured** — least-squares slope | **69,131** | **9.1 GB** |
+
+Marginal cost between adjacent rungs: 55,176 / 73,730 / 68,954 B/tok — the low rung is cheap
+because the sliding-window layers' fixed allocation has not amortised yet, and the top two
+bracket the fitted slope.
+
+**Measured is 1.04× the SWA-aware prediction and 3.85× cheaper than naive. Ollama honours
+`full_attention_interval`.** That is the entire reason a dense 27B holds 131k on this box:
+naive KV would have cost 34.9 GB for the cache alone, on top of 17.1 GB of weights.
+
+The fitted intercept, 17.14 GB, is the weights — consistent with 16.52 GiB of layers.
+
+## 15. Throughput — the pre-registered "no" threshold fires
+
+Both variants baked at `num_ctx 131072`, `presence_penalty 0`, differing **only** in
+`draft_num_predict` (0 vs the shipped 4), so MTP is the single variable.
+
+| model | words | prompt_tok | prefill tok/s | **gen tok/s** |
+|---|---|---|---|---|
+| **A1** `qwen3.8:27b-q4_K_M-ctx128k-agentic` | 0 | 25 | 83.3 | 30.56 |
+| | 2,000 | 3,180 | 1,198.0 | **30.39** |
+| | 20,000 | 35,102 | 1,427.8 | 27.41 |
+| **A2** `qwen3.8:27b-mtp-q4_K_M-ctx128k-agentic` | 0 | 25 | 71.4 | 36.85 |
+| | 2,000 | 3,180 | 765.8 | **36.58** |
+| | 20,000 | 35,102 | 767.0 | 35.01 |
+
+### 15a. A1 against the field
+
+`stage_a_plan.md` §6 pre-registered the threshold: *"A1 lands under ~40 tok/s → Qwen3.8's
+benchmark wins do not transfer into an agentic loop on this box."*
+
+**A1 generates at 30.4 tok/s.** The threshold fired.
+
+| | A1 Qwen3.8 27B | incumbent | ratio |
+|---|---|---|---|
+| generation @2k | **30.4** | 130.0 | **4.3× slower** |
+| prefill @35k | **1,428** | 3,996 | **2.8× slower** |
+| vs. nemotron on 0.32.15 | | 138.1 | 4.5× slower |
+
+And against the dense proxy §9 stood in for it with — `qwen3.6:27b-q4_K_M` at **31.04**
+tok/s on 0.32.9. **Qwen3.8's dense 27B generates at 30.4 where Qwen3.6's dense 27B generated
+at 31.0.** A generation newer, the same shape, the same speed. The proxy was a good proxy,
+and shape predicted the outcome exactly as §5 of the README claimed it would.
+
+### 15b. MTP reverses v2's finding — and is still the wrong choice
+
+v2 measured MTP as a straight generation loss (129.2 → 100.6 tok/s). On Qwen3.8 it is the
+opposite: **+20.4% generation** (30.39 → 36.58). That is a real gain, and it is the first
+time speculative decoding has paid off anywhere in this project.
+
+**It costs 46% of prefill to get it** (1,428 → 767 tok/s at 35k), and prefill is flat across
+prompt size — 765.8 at 3k and 767.0 at 35k — where A1's rises with the prompt (1,198 →
+1,428). The draft model is being run over the prompt too.
+
+`README.md` finding #2 decides this: an agentic loop re-reads its whole context every turn,
+so prefill is what Claude Code pays per tool result while generation covers a few dozen
+emitted tokens. Trading 46% of the thing you pay every turn for 20% of the thing you pay
+rarely is a net loss for this workload. The 20,000-word row shows it end to end: **A1 total
+28.9 s, A2 total 50.9 s — MTP is 76% slower on the realistic prompt.**
+
+**So: use `qwen3.8:27b-q4_K_M`, not `qwen3.8:27b`.** The default tag is the MTP build (§12b),
+and for Claude Code the default tag is the wrong one.
+
+## 16. Tool gates and retrieval — capable, within a smaller window
+
+### 16a. T1–T7
+
+```
+T1_single_tool        PASS  correct_args
+T2_tool_selection     PASS  chose_search_code
+T3_multiturn          PASS  used_tool_result
+T4_parallel_calls     PASS  2_parallel_calls
+T5_complex_schema     PASS  nested_schema_exact_1_edits
+T6_needle_4k          PASS  found_at_4411_prompt_tokens
+T6_needle_16k         PASS  found_at_17861_prompt_tokens
+T6_needle_60k         PASS  found_at_72419_prompt_tokens
+T6_needle_120k        FAIL  missed_at_65538_prompt_tokens
+T7_tool_at_long_ctx   PASS  3/3_at_53283_tokens[PASS,PASS,PASS]
+```
+
+**9/10 — and the one FAIL is the window, not the model.** T4 and T7, the two gates laguna
+failed, both pass: parallel calls are emitted in parallel, and three of three tool calls
+land at 53,283 tokens. On the property `README.md` ranks first, Qwen3.8 is sound.
+
+### 16b. The 120k FAIL is a truncation artifact, and here is the proof
+
+`needle-v2.sh` at `--num-predict 2048`, five depths:
+
+| depth | prompt_eval | verdict | answer |
+|---|---|---|---|
+| 40,000 words | 72,419 | **PASS** | `CRIMSON-PANGOLIN-4471` |
+| 55,000 words | 100,361 | **PASS** | `CRIMSON-PANGOLIN-4471` |
+| 65,010 words | **119,015** | **PASS** | `CRIMSON-PANGOLIN-4471` |
+| 72,006 words | **65,538** | FAIL | *"The provided text does not contain a deployment passphrase."* |
+| 80,003 words | **65,538** | FAIL | *"There is no deployment passphrase mentioned…"* |
+
+The two failing rows report **the identical prompt_eval_count, 65,538**, for documents 8,000
+words apart. That is not a model behaviour — it is `131072 / 2 + 2`, the half-window
+truncation documented in `README.md` finding #6. The needle is buried mid-document, the
+truncation discards it, and the model then answers correctly about the text it was actually
+given. It is not failing to retrieve; it is being handed a different document.
+
+**Deepest verified retrieval: 119,015 tokens — 90.8% of the baked window.** That ratio is the
+best in the field: north-mini retrieves 201,737 of the 500,000 it allocates (40%), and the
+incumbent 146,957 of 262,144 (56%). Qwen3.8's window is the smallest here and the most
+completely usable.
+
+### 16c. Vision — PASS
+
+Same fixture as v2 (`../ollamaClaudeCode_v0/failingOutput.png`), same prompt. 71.2 s,
+2,633 characters. It read the version string, the model tag and the working directory out of
+the screenshot correctly, and described the CMake task in the prompt box. Not a
+capability-flag check — an actual correct reading.
+
+## 17. The bare-tag cliff still exists on 0.32.15
+
+`cliff-probe.sh`, bare tag vs baked tag, on the new runtime:
+
+| prompt | `qwen3.8:27b-q4_K_M` *(bare)* | `…-ctx128k-agentic` *(baked)* |
+|---|---|---|
+| ~4k | 4,090 tok · **tool_use** | 4,090 tok · **tool_use** |
+| ~16k | 16,090 tok · **tool_use** | 16,090 tok · **tool_use** |
+| ~32k | **16,386 tok · end_turn · NO tool call** | 33,290 tok · **tool_use** |
+| ~50k | **16,386 tok · end_turn · NO tool call** | 53,090 tok · **tool_use** |
+
+Unchanged from 0.32.9. The bare tag pins at 16,386 tokens and **stops calling tools
+entirely** — no error, no warning, `stop_reason` just becomes `end_turn`. The upgrade fixed
+nothing here, and `README.md` finding #6 stands on the new runtime: every model on this box
+is unusable with Claude Code until a window is baked.
+
+## 18. End to end — it drives Claude Code, slowly
+
+Same fixture, same scoring as §7: `pytest` green afterwards, `stats.py` changed, `tests/`
+untouched.
+
+| model | verdict | wall | turns | tools |
+|---|---|---|---|---|
+| `qwen3.8:27b-q4_K_M-ctx128k-agentic` | **PASS** | **111 s** | 19 | `Bashx4,Readx3,Editx1` |
+| `qwen3.6:35b-a3b-q4_K_M-agentic` *(incumbent)* | PASS | 46 s | 16 | `Bashx4,Readx3,Editx1` |
+
+It fixed the bug properly — read the failing test, edited only the source, re-ran the suite,
+did not touch the assertion. The tool histogram is **identical** to the incumbent's:
+`Bashx4,Readx3,Editx1`. No blind `Write`, no thrash.
+
+**And it took 2.4× as long for the same work.** 111 s lands it squarely in the dense band
+this project has measured all along (113–179 s) and outside the MoE band (42–60 s), which is
+now nine models deep with no exceptions. §7's finding — capability is flat, wall clock is
+not, and the split falls on architecture — survives Qwen3.8 intact.
