@@ -22,28 +22,28 @@ BASE="http://${HOST}:11434"
 DIR="$(dirname "$(readlink -f "$0")")"
 LOG="$DIR/pull-queue.log"
 
-# Stage A of plan.md: the Qwen3.8 rungs. Unblocked 2026-08-27 — .67 moved from
-# Ollama 0.32.9 to 0.32.15, so the registry's HTTP 412 gate ("requires":"0.32.12")
-# is cleared and these manifests resolve.
+# Stage D: the 2026-08-27 re-survey. Stage A (qwen3.8:*) is complete and its
+# tags are on the box; its queue entry is preserved in pull-queue.log above.
 #
-# The Stage B list this file carried on 2026-08-25 (laguna-xs-2.1,
-# north-mini-code-1.0, gemma4:26b-a4b-it) is gone from MODELS but not from the
-# record: its pulls are in pull-queue.log above this run's entries.
+# Why a fourth stage at all: the Ollama 0.32.15 upgrade re-ranked the field by
+# up to +221% (measurements.md §13), and the biggest winners were the hybrid /
+# Mamba-2 architectures. That makes the two hybrid MoEs nobody has measured on
+# this box the most interesting untested models available, and it makes the
+# 2026-08-25 survey's "fits but not chosen" list worth revisiting.
 #
-# A1 and A2 share one weight blob (sha256:f5f1dd8920d4, 15.656 GiB) and differ
-# only in the params layer — A2 adds "draft_num_predict":4. So A2 costs one
-# small layer, not a second 16 GB download, and re-testing v2's MTP finding is
-# effectively free.
+# Everything here is q4_K_M. Nothing below 4-bit is pulled, ever.
 MODELS=(
-  "qwen3.8:27b-q4_K_M"            # A1 — dense 27B, 256K, vision. The model the
-                                  # project was commissioned to benchmark.
-  "qwen3.8:27b-mtp-q4_K_M"        # A2 — same weights + MTP head. v2 measured MTP
-                                  # as a net loss (129.2 -> 100.6 tok/s at the
-                                  # shipped draft_num_predict 4); re-test is free.
-  # A3 "qwen3.8:27b-q8_0" is deliberately NOT queued. plan.md §2 gates it on
-  # "runs only if A1 earns it", and pulling 27 GB onto a shared, df-less box
-  # would also have a large disk write in flight underneath A1's own benchmark.
-  # It gets pulled by hand if and only if A1's numbers justify a quality rung.
+  "nemotron-cascade-2:30b"     # 22.61 GiB. model_family nemotron_h_moe -- the same
+                               # hybrid-MoE class as nemotron-3.5-lightning, which
+                               # went 43.9 -> 138.1 tok/s on the new runtime and is
+                               # now the fastest generator on the box. Never surveyed.
+  "granite4.2:30b"             # 16.50 GiB, published 2026-08-26. IBM, tools +
+                               # thinking, 128K. The lightest 30B-class candidate
+                               # available and the newest thing that fits.
+  "gemma4:31b-it-q4_K_M"       # 18.50 GiB. Dense 31B sibling of the 26b-a4b that
+                               # holds the vision slot. Listed in market_research.md
+                               # §3 as fitting and never measured; worth settling
+                               # because it is the vision incumbent's bigger brother.
 )
 
 log() { printf '%s  %s\n' "$(date '+%F %T')" "$*" >> "$LOG"; }

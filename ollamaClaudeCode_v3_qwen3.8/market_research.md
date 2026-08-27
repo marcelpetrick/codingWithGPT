@@ -183,3 +183,82 @@ Stated explicitly so nobody re-litigates them next month:
 - [July–August 2026 open-weight roundup](https://local-ai-zone.github.io/blog/july-2026-ai-model-roundup.html) — source of the incorrect DeepSeek-V4-Flash VRAM claim
 - [DeepSeek V4 Flash GGUF sizes](https://v4flash.com/gguf/) · [hardware reality check](https://www.modemguides.com/blogs/ai-infrastructure/run-deepseek-v4-flash-locally-hardware-reality-check)
 - Registry manifests and config blobs read directly from `registry.ollama.ai/v2/library/*`
+
+---
+
+# Re-survey, 2026-08-27
+
+The 2026-08-25 survey above was written against Ollama **0.32.9** and scoped to "what can
+run on the box *today*", which at the time excluded all of Qwen3.8. Two things changed:
+
+1. **`.67` is on 0.32.15.** The `requires` column above no longer excludes anything — every
+   manifest in the library that fits now also resolves.
+2. **The runtime upgrade re-ranked the field by up to +221%** (`measurements.md` §13), and
+   the winners were the hybrid / Mamba-2 architectures. That changes which *shapes* are worth
+   surveying, not just which models.
+
+**Standing constraint: nothing below 4-bit.** q4_K_M is the floor. Where a model only fits
+by dropping to q3 or q2, the answer is a smaller model or a smaller window — a coarser quant
+is not a candidate, so sub-4-bit options are not listed below even as rejected ones.
+
+## 6. What is new in the library since 2026-08-25
+
+Library listing pulled 2026-08-27, newest first. Only models with a **tools** capability are
+candidates — a Claude Code driver that cannot call tools is not a driver.
+
+| model | published | verdict |
+|---|---|---|
+| `qwen3.8-flash-next` | ~11 h ago | **Excluded — does not fit, and is Apple-only.** See §6a |
+| `glm-5.3-flash` | ~20 h ago | **Excluded — cloud-only.** The only tag is `:cloud`; no local weights are published. 18B active, 1M context, but nothing to pull |
+| `granite4.2` | 2026-08-26 | **Candidate.** 30B tier at **16.50 GiB** q4_K_M, tools + thinking, 128K |
+| `gemma4:31b` | updated ~16 h ago | **Candidate.** 18.50 GiB q4_K_M, 256K, vision — the dense 31B sibling of the 26b-a4b that holds the vision slot |
+| `ornith-1.5` | ~1 week | Still excluded: vision only, **no tool capability** |
+| `qwen3.6` | updated 2026-08-26 | Already the control; re-measured on 0.32.15 |
+
+### 6a. `qwen3.8-flash-next` — the one that looked like the answer
+
+It is billed as "an experimental preview of the architecture that will power Qwen4":
+**125B total, 6B active** across 512 experts (10 routed + 1 shared), plus a 51B n-gram
+embedding table, 256K native context extensible to 1M with YaRN, multimodal, and 62.5 on
+SWE-bench Pro. A 6B-active MoE is exactly the shape this box rewards.
+
+**It cannot run here, for two independent reasons:**
+
+- **The only published tag is `125b-mlx` — 113 GB, MLX format.** MLX is Apple Silicon. There
+  is no GGUF.
+- **Even if a GGUF existed it would not fit.** 125B at q4_K_M is roughly 65–70 GB against a
+  measured 35.56 GB ceiling. Getting it under would need ~q2, which is below the floor.
+
+Worth re-checking if a GGUF of a smaller Flash-Next tier ever ships; the *shape* is right.
+
+## 7. The candidates that fit, re-ranked by shape
+
+Registry manifest bytes, resolved 2026-08-27. `model_family` is from each manifest's own
+config blob, not from a vendor card.
+
+| model | `model_family` | shape | q4_K_M | why it is / is not worth measuring |
+|---|---|---|---|---|
+| **`nemotron-cascade-2:30b`** | `nemotron_h_moe` | **Mamba-2 hybrid MoE**, 31.6B | **22.61 GiB** | **Top candidate.** The same family class as `nemotron-3.5-lightning`, which went 43.9 → 138.1 tok/s on 0.32.15 and is now the fastest generator on the box. Never surveyed — it predates the v3 field by three months and was missed |
+| **`granite4.2:30b`** | `granite` | 29.3B | **16.50 GiB** | **Top candidate.** Newest thing that fits, lightest 30B-class model available, tools + thinking |
+| **`gemma4:31b-it-q4_K_M`** | `gemma4` | **dense** 31.3B | 18.50 GiB | **Worth settling.** Dense, so expected slow — but it is the bigger sibling of the model holding the vision slot, and "is the 31B worth it over the 26B-a4b" is a question the vision user will ask |
+| `granite4.1:30b` | `granite` | 28.9B | 16.29 GiB | Skipped in favour of 4.2, which supersedes it. Pull only if 4.2 disappoints |
+| `olmo-3.1:32b` | `olmo3` | 32.2B | 18.14 GiB | Low priority. Dense, and `renderer olmo3-think` is an untested template |
+| `devstral-small-2:24b` | `mistral3` | **dense** 24B | 14.14 GiB | Low priority. Dense and coding-tuned; the smallest thing here, but v3 has measured four dense models and all four were 19–31 tok/s |
+| `nemotron3:33b` | — | Mamba-2 hybrid | 27.64 GiB | Superseded by `nemotron-3.5-lightning`, already measured |
+
+**The selection rule, stated so it is falsifiable:** after ten models, *active parameters per
+token* has predicted end-to-end performance on this box every single time — most sharply in
+§9a of `comparison.md`, where a dense proxy called an untested Qwen3.8's speed to within 2%.
+So the two hybrid MoEs go first and the dense models go last. **If `gemma4:31b` (dense) beats
+either hybrid, that rule is broken and this whole ordering was wrong** — which is exactly why
+one dense model is in the queue rather than none.
+
+## 8. Excluded in this round
+
+| model | why not |
+|---|---|
+| `qwen3.8-flash-next` | 125B/6B-active — right shape, but MLX-only and ~65–70 GB at q4. §6a |
+| `glm-5.3-flash` | cloud-only; no local weights published |
+| `laguna-s-2.1`, `deepseek-v4-*`, `glm-5.2`, `kimi-k3`, `minimax-m3`, `qwen3.8-max`, `nemotron-3-super/ultra`, `mistral-medium-3.5` | 118B–2.8T. Unchanged from §4 |
+| `ornith-1.5:*` | no tool capability |
+| everything below q4_K_M | standing constraint, not a size judgement |
