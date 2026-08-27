@@ -1,12 +1,20 @@
 # Model cards — the v3 benchmark field
 
 One card per model, written **2026-08-25, before measurement**. Everything under *What it
-is* comes from a vendor card or a registry manifest. Everything under *The catch* is either
-a measurement from v1/v2 on this exact box, or is labelled as a prediction. Nothing here is
-a v3 result — those land in `README.md` and `qwen38_eval.md`.
+is* comes from a vendor card or a registry manifest; everything else was either a v1/v2
+measurement on this exact box or was labelled as a prediction.
 
-The box: `192.168.100.67`, **≈35.5 GB usable** (measured, v2 §11.4), Ollama **0.32.9**.
-The bar: `qwen3.6:35b-a3b-q4_K_M-agentic` @ 262144 — **131.4 tok/s**, 3,988 tok/s prefill.
+**The Qwen3.8 card (A1–A3) has since been updated with results** — measured 2026-08-27 on
+Ollama 0.32.15, and written to show the pre-registered prediction next to what happened.
+Every other card is still pre-measurement; their results are in
+[`README.md`](README.md) and [`measurements.md`](measurements.md).
+
+The box: `192.168.100.67`, **35.56 GB usable** — a v2 single observation that Stage A
+reproduced to three decimals a model generation later (`measurements.md` §19c).
+Runtime: **0.32.9** when these cards were written, **0.32.15** since 2026-08-27 — a
+difference worth 0% to +221% of generation throughput depending on the model, so treat any
+tok/s figure below without a version attached as a 0.32.9 number.
+The bar, as it stood: `qwen3.6:35b-a3b-q4_K_M-agentic` @ 262144 — **131.4 tok/s**.
 
 **Vendor benchmark numbers are vendor benchmark numbers.** They are quoted because they are
 the reason each model is in the field, not because they are evidence about this hardware.
@@ -31,38 +39,74 @@ Vendor gains over Qwen3.6-27B:
 | OSWorld-Verified | 63.9 | **84.3** |
 | DeepSWE 1.1 | 13.3 | **42.2** |
 
-**The catch — two of them.**
+**Measured 2026-08-27 on Ollama 0.32.15.** The blocker cleared and all three rungs ran.
+Full detail in [`measurements.md`](measurements.md) §12–21.
 
-*It cannot be pulled today.* Every tag carries `"requires":"0.32.12"`; `.67` runs 0.32.9 and
-the registry answers **HTTP 412** before a byte moves. Blocked on the upgrade you have
-requested.
+| | A1 `27b-q4_K_M` | A2 `27b-mtp-q4_K_M` | A3 `27b-q8_0` |
+|---|---|---|---|
+| weights | 16.52 GiB | 16.52 GiB *(same blob)* | 27.92 GiB |
+| **max window @100% GPU** | **131,072** | 131,072 | **65,536** |
+| resident there | 26.24 GB | 26.24 GB | 32.82 GB |
+| **generation @2k** | **30.39 tok/s** | 36.58 | 19.41 |
+| **prefill @35k** | **1,428 tok/s** | 767 | 1,487 |
+| 20k-word turn, wall | **28.9 s** | 50.9 s | 32.0 s |
+| tool gates T1–T7 | **9/10** | not run | 8/10 |
+| T5 over n=11 | **11/11** | not run | 9/11 |
+| deepest verified retrieval | **119,015** | not run | window-bound |
+| Claude Code session | PASS 111 s | PASS 109 s | PASS 137 s |
+| vision | **PASS** | not run | not run |
 
-*It is dense, and this box punishes dense.* The incumbent activates 3B parameters per token
-and reaches 131.4 tok/s. v2 measured the *dense* 27B q8_0 on this same hardware at
-**18.1 tok/s** — token generation here is memory-bandwidth-bound, so every parameter is
-read for every token. Dense q4 should land somewhere near 35–40 tok/s; that is an
-extrapolation from bandwidth, **not a measurement**, and v1's dense-q4 rows cannot settle it
-because that run spilled to CPU (`9.60/17.37 SPLIT`).
+**Vendor claim vs measured.** The card was written to ask "whether 73.0 on Terminal-Bench
+survives being three to four times slower than the model it would replace". It is **4.3×
+slower**, and the answer is no — not because the model is bad, but because nothing in this
+workload can pay that.
 
-**And there is no MoE escape hatch.** Qwen has published exactly two Qwen3.8 shapes:
+**Prediction vs measurement, the one that matters.** This card predicted "dense q4 should
+land somewhere near 35–40 tok/s … an extrapolation from bandwidth, **not a measurement**".
+Measured: **30.4 tok/s.** The extrapolation was 15–30% optimistic. The *better* predictor
+was the dense stand-in v3 ran in its place — `qwen3.6:27b-q4_K_M` at **31.0 tok/s**, which
+called it to within 2%. Same at the q8 rung: predecessor 19.5, Qwen3.8 **19.41**.
+
+**Where it is genuinely good, and it is worth saying.** This is not a model that failed:
+
+- **Tool calling is sound.** T4 (parallel calls) and T7 (3/3 at 53,283 tokens) both pass —
+  the two gates `laguna-xs-2.1` failed, which was that model's disqualification. T5 held
+  11/11 over a re-run.
+- **Best window utilisation in the field.** Retrieves to 119,015 of 131,072 baked = **90.8%**,
+  against north-mini's 40% and the incumbent's 56%. Its window is the smallest here and the
+  most completely usable.
+- **It drives Claude Code correctly**, with a tool histogram *identical* to the incumbent's
+  (`Bashx4,Readx3,Editx1`) — no blind `Write`, no thrash, did not touch the test file.
+- **Vision works and is accurate**, not just capability-flagged: 71.2 s on the v0 screenshot
+  fixture, and it read the version string, model tag and working directory correctly.
+
+**Two things the card got wrong about the memory side.**
+
+*It is not naive-dense.* `full_attention_interval 4` means only **18 of 65 layers** hold full
+KV, measured at **73,730 B/token** against 266,240 naive — 3.6× cheaper (§19b). Without that
+it could not hold 131k on this box at all. So the "dense punishes you" intuition was right
+about speed and wrong about memory.
+
+*MTP reverses v2's finding, and is still the wrong tag.* v2 measured MTP as a straight
+generation loss (129.2 → 100.6). Here it is **+20% generation** — the first time speculative
+decoding has paid off anywhere in this project — bought with **−46% prefill**. For an agentic
+loop that re-reads its context every turn that is a net loss on a large prompt (28.9 s vs
+50.9 s at 35k tokens) and a wash on a small one (session 111 s vs 109 s).
+
+> **Pull `qwen3.8:27b-q4_K_M`, never `qwen3.8:27b`.** The bare tag's params digest is
+> byte-identical to the MTP build, so the name a person naturally types silently enables
+> speculative decoding.
+
+**And there was no MoE escape hatch.** Qwen published exactly two Qwen3.8 shapes:
 `Qwen3.8-27B` (this one) and `Qwen3.8-2.4T-A95B` — Qwen3.8-Max, ~1.2 TB even at FP8, about
 34× this box. The `Qwen3.8-35B-A3B` the community is asking for is **a leak, not a
-release**: it appears as a commit in Alibaba's ModelScope `ms-swift` repo and an open
-request thread on Hugging Face, with no weights anywhere. So on `.67`, dense is the only
-Qwen3.8 there will ever be.
+release**: a commit in Alibaba's ModelScope `ms-swift` repo and an open request thread on
+Hugging Face, with no weights anywhere. So on `.67`, dense was the only Qwen3.8 there was
+ever going to be, and that settled it.
 
-| tag | weights | plan |
-|---|---|---|
-| `27b-q4_K_M` | 17.74 GB | **A1** — the working candidate |
-| `27b-mtp-q4_K_M` | 17.74 GB | **A2** — re-tests v2's finding that MTP is a net loss here |
-| `27b-q8_0` | 29.98 GB | **A3** — quality rung; expected to be window-limited, runs only if A1 earns it |
-
-Shipped params: `presence_penalty 0` (v2's 31–35% throughput tax is fixed upstream),
-`draft_num_predict 4` (still exactly the setting v2 measured at 100.6 tok/s against 129.2 at
-0 — so an `-agentic` variant is still needed, for one knob instead of two).
-
-**What v3 measures:** whether 73.0 on Terminal-Bench survives being three to four times
-slower than the model it would replace.
+**Verdict: measured, not recommended.** Use it only if you specifically want Qwen3.8's
+reasoning quality and will accept 111 s where the field does 54–58 s. `qwen3.8:27b-q4_K_M`
+baked at `num_ctx 131072` is the rung.
 
 ---
 
