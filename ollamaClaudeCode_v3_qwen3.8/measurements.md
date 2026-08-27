@@ -730,15 +730,17 @@ hardcoded for muse-glimmer's 52-layer geometry. Qwen3.8 has 65 layers with
 |---|---|---|
 | naive — all 65 layers full | 266,240 | 34.9 GB |
 | SWA-aware — 65/4 = 16.25 full layers | 66,560 | 8.7 GB |
-| **measured** — least-squares slope | **69,131** | **9.1 GB** |
+| **measured** — see §19b | **73,730** | **9.7 GB** |
 
-Marginal cost between adjacent rungs: 55,176 / 73,730 / 68,954 B/tok — the low rung is cheap
-because the sliding-window layers' fixed allocation has not amortised yet, and the top two
-bracket the fitted slope.
+**Measured is 3.61× cheaper than naive. Ollama honours `full_attention_interval`.** That is
+the entire reason a dense 27B holds 131k on this box: naive KV would have cost 34.9 GB for
+the cache alone, on top of 17.1 GB of weights.
 
-**Measured is 1.04× the SWA-aware prediction and 3.85× cheaper than naive. Ollama honours
-`full_attention_interval`.** That is the entire reason a dense 27B holds 131k on this box:
-naive KV would have cost 34.9 GB for the cache alone, on top of 17.1 GB of weights.
+The 73,730 figure supersedes the 69,131 that `kv-probe.sh`'s least-squares fit prints, and
+§19b explains why the fit is the wrong estimator here — briefly, it averages over rungs that
+spill and over a low rung that has not amortised a fixed overhead. The marginal cost between
+two adjacent rungs that both sit at 100% GPU is the honest number, and it reproduces to the
+byte across both quantizations.
 
 The fitted intercept, 17.14 GB, is the weights — consistent with 16.52 GiB of layers.
 
@@ -878,3 +880,164 @@ did not touch the assertion. The tool histogram is **identical** to the incumben
 this project has measured all along (113–179 s) and outside the MoE band (42–60 s), which is
 now nine models deep with no exceptions. §7's finding — capability is flat, wall clock is
 not, and the split falls on architecture — survives Qwen3.8 intact.
+
+## 19. The q8_0 rung — and the box's real VRAM ceiling, measured twice
+
+`plan.md` §2 gated A3 on "runs only if A1 earns it", and at 30.4 tok/s A1 did not. It was
+pulled and measured anyway, on explicit instruction, to answer the fit question for the
+quality rung with a measurement instead of a prediction. **Both rungs measured here are
+q4_K_M or q8_0 — no sub-4-bit quantization was pulled, benchmarked or considered.**
+
+### 19a. The ladder
+
+| num_ctx | total | in VRAM | % GPU |
+|---|---|---|---|
+| 16,384 | 29.199 GB | 29.199 | **100%** |
+| 32,768 | 30.407 GB | 30.407 | **100%** |
+| 65,536 | 32.823 GB | 32.823 | **100%** |
+| 98,304 | 36.084 GB | 34.163 | 95% — spills |
+| 131,072 | 38.332 GB | 35.557 | 93% — spills |
+
+**Usable window: `num_ctx 65536`** — half of what q4 holds.
+
+### 19b. 73,730 bytes per token, three times, and the correct estimator
+
+Taking marginal cost only between adjacent rungs that *both* sit at 100% GPU:
+
+| rungs | quant | B/token |
+|---|---|---|
+| 32,768 → 65,536 | q4_K_M | 55,176 |
+| **65,536 → 131,072** | **q4_K_M** | **73,730** |
+| **16,384 → 32,768** | **q8_0** | **73,730** |
+| **32,768 → 65,536** | **q8_0** | **73,730** |
+
+**73,730 B/token, reproduced to the byte three times across two different quantizations.**
+That is exactly what it should be — the KV cache is stored at f16 regardless of how the
+*weights* are quantized — and it is the check that the number is real rather than fitted.
+
+It is also exactly `18 × 4096`: 73,728 bytes, where 4,096 B/tok/layer is
+`2 (K,V) × 4 kv-heads × 256 head-dim × 2 bytes`. So **18 of the 65 layers hold full KV.**
+`full_attention_interval 4` predicts 16–17; the exposed metadata does not say how the
+remaining layer or two is accounted for, and no API exposes it, so the 18 is recorded as
+measured and not explained.
+
+The model `total = weights + 73,730 × num_ctx` recovers both manifests:
+
+| | implied weights | manifest |
+|---|---|---|
+| q4_K_M | 16.58 GB | 16.52 GiB |
+| q8_0 | 27.99 GB | 27.92 GiB |
+
+Within 0.4%. **This is why `kv-probe.sh`'s least-squares line should not be quoted for either
+rung** — it returned 69,131 for q4 (dragged down by the un-amortised 32,768 rung) and 81,354
+for q8 (dragged up by two rungs that had already spilled). Same caveat as north-mini's in
+`README.md`: a slope fitted across an allocation regime change is meaningless.
+
+### 19c. The 35.5 GB ceiling is now measured twice, a generation apart
+
+v2 established the box's usable VRAM from a single observation
+(`../ollamaClaudeCode_v2/muse_ollama.md` §11.4): `qwen3.6:27b-q8_0` at `num_ctx 131072`
+asked for **38.33 GB** and only **35.56 GB** stayed resident.
+
+`qwen3.8:27b-q8_0` at `num_ctx 131072` asks for **38.332 GB** and **35.557 GB** stays
+resident.
+
+The same two numbers, from a different model generation, eight months of Ollama releases
+apart. **`.67`'s usable VRAM is 35.56 GB.** The `40.4 GB` figure that has been carried in
+this project's notes as "human-supplied, no VRAM API exists" now has a measured companion
+that has reproduced independently, and every memory budget in this repo should use 35.56.
+
+### 19d. Throughput — the quality rung costs a third of the speed
+
+| model | words | prefill tok/s | **gen tok/s** |
+|---|---|---|---|
+| `qwen3.8:27b-q8_0-ctx64k-agentic` | 0 | 84.2 | 19.49 |
+| | 2,000 | 1,246.0 | **19.41** |
+| | 20,000 | 1,486.9 | 18.17 |
+
+**19.41 tok/s — 36% slower than q4's 30.39.** And prefill goes *up* 4% (1,487 vs 1,428 at
+35k), which is the expected shape: generation is memory-bandwidth-bound and q8 streams
+1.7× the bytes per token, while prefill is compute-bound and barely notices.
+
+For the third time, Qwen3.8 lands on its predecessor's number: v2 measured
+`qwen3.6:27b-q8_0` at **19.5 tok/s**; Qwen3.8's q8 is **19.41**.
+
+### 19e. Gates and end to end
+
+```
+T1 PASS  T2 PASS  T3 PASS  T4 PASS  T5 PARTIAL(schema_ok_strategy=None)
+T6_4k  PASS  T6_16k PASS
+T6_60k FAIL  missed_at_32770_prompt_tokens
+T6_120k FAIL missed_at_32770_prompt_tokens
+T7 PASS 3/3_at_53283_tokens
+```
+
+**8/10, and both needle FAILs are the same truncation artifact as §16b** — this time at
+`32,770 = 65536/2 + 2`, for two documents 40,000 words apart. §16b's proof now holds at two
+different window sizes, which is stronger evidence than one.
+
+`cc-session`: **PASS in 137 s**, 17 turns, `Bashx4,Readx2,Editx1`.
+
+### 19f. The T5 PARTIAL is not a quantization effect
+
+Worth chasing, because "the higher-precision rung is the worse tool caller" would be a
+genuinely surprising claim. It does not survive being measured.
+
+T5 re-run 10 times per rung, plus the harness's own run — n=11 each:
+
+| | clean | failures |
+|---|---|---|
+| q4_K_M | **11 / 11** | — |
+| q8_0 | **9 / 11** | one `no_tool_call`, one runaway emitting **156 edits** for a 2-file change |
+
+2/11 versus 0/11 is not a significant difference (Fisher's exact, p ≈ 0.48). **The PARTIAL is
+not established as a quantization effect and must not be reported as one.**
+
+What it *does* establish is a methodological caveat that applies to every single-shot gate
+result in this repository: **the battery runs at the model's shipped sampling parameters —
+`temperature 1`, `top_p 0.95`, `top_k 20` — not at temperature 0.** T1–T5 are one sample
+each, so any of them can flip on a re-run. T7 already samples 3× and is the more trustworthy
+gate for that reason. Runs 4–10 were identical for both rungs (`strategy='squash'`,
+`edits=2`), so the instability is concentrated and occasional rather than uniform.
+
+## 20. MTP end to end — the prefill penalty needs a big prompt to show up
+
+§15b concluded MTP is a net loss for agentic work, from the 20,000-word tokrate row: A1
+28.9 s vs A2 50.9 s, a 76% penalty. The end-to-end session does **not** reproduce that:
+
+| model | verdict | wall | turns | tools |
+|---|---|---|---|---|
+| `qwen3.8:27b-q4_K_M-ctx128k-agentic` | PASS | **111 s** | 19 | `Bashx4,Readx3,Editx1` |
+| `qwen3.8:27b-mtp-q4_K_M-ctx128k-agentic` | PASS | **109 s** | 17 | `Bashx4,Readx3,Editx1` |
+
+**109 s vs 111 s — indistinguishable.** Stated plainly because it qualifies §15b rather than
+confirming it: the `cc-session` fixture is a two-file repository, so its prompts are short,
+and at short prompts MTP's +20% generation roughly cancels its −46% prefill.
+
+So the honest form of the §15b recommendation: **MTP is a net loss on large contexts and a
+wash on small ones.** Claude Code on a real repository lives at the large-context end — that
+is the whole premise of `README.md` finding #2 — so `qwen3.8:27b-q4_K_M` remains the right
+tag over `qwen3.8:27b`. But the evidence for that is the 35k-token tokrate row, not this
+session, and the session is recorded here as the place where the effect did not appear.
+
+## 21. Stage A summary — the three rungs
+
+| | **A1 q4_K_M** | **A2 mtp-q4_K_M** | **A3 q8_0** |
+|---|---|---|---|
+| weights | 16.52 GiB | 16.52 GiB *(same blob)* | 27.92 GiB |
+| **max window @100% GPU** | **131,072** | 131,072 | **65,536** |
+| resident there | 26.24 GB | 26.24 GB | 32.82 GB |
+| **generation @2k** | **30.39 tok/s** | 36.58 | 19.41 |
+| **prefill @35k** | **1,428 tok/s** | 767 | 1,487 |
+| 20k-word turn, total | **28.9 s** | 50.9 s | 32.0 s |
+| tool gates | **9/10** | not run | 8/10 |
+| T5 over n=11 | **11/11** | not run | 9/11 |
+| deepest verified retrieval | **119,015** | not run | ≤32,768 *(window-bound)* |
+| Claude Code session | PASS 111 s | PASS 109 s | PASS 137 s |
+| vision | PASS | not run | not run |
+
+**The rung to use, if you use Qwen3.8 at all, is `qwen3.8:27b-q4_K_M` baked at
+`num_ctx 131072`.** A2 is the same weights with a worse prefill profile and is what you get
+by typing the obvious tag name. A3 costs 36% of the generation speed and half the window to
+buy precision this workload has not been shown to need — every capability gate it passes,
+A1 also passes, and A1 passes one more.

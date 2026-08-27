@@ -8,3 +8,5 @@ nemotron-3.5-lightning:30b-ctx256k-agentic	PASS	113	24	Readx5,Bashx4,Editx1
 qwen3.6:27b-q4_K_M-ctx128k-agentic	PASS	140	16	Bashx4,Readx3,Editx1	
 qwen3.6:27b-q8_0-agentic	PASS	179	15	Bashx4,Readx2,Editx1	
 qwen3.8:27b-q4_K_M-ctx128k-agentic	PASS	111	19	Bashx4,Readx3,Editx1	
+qwen3.8:27b-q8_0-ctx64k-agentic	PASS	137	17	Bashx4,Readx2,Editx1	
+qwen3.8:27b-mtp-q4_K_M-ctx128k-agentic	PASS	109	17	Bashx4,Readx3,Editx1	
