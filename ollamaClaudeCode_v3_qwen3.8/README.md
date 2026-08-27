@@ -47,7 +47,9 @@ The 11.2 GB is the practical difference: it is the gap between "this box runs on
 | **vision** | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` @ 262144 | **the fastest prefill measured here** (5,774 tok/s) and the fastest session (54 s), with vision, in 22.15 GB. Prefill is what an agentic loop pays every turn, so this beats the incumbent at the vision job too |
 | **deepest window** | `nemotron-3.5-lightning:30b-ctx256k-agentic` | now the **fastest generator on the box** (138.1 tok/s, up from 43.9) and the only model holding 524,288 tokens — but the worst prefill of the four and 34 turns to do a 17-turn job |
 | **superseded** | `qwen3.6:35b-a3b-q4_K_M-agentic` | still 10/10 and still has vision, but third on generation, third on prefill, and the heaviest thing on the box at 32.54 GB |
+| **fastest, and rejected** | `nemotron-cascade-2:30b` | **The fastest model ever measured here on both axes** — 148.8 tok/s and 6,706 prefill — and it cannot call tools reliably: 50% parallel-call failure, 87.5% nested-schema failure, 84 turns and 256 s end to end. Kept on the box in case a future release fixes the template |
 | **measured, not recommended** | `qwen3.8:27b-q4_K_M` @ 131072 | **4.3× slower than the field.** See below |
+| **not recommended** | `granite4.2:30b`, `gemma4:31b-it` | dense, 28.8 and 25.4 tok/s. Notable only for §22a and §25b |
 | **not recommended** | `laguna-xs-2.1` *(deleted)* | the only model that failed a gate. Its 119.5 tok/s is a 0.32.9 number and cannot be re-measured |
 | **not recommended** | `muse-glimmer:30b` *(deleted)*, `qwen3.6:27b-q8_0` | dense: 28.5 and 19.5 tok/s on 0.32.9 |
 
@@ -117,6 +119,48 @@ others did in 16–19.** Speed per token is not the same as economy of turns.
 Qwen3.8's 111 s is not in the band at all, and its 9/10 is the only non-perfect gate score
 among the models still recommended for anything.
 
+### Stage D — the 2026-08-27 re-survey
+
+Three more candidates, chosen by shape rather than novelty and measured identically
+(`measurements.md` §22–27). None displaces the recommendation, and one of them is the most
+instructive model in the whole project.
+
+| | `nemotron-cascade-2:30b` | `granite4.2:30b` | `gemma4:31b-it` |
+|---|---|---|---|
+| shape | **Mamba-2 SSM + MoE**, 6 of 128 experts | **dense** 29.3B | **dense** 31.3B |
+| **generation** @2k | **148.8** tok/s — box record | 28.8 | 25.4 |
+| **prefill** @35k | **6,706** tok/s — box record | 1,476 | 1,378 |
+| usable window | **262,144** *(its full native window)* | 65,536 | 131,072 |
+| KV per token | **22,528** — cheapest measured | **261,698** — dearest measured | ~12,283 |
+| **tool gates** | **7/10** | 9/10 | 9/10 |
+| Claude Code session | **PASS 256 s / 84 turns** | PASS 235 s / 19 turns | PASS 94 s / **12 turns** |
+
+**`nemotron-cascade-2` wins every speed measurement on this box and is not recommended.** It
+is the first model to lead generation *and* prefill simultaneously — and re-running its
+failed gates 8× each showed the failures are systematic, not the temperature-1 noise §19f
+warned about: it drops one of two parallel tool calls **50%** of the time, and emits a nested
+`edits` array as a **string** in five runs out of eight (**87.5%**). `laguna-xs-2.1` was
+excluded from the v3 recommendation for this class of defect at 8/10.
+
+**Then it proved the point end to end.** The fastest model on the box produced **the slowest
+session ever measured in this project** — 256 s, **84 turns**, 29 Bash calls, and two blind
+`Write`s. It is 5.9× faster per token than Qwen3.8's q4 and took **2.3× longer to do the same
+one-file fix.** Meanwhile `gemma4:31b` generates at one sixth of cascade's speed and finished
+in **94 s with 12 turns**.
+
+> **Turn economy beat raw throughput by 2.7× on the same task.** Tok/s is a rate; what you
+> actually wait for is turns × latency, and nothing in a throughput benchmark predicts turns.
+
+Two smaller results worth carrying forward:
+
+- **`granite4.2` is the first model in v1/v2/v3 to ship a baked `num_ctx`** (131,072) — and
+  the box spills to 72% GPU at that window. The one model that ships a window ships one that
+  does not fit, so finding #6 below is re-worded rather than retired.
+- **`granite4.2` is also the only model that *errors* on an over-long prompt** (HTTP 400)
+  instead of silently discarding half of it. Every other model truncates.
+- **`gemma4:26b-a4b` beats its own 31B sibling decisively** — 104.1 vs 25.4 tok/s and twice
+  the usable window, for the same vision capability. The vision pick is unchanged.
+
 ### Models measured only on 0.32.9
 
 `laguna-xs-2.1` (119.5 tok/s, **8/10 gates** — the only gate failure in the project),
@@ -141,10 +185,13 @@ two numbers, and the reason every table here carries a version. A benchmark with
 version on it is not a result.
 
 **1. Tool-call reliability, and it is not close.** It is the only property that is pass/fail
-rather than a gradient. Laguna is the fastest challenger and is not recommended, because it
-serialises parallel tool calls (T4) and dropped one call in three at 53,145 tokens (T7).
-A model that is 9% faster and breaks the loop on turn three is a worse tool, not a faster
-one — and **neither failure appears in any throughput benchmark.**
+rather than a gradient, and Stage D produced the strongest case yet:
+**`nemotron-cascade-2` is the fastest model ever measured on this box, on both axes, and is
+rejected outright** for a 50% parallel-call failure and an 87.5% nested-schema failure.
+Laguna was rejected the same way at 8/10. A model that is faster and breaks the loop on turn
+three is a worse tool, not a faster one — and **none of these failures appears in any
+throughput benchmark.** Re-run any gate failure before believing it, though: the battery
+samples at temperature 1 (§19f).
 
 **2. Prefill beats generation for this workload.** An agentic loop re-reads its context every
 turn, so prefill is what Claude Code pays per tool result; generation only covers the few
@@ -153,10 +200,17 @@ dozen tokens a tool-heavy turn emits. On 0.32.15 gemma4 is **20% slower to gener
 sharpest case is Qwen3.8's MTP head: **+20% generation for −46% prefill**, which is a net
 loss on a large prompt (§15b) and a wash on a small one (§20).
 
-**3. Generation speed, for the turns that actually write code.** Still real — a plan or a
+**3. Turn economy — new, and it outranks generation speed.** What you wait for is
+turns × latency, not tokens per second. `nemotron-cascade-2` runs at 148.8 tok/s and takes
+**256 s and 84 turns** on a one-file fix; `gemma4:31b` runs at 25.4 and takes **94 s and 12
+turns**. A 5.9× throughput advantage turned into a 2.7× *loss* in wall clock. Nothing in any
+throughput benchmark predicts turn count, and the end-to-end fixture is the only thing here
+that measures it.
+
+**4. Generation speed, for the turns that actually write code.** Still real — a plan or a
 long edit is generation-bound — but it is the number people over-weight.
 
-**4. Window size, sharply diminishing, and *allocated ≠ usable*.** North-mini allocates
+**5. Window size, sharply diminishing, and *allocated ≠ usable*.** North-mini allocates
 500,000 tokens in 23.29 GB, and its retrieval is already unreliable at 230k (§8). The window
 a model can *hold* and the window it can *attend across* are different numbers. A large
 window also costs prefill on every turn — v2 measured Nemotron's 512k as real *and* unusable
@@ -168,7 +222,7 @@ stops tool calling.
 > Useful window = min(allocated, **retrieval-verified**, what you can afford to prefill each
 > turn). For Claude Code, 262k of verified window beats 500k of nominal window.
 
-**5. Model shape predicts all of the above, and Qwen3.8 is the confirmation.** On 0.32.15
+**6. Model shape predicts all of the above, and Qwen3.8 is the confirmation.** On 0.32.15
 every MoE runs 104–138 tok/s and finishes the task in 54–72 s; every dense model runs
 19–30 tok/s and takes 111–137 s. Ten models deep, no exception. The strongest form of the
 claim: v3 measured a dense stand-in at **31.0 tok/s** as a proxy for a Qwen3.8 it could not
@@ -180,11 +234,13 @@ architecture generation does not move it.**
 Dense also costs window: Qwen3.8 pays **73,730 B/token** of KV against the incumbent's
 ~16,384, which is why it holds 131,072 where the MoEs hold 262,144.
 
-**6. Every model here is unusable as pulled until you bake a window.** Every base tag ships
-without `num_ctx` (see [`results/inventory-67.txt`](results/inventory-67.txt)) — so as pulled,
-not one of them is usable with Claude Code past 16,384 tokens. The good news: **none of them
-ships `presence_penalty`**, so v2's single cheapest win (31–35% of throughput) is now fixed
-upstream and there is nothing to clear but the window.
+**7. Check the baked window — do not assume its absence, and do not trust its presence.**
+Almost every base tag ships without `num_ctx` and inherits a **16,384** cap past which tool
+calling silently stops (confirmed still true on 0.32.15, §17). `granite4.2:30b` is the first
+exception in three rounds of this project — and it ships `num_ctx 131072`, a window this box
+**cannot hold** (72% GPU, §23). So the rule is no longer "always bake"; it is *read the
+parameters, then bake what actually fits*. The good news is unchanged: **nothing ships
+`presence_penalty` any more**, so v2's cheapest win (31–35% of throughput) is fixed upstream.
 
 ## What we got wrong, and corrected
 
