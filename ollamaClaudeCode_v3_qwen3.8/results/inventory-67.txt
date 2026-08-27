@@ -1,31 +1,40 @@
-30 tags
-  gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic           16.75 GiB
-  gemma4:31b-it-q4_K_M                               18.50 GiB
-  gemma4:31b-it-q4_K_M-ctx128k-agentic               18.50 GiB
-  granite4.2:30b                                     16.50 GiB
-  granite4.2:30b-ctx64k-agentic                      16.50 GiB
-  nemotron-3.5-lightning:30b                         23.68 GiB
-  nemotron-3.5-lightning:30b-ctx256k-agentic         23.68 GiB
-  nemotron-3.5-lightning:30b-ctx512k-agentic         23.68 GiB
-  nemotron-cascade-2:30b                             22.61 GiB
-  nemotron-cascade-2:30b-ctx256k-agentic             22.61 GiB
-  north-mini-code-1.0:q4_K_M-ctx256k-agentic         17.32 GiB
-  qwen3.6:27b-q4_K_M                                 16.22 GiB
-  qwen3.6:27b-q4_K_M-ctx128k                         16.22 GiB
-  qwen3.6:27b-q4_K_M-ctx128k-agentic                 16.22 GiB
-  qwen3.6:27b-q8_0                                   27.91 GiB
-  qwen3.6:27b-q8_0-agentic                           27.91 GiB
-  qwen3.6:27b-q8_0-ctx60k                            27.91 GiB
-  qwen3.6:35b-a3b-mtp-q4_K_M                         21.07 GiB
-  qwen3.6:35b-a3b-mtp-q4_K_M-agentic                 21.07 GiB
-  qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k                 21.07 GiB
-  qwen3.6:35b-a3b-q4_K_M                             22.29 GiB
-  qwen3.6:35b-a3b-q4_K_M-agentic                     22.29 GiB
-  qwen3.6:35b-a3b-q4_K_M-ctx128k                     22.29 GiB
-  qwen3.6:35b-a3b-q4_K_M-ctx256k                     22.29 GiB
-  qwen3.8:27b-mtp-q4_K_M                             16.52 GiB
-  qwen3.8:27b-mtp-q4_K_M-ctx128k-agentic             16.52 GiB
-  qwen3.8:27b-q4_K_M                                 16.52 GiB
-  qwen3.8:27b-q4_K_M-ctx128k-agentic                 16.52 GiB
-  qwen3.8:27b-q8_0                                   27.92 GiB
-  qwen3.8:27b-q8_0-ctx64k-agentic                    27.92 GiB
+tags on .67              : 24
+distinct weight blobs    : 9
+naive sum of tag sizes   :   501.22 GiB
+unique blobs / real disk :   184.38 GiB
+double-counted           :   316.83 GiB
+
+     blob  tags  model family / names
+   27.91G  x3   [qwen35]
+            qwen3.6:27b-q8_0                             vision,tools,thinking
+            qwen3.6:27b-q8_0-agentic                     vision,tools,thinking
+            qwen3.6:27b-q8_0-ctx60k                      vision,tools,thinking
+   23.68G  x3   [nemotron_h_moe]
+            nemotron-3.5-lightning:30b                   tools,thinking
+            nemotron-3.5-lightning:30b-ctx256k-agentic   tools,thinking
+            nemotron-3.5-lightning:30b-ctx512k-agentic   tools,thinking
+   22.61G  x2   [nemotron_h_moe]
+            nemotron-cascade-2:30b                       tools,thinking
+            nemotron-cascade-2:30b-ctx256k-agentic       tools,thinking
+   22.29G  x4   [qwen35moe]
+            qwen3.6:35b-a3b-q4_K_M                       vision,tools,thinking
+            qwen3.6:35b-a3b-q4_K_M-agentic               vision,tools,thinking
+            qwen3.6:35b-a3b-q4_K_M-ctx128k               vision,tools,thinking
+            qwen3.6:35b-a3b-q4_K_M-ctx256k               vision,tools,thinking
+   21.07G  x3   [qwen35moe]
+            qwen3.6:35b-a3b-mtp-q4_K_M                   tools,thinking,vision
+            qwen3.6:35b-a3b-mtp-q4_K_M-agentic           tools,thinking,vision
+            qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k           tools,thinking,vision
+   17.32G  x1   [cohere2moe]
+            north-mini-code-1.0:q4_K_M-ctx256k-agentic   tools,thinking
+   16.75G  x1   [gemma4]
+            gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic     tools,thinking
+   16.52G  x4   [qwen35]
+            qwen3.8:27b-mtp-q4_K_M                       tools,thinking,vision
+            qwen3.8:27b-mtp-q4_K_M-ctx128k-agentic       tools,thinking,vision
+            qwen3.8:27b-q4_K_M                           tools,thinking,vision
+            qwen3.8:27b-q4_K_M-ctx128k-agentic           tools,thinking,vision
+   16.22G  x3   [qwen35]
+            qwen3.6:27b-q4_K_M                           vision,tools,thinking
+            qwen3.6:27b-q4_K_M-ctx128k                   vision,tools,thinking
+            qwen3.6:27b-q4_K_M-ctx128k-agentic           vision,tools,thinking

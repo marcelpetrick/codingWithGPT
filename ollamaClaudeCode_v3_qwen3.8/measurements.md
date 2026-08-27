@@ -1223,3 +1223,32 @@ fixture, turn economy beat raw throughput by 2.7×.
 
 `north-mini-code-1.0` remains the default. `gemma4:26b-a4b-it` remains the vision pick, and
 Stage D strengthens that: its bigger sibling is 4.1× slower with half the window.
+
+## 28. Housekeeping — Stage A/D cleanup, 2026-08-27
+
+Stage A and Stage D added **102.05 GiB** across five blob groups. After every measurement was
+taken and committed, the rejected models were removed on instruction:
+
+| removed | tags | freed |
+|---|---|---|
+| `qwen3.8:27b-q8_0` + `-ctx64k-agentic` | 2 | 27.92 GiB |
+| `gemma4:31b-it-q4_K_M` + `-ctx128k-agentic` | 2 | 18.50 GiB |
+| `granite4.2:30b` + `-ctx64k-agentic` | 2 | 16.50 GiB |
+| **total** | **6** | **62.93 GiB** |
+
+Verified by unique-blob total before and after: **247.31 → 184.38 GiB**, 30 → 24 tags,
+12 → 9 distinct blobs. Predicted 62.92, measured 62.93.
+
+**Kept, and why:**
+
+- **`qwen3.8:27b-q4_K_M`** + `-mtp-q4_K_M` + both `-ctx128k-agentic` variants (**16.52 GiB
+  for all four** — one blob). This is the model the project was commissioned to benchmark and
+  the rung §21 names if it is ever wanted. Deleting the two MTP tags would free **zero**
+  bytes, so they stay as documentation of §12b's footgun.
+- **`nemotron-cascade-2:30b`** + `-ctx256k-agentic` (22.61 GiB). Rejected on tool calling, but
+  it is the fastest generator *and* prefiller ever measured on this box (§24) and is one
+  working tool template away from being the default. Re-test on the next release rather than
+  re-pull from scratch.
+
+Everything removed is re-pullable: the q8 rung in ~18 min, the other two in ~10 min each at
+the 27 MB/s this box measured on 2026-08-27.
