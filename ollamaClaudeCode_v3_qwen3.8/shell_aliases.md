@@ -165,6 +165,61 @@ blaming the model.**
 So: reach for it when the working set is genuinely 200k+ and you need recall you can trust.
 Do not make it the default.
 
+## The subagent bug — every alias had it (fixed 2026-08-27)
+
+Symptom, seen on a real `claude-ol-north` session: the main model works, but **every
+subagent dies instantly.**
+
+```
+Agent "Explore game frameworks and patterns" failed: Agent terminated early due to an
+API error: There's an issue with the selected model (claude-opus-5[1m]) ...
+(error type model_not_found, HTTP 404, model sent to the API: claude-opus-5)
+```
+
+**Cause.** Claude Code resolves models through *four* slots, not one. `--model` sets the main
+loop. The other three are aliases a subagent or a background task resolves through:
+
+| variable | what resolves through it |
+|---|---|
+| `ANTHROPIC_MODEL` / `--model` | the main conversation |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | the `haiku` alias + background work (session titles, summaries) |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL` | the `sonnet` alias, and `opusplan` outside Plan Mode |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | the `opus` alias, and `opusplan` inside Plan Mode |
+
+The Explore/Task subagents resolve the **`opus`** alias. With `ANTHROPIC_DEFAULT_OPUS_MODEL`
+unset it falls through to the literal `claude-opus-5`, which Claude Code faithfully sends to
+`.67` — a server that has never heard of it. Hence HTTP 404.
+
+Note the documentation says `ANTHROPIC_DEFAULT_HAIKU_MODEL` is "also used for background
+functionality", which is true and was the reason only that one was set. It is not sufficient:
+**background work and subagents are different things**, and subagents go through `opus`.
+
+**Every alias in `~/.zshrc` was affected**, in two severities:
+
+| alias | before | failure |
+|---|---|---|
+| `claude-ol2`, `claude-ol-nemo`, `claude-ol-north`, `claude-ol-ornith` | HAIKU only | subagents 404 |
+| `claude-ol`, `claude-ol-mistral`, `claude-ol-local`, `claude-locallama`, `claude-nvidia` | nothing set | subagents **and** background calls 404 |
+
+**Fix: all four slots point at the same local tag**, for the same reason the Haiku slot always
+did — this box holds one model at a time, so any slot resolving to a *different* tag either
+404s (if the server lacks it) or evicts the resident model and costs a ~70 s reload.
+
+```shell
+ANTHROPIC_DEFAULT_HAIKU_MODEL="$M" \
+ANTHROPIC_DEFAULT_SONNET_MODEL="$M" \
+ANTHROPIC_DEFAULT_OPUS_MODEL="$M" \
+  claude --model "$M" "$@"
+```
+
+Verified after the fix by running a real Explore subagent through `claude-ol-north`: it
+completed and returned the right answer, with no `model_not_found`.
+
+**One harmless message remains** and is not this bug:
+`[claude-code:unrecognized_model] {"query_source":"generate_session_title"}` — Claude Code
+does not recognise the custom tag name for its own session-title feature. It is cosmetic; the
+title generation just falls back.
+
 ## When to use which
 
 - **`claude-ol-north`** — everything, by default. 132.9 tok/s, 262144, 10/10 gates, retrieves

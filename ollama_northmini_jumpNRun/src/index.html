@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ollama Northmini Jump n Run</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: 'Press Start 2P', monospace;
+      }
+      #game-container {
+        position: relative;
+        overflow: hidden;
+        border: 2px solid #fff;
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: crisp-edges;
+      }
+      canvas {
+        display: block;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .hud {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: white;
+        font-size: 14px;
+        text-shadow: 2px 2px 0 black;
+      }
+      .game-over {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: white;
+        font-size: 24px;
+        text-shadow: 2px 2px 0 black;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+      <div id="hud" class="hud hidden">
+        <div>Score: <span id="score">0</span></div>
+        <div>Lives: <span id="lives">3</span></div>
+        <div>Level: <span id="level">1</span></div>
+      </div>
+
+      <div id="pauseScreen" class="hidden">
+        <div class="game-over">
+          <h2>Paused</h2>
+          <p>Press ESC to resume</p>
+        </div>
+      </div>
+
+      <div id="gameOverScreen" class="hidden">
+        <div class="game-over">
+          <h2>Game Over</h2>\n          <p>Score: <span id="finalScore">0</span></p>
+          <p><button id="restartBtn">Restart</button></p>
+        </div>
+      </div>
+
+      <div id="startScreen" class="hidden">
+        <div class="game-over">
+          <h2>Jump n Run</h2>
+          <p>Press SPACE or UP to start</p>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
