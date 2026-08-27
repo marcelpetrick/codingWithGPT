@@ -1,5 +1,5 @@
 // Main game entry point
-import Game from './game/Game.js';
+import CoreGame from './game/CoreGame.js';
 
 // Wait for DOM to be fully loaded before initializing the game
 window.addEventListener('DOMContentLoaded', () => {
@@ -9,10 +9,11 @@ window.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  const game = new Game(canvas);
+  // Initialize the core game
+  const game = new CoreGame(canvas);
 
-  // Start the game loop
-  game.start();
+  // Start the game with start screen
+  game.startGame();
 });
 
 // Error handling for the game
@@ -22,14 +23,18 @@ window.addEventListener('error', (event) => {
 });
 
 // Handle game visibility changes (browser tab switching)
-window.addEventListener('visibilitychange', () => {
+window.addEventListener('visibilitychange', (event) => {
   if (document.hidden) {
     // Game is paused when tab is hidden
-    // Implementation depends on game state management
+    if (game && game.getGameState() === 'playing') {
+      game.pauseGame();
+    }
   } else {
     // Resume game when tab is visible
-    // Implementation depends on game state management
+    if (game && game.getGameState() === 'paused') {
+      game.resumeGame();
+    }
   }
 });
 
-export default Game;
+export { CoreGame };
