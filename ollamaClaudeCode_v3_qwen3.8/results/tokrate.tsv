@@ -53,3 +53,6 @@ gemma4:31b-it-q4_K_M-ctx128k-agentic	20000	34195	256	1378.1	22.79	0.0	39.4
 nemotron-cascade-2:30b-ctx256k-agentic	0	29	128	106.4	145.15	12.0	13.2
 nemotron-cascade-2:30b-ctx256k-agentic	2000	3460	113	3670.6	147.16	0.0	1.8
 nemotron-cascade-2:30b-ctx256k-agentic	20000	37839	136	6671.7	139.21	0.0	7.1
+ornith:35b-ctx256k-agentic	0	83	132	242.6	123.64	12.2	13.6
+ornith:35b-ctx256k-agentic	2000	3238	111	2897.4	128.46	0.0	2.1
+ornith:35b-ctx256k-agentic	20000	35160	127	3465.3	111.09	0.0	11.7

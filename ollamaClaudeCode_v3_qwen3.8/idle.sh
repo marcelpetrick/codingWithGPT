@@ -91,7 +91,7 @@ fi
 # someone mid-session costs them a 70 s reload.
 # v3 stage D additions (2026-08-27): nemotron-cascade-2 and granite4.2, pulled
 # by this project on 2026-08-27. gemma4: already covered the 31b tag.
-OURS='^(muse-glimmer:|nemotron-3\.5-lightning:|nemotron-cascade-2:|granite4\.2:|kvprobe-|tune-|qwen3\.8:|laguna-xs-|north-mini-code-|gemma4:)'
+OURS='^(ornith:|muse-glimmer:|nemotron-3\.5-lightning:|nemotron-cascade-2:|granite4\.2:|kvprobe-|tune-|qwen3\.8:|laguna-xs-|north-mini-code-|gemma4:)'
 foreign() { printf '%s\n' $R | grep -Ev "$OURS" || true; }
 
 F=$(foreign)

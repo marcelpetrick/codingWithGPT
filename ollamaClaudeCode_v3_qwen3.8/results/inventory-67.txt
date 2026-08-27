@@ -1,8 +1,8 @@
-tags on .67              : 24
-distinct weight blobs    : 9
-naive sum of tag sizes   :   501.22 GiB
-unique blobs / real disk :   184.38 GiB
-double-counted           :   316.83 GiB
+tags on .67              : 26
+distinct weight blobs    : 10
+naive sum of tag sizes   :   540.64 GiB
+unique blobs / real disk :   204.09 GiB
+double-counted           :   336.55 GiB
 
      blob  tags  model family / names
    27.91G  x3   [qwen35]
@@ -25,6 +25,9 @@ double-counted           :   316.83 GiB
             qwen3.6:35b-a3b-mtp-q4_K_M                   tools,thinking,vision
             qwen3.6:35b-a3b-mtp-q4_K_M-agentic           tools,thinking,vision
             qwen3.6:35b-a3b-mtp-q4_K_M-ctx128k           tools,thinking,vision
+   19.71G  x2   [qwen35moe]
+            ornith:35b                                   tools,thinking
+            ornith:35b-ctx256k-agentic                   tools,thinking
    17.32G  x1   [cohere2moe]
             north-mini-code-1.0:q4_K_M-ctx256k-agentic   tools,thinking
    16.75G  x1   [gemma4]

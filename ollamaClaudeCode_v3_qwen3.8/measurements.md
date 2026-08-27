@@ -1252,3 +1252,128 @@ Verified by unique-blob total before and after: **247.31 → 184.38 GiB**, 30 �
 
 Everything removed is re-pullable: the q8 rung in ~18 min, the other two in ~10 min each at
 the 27 MB/s this box measured on 2026-08-27.
+
+---
+
+# Stage E — `ornith:35b`, 2026-08-27
+
+`market_research.md` §7 listed `ornith:35b` as the best untested candidate. Note the trap it
+sits behind: the 2026-08-25 survey excluded **`ornith-1.5:35b`** for having *no tool
+capability* — but plain **`ornith:35b` is a different model that does have tools**. The
+exclusion was correct for the model it named and does not transfer.
+
+## 29. What it is
+
+`Ornith-1.0-35B`, deepreinforce-ai, **MIT licence**. 19.71 GiB at q4_K_M.
+
+```
+capabilities: ['completion','tools','thinking']     <- no vision
+family qwen35moe · 34.7B · Q4_K_M
+qwen35moe.block_count               40
+qwen35moe.expert_count              256      expert_used_count  8
+qwen35moe.context_length            262144
+qwen35moe.attention.head_count_kv   2        key_length         256
+qwen35moe.full_attention_interval   4        <- hybrid attention
+shipped params: temperature 0.6 · top_k 20 · top_p 0.95 · stop "<|im_end|>"
+```
+
+**Architecturally it is the incumbent's twin**: same `qwen35moe` family string, same 40
+blocks, same 256 experts with 8 used, same 262,144 native window. It is a different vendor's
+model on the same skeleton. Two differences that matter: it carries
+`full_attention_interval 4` and it has **no vision**.
+
+Shipped params are clean — no `presence_penalty`, no `draft_num_predict`. As always, **no
+`num_ctx`**, so the 16,384 cliff applies until baked.
+
+## 30. Window and throughput
+
+| num_ctx | total | % GPU |
+|---|---|---|
+| 65,536 | 25.130 GB | 100% |
+| 131,072 | 26.120 GB | 100% |
+| 262,144 | **28.628 GB** | **100%** |
+
+**Holds its full 262,144 native window at 100% GPU in 28.63 GB.** Marginal KV between the top
+two rungs is **19,134 B/token**, against 20,480 predicted from
+`(40/4) × 2 × 2 kv-heads × 256 × 2B` — `full_attention_interval` honoured again, the same as
+Qwen3.8 (§14a).
+
+| words | prefill tok/s | gen tok/s |
+|---|---|---|
+| 0 | 243 | 123.64 |
+| 2,000 | 2,897 | **128.46** |
+| 20,000 | **3,465** | 111.09 |
+
+Mid-field on both: 4th of six on generation, 5th on prefill, and 7.3 GB heavier than
+north-mini for the same window.
+
+## 31. Gates and retrieval — it wins the retrieval crown outright
+
+```
+T1 PASS  T2 PASS  T3 PASS  T4 PASS  T5 PASS
+T6 4k/16k/60k/120k all PASS   T7 PASS 3/3 at 53,337 tokens
+```
+
+**10/10, clean on the first run.** T4 and T5 — the two gates that broke
+`nemotron-cascade-2` — both pass.
+
+`needle-v2` at `--num-predict 2048`:
+
+| depth | prompt_eval | verdict |
+|---|---|---|
+| 80,000 words | 147,015 | PASS |
+| 95,000 | 174,977 | PASS |
+| 110,000 | 202,919 | PASS |
+| 125,000 | 233,609 | PASS |
+| 135,000 | **254,061** | **PASS** |
+| 142,000 | *131,074* | FAIL — truncation |
+
+**Deepest verified retrieval in the entire project: 254,061 tokens — 96.9% of its baked
+window**, against north-mini's 201,737 (40% of its allocation) and the incumbent's 146,957.
+No failure anywhere below the cliff; it passed every rung on the first attempt.
+
+The 142,000-word FAIL is the half-window artifact for the **fourth** time: `prompt_eval`
+comes back **131,074 = 262144 / 2 + 2**. Four models, four window sizes, identical arithmetic.
+
+## 32. And then it lost on wall clock — unexplained
+
+| model | gen tok/s | session | turns | tools |
+|---|---|---|---|---|
+| `ornith:35b` | 128.5 | **308 s** | **15** | `Bashx3,Readx3,Editx1` |
+| `north-mini-code-1.0` | 132.9 | 57 s | 18 | `Bashx5,Readx4,Editx1` |
+| `nemotron-cascade-2` | 148.8 | 256 s | 84 | `Bashx29,Readx8,Writex2,Editx1` |
+
+**308 s is the slowest session measured in this project**, and it is slow for the opposite
+reason to cascade's 256 s. Cascade thrashed — 84 turns, 29 shell calls, two blind `Write`s.
+Ornith did not: **15 turns, the cleanest possible tool histogram, fewer turns than
+north-mini.** It did the right things and took five times as long to do them.
+
+That works out to **≈20.5 s per turn** against north-mini's ≈3.2 s, on a model measured at
+128.5 tok/s with thinking disabled.
+
+**Stated as a hypothesis, not a finding:** ornith is a `thinking` model shipping
+`temperature 0.6`, and the `tokrate` figures above are taken with `think:false` while the
+`cc-session` path does not disable it. ~20.5 s/turn at 128 tok/s implies **~2,600 tokens
+emitted per turn**, which is the right order for heavy reasoning output. If that is the
+cause, the fix is a `think:false` or reasoning-effort setting rather than a different model.
+
+**This was not verified.** The measurement that would settle it — tokens emitted per turn
+with thinking on versus off — was started and abandoned when a colleague's session took the
+box (32.5 GB resident); `idle.sh` waited rather than evicting, which is the correct
+behaviour. **Do not quote a cause for the 308 s until that runs.**
+
+## 33. Verdict on ornith
+
+**Not recommended as the default, and the clear pick for one specific job.**
+
+- **Deep retrieval: it is the best model measured, by a margin.** 254,061 verified tokens is
+  26% deeper than north-mini and 73% deeper than the incumbent, with 10/10 gates and 96.9%
+  window utilisation. If the working set is genuinely 200k+ and tool-heavy, this is the model.
+- **General driving: no.** 308 s against north-mini's 57 s on an identical clean 15-turn
+  transcript, until the per-turn cost is explained and fixed.
+- MIT licence, no vision, 28.63 GB.
+
+`north-mini-code-1.0` remains the default. Ornith displaces **nemotron-3.5-lightning** as the
+deep-context recommendation for anything inside 262,144 — deeper verified retrieval
+(254,061 vs 161,516), better prefill (3,465 vs 2,797), 2.6 GB lighter, and 10/10 gates on
+both. Nemotron keeps only the 524,288 window.

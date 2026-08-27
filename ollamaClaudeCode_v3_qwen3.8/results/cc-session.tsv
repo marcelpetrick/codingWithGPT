@@ -17,3 +17,4 @@ qwen3.6:35b-a3b-q4_K_M-agentic	PASS	58	17	Bashx5,Readx3,Editx1
 nemotron-cascade-2:30b-ctx256k-agentic	PASS	256	84	Bashx29,Readx8,Writex2,Editx1	
 granite4.2:30b-ctx64k-agentic	PASS	235	19	Bashx4,Readx3,TaskCreatex1,Editx1,TaskUpdatex1	
 gemma4:31b-it-q4_K_M-ctx128k-agentic	PASS	94	12	Bashx3,Readx1,Editx1	
+ornith:35b-ctx256k-agentic	PASS	308	15	Bashx3,Readx3,Editx1	
