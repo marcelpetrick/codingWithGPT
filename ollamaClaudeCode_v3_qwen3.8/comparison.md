@@ -1,9 +1,24 @@
 # Local models for Claude Code — full comparison
 
-**Hardware:** `192.168.100.67`, ≈35.5 GB usable VRAM (measured, not the 40.4 GB on paper).
-**Runtime:** Ollama 0.32.9. **Date:** 2026-08-25. Server idle before every measurement, one
-model resident at a time. Control re-measured in the same session; it reproduced the previous
-run to within 2%.
+**Hardware:** `192.168.100.67`, **35.56 GB** usable VRAM — measured, not the 40.4 GB on
+paper, and reproduced to three decimals by two different model generations eight months
+apart. **Runtime:** Ollama **0.32.15**. **Dates:** 2026-08-25 (on 0.32.9) and **2026-08-27**
+(re-measured on 0.32.15). Server idle before every measurement, one model resident at a time.
+
+> ### The runtime version is a variable, and it is the headline
+>
+> `.67` was upgraded from Ollama 0.32.9 to 0.32.15 between the two measurement days. **That
+> re-ranked the field with no model changing.** Generation @2k: nemotron **+221%**,
+> north-mini **+60%**, gemma4 **+49%** — and the control **0.0%**, 130.04 tok/s both times to
+> two decimals.
+>
+> The control not moving is what makes this a finding rather than a warmer box or a changed
+> harness. It also means **the previous edition of this document reached the right conclusion
+> for a runtime that no longer exists**, and the recommendation below reverses it.
+>
+> Everything here was re-measured on 0.32.15 unless marked otherwise. Gates, residency and
+> retrieval depth were re-checked and proved **version-stable** — north-mini's full T1–T7
+> battery came back byte-identical, including every token count. Only speed moved.
 
 ---
 
@@ -11,39 +26,53 @@ run to within 2%.
 
 | # | model | verdict |
 |---|---|---|
-| **1** | `qwen3.6:35b-a3b-q4_K_M-agentic` @262144 | **Default driver.** Fastest generation, clean on every gate, deepest retrieval, has vision. Unchanged from the previous round. |
-| **2** | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **Deep-context option.** Replaces Nemotron: 8 GB lighter, 1.9× faster, same gate score, reports failure instead of inventing answers. |
-| **3** | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | **Read-heavy / vision niche.** Fastest prefill on the box (+44%), 10/10 gates — but 47% slower to generate. |
-| 4 | `nemotron-3.5-lightning:30b-ctx256k-agentic` | **Superseded but kept.** Only model holding 524,288 tokens; 2.6× slower than north-mini for the same job. |
-| — | `qwen3.6:27b-q4_K_M-ctx128k-agentic` | **Reference only** — the dense proxy for the untestable Qwen3.8. 4.2× slower than the incumbent. |
-| — | `laguna-xs-2.1:q4_K_M` | **Not recommended, deleted.** Fastest challenger, and the only model that failed a gate. |
-| — | `muse-glimmer:30b-ctx128k-agentic` | **Not recommended, deleted.** 4.6× slower than the incumbent with half the window. |
-| — | `qwen3.6:27b-q8_0-agentic` | **Not recommended.** Slowest measured (18.1 tok/s), 81,920 window, fabricates past it. |
-| — | `qwen3.8:27b` | **Could not be tested.** Requires Ollama ≥0.32.12; the box runs 0.32.9. |
+| **1** | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` @262144 | **Default driver.** Beats the former incumbent on generation, prefill, memory and retrieval depth, ties it on gates and end-to-end. **11.2 GB lighter.** No vision. |
+| **2** | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` @262144 | **Vision, and read-heavy work.** Fastest prefill on the box (5,774) and the fastest end-to-end session measured (54 s), in 22.15 GB. |
+| **3** | `nemotron-3.5-lightning:30b-ctx256k-agentic` | **Deep context only.** Now the fastest generator on the box (138.1, was 43.9) but the worst prefill, and it took 34 turns to do a 17-turn job. Holds **524,288** tokens, which nothing else does. |
+| 4 | `qwen3.6:35b-a3b-q4_K_M-agentic` @262144 | **Superseded.** Still 10/10 and still has vision, but third on generation, third on prefill, and the heaviest thing on the box at 32.54 GB. |
+| — | `qwen3.8:27b-q4_K_M` @131072 | **Measured, not recommended.** Capable — 9/10 gates, vision, best window-utilisation in the field — and **4.3× slower**. See §9. |
+| — | `laguna-xs-2.1:q4_K_M` | **Not recommended, deleted.** The only model that failed a gate. Speed never re-measured on 0.32.15. |
+| — | `muse-glimmer:30b-ctx128k-agentic` | **Not recommended, deleted.** Dense; never re-measured. |
+| — | `qwen3.6:27b-q8_0-agentic` | **Not recommended.** Dense, 81,920 window, fabricates past it. |
 
-## 2. The full field — eight models, one methodology
+**What changed since 2026-08-25:** the default. Not because north-mini improved, but because
+the runtime upgrade made it 60% faster while leaving `qwen3.6:35b-a3b` exactly where it was.
 
-Ranked by generation speed. `MoE-3B` means a Mixture-of-Experts model activating ~3B
+## 2. The full field — one methodology
+
+Ranked by generation speed, on **Ollama 0.32.15**. `MoE-3B` means a Mixture-of-Experts model activating ~3B
 parameters per token; `dense` means every parameter is read for every token, which is the
 shape this hardware handles worst.
 
 | model | vendor | shape | gen @2k | prefill @35k | gates | window | resident | session |
 |---|---|---|---|---|---|---|---|---|
-| **qwen3.6:35b-a3b** *(default)* | Alibaba | MoE-3B | **130.0** | 3,911 | **10/10** | 262,144 | 32.54 GB | **46 s** |
-| laguna-xs-2.1 ✗ | Poolside | MoE-3B | 119.5 | 4,882 | **8/10** | 262,144 | 25.01 GB | **42 s** |
-| **north-mini-code-1.0** *(deep ctx)* | Cohere | MoE-3B | 83.6 | 4,331 | **10/10** | 262,144 | **21.34 GB** | 60 s |
-| **gemma4:26b-a4b** *(prefill)* | Google | MoE-4B | 70.0 | **5,740** | **10/10** | 262,144 | 22.15 GB | 60 s |
-| nemotron-3.5-lightning | NVIDIA | Mamba-2+MoE | 43.9 | 3,050 | **10/10** | **524,288** | 31.21 GB | 113 s |
-| qwen3.6:27b-q4 *(dense proxy)* | Alibaba | **dense** | 31.0 | 1,307 | 9/10 | 131,072 | 30.17 GB | 140 s |
-| muse-glimmer:30b ✗ | — | **dense** | 28.5 | 1,963 | 10/10 * | 131,072 | 19.45 GB | 160 s |
-| qwen3.6:27b-q8 | Alibaba | **dense** | 19.5 | 1,464 | 9/10 | 81,920 | 34.03 GB | **179 s** |
+| nemotron-3.5-lightning | NVIDIA | Mamba-2+MoE | **138.1** | 2,797 | **10/10** | **524,288** | 31.21 GB | 72 s |
+| **north-mini-code-1.0** *(default)* | Cohere | MoE-3B | 132.9 | 4,443 | **10/10** | 262,144 | **21.34 GB** | 57 s |
+| qwen3.6:35b-a3b *(former default)* | Alibaba | MoE-3B | 130.0 | 3,996 | **10/10** | 262,144 | 32.54 GB | 58 s |
+| **gemma4:26b-a4b** *(vision)* | Google | MoE-4B | 104.1 | **5,774** | **10/10** | 262,144 | 22.15 GB | **54 s** |
+| **qwen3.8:27b-q4** | Alibaba | **dense** | 30.4 | 1,428 | 9/10 | 131,072 | 26.24 GB | 111 s |
+| qwen3.8:27b-q8 | Alibaba | **dense** | 19.4 | 1,487 | 8/10 | 65,536 | 32.82 GB | 137 s |
+| *measured on 0.32.9 only:* | | | | | | | | |
+| laguna-xs-2.1 ✗ | Poolside | MoE-3B | *119.5* | *4,882* | **8/10** | 262,144 | 25.01 GB | *42 s* |
+| qwen3.6:27b-q4 *(dense proxy)* | Alibaba | **dense** | *31.0* | *1,307* | 9/10 | 131,072 | 30.17 GB | *140 s* |
+| muse-glimmer:30b ✗ | — | **dense** | *28.5* | *1,963* | 10/10 * | 131,072 | 19.45 GB | *160 s* |
+| qwen3.6:27b-q8 | Alibaba | **dense** | *19.5* | *1,464* | 9/10 | 81,920 | 34.03 GB | *179 s* |
 
 ✗ = deleted from the box after measurement (see §11). \* = see §6 note on Muse's gate score.
+*Italic* speed figures are **0.32.9 numbers that were never re-measured** — given that three
+of four re-measured models moved by 49–221%, treat them as unknown rather than as slow. Their
+gate scores stand, because gates proved version-stable.
 
-**The single clearest line in this table is the shape column.** Every MoE sits at 70–130
-tok/s; every dense model sits at 19–31. The four dense models are also the four slowest
-end-to-end sessions. This is a memory-bandwidth machine: a dense model re-reads all 27B
-parameters for every token it writes, an MoE reads ~3B.
+**The single clearest line in this table is still the shape column.** Every MoE sits at
+104–138 tok/s and finishes end to end in 54–72 s; every dense model sits at 19–30 and takes
+111–179 s. Ten models deep, no exception. This is a memory-bandwidth machine: a dense model
+re-reads all 27B parameters for every token it writes, an MoE reads ~3B.
+
+**The top four are tied end to end at 54–58 s** — and the former incumbent's session moved
+46 s → 58 s while its throughput did not move at all, which is the clearest evidence
+available that this metric carries real run-to-run variance. A four-second gap between two
+models in that column means nothing. Nemotron's 72 s is outside the band for a reason the
+transcript shows: **34 turns to do a job the others did in 16–19.**
 
 ## 3. Architecture
 
@@ -72,20 +101,25 @@ despite being mid-sized — and why the q8 tops out at 81,920.
 
 ## 5. Speed
 
-| | gen @2k | gen @20k | prefill @35k | vs incumbent (gen) |
-|---|---|---|---|---|
-| qwen3.6:35b-a3b | **130.0** | **112.2** | 3,911 | — |
-| laguna-xs-2.1 | 119.5 | 93.5 | 4,882 | −8% |
-| north-mini-code | 83.6 | 78.2 | 4,331 | −36% |
-| gemma4:26b-a4b | 70.0 | 65.4 | **5,740** | −46% |
-| nemotron-3.5-L | 43.9 | 44.9 | 3,050 | −66% |
-| **qwen3.6:27b-q4 (dense)** | **31.0** | 27.8 | 1,307 | **−76%** |
-| muse-glimmer | 28.5 | 27.9 | 1,963 | −78% |
-| qwen3.6:27b-q8 (dense) | 19.5 | 18.1 | 1,464 | **−85%** |
+On **0.32.15**, with the 0.32.9 figure alongside to show what the runtime alone was worth:
+
+| | gen @2k | *was (0.32.9)* | delta | gen @20k | prefill @35k |
+|---|---|---|---|---|---|
+| nemotron-3.5-L | **138.1** | *43.9* | **+221%** | **144.9** | 2,797 |
+| north-mini-code | 132.9 | *83.6* | **+60%** | 113.0 | 4,443 |
+| qwen3.6:35b-a3b | 130.0 | *130.0* | **0.0%** | 112.1 | 3,996 |
+| gemma4:26b-a4b | 104.1 | *70.0* | **+49%** | 92.6 | **5,774** |
+| **qwen3.8:27b-q4 (dense)** | **30.4** | — | — | 27.4 | 1,428 |
+| qwen3.8:27b-q8 (dense) | 19.4 | — | — | 18.2 | 1,487 |
 
 *Prefill is what an agentic loop pays every turn (it re-reads context each time); generation
-covers only the tokens the model emits. Note the dense models lose on **both**: 1,307 tok/s
-prefill against the incumbent's 3,911.*
+covers only the tokens the model emits. The dense models lose on **both**: 1,428 tok/s
+prefill against north-mini's 4,443.*
+
+**The 0.32.15 optimisation is in the decode path, not the prefill path.** Prefill barely
+moved for anyone — gemma4 +0.6%, north-mini +1.2%, the control +2.2%, nemotron −8.3% — while
+generation moved by up to 221%. Both outliers were run twice and reproduce (nemotron 140.8
+then 135.5; north-mini 133.7 then 132.0).
 
 ## 6. Capability gates
 
@@ -181,42 +215,80 @@ across columns.
 | `north-mini-code-1.0` | Artificial Analysis Coding Index **33.4** |
 | `gemma4-26b-a4b` | MMLU Pro **82.6%** · LiveCodeBench v6 **77.1%** |
 
-## 9. Why Qwen3.8 is absent
+## 9. Qwen3.8 — measured
 
-Every Qwen3.8 manifest declares `"requires":"0.32.12"`. The box runs **0.32.9**, so the
-registry refuses the pull with **HTTP 412** before any data transfers. The upgrade to 0.32.15
-has been requested from the machine's owner. The benchmark harness is built and waiting.
+The blocker is gone. Every Qwen3.8 manifest declares `"requires":"0.32.12"` and the box ran
+0.32.9, so the registry refused the pull with **HTTP 412** before any data moved. On
+2026-08-27 `.67` was upgraded to **0.32.15** and all three rungs ran. Every rung is q4_K_M or
+q8_0 — no sub-4-bit quantisation was pulled or considered.
 
-There is also **no faster Qwen3.8 to wait for**: Qwen published exactly two shapes — the dense
-27B, and a 2.4T-A95B "Max" at ~1.2 TB (34× this hardware). The widely-discussed
-`Qwen3.8-35B-A3B` is an unreleased leak. So on this hardware Qwen3.8 will always be **dense**.
+| rung | window @100% GPU | resident | gen @2k | prefill @35k | gates | session |
+|---|---|---|---|---|---|---|
+| `qwen3.8:27b-q4_K_M` | **131,072** | 26.24 GB | **30.4** | 1,428 | 9/10 | PASS 111 s |
+| `qwen3.8:27b-mtp-q4_K_M` | 131,072 | 26.24 GB | 36.6 | **767** | — | PASS 109 s |
+| `qwen3.8:27b-q8_0` | 65,536 | 32.82 GB | 19.4 | 1,487 | 8/10 | PASS 137 s |
 
-### 9a. What a dense 27B actually does here — measured, not guessed
+**The verdict: a good model in the wrong shape for this box.** It is 4.3× slower than the
+default and finishes the end-to-end fixture in 111 s against the field's 54–58 s.
 
-`qwen3.6:27b-q4_K_M` is the same vendor, the same 27B dense shape and the same Q4_K_M
-quantisation as `qwen3.8:27b-q4_K_M` (17.42 GB of weights against Qwen3.8's 17.74 GB). It is
-therefore the closest available proxy, and it was measured from scratch for this report:
+### 9a. The prediction was right, and here is the receipt
 
-| | dense 27B q4 *(proxy)* | qwen3.6:35b-a3b *(incumbent)* | ratio |
-|---|---|---|---|
-| generation @2k | **31.0 tok/s** | 130.0 | **4.2× slower** |
-| prefill @35k | **1,307 tok/s** | 3,911 | **3.0× slower** |
-| max window @100% GPU | **131,072** | 262,144 | **half** |
-| KV bytes per token | **64,784** | — (MoE ≈16,384) | **4× heavier** |
-| end-to-end session | **140 s** | 46 s | **3.0× slower** |
-| tool gates | 9/10 (window) | 10/10 | — |
+The previous edition of this document could not test Qwen3.8, so it measured
+`qwen3.6:27b-q4_K_M` as a proxy — same vendor, same dense 27B shape, same quantisation — and
+committed to a prediction in writing:
 
-**The prediction this yields for Stage A**, stated as a prediction so it can be checked:
-Qwen3.8-27B on this box should land near **30 tok/s**, take roughly **3× longer** per task,
-and **fail to fit its advertised 256K window at 100% GPU** — expect to bake it at 131,072.
+> *"Qwen3.8-27B on this box should land near **30 tok/s**, take roughly **3× longer** per
+> task, and **fail to fit its advertised 256K window at 100% GPU** — expect to bake it at
+> 131,072."*
 
-That is the trade to put in front of anyone asking for Qwen3.8: its vendor benchmarks are
-genuinely stronger (Terminal-Bench 2.1 73.0 against 63.4), but on this hardware it arrives
-~4× slower in a half-sized window. Smarter per token, far fewer tokens per second — and an
-agentic loop spends its life in tool round-trips, not in single brilliant completions.
+| predicted | measured |
+|---|---|
+| ~30 tok/s | **30.4 tok/s** |
+| ~3× longer per task | **2.4×** (111 s vs 46 s), 1.9× against the current default |
+| will not hold 256K; bake at 131,072 | **262,144 spills to 96% GPU; baked at 131,072** |
+
+Three for three. The q8 rung repeated the trick: the predecessor measured 19.5 tok/s,
+Qwen3.8's q8 measured **19.41**.
+
+**This is the strongest single result in the report.** A model's *architecture class* — how
+many parameters it activates per token — predicted its performance on this hardware to within
+2%, across a full model generation, before the model could even be downloaded. Vendor
+benchmark gains (Terminal-Bench 2.1 63.4 → 73.0) did not move that number at all.
+
+### 9b. Where Qwen3.8 is genuinely good
+
+It did not fail. Reported because the speed verdict would otherwise misrepresent it:
+
+- **Tool calling is sound.** T4 (parallel calls) and T7 (3/3 at 53,283 tokens) both pass —
+  the two gates that disqualified `laguna-xs-2.1`. T5 held **11/11** on re-run.
+- **Best window utilisation in the field.** Verified retrieval to **119,015** of 131,072
+  baked = **90.8%**, against north-mini's 40% and the former incumbent's 56%. Its window is
+  the smallest here and the most completely usable.
+- **It drives Claude Code correctly** — tool histogram *identical* to the incumbent's
+  (`Bashx4,Readx3,Editx1`), fixed the source and not the test.
+- **Vision works and is accurate**, not merely capability-flagged.
+
+### 9c. Two footguns, if you use it anyway
+
+**Pull `qwen3.8:27b-q4_K_M`, never `qwen3.8:27b`.** The bare tag's params digest is
+byte-identical to the MTP build, so the name a person naturally types silently enables
+speculative decoding. On Qwen3.8 that is **+20% generation for −46% prefill** — a net loss on
+a large prompt (28.9 s vs 50.9 s on a 35k-token turn) and a wash on a small one (session
+111 s vs 109 s). An agentic loop lives at the large end.
+
+**It is not naive-dense, which is the one thing the proxy got wrong.**
+`full_attention_interval 4` means only **18 of 65 layers** hold full KV: **73,730 bytes per
+token** against 266,240 naive, 3.6× cheaper. Measured three times across both quantisations,
+reproducing to the byte. Without it a dense 27B could not hold 131k on this box at all — so
+the "dense punishes you" intuition was right about speed and wrong about memory.
 
 ## 10. What matters, in order
 
+0. **The runtime version.** New to this list, and it outranks everything below it: an Ollama
+   point upgrade changed generation throughput by **0% to +221% depending on the model** and
+   re-ranked the field with no model changing. A tok/s figure without a runtime version
+   attached is not a result. Capability, memory and retrieval depth proved version-stable;
+   only speed moved.
 1. **Tool-call reliability** — the only pass/fail property, and the reason the fastest
    challenger is rejected. Invisible in throughput benchmarks.
 2. **Prefill speed** — paid on every turn of an agentic loop.
@@ -226,10 +298,11 @@ agentic loop spends its life in tool round-trips, not in single brilliant comple
 > **Useful window = min(allocated, retrieval-verified, affordable to prefill each turn).**
 > For Claude Code, 262k of verified window beats 500k of nominal window.
 
-**5. Model shape decides all of the above.** Every MoE measured here runs 70–130 tok/s and
-finishes the end-to-end task in 42–60 s; every dense model runs 19–31 tok/s and takes
-113–179 s. On a memory-bandwidth-bound box, active parameters per token is the number that
-predicts everything else.
+**5. Model shape decides all of the above.** On 0.32.15 every MoE runs 104–138 tok/s and
+finishes the task in 54–72 s; every dense model runs 19–30 tok/s and takes 111–179 s. Ten
+models deep, no exception — and §9a is the proof, where shape predicted an untested model's
+speed to within 2%. On a memory-bandwidth-bound box, active parameters per token is the
+number that predicts everything else.
 
 **Operational note:** every model here ships *without* a baked `num_ctx`, so as pulled none
 is usable with Claude Code past 16,384 tokens — the endpoint silently drops the prompt tail
