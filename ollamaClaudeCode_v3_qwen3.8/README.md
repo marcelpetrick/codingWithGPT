@@ -319,6 +319,7 @@ tag-name test can tell a colleague's `claude-ol2` session from our control run.
 | `../ollamaClaudeCode_v2/results/` | raw data for nemotron, muse-glimmer and 27b-q8_0, quoted here but not duplicated — see `measurements.md` §10 |
 | `results/inventory-67.txt` | every tag on `.67` with its baked window and capabilities |
 | `comparison.md` | the full model comparison, written to be read outside this repo |
+| `report.html` | the one-page executive summary, published as an Artifact for the C-level readout |
 
 ## Housekeeping
 

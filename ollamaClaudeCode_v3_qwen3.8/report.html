@@ -1,0 +1,297 @@
+<title>The 40 GB Question</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --paper:#F6F7F9; --panel:#FFFFFF; --panel-2:#EFF2F6;
+  --ink:#131822; --ink-2:#3D4756; --muted:#5C6675; --rule:#DCE1E8; --rule-2:#C6CDD8;
+  --good:#0F8A6B; --warn:#A57C0C; --crit:#C6304F; --ref:#3D5FC4;
+  --good-soft:#E2F1EC; --crit-soft:#FAE4E9; --ref-soft:#E5EAFA; --warn-soft:#F5EEDC;
+  --shadow:0 1px 2px rgba(19,24,34,.06),0 8px 24px -12px rgba(19,24,34,.18);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1218; --panel:#161B24; --panel-2:#1D2430;
+    --ink:#E9EDF3; --ink-2:#C3CBD7; --muted:#8F99A8; --rule:#28303C; --rule-2:#3A4453;
+    --good:#33A886; --warn:#B68A26; --crit:#E0556F; --ref:#6B8AE6;
+    --good-soft:#132B25; --crit-soft:#331A22; --ref-soft:#1A2238; --warn-soft:#2C2515;
+    --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1218; --panel:#161B24; --panel-2:#1D2430;
+  --ink:#E9EDF3; --ink-2:#C3CBD7; --muted:#8F99A8; --rule:#28303C; --rule-2:#3A4453;
+  --good:#33A886; --warn:#B68A26; --crit:#E0556F; --ref:#6B8AE6;
+  --good-soft:#132B25; --crit-soft:#331A22; --ref-soft:#1A2238; --warn-soft:#2C2515;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px -14px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:40px 24px 64px}
+h1,h2,h3{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;text-wrap:balance;margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* masthead */
+.mast{border-top:3px solid var(--ink);padding-top:18px;margin-bottom:34px}
+.mast-top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+h1{font-size:clamp(34px,5.4vw,54px);line-height:1.03;font-weight:700;letter-spacing:-.02em}
+.sub{color:var(--ink-2);font-size:17px;max-width:60ch;margin-top:12px}
+.verdict{
+  margin-top:22px;display:flex;gap:14px;align-items:flex-start;
+  background:var(--good-soft);border:1px solid var(--good);border-left-width:4px;
+  border-radius:3px;padding:14px 18px;
+}
+.verdict .k{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--good);font-weight:600;white-space:nowrap;padding-top:3px}
+.verdict p{margin:0;font-size:16px;color:var(--ink)}
+
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:4px;overflow:hidden;margin:34px 0}
+.kpi{background:var(--panel);padding:18px 20px}
+.kpi .n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:31px;font-weight:600;line-height:1.05;letter-spacing:-.02em}
+.kpi .l{font-size:13px;color:var(--muted);margin-top:7px;line-height:1.4}
+.n.good{color:var(--good)} .n.crit{color:var(--crit)} .n.ref{color:var(--ref)} .n.warn{color:var(--warn)}
+
+section{margin:44px 0 0}
+.sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--rule-2);padding-bottom:9px;margin-bottom:20px}
+.sec-head h2{font-size:21px;font-weight:600;letter-spacing:-.01em}
+.sec-head .note{margin-left:auto;font-size:12.5px;color:var(--muted)}
+
+/* charts */
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+@media(max-width:820px){.charts{grid-template-columns:1fr}}
+.chart{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:18px 20px 16px;box-shadow:var(--shadow)}
+.chart h3{font-size:15px;font-weight:600;margin-bottom:2px}
+.chart .cap{font-size:12.5px;color:var(--muted);margin-bottom:16px}
+.rows{display:flex;flex-direction:column;gap:9px}
+.row{display:grid;grid-template-columns:104px 1fr 62px;align-items:center;gap:10px}
+.row .name{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-2);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track{background:var(--panel-2);border-radius:3px;height:17px;position:relative;overflow:hidden}
+.bar{height:100%;border-radius:0 4px 4px 0;transform-origin:left center}
+.bar.good{background:var(--good)} .bar.crit{background:var(--crit)}
+.bar.ref{background:var(--ref)} .bar.warn{background:var(--warn)}
+.val{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:500;text-align:right;color:var(--ink)}
+.row.hl .name{color:var(--ink);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;padding-top:13px;border-top:1px solid var(--rule)}
+.lg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2)}
+.sw{width:11px;height:11px;border-radius:2px;flex:none}
+.sw.good{background:var(--good)} .sw.crit{background:var(--crit)} .sw.ref{background:var(--ref)}
+
+.callout{margin-top:22px;background:var(--crit-soft);border:1px solid var(--crit);border-left-width:4px;border-radius:3px;padding:15px 18px}
+.callout .k{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--crit);font-weight:600;display:block;margin-bottom:6px}
+.callout p{margin:0;font-size:15px}
+
+/* findings */
+.finds{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:18px}
+.find{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:18px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:9px}
+.find .tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.find h3{font-size:16.5px;font-weight:600;line-height:1.25}
+.find p{margin:0;font-size:14px;color:var(--ink-2)}
+.find .fig{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink);border-top:1px solid var(--rule);padding-top:9px;margin-top:auto}
+.t-crit{color:var(--crit)} .t-good{color:var(--good)} .t-ref{color:var(--ref)} .t-warn{color:var(--warn)}
+
+/* table */
+.twrap{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:660px;font-size:13.5px}
+th,td{padding:10px 13px;text-align:right;border-bottom:1px solid var(--rule);white-space:nowrap}
+th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--panel-2)}
+th:first-child,td:first-child{text-align:left}
+td.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:none}
+tr.win td{background:var(--good-soft)}
+.pill{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;letter-spacing:.05em;padding:2px 8px;border-radius:99px;border:1px solid currentColor}
+.pill.good{color:var(--good);background:var(--good-soft)}
+.pill.crit{color:var(--crit);background:var(--crit-soft)}
+.pill.ref{color:var(--ref);background:var(--ref-soft)}
+.pill.warn{color:var(--warn);background:var(--warn-soft)}
+
+/* decision */
+.dec{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.dec>div{background:var(--panel);padding:18px 20px}
+.dec .role{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.dec .m{font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:600;margin:7px 0 6px;word-break:break-all;line-height:1.35}
+.dec p{margin:0;font-size:13.5px;color:var(--ink-2)}
+footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--rule-2);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.bar{animation:g .7s cubic-bezier(.2,.8,.3,1) both}@keyframes g{from{transform:scaleX(0)}}}
+a{color:var(--ref)} a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ref);outline-offset:2px}
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="mast-top">
+      <span class="eyebrow">Infrastructure Evaluation &middot; 27 Aug 2026</span>
+      <span class="eyebrow">Server 192.168.100.67 &middot; 35.56 GB usable</span>
+    </div>
+    <h1>The 40 GB Question</h1>
+    <p class="sub">Which local AI model should drive our coding agents? Fifteen model builds measured on one shared GPU box, under one identical protocol.</p>
+    <div class="verdict">
+      <span class="k">Verdict</span>
+      <p><strong>Switch the default to <span class="mono">north-mini-code-1.0</span>.</strong> It beats the model we run today on speed, memory and accuracy of recall &mdash; and frees 11 GB. Zero hardware spend.</p>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><div class="n">15</div><div class="l">model builds measured end&#8209;to&#8209;end</div></div>
+    <div class="kpi"><div class="n good">+221%</div><div class="l">speed gained from a <em>free</em> software upgrade</div></div>
+    <div class="kpi"><div class="n crit">5.9&times;</div><div class="l">faster model that <em>lost</em> the delivery race</div></div>
+    <div class="kpi"><div class="n ref">&euro;0</div><div class="l">capital spend &mdash; 62.9 GB disk returned</div></div>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <h2>Raw speed does not predict delivery</h2>
+      <span class="note">Same models, same task, same order in both charts</span>
+    </div>
+    <div class="charts">
+
+      <div class="chart">
+        <h3>Generation speed</h3>
+        <p class="cap">Tokens per second &mdash; the number vendors advertise. Higher is better.</p>
+        <div class="rows">
+          <div class="row hl"><span class="name">cascade&#8209;2</span><div class="track"><div class="bar crit" style="width:100%"></div></div><span class="val">148.8</span></div>
+          <div class="row"><span class="name">nemotron&#8209;3.5</span><div class="track"><div class="bar ref" style="width:92.8%"></div></div><span class="val">138.1</span></div>
+          <div class="row hl"><span class="name">north&#8209;mini</span><div class="track"><div class="bar good" style="width:89.3%"></div></div><span class="val">132.9</span></div>
+          <div class="row"><span class="name">qwen3.6 (today)</span><div class="track"><div class="bar ref" style="width:87.4%"></div></div><span class="val">130.0</span></div>
+          <div class="row"><span class="name">ornith</span><div class="track"><div class="bar ref" style="width:86.4%"></div></div><span class="val">128.5</span></div>
+          <div class="row"><span class="name">gemma4</span><div class="track"><div class="bar good" style="width:70.0%"></div></div><span class="val">104.1</span></div>
+          <div class="row"><span class="name">qwen3.8</span><div class="track"><div class="bar crit" style="width:20.4%"></div></div><span class="val">30.4</span></div>
+        </div>
+      </div>
+
+      <div class="chart">
+        <h3>Time to finish the job</h3>
+        <p class="cap">Seconds to complete one real code fix. <strong>Lower is better.</strong></p>
+        <div class="rows">
+          <div class="row hl"><span class="name">cascade&#8209;2</span><div class="track"><div class="bar crit" style="width:83.1%"></div></div><span class="val">256s</span></div>
+          <div class="row"><span class="name">nemotron&#8209;3.5</span><div class="track"><div class="bar ref" style="width:23.4%"></div></div><span class="val">72s</span></div>
+          <div class="row hl"><span class="name">north&#8209;mini</span><div class="track"><div class="bar good" style="width:18.5%"></div></div><span class="val">57s</span></div>
+          <div class="row"><span class="name">qwen3.6 (today)</span><div class="track"><div class="bar ref" style="width:18.8%"></div></div><span class="val">58s</span></div>
+          <div class="row"><span class="name">ornith</span><div class="track"><div class="bar ref" style="width:100%"></div></div><span class="val">308s</span></div>
+          <div class="row"><span class="name">gemma4</span><div class="track"><div class="bar good" style="width:17.5%"></div></div><span class="val">54s</span></div>
+          <div class="row"><span class="name">qwen3.8</span><div class="track"><div class="bar crit" style="width:36.0%"></div></div><span class="val">111s</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span class="lg"><span class="sw good"></span>Recommended</span>
+      <span class="lg"><span class="sw ref"></span>Measured &mdash; not selected</span>
+      <span class="lg"><span class="sw crit"></span>Rejected</span>
+      <span class="lg" style="margin-left:auto;color:var(--muted)">Every bar is labelled with its value; colour is never the only signal.</span>
+    </div>
+
+    <div class="callout">
+      <span class="k">The headline finding</span>
+      <p><strong>The fastest model on the box is the one we rejected.</strong> <span class="mono">cascade&#8209;2</span> generates text 5.9&times; faster than the slowest model here &mdash; and took <strong>2.3&times; longer</strong> to finish the same piece of work, because it fumbled its tools and had to retry: 84 steps where a good model needs 15. Vendor speed claims did not survive contact with a real task.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>What we learned that we did not expect</h2></div>
+    <div class="finds">
+
+      <div class="find">
+        <span class="tag t-good">Free performance</span>
+        <h3>A software update re-ranked the entire field</h3>
+        <p>Upgrading the server runtime &mdash; no new hardware, no new models &mdash; changed throughput by <strong>0% to +221%</strong> depending on the model. It reshuffled which model was fastest and made our previous recommendation obsolete overnight.</p>
+        <div class="fig">nemotron +221% &middot; north&#8209;mini +60% &middot; gemma4 +49% &middot; control 0%</div>
+      </div>
+
+      <div class="find">
+        <span class="tag t-crit">Reliability is pass/fail</span>
+        <h3>Speed is a gradient. Tool use is not.</h3>
+        <p>Models drive our tooling by emitting structured commands. Two failed badly: one dropped <strong>half</strong> of its parallel commands, and produced malformed instructions in <strong>7 of 8</strong> attempts. No throughput benchmark reveals this &mdash; only running the real workload does.</p>
+        <div class="fig">cascade&#8209;2 &mdash; 7/10 gates &middot; 50% and 87.5% failure rates</div>
+      </div>
+
+      <div class="find">
+        <span class="tag t-warn">The requested model</span>
+        <h3>Qwen3.8 is excellent, and wrong for this hardware</h3>
+        <p>The release everyone asked for is genuinely smarter per word. But it reads all 27&nbsp;billion parameters per token where our pick reads 3&nbsp;billion &mdash; so on this memory-bound box it runs <strong>4.3&times; slower</strong>. A bigger GPU would change the answer.</p>
+        <div class="fig">predicted 31.0 tok/s &rarr; measured 30.4 &middot; within 2%</div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>The shortlist</h2>
+      <span class="note">All figures measured on identical hardware and runtime</span>
+    </div>
+    <div class="twrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Speed</th><th>Memory</th><th>Recall depth</th><th>Tool gates</th><th>Task time</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr class="win">
+            <td><strong>north-mini-code-1.0</strong></td>
+            <td class="num">132.9</td><td class="num">21.3 GB</td><td class="num">201,737</td><td class="num">10/10</td><td class="num">57s</td>
+            <td><span class="pill good">Default</span></td>
+          </tr>
+          <tr>
+            <td>gemma4:26b-a4b</td>
+            <td class="num">104.1</td><td class="num">22.2 GB</td><td class="num">143,324</td><td class="num">10/10</td><td class="num">54s</td>
+            <td><span class="pill good">Images</span></td>
+          </tr>
+          <tr>
+            <td>ornith:35b</td>
+            <td class="num">128.5</td><td class="num">28.6 GB</td><td class="num">254,061</td><td class="num">10/10</td><td class="num">308s</td>
+            <td><span class="pill warn">Long docs</span></td>
+          </tr>
+          <tr>
+            <td>qwen3.6:35b-a3b <span style="color:var(--muted)">&mdash; today's default</span></td>
+            <td class="num">130.0</td><td class="num">32.5 GB</td><td class="num">146,957</td><td class="num">10/10</td><td class="num">58s</td>
+            <td><span class="pill ref">Replaced</span></td>
+          </tr>
+          <tr>
+            <td>nemotron-cascade-2</td>
+            <td class="num">148.8</td><td class="num">30.4 GB</td><td class="num">161,526</td><td class="num">7/10</td><td class="num">256s</td>
+            <td><span class="pill crit">Rejected</span></td>
+          </tr>
+          <tr>
+            <td>qwen3.8:27b</td>
+            <td class="num">30.4</td><td class="num">26.2 GB</td><td class="num">119,015</td><td class="num">9/10</td><td class="num">111s</td>
+            <td><span class="pill crit">Rejected</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted);margin:11px 0 0">Speed in tokens/second. Recall depth = how far into a long document the model can still find a specific fact, verified by test. Tool gates = structured-command reliability, the pass/fail criterion.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>What we deploy</h2></div>
+    <div class="dec">
+      <div>
+        <div class="role">Everyday default</div>
+        <div class="m">north-mini-code-1.0</div>
+        <p>Faster and more accurate than today's default, in 11 GB less memory. One trade-off: it cannot read images.</p>
+      </div>
+      <div>
+        <div class="role">Screenshots &amp; images</div>
+        <div class="m">gemma4:26b-a4b</div>
+        <p>Fastest end-to-end of anything measured, and reads images. Covers the one gap in the default.</p>
+      </div>
+      <div>
+        <div class="role">Very long documents</div>
+        <div class="m">ornith:35b</div>
+        <p>Recalls facts 254k words deep &mdash; 26% further than any other model. Slow per task; specialist use only.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Full methodology, raw measurements and every correction: <span class="mono">ollamaClaudeCode_v3_qwen3.8</span></span>
+    <span class="mono">15 builds &middot; 5 stages &middot; 0 hardware spend</span>
+  </footer>
+
+</div>
