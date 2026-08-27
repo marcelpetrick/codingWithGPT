@@ -30,6 +30,8 @@ apart. **Runtime:** Ollama **0.32.15**. **Dates:** 2026-08-25 (on 0.32.9) and **
 | **2** | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` @262144 | **Vision, and read-heavy work.** Fastest prefill on the box (5,774) and the fastest end-to-end session measured (54 s), in 22.15 GB. |
 | **3** | `nemotron-3.5-lightning:30b-ctx256k-agentic` | **Deep context only.** Now the fastest generator on the box (138.1, was 43.9) but the worst prefill, and it took 34 turns to do a 17-turn job. Holds **524,288** tokens, which nothing else does. |
 | 4 | `qwen3.6:35b-a3b-q4_K_M-agentic` @262144 | **Superseded.** Still 10/10 and still has vision, but third on generation, third on prefill, and the heaviest thing on the box at 32.54 GB. |
+| — | `nemotron-cascade-2:30b` | **Fastest model ever measured here — on both axes — and rejected.** 148.8 tok/s, 6,706 prefill, and it drops 50% of parallel tool calls and 87.5% of nested schemas. 84 turns and 256 s end to end. See §12 |
+| — | `granite4.2:30b` · `gemma4:31b-it` | **Not recommended.** Dense, 28.8 and 25.4 tok/s. `gemma4:31b` loses decisively to its own 26B sibling |
 | — | `qwen3.8:27b-q4_K_M` @131072 | **Measured, not recommended.** Capable — 9/10 gates, vision, best window-utilisation in the field — and **4.3× slower**. See §9. |
 | — | `laguna-xs-2.1:q4_K_M` | **Not recommended, deleted.** The only model that failed a gate. Speed never re-measured on 0.32.15. |
 | — | `muse-glimmer:30b-ctx128k-agentic` | **Not recommended, deleted.** Dense; never re-measured. |
@@ -50,6 +52,9 @@ shape this hardware handles worst.
 | **north-mini-code-1.0** *(default)* | Cohere | MoE-3B | 132.9 | 4,443 | **10/10** | 262,144 | **21.34 GB** | 57 s |
 | qwen3.6:35b-a3b *(former default)* | Alibaba | MoE-3B | 130.0 | 3,996 | **10/10** | 262,144 | 32.54 GB | 58 s |
 | **gemma4:26b-a4b** *(vision)* | Google | MoE-4B | 104.1 | **5,774** | **10/10** | 262,144 | 22.15 GB | **54 s** |
+| **nemotron-cascade-2:30b** ✗rec | NVIDIA | Mamba-2+MoE | **148.8** | **6,706** | **7/10** | 262,144 | 30.37 GB | 256 s |
+| granite4.2:30b | IBM | **dense** | 28.8 | 1,476 | 9/10 | 65,536 | 35.72 GB | 235 s |
+| gemma4:31b-it | Google | **dense** | 25.4 | 1,378 | 9/10 | 131,072 | 21.58 GB | 94 s |
 | **qwen3.8:27b-q4** | Alibaba | **dense** | 30.4 | 1,428 | 9/10 | 131,072 | 26.24 GB | 111 s |
 | qwen3.8:27b-q8 | Alibaba | **dense** | 19.4 | 1,487 | 8/10 | 65,536 | 32.82 GB | 137 s |
 | *measured on 0.32.9 only:* | | | | | | | | |
@@ -58,7 +63,7 @@ shape this hardware handles worst.
 | muse-glimmer:30b ✗ | — | **dense** | *28.5* | *1,963* | 10/10 * | 131,072 | 19.45 GB | *160 s* |
 | qwen3.6:27b-q8 | Alibaba | **dense** | *19.5* | *1,464* | 9/10 | 81,920 | 34.03 GB | *179 s* |
 
-✗ = deleted from the box after measurement (see §11). \* = see §6 note on Muse's gate score.
+✗rec = measured and explicitly not recommended. ✗ = deleted from the box after measurement (see §11). \* = see §6 note on Muse's gate score.
 *Italic* speed figures are **0.32.9 numbers that were never re-measured** — given that three
 of four re-measured models moved by 49–221%, treat them as unknown rather than as slow. Their
 gate scores stand, because gates proved version-stable.
@@ -289,18 +294,23 @@ the "dense punishes you" intuition was right about speed and wrong about memory.
    re-ranked the field with no model changing. A tok/s figure without a runtime version
    attached is not a result. Capability, memory and retrieval depth proved version-stable;
    only speed moved.
-1. **Tool-call reliability** — the only pass/fail property, and the reason the fastest
-   challenger is rejected. Invisible in throughput benchmarks.
+1. **Tool-call reliability** — the only pass/fail property, and the reason **the fastest
+   model on the box is rejected outright** (§12). Invisible in throughput benchmarks. Re-run
+   any single gate failure before believing it: the battery samples at temperature 1.
 2. **Prefill speed** — paid on every turn of an agentic loop.
-3. **Generation speed** — matters for plans and long edits; the number most over-weighted.
-4. **Window size** — sharply diminishing returns. *Allocated ≠ usable.*
+3. **Turn economy** — what you wait for is turns × latency, not tokens per second. Measured:
+   148.8 tok/s / 84 turns / 256 s against 25.4 tok/s / 12 turns / 94 s, on the same task. A
+   5.9× throughput advantage became a 2.7× loss. §12a.
+4. **Generation speed** — matters for plans and long edits; the number most over-weighted.
+5. **Window size** — sharply diminishing returns. *Allocated ≠ usable.*
 
 > **Useful window = min(allocated, retrieval-verified, affordable to prefill each turn).**
 > For Claude Code, 262k of verified window beats 500k of nominal window.
 
-**5. Model shape decides all of the above.** On 0.32.15 every MoE runs 104–138 tok/s and
-finishes the task in 54–72 s; every dense model runs 19–30 tok/s and takes 111–179 s. Ten
-models deep, no exception — and §9a is the proof, where shape predicted an untested model's
+**6. Model shape decides all of the above.** On 0.32.15 every MoE/hybrid runs 104–149 tok/s
+and every dense model runs 19–30 tok/s. **Thirteen models deep, no exception** — the
+re-survey deliberately queued one dense model as a falsifier and it landed at 25.4, inside
+the predicted band — and §9a is the proof, where shape predicted an untested model's
 speed to within 2%. On a memory-bandwidth-bound box, active parameters per token is the
 number that predicts everything else.
 
@@ -331,3 +341,71 @@ minutes and all their numbers are preserved in this report. Kept by explicit dec
 whole `nemotron-3.5-lightning` family, every non-MTP `qwen3.6` tag, and
 `qwen3.6:35b-a3b-mtp-q4_K_M` — which runs 129 tok/s at 28.89 GB resident, 3.65 GB lighter
 than the incumbent, and remains the best speed-per-GB option on the box.
+
+---
+
+## 12. The fastest model on the box, and why it is rejected
+
+`nemotron-cascade-2:30b` was pulled on 2026-08-27 as the top candidate of a re-survey, chosen
+because its `model_family` is `nemotron_h_moe` — a Mamba-2 SSM + MoE hybrid activating 6 of
+128 experts, the same architecture class that gained +221% from the runtime upgrade.
+
+It delivered. It is the **first model to lead generation and prefill at the same time**:
+
+| | cascade | previous best on this box | margin |
+|---|---|---|---|
+| generation @2k | **148.8** tok/s | 138.1 (nemotron-3.5-L) | +7.7% |
+| prefill @35k | **6,706** tok/s | 5,774 (gemma4:26b-a4b) | +16.1% |
+| usable window | **262,144** — its full native window | — | — |
+| KV per token | **22,528 B** — cheapest measured | 12,283 (gemma4:31b) † | — |
+
+† gemma4:31b's ladder crosses an allocation regime, so its fitted slope is not a real
+per-token cost; cascade's is. A Mamba-2 state is constant-size — it does not grow with
+context the way a KV cache does, which is why cascade holds its whole native window in
+30.37 GB.
+
+**And it cannot call tools.** Because a previous finding established that this gate battery
+samples at the shipped `temperature 1` and that single-shot results can flip, every failure
+was re-run eight times before being believed:
+
+| gate | over n=8 | failure rate |
+|---|---|---|
+| tool selection | 7× correct; 1× invented the tool name **`search__code`** — which does not exist. A separate run invented `search_phrase` | 12.5% |
+| parallel tool calls | 4× emitted both; **4× emitted one** | **50%** |
+| nested schema | 1× correct; **5× emitted the `edits` array as a string**; 1× null; 1× no call | **87.5%** |
+
+A strict tool runtime rejects `"edits": "<string>"` outright. On nested schemas this model is
+wrong more often than it is right.
+
+### 12a. And then it proved the point end to end
+
+| model | gen tok/s | wall | turns | tools |
+|---|---|---|---|---|
+| **nemotron-cascade-2** | **148.8** | **256 s** | **84** | **Bashx29**, Readx8, **Writex2**, Editx1 |
+| gemma4:31b-it | 25.4 | **94 s** | **12** | Bashx3, Readx1, Editx1 |
+
+**The fastest model on the box produced the slowest session in the entire project.** It is
+5.9× faster per token than the slowest dense model measured and took **2.3× longer to do the
+same one-file fix**, because it needed 84 turns and 29 shell calls where the field needs
+12–19 turns and 3–5. It also reached twice for `Write` — rewriting a file blind rather than
+editing it, which is technically a pass and practically unusable on a real repository.
+
+> **Turn economy beat raw throughput by 2.7× on identical work.** What you wait for is
+> turns × latency. Nothing in a throughput benchmark predicts turn count.
+
+Both sessions are scored **PASS** — pytest green, source changed, tests untouched. On this
+evidence the pass/fail column is the least informative thing in the table.
+
+### 12b. Two footnotes worth carrying
+
+- **`granite4.2:30b` is the first model in three rounds of this project to ship a baked
+  `num_ctx`** — and it ships **131,072**, a window this box cannot hold (72% GPU). The one
+  model that ships a window ships one that does not fit.
+- **`granite4.2` is also the only model that returns an error on an over-long prompt**
+  (HTTP 400) rather than silently discarding half of it. Every other model truncates to
+  exactly `num_ctx / 2 + 2` — observed identically on three models at three different window
+  sizes.
+
+`nemotron-cascade-2` is kept on the box rather than deleted. It is one working tool template
+away from being the obvious default.
+
