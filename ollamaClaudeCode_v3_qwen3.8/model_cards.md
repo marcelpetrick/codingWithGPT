@@ -387,3 +387,121 @@ was the single cheapest win in v2. The 2026-08 field appears to have dropped it.
 | `ornith-1.5:35b` | 22.62 GB and it would fit — but the card lists **no tool capability**. A driver that cannot call tools is not a candidate |
 | `gemma4:31b` | dense 31B; the q8 rung is 33.83 GB, leaving no window |
 | `qwen3.8` bf16 / mlx / mxfp8 / nvfp4 | 56–68 GB, Apple-only, or needs Blackwell we cannot confirm |
+
+---
+
+# Stage D cards — the 2026-08-27 re-survey
+
+Unlike the cards above, these are written **after** measurement. Each states what the
+selection rule predicted before the pull, so the prediction can be scored.
+
+## D1 · `nemotron-cascade-2:30b` — the fastest model on the box, and rejected
+
+**What it is.** NVIDIA. `model_family` **`nemotron_h_moe`** — a Mamba-2 SSM + MoE hybrid,
+31.6B total across **128 experts with 6 used** plus 1 shared, 52 blocks, 262,144 native
+context, tools + thinking, no vision. 22.61 GiB at q4_K_M. Published ~3 months before this
+survey and **missed by the 2026-08-25 round entirely** — it was never in the field.
+
+**Why it was pulled first.** Its family class is the one that gained most from the runtime
+upgrade: `nemotron-3.5-lightning` went 43.9 → 138.1 tok/s on 0.32.15 and became the fastest
+generator on the box. Predicted: above the MoE band.
+
+**Measured — the prediction was an understatement.**
+
+| | measured | previous box record |
+|---|---|---|
+| generation @2k | **148.8 tok/s** *(mean of 2)* | 138.1 |
+| prefill @35k | **6,706 tok/s** *(mean of 2)* | 5,774 |
+| usable window | **262,144** — its full native window, 100% GPU in 30.37 GB | — |
+| KV per token | **22,528 B** — cheapest in the project | — |
+| 20k-word turn | **7.0 s** | 9.1 s |
+
+**The first model to lead generation and prefill simultaneously.** Every previous leader
+traded one for the other. The Mamba-2 state is constant-size, so its window costs almost
+nothing to extend — which is why the full 262,144 fits where a dense 27B needs 131,072.
+
+**And it cannot call tools.** Gates re-run 8× each, because the battery samples at the
+shipped `temperature 1` (§19f):
+
+| gate | over n=8 | rate |
+|---|---|---|
+| tool selection | 1× invented **`search__code`**; a separate run invented `search_phrase` | 12.5% fail |
+| parallel calls | **4× emitted one call instead of two** | **50% fail** |
+| nested schema | **5× emitted `edits` as a string, not an array**; 1× null; 1× no call | **87.5% fail** |
+
+Retrieval is fine — needle to **161,526**, T7 3/3 at 60,901 tokens. The defect is schema
+fidelity, not context.
+
+**End to end it is the slowest model in the project.** PASS in **256 s** over **84 turns**,
+with `Bashx29` and **two blind `Write`s**. It is 5.9× faster per token than the dense
+Qwen3.8 and took 2.3× longer on the same one-file fix.
+
+**Verdict: not recommended, and kept on the box anyway.** It is one working tool template
+away from being the obvious default — nothing else here is close on either speed axis. Re-test
+it the day NVIDIA or Ollama ships a template fix.
+
+## D2 · `granite4.2:30b` — the lightest weights, the smallest usable window
+
+**What it is.** IBM, published **2026-08-26** — the newest thing that fits. `model_family`
+`granite`, **dense** 29.3B, 64 blocks, `head_count_kv 8`, no expert count and no SSM block.
+131,072 native, tools + thinking, no vision. **16.50 GiB at q4_K_M — the lightest 30B-class
+model available.**
+
+**Predicted:** dense, therefore 19–31 tok/s. **Measured: 28.84.** Inside the band.
+
+**Two things make it worth the pull anyway.**
+
+*It is the first model in v1, v2 or v3 to ship a baked `num_ctx`* — `131072`, right there in
+the shipped parameters. Every other model in three rounds inherited the 16,384 default. **And
+it is a trap:** this box spills to **72% GPU** at that window, so the one model that ships a
+window ships one that does not fit. The project's standing advice changes from *"always
+bake"* to *"read the parameters, then bake what actually fits"*.
+
+*It is the only model that errors instead of truncating.* Over-long prompt → **HTTP 400,
+`request (118092 tokens) exceeds`**. Every other model measured silently discards half the
+prompt and answers from the remainder. This is the behaviour all of them should have.
+Recorded as observed — one model is not enough to say whether it is the template or the
+runtime.
+
+**The counter-intuitive number: 261,698 B/token of KV, the most expensive measured** — 3.6×
+Qwen3.8's dense 73,730 and 11.6× cascade's. Full KV on all 64 layers, no sliding window. That
+caps the *lightest weights in the field* at **65,536 tokens**, half its native window.
+**Weights are a poor predictor of usable window.**
+
+**Verdict: not recommended.** 9/10 gates and honest error behaviour do not offset 28.8 tok/s
+and a 65,536 ceiling.
+
+## D3 · `gemma4:31b-it-q4_K_M` — the falsifier that did not falsify
+
+**What it is.** Google DeepMind, **dense** 31.3B, 60 blocks, `sliding_window 1024`, 262,144
+native, vision + tools + thinking. 18.50 GiB at q4_K_M. Listed in `market_research.md` §3 as
+fitting, and never measured until now.
+
+**Why it was in the queue.** Deliberately, as the falsifier. The selection rule said hybrids
+first and dense last; §7 committed in writing that **if this dense 31B beat either hybrid,
+the rule was broken**. Queuing zero dense models would have made the rule unfalsifiable.
+
+**Measured: 25.39 tok/s** — inside the 19–31 dense band, and *lower* than the dense 29.3B
+granite. Being bigger moved it down, not up. The rule survived, thirteen models deep.
+
+**The useful comparison is against its own sibling**, because both have vision and a user
+asking for a vision model will ask which:
+
+| | `gemma4:26b-a4b` *(MoE, 4B active)* | `gemma4:31b-it` *(dense)* |
+|---|---|---|
+| generation @2k | **104.1 tok/s** | 25.4 — **4.1× slower** |
+| prefill @35k | **5,774** | 1,378 — **4.2× slower** |
+| usable window | **262,144** | 131,072 — **half** |
+| resident | 22.15 GB | 21.58 GB |
+| Claude Code session | **54 s** | 94 s |
+
+**The 26B MoE beats the 31B dense on every axis for the same capability.** That is the whole
+argument of this project in one table: five fewer billion parameters, four times the speed,
+twice the window, because 4B of them are active per token instead of 31B.
+
+**One genuinely good result:** it finished the end-to-end fixture in **12 turns**, the fewest
+of any model measured, which is why 25.4 tok/s still produced a 94 s session — faster than
+granite4.2's 235 s and cascade's 256 s despite being the slowest generator of the three. It
+is the clearest single datapoint behind the new "turn economy" finding.
+
+**Verdict: not recommended over `gemma4:26b-a4b-it`.** The vision slot is unchanged.
