@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
 """Turn the raw HTML copy in data/raw/ into structured JSON.
 
 Input : data/raw/timetable_day_<id>.html, session_<id>.html, generalevent_<id>.html

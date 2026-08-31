@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
 """Tag schedule events with the four topics the local viewer highlights.
 
     project-management   planning, estimation, agile process, risk, roadmaps

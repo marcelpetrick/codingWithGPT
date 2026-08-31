@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
 """Crawl the ESE Kongress 2026 conference schedule into a local raw HTML copy.
 
 The public schedule (Converia 9.4) is served as plain server-rendered HTML:

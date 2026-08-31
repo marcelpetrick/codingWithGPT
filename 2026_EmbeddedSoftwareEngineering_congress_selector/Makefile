@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
+
 # Convenience targets -- everything works with plain python3 as well.
 PY ?= python3
 
