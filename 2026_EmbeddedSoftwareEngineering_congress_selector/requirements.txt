@@ -1,3 +1,0 @@
-# Pinned to what the crawler was developed and verified against.
-beautifulsoup4==4.15.0
-requests==2.34.2
