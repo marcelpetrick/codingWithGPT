@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <rect width="1200" height="900" fill="#f3efe5"/>
+  <rect x="90" y="55" width="1020" height="790" rx="8" fill="#fff" stroke="#263238" stroke-width="4"/>
+  <g font-family="Noto Sans Mono, monospace" fill="#16232a">
+    <text x="145" y="135" font-size="52" font-weight="bold">INVOICE R-2026-0831</text>
+    <text x="145" y="195" font-size="28">Issued: 31 August 2026</text>
+    <text x="145" y="235" font-size="28">Customer: Ada Lovelace Labs</text>
+    <line x1="145" y1="275" x2="1055" y2="275" stroke="#16232a" stroke-width="3"/>
+    <text x="145" y="330" font-size="26" font-weight="bold">ITEM</text>
+    <text x="715" y="330" font-size="26" font-weight="bold">QTY</text>
+    <text x="850" y="330" font-size="26" font-weight="bold">PRICE</text>
+    <text x="145" y="390" font-size="26">Vision benchmark</text>
+    <text x="735" y="390" font-size="26">3</text>
+    <text x="850" y="390" font-size="26">EUR 319.50</text>
+    <text x="145" y="440" font-size="26">GPU server hour</text>
+    <text x="735" y="440" font-size="26">8</text>
+    <text x="850" y="440" font-size="26">EUR 40.00</text>
+    <line x1="145" y1="485" x2="1055" y2="485" stroke="#16232a" stroke-width="2"/>
+    <text x="610" y="545" font-size="28">Subtotal</text>
+    <text x="850" y="545" font-size="28">EUR 1,278.50</text>
+    <text x="610" y="595" font-size="28">VAT 19%</text>
+    <text x="850" y="595" font-size="28">EUR 242.92</text>
+    <rect x="585" y="625" width="470" height="75" fill="#dceef2"/>
+    <text x="610" y="676" font-size="34" font-weight="bold">TOTAL</text>
+    <text x="830" y="676" font-size="34" font-weight="bold">EUR 1,521.42</text>
+    <text x="145" y="765" font-size="25">Reference: VISION-7Q4K-92</text>
+    <text x="145" y="808" font-size="22" fill="#52666f">Payment due within 14 days.</text>
+  </g>
+</svg>

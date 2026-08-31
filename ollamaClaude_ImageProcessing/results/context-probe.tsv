@@ -1,0 +1,8 @@
+model	num_ctx	image_result	resident_total_gb	resident_vram_gb	note
+qwen3-vl:32b	32768	PASS	29.91	29.91	base-tag default on Ollama 0.32.15
+qwen3-vl:32b-ctx48k	49152	PASS 9/9	34.47	34.47	fully GPU-resident
+qwen3-vl:32b-ctx49k	50176	PASS 9/9	34.76	34.76	maximum image-tested working rung
+qwen3-vl:32b-ctx50k	51200	HTTP 500	-	-	first image request fails
+qwen3-vl:32b-ctx51k	52224	HTTP 500	-	-	first image request fails
+qwen3-vl:32b-ctx52k	53248	HTTP 500	35.61	35.61	text-only load fits; image workspace does not
+qwen3-vl:32b-ctx53k	54272	not run	36.92	34.55	spills to CPU; rejected before image test

@@ -1,0 +1,6 @@
+FROM qwen3-vl:32b
+
+# OCR boundary probe between the working 48K and failing 50K variants.
+PARAMETER num_ctx 50176
+PARAMETER temperature 0
+PARAMETER presence_penalty 0

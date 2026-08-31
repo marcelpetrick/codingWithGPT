@@ -1,0 +1,5 @@
+model	case	checks	wall_s	prompt_tokens	generated_tokens	decode_tps
+qwen3-vl:32b	ocr-invoice	9/9	26.6	1106	636	26.54
+qwen3-vl:32b	embedded-ui	6/6	33.0	1097	846	26.41
+qwen3-vl:32b	expenses-treemap	10/10	25.4	4109	613	25.48
+qwen3-vl:32b-ctx49k	ocr-invoice	9/9	39.7	1106	636	26.56
