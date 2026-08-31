@@ -22,6 +22,8 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
+import classify
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = REPO_ROOT / "data" / "raw"
 JSON_PATH = REPO_ROOT / "data" / "congress.json"
@@ -353,7 +355,7 @@ def write(data: dict) -> None:
 
 def main() -> int:
     argparse.ArgumentParser(description=__doc__).parse_args()
-    data = build()
+    data = classify.annotate(build())
     write(data)
     papers = sum(len(e["papers"]) for e in data["events"])
     with_abstract = sum(1 for e in data["events"] for p in e["papers"] if p["abstract_text"])
@@ -361,6 +363,7 @@ def main() -> int:
     print(f"events    : {len(data['events'])}")
     print(f"papers    : {papers} ({with_abstract} with abstract)")
     print(f"topics    : {len(data['topics'])}")
+    print(f"tagged    : {sum(1 for e in data['events'] if e['tags'])} events carry at least one highlight tag")
     print(f"written   : {JSON_PATH.relative_to(REPO_ROOT)}, {WEB_DATA_PATH.relative_to(REPO_ROOT)}")
     return 0
 
