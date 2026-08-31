@@ -1,3 +1,10 @@
+# The repository ships code only -- everything below is produced by run.py.
+.venv/
 __pycache__/
 *.pyc
-.venv/
+
+# downloaded copy of the congress schedule
+data/
+
+# generated viewer payload
+web/data.js
