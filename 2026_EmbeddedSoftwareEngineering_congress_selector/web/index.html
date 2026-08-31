@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ESE Kongress 2026 – lokaler Programm-Selektor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-row">
+    <h1>ESE Kongress 2026 <span class="subtitle">lokaler Programm-Selektor</span></h1>
+    <nav class="days" id="days"></nav>
+    <div class="spacer"></div>
+    <div class="view-toggle" id="view-toggle">
+      <button data-view="grid" class="active">Kalender</button>
+      <button data-view="list">Liste</button>
+    </div>
+  </div>
+
+  <div class="topbar-row filters">
+    <input type="search" id="search" placeholder="Suchen in Titel, Abstract, Personen, Raum …" autocomplete="off">
+
+    <select id="topic-filter" title="Thema">
+      <option value="">alle Themen</option>
+    </select>
+
+    <div class="chips" id="tag-chips"></div>
+
+    <label class="toggle"><input type="checkbox" id="only-hits"> nur Treffer</label>
+    <label class="toggle"><input type="checkbox" id="only-marked"> nur markierte</label>
+    <label class="toggle"><input type="checkbox" id="include-weak"> schwache Treffer</label>
+
+    <div class="spacer"></div>
+
+    <span class="counter" id="counter"></span>
+    <button id="export" class="ghost" title="Markierte Events als JSON/Markdown exportieren">Markierte&nbsp;…</button>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<div id="popup" class="popup" hidden></div>
+
+<dialog id="export-dialog">
+  <h2>Markierte Events</h2>
+  <div class="export-tabs">
+    <button data-format="markdown" class="active">Markdown</button>
+    <button data-format="json">JSON</button>
+    <button data-format="ics">iCal</button>
+  </div>
+  <textarea id="export-text" readonly rows="18"></textarea>
+  <div class="export-actions">
+    <button id="export-copy">In die Zwischenablage</button>
+    <button id="export-download">Herunterladen</button>
+    <button id="export-import">Markierungen importieren …</button>
+    <button id="export-close" class="ghost">Schließen</button>
+  </div>
+  <p class="hint">Markierungen liegen im localStorage dieses Browsers (Schlüssel <code>ese2026.marks</code>).</p>
+</dialog>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
