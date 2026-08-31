@@ -51,10 +51,12 @@ GENERAL_EVENT_LINK_RE = re.compile(r"&(?:amp;)?ev=(\d+)")
 
 
 class Crawler:
-    def __init__(self, delay: float = 0.7, force: bool = False, timeout: int = 30):
+    def __init__(self, delay: float = 0.7, force: bool = False, timeout: int = 30,
+                 quiet: bool = False):
         self.delay = delay
         self.force = force
         self.timeout = timeout
+        self.quiet = quiet
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": USER_AGENT, "Accept-Language": "de,en;q=0.8"})
         self.manifest: dict[str, dict] = {}
@@ -71,7 +73,8 @@ class Crawler:
         """Fetch one page and store it verbatim under data/raw/<filename>."""
         target = RAW_DIR / filename
         if target.exists() and not self.force:
-            print(f"  cached  {filename}")
+            if not self.quiet:
+                print(f"  cached  {filename}")
             return target.read_text(encoding="utf-8")
 
         last_error: Exception | None = None
@@ -127,14 +130,16 @@ class Crawler:
 
         totals = {"days": len(days), "sessions": 0, "general_events": 0}
         for day_id in days:
-            print(f"day {day_id}:")
+            if not self.quiet:
+                print(f"day {day_id}:")
             timetable = self.fetch(
                 {"page_id": PAGE_ID, "v": "TimeTable", "do": 0, "day": day_id},
                 f"timetable_day_{day_id}.html",
             )
             session_ids = sorted({int(m.group(1)) for m in SESSION_LINK_RE.finditer(timetable)})
             event_ids = sorted({int(m.group(1)) for m in GENERAL_EVENT_LINK_RE.finditer(timetable)})
-            print(f"  {len(session_ids)} sessions, {len(event_ids)} general events")
+            if not self.quiet:
+                print(f"  {len(session_ids)} sessions, {len(event_ids)} general events")
 
             for session_id in session_ids:
                 self.fetch(
@@ -177,9 +182,11 @@ def main() -> int:
                         help="seconds between requests, be polite (default: %(default)s)")
     parser.add_argument("--force", action="store_true",
                         help="re-download pages that already exist in data/raw/")
+    parser.add_argument("--quiet", action="store_true",
+                        help="only report pages that are actually downloaded")
     args = parser.parse_args()
 
-    Crawler(delay=args.delay, force=args.force).run(args.start_day)
+    Crawler(delay=args.delay, force=args.force, quiet=args.quiet).run(args.start_day)
     return 0
 
 
