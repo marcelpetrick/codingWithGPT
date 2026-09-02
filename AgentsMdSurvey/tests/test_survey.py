@@ -20,7 +20,7 @@ from agentsmdsurvey.cli import build_survey  # noqa: E402
 from agentsmdsurvey.discovery import discover, first_party, mark_duplicates  # noqa: E402
 from agentsmdsurvey.llm import Cache, Client, cluster, enrich  # noqa: E402
 from agentsmdsurvey.parse import normalize, parse  # noqa: E402
-from agentsmdsurvey.redact import mask, redact  # noqa: E402
+from agentsmdsurvey.redact import load_stems, mask, redact  # noqa: E402
 from agentsmdsurvey.taxonomy import classify  # noqa: E402
 
 ROOT_AGENTS = """# AGENTS.md
@@ -193,43 +193,73 @@ class TaxonomyTest(unittest.TestCase):
 
 
 class RedactionTest(unittest.TestCase):
-    """Names that must not leave the machine, and words that only look like them."""
+    """Names that must not leave the machine, and words that only look like them.
+
+    The stems here are invented. The real ones live in an untracked file, so
+    this test file — which is public — never names a customer.
+    """
+
+    STEMS = ("acmeanalyzer", "zqt", "widget_app", "x742", "ecoil")
 
     def test_the_first_character_survives_and_the_length_is_honest(self) -> None:
-        self.assertEqual(mask("easyanalyzer"), "e" + "█" * 11)
-        self.assertEqual(redact("easyanalyzer"), "e███████████")
+        self.assertEqual(mask("acmeanalyzer"), "a" + "█" * 11)
+        self.assertEqual(redact("acmeanalyzer", self.STEMS), "a███████████")
 
     def test_every_way_a_name_is_written_is_caught(self) -> None:
         for name in (
-            "easyanalyzer.wiki",
-            "easyAnalyzer",
-            "easyanalyzer-worktrees",
-            "mpt",
-            "mpt.wiki",
-            "mpt_automatedqualitytest",
-            "lvgl_app_demo",
-            "P118_HMI",
-            "p118_hmi_app",
-            "meta-imx8mm-data-modul-p118",
-            "ePulse_BSP",
+            "acmeanalyzer.wiki",
+            "acmeAnalyzer",
+            "acmeanalyzer-worktrees",
+            "zqt",
+            "zqt.wiki",
+            "zqt_automatedqualitytest",
+            "widget_app_demo",
+            "X742_HMI",
+            "x742_hmi_app",
+            "meta-imx8mm-vendor-x742",
+            "eCoil_BSP",
         ):
-            masked = redact(name)
+            masked = redact(name, self.STEMS)
             self.assertEqual(masked[0], name[0], name)
             self.assertEqual(len(masked), len(name), name)
             self.assertNotIn(name[1:].lower(), masked.lower(), f"{name} survived redaction")
 
     def test_a_path_is_masked_segment_by_segment(self) -> None:
-        self.assertEqual(redact("mpt/submodules/easyAnalyzer"), "m██/submodules/e███████████")
-        self.assertEqual(redact("ePulse_BSP/SKILLS/app/SKILL.md"), "e█████████/SKILLS/app/SKILL.md")
+        self.assertEqual(
+            redact("zqt/submodules/acmeAnalyzer", self.STEMS), "z██/submodules/a███████████"
+        )
+        self.assertEqual(
+            redact("eCoil_BSP/SKILLS/app/SKILL.md", self.STEMS), "e████████/SKILLS/app/SKILL.md"
+        )
 
-    def test_ordinary_words_containing_a_stem_are_left_alone(self) -> None:
-        """The 'mpt' in 'prompt' is not a repository."""
-        for text in ("prompt engineering", "an attempt", "a computed template", "tempting"):
-            self.assertEqual(redact(text), text)
+    def test_a_stem_inside_a_word_is_not_a_repository_name(self) -> None:
+        """Masking keys on where the stem sits, which is the whole point.
+
+        A stem that *starts* a name token is masked together with whatever
+        follows it, because that is how a repository grows a suffix
+        (name, name.wiki, name_tests). A stem buried inside a word is left
+        alone — otherwise every occurrence of "prompt" would be redacted.
+        """
+        for text in ("azqtx marker", "the recoiled cable", "unxx742 units"):
+            self.assertEqual(redact(text, ("zqt", "ecoil", "x742")), text)
+
+        self.assertEqual(redact("zqt_tests", ("zqt",)), "z████████")
+        self.assertEqual(redact("x7420", ("x742",)), "x████")
 
     def test_unrelated_repository_names_survive(self) -> None:
-        for name in ("recognizer", "LVGL_coffeeDispenser", "GarminActivityMap"):
-            self.assertEqual(redact(name), name)
+        for name in ("recognizer", "GarminActivityMap", "CuteLingoExpress"):
+            self.assertEqual(redact(name, self.STEMS), name)
+
+    def test_a_missing_stem_file_yields_no_stems_rather_than_an_error(self) -> None:
+        self.assertEqual(load_stems(Path("/nonexistent/redact.stems")), ())
+
+    def test_stem_file_ignores_comments_and_blank_lines(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "redact.stems"
+            path.write_text("# a comment\n\nAlpha\n  beta  \n")
+            self.assertEqual(load_stems(path), ("alpha", "beta"))
 
 
 class PipelineTest(unittest.TestCase):

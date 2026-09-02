@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 from . import report, synth
-from .redact import DEFAULT_STEMS, redact
+from .redact import STEMS_FILE, load_stems, redact
 from .discovery import discover, mark_duplicates
 from .parse import parse
 from .stats import UNIVERSAL_MIN_SCOPES, Survey
@@ -58,13 +58,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--redact",
         nargs="?",
-        const=",".join(DEFAULT_STEMS),
+        const="@file",
         default="",
         metavar="STEMS",
         help=(
             "mask repository names before writing anything, for output that leaves the machine. "
-            f"Bare --redact uses the built-in list ({', '.join(DEFAULT_STEMS)}); pass a comma-separated "
-            "list to override it. Counts are unaffected: only the names are masked."
+            f"Bare --redact reads the stems from {STEMS_FILE.name} beside run.py (untracked, one per "
+            "line); pass a comma-separated list to override it. Counts are unaffected: only the "
+            "names are masked."
         ),
     )
     parser.add_argument(
@@ -108,7 +109,17 @@ def main(argv: list[str] | None = None) -> int:
     if args.redact:
         # Masking the finished text rather than the model catches a name
         # wherever it surfaced — a scope, a path, a table cell, a quoted rule.
-        stems = tuple(s.strip().lower() for s in args.redact.split(",") if s.strip())
+        if args.redact == "@file":
+            stems = load_stems()
+            if not stems:
+                print(
+                    f"--redact found no stems: create {STEMS_FILE} with one name stem per line, "
+                    f"or pass them directly as --redact name1,name2.",
+                    file=sys.stderr,
+                )
+                return 2
+        else:
+            stems = tuple(s.strip().lower() for s in args.redact.split(",") if s.strip())
         canonical, document, payload = (redact(t, stems) for t in (canonical, document, payload))
         print(f"redacted {len(stems)} name stems: {', '.join(stems)}", file=sys.stderr)
 

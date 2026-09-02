@@ -29,13 +29,17 @@ canonical file and the JSON alike — first character kept, the rest blocked out
 length preserved:
 
 ```
-easyanalyzer  ->  e███████████
+acmeanalyzer  ->  a███████████
 ```
 
-The built-in stem list lives in `agentsmdsurvey/redact.py`; pass
-`--redact stem1,stem2` to override it. A name token is matched whole, so `mpt`
-masks `mpt` and `mpt_automatedqualitytest` while leaving `prompt` alone.
-**Everything in `media/` and anything published was generated with `--redact`.**
+The stems are themselves the sensitive part, so they are **not in the code**:
+bare `--redact` reads them from `redact.stems` beside `run.py`, one per line,
+which is untracked on purpose. Without that file the flag stops with an error
+rather than writing an unredacted report. Pass `--redact stem1,stem2` to supply
+them directly. A stem matches a whole name token, so `abc` masks `abc` and
+`abc_tooling` without touching ordinary prose.
+
+**Everything in `media/` and anything published is generated with `--redact`.**
 
 Standard library only. No install step, no virtualenv, nothing to fetch. Three
 files land in `out/`:
