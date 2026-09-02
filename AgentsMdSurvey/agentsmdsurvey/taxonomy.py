@@ -277,6 +277,18 @@ def classify(normalized_text: str) -> list[str]:
     return hits
 
 
+def match_strength(topic_id: str, normalized_text: str) -> int:
+    """How many of a topic's patterns the text hits.
+
+    Used when a directive matches several topics and only one of them may
+    quote it: the topic it states most explicitly wins.
+    """
+    for topic, patterns, _ in _COMPILED:
+        if topic.id == topic_id:
+            return sum(1 for pattern in patterns if pattern.search(normalized_text))
+    return 0
+
+
 def classify_all(directives) -> None:
     """Annotate directives in place. Also considers the heading path, because a
     bullet under 'Commit Messages' inherits that context."""

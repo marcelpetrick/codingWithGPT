@@ -55,6 +55,7 @@ _EMOJI = re.compile(
     "[\U0001f300-\U0001faff☀-➿️←-⇿⬀-⯿]", flags=re.UNICODE
 )
 _ORDINAL = re.compile(r"^\s*(\d+[.)]|[-*+]|\d+\.\d+\.?)\s*")
+_CHECKBOX = re.compile(r"^\s*\[[ xX]?\]\s*")
 _WS = re.compile(r"\s+")
 
 # Section roles: three different documents share the AGENTS.md filename, and
@@ -74,6 +75,7 @@ def normalize(text: str) -> str:
     text = _HTML.sub(" ", text)
     text = _EMOJI.sub("", text)
     text = _ORDINAL.sub("", text)
+    text = _CHECKBOX.sub("", text)
     text = text.replace("’", "'").replace("—", "-").replace("–", "-")
     text = _WS.sub(" ", text).strip()
     text = text.rstrip(".;:,").strip()
