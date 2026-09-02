@@ -79,6 +79,12 @@ def build_tree(base: Path) -> None:
     vendored.mkdir(parents=True)
     (vendored / "AGENTS.md").write_text("# Their rules\n\n- Do it their way.\n")
 
+    # The same rules, adopted by a second project. Not a copy to discount:
+    # both repositories genuinely carry them.
+    gamma = base / "gamma"
+    (gamma / ".git").mkdir(parents=True)
+    (gamma / "AGENTS.md").write_text(DOCS_AGENTS)
+
     ignored = base / "beta" / "node_modules" / "pkg"
     ignored.mkdir(parents=True)
     (ignored / "AGENTS.md").write_text("# Package\n\n- Irrelevant.\n")
@@ -116,6 +122,14 @@ class DiscoveryTest(unittest.TestCase):
         docs = next(f for f in self.files if f.rel_path == "beta/documents/AGENTS.md")
         self.assertEqual(docs.scope, "beta")
         self.assertEqual(docs.location, "docs")
+
+    def test_a_copy_in_another_repository_still_counts(self) -> None:
+        """Identical bytes in two repositories means two instructed projects."""
+        twins = [f for f in self.files if f.rel_path in ("beta/documents/AGENTS.md", "gamma/AGENTS.md")]
+        self.assertEqual(len(twins), 2)
+        for twin in twins:
+            self.assertFalse(twin.generated, f"{twin.rel_path} was wrongly discounted")
+            self.assertIn(twin, first_party(self.files))
 
     def test_repository_without_instructions_is_still_seen(self) -> None:
         self.assertIn("quiet", [r.name for r in self.repos])
@@ -191,13 +205,38 @@ class PipelineTest(unittest.TestCase):
 
     def test_headline_counts_only_first_party_material(self) -> None:
         head = self.survey.headline()
-        self.assertEqual(head["repos_scanned"], 3)
-        self.assertEqual(head["repos_with_instructions"], 2)
-        self.assertEqual(head["files_first_party"], 3)
+        self.assertEqual(head["repos_scanned"], 4)
+        self.assertEqual(head["repos_with_instructions"], 3)
+        self.assertEqual(head["files_first_party"], 4)
+
+    def test_coverage_separates_dormant_from_active_repositories(self) -> None:
+        """A repository nobody commits to is not a gap worth reporting."""
+        from datetime import date, timedelta
+
+        from agentsmdsurvey.stats import Survey
+
+        recent = (date.today() - timedelta(days=10)).isoformat()
+        old = (date.today() - timedelta(days=900)).isoformat()
+        repos = self.survey.repos
+        for repo in repos:
+            # alpha is instructed and active; quiet is uninstructed and active;
+            # everything else is long dormant.
+            repo.last_commit_date = recent if repo.name in ("alpha", "quiet") else old
+
+        rebuilt = Survey(
+            self.survey.root, self.survey.files, repos, self.survey.parsed, self.survey.duplicate_groups
+        )
+        cov = rebuilt.coverage()
+        self.assertEqual(cov["repos"], 4)
+        self.assertEqual(cov["active_repos"], 2)
+        self.assertEqual(cov["active_instructed"], 1)
+        self.assertEqual(cov["dormant_repos"], 2)
+        self.assertAlmostEqual(cov["active_share"], 0.5)
+        self.assertEqual(cov["active_with_agents_md"], 1)
 
     def test_shared_rule_is_counted_once_per_scope(self) -> None:
         rows = {row["id"]: row for row in self.survey.topic_table()}
-        self.assertEqual(rows["commit.conventional"]["scopes"], 2)
+        self.assertEqual(rows["commit.conventional"]["scopes"], 3)
 
     def test_findings_include_the_duplicate_and_the_backlog(self) -> None:
         ids = {f.id for f in self.survey.findings}
@@ -206,12 +245,16 @@ class PipelineTest(unittest.TestCase):
 
     def test_survey_json_round_trips(self) -> None:
         payload = json.loads(json.dumps(self.survey.to_dict()))
-        self.assertEqual(payload["headline"]["scopes"], 2)
+        self.assertEqual(payload["headline"]["scopes"], 3)
 
     def test_canonical_file_only_quotes_rules_above_the_threshold(self) -> None:
         document = synth.render(self.survey, min_scopes=2)
         self.assertIn("Conventional Commits", document)
-        self.assertNotIn("Never commit secrets", document)
+        self.assertNotIn("One concern per commit", document)
+
+    def test_canonical_file_never_quotes_a_project_specific_rule(self) -> None:
+        document = synth.render(self.survey, min_scopes=2)
+        self.assertNotIn("gate.sh", document)
 
 
 class StubTransport:
