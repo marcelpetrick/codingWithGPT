@@ -171,7 +171,11 @@ def _stack(parts: list[tuple[str, int, str]]) -> str:
     return f"<div class='legend'>{legend}</div><div class='stack'>{segments}</div>"
 
 
-def render(survey: Survey, canonical: str) -> str:
+TITLE = "The AGENTS.md Census"
+
+
+def _body(survey: Survey, canonical: str) -> str:
+    """The page markup, without a document wrapper."""
     head = survey.headline()
     findings = survey.findings or survey.compute_findings()
     topics = survey.topic_table()
@@ -294,16 +298,7 @@ def render(survey: Survey, canonical: str) -> str:
         for r in topics
     )
 
-    return f"""<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agent instruction survey — {_esc(head['root'])}</title>
-<style>{STYLE}</style>
-</head>
-<body>
-<div class="wrap">
+    return f"""<div class="wrap">
 <header>
   <h1>What my agent instruction files actually say</h1>
   <p>A census of every <code>AGENTS.md</code>, <code>CLAUDE.md</code>, skill and harness
@@ -376,6 +371,21 @@ def render(survey: Survey, canonical: str) -> str:
      pass exists for.</p>
 </footer>
 </div>
-</body>
-</html>
 """
+
+
+def render(survey: Survey, canonical: str) -> str:
+    """A standalone HTML file that opens from the filesystem."""
+    return (
+        "<!doctype html>\n<html lang=\"en\">\n<head>\n"
+        '<meta charset="utf-8">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        f"<title>{TITLE}</title>\n<style>{STYLE}</style>\n</head>\n<body>\n"
+        + _body(survey, canonical)
+        + "</body>\n</html>\n"
+    )
+
+
+def render_fragment(survey: Survey, canonical: str) -> str:
+    """Title, styles and markup for a host that supplies its own document shell."""
+    return f"<title>{TITLE}</title>\n<style>{STYLE}</style>\n" + _body(survey, canonical)
