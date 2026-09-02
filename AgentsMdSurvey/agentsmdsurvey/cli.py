@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from . import report, synth
+from .redact import DEFAULT_STEMS, redact
 from .discovery import discover, mark_duplicates
 from .parse import parse
 from .stats import UNIVERSAL_MIN_SCOPES, Survey
@@ -55,6 +56,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--no-git", action="store_true", help="skip git history (faster, loses staleness findings)")
     parser.add_argument(
+        "--redact",
+        nargs="?",
+        const=",".join(DEFAULT_STEMS),
+        default="",
+        metavar="STEMS",
+        help=(
+            "mask repository names before writing anything, for output that leaves the machine. "
+            f"Bare --redact uses the built-in list ({', '.join(DEFAULT_STEMS)}); pass a comma-separated "
+            "list to override it. Counts are unaffected: only the names are masked."
+        ),
+    )
+    parser.add_argument(
         "--llm",
         choices=("off", "ollama"),
         default="off",
@@ -89,9 +102,19 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     canonical = synth.render(survey, args.min_scopes)
+    document = report.render(survey, canonical)
+    payload = json.dumps(survey.to_dict(), indent=2)
+
+    if args.redact:
+        # Masking the finished text rather than the model catches a name
+        # wherever it surfaced — a scope, a path, a table cell, a quoted rule.
+        stems = tuple(s.strip().lower() for s in args.redact.split(",") if s.strip())
+        canonical, document, payload = (redact(t, stems) for t in (canonical, document, payload))
+        print(f"redacted {len(stems)} name stems: {', '.join(stems)}", file=sys.stderr)
+
     (out / "AGENTS.canonical.md").write_text(canonical, encoding="utf-8")
-    (out / "survey.json").write_text(json.dumps(survey.to_dict(), indent=2), encoding="utf-8")
-    (out / "report.html").write_text(report.render(survey, canonical), encoding="utf-8")
+    (out / "survey.json").write_text(payload, encoding="utf-8")
+    (out / "report.html").write_text(document, encoding="utf-8")
 
     head = survey.headline()
     print(

@@ -19,7 +19,23 @@ The rationale, the design and the deterministic-versus-LLM argument are in
 ./run.py /path/to/repos       # somewhere else
 ./run.py --out /tmp/survey    # different output directory
 ./run.py --no-git             # skip git history: faster, loses the staleness findings
+./run.py --redact             # mask customer repository names before writing anything
 ```
+
+`--redact` is for output that leaves the machine. Some repository names identify
+a customer or a product; the survey still counts them, because dropping them
+would falsify coverage, but every occurrence is masked in the report, the
+canonical file and the JSON alike — first character kept, the rest blocked out,
+length preserved:
+
+```
+easyanalyzer  ->  e███████████
+```
+
+The built-in stem list lives in `agentsmdsurvey/redact.py`; pass
+`--redact stem1,stem2` to override it. A name token is matched whole, so `mpt`
+masks `mpt` and `mpt_automatedqualitytest` while leaving `prompt` alone.
+**Everything in `media/` and anything published was generated with `--redact`.**
 
 Standard library only. No install step, no virtualenv, nothing to fetch. Three
 files land in `out/`:

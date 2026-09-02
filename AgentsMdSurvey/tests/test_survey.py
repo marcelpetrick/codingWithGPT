@@ -20,6 +20,7 @@ from agentsmdsurvey.cli import build_survey  # noqa: E402
 from agentsmdsurvey.discovery import discover, first_party, mark_duplicates  # noqa: E402
 from agentsmdsurvey.llm import Cache, Client, cluster, enrich  # noqa: E402
 from agentsmdsurvey.parse import normalize, parse  # noqa: E402
+from agentsmdsurvey.redact import mask, redact  # noqa: E402
 from agentsmdsurvey.taxonomy import classify  # noqa: E402
 
 ROOT_AGENTS = """# AGENTS.md
@@ -189,6 +190,46 @@ class TaxonomyTest(unittest.TestCase):
 
     def test_make_sure_is_not_a_toolchain_rule(self) -> None:
         self.assertNotIn("env.toolchain", classify("make sure the output is correct"))
+
+
+class RedactionTest(unittest.TestCase):
+    """Names that must not leave the machine, and words that only look like them."""
+
+    def test_the_first_character_survives_and_the_length_is_honest(self) -> None:
+        self.assertEqual(mask("easyanalyzer"), "e" + "█" * 11)
+        self.assertEqual(redact("easyanalyzer"), "e███████████")
+
+    def test_every_way_a_name_is_written_is_caught(self) -> None:
+        for name in (
+            "easyanalyzer.wiki",
+            "easyAnalyzer",
+            "easyanalyzer-worktrees",
+            "mpt",
+            "mpt.wiki",
+            "mpt_automatedqualitytest",
+            "lvgl_app_demo",
+            "P118_HMI",
+            "p118_hmi_app",
+            "meta-imx8mm-data-modul-p118",
+            "ePulse_BSP",
+        ):
+            masked = redact(name)
+            self.assertEqual(masked[0], name[0], name)
+            self.assertEqual(len(masked), len(name), name)
+            self.assertNotIn(name[1:].lower(), masked.lower(), f"{name} survived redaction")
+
+    def test_a_path_is_masked_segment_by_segment(self) -> None:
+        self.assertEqual(redact("mpt/submodules/easyAnalyzer"), "m██/submodules/e███████████")
+        self.assertEqual(redact("ePulse_BSP/SKILLS/app/SKILL.md"), "e█████████/SKILLS/app/SKILL.md")
+
+    def test_ordinary_words_containing_a_stem_are_left_alone(self) -> None:
+        """The 'mpt' in 'prompt' is not a repository."""
+        for text in ("prompt engineering", "an attempt", "a computed template", "tempting"):
+            self.assertEqual(redact(text), text)
+
+    def test_unrelated_repository_names_survive(self) -> None:
+        for name in ("recognizer", "LVGL_coffeeDispenser", "GarminActivityMap"):
+            self.assertEqual(redact(name), name)
 
 
 class PipelineTest(unittest.TestCase):
@@ -364,8 +405,31 @@ class EndToEndTest(unittest.TestCase):
                 self.assertTrue((out / name).exists(), f"{name} missing")
             html = (out / "report.html").read_text()
             self.assertIn("<!doctype html>", html)
+            self.assertIn("alpha", html, "unredacted run must keep the real names")
             self.assertNotIn("http://cdn", html)
             self.assertNotIn("<script", html)
+
+    def test_redacted_run_masks_the_name_in_every_output(self) -> None:
+        """--redact must reach the report, the canonical file and the JSON alike."""
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "tree"
+            root.mkdir()
+            build_tree(root)
+            out = Path(tmp) / "out"
+            script = Path(__file__).resolve().parents[1] / "run.py"
+            result = subprocess.run(
+                [sys.executable, str(script), str(root), "--out", str(out), "--no-git", "--redact", "alpha"],
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            for name in ("report.html", "AGENTS.canonical.md", "survey.json"):
+                text = (out / name).read_text()
+                self.assertNotIn("alpha", text, f"{name} leaked the name")
+            self.assertIn("a████", (out / "report.html").read_text())
 
 
 if __name__ == "__main__":

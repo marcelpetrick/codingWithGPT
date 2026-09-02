@@ -4,6 +4,12 @@ Draft plus the numbers behind it. Every figure comes from
 `./run.py ~/repos`, scanned on 2026-09-02; nothing here is estimated by hand.
 Regenerate before posting if the tree has moved on.
 
+**Everything published from this survey — the images in `media/`, any hosted
+copy of the report — is generated with `./run.py --redact`,** which masks
+customer repository names while keeping every count intact. Regenerate the same
+way; a plain `./run.py` writes the real names, which is right for the local
+report and wrong for a post.
+
 ---
 
 ## The post
