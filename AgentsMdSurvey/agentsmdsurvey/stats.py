@@ -75,6 +75,17 @@ def _days_between(earlier: str, later: str) -> int | None:
     return (b - a).days
 
 
+def _is_active(last_commit_date: str, today: str) -> bool:
+    """Whether a repository was committed to inside the activity window.
+
+    Note the explicit None check: a repository committed *today* is zero days
+    old, and zero is falsy — treating a missing date and a fresh commit the
+    same way would file the most active repositories as dormant.
+    """
+    age = _days_between(last_commit_date, today)
+    return age is not None and age <= ACTIVE_DAYS
+
+
 def _jaccard(a: set[str], b: set[str]) -> float:
     if not a or not b:
         return 0.0
@@ -105,11 +116,7 @@ class Survey:
         # maintains, not against every .git directory on disk.
         self.surveyable_repos = [r for r in repos if r.surveyable]
         today = dt.date.today().isoformat()
-        self.active_repos = [
-            r
-            for r in self.surveyable_repos
-            if (_days_between(r.last_commit_date, today) or 10**6) <= ACTIVE_DAYS
-        ]
+        self.active_repos = [r for r in self.surveyable_repos if _is_active(r.last_commit_date, today)]
 
     # ------------------------------------------------------------- directives
     def directives(self) -> list[tuple[InstructionFile, Directive]]:

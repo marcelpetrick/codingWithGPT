@@ -126,7 +126,7 @@ td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowra
 tr:hover td { color: var(--text-primary); background: var(--surface-1); }
 .scroll { overflow-x: auto; }
 
-pre.doc { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-x: auto; font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); }
+pre.doc { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 16px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); }
 footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12px; }
 """
 
@@ -196,8 +196,11 @@ def _body(survey: Survey, canonical: str) -> str:
             "have an AGENTS.md",
             f"{head['cov_active_agents_md_share']:.0%} — the rest is CLAUDE.md, skills or config",
         ),
-        (f"{head['files_first_party']}", "first-party instruction files", f"{head['files_excluded']} vendored or duplicate, excluded"),
-        (f"{head['scopes']}", "instructed scopes", "a scope is a directory governed by one file set"),
+        (
+            f"{head['files_first_party']}",
+            "first-party instruction files",
+            f"in {head['scopes']} scopes · {head['files_excluded']} vendored or duplicate, excluded",
+        ),
         (f"{head['directives']:,}", "atomic directives", f"{head['classified_share']:.0%} matched by the lexicon"),
         (f"{head['total_tokens']:,}", "tokens of instructions", f"median scope {head['median_bytes'] // 4:,} tokens"),
     ]

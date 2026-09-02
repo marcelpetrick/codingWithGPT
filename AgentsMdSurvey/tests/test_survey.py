@@ -215,13 +215,20 @@ class PipelineTest(unittest.TestCase):
 
         from agentsmdsurvey.stats import Survey
 
+        today = date.today().isoformat()
         recent = (date.today() - timedelta(days=10)).isoformat()
         old = (date.today() - timedelta(days=900)).isoformat()
         repos = self.survey.repos
         for repo in repos:
-            # alpha is instructed and active; quiet is uninstructed and active;
-            # everything else is long dormant.
-            repo.last_commit_date = recent if repo.name in ("alpha", "quiet") else old
+            # alpha is instructed and committed to *today* — zero days old, and
+            # zero is falsy, which is exactly how it once got filed as dormant.
+            # quiet is uninstructed and recent; everything else is long dormant.
+            if repo.name == "alpha":
+                repo.last_commit_date = today
+            elif repo.name == "quiet":
+                repo.last_commit_date = recent
+            else:
+                repo.last_commit_date = old
 
         rebuilt = Survey(
             self.survey.root, self.survey.files, repos, self.survey.parsed, self.survey.duplicate_groups
