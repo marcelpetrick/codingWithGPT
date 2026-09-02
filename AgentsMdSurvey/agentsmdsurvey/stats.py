@@ -86,6 +86,11 @@ def _is_active(last_commit_date: str, today: str) -> bool:
     return age is not None and age <= ACTIVE_DAYS
 
 
+def _plural(count: int, singular: str, plural: str = "") -> str:
+    """"1 pair" / "3 pairs" — a generated report should not read as generated."""
+    return f"{count} {singular if count == 1 else (plural or singular + 's')}"
+
+
 def _jaccard(a: set[str], b: set[str]) -> float:
     if not a or not b:
         return 0.0
@@ -445,7 +450,7 @@ class Survey:
         self._add(
             id="duplicates",
             severity="risk",
-            title=f"{len(self.duplicate_groups)} sets of byte-identical instruction files",
+            title=f"{_plural(len(self.duplicate_groups), 'set')} of byte-identical instruction files",
             detail=(
                 "The same file exists in more than one place. Copies under build/ are stale the "
                 "moment the source changes; copies across repositories drift silently and nothing "
@@ -476,7 +481,7 @@ class Survey:
             self._add(
                 id="implicit_template",
                 severity="insight",
-                title=f"{len(pairs)} pairs of scopes share most of their section structure",
+                title=f"{_plural(len(pairs), 'pair')} of scopes share most of their section structure",
                 detail=(
                     "An unacknowledged template already exists: these files were written by copying "
                     "a predecessor. Naming it and checking it in turns an accident into a standard."
@@ -501,7 +506,10 @@ class Survey:
             self._add(
                 id="staleness",
                 severity="risk",
-                title=f"{len(stale)} instruction files have not moved in 90+ days of repository activity",
+                title=(
+                f"{_plural(len(stale), 'instruction file')} "
+                f"{'has' if len(stale) == 1 else 'have'} not moved in 90+ days of repository activity"
+            ),
                 detail=(
                     "The repository kept changing; the file describing how to work in it did not. "
                     "These are the files most likely to be describing a project that no longer exists."
@@ -614,7 +622,10 @@ class Survey:
         self._add(
             id="vendored",
             severity="risk",
-            title=f"{len(vendored)} instruction files in the tree were written by somebody else",
+            title=(
+                f"{_plural(len(vendored), 'instruction file')} in the tree "
+                f"{'was' if len(vendored) == 1 else 'were'} written by somebody else"
+            ),
             detail=(
                 f"Vendored clones and dependency checkouts carry their own AGENTS.md, GEMINI.md and "
                 f"skills — roughly {total_tokens:,} tokens of other people's rules. They are excluded "
