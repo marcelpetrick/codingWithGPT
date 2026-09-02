@@ -109,15 +109,25 @@ def _usable(directive, topic: str) -> bool:
         return False
     if DANGLING.search(directive.normalized):
         return False
+    # A fragment such as "unit tests via ctest" names a tool without stating a
+    # rule. Require either binding wording or an imperative opening.
+    if directive.hardness == "neutral" and not IMPERATIVE_START.match(directive.normalized):
+        return False
+    # Award a sentence only to the topic it states most strongly, so a rule
+    # about English does not end up filed under changelogs.
+    strengths = [match_strength(t, directive.normalized) for t in classify(directive.normalized)]
+    if strengths and match_strength(topic, directive.normalized) < max(strengths):
+        return False
     return True
 
 
 def choose_rules(survey: Survey, min_scopes: int) -> dict[str, list[dict[str, Any]]]:
     """One representative wording per qualifying topic, grouped by taxonomy group."""
     topic_scopes = survey.topic_scopes()
-    repeat_counts: Counter[str] = Counter()
     fingerprint_scopes: dict[str, set[str]] = defaultdict(set)
-    candidates: dict[str, list[tuple[Any, dict[str, Any]]]] = defaultdict(list)
+    # (ranking key, fingerprint, rule) — the fingerprint lets one sentence be
+    # awarded to a single topic only.
+    candidates: dict[str, list[tuple[tuple[Any, ...], str, dict[str, Any]]]] = defaultdict(list)
 
     for item, directive in survey.directives():
         fingerprint_scopes[directive.fingerprint].add(item.scope)
@@ -141,7 +151,6 @@ def choose_rules(survey: Survey, min_scopes: int) -> dict[str, list[dict[str, An
                     },
                 )
             )
-        repeat_counts[directive.fingerprint] = repeats
 
     # One sentence may be the best fit for two topics. Award it to the topic
     # with the broader support and let the runner-up take the next wording, so

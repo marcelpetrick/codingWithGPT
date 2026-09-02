@@ -389,10 +389,16 @@ def discover(root: Path, *, use_git: bool = True) -> tuple[list[InstructionFile]
 
 
 def mark_duplicates(files: list[InstructionFile]) -> dict[str, list[InstructionFile]]:
-    """Group files by content hash and flag every copy but the canonical one.
+    """Group files by content hash and discount the copies that are artefacts.
 
-    The canonical copy is the one that is neither generated nor vendored, with
-    the shortest path — the source that the others were produced from.
+    Only a copy inside the *same* repository is discounted — a docs file
+    mirrored into build/ is one file that got published twice, and counting it
+    twice would inflate every statistic.
+
+    The same bytes appearing in two different repositories is the opposite
+    situation: two projects genuinely carry that rule set, both were instructed
+    on purpose, and discounting either one would understate coverage. Those stay
+    first-party and are reported as a drift risk instead.
     """
     groups: dict[str, list[InstructionFile]] = {}
     for item in files:
@@ -401,11 +407,19 @@ def mark_duplicates(files: list[InstructionFile]) -> dict[str, list[InstructionF
     for group in groups.values():
         if len(group) < 2:
             continue
-        ranked = sorted(group, key=lambda f: (f.generated, f.vendored, len(f.rel_path), f.rel_path))
-        for copy in ranked[1:]:
-            copy.generated = True
-            if not copy.vendor_reason:
-                copy.vendor_reason = f"byte-identical copy of {ranked[0].rel_path}"
+        by_repo: dict[str | None, list[InstructionFile]] = {}
+        for item in group:
+            by_repo.setdefault(item.repo_root, []).append(item)
+        for copies in by_repo.values():
+            if len(copies) < 2:
+                continue
+            ranked = sorted(
+                copies, key=lambda f: (f.generated, f.vendored, len(f.rel_path), f.rel_path)
+            )
+            for copy in ranked[1:]:
+                copy.generated = True
+                if not copy.vendor_reason:
+                    copy.vendor_reason = f"byte-identical copy of {ranked[0].rel_path}"
     return {h: g for h, g in groups.items() if len(g) > 1}
 
 
