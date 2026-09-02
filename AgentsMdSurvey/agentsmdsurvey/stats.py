@@ -96,6 +96,9 @@ class Survey:
         self.first_party = [f for f in files if not f.vendored and not f.generated]
         self.excluded = [f for f in files if f.vendored or f.generated]
         self.findings: list[Finding] = []
+        # Coverage is measured against the repositories a person actually
+        # maintains, not against every .git directory on disk.
+        self.surveyable_repos = [r for r in repos if r.surveyable]
 
     # ------------------------------------------------------------- directives
     def directives(self) -> list[tuple[InstructionFile, Directive]]:
@@ -215,9 +218,10 @@ class Survey:
             "root": self.root,
             "taxonomy_version": TAXONOMY_VERSION,
             "generated": dt.datetime.now().replace(microsecond=0).isoformat(),
-            "repos_scanned": len(self.repos),
+            "repos_scanned": len(self.surveyable_repos),
+            "repos_seen": len(self.repos),
             "repos_with_instructions": len(repos_with),
-            "coverage": len(repos_with) / len(self.repos) if self.repos else 0.0,
+            "coverage": len(repos_with) / len(self.surveyable_repos) if self.surveyable_repos else 0.0,
             "files_found": len(self.files),
             "files_first_party": len(self.first_party),
             "files_excluded": len(self.excluded),
@@ -255,15 +259,17 @@ class Survey:
 
     def _finding_coverage(self) -> None:
         repos_with = {f.repo_root for f in self.first_party if f.repo_root}
-        without = [r for r in self.repos if r.path not in repos_with]
+        without = [r for r in self.surveyable_repos if r.path not in repos_with]
         without.sort(key=lambda r: (r.last_commit_date or "", r.commit_count), reverse=True)
         active = [r for r in without if r.last_commit_date]
         self._add(
             id="coverage",
             severity="insight",
-            title=f"{len(repos_with)} of {len(self.repos)} repositories carry agent instructions",
+            title=f"{len(repos_with)} of {len(self.surveyable_repos)} repositories carry agent instructions",
             detail=(
-                f"{len(without)} repositories have none. Ranked by last commit, the most active "
+                f"{len(without)} have none, and {len(self.repos) - len(self.surveyable_repos)} further "
+                f"git checkouts (submodules, worktrees, vendored clones, build artefacts and generated "
+                f"fixtures) were seen but left out of the denominator. Ranked by last commit, the most active "
                 f"uninstructed repositories are the coverage backlog: every agent session there "
                 f"starts from zero context."
             ),

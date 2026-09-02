@@ -277,6 +277,19 @@ class RepoInfo:
     name: str
     last_commit_date: str = ""
     commit_count: int = 0
+    depth: int = 1  # directories below the scan root
+    excluded_reason: str = ""
+
+    @property
+    def surveyable(self) -> bool:
+        """Whether this repository counts towards coverage.
+
+        Only repositories sitting directly under the scan root do. Everything
+        deeper is a submodule, a worktree, a vendored clone, a build artefact
+        or a generated fixture — nobody writes agent instructions for those,
+        so counting them would deflate the coverage figure into meaninglessness.
+        """
+        return not self.excluded_reason
 
     @classmethod
     def probe(cls, repo: Path) -> "RepoInfo":
@@ -288,6 +301,19 @@ class RepoInfo:
             last_commit_date=last[:10],
             commit_count=int(count) if count.isdigit() else 0,
         )
+
+    def locate(self, root: Path) -> "RepoInfo":
+        """Record how deep this repository sits and why it may not count."""
+        relative = Path(self.path).relative_to(root)
+        self.depth = len(relative.parts)
+        parts = set(relative.parts)
+        if parts & VENDOR_MARKERS:
+            self.excluded_reason = "vendored"
+        elif parts & GENERATED_MARKERS:
+            self.excluded_reason = "build artefact"
+        elif self.depth > 1:
+            self.excluded_reason = "nested checkout"
+        return self
 
 
 def discover(root: Path, *, use_git: bool = True) -> tuple[list[InstructionFile], list[RepoInfo]]:
@@ -305,7 +331,8 @@ def discover(root: Path, *, use_git: bool = True) -> tuple[list[InstructionFile]
         dirnames[:] = sorted(d for d in dirnames if d not in PRUNE_DIRS)
         here = Path(dirpath)
         if (here / ".git").exists() and str(here) not in repos:
-            repos[str(here)] = RepoInfo.probe(here) if use_git else RepoInfo(str(here), here.name)
+            info = RepoInfo.probe(here) if use_git else RepoInfo(str(here), here.name)
+            repos[str(here)] = info.locate(root)
 
         for filename in sorted(filenames):
             kind = _classify_kind(filename, here.parts)
