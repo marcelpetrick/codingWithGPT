@@ -41,6 +41,20 @@ them directly. A stem matches a whole name token, so `abc` masks `abc` and
 
 **Everything in `media/` and anything published is generated with `--redact`.**
 
+## The screenshot collection
+
+```bash
+./shoot.py            # redacted report -> nine images in media/
+./shoot.py --keep     # reuse the existing out/report.html
+```
+
+Frames are defined by the heading they start at and the heading they stop
+before, and the offsets come from the browser's own layout rather than being
+measured by hand — so the collection survives the report growing a section
+instead of silently cropping the wrong thing. Sections too far down the page to
+fit one capture are re-rendered with everything above them removed, so every
+image is a real 2× screenshot. Needs chromium (or Chrome) and Pillow.
+
 Standard library only. No install step, no virtualenv, nothing to fetch. Three
 files land in `out/`:
 

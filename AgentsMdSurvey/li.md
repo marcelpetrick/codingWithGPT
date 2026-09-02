@@ -89,6 +89,10 @@ Alternates: `05-context-budget.png` (token cost), `07-naming-inconsistency.png`
 (the three spellings), `09-repeated-wordings.png` (rules copied by hand between
 repos), `08-topic-frequency-dark.png` (dark-mode version of image 1).
 
+Regenerate the whole collection with `./shoot.py`. It re-runs the survey with
+`--redact` first, so the images can never drift out of step with the numbers
+below, and can never quietly lose their masking.
+
 ---
 
 ## The numbers, verbatim

@@ -16,7 +16,7 @@ import html
 from collections.abc import Sequence
 from typing import Any
 
-from .stats import Survey
+from .stats import Survey, plural
 
 STYLE = """
 :root {
@@ -275,10 +275,11 @@ def _body(survey: Survey, canonical: str) -> str:
             continue
         names[item.name] = names.get(item.name, 0) + 1
         places[item.location] = places.get(item.location, 0) + 1
-    name_rows = [(n, c, f"{c} files") for n, c in sorted(names.items(), key=lambda kv: -kv[1])]
+    name_rows = [(n, c, plural(c, "file")) for n, c in sorted(names.items(), key=lambda kv: -kv[1])]
     place_labels = {"root": "repository root", "docs": "docs/ or documents/", "nested": "a nested subdirectory", "dot-dir": "a dot-directory"}
     place_rows = [
-        (place_labels.get(p, p), c, f"{c} files") for p, c in sorted(places.items(), key=lambda kv: -kv[1])
+        (place_labels.get(p, p), c, plural(c, "file"))
+        for p, c in sorted(places.items(), key=lambda kv: -kv[1])
     ]
 
     # --- repeated wordings -------------------------------------------------

@@ -86,7 +86,7 @@ def _is_active(last_commit_date: str, today: str) -> bool:
     return age is not None and age <= ACTIVE_DAYS
 
 
-def _plural(count: int, singular: str, plural: str = "") -> str:
+def plural(count: int, singular: str, plural: str = "") -> str:
     """"1 pair" / "3 pairs" — a generated report should not read as generated."""
     return f"{count} {singular if count == 1 else (plural or singular + 's')}"
 
@@ -338,7 +338,11 @@ class Survey:
                 f"uninstructed repositories are the coverage backlog: every agent session there "
                 f"starts from zero context."
             ),
-            evidence=[f"{r.name} — last commit {r.last_commit_date or 'unknown'}, {r.commit_count} commits" for r in active[:12]],
+            evidence=[
+                f"{r.name} — last commit {r.last_commit_date or 'unknown'}, "
+                f"{plural(r.commit_count, 'commit')}"
+                for r in active[:12]
+            ],
         )
 
     def _finding_active_coverage(self) -> None:
@@ -367,7 +371,7 @@ class Survey:
                 f"active repositories, most recently touched first:"
             ),
             evidence=[
-                f"{r.name} — last commit {r.last_commit_date}, {r.commit_count} commits"
+                f"{r.name} — last commit {r.last_commit_date}, {plural(r.commit_count, 'commit')}"
                 for r in missing[:15]
             ],
         )
@@ -384,7 +388,7 @@ class Survey:
                     "exactly. One spelling has to win; the rest are a coin flip on whether the file "
                     "is read at all."
                 ),
-                evidence=[f"{name} — {count} scopes" for name, count in names.most_common()],
+                evidence=[f"{name} — {plural(count, 'scope')}" for name, count in names.most_common()],
             )
 
     def _finding_placement(self) -> None:
@@ -432,7 +436,9 @@ class Survey:
                     "the right one: it keeps a single source of truth while satisfying both "
                     "harnesses. It is applied consistently where both files exist."
                     + (
-                        f" {len(only_claude)} scopes still have a standalone CLAUDE.md with no AGENTS.md."
+                        f" {plural(len(only_claude), 'scope')} still "
+                        f"{'has' if len(only_claude) == 1 else 'have'} a standalone CLAUDE.md with "
+                        f"no AGENTS.md."
                         if only_claude
                         else ""
                     )
@@ -450,7 +456,7 @@ class Survey:
         self._add(
             id="duplicates",
             severity="risk",
-            title=f"{_plural(len(self.duplicate_groups), 'set')} of byte-identical instruction files",
+            title=f"{plural(len(self.duplicate_groups), 'set')} of byte-identical instruction files",
             detail=(
                 "The same file exists in more than one place. Copies under build/ are stale the "
                 "moment the source changes; copies across repositories drift silently and nothing "
@@ -481,7 +487,7 @@ class Survey:
             self._add(
                 id="implicit_template",
                 severity="insight",
-                title=f"{_plural(len(pairs), 'pair')} of scopes share most of their section structure",
+                title=f"{plural(len(pairs), 'pair')} of scopes share most of their section structure",
                 detail=(
                     "An unacknowledged template already exists: these files were written by copying "
                     "a predecessor. Naming it and checking it in turns an accident into a standard."
@@ -507,7 +513,7 @@ class Survey:
                 id="staleness",
                 severity="risk",
                 title=(
-                f"{_plural(len(stale), 'instruction file')} "
+                f"{plural(len(stale), 'instruction file')} "
                 f"{'has' if len(stale) == 1 else 'have'} not moved in 90+ days of repository activity"
             ),
                 detail=(
@@ -537,7 +543,9 @@ class Survey:
                 f"{int(statistics.median([s.tokens for s in summaries])):,} tokens; the heaviest costs "
                 f"{top[0].tokens:,}."
             ),
-            evidence=[f"{s.scope} — ~{s.tokens:,} tokens, {s.directives} directives" for s in top],
+            evidence=[
+                f"{s.scope} — ~{s.tokens:,} tokens, {plural(s.directives, 'directive')}" for s in top
+            ],
         )
 
     def _finding_universality(self) -> None:
@@ -623,7 +631,7 @@ class Survey:
             id="vendored",
             severity="risk",
             title=(
-                f"{_plural(len(vendored), 'instruction file')} in the tree "
+                f"{plural(len(vendored), 'instruction file')} in the tree "
                 f"{'was' if len(vendored) == 1 else 'were'} written by somebody else"
             ),
             detail=(
@@ -632,7 +640,7 @@ class Survey:
                 f"from every statistic here, but an agent started inside one of those directories "
                 f"will still read them."
             ),
-            evidence=[f"{project} — {count} files" for project, count in by_project.most_common(8)],
+            evidence=[f"{project} — {plural(count, 'file')}" for project, count in by_project.most_common(8)],
         )
 
     # ------------------------------------------------------------------ export
