@@ -87,7 +87,6 @@ def main(argv: list[str] | None = None) -> int:
             embed_model=args.llm_embed_model,
             cache_dir=Path(args.cache).expanduser().resolve(),
         )
-        survey.compute_findings()
 
     canonical = synth.render(survey, args.min_scopes)
     (out / "AGENTS.canonical.md").write_text(canonical, encoding="utf-8")

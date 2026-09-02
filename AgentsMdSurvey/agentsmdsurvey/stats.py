@@ -23,6 +23,10 @@ from .taxonomy import TAXONOMY_VERSION, TOPIC_BY_ID
 # Rough conversion; good enough to state a context budget in the report.
 BYTES_PER_TOKEN = 4
 
+# A repository with no commit in this many days is dormant: its lack of agent
+# instructions costs nothing, so it must not drag the coverage figure down.
+ACTIVE_DAYS = 182
+
 # A CLAUDE.md this short next to a longer AGENTS.md is a redirect, not content.
 STUB_LINES = 12
 
@@ -96,18 +100,34 @@ class Survey:
         self.first_party = [f for f in files if not f.vendored and not f.generated]
         self.excluded = [f for f in files if f.vendored or f.generated]
         self.findings: list[Finding] = []
+        self._directives: list[tuple[InstructionFile, Directive]] | None = None
         # Coverage is measured against the repositories a person actually
         # maintains, not against every .git directory on disk.
         self.surveyable_repos = [r for r in repos if r.surveyable]
+        today = dt.date.today().isoformat()
+        self.active_repos = [
+            r
+            for r in self.surveyable_repos
+            if (_days_between(r.last_commit_date, today) or 10**6) <= ACTIVE_DAYS
+        ]
 
     # ------------------------------------------------------------- directives
     def directives(self) -> list[tuple[InstructionFile, Directive]]:
+        """Every first-party directive with the file it came from.
+
+        Memoised: a dozen callers walk this list, and the enrichment pass
+        annotates the directive objects in place, so they must be the same
+        objects every time.
+        """
+        if self._directives is not None:
+            return self._directives
         out: list[tuple[InstructionFile, Directive]] = []
         for item in self.first_party:
             doc = self.parsed.get(item.path)
             if doc is None:
                 continue
             out.extend((item, directive) for directive in doc.directives)
+        self._directives = out
         return out
 
     def scopes(self) -> list[str]:
@@ -167,7 +187,7 @@ class Survey:
         scopes = self.topic_scopes()
         counts = self.topic_directive_counts()
         total_scopes = len(self.scopes()) or 1
-        rows = []
+        rows: list[dict[str, Any]] = []
         for topic_id, scope_set in scopes.items():
             topic = TOPIC_BY_ID.get(topic_id)
             if topic is None:
@@ -207,6 +227,37 @@ class Survey:
         rows.sort(key=lambda r: (-len(r["scopes"]), r["normalized"]))
         return rows
 
+    def instructed_repos(self, kind: str | None = None) -> set[str]:
+        """Repositories holding at least one first-party instruction file.
+
+        With ``kind`` given, only files of that kind count — the difference
+        between "has any agent instructions" and "has an AGENTS.md" is a
+        question people actually ask.
+        """
+        return {
+            f.repo_root
+            for f in self.first_party
+            if f.repo_root and (kind is None or f.kind == kind)
+        }
+
+    def coverage(self) -> dict[str, Any]:
+        """Coverage over all repositories and over the actively maintained ones."""
+        any_kind = self.instructed_repos()
+        agents_md = self.instructed_repos("agents_md")
+        active = {r.path for r in self.active_repos}
+        return {
+            "repos": len(self.surveyable_repos),
+            "repos_instructed": len(any_kind),
+            "repos_with_agents_md": len(agents_md),
+            "active_days": ACTIVE_DAYS,
+            "active_repos": len(active),
+            "active_instructed": len(any_kind & active),
+            "active_with_agents_md": len(agents_md & active),
+            "active_share": (len(any_kind & active) / len(active)) if active else 0.0,
+            "active_agents_md_share": (len(agents_md & active) / len(active)) if active else 0.0,
+            "dormant_repos": len(self.surveyable_repos) - len(active),
+        }
+
     # --------------------------------------------------------------- headline
     def headline(self) -> dict[str, Any]:
         summaries = self.scope_summaries()
@@ -222,6 +273,7 @@ class Survey:
             "repos_seen": len(self.repos),
             "repos_with_instructions": len(repos_with),
             "coverage": len(repos_with) / len(self.surveyable_repos) if self.surveyable_repos else 0.0,
+            **{f"cov_{k}": v for k, v in self.coverage().items()},
             "files_found": len(self.files),
             "files_first_party": len(self.first_party),
             "files_excluded": len(self.excluded),
@@ -241,6 +293,7 @@ class Survey:
     def compute_findings(self) -> list[Finding]:
         self.findings = []
         self._finding_coverage()
+        self._finding_active_coverage()
         self._finding_naming()
         self._finding_placement()
         self._finding_stub_pointer()
@@ -274,6 +327,37 @@ class Survey:
                 f"starts from zero context."
             ),
             evidence=[f"{r.name} — last commit {r.last_commit_date or 'unknown'}, {r.commit_count} commits" for r in active[:12]],
+        )
+
+    def _finding_active_coverage(self) -> None:
+        """Coverage among repositories that are actually being worked on."""
+        cov = self.coverage()
+        if not cov["active_repos"]:
+            return
+        active = {r.path for r in self.active_repos}
+        instructed = self.instructed_repos() & active
+        missing = [r for r in self.active_repos if r.path not in instructed]
+        missing.sort(key=lambda r: (r.last_commit_date, r.commit_count), reverse=True)
+        self._add(
+            id="active_coverage",
+            severity="insight",
+            title=(
+                f"{cov['active_instructed']} of {cov['active_repos']} actively maintained "
+                f"repositories are instructed ({cov['active_share']:.0%})"
+            ),
+            detail=(
+                f"Counting only repositories with a commit in the last {ACTIVE_DAYS} days, which is "
+                f"the population where a missing AGENTS.md actually costs something. "
+                f"{cov['dormant_repos']} of the {cov['repos']} repositories are dormant and are "
+                f"excluded here. Narrowed to an AGENTS.md specifically — not a CLAUDE.md, a skill "
+                f"or a harness config — the figure is {cov['active_with_agents_md']} of "
+                f"{cov['active_repos']} ({cov['active_agents_md_share']:.0%}). The uninstructed "
+                f"active repositories, most recently touched first:"
+            ),
+            evidence=[
+                f"{r.name} — last commit {r.last_commit_date}, {r.commit_count} commits"
+                for r in missing[:15]
+            ],
         )
 
     def _finding_naming(self) -> None:

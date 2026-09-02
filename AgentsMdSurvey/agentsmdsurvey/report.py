@@ -13,10 +13,10 @@ labels, so identity is never carried by colour alone.
 from __future__ import annotations
 
 import html
+from collections.abc import Sequence
 from typing import Any
 
 from .stats import Survey
-from .taxonomy import GROUPS
 
 STYLE = """
 :root {
@@ -135,7 +135,7 @@ def _esc(text: Any) -> str:
     return html.escape(str(text))
 
 
-def _bar_rows(rows: list[tuple[str, float, str]], maximum: float | None = None) -> str:
+def _bar_rows(rows: Sequence[tuple[str, float, str]], maximum: float | None = None) -> str:
     """Horizontal bars: label, magnitude, printed value. One hue, ranked shades."""
     if not rows:
         return "<p class='lede'>Nothing to show.</p>"
@@ -186,9 +186,15 @@ def _body(survey: Survey, canonical: str) -> str:
     tiles = [
         (f"{head['repos_scanned']}", "repositories scanned", f"{head['repos_seen'] - head['repos_scanned']} nested checkouts excluded"),
         (
-            f"{head['repos_with_instructions']}",
-            "carry agent instructions",
-            f"{head['coverage']:.0%} coverage",
+            f"{head['cov_active_instructed']}/{head['cov_active_repos']}",
+            "active repositories instructed",
+            f"{head['cov_active_share']:.0%} of those committed to in the last "
+            f"{head['cov_active_days']} days",
+        ),
+        (
+            f"{head['cov_active_with_agents_md']}/{head['cov_active_repos']}",
+            "have an AGENTS.md",
+            f"{head['cov_active_agents_md_share']:.0%} — the rest is CLAUDE.md, skills or config",
         ),
         (f"{head['files_first_party']}", "first-party instruction files", f"{head['files_excluded']} vendored or duplicate, excluded"),
         (f"{head['scopes']}", "instructed scopes", "a scope is a directory governed by one file set"),

@@ -123,6 +123,16 @@ class Section:
 
 
 @dataclass
+class _OpenSection:
+    """A heading whose body is still being read."""
+
+    title: str
+    level: int
+    path: list[str]
+    line: int
+
+
+@dataclass
 class ParsedDocument:
     directives: list[Directive]
     sections: list[Section]
@@ -207,7 +217,7 @@ def parse(text: str) -> ParsedDocument:
     pending: list[str] = []  # paragraph buffer
     pending_line = 0
 
-    current: dict[str, int | str | list[str]] | None = None
+    current: _OpenSection | None = None
     counters = {"directives": 0, "code": 0, "prose": 0}
 
     def close_section() -> None:
@@ -216,12 +226,12 @@ def parse(text: str) -> ParsedDocument:
             return
         sections.append(
             Section(
-                title=str(current["title"]),
-                level=int(current["level"]),
-                path=list(current["path"]),  # type: ignore[arg-type]
-                line=int(current["line"]),
+                title=current.title,
+                level=current.level,
+                path=list(current.path),
+                line=current.line,
                 role=_section_role(
-                    counters["directives"], counters["code"], counters["prose"], str(current["title"])
+                    counters["directives"], counters["code"], counters["prose"], current.title
                 ),
                 directive_count=counters["directives"],
                 code_lines=counters["code"],
@@ -276,7 +286,7 @@ def parse(text: str) -> ParsedDocument:
             heading_path.append(title)
             heading_count += 1
             max_depth = max(max_depth, level)
-            current = {"title": title, "level": level, "path": list(heading_path), "line": offset}
+            current = _OpenSection(title=title, level=level, path=list(heading_path), line=offset)
             continue
 
         if TABLE_ROW.match(raw):
