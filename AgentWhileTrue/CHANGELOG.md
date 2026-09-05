@@ -7,6 +7,23 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.15.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.simulate` and `agent-watch simulate`: twelve runnable safety
+  scenarios covering the situations section 40 of the vision requires - reset
+  and resume, the agent exiting first, PID reuse, suspend across a reset, a
+  scrolled-away banner, a still-spent weekly limit, an unavailable provider, the
+  self-healing provider, a duplicated prompt, crash recovery, the Codex opt-in
+  and observe mode.
+- Each scenario prints the steps it took and the decision made at each one, so a
+  person can watch a specific danger play out rather than take the safety
+  argument on trust.
+- The test suite asserts every scenario, including that the happy path really
+  does send a keystroke - a suite that passed by never typing would prove
+  nothing.
+
 ## [0.14.0] - 2026-09-05
 
 ### Added

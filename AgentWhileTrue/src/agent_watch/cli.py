@@ -104,6 +104,15 @@ def build_parser() -> argparse.ArgumentParser:
     logs_parser = subparsers.add_parser("logs", help="show the event log")
     logs_parser.add_argument("-n", "--lines", type=int, default=40, help="how many lines to show")
 
+    simulate_parser = subparsers.add_parser(
+        "simulate", help="run a built-in safety scenario against a simulated terminal"
+    )
+    simulate_parser.add_argument(
+        "scenario", nargs="?", help="scenario name; omit to list the available ones"
+    )
+    simulate_parser.add_argument(
+        "--all", dest="run_all", action="store_true", help="run every scenario"
+    )
     return parser
 
 
@@ -344,6 +353,33 @@ def command_config(config: Config, stream) -> int:
     return EXIT_OK
 
 
+def command_simulate(args: argparse.Namespace, stream) -> int:
+    """Run the safety scenarios.
+
+    This is the honest way to gain confidence in a tool that types into
+    terminals: watch a specific danger play out and read the decisions it made.
+    """
+    from agent_watch import simulate
+
+    if args.run_all:
+        results = simulate.run_all()
+        for result in results:
+            stream.write(f"{result.name:<28} {'PASS' if result.passed else 'FAIL'}\n")
+        return EXIT_OK if all(result.passed for result in results) else EXIT_ERROR
+    if not args.scenario:
+        stream.write("Available scenarios:\n")
+        for name, description in simulate.catalogue():
+            stream.write(f"  {name:<28} {description}\n")
+        return EXIT_OK
+    try:
+        result = simulate.run(args.scenario)
+    except KeyError:
+        stream.write(f"Unknown scenario: {args.scenario}\n")
+        return EXIT_ERROR
+    stream.write(result.render() + "\n")
+    return EXIT_OK if result.passed else EXIT_ERROR
+
+
 def command_logs(config: Config, args: argparse.Namespace, stream) -> int:
     path = config.resolved_log_file()
     if not path.is_file():
@@ -368,6 +404,11 @@ def main(
         # Running bare means running; re-parse so `run`'s own defaults exist.
         args = parser.parse_args([*arguments, "run"])
     out = stream if stream is not None else sys.stdout
+
+    if args.command == "simulate":
+        # Scenarios run entirely against fakes, so no configuration is needed
+        # and a broken config file must not stop them.
+        return command_simulate(args, out)
 
     try:
         config = load(config_path=args.config, overrides=_overrides(args))
