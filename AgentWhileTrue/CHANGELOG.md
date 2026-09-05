@@ -7,6 +7,18 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.6.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.logging_setup`: a key/value event log with size-based rotation
+  (10 MB, 5 backups) and owner-only permissions on both the file and its
+  directory.
+- `fingerprint()`, the only sanctioned way for screen content to influence a log
+  line: it returns a 12-character SHA-256 prefix, never the text. `EventLogger`
+  deliberately has no free-text method, so "log events, not content" is enforced
+  by the API rather than by reviewer discipline.
+
 ## [0.5.0] - 2026-09-05
 
 ### Added
