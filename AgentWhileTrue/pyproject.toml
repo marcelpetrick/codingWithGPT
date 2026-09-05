@@ -72,3 +72,8 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101"]
+# The screen fixtures transcribe real terminal output. Its box-drawing and
+# prompt glyphs are "ambiguous" to ruff but are exactly what the CLIs print, and
+# normalising them would make the recognizer tests test the wrong thing.
+"tests/screens.py" = ["RUF001", "E501"]
+"tests/test_providers.py" = ["RUF001"]

@@ -7,6 +7,28 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.7.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.states`: the `SessionState` and `ActionState` vocabularies.
+- `agent_watch.providers`: versioned, data-driven prompt recognizers for Claude
+  Code and Codex CLI. Every pattern records the provider version it was verified
+  against, so a future wording change is a table edit and a version bump rather
+  than a hunt through code.
+- `providers.timeparse`: parses the three reset shapes the CLIs actually emit -
+  `resets 8:10pm (Europe/Berlin)`, `resets Mon 12:00am` and `resets in 4h51m`.
+  Anything it cannot parse confidently returns `None`, which means "wait for a
+  provider signal", never "resume now".
+- Recognition of Claude Code's self-healing banner. Since 2.1.234 Claude resumes
+  itself, and the supervisor stands down rather than racing it; the case it
+  genuinely covers is Claude's own "will not resume on its own".
+- Paid, credit-purchase, reset-credit-redemption and model-downgrade prompts are
+  recognised specifically so they can be refused.
+- Patterns match against both a line-joined and a reflowed rendering of the
+  screen, so a provider sentence broken across a terminal soft wrap is still
+  recognised.
+
 ## [0.6.0] - 2026-09-05
 
 ### Added
