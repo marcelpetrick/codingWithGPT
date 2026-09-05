@@ -7,6 +7,15 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.19.0] - 2026-09-05
+
+### Fixed
+
+- Codex quota discovery now walks from Konsole's foreground Node launcher to
+  its native child, which is the process that actually owns the session rollout
+  descriptor. Live Codex sessions therefore report their real five-hour and
+  weekly availability instead of `no-rollout-file`.
+
 ## [0.18.0] - 2026-09-05
 
 ### Added

@@ -89,7 +89,17 @@ sourced as shell code. Logs and state live under
 
 ## Claude quota bridge
 
-Claude Code supplies quota data to status-line commands. Install the proxy:
+The bridge is the supplied `scripts/claude-statusline-proxy.sh`, not another
+package, daemon, plugin, or network service. Claude Code exposes quota data only
+to its configured status-line command. The bridge receives that JSON, copies
+only the usage windows and reset timestamps to Agent Watch's state directory,
+and then runs your existing status line with the original JSON.
+
+Without it, `agent-watch quota` honestly reports Claude as `UNKNOWN` with
+`no-statusline-file`. Prompt detection still works, but automatic mode will not
+guess that quota is available.
+
+Install the one supplied file:
 
 ```bash
 install -Dm755 scripts/claude-statusline-proxy.sh \
@@ -117,6 +127,26 @@ If a status line already exists, preserve it through
     "command": "AGENT_WATCH_STATUSLINE_CHAIN=~/.claude/my-statusline.sh ~/.local/share/agent-watch/claude-statusline-proxy.sh"
   }
 }
+```
+
+For example, if the current command is
+`~/.claude/abtop-combined-statusline.sh`, the replacement is:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "AGENT_WATCH_STATUSLINE_CHAIN=~/.claude/abtop-combined-statusline.sh ~/.local/share/agent-watch/claude-statusline-proxy.sh"
+  }
+}
+```
+
+Restart Claude Code if it does not reload the setting, wait for one status-line
+render, then verify the bridge without enabling automation:
+
+```bash
+agent-watch quota
+ls -l ~/.local/state/agent-watch/quota/claude.json
 ```
 
 The bridge writes an owner-only, atomically replaced quota document at

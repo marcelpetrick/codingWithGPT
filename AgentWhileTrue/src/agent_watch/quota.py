@@ -159,20 +159,38 @@ class QuotaSource:
 
 
 def find_codex_rollout(pid: int) -> Path | None:
-    """Return the session rollout file the Codex process at ``pid`` has open."""
-    fd_dir = PROC / str(pid) / "fd"
-    try:
-        entries = list(fd_dir.iterdir())
-    except OSError:
-        return None
-    for entry in entries:
-        try:
-            target = entry.readlink()
-        except OSError:
+    """Return the rollout opened by a Codex process or one of its children.
+
+    Konsole normally reports Codex's Node launcher as the foreground PID. The
+    native child, not that launcher, owns the rollout descriptor, so checking
+    only the foreground process makes every real Codex quota look unavailable.
+    Linux exposes direct children without invoking or parsing ``ps``.
+    """
+    pending = [pid]
+    seen: set[int] = set()
+    while pending and len(seen) < 64:
+        current = pending.pop(0)
+        if current in seen:
             continue
-        text = str(target)
-        if "/sessions/" in text and text.endswith(".jsonl") and "rollout-" in text:
-            return Path(text)
+        seen.add(current)
+        fd_dir = PROC / str(current) / "fd"
+        try:
+            entries = list(fd_dir.iterdir())
+        except OSError:
+            entries = []
+        for entry in entries:
+            try:
+                target = entry.readlink()
+            except OSError:
+                continue
+            text = str(target)
+            if "/sessions/" in text and text.endswith(".jsonl") and "rollout-" in text:
+                return Path(text)
+        children = PROC / str(current) / "task" / str(current) / "children"
+        try:
+            pending.extend(int(value) for value in children.read_text().split())
+        except (OSError, ValueError):
+            continue
     return None
 
 

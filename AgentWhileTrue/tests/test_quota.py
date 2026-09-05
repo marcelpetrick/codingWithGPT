@@ -62,6 +62,25 @@ def test_codex_rollout_is_parsed_into_windows(tmp_path: Path, monkeypatch) -> No
     assert snapshot.exhausted_scopes == frozenset()
 
 
+def test_codex_rollout_is_found_below_the_node_launcher(tmp_path: Path, monkeypatch) -> None:
+    proc = tmp_path / "proc"
+    child_file = proc / "123/task/123/children"
+    child_file.parent.mkdir(parents=True)
+    child_file.write_text("456\n")
+    (proc / "456/task/456").mkdir(parents=True)
+    (proc / "456/task/456/children").write_text("")
+    fd = proc / "456/fd"
+    fd.mkdir(parents=True)
+    rollout = tmp_path / "sessions/2026/09/05/rollout-live.jsonl"
+    rollout.parent.mkdir(parents=True)
+    rollout.write_text(json.dumps(CODEX_EVENT) + "\n")
+    (fd / "9").symlink_to(rollout)
+    monkeypatch.setattr(quota, "PROC", proc)
+
+    assert quota.find_codex_rollout(123) == rollout
+    assert CodexRolloutSource().snapshot(pid=123).availability is Availability.AVAILABLE
+
+
 def test_codex_newest_event_wins(tmp_path: Path, monkeypatch) -> None:
     older = json.loads(json.dumps(CODEX_EVENT))
     newer = json.loads(json.dumps(CODEX_EVENT))
