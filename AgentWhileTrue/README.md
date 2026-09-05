@@ -99,7 +99,15 @@ Without it, `agent-watch quota` honestly reports Claude as `UNKNOWN` with
 `no-statusline-file`. Prompt detection still works, but automatic mode will not
 guess that quota is available.
 
-Install the one supplied file:
+Install and safely chain the supplied file in one command:
+
+```bash
+scripts/install-claude-bridge.sh
+```
+
+The installer copies the proxy, backs up `~/.claude/settings.json`, and preserves
+the existing status-line command through the chain. To do those steps manually,
+install the one supplied file:
 
 ```bash
 install -Dm755 scripts/claude-statusline-proxy.sh \

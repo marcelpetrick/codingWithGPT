@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parents[1]
 PROXY = ROOT / "scripts" / "claude-statusline-proxy.sh"
+BRIDGE_INSTALLER = ROOT / "scripts" / "install-claude-bridge.sh"
 
 
 def _run_proxy(
@@ -64,3 +65,33 @@ def test_statusline_proxy_fails_open_on_bad_input(tmp_path: Path) -> None:
     )
     assert result.returncode == 0
     assert not (tmp_path / "agent-watch/quota/claude.json").exists()
+
+
+def test_bridge_installer_preserves_existing_statusline(tmp_path: Path) -> None:
+    settings = tmp_path / ".claude/settings.json"
+    settings.parent.mkdir()
+    settings.write_text(
+        json.dumps({"statusLine": {"type": "command", "command": "tee /tmp/original"}})
+    )
+    result = subprocess.run(
+        [str(BRIDGE_INSTALLER)],
+        text=True,
+        capture_output=True,
+        env={**os.environ, "HOME": str(tmp_path)},
+        timeout=5,
+    )
+    assert result.returncode == 0, result.stderr
+    command = json.loads(settings.read_text())["statusLine"]["command"]
+    assert "AGENT_WATCH_STATUSLINE_CHAIN=" in command
+    assert "claude-statusline-proxy.sh" in command
+    assert list(settings.parent.glob("settings.json.agent-watch-backup.*"))
+
+    again = subprocess.run(
+        [str(BRIDGE_INSTALLER)],
+        text=True,
+        capture_output=True,
+        env={**os.environ, "HOME": str(tmp_path)},
+        timeout=5,
+    )
+    assert again.returncode == 0
+    assert "already configured" in again.stdout

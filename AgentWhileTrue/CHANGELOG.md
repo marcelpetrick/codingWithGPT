@@ -7,6 +7,14 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.20.0] - 2026-09-05
+
+### Added
+
+- `scripts/install-claude-bridge.sh` installs the local quota proxy, backs up
+  Claude's settings, and safely chains any existing status-line command. It is
+  idempotent and never replaces the user's status-line behavior.
+
 ## [0.19.0] - 2026-09-05
 
 ### Fixed
