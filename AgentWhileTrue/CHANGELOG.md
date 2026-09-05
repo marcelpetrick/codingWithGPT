@@ -7,6 +7,15 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.22.0] - 2026-09-05
+
+### Changed
+
+- The product is now consistently named **Agent While True**, described as an
+  agent budget watch and babysitter. The primary installed command is
+  `agent-while-true`; `agent-watch` remains a fully compatible alias and the
+  established config/state paths remain unchanged.
+
 ## [0.21.0] - 2026-09-05
 
 ### Added

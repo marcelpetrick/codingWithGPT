@@ -79,7 +79,7 @@ def test_a_held_lock_warns_rather_than_fails(tmp_path: Path) -> None:
 def test_render_and_exit_code() -> None:
     checks = [Check("Linux", Status.OK, "6.1"), Check("qdbus", Status.WARN, "old")]
     text = render(checks)
-    assert "Agent Watch Doctor" in text
+    assert "Agent While True Doctor" in text
     assert "Linux" in text
     assert exit_code(checks) == 0
     assert exit_code([*checks, Check("x", Status.FAIL)]) == 1

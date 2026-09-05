@@ -214,7 +214,7 @@ def _auto_mode_verdict(checks: list[Check], config: Config) -> Check:
 
 
 def render(checks: list[Check]) -> str:
-    lines = ["Agent Watch Doctor", ""]
+    lines = ["Agent While True Doctor", ""]
     lines.extend(check.render() for check in checks)
     return "\n".join(lines)
 

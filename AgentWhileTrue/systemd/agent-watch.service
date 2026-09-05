@@ -1,5 +1,5 @@
 [Unit]
-Description=Observe Codex and Claude Code quota waits in KDE Konsole
+Description=Agent While True budget watch and babysitter (observe only)
 Documentation=https://github.com/marcelpetrick/codingWithGPT/tree/master/AgentWhileTrue
 After=graphical-session.target
 PartOf=graphical-session.target

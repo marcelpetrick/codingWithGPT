@@ -81,7 +81,10 @@ def render_status(
     """Render the running watcher's status table."""
     listed = list(sessions)
     lines = [
-        f"Agent Watch {__version__}   mode={config.mode.value}   watching {len(listed)} session(s)",
+        (
+            f"Agent While True {__version__}   mode={config.mode.value}   "
+            f"watching {len(listed)} session(s)"
+        ),
         "",
         _row(_HEADERS),
         "-" * 72,

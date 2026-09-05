@@ -146,7 +146,7 @@ def render(state: PickerState) -> str:
     Deliberately plain: this has to be readable over SSH, in a pipe, and in a
     test failure message.
     """
-    lines = ["Agent Watch - select sessions to watch", ""]
+    lines = ["Agent While True - select sessions to watch", ""]
     if not state.candidates:
         lines.append("  no Konsole sessions found")
     for index, candidate in enumerate(state.candidates, start=1):

@@ -1,4 +1,4 @@
-# Implementation Plan — agent-budget-watch
+# Implementation Plan — Agent While True
 
 Derived from [vision.md](vision.md). This plan records the decisions taken before
 implementation, the evidence they rest on, and the commit sequence.
@@ -15,7 +15,7 @@ without reconstructing history.
 - [x] v0.19.0: find live Codex quota through its Node launcher.
 - [x] v0.20.0: backup-preserving Claude bridge installer.
 - [x] v0.21.0: safely arm Claude's exact provider-owned automatic-wait menu.
-- [ ] Rename the product to Agent While True while preserving compatibility.
+- [x] v0.22.0: rename the product to Agent While True while preserving compatibility.
 - [ ] Add the btop-inspired color TUI, help, pause, rescan and refresh keys.
 - [ ] Make Python 3.12 the documented, linted and CI-tested baseline.
 - [ ] Add `localPipeline.sh`, path-filtered GitHub quality/release workflows and

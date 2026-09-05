@@ -1,4 +1,4 @@
-"""agent-budget-watch: a conservative supervisor for interactive coding agents.
+"""Agent While True: a conservative budget watch and babysitter for coding agents.
 
 The package watches KDE Konsole sessions that are running Codex CLI or Claude
 Code, recognises the provider-specific usage-limit prompts, and resumes a

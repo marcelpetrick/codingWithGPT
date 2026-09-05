@@ -59,13 +59,13 @@ this.
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="agent-watch",
+        prog="agent-while-true",
         description=(
             "Supervise Codex CLI and Claude Code sessions in KDE Konsole and resume "
             "them safely once a usage window resets."
         ),
     )
-    parser.add_argument("--version", action="version", version=f"agent-watch {__version__}")
+    parser.add_argument("--version", action="version", version=f"Agent While True {__version__}")
     parser.add_argument("--config", type=Path, default=None, help="path to the config file")
     parser.add_argument("--log-file", type=Path, default=None, help="override the log file")
     parser.add_argument(

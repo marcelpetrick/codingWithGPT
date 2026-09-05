@@ -1,9 +1,13 @@
-# Agent Budget Watch
+# Agent While True
 
-`agent-watch` is a conservative Linux utility that watches Codex CLI and Claude
-Code sessions in KDE Konsole. It reports provider quota health and can resume a
-blocked session after usage becomes available again—only when the terminal,
-process identity, prompt, quota source, and configured policy all agree.
+**Agent While True** is an agent budget watch and babysitter for Codex CLI and
+Claude Code sessions in KDE Konsole. It reports provider quota health and can
+resume a blocked session after usage becomes available again—only when the
+terminal, process identity, prompt, quota source, and policy all agree.
+
+The primary command is `agent-while-true`. The shorter `agent-watch` command is
+kept as a compatible alias, so existing scripts and the examples below continue
+to work.
 
 The current target is Manjaro/Arch Linux, KDE Plasma, Konsole, Wayland or X11,
 and Python 3.12 or newer. Runtime code uses only the Python standard library.
@@ -206,7 +210,7 @@ Then run `systemctl --user restart agent-watch.service`. Remove the service with
 
 ## Safety model
 
-Immediately before any input, Agent Watch re-reads and verifies:
+Immediately before any input, Agent While True re-reads and verifies:
 
 - the explicitly selected Konsole session;
 - PID, process start time, TTY, and provider classification;

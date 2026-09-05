@@ -3,8 +3,8 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "agent-budget-watch"
-description = "Conservative supervisor that resumes Codex/Claude Code sessions in KDE Konsole after a usage window resets."
+name = "agent-while-true"
+description = "Agent budget watch and babysitter for Codex and Claude Code sessions in KDE Konsole."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "GPL-3.0-only"
@@ -27,6 +27,7 @@ dependencies = []
 dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.6", "build>=1.2"]
 
 [project.scripts]
+agent-while-true = "agent_watch.cli:main"
 agent-watch = "agent_watch.cli:main"
 
 [project.urls]
