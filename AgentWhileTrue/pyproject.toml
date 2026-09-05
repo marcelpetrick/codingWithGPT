@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "agent-while-true"
 description = "Agent budget watch and babysitter for Codex and Claude Code sessions in KDE Konsole."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = "GPL-3.0-only"
 authors = [{ name = "Marcel Petrick", email = "mail@marcelpetrick.it" }]
 keywords = ["konsole", "kde", "claude-code", "codex", "rate-limit", "automation"]
@@ -61,7 +61,7 @@ exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:", "raise NotImplementedE
 [tool.ruff]
 line-length = 100
 src = ["src", "tests"]
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "PT", "RET", "SIM", "PTH", "RUF"]

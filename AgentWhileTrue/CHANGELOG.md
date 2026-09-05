@@ -7,6 +7,13 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.23.0] - 2026-09-05
+
+### Changed
+
+- Python 3.12 is now the explicit minimum in package metadata, contributor
+  guidance and Ruff's syntax target. CI covers Python 3.12 through 3.14.
+
 ## [0.22.0] - 2026-09-05
 
 ### Changed

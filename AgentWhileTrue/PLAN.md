@@ -17,7 +17,8 @@ without reconstructing history.
 - [x] v0.21.0: safely arm Claude's exact provider-owned automatic-wait menu.
 - [x] v0.22.0: rename the product to Agent While True while preserving compatibility.
 - [ ] Add the btop-inspired color TUI, help, pause, rescan and refresh keys.
-- [ ] Make Python 3.12 the documented, linted and CI-tested baseline.
+- [x] v0.23.0: make Python 3.12 the documented and linted baseline; CI will test
+  3.12 through 3.14 in its pipeline milestone.
 - [ ] Add `localPipeline.sh`, path-filtered GitHub quality/release workflows and
   README badges.
 - [ ] Run the full local pipeline, installed-wheel smoke test, live Konsole
