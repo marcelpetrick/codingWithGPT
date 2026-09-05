@@ -7,6 +7,22 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.4.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.terminal`: the `TerminalAdapter` protocol, so the supervisor is
+  not welded to one emulator and the state machine can be tested end to end.
+- `KonsoleAdapter`, driven through Konsole's per-session D-Bus interface
+  (`processId`, `foregroundProcessId`, `getAllDisplayedTextList`, `sendText`).
+  This is what makes the tool work under Wayland without `xdotool`, `ydotool`,
+  screen coordinates or OCR.
+- `FakeAdapter`, a scriptable in-memory terminal that records everything sent,
+  so idempotency and the danger scenarios can be asserted in milliseconds
+  instead of waiting hours for a real quota reset.
+- Scrollback is deliberately absent from the adapter interface: only a bounded
+  tail of the current screen can be read.
+
 ## [0.3.0] - 2026-09-05
 
 ### Added
