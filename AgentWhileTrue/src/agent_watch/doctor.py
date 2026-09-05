@@ -107,26 +107,45 @@ def check_qdbus() -> Check:
     return Check("qdbus", Status.OK, found)
 
 
-def check_konsole(adapter: KonsoleAdapter) -> tuple[Check, Check]:
+def check_konsole(adapter: KonsoleAdapter) -> tuple[Check, Check, Check]:
     if not adapter.is_available():
         unavailable = Check("Konsole D-Bus", Status.FAIL, "no session bus or no qdbus")
-        return unavailable, Check("Konsole sessions", Status.FAIL, "cannot enumerate")
+        return (
+            unavailable,
+            Check("Konsole sessions", Status.FAIL, "cannot enumerate"),
+            Check("Konsole input", Status.FAIL, "cannot probe"),
+        )
     try:
         services = adapter.services()
     except Exception as exc:  # a broken bus must not crash the diagnostic
         return (
             Check("Konsole D-Bus", Status.FAIL, type(exc).__name__),
             Check("Konsole sessions", Status.FAIL, "cannot enumerate"),
+            Check("Konsole input", Status.FAIL, "cannot probe"),
         )
     if not services:
         return (
             Check("Konsole D-Bus", Status.WARN, "no Konsole running"),
             Check("Konsole sessions", Status.WARN, "0 found"),
+            Check("Konsole input", Status.WARN, "no session to probe"),
         )
     sessions = adapter.list_sessions()
+    input_check = Check("Konsole input", Status.WARN, "no session to probe")
+    if sessions:
+        try:
+            # Empty text exercises the security permission without typing.
+            adapter.send_text(sessions[0].ref, "")
+            input_check = Check("Konsole input", Status.OK, "sendText permitted")
+        except Exception:
+            input_check = Check(
+                "Konsole input",
+                Status.FAIL,
+                "disabled; enable KonsoleWindow/EnableSecuritySensitiveDBusAPI and restart Konsole",
+            )
     return (
         Check("Konsole D-Bus", Status.OK, f"{len(services)} service(s)"),
         Check("Konsole sessions", Status.OK, f"{len(sessions)} session(s)"),
+        input_check,
     )
 
 
@@ -162,7 +181,7 @@ def run(
 ) -> list[Check]:
     """Run every diagnostic and return the results in display order."""
     adapter = adapter_factory()
-    konsole_bus, konsole_sessions = check_konsole(adapter)
+    konsole_bus, konsole_sessions, konsole_input = check_konsole(adapter)
     checks = [
         check_platform(),
         check_desktop(),
@@ -170,6 +189,7 @@ def run(
         check_qdbus(),
         konsole_bus,
         konsole_sessions,
+        konsole_input,
         check_agent("codex", "--version"),
         check_agent("claude", "--version"),
         check_optional("fzf"),

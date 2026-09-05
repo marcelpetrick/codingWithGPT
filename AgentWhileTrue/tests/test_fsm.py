@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from agent_watch.config import Config, Mode, Policy
+from agent_watch.quota import Availability
 from agent_watch.states import ActionState, SessionState
 from tests import harness as harness_module
 from tests import screens
@@ -34,6 +35,23 @@ def test_a_ready_prompt_is_resumed_with_a_single_enter(tmp_path: Path) -> None:
     decisions = kit.supervisor.tick()
     assert decisions[0].allowed
     assert kit.sent == [(SESSION, "\r")]
+
+
+def test_claude_limit_menu_arms_provider_auto_wait_and_verifies(tmp_path: Path) -> None:
+    kit, _ = _claude_session(tmp_path, screen=list(screens.CLAUDE_LIMIT_MENU))
+    kit.quota["claude"].availability = Availability.EXHAUSTED
+
+    decisions = kit.supervisor.tick()
+    assert decisions[0].allowed
+    assert kit.sent == [(SESSION, "\x1b[B\r")]
+
+    kit.terminal.set_screen(SESSION, list(screens.CLAUDE_SELF_HEALING))
+    kit.clock.advance(5)
+    harness_module.refresh_quota(kit)
+    verified = kit.supervisor.tick()
+    assert verified[0].reason == "verify:armed-provider-wait"
+    session = kit.supervisor.sessions[kit.terminal.ref(SESSION).key()]
+    assert session.state is SessionState.WAITING_FOR_RESET
 
 
 def test_an_outstanding_action_is_not_repeated_while_it_is_unverified(tmp_path: Path) -> None:

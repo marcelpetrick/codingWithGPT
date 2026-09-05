@@ -382,6 +382,7 @@ AUTO_CONSUME_RESET_CREDIT=false
 
 # Claude resumes with a bare Enter on an explicit affordance. Codex has no such
 # affordance: resuming it means typing into the composer, so it is opt-in.
+ALLOW_CLAUDE_AUTO_WAIT=true
 ALLOW_CODEX_AUTO_RESUME=false
 """
 

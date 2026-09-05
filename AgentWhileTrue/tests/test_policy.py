@@ -17,6 +17,7 @@ from agent_watch.classify import Classification, Confidence, ProcessClass
 from agent_watch.config import Config, Mode, Policy
 from agent_watch.policy import Authorization, ResumeRequest, evaluate, idempotency_key
 from agent_watch.proc import ProcessIdentity
+from agent_watch.providers import ActionKind
 from agent_watch.quota import Availability, QuotaSnapshot, QuotaWindow
 from agent_watch.terminal.base import SessionRef
 from tests import screens
@@ -217,6 +218,23 @@ def test_a_blocked_claude_screen_offers_no_action_yet() -> None:
     decision = evaluate(make_request(recognition=_blocked_with_reset()))
     assert not decision.allowed
     assert decision.reason == "no-unambiguous-action-for-prompt"
+
+
+def test_claude_wait_menu_can_be_armed_only_with_fresh_exhausted_quota() -> None:
+    menu = providers.CLAUDE.recognise(screens.CLAUDE_LIMIT_MENU, now=NOW)
+    allowed = evaluate(make_request(recognition=menu, quota=QUOTA_EXHAUSTED))
+    assert allowed.allowed
+    assert allowed.action is not None
+    assert allowed.action.kind is ActionKind.ARROW_DOWN_THEN_ENTER
+
+    unknown = evaluate(make_request(recognition=menu, quota=QUOTA_UNKNOWN))
+    assert not unknown.allowed
+    assert unknown.reason == "usage-not-confirmed-available"
+
+    disabled = Config(mode=Mode.AUTO, policy=Policy(allow_claude_auto_wait=False))
+    refused = evaluate(make_request(config=disabled, recognition=menu, quota=QUOTA_EXHAUSTED))
+    assert not refused.allowed
+    assert refused.reason == "action-requires-policy:allow_claude_auto_wait"
 
 
 def test_a_refusal_still_says_when_to_look_again() -> None:

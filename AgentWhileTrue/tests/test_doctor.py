@@ -20,7 +20,7 @@ def test_doctor_runs_end_to_end_without_kde(tmp_path: Path, monkeypatch) -> None
         _config(tmp_path), adapter_factory=lambda: StubbedKonsole(qdbus="/bin/true")
     )
     names = {check.name for check in checks}
-    assert {"Linux", "KDE Plasma", "qdbus", "Konsole D-Bus", "Auto mode"} <= names
+    assert {"Linux", "KDE Plasma", "qdbus", "Konsole D-Bus", "Konsole input", "Auto mode"} <= names
     # The three directories can resolve to the same path; the rows must still
     # say which is which.
     assert {"State dir", "Runtime dir", "Log dir"} <= names

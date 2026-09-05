@@ -7,6 +7,23 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.21.0] - 2026-09-05
+
+### Added
+
+- Auto mode can arm Claude Code's own `Wait here, then continue automatically`
+  choice when the exact tested menu has item 1 visibly selected and fresh quota
+  confirms the session window is exhausted.
+- The action sends one Down sequence and Enter, revalidates the complete screen
+  and process identity first, persists idempotency before sending, and verifies
+  Claude's self-healing state afterwards.
+
+### Safety
+
+- Unknown/stale quota, a changed cursor or menu, disabled
+  `ALLOW_CLAUDE_AUTO_WAIT`, and every non-exact prompt refuse the menu action.
+  The adjacent paid upgrade remains forbidden.
+
 ## [0.20.0] - 2026-09-05
 
 ### Added

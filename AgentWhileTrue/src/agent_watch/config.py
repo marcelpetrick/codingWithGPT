@@ -95,6 +95,9 @@ class Policy:
     auto_use_paid_credits: bool = False
     auto_buy_credits: bool = False
     auto_consume_reset_credit: bool = False
+    #: Select Claude's exact non-paid "wait here, then continue automatically"
+    #: menu item while the provider confirms the session window is exhausted.
+    allow_claude_auto_wait: bool = True
     #: Claude's resume is a bare Enter on an explicit "press enter to continue"
     #: affordance. Codex has no such affordance: resuming means typing text into
     #: the composer, which is strictly more dangerous, so it stays opt-in.
@@ -156,6 +159,7 @@ _KEYS: dict[str, tuple[str, str]] = {
     "AUTO_USE_PAID_CREDITS": ("policy.auto_use_paid_credits", "bool"),
     "AUTO_BUY_CREDITS": ("policy.auto_buy_credits", "bool"),
     "AUTO_CONSUME_RESET_CREDIT": ("policy.auto_consume_reset_credit", "bool"),
+    "ALLOW_CLAUDE_AUTO_WAIT": ("policy.allow_claude_auto_wait", "bool"),
     "ALLOW_CODEX_AUTO_RESUME": ("policy.allow_codex_auto_resume", "bool"),
 }
 

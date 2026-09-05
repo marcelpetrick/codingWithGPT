@@ -3,6 +3,27 @@
 Derived from [vision.md](vision.md). This plan records the decisions taken before
 implementation, the evidence they rest on, and the commit sequence.
 
+## Current execution plan
+
+This checklist is updated in every commit so the next useful action is visible
+without reconstructing history.
+
+- [x] v0.15.0: runnable safety scenarios and end-to-end supervisor baseline.
+- [x] v0.16.0: live provider availability, errors, usage and reset query.
+- [x] v0.17.0: concurrent-safe Claude capture and observe-only user service.
+- [x] v0.18.0: README, package build and project-local contributor guidance.
+- [x] v0.19.0: find live Codex quota through its Node launcher.
+- [x] v0.20.0: backup-preserving Claude bridge installer.
+- [x] v0.21.0: safely arm Claude's exact provider-owned automatic-wait menu.
+- [ ] Rename the product to Agent While True while preserving compatibility.
+- [ ] Add the btop-inspired color TUI, help, pause, rescan and refresh keys.
+- [ ] Make Python 3.12 the documented, linted and CI-tested baseline.
+- [ ] Add `localPipeline.sh`, path-filtered GitHub quality/release workflows and
+  README badges.
+- [ ] Run the full local pipeline, installed-wheel smoke test, live Konsole
+  validation and safety simulations.
+- [ ] Push `master`, create the verified release tag, and confirm GitHub Actions.
+
 ## 0. Evidence gathered before planning
 
 All of the following was verified on the target machine (Manjaro, KDE Plasma,

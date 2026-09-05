@@ -56,6 +56,9 @@ class ActionKind(enum.StrEnum):
     #: Type text, then press Enter. Strictly more dangerous, because if the
     #: foreground process changed the text lands in a shell.
     TEXT_THEN_ENTER = "TEXT_THEN_ENTER"
+    #: Move from a visibly selected first menu item to the exact safe second
+    #: item and confirm it. Used only to arm Claude's own automatic wait.
+    ARROW_DOWN_THEN_ENTER = "ARROW_DOWN_THEN_ENTER"
 
 
 @dataclass(frozen=True, slots=True)
@@ -73,6 +76,8 @@ class ResumeAction:
         """The exact bytes to hand to the terminal adapter."""
         if self.kind is ActionKind.ENTER:
             return "\r"
+        if self.kind is ActionKind.ARROW_DOWN_THEN_ENTER:
+            return "\x1b[B\r"
         return f"{self.text}\r"
 
 

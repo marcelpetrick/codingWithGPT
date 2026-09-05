@@ -24,7 +24,7 @@ from datetime import datetime, timedelta
 from agent_watch.classify import Classification
 from agent_watch.config import Config, Mode
 from agent_watch.proc import ProcessIdentity
-from agent_watch.providers.base import Recognition, ResumeAction
+from agent_watch.providers.base import ActionKind, Recognition, ResumeAction
 from agent_watch.quota import Availability, QuotaSnapshot
 from agent_watch.states import SessionState
 from agent_watch.terminal.base import SessionRef
@@ -157,8 +157,16 @@ def _check_recognised_prompt(request: ResumeRequest) -> str | None:
 
 
 def _check_no_veto(request: ResumeRequest) -> str | None:
-    if request.recognition.vetoes:
-        return request.recognition.vetoes[0]
+    vetoes = request.recognition.vetoes
+    action = request.recognition.action
+    if action is not None and action.kind is ActionKind.ARROW_DOWN_THEN_ENTER:
+        # The exact menu action selects item 2. Merely displaying item 3's paid
+        # upgrade is therefore not ambiguous, but every other veto still is.
+        vetoes = tuple(
+            veto for veto in vetoes if veto != "paid-action-required:claude/upgrade-plan-offer"
+        )
+    if vetoes:
+        return vetoes[0]
     return None
 
 
@@ -199,6 +207,9 @@ def _check_attempts(request: ResumeRequest) -> str | None:
 
 def _check_no_other_limit(request: ResumeRequest) -> str | None:
     """A reset of one window must not resume a session another window blocks."""
+    action = request.recognition.action
+    if action is not None and action.kind is ActionKind.ARROW_DOWN_THEN_ENTER:
+        return None
     still_exhausted = request.quota.exhausted_scopes
     if not still_exhausted:
         return None
@@ -255,6 +266,14 @@ def authorization_for(request: ResumeRequest) -> tuple[Authorization, datetime |
     """
     quota = request.quota
     fresh = not quota.is_stale(request.now)
+    action = request.recognition.action
+
+    # Arming Claude's own wait is intentionally done while the provider says
+    # the session limit is exhausted. It is not a claim that usage returned.
+    if action is not None and action.kind is ActionKind.ARROW_DOWN_THEN_ENTER:
+        if fresh and quota.availability is Availability.EXHAUSTED:
+            return Authorization.PROVIDER_CONFIRMED, None
+        return Authorization.NONE, None
 
     if fresh and quota.availability is Availability.EXHAUSTED:
         return Authorization.NONE, _resume_at(request)

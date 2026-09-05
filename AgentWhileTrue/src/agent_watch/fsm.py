@@ -475,22 +475,29 @@ class Supervisor:
             session.state = SessionState.PROCESS_GONE
             return Decision(allowed=False, reason="verify:process-gone")
 
-        resumed = observation.recognition.state in {
+        armed_self_resume = "claude/self-healing" in observation.recognition.matched_ids
+        resumed = armed_self_resume or observation.recognition.state in {
             SessionState.ACTIVE,
             SessionState.LIMIT_WARNING,
         }
         if resumed:
-            self.store.mark(key, ActionState.VERIFIED, result="resumed")
-            session.state = observation.recognition.state
+            result = "armed-provider-wait" if armed_self_resume else "resumed"
+            self.store.mark(key, ActionState.VERIFIED, result=result)
+            session.state = (
+                SessionState.WAITING_FOR_RESET
+                if armed_self_resume
+                else observation.recognition.state
+            )
             session.pending_key = ""
             session.attempts_since_success = 0
             self.log.info(
                 "resume_verified",
                 provider=session.provider_name,
                 session=session.ref.key(),
-                result="resumed",
+                result=result,
             )
-            return Decision(allowed=True, reason="resume-verified")
+            reason = "verify:armed-provider-wait" if armed_self_resume else "resume-verified"
+            return Decision(allowed=True, reason=reason)
 
         attempts = self.store.attempts_for(key)
         self.store.mark(key, ActionState.FAILED, result="still-blocked")

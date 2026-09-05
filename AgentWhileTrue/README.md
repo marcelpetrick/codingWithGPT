@@ -6,13 +6,14 @@ blocked session after usage becomes available again—only when the terminal,
 process identity, prompt, quota source, and configured policy all agree.
 
 The current target is Manjaro/Arch Linux, KDE Plasma, Konsole, Wayland or X11,
-and Python 3.11 or newer. Runtime code uses only the Python standard library.
+and Python 3.12 or newer. Runtime code uses only the Python standard library.
 
 ![Claude Code session-limit menu](media/claude_out_of_quota.png)
 
-This real prompt is deliberately fail-closed. Agent Watch detects the limit and
-reset time, but never selects “continue automatically” or “upgrade your plan.”
-Claude is resumed only from its explicit `press enter to continue` prompt.
+This real prompt is handled narrowly. With fresh quota confirming the session is
+exhausted, auto mode may move from the visibly selected first item to the exact
+“continue automatically” item and confirm it. It never selects “upgrade your
+plan.” Any different menu, cursor position, or unknown quota fails closed.
 
 ## Install
 
@@ -56,6 +57,19 @@ provider data is unavailable. Unknown or stale quota data never authorizes input
 
 ## Watch sessions
 
+Konsole disables input-capable D-Bus calls by default on current releases.
+Enable the setting once, then restart Konsole before using ask or auto mode:
+
+```bash
+kwriteconfig6 --file konsolerc --group KonsoleWindow \
+  --key EnableSecuritySensitiveDBusAPI true
+```
+
+This permission lets programs running as your desktop user type into Konsole,
+which is why Agent While True layers process identity, exact prompt recognition,
+policy, idempotency and immediate revalidation on top. `agent-watch doctor`
+probes the permission with an empty string and blocks auto mode if it is off.
+
 Start with observe mode. It runs the complete detection path but cannot type:
 
 ```bash
@@ -70,8 +84,10 @@ agent-watch run --auto      # select sessions; resume only policy-approved promp
 agent-watch simulate --all  # exercise the built-in danger scenarios
 ```
 
-Claude continuation is a bare Enter only when Claude explicitly asks for it.
-Codex has no equivalent affordance, so Codex auto-resume remains disabled unless
+Claude continuation is normally a bare Enter only when Claude explicitly asks
+for it. Its exact three-choice menu may also be armed so Claude itself continues
+at reset; set `ALLOW_CLAUDE_AUTO_WAIT=false` to disable that behavior. Codex has
+no equivalent affordance, so Codex auto-resume remains disabled unless
 `ALLOW_CODEX_AUTO_RESUME=true` is intentionally configured. Model downgrades,
 paid credits, purchases, upgrades, and reset-credit redemption are never enabled
 by the supplied configuration.

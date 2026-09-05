@@ -32,12 +32,13 @@ def test_claude_session_limit_screen_also_flags_the_paid_offer() -> None:
     assert any(veto.startswith("paid-action-required") for veto in result.vetoes)
 
 
-def test_real_claude_limit_menu_is_blocked_but_never_selected() -> None:
-    """The menu in media/claude_out_of_quota.png is evidence, not an action affordance."""
+def test_real_claude_limit_menu_proposes_only_the_safe_wait_choice() -> None:
     result = providers.CLAUDE.recognise(screens.CLAUDE_LIMIT_MENU, now=NOW)
     assert result.state is SessionState.LIMIT_BLOCKED
     assert result.reset_at == datetime(2026, 9, 6, 3, 20, tzinfo=BERLIN)
-    assert result.action is None
+    assert result.action is not None
+    assert result.action.kind is ActionKind.ARROW_DOWN_THEN_ENTER
+    assert result.action.keystrokes() == "\x1b[B\r"
     assert "claude/limit-session" in result.matched_ids
     assert "claude/upgrade-plan-offer" in result.matched_ids
     assert "claude/self-healing" not in result.matched_ids
@@ -58,6 +59,17 @@ def test_claude_ready_to_resume_proposes_a_bare_enter() -> None:
 def test_claude_self_healing_screen_vetoes_action() -> None:
     result = providers.CLAUDE.recognise(screens.CLAUDE_SELF_HEALING, now=NOW)
     assert any(veto.startswith("provider-resumes-itself") for veto in result.vetoes)
+
+
+def test_claude_timed_self_healing_status_vetoes_action() -> None:
+    screen = [
+        "Claude Code will continue automatically at 3:20am. Keep this session open.",
+        "⚠ Usage limit reached · continuing automatically at 3:20am · esc to cancel",
+    ]
+    result = providers.CLAUDE.recognise(screen, now=NOW)
+    assert "claude/self-healing-timed" in result.matched_ids
+    assert any(veto.startswith("provider-resumes-itself") for veto in result.vetoes)
+    assert result.action is None
 
 
 def test_claude_weekly_limit_is_a_separate_scope() -> None:

@@ -34,8 +34,9 @@ when recognizer behavior changes.
   before `sendText`.
 - Never automate upgrades, purchases, paid credits, reset credits, or model
   downgrades.
-- Never select Claude's limit-options menu. Only a verified explicit
-  `press enter to continue` affordance permits Claude's bare Enter action.
+- Select Claude's automatic-wait item only for the exact tested menu with the
+  cursor visibly on item 1, safe item 2, fresh exhausted quota, and
+  `allow_claude_auto_wait`; every variation fails closed.
 - Codex resume types into its composer and therefore remains opt-in.
 - Never log terminal contents, environment values, credentials, or prompt text.
 - Preserve the persisted action lifecycle and single-instance lock.

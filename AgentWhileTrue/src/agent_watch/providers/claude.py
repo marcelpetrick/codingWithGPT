@@ -29,7 +29,7 @@ from agent_watch.providers.base import (
 )
 
 NAME: Final = "claude"
-PATTERNS_VERSION: Final = "claude-2.1.x/1"
+PATTERNS_VERSION: Final = "claude-2.1.x/2"
 VERIFIED_AGAINST: Final = "Claude Code 2.1.261"
 
 
@@ -94,6 +94,26 @@ PATTERNS: Final[tuple[PromptPattern, ...]] = (
         verified_against=VERIFIED_AGAINST,
     ),
     PromptPattern(
+        id="claude/arm-automatic-wait",
+        provider=NAME,
+        kind=PromptKind.LIMIT_BLOCKED,
+        scope="session",
+        all_of=(
+            _pattern(
+                r"\N{HEAVY RIGHT-POINTING ANGLE QUOTATION MARK ORNAMENT}"
+                r"\s*1\.\s*Stop and wait for limit to reset"
+            ),
+            _pattern(r"2\.\s*Wait here, then continue automatically"),
+            _pattern(r"Enter to confirm"),
+        ),
+        action=ResumeAction(
+            kind=ActionKind.ARROW_DOWN_THEN_ENTER,
+            requires_policy="allow_claude_auto_wait",
+        ),
+        note="Exact menu and cursor position required; selects only Claude's own wait mode.",
+        verified_against=VERIFIED_AGAINST,
+    ),
+    PromptPattern(
         id="claude/ready-press-enter",
         provider=NAME,
         kind=PromptKind.READY_TO_RESUME,
@@ -116,6 +136,20 @@ PATTERNS: Final[tuple[PromptPattern, ...]] = (
         scope="session",
         all_of=(_pattern(r"[Cc]ontinuing automatically when (?:your limit|it) resets"),),
         note="Claude Code 2.1.234+ resumes itself; the supervisor must stand down.",
+        verified_against=VERIFIED_AGAINST,
+    ),
+    PromptPattern(
+        id="claude/self-healing-timed",
+        provider=NAME,
+        kind=PromptKind.SELF_HEALING,
+        scope="session",
+        all_of=(
+            _pattern(
+                r"(?:Claude Code will continue|continuing) automatically at "
+                r"\d{1,2}[:.]\d{2}(?:am|pm)"
+            ),
+        ),
+        note="Timed automatic wait is already armed; the supervisor must stand down.",
         verified_against=VERIFIED_AGAINST,
     ),
     PromptPattern(

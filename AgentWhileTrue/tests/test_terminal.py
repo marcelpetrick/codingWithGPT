@@ -38,6 +38,12 @@ QDBUS_RESPONSES = {
         "org.kde.konsole.Session.getAllDisplayedTextList",
         "true",
     ): "one\ntwo\nthree\nfour\n",
+    (
+        "org.kde.konsole-4452",
+        "/Sessions/1",
+        "org.kde.konsole.Session.sendText",
+        "",
+    ): "",
 }
 
 
