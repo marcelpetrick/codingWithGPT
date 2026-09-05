@@ -40,7 +40,7 @@ from agent_watch.policy import Decision
 from agent_watch.quota import default_sources
 from agent_watch.state_store import StateStore
 from agent_watch.terminal.konsole import KonsoleAdapter
-from agent_watch.ui import render_line, render_status
+from agent_watch.ui import render_line, render_quota, render_status
 from agent_watch.version import __version__
 
 EXIT_OK = 0
@@ -97,6 +97,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     subparsers.add_parser("status", help="list Konsole sessions and how they classify")
+    subparsers.add_parser("quota", help="show provider availability, errors and reset times")
     subparsers.add_parser("doctor", help="check whether this environment is supported")
     subparsers.add_parser("init", help="write a default config file")
     subparsers.add_parser("config", help="show the effective configuration")
@@ -301,6 +302,30 @@ def command_status(config: Config, stream) -> int:
     return EXIT_OK
 
 
+def command_quota(config: Config, stream) -> int:
+    """Query live quota sources for every detected agent session."""
+    adapter = KonsoleAdapter()
+    if not adapter.is_available():
+        stream.write("Konsole D-Bus is not reachable. Run 'agent-watch doctor'.\n")
+        return EXIT_ERROR
+    candidates = [
+        candidate for candidate in discover(adapter, SystemInspector()) if candidate.eligible
+    ]
+    if not candidates:
+        stream.write("No Codex or Claude sessions found.\n")
+        return EXIT_OK
+    sources = default_sources(config.resolved_state_dir())
+    now = datetime.now(UTC)
+    for index, candidate in enumerate(candidates):
+        if index:
+            stream.write("\n")
+        source = sources[candidate.provider or ""]
+        snapshot = source.snapshot(pid=candidate.session.foreground_pid)
+        identity = f"{candidate.tty} PID {candidate.session.foreground_pid}"
+        stream.write(render_quota(snapshot, now=now, identity=identity) + "\n")
+    return EXIT_OK
+
+
 def command_doctor(config: Config, stream) -> int:
     checks = doctor_module.run(config)
     stream.write(doctor_module.render(checks) + "\n")
@@ -420,6 +445,8 @@ def main(
         return command_run(config, args, out, reader)
     if args.command == "status":
         return command_status(config, out)
+    if args.command == "quota":
+        return command_quota(config, out)
     if args.command == "doctor":
         return command_doctor(config, out)
     if args.command == "init":

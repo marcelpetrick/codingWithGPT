@@ -7,6 +7,22 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.16.0] - 2026-09-05
+
+### Added
+
+- `agent-watch quota` reports live Codex and Claude availability, source errors,
+  usage percentages and reset times without sending terminal input.
+- The running status table and observe output show provider quota state beside
+  the independently recognised terminal prompt state.
+- A regression fixture transcribed from `media/claude_out_of_quota.png` covers
+  Claude Code's three-choice limit menu.
+
+### Safety
+
+- The menu's automatic-wait option is not mistaken for an already enabled
+  self-resume, and the paid upgrade choice is an explicit automation veto.
+
 ## [0.15.0] - 2026-09-05
 
 ### Added

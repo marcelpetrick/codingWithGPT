@@ -32,6 +32,18 @@ def test_claude_session_limit_screen_also_flags_the_paid_offer() -> None:
     assert any(veto.startswith("paid-action-required") for veto in result.vetoes)
 
 
+def test_real_claude_limit_menu_is_blocked_but_never_selected() -> None:
+    """The menu in media/claude_out_of_quota.png is evidence, not an action affordance."""
+    result = providers.CLAUDE.recognise(screens.CLAUDE_LIMIT_MENU, now=NOW)
+    assert result.state is SessionState.LIMIT_BLOCKED
+    assert result.reset_at == datetime(2026, 9, 6, 3, 20, tzinfo=BERLIN)
+    assert result.action is None
+    assert "claude/limit-session" in result.matched_ids
+    assert "claude/upgrade-plan-offer" in result.matched_ids
+    assert "claude/self-healing" not in result.matched_ids
+    assert any(veto.startswith("paid-action-required") for veto in result.vetoes)
+
+
 def test_claude_ready_to_resume_proposes_a_bare_enter() -> None:
     result = providers.CLAUDE.recognise(screens.CLAUDE_READY_TO_RESUME, now=NOW)
     assert result.state is SessionState.READY_TO_RESUME

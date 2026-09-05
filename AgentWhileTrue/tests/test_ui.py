@@ -7,9 +7,10 @@ from datetime import UTC, datetime, timedelta
 from agent_watch.config import Config, Mode
 from agent_watch.fsm import SupervisedSession
 from agent_watch.proc import ProcessIdentity
+from agent_watch.quota import Availability, QuotaSnapshot, QuotaWindow
 from agent_watch.states import SessionState
 from agent_watch.terminal.base import SessionRef
-from agent_watch.ui import format_reset, render_line, render_status
+from agent_watch.ui import format_reset, render_line, render_quota, render_status
 
 NOW = datetime(2026, 9, 5, 20, 0, tzinfo=UTC)
 REF = SessionRef("konsole", "org.kde.konsole-1", "/Sessions/2")
@@ -34,6 +35,7 @@ def test_status_lists_each_session() -> None:
     assert "15102" in text
     assert "mode=auto" in text
     assert "watching 1 session" in text
+    assert "QUOTA" in text
 
 
 def test_status_handles_nothing_selected() -> None:
@@ -58,9 +60,26 @@ def test_observe_line_shape() -> None:
     line = render_line(_session(state=SessionState.LIMIT_BLOCKED), NOW)
     assert "claude pts/3: LIMIT_BLOCKED" in line
     assert "until" in line
+    assert "quota=UNKNOWN" in line
 
 
 def test_observe_line_for_an_active_session_has_no_until() -> None:
     line = render_line(_session(state=SessionState.ACTIVE, reset_at=None), NOW)
     assert "ACTIVE" in line
     assert "until" not in line
+
+
+def test_quota_view_shows_usage_reset_and_errors() -> None:
+    snapshot = QuotaSnapshot(
+        provider="claude",
+        availability=Availability.EXHAUSTED,
+        source="statusline",
+        observed_at=NOW,
+        windows=(QuotaWindow("session", 100.0, NOW + timedelta(hours=1)),),
+        note="limit-reached",
+    )
+    text = render_quota(snapshot, now=NOW, identity="pts/3 PID 12")
+    assert "EXHAUSTED" in text
+    assert "100.0%" in text
+    assert "23:00" in text
+    assert "limit-reached" in text

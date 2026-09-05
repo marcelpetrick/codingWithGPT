@@ -12,13 +12,14 @@ from datetime import datetime
 
 from agent_watch.config import Config
 from agent_watch.fsm import SupervisedSession
+from agent_watch.quota import Availability, QuotaSnapshot
 from agent_watch.states import SessionState
 from agent_watch.version import __version__
 
 CLEAR_SCREEN = "\x1b[H\x1b[2J"
 
-_HEADERS = ("ID", "TYPE", "STATE", "RESET", "PID", "SESSION")
-_WIDTHS = (4, 8, 20, 10, 8, 0)
+_HEADERS = ("ID", "TYPE", "STATE", "PROMPT", "QUOTA", "Q.RESET", "PID", "SESSION")
+_WIDTHS = (4, 8, 20, 8, 10, 8, 8, 0)
 
 
 def format_reset(reset_at: datetime | None, now: datetime) -> str:
@@ -44,6 +45,32 @@ def _row(values: Sequence[str]) -> str:
     return " ".join(parts).rstrip()
 
 
+def quota_state(snapshot: QuotaSnapshot, now: datetime) -> str:
+    """Render availability without presenting stale data as authoritative."""
+    if snapshot.availability is not Availability.UNKNOWN and snapshot.is_stale(now):
+        return "STALE"
+    return snapshot.availability.value
+
+
+def render_quota(snapshot: QuotaSnapshot, *, now: datetime, identity: str = "") -> str:
+    """Render a provider snapshot for the ``quota`` query command."""
+    lines = [
+        f"{snapshot.provider.title()} {identity}".rstrip(),
+        f"  availability: {quota_state(snapshot, now)}",
+        f"  source:       {snapshot.source}",
+    ]
+    if snapshot.note:
+        lines.append(f"  detail:       {snapshot.note}")
+    if not snapshot.windows:
+        lines.append("  windows:      no usable data")
+    for window in snapshot.windows:
+        lines.append(
+            f"  {window.scope:<12} {window.used_percent:>6.1f}%  "
+            f"reset {format_reset(window.resets_at, now)}"
+        )
+    return "\n".join(lines)
+
+
 def render_status(
     sessions: Iterable[SupervisedSession],
     *,
@@ -67,6 +94,8 @@ def render_status(
                     session.provider_name.title(),
                     session.state.value,
                     format_reset(session.reset_at, now),
+                    quota_state(session.quota, now),
+                    format_reset(session.quota.next_reset, now),
                     str(session.identity.pid),
                     session.title or session.ref.session_id,
                 )
@@ -89,4 +118,6 @@ def render_line(session: SupervisedSession, now: datetime) -> str:
         suffix = f" until {format_reset(session.reset_at, now)}"
     return (
         f"[{stamp}] {session.provider_name} {session.identity.tty}: {session.state.value}{suffix}"
+        f" quota={quota_state(session.quota, now)}"
+        f" quota_reset={format_reset(session.quota.next_reset, now)}"
     )

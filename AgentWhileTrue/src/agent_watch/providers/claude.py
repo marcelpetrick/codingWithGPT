@@ -146,6 +146,15 @@ PATTERNS: Final[tuple[PromptPattern, ...]] = (
         verified_against=VERIFIED_AGAINST,
     ),
     PromptPattern(
+        id="claude/upgrade-plan-offer",
+        provider=NAME,
+        kind=PromptKind.PAID_ACTION_REQUIRED,
+        scope="credits",
+        all_of=(_pattern(r"Upgrade your plan"),),
+        note="Interactive paid upgrade choice. Never selected automatically.",
+        verified_against=VERIFIED_AGAINST,
+    ),
+    PromptPattern(
         id="claude/model-downgrade",
         provider=NAME,
         kind=PromptKind.MODEL_DOWNGRADE_OFFER,

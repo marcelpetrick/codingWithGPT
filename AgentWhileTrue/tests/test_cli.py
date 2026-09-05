@@ -187,6 +187,14 @@ def test_status_lists_classified_sessions(sandbox: Path, out: io.StringIO, monke
     assert str(PID) in out.getvalue()
 
 
+def test_quota_reports_source_failure(sandbox: Path, out: io.StringIO, monkeypatch) -> None:
+    _fake_world(monkeypatch)
+    assert main(["quota"], stream=out) == EXIT_OK
+    assert "Claude pts/3" in out.getvalue()
+    assert "UNKNOWN" in out.getvalue()
+    assert "no-statusline-file" in out.getvalue()
+
+
 def test_bare_invocation_runs(sandbox: Path, out: io.StringIO, monkeypatch) -> None:
     terminal = _fake_world(monkeypatch)
     # No subcommand at all still has `run`'s defaults available.

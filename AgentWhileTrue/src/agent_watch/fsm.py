@@ -117,6 +117,9 @@ class SupervisedSession:
     #: prompt; this counts them per session, so a screen that keeps changing
     #: cannot mint a fresh attempt budget on every tick.
     attempts_since_success: int = 0
+    quota: QuotaSnapshot = field(
+        default_factory=lambda: unknown("unknown", "none", "not-observed-yet")
+    )
 
     @property
     def marked_unsafe(self) -> bool:
@@ -365,6 +368,7 @@ class Supervisor:
             session.last_fingerprint = observation.recognition.screen_fingerprint
         session.last_reason = decision.reason
         session.next_check_at = decision.retry_at
+        session.quota = observation.quota
 
         if session.state is not previous:
             self.log.info(

@@ -17,6 +17,21 @@ CLAUDE_SESSION_LIMIT = [
     "❯ ",
 ]
 
+CLAUDE_LIMIT_MENU = [
+    "  Ran 2 shell commands",
+    "  └ You've hit your session limit · resets 3:20am (Europe/Berlin)",
+    "",
+    "* Sautéed for 35m 7s · done 11:07 PM",
+    "",
+    "   What do you want to do?",
+    "",
+    "   ❯ 1. Stop and wait for limit to reset",
+    "     2. Wait here, then continue automatically at 3:20am",
+    "     3. Upgrade your plan",
+    "",
+    "   Enter to confirm · Esc to cancel",
+]
+
 CLAUDE_READY_TO_RESUME = [
     "  ⎿  You've hit your session limit · resets 8:10pm (Europe/Berlin)",
     "",
