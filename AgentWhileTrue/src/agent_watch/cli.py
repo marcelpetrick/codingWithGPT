@@ -205,9 +205,11 @@ def command_run(
     supervisor = _build_supervisor(config, args, stream, reader)
     inspector = SystemInspector()
     candidates = discover(supervisor.terminal, inspector)
-    if not candidates:
+    if not candidates and not args.all:
         stream.write("No Konsole sessions found. Run 'agent-watch doctor' for details.\n")
         return EXIT_ERROR
+    if not candidates:
+        stream.write("No agent sessions yet; waiting because --all was specified.\n")
 
     chosen = _select_sessions(config, candidates, watch_all=args.all, stream=stream, reader=reader)
     if chosen is None:
@@ -222,7 +224,7 @@ def command_run(
             candidate.provider,
             candidate.session.title,
         )
-    if not supervisor.sessions:
+    if not supervisor.sessions and not args.all:
         stream.write("Nothing selected.\n")
         return EXIT_OK
 
@@ -257,6 +259,8 @@ def _loop(supervisor: Supervisor, config: Config, args: argparse.Namespace, stre
     last_event = ""
     while not stop["requested"]:
         supervisor.prune_and_rebind()
+        if args.all:
+            _sync_all_sessions(supervisor)
         decisions = supervisor.tick()
         now = datetime.now(UTC)
         if config.mode is Mode.OBSERVE:
@@ -275,6 +279,27 @@ def _loop(supervisor: Supervisor, config: Config, args: argparse.Namespace, stre
             return EXIT_OK
         time.sleep(config.scan_interval)
     return EXIT_INTERRUPTED
+
+
+def _sync_all_sessions(supervisor: Supervisor) -> None:
+    """Select newly discovered agents when the user explicitly chose ``--all``.
+
+    Replacing a changed process identity is limited to this explicit mode. An
+    interactive selection never silently transfers to a later process in the
+    same Konsole tab.
+    """
+    for candidate in discover(supervisor.terminal, supervisor.inspector):
+        if not candidate.eligible or candidate.info is None or candidate.provider is None:
+            continue
+        current = supervisor.sessions.get(candidate.key)
+        if current is not None and current.identity == candidate.info.identity:
+            continue
+        supervisor.select(
+            candidate.session.ref,
+            candidate.info.identity,
+            candidate.provider,
+            candidate.session.title,
+        )
 
 
 def _summarise(sessions, decisions: Sequence[Decision]) -> str:

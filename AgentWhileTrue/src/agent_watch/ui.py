@@ -106,7 +106,7 @@ def render_status(
     lines.append("")
     if last_event:
         lines.append(f" Last: {last_event}")
-    lines.append(" [r] rescan  [s] sessions  [l] log  [p] pause  [q] quit")
+    lines.append(" Sessions rescan automatically; Ctrl-C stops the watcher")
     return "\n".join(lines)
 
 

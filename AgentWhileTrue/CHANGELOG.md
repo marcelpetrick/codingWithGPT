@@ -7,6 +7,24 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.17.0] - 2026-09-05
+
+### Added
+
+- Explicit `--all` watchers stay alive with no initial sessions and safely add
+  eligible Codex and Claude processes discovered later.
+- An observe-only systemd user unit and installer. Automatic terminal input is
+  never enabled merely by installing the service.
+- Subprocess coverage for Claude quota capture, command chaining, malformed
+  input and concurrent status-line writers.
+
+### Fixed
+
+- Claude status-line writes now use unique owner-only temporary files before an
+  atomic replace, preventing multiple Claude sessions from racing over one
+  shared temporary path.
+- The status view no longer advertises unimplemented keyboard shortcuts.
+
 ## [0.16.0] - 2026-09-05
 
 ### Added

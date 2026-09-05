@@ -132,6 +132,31 @@ def test_no_sessions_is_reported_clearly(sandbox: Path, out: io.StringIO, monkey
     assert "No Konsole sessions found" in out.getvalue()
 
 
+def test_all_mode_can_start_before_an_agent_exists(
+    sandbox: Path, out: io.StringIO, monkeypatch
+) -> None:
+    monkeypatch.setattr(cli, "KonsoleAdapter", FakeAdapter)
+    monkeypatch.setattr(cli, "SystemInspector", harness_module.FakeInspector)
+    assert main(["run", "--observe", "--all", "--once"], stream=out) == EXIT_OK
+    assert "waiting because --all" in out.getvalue()
+
+
+def test_all_mode_discovers_new_agents(tmp_path: Path) -> None:
+    kit = harness_module.build(tmp_path)
+    inspector = kit.inspector
+    terminal = kit.terminal
+    supervisor = kit.supervisor
+    assert supervisor.sessions == {}
+
+    info = inspector.add_claude(PID)
+    terminal.add("/Sessions/1", shell_pid=100, foreground_pid=PID, title="new claude")
+    cli._sync_all_sessions(supervisor)
+
+    selected = next(iter(supervisor.sessions.values()))
+    assert selected.identity == info.identity
+    assert selected.provider_name == "claude"
+
+
 def test_a_second_instance_is_refused_but_observe_is_not(
     sandbox: Path, out: io.StringIO, monkeypatch
 ) -> None:
