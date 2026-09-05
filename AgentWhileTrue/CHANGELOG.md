@@ -7,6 +7,20 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.3.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.classify`: foreground-process classification into CODEX, CLAUDE,
+  SHELL, SSH, TMUX, SCREEN, CONTAINER, EDITOR or UNKNOWN.
+- A CODEX or CLAUDE verdict needs at least two independent signals before it may
+  drive automation, because wrappers change: Codex ships as a Node shim whose
+  `comm` is `node` and whose real binary is a child process.
+- Blockers (container, SSH, tmux/screen, and multiplexer or SSH *ancestors*) are
+  evaluated before agent detection, so Claude running inside tmux is reported as
+  unsupported rather than as an automatable agent.
+- Contradictory provider evidence fails closed instead of picking a winner.
+
 ## [0.2.0] - 2026-09-05
 
 ### Added
