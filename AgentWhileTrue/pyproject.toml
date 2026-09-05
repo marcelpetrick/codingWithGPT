@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-budget-watch"
+description = "Conservative supervisor that resumes Codex/Claude Code sessions in KDE Konsole after a usage window resets."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Marcel Petrick", email = "mail@marcelpetrick.it" }]
+keywords = ["konsole", "kde", "claude-code", "codex", "rate-limit", "automation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Utilities",
+]
+dynamic = ["version"]
+# Deliberately empty: the runtime uses only the standard library, so the tool
+# stays installable on a rolling-release distro without a dependency to break.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.6", "build>=1.2"]
+
+[project.scripts]
+agent-watch = "agent_watch.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/marcelpetrick/codingWithGPT/tree/master/AgentWhileTrue"
+Source = "https://github.com/marcelpetrick/codingWithGPT/tree/master/AgentWhileTrue"
+
+[tool.setuptools.dynamic]
+version = { attr = "agent_watch.version.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+agent_watch = ["py.typed"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+# src-layout: import the package under test without needing an editable install.
+pythonpath = ["src"]
+addopts = "-ra --strict-markers --strict-config"
+markers = ["konsole: requires a live KDE Konsole D-Bus session"]
+
+[tool.coverage.run]
+branch = true
+source = ["agent_watch"]
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:", "raise NotImplementedError"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "PT", "RET", "SIM", "PTH", "RUF"]
+ignore = [
+    # The resume gate reads as a deliberate list of named preconditions;
+    # collapsing its branches would hide the safety argument.
+    "SIM102",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]

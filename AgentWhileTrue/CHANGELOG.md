@@ -7,6 +7,16 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.1.0] - 2026-09-05
+
+### Added
+
+- Project scaffold: `src/`-layout package `agent_watch`, PEP 621 packaging with
+  the version read dynamically from `agent_watch.version`, and the
+  `agent-watch` console-script entry point.
+- Ruff, pytest and coverage configuration.
+- A test that fails the build when `CHANGELOG.md` and `__version__` disagree.
+
 ## [0.0.1] - 2026-09-05
 
 ### Added
