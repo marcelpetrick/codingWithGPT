@@ -7,6 +7,21 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.18.0] - 2026-09-05
+
+### Added
+
+- A complete README covering isolated installation, live quota queries, modes,
+  Claude status-line integration, the safe background service, troubleshooting,
+  simulations and the pre-input safety gate.
+- The real Claude limit-menu screenshot documents the prompt the recognizer's
+  regression fixture protects.
+
+### Fixed
+
+- Package metadata now identifies GPL-3.0-only, matching the enclosing
+  repository license instead of incorrectly claiming MIT.
+
 ## [0.17.0] - 2026-09-05
 
 ### Added

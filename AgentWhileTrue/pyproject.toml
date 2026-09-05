@@ -7,7 +7,7 @@ name = "agent-budget-watch"
 description = "Conservative supervisor that resumes Codex/Claude Code sessions in KDE Konsole after a usage window resets."
 readme = "README.md"
 requires-python = ">=3.11"
-license = "MIT"
+license = "GPL-3.0-only"
 authors = [{ name = "Marcel Petrick", email = "mail@marcelpetrick.it" }]
 keywords = ["konsole", "kde", "claude-code", "codex", "rate-limit", "automation"]
 classifiers = [
