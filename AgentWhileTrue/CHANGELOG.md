@@ -7,6 +7,21 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.13.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.ui`: the running status table and the one-line observe-mode
+  output. Plain text, no curses - pipe-able, greppable, and readable inside a
+  test failure.
+- A reset more than a day out renders as `+3d` rather than a bare clock time,
+  which would be actively misleading.
+- `agent_watch.doctor`: diagnostics for the platform, desktop, privileges,
+  qdbus, Konsole D-Bus and session enumeration, both agent CLIs, optional tools,
+  the three directories and the single-instance lock - ending with a straight
+  answer to the question the user actually has: whether auto mode is safe here.
+- Optional tools are reported, never failed; a missing `fzf` is information.
+
 ## [0.12.0] - 2026-09-05
 
 ### Added
