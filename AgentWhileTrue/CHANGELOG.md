@@ -7,6 +7,22 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.14.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.cli`: `run`, `status`, `doctor`, `init`, `config` and `logs`,
+  with `--observe` / `--ask` / `--auto`, `--all`, `--once` and `--no-fzf`.
+  Running bare runs.
+- Running under `sudo` aborts with an explanation unless `--allow-root` is
+  given: root is unnecessary, breaks access to the user's session bus, and makes
+  an incorrect keystroke more expensive.
+- The single-instance lock is taken only by modes that can send input, so a
+  read-only watcher can always be started alongside an automatic one.
+- `init` writes a commented config; a test asserts the tool can parse back what
+  it just wrote.
+- `SIGINT` and `SIGTERM` end the loop cleanly and release the lock.
+
 ## [0.13.0] - 2026-09-05
 
 ### Added
