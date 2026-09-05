@@ -7,6 +7,20 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.12.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.picker`: discovery, a built-in numbered multi-select picker, and
+  optional `fzf` support that degrades cleanly when `fzf` is absent.
+- Only high-confidence agent sessions are preselected, and an ineligible session
+  cannot be toggled on at all - with the reason shown next to it, so a refusal
+  is visible to the person making the choice.
+- A closed stdin ends the picker rather than accepting the preselection;
+  silence is not consent.
+- Discovery, toggling and rendering are pure functions, so the decision logic is
+  tested without a terminal.
+
 ## [0.11.0] - 2026-09-05
 
 ### Added
