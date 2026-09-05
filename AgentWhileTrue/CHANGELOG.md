@@ -7,6 +7,23 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.5.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.config`: layered configuration with the precedence the vision
+  specifies - defaults, then the config file, then the environment, then CLI
+  arguments.
+- The `KEY=VALUE` config file is *parsed*, never sourced. Sourcing it would hand
+  arbitrary code execution to anything that can write it, which is a poor trade
+  for a tool whose job is typing into terminals.
+- An unknown or malformed setting is an error rather than a silent fallback, so
+  a misspelled `RESET_GRACE` cannot quietly become 60 seconds.
+- Only `AGENT_WATCH_*` environment variables are honoured, so an unrelated
+  `MODE` in the environment cannot reconfigure the supervisor.
+- `Policy`, holding the money- and quality-affecting switches. All of them
+  default to off, including Codex auto-resume.
+
 ## [0.4.0] - 2026-09-05
 
 ### Added
