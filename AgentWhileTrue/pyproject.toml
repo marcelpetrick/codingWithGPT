@@ -77,3 +77,4 @@ ignore = [
 # normalising them would make the recognizer tests test the wrong thing.
 "tests/screens.py" = ["RUF001", "E501"]
 "tests/test_providers.py" = ["RUF001"]
+"tests/test_policy.py" = ["RUF001"]

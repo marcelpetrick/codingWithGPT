@@ -7,6 +7,26 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.9.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.policy`: the resume gate. Fourteen named preconditions, each
+  returning a refusal *reason* rather than a bare false, so a log reader can act
+  on a refusal instead of guessing at it.
+- `Authorization`, grading how strongly the evidence says usage returned:
+  `PROVIDER_CONFIRMED` (a fresh quota snapshot, or the provider's own "usage
+  limit has reset" affordance) outranks `TIME_ONLY` (a wall-clock reset plus the
+  grace period). Auto mode requires the former; ask mode will offer the latter;
+  observe mode acts on neither.
+- `idempotency_key()`: provider, session, process start time and screen
+  fingerprint, so one logical prompt yields at most one action and a restarted
+  agent in the same tab counts as a new prompt.
+- Every refusal carries `retry_at` when a reset time is known, so a session
+  blocked for four hours is not polled every two seconds.
+- The gate is handed a `ResumeRequest` and cannot fetch anything itself, so it
+  cannot depend on state the caller did not revalidate.
+
 ## [0.8.0] - 2026-09-05
 
 ### Added
