@@ -7,6 +7,25 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.8.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.quota`: provider quota state, kept separate from terminal state.
+- `CodexRolloutSource`: Codex keeps its session rollout `.jsonl` open, so the
+  file for a given PID can be located through `/proc/<pid>/fd`; each
+  `token_count` event carries a `rate_limits` object with the five-hour window,
+  the weekly window and credits. Machine-readable provider state, no TUI
+  parsing.
+- `ClaudeStatuslineSource`: reads the small document written by the status-line
+  proxy, carrying Claude Code's `five_hour` and `seven_day` usage and resets.
+- `Availability.UNKNOWN` for anything missing, stale, malformed or broken.
+  Unknown never means available.
+- Sources are failure-isolated by contract - `snapshot()` never raises - so a
+  broken Codex source cannot stop Claude monitoring.
+- `next_reset` returns the *last* exhausted window to clear, so a five-hour
+  reset cannot unblock a session whose weekly limit is still spent.
+
 ## [0.7.0] - 2026-09-05
 
 ### Added
