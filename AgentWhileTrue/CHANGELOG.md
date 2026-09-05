@@ -7,6 +7,28 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.11.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.fsm`: the supervisor - observe, decide, act, verify - and the
+  per-session state machine.
+- Revalidation before input: `act()` treats the decision as a proposal, re-reads
+  the foreground process, identity, session reference and screen, re-runs the
+  recognizer and the gate, and cancels on any drift.
+- Verification is a state with a deadline rather than a sleep, so one wedged
+  session cannot stall the others.
+- Suspend and clock-change detection by comparing wall-clock against monotonic
+  elapsed time across a tick; a divergence discards every pending schedule and
+  forces full revalidation.
+- A per-session attempt budget alongside the per-prompt one, so a screen that
+  keeps changing cannot mint a fresh budget on every tick.
+- A session marked unsafe stays unsafe; a later screen reading cannot quietly
+  promote it back.
+- `tests/harness.py`: a fake terminal, a fake process table and a clock whose
+  wall and monotonic hands move independently, so suspend, PID reuse, process
+  swap, wedged terminals and crash recovery are all covered in milliseconds.
+
 ## [0.10.0] - 2026-09-05
 
 ### Added

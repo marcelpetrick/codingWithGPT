@@ -11,6 +11,7 @@ asserted rather than assumed.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from agent_watch.terminal.base import (
@@ -47,6 +48,10 @@ class FakeAdapter(TerminalAdapter):
     sent: list[tuple[str, str]] = field(default_factory=list)
     #: Set to make ``send_text`` raise, modelling a wedged terminal.
     send_fails: bool = False
+    #: Called after every screen read. The hook exists so a scenario can change
+    #: the world *between* the supervisor observing and revalidating, which is
+    #: the window DANGER 2 lives in and is otherwise impossible to hit.
+    after_read: Callable[[str], None] | None = None
     name: str = ADAPTER_NAME
 
     # -- construction helpers ---------------------------------------------
@@ -110,7 +115,10 @@ class FakeAdapter(TerminalAdapter):
         session = self.sessions.get(ref.session_id)
         if session is None or session.closed:
             return []
-        return session.screen[-lines:]
+        visible = session.screen[-lines:]
+        if self.after_read is not None:
+            self.after_read(ref.session_id)
+        return visible
 
     def send_text(self, ref: SessionRef, text: str) -> None:
         session = self.sessions.get(ref.session_id)
