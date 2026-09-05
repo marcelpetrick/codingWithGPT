@@ -7,6 +7,24 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.10.0] - 2026-09-05
+
+### Added
+
+- `agent_watch.lock`: an advisory `flock` under `$XDG_RUNTIME_DIR`, so two
+  supervisors cannot each correctly decide to press Enter once and between them
+  press it twice. Observe mode does not take the lock, so a read-only watcher
+  can run alongside an automatic one.
+- `agent_watch.state_store`: the action lifecycle
+  `PLANNED -> SENT -> VERIFIED|FAILED`, persisted atomically. The record is
+  written *before* the keystroke, so a crash in between is read back as "may
+  already have been typed" and refuses rather than repeating.
+- Writes go through a temporary file, `fsync` and `os.replace`; a half-written
+  state file would read back as "nothing has been done yet", which is worse than
+  no file at all.
+- A corrupt or future-versioned state file starts empty instead of refusing to
+  run, and records older than 24 hours are dropped on load.
+
 ## [0.9.0] - 2026-09-05
 
 ### Added
