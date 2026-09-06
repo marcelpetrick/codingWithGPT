@@ -83,7 +83,7 @@ def test_quota_view_shows_usage_reset_and_errors() -> None:
     text = render_quota(snapshot, now=NOW, identity="pts/3 PID 12")
     assert "EXHAUSTED" in text
     assert "100.0%" in text
-    assert "23:00" in text
+    assert (NOW + timedelta(hours=1)).astimezone().strftime("%H:%M") in text
     assert "limit-reached" in text
 
 

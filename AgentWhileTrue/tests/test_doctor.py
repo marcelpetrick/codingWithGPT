@@ -41,7 +41,10 @@ def test_optional_tools_never_fail(tmp_path: Path) -> None:
     assert "optional" in check.detail
 
 
-def test_policy_disabled_downgrades_auto_mode(tmp_path: Path) -> None:
+def test_policy_disabled_downgrades_auto_mode(tmp_path: Path, monkeypatch) -> None:
+    # This test isolates the policy verdict from whether the host running the
+    # suite happens to have KDE's qdbus executable installed.
+    monkeypatch.setattr(doctor, "find_qdbus", lambda: "/bin/true")
     config = Config(
         state_dir=tmp_path / "state",
         runtime_dir=tmp_path / "run",

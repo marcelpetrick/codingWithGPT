@@ -7,6 +7,15 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.27.2] - 2026-09-06
+
+### Fixed
+
+- Doctor policy tests no longer inherit the runner's installed qdbus tools.
+- Reset display tests now derive the expected local time from the runner's
+  timezone instead of assuming Europe/Berlin, keeping the 3.12–3.14 GitHub
+  matrix deterministic.
+
 ## [0.27.1] - 2026-09-06
 
 ### Fixed

@@ -33,6 +33,8 @@ without reconstructing history.
   to report `Konsole input OK`; its running processes have not reloaded the
   already-enabled security-sensitive D-Bus setting.
 - [ ] Push `master`, create the verified release tag, and confirm GitHub Actions.
+- [x] v0.27.2: make policy and reset-time tests independent of whether the CI
+  host has qdbus installed or uses Europe/Berlin as its local timezone.
 
 ## 0. Evidence gathered before planning
 
