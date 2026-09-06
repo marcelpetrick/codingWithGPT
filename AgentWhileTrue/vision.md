@@ -1,8 +1,8 @@
-# Agent Budget Watch — Vision
+# Agent While True — Vision
 
 ## 1. Purpose
 
-`agent-budget-watch` is a Linux-first command-line/TUI utility for supervising interactive AI coding-agent sessions running inside KDE Konsole.
+Agent While True is a Linux-first agent budget watch and babysitter for interactive AI coding-agent sessions running inside KDE Konsole.
 
 The first target environment is:
 
@@ -1846,7 +1846,7 @@ That behavior is the core safety boundary of the project.
 
 ## 46. Short Vision Statement
 
-`agent-budget-watch` should become a lightweight Linux supervisor for interactive coding-agent sessions: aware of Konsole sessions, aware of provider usage windows, conservative about input, resilient to resets and crashes, and simple enough to launch from a terminal without requiring root privileges or desktop automation.
+Agent While True should become a lightweight Linux supervisor for interactive coding-agent sessions: aware of Konsole sessions, aware of provider usage windows, conservative about input, resilient to resets and crashes, and simple enough to launch from a terminal without requiring root privileges or desktop automation.
 
 The first version should stay intentionally narrow:
 

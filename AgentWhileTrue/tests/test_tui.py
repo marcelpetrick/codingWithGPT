@@ -21,6 +21,10 @@ def test_dashboard_keys_toggle_state_and_quit() -> None:
     assert state.rescan_requested
     state.handle("t")
     assert state.theme == "vivid"
+    state.handle("e")
+    assert not state.show_events
+    state.handle("l")
+    assert state.history_length == 10
     assert state.handle("q")
 
 

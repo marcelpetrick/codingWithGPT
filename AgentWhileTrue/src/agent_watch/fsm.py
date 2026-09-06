@@ -128,6 +128,14 @@ class SupervisedSession:
     def describe_process(self) -> str:
         return self.identity.key()
 
+    def display_title(self) -> str:
+        """Use the classified provider instead of a launcher's process name."""
+        title = self.title or self.ref.session_id
+        head, separator, tail = title.rpartition(":")
+        if separator and tail.strip().lower() in {"node", "codex", "claude"}:
+            return f"{head.rstrip()} : {self.provider_name.title()}"
+        return title
+
 
 ConfirmCallback = Callable[[Observation, Decision], bool]
 

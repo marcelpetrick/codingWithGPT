@@ -139,3 +139,14 @@ def setup(
 def get_logger() -> EventLogger:
     """Return an event logger over the already-configured handlers."""
     return EventLogger(logging.getLogger(LOGGER_NAME))
+
+
+def read_history(path: Path, *, limit: int = 10) -> list[str]:
+    """Read recent structured events without exposing terminal content."""
+    if limit <= 0:
+        return []
+    try:
+        rows = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return []
+    return rows[-limit:]

@@ -11,6 +11,7 @@ from dataclasses import dataclass
 
 INTERVALS = (0.25, 0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 30.0, 60.0)
 THEMES = ("dark", "vivid", "plain")
+HISTORY_LENGTHS = (5, 10, 20, 50)
 
 
 def nearest_interval_index(value: float) -> int:
@@ -26,6 +27,8 @@ class DashboardState:
     help_visible: bool = False
     theme_index: int = 0
     rescan_requested: bool = False
+    show_events: bool = True
+    history_index: int = 0
 
     @classmethod
     def from_interval(cls, value: float) -> DashboardState:
@@ -38,6 +41,10 @@ class DashboardState:
     @property
     def theme(self) -> str:
         return THEMES[self.theme_index]
+
+    @property
+    def history_length(self) -> int:
+        return HISTORY_LENGTHS[self.history_index]
 
     def handle(self, key: str) -> bool:
         """Apply one key. Return True only when the user requested quit."""
@@ -56,6 +63,10 @@ class DashboardState:
             self.interval_index = max(self.interval_index - 1, 0)
         elif lowered == "t":
             self.theme_index = (self.theme_index + 1) % len(THEMES)
+        elif lowered == "e":
+            self.show_events = not self.show_events
+        elif lowered == "l":
+            self.history_index = (self.history_index + 1) % len(HISTORY_LENGTHS)
         return False
 
 

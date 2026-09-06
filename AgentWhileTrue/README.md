@@ -91,6 +91,8 @@ produces plain output.
 | `p` | Pause/resume; pause performs no terminal or quota polling |
 | `r` | Rediscover Konsole sessions immediately |
 | `t` | Cycle dark, vivid, and plain themes |
+| `e` | Show or hide persisted action/state history |
+| `l` | Cycle the history length through 5, 10, 20, and 50 rows |
 | `h` or `?` | Toggle the in-dashboard help |
 | `q` | Quit and restore the terminal |
 
@@ -123,7 +125,25 @@ agent-watch config
 
 The file is `~/.config/agent-watch/config`. It is parsed as data and never
 sourced as shell code. Logs and state live under
-`~/.local/state/agent-watch/`; terminal contents are not logged.
+`~/.local/state/agent-watch/`; terminal contents are not logged. Agent While
+True records structured state transitions and actions in
+`~/.local/state/agent-watch/agent-watch.log`, including when an action was
+planned, sent, verified, refused, retried, or failed. Inspect recent history
+with:
+
+```bash
+agent-while-true logs -n 40
+journalctl --user -u agent-watch.service -f  # service lifecycle/output
+```
+
+The dashboard's `HISTORY` panel reads the same privacy-preserving event file.
+It records fingerprints and pattern IDs, never terminal text, prompts,
+credentials, or environment values.
+
+Codex is launched through a Node.js shim on current installations, so Konsole
+may label its tab or foreground command `node`. Agent While True walks the child
+process tree, classifies the native Codex process, reads quota from that process,
+and presents the session as `Codex` in its own dashboard.
 
 ## Claude quota bridge
 

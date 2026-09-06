@@ -35,7 +35,7 @@ from agent_watch.config import (
 )
 from agent_watch.fsm import Observation, Supervisor, SystemInspector
 from agent_watch.lock import LockHeldError, SingleInstanceLock
-from agent_watch.logging_setup import setup
+from agent_watch.logging_setup import read_history, setup
 from agent_watch.picker import Candidate, NumberedPicker, discover, pick_with_fzf
 from agent_watch.policy import Decision
 from agent_watch.quota import default_sources
@@ -112,7 +112,7 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("init", help="write a default config file")
     subparsers.add_parser("config", help="show the effective configuration")
 
-    logs_parser = subparsers.add_parser("logs", help="show the event log")
+    logs_parser = subparsers.add_parser("logs", help="show persisted action and state history")
     logs_parser.add_argument("-n", "--lines", type=int, default=40, help="how many lines to show")
 
     simulate_parser = subparsers.add_parser(
@@ -273,6 +273,7 @@ def _loop(supervisor: Supervisor, config: Config, args: argparse.Namespace, stre
     keys = TerminalKeys(interactive)
     color = interactive and not args.no_color and "NO_COLOR" not in os.environ
     last_event = ""
+    event_history: list[str] = []
     if interactive:
         stream.write(HIDE_CURSOR)
     try:
@@ -283,6 +284,9 @@ def _loop(supervisor: Supervisor, config: Config, args: argparse.Namespace, stre
                     _sync_all_sessions(supervisor)
                 decisions = supervisor.tick()
                 last_event = _summarise(supervisor.sessions.values(), decisions) or last_event
+                event_history = read_history(
+                    config.resolved_log_file(), limit=dashboard.history_length
+                )
             now = datetime.now(UTC)
             if interactive or config.mode is not Mode.OBSERVE:
                 if interactive:
@@ -299,6 +303,9 @@ def _loop(supervisor: Supervisor, config: Config, args: argparse.Namespace, stre
                         color=color,
                         theme=dashboard.theme,
                         width=shutil.get_terminal_size((100, 24)).columns,
+                        events=event_history,
+                        show_events=dashboard.show_events,
+                        history_length=dashboard.history_length,
                     )
                     + "\n"
                 )

@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from agent_watch.logging_setup import EventLogger, fingerprint, format_event, setup
+from agent_watch.logging_setup import EventLogger, fingerprint, format_event, read_history, setup
 
 SECRET_SCREEN = [
     "You've hit your session limit · resets 8:10pm (Europe/Berlin)",
@@ -87,3 +87,15 @@ def test_rotation_is_configured(tmp_path: Path) -> None:
     handler = logging.getLogger("agent_watch").handlers[0]
     assert handler.maxBytes == 128
     assert handler.backupCount == 2
+
+
+def test_read_history_returns_only_the_newest_rows(tmp_path: Path) -> None:
+    log_file = tmp_path / "agent-watch.log"
+    log_file.write_text("first\nsecond\nthird\n", encoding="utf-8")
+    assert read_history(log_file, limit=2) == ["second", "third"]
+
+
+def test_read_history_tolerates_missing_files_and_zero_limit(tmp_path: Path) -> None:
+    log_file = tmp_path / "missing.log"
+    assert read_history(log_file) == []
+    assert read_history(log_file, limit=0) == []

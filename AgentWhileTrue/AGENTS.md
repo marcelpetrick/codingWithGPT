@@ -1,4 +1,4 @@
-# Agent Budget Watch contributor instructions
+# Agent While True contributor instructions
 
 These instructions apply to every file below `AgentWhileTrue/`.
 

@@ -95,3 +95,22 @@ def test_colored_dashboard_and_help_are_optional() -> None:
     assert "\x1b[" not in plain
     assert "refresh faster / slower" in plain
     assert "\x1b[" in colored
+
+
+def test_codex_node_launcher_is_presented_as_codex() -> None:
+    session = _session(provider_name="codex", title="AgentWhileTrue : node")
+    text = render_status([session], now=NOW, config=Config())
+    assert "AgentWhileTrue : Codex" in text
+    assert "AgentWhileTrue : node" not in text
+
+
+def test_dashboard_can_show_persisted_history() -> None:
+    text = render_status(
+        [_session()],
+        now=NOW,
+        config=Config(),
+        events=["event=state_change session=/Sessions/2 state=LIMIT_BLOCKED"],
+        history_length=10,
+    )
+    assert "HISTORY (last 10)" in text
+    assert "event=state_change" in text

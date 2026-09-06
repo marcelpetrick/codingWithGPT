@@ -1,11 +1,27 @@
 # Changelog
 
-All notable changes to `agent-budget-watch` are documented here.
+All notable changes to Agent While True are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
+
+## [0.26.0] - 2026-09-06
+
+### Added
+
+- The dashboard can show the recent persisted state/action history. Press `e`
+  to hide it and `l` to cycle through 5, 10, 20, or 50 rows.
+- The README documents the history file, `logs` command, journal view, and the
+  privacy boundary: terminal content is never persisted.
+
+### Changed
+
+- Codex sessions launched through the Node.js shim are presented as `Codex` in
+  the dashboard once the child process has been classified.
+- Remaining project documentation now consistently uses the Agent While True
+  product name.
 
 ## [0.25.0] - 2026-09-06
 

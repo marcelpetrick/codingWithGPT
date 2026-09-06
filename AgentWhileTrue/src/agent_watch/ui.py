@@ -126,6 +126,9 @@ def render_status(
     color: bool = False,
     theme: str = "dark",
     width: int = 100,
+    events: Sequence[str] = (),
+    show_events: bool = True,
+    history_length: int = 5,
 ) -> str:
     """Render the running watcher's status table."""
     listed = list(sessions)
@@ -137,7 +140,8 @@ def render_status(
         + _paint(pause_badge, "warning", color=color, theme=theme),
         (
             f"  {now.astimezone().strftime('%Y-%m-%d %H:%M:%S')}   every {interval:g}s   "
-            "[+ slower  - faster  r rescan  p pause  t theme  h help  q quit]"
+            "[+ slower  - faster  e events  l history  r rescan  p pause  "
+            "t theme  h help  q quit]"
         ),
         (f"  mode={config.mode.value}   watching {len(listed)} session(s)   theme={theme}"),
         "",
@@ -155,7 +159,7 @@ def render_status(
                 quota_state(session.quota, now),
                 format_reset(session.quota.next_reset, now),
                 str(session.identity.pid),
-                session.title or session.ref.session_id,
+                session.display_title(),
             )
         )
         role = _state_role(session.quota.availability.value)
@@ -164,8 +168,14 @@ def render_status(
         lines.append("  (nothing selected)")
     lines.append("")
     if last_event:
-        lines.append(_paint("  EVENTS", "structure", color=color, theme=theme))
-        lines.append(f"    {last_event}")
+        lines.append(f"  Last: {last_event}")
+    if show_events and events:
+        lines.append("")
+        lines.append(
+            _paint(f"  HISTORY (last {history_length})", "structure", color=color, theme=theme)
+        )
+        for event in events[-history_length:]:
+            lines.append(f"    {event[: max(20, width - 6)]}")
     if show_help:
         lines.extend(
             (
@@ -175,6 +185,8 @@ def render_status(
                 "    p       pause/resume; paused means no terminal or quota polling",
                 "    r       rediscover Konsole sessions now",
                 "    t       cycle dark, vivid and plain themes",
+                "    e       show/hide persisted action history",
+                "    l       cycle history length: 5, 10, 20, 50",
                 "    h / ?   close this help",
                 "    q       quit cleanly",
             )
