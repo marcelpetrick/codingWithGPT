@@ -26,8 +26,12 @@ without reconstructing history.
   3.12 through 3.14 in its pipeline milestone.
 - [x] v0.27.0: add `localPipeline.sh`, path-filtered GitHub quality/release
   workflows, package smoke tests and README badges.
-- [ ] Run the full local pipeline, installed-wheel smoke test, live Konsole
-  validation and safety simulations.
+- [x] v0.27.1: run the full local pipeline, installed-wheel smoke test, live
+  Konsole adapter validation and safety simulations; verify all current Codex
+  and Claude quota sources against the open sessions.
+- [ ] After current terminal work is safe, restart Konsole and require `doctor`
+  to report `Konsole input OK`; its running processes have not reloaded the
+  already-enabled security-sensitive D-Bus setting.
 - [ ] Push `master`, create the verified release tag, and confirm GitHub Actions.
 
 ## 0. Evidence gathered before planning
@@ -92,7 +96,7 @@ a 5-hour limit event.
 
 ## 1. Language and shape
 
-- **Python 3.11+, standard library only at runtime.** The vision allows Bash for
+- **Python 3.12+, standard library only at runtime.** The vision allows Bash for
   the MVP but flags that Bash gets hard fast; the state machine, identity
   revalidation and idempotency logic here are exactly that case. Python is the
   user's stated preference where it fits.

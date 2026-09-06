@@ -45,8 +45,8 @@ python3 -m pip install --user -e '.[dev]'
 ## See what is running
 
 ```bash
-agent-watch status
-agent-watch quota
+agent-while-true status
+agent-while-true quota
 ```
 
 `status` classifies visible Konsole sessions. `quota` is read-only and reports
@@ -76,13 +76,20 @@ kwriteconfig6 --file konsolerc --group KonsoleWindow \
 
 This permission lets programs running as your desktop user type into Konsole,
 which is why Agent While True layers process identity, exact prompt recognition,
-policy, idempotency and immediate revalidation on top. `agent-watch doctor`
+policy, idempotency and immediate revalidation on top. `agent-while-true doctor`
 probes the permission with an empty string and blocks auto mode if it is off.
+
+The setting is read when a Konsole process starts. Existing windows therefore
+remain input-disabled until Konsole is restarted; keep the current sessions
+open until their work is safe, then restart Konsole once and require
+`agent-while-true doctor` to report both `Konsole input OK` and `Auto mode OK`.
+Agent While True cannot bypass this Konsole boundary, and intentionally does not
+kill or replace existing terminal sessions.
 
 Start with observe mode. It runs the complete detection path but cannot type:
 
 ```bash
-agent-watch run --observe --all
+agent-while-true run --observe --all
 ```
 
 On an interactive terminal this opens a color dashboard inspired by btop and
@@ -108,9 +115,9 @@ a blank line for readable logs.
 Other modes are:
 
 ```bash
-agent-watch run --ask       # select sessions and confirm each action
-agent-watch run --auto      # select sessions; resume only policy-approved prompts
-agent-watch simulate --all  # exercise the built-in danger scenarios
+agent-while-true run --ask       # select sessions and confirm each action
+agent-while-true run --auto      # select sessions; resume policy-approved prompts
+agent-while-true simulate --all  # exercise the built-in danger scenarios
 ```
 
 Claude continuation is normally a bare Enter only when Claude explicitly asks
@@ -124,8 +131,8 @@ by the supplied configuration.
 Create and inspect the default configuration with:
 
 ```bash
-agent-watch init
-agent-watch config
+agent-while-true init
+agent-while-true config
 ```
 
 The file is `~/.config/agent-watch/config`. It is parsed as data and never
@@ -155,10 +162,10 @@ and presents the session as `Codex` in its own dashboard.
 The bridge is the supplied `scripts/claude-statusline-proxy.sh`, not another
 package, daemon, plugin, or network service. Claude Code exposes quota data only
 to its configured status-line command. The bridge receives that JSON, copies
-only the usage windows and reset timestamps to Agent Watch's state directory,
+only the usage windows and reset timestamps to Agent While True's state directory,
 and then runs your existing status line with the original JSON.
 
-Without it, `agent-watch quota` honestly reports Claude as `UNKNOWN` with
+Without it, `agent-while-true quota` honestly reports Claude as `UNKNOWN` with
 `no-statusline-file`. Prompt detection still works, but automatic mode will not
 guess that quota is available.
 
@@ -216,7 +223,7 @@ Restart Claude Code if it does not reload the setting, wait for one status-line
 render, then verify the bridge without enabling automation:
 
 ```bash
-agent-watch quota
+agent-while-true quota
 ls -l ~/.local/state/agent-watch/quota/claude.json
 ```
 

@@ -168,7 +168,7 @@ def test_a_second_instance_is_refused_but_observe_is_not(
     held.acquire()
     try:
         assert main(["run", "--all", "--once", "--auto"], stream=out) == EXIT_ERROR
-        assert "Another agent-watch is already running" in out.getvalue()
+        assert "Another Agent While True instance is already running" in out.getvalue()
         # Observe mode does not need the lock, so it still starts.
         assert main(["run", "--all", "--once", "--observe"], stream=out) == EXIT_OK
     finally:

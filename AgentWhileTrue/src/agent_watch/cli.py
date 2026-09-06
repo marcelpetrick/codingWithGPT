@@ -57,7 +57,7 @@ EXIT_ERROR = 1
 EXIT_INTERRUPTED = 130
 
 ROOT_WARNING = """\
-WARNING: agent-watch should run as your KDE desktop user, not as root.
+WARNING: Agent While True should run as your KDE desktop user, not as root.
 
 Running as root can break access to the user's D-Bus session, change the
 environment the agents were started with, and makes an incorrect keystroke more
@@ -216,7 +216,7 @@ def command_run(
     inspector = SystemInspector()
     candidates = discover(supervisor.terminal, inspector)
     if not candidates and not args.all:
-        stream.write("No Konsole sessions found. Run 'agent-watch doctor' for details.\n")
+        stream.write("No Konsole sessions found. Run 'agent-while-true doctor' for details.\n")
         return EXIT_ERROR
     if not candidates:
         stream.write("No agent sessions yet; waiting because --all was specified.\n")
@@ -245,7 +245,7 @@ def command_run(
             lock.acquire()
         except LockHeldError:
             stream.write(
-                "Another agent-watch is already running. Only one instance may send "
+                "Another Agent While True instance is already running. Only one instance may send "
                 "input; use --observe to watch read-only.\n"
             )
             return EXIT_ERROR
@@ -360,7 +360,7 @@ def _summarise(sessions, decisions: Sequence[Decision]) -> str:
 def command_status(config: Config, stream) -> int:
     adapter = KonsoleAdapter()
     if not adapter.is_available():
-        stream.write("Konsole D-Bus is not reachable. Run 'agent-watch doctor'.\n")
+        stream.write("Konsole D-Bus is not reachable. Run 'agent-while-true doctor'.\n")
         return EXIT_ERROR
     candidates = discover(adapter, SystemInspector())
     if not candidates:
@@ -379,7 +379,7 @@ def command_quota(config: Config, stream) -> int:
     """Query live quota sources for every detected agent session."""
     adapter = KonsoleAdapter()
     if not adapter.is_available():
-        stream.write("Konsole D-Bus is not reachable. Run 'agent-watch doctor'.\n")
+        stream.write("Konsole D-Bus is not reachable. Run 'agent-while-true doctor'.\n")
         return EXIT_ERROR
     candidates = [
         candidate for candidate in discover(adapter, SystemInspector()) if candidate.eligible
@@ -406,7 +406,7 @@ def command_doctor(config: Config, stream) -> int:
 
 
 DEFAULT_CONFIG_TEMPLATE = """\
-# agent-watch configuration. Parsed as KEY=VALUE; never executed.
+# Agent While True configuration. Parsed as KEY=VALUE; never executed.
 
 # observe | ask | auto
 MODE=ask

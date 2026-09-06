@@ -7,6 +7,23 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.27.1] - 2026-09-06
+
+### Fixed
+
+- User-facing diagnostics and README examples consistently use the
+  `agent-while-true` primary command and Agent While True product name.
+- The README now makes clear that Konsole must be restarted after enabling its
+  security-sensitive D-Bus API; existing terminal processes cannot reload it.
+
+### Verified
+
+- The complete local pipeline passes with 89% coverage, all safety scenarios,
+  package builds, and an isolated wheel install.
+- The installed command reads fresh owner-only Claude bridge data, real Codex
+  rollout quota, and all current open agent sessions; the live Konsole adapter
+  test passes.
+
 ## [0.27.0] - 2026-09-06
 
 ### Added

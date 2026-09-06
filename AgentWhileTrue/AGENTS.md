@@ -93,8 +93,9 @@ AGENT_WATCH_LIVE_KONSOLE=1 python3 -m pytest -q -m konsole
 ```
 
 Build a wheel and install it into an isolated environment before a release.
-Confirm that the installed `agent-watch --version`, `doctor`, `quota`, and
-`simulate --all` commands work without `PYTHONPATH`.
+Confirm that installed `agent-while-true --version`, `doctor`, `quota`, and
+`simulate --all` work without `PYTHONPATH`; also smoke-test the `agent-watch`
+compatibility alias.
 
 ## Release procedure
 
