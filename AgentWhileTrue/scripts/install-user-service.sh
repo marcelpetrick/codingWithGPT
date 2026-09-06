@@ -18,9 +18,9 @@ if [ "$#" -ne 0 ]; then
     printf 'usage: %s [--uninstall]\n' "$0" >&2
     exit 2
 fi
-if [ ! -x "$HOME/.local/bin/agent-watch" ]; then
-    printf '%s\n' 'agent-watch is not installed at ~/.local/bin/agent-watch.' >&2
-    printf '%s\n' 'Install it first: python3 -m pip install --user .' >&2
+if [ ! -x "$HOME/.local/bin/agent-while-true" ]; then
+    printf '%s\n' 'agent-while-true is not installed at ~/.local/bin/agent-while-true.' >&2
+    printf '%s\n' 'Install it first: pipx install .' >&2
     exit 1
 fi
 

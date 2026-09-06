@@ -7,6 +7,22 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.27.0] - 2026-09-06
+
+### Added
+
+- A canonical `localPipeline.sh` runs the Python baseline check, Ruff,
+  formatting, ShellCheck, coverage gate, every safety simulation, distribution
+  build, isolated wheel install, and both CLI smoke tests.
+- Path-filtered GitHub Actions quality and release workflows test Python 3.12
+  through 3.14 and publish verified `agentwhiletrue-v*` tags.
+- README quality, release, Python baseline, and license badges.
+
+### Changed
+
+- The supplied systemd unit and installation guidance use the primary
+  `agent-while-true` command while retaining `agent-watch` compatibility.
+
 ## [0.26.0] - 2026-09-06
 
 ### Added

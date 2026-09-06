@@ -87,7 +87,8 @@ fi
 
 step "pytest"
 if [ "$COVERAGE" -eq 1 ]; then
-    run_tool pytest --cov=agent_watch --cov-report=term-missing --cov-fail-under=85 \
+    run_tool pytest --cov=agent_watch --cov-report=term-missing --cov-report=xml \
+        --cov-fail-under=85 \
         || fail "pytest"
 else
     run_tool pytest || fail "pytest"

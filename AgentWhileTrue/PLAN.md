@@ -24,8 +24,8 @@ without reconstructing history.
   title and expose recent persisted action history in the dashboard.
 - [x] v0.23.0: make Python 3.12 the documented and linted baseline; CI will test
   3.12 through 3.14 in its pipeline milestone.
-- [ ] Add `localPipeline.sh`, path-filtered GitHub quality/release workflows and
-  README badges.
+- [x] v0.27.0: add `localPipeline.sh`, path-filtered GitHub quality/release
+  workflows, package smoke tests and README badges.
 - [ ] Run the full local pipeline, installed-wheel smoke test, live Konsole
   validation and safety simulations.
 - [ ] Push `master`, create the verified release tag, and confirm GitHub Actions.
@@ -201,7 +201,7 @@ Release tags are `agentwhiletrue-vX.Y.Z` (this project lives inside a monorepo).
 Workflows live at the repository root (GitHub Actions requires that) and are
 path-filtered to `AgentWhileTrue/**`:
 
-- `agentwhiletrue-quality.yml` — push/PR, Python 3.11–3.13 matrix, runs the gate.
+- `agentwhiletrue-quality.yml` — push/PR, Python 3.12–3.14 matrix, runs the gate.
 - `agentwhiletrue-release.yml` — on `agentwhiletrue-v*` tags: re-runs the gate,
   verifies the tag matches `__version__`, builds sdist+wheel, publishes a GitHub
   release with the matching changelog section.

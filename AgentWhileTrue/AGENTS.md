@@ -79,7 +79,7 @@ git diff --check
 Before pushing or tagging:
 
 ```bash
-scripts/quality.sh
+./localPipeline.sh
 PYTHONPATH=src python3 -m agent_watch.cli simulate --all
 PYTHONPATH=src python3 -m agent_watch.cli doctor
 PYTHONPATH=src python3 -m agent_watch.cli status
@@ -99,7 +99,7 @@ Confirm that the installed `agent-watch --version`, `doctor`, `quota`, and
 ## Release procedure
 
 1. Ensure the worktree contains only intended changes.
-2. Run all required verification and package smoke tests.
+2. Run `./localPipeline.sh`; it includes the package smoke tests.
 3. Push the atomic commits to `origin/master` only when requested.
 4. Create an annotated `agentwhiletrue-vX.Y.Z` tag only for a fully verified
    version and push that tag to trigger the release workflow.

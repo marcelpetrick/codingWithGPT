@@ -1,0 +1,59 @@
+name: Agent While True quality
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "AgentWhileTrue/**"
+      - ".github/workflows/agentwhiletrue-quality.yml"
+  pull_request:
+    branches: [master]
+    paths:
+      - "AgentWhileTrue/**"
+      - ".github/workflows/agentwhiletrue-quality.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agentwhiletrue-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    name: Python ${{ matrix.python }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12", "3.13", "3.14"]
+    defaults:
+      run:
+        working-directory: AgentWhileTrue
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: AgentWhileTrue/pyproject.toml
+      - name: Install quality tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends shellcheck
+          python -m pip install --disable-pip-version-check '.[dev]'
+      - name: Run canonical local pipeline
+        run: ./localPipeline.sh --noRun
+      - name: Upload distributions and coverage
+        if: always() && matrix.python == '3.12'
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: agent-while-true-${{ github.sha }}
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            AgentWhileTrue/dist/
+            AgentWhileTrue/coverage.xml

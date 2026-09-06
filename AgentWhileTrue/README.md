@@ -1,5 +1,10 @@
 # Agent While True
 
+[![Quality](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/agentwhiletrue-quality.yml/badge.svg?branch=master)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/agentwhiletrue-quality.yml)
+[![Release](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/agentwhiletrue-release.yml/badge.svg)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/agentwhiletrue-release.yml)
+[![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-3776AB.svg)](https://www.python.org/)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](../LICENSE)
+
 **Agent While True** is an agent budget watch and babysitter for Codex CLI and
 Claude Code sessions in KDE Konsole. It reports provider quota health and can
 resume a blocked session after usage becomes available again—only when the
@@ -22,19 +27,19 @@ plan.” Any different menu, cursor position, or unknown quota fails closed.
 ## Install
 
 From this directory, use `pipx` so the CLI is isolated while remaining available
-at `~/.local/bin/agent-watch`:
+at `~/.local/bin/agent-while-true`:
 
 ```bash
 pipx install .
-agent-watch --version
-agent-watch doctor
+agent-while-true --version
+agent-while-true doctor
 ```
 
 For development:
 
 ```bash
 python3 -m pip install --user -e '.[dev]'
-scripts/quality.sh
+./localPipeline.sh
 ```
 
 ## See what is running
@@ -240,7 +245,7 @@ systemctl --user edit agent-watch.service
 ```ini
 [Service]
 ExecStart=
-ExecStart=%h/.local/bin/agent-watch run --auto --all --no-fzf
+ExecStart=%h/.local/bin/agent-while-true run --auto --all --no-fzf
 ```
 
 Then run `systemctl --user restart agent-watch.service`. Remove the service with
@@ -267,9 +272,20 @@ original implementation sequence.
 ## Development and release
 
 ```bash
-scripts/quality.sh
+./localPipeline.sh
 python3 -m pytest -m konsole  # set AGENT_WATCH_LIVE_KONSOLE=1 for the live test
 ```
+
+The local pipeline is the canonical release gate. It checks Python 3.12+, Ruff
+lint and formatting, every tracked shell script with ShellCheck, pytest with an
+85% coverage floor, all built-in danger simulations, sdist/wheel construction,
+and an isolated install using both `agent-while-true` and the compatibility
+alias. GitHub Actions runs this same script on Python 3.12, 3.13, and 3.14.
+
+Pushes and pull requests that touch `AgentWhileTrue/**` run the quality
+workflow. A tag named `agentwhiletrue-vX.Y.Z` additionally verifies the tag
+against the package version and changelog, reruns the pipeline, and publishes
+the built wheel and source distribution as a GitHub release.
 
 Release tags use `agentwhiletrue-vX.Y.Z`. The project follows semantic
 versioning while major version zero denotes an alpha interface.

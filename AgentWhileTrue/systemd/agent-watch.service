@@ -8,7 +8,7 @@ PartOf=graphical-session.target
 Type=simple
 # The shipped service is deliberately read-only. Opting into terminal input
 # requires an explicit user override from --observe to --auto.
-ExecStart=%h/.local/bin/agent-watch run --observe --all --no-fzf
+ExecStart=%h/.local/bin/agent-while-true run --observe --all --no-fzf
 Restart=on-failure
 RestartSec=5s
 Environment=PYTHONUNBUFFERED=1
