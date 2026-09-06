@@ -32,7 +32,8 @@ without reconstructing history.
 - [ ] After current terminal work is safe, restart Konsole and require `doctor`
   to report `Konsole input OK`; its running processes have not reloaded the
   already-enabled security-sensitive D-Bus setting.
-- [ ] Push `master`, create the verified release tag, and confirm GitHub Actions.
+- [x] Push `master`, create `agentwhiletrue-v0.27.2`, confirm the Python
+  3.12–3.14 quality matrix, and verify the GitHub release with wheel and sdist.
 - [x] v0.27.2: make policy and reset-time tests independent of whether the CI
   host has qdbus installed or uses Europe/Berlin as its local timezone.
 
