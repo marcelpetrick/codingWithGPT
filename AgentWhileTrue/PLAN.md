@@ -16,7 +16,8 @@ without reconstructing history.
 - [x] v0.20.0: backup-preserving Claude bridge installer.
 - [x] v0.21.0: safely arm Claude's exact provider-owned automatic-wait menu.
 - [x] v0.22.0: rename the product to Agent While True while preserving compatibility.
-- [ ] Add the btop-inspired color TUI, help, pause, rescan and refresh keys.
+- [x] v0.24.0: add the btop-inspired color TUI, help, pause, rescan, themes and
+  refresh keys; separate non-interactive observe scans with a blank line.
 - [x] v0.23.0: make Python 3.12 the documented and linted baseline; CI will test
   3.12 through 3.14 in its pipeline milestone.
 - [ ] Add `localPipeline.sh`, path-filtered GitHub quality/release workflows and

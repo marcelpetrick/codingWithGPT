@@ -80,6 +80,24 @@ Start with observe mode. It runs the complete detection path but cannot type:
 agent-watch run --observe --all
 ```
 
+On an interactive terminal this opens a color dashboard inspired by btop and
+ollamaFarm. Colors carry meaning: green is available/healthy, yellow is waiting
+or unknown, and red is exhausted or unsafe. `NO_COLOR=1` or `--no-color`
+produces plain output.
+
+| Key | Effect |
+| --- | --- |
+| `-` / `+` | Refresh faster / slower across `0.25 0.5 1 2 3 5 10 30 60` seconds |
+| `p` | Pause/resume; pause performs no terminal or quota polling |
+| `r` | Rediscover Konsole sessions immediately |
+| `t` | Cycle dark, vivid, and plain themes |
+| `h` or `?` | Toggle the in-dashboard help |
+| `q` | Quit and restore the terminal |
+
+Like btop, `+` makes the interval number larger and therefore refreshes more
+slowly. Non-interactive observe output stays ANSI-free and separates scans with
+a blank line for readable logs.
+
 Other modes are:
 
 ```bash

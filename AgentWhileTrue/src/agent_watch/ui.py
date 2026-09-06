@@ -17,6 +17,28 @@ from agent_watch.states import SessionState
 from agent_watch.version import __version__
 
 CLEAR_SCREEN = "\x1b[H\x1b[2J"
+HIDE_CURSOR = "\x1b[?25l"
+SHOW_CURSOR = "\x1b[?25h"
+
+_DARK = {
+    "structure": "\x1b[36m",
+    "healthy": "\x1b[32m",
+    "warning": "\x1b[33m",
+    "danger": "\x1b[31m",
+    "claude": "\x1b[35m",
+    "codex": "\x1b[34m",
+    "dim": "\x1b[2m",
+}
+_VIVID = {
+    "structure": "\x1b[38;5;45m",
+    "healthy": "\x1b[38;5;48m",
+    "warning": "\x1b[38;5;214m",
+    "danger": "\x1b[38;5;196m",
+    "claude": "\x1b[38;5;213m",
+    "codex": "\x1b[38;5;75m",
+    "dim": "\x1b[38;5;244m",
+}
+_RESET = "\x1b[0m"
 
 _HEADERS = ("ID", "TYPE", "STATE", "PROMPT", "QUOTA", "Q.RESET", "PID", "SESSION")
 _WIDTHS = (4, 8, 20, 8, 10, 8, 8, 0)
@@ -43,6 +65,27 @@ def _row(values: Sequence[str]) -> str:
     for value, width in zip(values, _WIDTHS, strict=True):
         parts.append(value if width == 0 else f"{value:<{width}}")
     return " ".join(parts).rstrip()
+
+
+def _paint(text: str, role: str, *, color: bool, theme: str) -> str:
+    if not color or theme == "plain":
+        return text
+    palette = _VIVID if theme == "vivid" else _DARK
+    return f"{palette[role]}{text}{_RESET}"
+
+
+def _rule(title: str, width: int, *, color: bool, theme: str) -> str:
+    prefix = f"┌─ {title} "
+    plain = prefix + "─" * max(3, width - len(prefix) - 1) + "┐"
+    return _paint(plain, "structure", color=color, theme=theme)
+
+
+def _state_role(value: str) -> str:
+    if value in {"ACTIVE", "AVAILABLE", "READY_TO_RESUME"}:
+        return "healthy"
+    if value in {"UNSAFE", "PROCESS_GONE", "EXHAUSTED"}:
+        return "danger"
+    return "warning"
 
 
 def quota_state(snapshot: QuotaSnapshot, now: datetime) -> str:
@@ -77,39 +120,65 @@ def render_status(
     now: datetime,
     config: Config,
     last_event: str = "",
+    refresh_interval: float | None = None,
+    paused: bool = False,
+    show_help: bool = False,
+    color: bool = False,
+    theme: str = "dark",
+    width: int = 100,
 ) -> str:
     """Render the running watcher's status table."""
     listed = list(sessions)
+    title = f"Agent While True {__version__}"
+    interval = refresh_interval if refresh_interval is not None else config.scan_interval
+    pause_badge = "   PAUSED — press p to resume" if paused else ""
     lines = [
+        _rule(title, width, color=color, theme=theme)
+        + _paint(pause_badge, "warning", color=color, theme=theme),
         (
-            f"Agent While True {__version__}   mode={config.mode.value}   "
-            f"watching {len(listed)} session(s)"
+            f"  {now.astimezone().strftime('%Y-%m-%d %H:%M:%S')}   every {interval:g}s   "
+            "[+ slower  - faster  r rescan  p pause  t theme  h help  q quit]"
         ),
+        (f"  mode={config.mode.value}   watching {len(listed)} session(s)   theme={theme}"),
         "",
-        _row(_HEADERS),
-        "-" * 72,
+        _paint("  SESSIONS", "structure", color=color, theme=theme),
+        _paint(_row(_HEADERS), "dim", color=color, theme=theme),
+        _paint("─" * min(width, 100), "structure", color=color, theme=theme),
     ]
     for index, session in enumerate(listed, start=1):
-        lines.append(
-            _row(
-                (
-                    str(index),
-                    session.provider_name.title(),
-                    session.state.value,
-                    format_reset(session.reset_at, now),
-                    quota_state(session.quota, now),
-                    format_reset(session.quota.next_reset, now),
-                    str(session.identity.pid),
-                    session.title or session.ref.session_id,
-                )
+        row = _row(
+            (
+                str(index),
+                session.provider_name.title(),
+                session.state.value,
+                format_reset(session.reset_at, now),
+                quota_state(session.quota, now),
+                format_reset(session.quota.next_reset, now),
+                str(session.identity.pid),
+                session.title or session.ref.session_id,
             )
         )
+        role = _state_role(session.quota.availability.value)
+        lines.append(_paint(row, role, color=color, theme=theme))
     if not listed:
         lines.append("  (nothing selected)")
     lines.append("")
     if last_event:
-        lines.append(f" Last: {last_event}")
-    lines.append(" Sessions rescan automatically; Ctrl-C stops the watcher")
+        lines.append(_paint("  EVENTS", "structure", color=color, theme=theme))
+        lines.append(f"    {last_event}")
+    if show_help:
+        lines.extend(
+            (
+                "",
+                _paint("  KEYS", "structure", color=color, theme=theme),
+                "    - / +   refresh faster / slower (0.25, 0.5, 1, 2, 3, 5, 10, 30, 60s)",
+                "    p       pause/resume; paused means no terminal or quota polling",
+                "    r       rediscover Konsole sessions now",
+                "    t       cycle dark, vivid and plain themes",
+                "    h / ?   close this help",
+                "    q       quit cleanly",
+            )
+        )
     return "\n".join(lines)
 
 

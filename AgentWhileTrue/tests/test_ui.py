@@ -36,6 +36,8 @@ def test_status_lists_each_session() -> None:
     assert "mode=auto" in text
     assert "watching 1 session" in text
     assert "QUOTA" in text
+    assert "Agent While True" in text
+    assert "h help" in text
 
 
 def test_status_handles_nothing_selected() -> None:
@@ -83,3 +85,13 @@ def test_quota_view_shows_usage_reset_and_errors() -> None:
     assert "100.0%" in text
     assert "23:00" in text
     assert "limit-reached" in text
+
+
+def test_colored_dashboard_and_help_are_optional() -> None:
+    plain = render_status([_session()], now=NOW, config=Config(), show_help=True)
+    colored = render_status(
+        [_session()], now=NOW, config=Config(), show_help=True, color=True, theme="vivid"
+    )
+    assert "\x1b[" not in plain
+    assert "refresh faster / slower" in plain
+    assert "\x1b[" in colored

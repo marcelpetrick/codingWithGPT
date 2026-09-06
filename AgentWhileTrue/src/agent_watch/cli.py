@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import os
+import shutil
 import signal
 import sys
 import time
@@ -40,7 +41,15 @@ from agent_watch.policy import Decision
 from agent_watch.quota import default_sources
 from agent_watch.state_store import StateStore
 from agent_watch.terminal.konsole import KonsoleAdapter
-from agent_watch.ui import render_line, render_quota, render_status
+from agent_watch.tui import DashboardState, TerminalKeys
+from agent_watch.ui import (
+    CLEAR_SCREEN,
+    HIDE_CURSOR,
+    SHOW_CURSOR,
+    render_line,
+    render_quota,
+    render_status,
+)
 from agent_watch.version import __version__
 
 EXIT_OK = 0
@@ -95,6 +104,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument(
         "--no-fzf", action="store_true", help="never use fzf even when it is installed"
     )
+    run_parser.add_argument("--no-color", action="store_true", help="disable dashboard colors")
 
     subparsers.add_parser("status", help="list Konsole sessions and how they classify")
     subparsers.add_parser("quota", help="show provider availability, errors and reset times")
@@ -256,29 +266,60 @@ def _loop(supervisor: Supervisor, config: Config, args: argparse.Namespace, stre
         with contextlib.suppress(ValueError):
             signal.signal(received, request_stop)
 
+    interactive = bool(
+        not args.once and hasattr(stream, "isatty") and stream.isatty() and sys.stdin.isatty()
+    )
+    dashboard = DashboardState.from_interval(config.scan_interval)
+    keys = TerminalKeys(interactive)
+    color = interactive and not args.no_color and "NO_COLOR" not in os.environ
     last_event = ""
-    while not stop["requested"]:
-        supervisor.prune_and_rebind()
-        if args.all:
-            _sync_all_sessions(supervisor)
-        decisions = supervisor.tick()
-        now = datetime.now(UTC)
-        if config.mode is Mode.OBSERVE:
-            for session in supervisor.sessions.values():
-                stream.write(render_line(session, now) + "\n")
-        else:
-            last_event = _summarise(supervisor.sessions.values(), decisions) or last_event
-            stream.write(
-                render_status(
-                    supervisor.sessions.values(), now=now, config=config, last_event=last_event
+    if interactive:
+        stream.write(HIDE_CURSOR)
+    try:
+        while not stop["requested"]:
+            if not dashboard.paused:
+                supervisor.prune_and_rebind()
+                if args.all:
+                    _sync_all_sessions(supervisor)
+                decisions = supervisor.tick()
+                last_event = _summarise(supervisor.sessions.values(), decisions) or last_event
+            now = datetime.now(UTC)
+            if interactive or config.mode is not Mode.OBSERVE:
+                if interactive:
+                    stream.write(CLEAR_SCREEN)
+                stream.write(
+                    render_status(
+                        supervisor.sessions.values(),
+                        now=now,
+                        config=config,
+                        last_event=last_event,
+                        refresh_interval=dashboard.interval,
+                        paused=dashboard.paused,
+                        show_help=dashboard.help_visible,
+                        color=color,
+                        theme=dashboard.theme,
+                        width=shutil.get_terminal_size((100, 24)).columns,
+                    )
+                    + "\n"
                 )
-                + "\n"
-            )
-        stream.flush()
-        if args.once:
-            return EXIT_OK
-        time.sleep(config.scan_interval)
-    return EXIT_INTERRUPTED
+            else:
+                for session in supervisor.sessions.values():
+                    stream.write(render_line(session, now) + "\n")
+                stream.write("\n")
+            stream.flush()
+            if args.once:
+                return EXIT_OK
+            if interactive:
+                if dashboard.handle(keys.read(dashboard.interval)):
+                    return EXIT_OK
+                dashboard.rescan_requested = False
+            else:
+                time.sleep(dashboard.interval)
+        return EXIT_INTERRUPTED
+    finally:
+        if interactive:
+            stream.write(SHOW_CURSOR + "\n")
+            stream.flush()
 
 
 def _sync_all_sessions(supervisor: Supervisor) -> None:
