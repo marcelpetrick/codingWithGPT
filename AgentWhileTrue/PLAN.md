@@ -18,6 +18,10 @@ without reconstructing history.
 - [x] v0.22.0: rename the product to Agent While True while preserving compatibility.
 - [x] v0.24.0: add the btop-inspired color TUI, help, pause, rescan, themes and
   refresh keys; separate non-interactive observe scans with a blank line.
+- [x] v0.25.0: survive disappearing `/proc` threads and transient incomplete
+  Codex quota events without terminating or erasing valid state.
+- [ ] Show provider-aware session names instead of Codex's Node shim title and
+  expose recent persisted action history in the dashboard.
 - [x] v0.23.0: make Python 3.12 the documented and linted baseline; CI will test
   3.12 through 3.14 in its pipeline milestone.
 - [ ] Add `localPipeline.sh`, path-filtered GitHub quality/release workflows and

@@ -71,3 +71,14 @@ def test_inspect_reports_cmdline_and_cwd_for_self() -> None:
     assert info.cmdline
     assert info.cwd
     assert info.ppid > 0
+
+
+def test_children_ignores_a_thread_that_vanishes_mid_scan(tmp_path, monkeypatch) -> None:
+    task_root = tmp_path / "3139/task"
+    (task_root / "1149466").mkdir(parents=True)  # no children file: thread vanished
+    survivor = task_root / "1149467"
+    survivor.mkdir()
+    (survivor / "children").write_text("42 43\n")
+    monkeypatch.setattr(proc, "PROC", tmp_path)
+
+    assert proc.children(3139) == (42, 43)

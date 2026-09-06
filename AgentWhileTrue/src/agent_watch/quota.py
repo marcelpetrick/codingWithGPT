@@ -216,7 +216,10 @@ def _last_rate_limits(path: Path) -> tuple[dict, datetime | None] | None:
         if not isinstance(payload, dict):
             continue
         limits = payload.get("rate_limits")
-        if isinstance(limits, dict):
+        # Startup and reconnect events can carry an empty or partial object
+        # after a perfectly usable event. Keep scanning backward rather than
+        # allowing that transient shape to erase known provider state.
+        if isinstance(limits, dict) and _codex_windows(limits):
             return limits, _timestamp(event.get("timestamp"))
     return None
 

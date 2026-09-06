@@ -178,9 +178,15 @@ def _codex_signals(info: ProcessInfo, child_comms: tuple[str, ...]) -> list[str]
 def _child_comms(pid: int) -> tuple[str, ...]:
     try:
         kids = proc.children(pid)
-    except OSError:
+    except (OSError, proc.ProcessGoneError):
         return ()
-    return tuple(proc.read_comm(kid) for kid in kids)
+    found = []
+    for kid in kids:
+        try:
+            found.append(proc.read_comm(kid))
+        except (OSError, proc.ProcessGoneError):
+            continue
+    return tuple(found)
 
 
 def _ancestor_blocker(info: ProcessInfo) -> str | None:

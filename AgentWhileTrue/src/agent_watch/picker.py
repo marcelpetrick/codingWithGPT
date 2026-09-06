@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 
 from agent_watch.classify import Classification, classify
 from agent_watch.fsm import ProcessInspector
-from agent_watch.proc import ProcessInfo
+from agent_watch.proc import ProcessGoneError, ProcessInfo
 from agent_watch.providers import for_process_class
 from agent_watch.terminal.base import TerminalAdapter, TerminalError, TerminalSession
 
@@ -85,7 +85,12 @@ def discover(terminal: TerminalAdapter, inspector: ProcessInspector) -> list[Can
         info = inspector.inspect(session.foreground_pid)
         if info is None:
             continue
-        classification = classify(info)
+        try:
+            classification = classify(info)
+        except (OSError, ProcessGoneError):
+            # A process can lose a thread or exit midway through classification.
+            # Other Konsole sessions remain useful and must still be discovered.
+            continue
         provider = for_process_class(classification.process_class)
         candidates.append(
             Candidate(

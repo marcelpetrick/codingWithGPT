@@ -189,7 +189,12 @@ def children(pid: int) -> tuple[int, ...]:
     """
     found: list[int] = []
     for task in (PROC / str(pid) / "task").glob("*"):
-        raw = _read_text(task / "children")
+        try:
+            raw = _read_text(task / "children")
+        except ProcessGoneError:
+            # Threads routinely disappear between glob() and read_text().
+            # Losing one branch of discovery must not terminate the watcher.
+            continue
         found.extend(int(part) for part in raw.split() if part.isdigit())
     return tuple(dict.fromkeys(found))
 

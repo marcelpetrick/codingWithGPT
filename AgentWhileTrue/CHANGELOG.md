@@ -7,6 +7,16 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.25.0] - 2026-09-06
+
+### Fixed
+
+- A thread disappearing between `/proc/<pid>/task` enumeration and reading its
+  `children` file no longer crashes long-running discovery. Child inspection
+  and per-session classification isolate the same expected process churn.
+- Transient empty Codex rate-limit objects no longer replace the most recent
+  usable event with `unrecognised-rate-limit-shape`.
+
 ## [0.24.0] - 2026-09-05
 
 ### Added

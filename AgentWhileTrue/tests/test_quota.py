@@ -92,6 +92,18 @@ def test_codex_newest_event_wins(tmp_path: Path, monkeypatch) -> None:
     assert snapshot.exhausted_scopes == {"session"}
 
 
+def test_codex_transient_empty_event_falls_back_to_last_usable_state(
+    tmp_path: Path, monkeypatch
+) -> None:
+    empty = {"timestamp": "2026-09-05T20:51:00Z", "payload": {"rate_limits": {}}}
+    path = _write_rollout(tmp_path, CODEX_EVENT, empty)
+    monkeypatch.setattr(quota, "find_codex_rollout", lambda pid: path)
+
+    snapshot = CodexRolloutSource().snapshot(pid=123)
+    assert snapshot.availability is Availability.AVAILABLE
+    assert {window.scope for window in snapshot.windows} == {"session", "weekly"}
+
+
 def test_codex_reached_type_forces_exhausted(tmp_path: Path, monkeypatch) -> None:
     # The provider says a limit was reached even though no window reads 100%.
     # The provider's own verdict wins.
