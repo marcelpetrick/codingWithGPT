@@ -39,7 +39,7 @@ without reconstructing history.
   host has qdbus installed or uses Europe/Berlin as its local timezone.
 - [x] v0.27.3: validate every TUI control live, deploy persistent auto-mode
   babysitting with the explicit Codex opt-in, and prevent qdbus locale-warning
-  journal spam from the user service.
+  journal spam from the user service; publish the verified wheel and sdist.
 
 ## 0. Evidence gathered before planning
 

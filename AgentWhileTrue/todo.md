@@ -1,6 +1,6 @@
 # Remaining steps
 
-Agent While True 0.27.2 is built, installed, tested, pushed, and released. The
+Agent While True 0.27.3 is built, installed, tested, pushed, and released. The
 code, Claude quota bridge, provider detection, quota readers, TUI, event
 history, local pipeline, and GitHub workflows are working. These are the
 remaining machine-level acceptance steps.
