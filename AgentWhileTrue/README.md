@@ -273,8 +273,9 @@ process replacement, and paid or quality-changing choices all fail closed. A
 single-instance lock and persisted `PLANNED -> SENT -> VERIFIED|FAILED` action
 lifecycle prevent duplicate input across concurrent processes and crashes.
 
-See [vision.md](vision.md) for product intent and [PLAN.md](PLAN.md) for the
-original implementation sequence.
+See [vision.md](vision.md) for product intent, [PLAN.md](PLAN.md) for the
+implementation sequence, and [todo.md](todo.md) for the remaining live-machine
+acceptance steps.
 
 ## Development and release
 
