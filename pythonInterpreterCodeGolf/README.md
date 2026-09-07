@@ -22,19 +22,25 @@ Every version is checked by `./run_tests.sh`, which diffs its output against
 real CPython for each test program. v1-v9 run the whole subset (6 programs);
 v10 and v11 are deliberately reduced to what FizzBuzz needs (1 program).
 
-| Version | Bytes | What changed | What it cost |
-|---|---:|---|---|
-| v1  | 9900 | Readable reference: name table, error messages, comments | - |
-| v2  | 2511 | Mechanical shrink: no comments, one-letter names, `int` | readability |
-| v3  | 2146 | Loader normalizes the source; one precedence-climbing evaluator | - |
-| v4  | 1636 | Names keyed by first letter; keywords by one byte; no `#include` | names must differ in their first letter |
-| v5  | 1509 | Unary minus for free; merged symbol table; `printf`/`puts` | `'` strings, `\n` escapes |
-| v6  | 1352 | Unbounded block scan; folded loader state | - |
-| v7  | 1244 | Operator table drives precedence *and* operation; `switch`; macros | - |
-| v8  | 1125 | Global cursor instead of `char**`; `strtol`; K&R implicit `int` | - |
-| v9  | **1021** | Strings NUL-terminated at load; shared statement advance; layout | see limitations |
-| v10 |  671 | FizzBuzz-only: drops `while`, `range` steps, comments, parens, `<`/`>` | subset shrinks |
-| v11 |  **644** | Final byte squeeze, one line | - |
+| Version | Bytes | Saved | Tests | What changed | What it cost |
+|---|---:|---:|:--:|---|---|
+| v1  | 9900 |     - | 6/6 | Readable reference: name table, error messages, comments | - |
+| v2  | 2511 | -7389 | 6/6 | Mechanical shrink: no comments, one-letter names, `int` | readability |
+| v3  | 2146 |  -365 | 6/6 | Loader normalizes the source; one precedence-climbing evaluator | - |
+| v4  | 1636 |  -510 | 6/6 | Names keyed by first letter; keywords by one byte; no `#include` | names must differ in their first letter |
+| v5  | 1509 |  -127 | 6/6 | Unary minus for free; merged symbol table; `printf`/`puts` | `'` strings, `\n` escapes |
+| v6  | 1352 |  -157 | 6/6 | Unbounded block scan; folded loader state | - |
+| v7  | 1244 |  -108 | 6/6 | Operator table drives precedence *and* operation; `switch`; macros | - |
+| v8  | 1125 |  -119 | 6/6 | Global cursor instead of `char**`; `strtol`; K&R implicit `int` | - |
+| v9  | **1021** |  -104 | 6/6 | Strings NUL-terminated at load; shared statement advance; layout | see limitations |
+| v10 |  671 |  -350 | 1/1 | FizzBuzz-only: drops `while`, `range` steps, comments, parens, `<`/`>` | subset shrinks |
+| v11 |  **644** |   -27 | 1/1 | Final byte squeeze, one line | - |
+
+v9 is the last version that still runs the whole subset, and it is the one that
+crosses the 1024-byte line: 9900 bytes down to 1021, a factor of 9.7, with the
+same six programs still matching CPython byte for byte. v10 and v11 give up
+features on purpose to answer the second question - how small can a C program
+be and still run `program.py` - and land at 644.
 
 ## How it works, in four stages
 
