@@ -3,11 +3,11 @@ CFLAGS = -std=gnu89 -w -O1
 
 all: bin/pygolf bin/pygolf-min
 
-bin/pygolf: src/pygolf_v9.c          # full subset, 1021 bytes
+bin/pygolf: src/pygolf_v13.c         # full subset, 959 bytes
 	@mkdir -p bin
 	$(CC) $(CFLAGS) -o $@ $<
 
-bin/pygolf-min: src/pygolf_v11.c     # FizzBuzz only, 644 bytes
+bin/pygolf-min: src/pygolf_v12.c     # FizzBuzz only, 622 bytes
 	@mkdir -p bin
 	$(CC) $(CFLAGS) -o $@ $<
 

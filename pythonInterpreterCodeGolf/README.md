@@ -14,7 +14,7 @@ that runs FizzBuzz written in Python. Nothing here is copied from it or from
 anywhere else - the design below was worked out from scratch, and the golfing
 was done one measurable step at a time.
 
-**Result: 1021 bytes for the full subset, 644 bytes for a FizzBuzz-only build.**
+**Result: 959 bytes for the full subset, 622 bytes for a FizzBuzz-only build.**
 
 ## Results
 
@@ -34,13 +34,21 @@ v10 and v11 are deliberately reduced to what FizzBuzz needs (1 program).
 | v8  | 1125 |  -119 | 6/6 | Global cursor instead of `char**`; `strtol`; K&R implicit `int` | - |
 | v9  | **1021** |  -104 | 6/6 | Strings NUL-terminated at load; shared statement advance; layout | see limitations |
 | v10 |  671 |  -350 | 1/1 | FizzBuzz-only: drops `while`, `range` steps, comments, parens, `<`/`>` | subset shrinks |
-| v11 |  **644** |   -27 | 1/1 | Final byte squeeze, one line | - |
+| v11 |  644 |   -27 | 1/1 | Final byte squeeze, one line | - |
+| v12 |  **622** |   -22 | 1/1 | Narrower grammar `V [% V] [== V]`; every `if` must have an `else` | - |
+| v13 |  **959** |  -62 vs v9 | 6/6 | Back to the full subset: `default` first in the switch so one macro carries `break;case `, `while` as a macro, ternary for `if`/`else`, atom folded into one expression | - |
 
-v9 is the last version that still runs the whole subset, and it is the one that
-crosses the 1024-byte line: 9900 bytes down to 1021, a factor of 9.7, with the
-same six programs still matching CPython byte for byte. v10 and v11 give up
-features on purpose to answer the second question - how small can a C program
-be and still run `program.py` - and land at 644.
+Two lines run through the table. **v13 is the smallest version that still runs
+the whole subset** - 9900 bytes down to 959, a factor of 10.3, with all six
+programs still matching CPython byte for byte; v9 was the first to cross the
+1024 line and v13 is where that line of work currently stops. **v12 is the
+smallest that runs `program.py`** at 622 bytes, having given up features on
+purpose to answer the other question - how little C can still interpret
+FizzBuzz.
+
+Byte counts are of the source file alone. No `-D` flags smuggle code onto the
+compiler command line: every version builds with plain
+`gcc -std=gnu89 -w`, the same way the screenshot's `python1024.c` was built.
 
 ## How it works, in four stages
 
@@ -129,6 +137,17 @@ precedence is *strictly* greater, operators stay left-associative.
   line, so the block scan stops there without any bound check.
 - **gnu89 gives types away.** `B(i){...}` is a function taking `int` and
   returning `int`, and `read`, `printf`, `strtol` need no `#include` at all.
+- **`default` goes first in the switch.** Then every one of the five remaining
+  labels is preceded by `break;case `, which becomes a single-letter macro -
+  20 bytes for one reordering.
+
+Published C-golf tip lists were checked against this code
+([Codidact](https://codegolf.codidact.com/posts/282951),
+[CodinGame](https://www.codingame.com/forum/t/tips-and-tricks-for-code-golfing-in-c/190897),
+[Developer Insider](https://developerinsider.co/best-golfing-tips-and-tricks-in-c-programming-puzzles/)).
+What actually paid here: `while` as a macro, `&&` in place of a single-branch
+`if`, `a-b` instead of `a!=b`, implicit `int`, and `puts` over `printf`. The
+interpreter design itself is not from them.
 
 ## The language
 
@@ -151,18 +170,21 @@ Limitations of the golfed versions (v4+), all deliberate:
 - Comparisons yield `1`/`0`, not `True`/`False`.
 - Indentation must be spaces, line endings LF, identifiers lowercase.
 - A `"` inside a `#` comment confuses the loader.
-- v10/v11 additionally drop `while`, `range` steps, parentheses, comments,
-  assignment and every comparison but `==` - exactly what FizzBuzz needs.
+- Integer literals are read with `strtol(..., 0)`, so a leading `0x` or `0`
+  would be taken as hex or octal - both are already illegal in Python 3.
+- v10-v12 additionally drop `while`, `range` steps, parentheses, comments,
+  assignment and every comparison but `==` - exactly what FizzBuzz needs - and
+  v12 requires every `if` to have an `else`.
 
 ## Layout
 
 ```
 program.py        the FizzBuzz that has to work
 src/pygolf_v1.c   readable reference, fully commented - start here
-src/pygolf_v9.c   the 1021-byte full-subset version
-src/pygolf_v11.c  the 644-byte FizzBuzz version, one line
-bin/pygolf        prebuilt v9   (x86-64 Linux)
-bin/pygolf-min    prebuilt v11  (x86-64 Linux)
+src/pygolf_v13.c  the 959-byte full-subset version
+src/pygolf_v12.c  the 622-byte FizzBuzz version, one line
+bin/pygolf        prebuilt v13  (x86-64 Linux)
+bin/pygolf-min    prebuilt v12  (x86-64 Linux)
 tests/            programs whose output must match CPython exactly
 run_tests.sh      builds every version and diffs it against python3
 ```
