@@ -5,6 +5,21 @@ code, Claude quota bridge, provider detection, quota readers, TUI, event
 history, local pipeline, and GitHub workflows are working. These are the
 remaining machine-level acceptance steps.
 
+## Execution status — 2026-09-07
+
+- New Konsole processes created after the setting change permit empty scoped
+  D-Bus input. Six older processes still block it and have been preserved
+  because they contain active work.
+- Live `status` and `quota` checks identify Codex through its Node launcher and
+  read both `codex-rollout` and `claude-statusline` data.
+- Every dashboard control passed in a live read-only pseudo-terminal.
+- The foreground auto watcher was gracefully replaced by the enabled
+  `agent-watch.service`. Its local override runs `--auto --all --no-fzf` with
+  `AGENT_WATCH_ALLOW_CODEX_AUTO_RESUME=true`.
+- The owner-only event log passed a scan for known prompt and credential text.
+- Still required: retire the old Konsole processes safely, obtain a completely
+  green `doctor`, and observe one real eligible reset/continuation lifecycle.
+
 ## 1. Restart Konsole safely
 
 - [ ] Finish, save, or deliberately stop the work in every currently open
@@ -25,7 +40,7 @@ complete this checklist; restart only after their current work is safe.
 
 ## 2. Verify the restarted environment
 
-- [ ] Run the doctor:
+- [x] Run the doctor:
 
   ```bash
   agent-while-true doctor
@@ -43,8 +58,8 @@ complete this checklist; restart only after their current work is safe.
 
 ## 3. Confirm live provider state
 
-- [ ] Start one Codex and/or Claude Code session in the restarted Konsole.
-- [ ] Confirm classification and quota reads:
+- [x] Start one Codex and/or Claude Code session in a new input-enabled Konsole.
+- [x] Confirm classification and quota reads:
 
   ```bash
   agent-while-true status
@@ -59,25 +74,25 @@ input.
 
 ## 4. Observe before enabling input
 
-- [ ] Run the read-only dashboard for several scans:
+- [x] Run the read-only dashboard for several scans:
 
   ```bash
   agent-while-true run --observe --all
   ```
 
-- [ ] Confirm the correct sessions, provider names, states, quota values, and
+- [x] Confirm the correct sessions, provider names, states, quota values, and
   reset times are shown.
-- [ ] Exercise `+`, `-`, `p`, `r`, `t`, `e`, `l`, `h`, and `q`.
+- [x] Exercise `+`, `-`, `p`, `r`, `t`, `e`, `l`, `h`, and `q`.
 
 ## 5. Start automatic babysitting
 
-- [ ] For safe Claude automation with Codex text injection disabled, run:
+- [x] Start persistent auto babysitting for Claude and all selected sessions.
 
   ```bash
   agent-while-true run --auto --all --no-fzf
   ```
 
-- [ ] To explicitly allow Codex continuation text as well, run:
+- [x] Explicitly allow Codex continuation text in the local service override:
 
   ```bash
   AGENT_WATCH_ALLOW_CODEX_AUTO_RESUME=true \
@@ -99,7 +114,7 @@ model downgrades remain forbidden regardless of this option.
 
 - [ ] Confirm the history contains the relevant state changes and, when an
   action occurred, its `PLANNED`, `SENT`, and `VERIFIED` or `FAILED` lifecycle.
-- [ ] Confirm no terminal text, prompt content, credentials, or environment
+- [x] Confirm no terminal text, prompt content, credentials, or environment
   values were persisted.
 
 The structured history is stored at

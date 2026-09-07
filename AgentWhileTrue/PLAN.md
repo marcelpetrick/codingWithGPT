@@ -37,6 +37,9 @@ without reconstructing history.
   3.12–3.14 quality matrix, and verify the GitHub release with wheel and sdist.
 - [x] v0.27.2: make policy and reset-time tests independent of whether the CI
   host has qdbus installed or uses Europe/Berlin as its local timezone.
+- [x] v0.27.3: validate every TUI control live, deploy persistent auto-mode
+  babysitting with the explicit Codex opt-in, and prevent qdbus locale-warning
+  journal spam from the user service.
 
 ## 0. Evidence gathered before planning
 

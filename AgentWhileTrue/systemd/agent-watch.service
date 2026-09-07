@@ -12,6 +12,9 @@ ExecStart=%h/.local/bin/agent-while-true run --observe --all --no-fzf
 Restart=on-failure
 RestartSec=5s
 Environment=PYTHONUNBUFFERED=1
+# qdbus6 requires a UTF-8 process locale and otherwise emits a warning for
+# every D-Bus call, which can flood the user journal during frequent scans.
+Environment=LC_ALL=C.UTF-8
 
 [Install]
 WantedBy=default.target

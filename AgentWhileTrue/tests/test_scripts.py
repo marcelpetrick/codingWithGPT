@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).parents[1]
 PROXY = ROOT / "scripts" / "claude-statusline-proxy.sh"
 BRIDGE_INSTALLER = ROOT / "scripts" / "install-claude-bridge.sh"
+USER_SERVICE = ROOT / "systemd" / "agent-watch.service"
 
 
 def _run_proxy(
@@ -95,3 +96,8 @@ def test_bridge_installer_preserves_existing_statusline(tmp_path: Path) -> None:
     )
     assert again.returncode == 0
     assert "already configured" in again.stdout
+
+
+def test_user_service_forces_a_utf8_locale_for_qdbus() -> None:
+    unit = USER_SERVICE.read_text(encoding="utf-8")
+    assert "Environment=LC_ALL=C.UTF-8" in unit

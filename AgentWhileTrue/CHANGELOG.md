@@ -7,6 +7,23 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 While the major version is `0`, the minor version is bumped for every feature
 increment and the patch version for fixes.
 
+## [0.27.3] - 2026-09-07
+
+### Fixed
+
+- The systemd user service now supplies a UTF-8 locale, preventing qdbus6 from
+  flooding the journal with one locale warning for every D-Bus call.
+
+### Verified
+
+- New Konsole processes permit scoped D-Bus input while pre-setting processes
+  remain safely blocked.
+- The installed TUI's refresh, pause, theme, history, help, rescan, and quit
+  controls pass against a live read-only pseudo-terminal.
+- A persistent auto-mode user service now watches all sessions with the
+  explicit Codex-resume policy enabled; paid and model-changing actions remain
+  forbidden.
+
 ## [0.27.2] - 2026-09-06
 
 ### Fixed
