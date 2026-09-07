@@ -2,8 +2,8 @@
 # Build every version, diff its output against CPython, and report the byte count.
 # Usage: ./run_tests.sh [source...]     (default: all of src/pygolf_v*.c)
 #
-# v1..v9 implement the full documented subset and are checked against every
-# program in tests/ plus program.py. v10 and v11 are the FizzBuzz-only
+# v1-v9 and v13 implement the full documented subset and are checked against every
+# program in tests/ plus program.py. v10-v12 are the FizzBuzz-only
 # minimum and are checked against program.py alone - see README.md.
 set -u
 
@@ -19,7 +19,7 @@ for src in "${srcs[@]}"; do
     name=$(basename "$src" .c)
     bytes=$(wc -c < "$src")
     case "$name" in
-        pygolf_v10|pygolf_v11) cases=(program.py) ;;
+        pygolf_v1[012]) cases=(program.py) ;;
         *)                     cases=("${full[@]}") ;;
     esac
     if ! gcc -std=gnu89 -w -O1 -o "build/$name" "$src" 2>"build/$name.log"; then
