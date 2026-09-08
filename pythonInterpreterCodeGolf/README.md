@@ -8,11 +8,20 @@ FizzBuzz in [`program.py`](program.py), fed to the interpreter on stdin:
 make && ./bin/pygolf < program.py     # 101 lines, byte-identical to CPython
 ```
 
-The challenge came from a screenshot of someone's `python1024.c`
-([`input_python1024running.png`](input_python1024running.png)): 1024 bytes of C
-that runs FizzBuzz written in Python. Nothing here is copied from it or from
-anywhere else - the design below was worked out from scratch, and the golfing
-was done one measurable step at a time.
+The challenge came from a screenshot
+([`input_python1024running.png`](input_python1024running.png)) of
+**Austin Z. Henley**'s `python1024.c`: 1024 bytes of C that runs FizzBuzz
+written in Python. He is a Principal Applied Scientist at Microsoft; his post
+[Making a Python interpreter in 1024 bytes](https://austinhenley.com/blog/python1024.html)
+(6 September 2026,
+[Hacker News](https://news.ycombinator.com/item?id=49591876), 315 points) and
+his source at [AZHenley/python1024](https://github.com/AZHenley/python1024)
+are the prior art here.
+
+Nothing in this repository is copied from it. Only the screenshot above was
+known while writing this - the post and the source were read afterwards, to
+compare. The design below was worked out from scratch and the golfing was done
+one measurable step at a time.
 
 **Result: 959 bytes for the full subset, 622 bytes for a FizzBuzz-only build.**
 
@@ -50,6 +59,54 @@ FizzBuzz.
 Byte counts are of the source file alone. No `-D` flags smuggle code onto the
 compiler command line: every version builds with plain
 `gcc -std=gnu89 -w`, the same way the screenshot's `python1024.c` was built.
+
+## Prior art, and how this one differs
+
+Same target, two different machines underneath. Henley's interpreter is a
+recursive-descent parser that **executes directly off the source text** with no
+intermediate form: a loop repeats by "jumping backwards and reparsing the
+source each iteration", a function stores its position in the symbol table and
+a call saves the caller's position, jumps there, and restores it afterwards.
+
+This one keeps a **normalized line table** instead. One pass strips spaces and
+comments and records each line's indent; after that a block is an *index
+range*, a loop re-runs `X(i+1, e)`, and the C call stack carries the nesting.
+Both of us landed independently on first-letter keyword matching, single-letter
+identifiers, C89 implicit `int`, numeric character codes and ternary/comma
+folding - convergent evolution, given the same compiler and the same target.
+
+The subsets differ, so the byte counts are not a clean head-to-head:
+
+| | python1024 (1024 B) | pygolf v13 (959 B) |
+|---|---|---|
+| `while ... else` / `for ... else` | yes | no |
+| Recursive calls | yes | yes (verified) |
+| `range(a, b, c)` | `range(y)` only | full |
+| Parentheses in expressions | no | yes |
+| `/` and `//` | no | yes |
+| `!=` | no | yes |
+| Truthiness of a bare integer | yes | yes |
+
+His build is `gcc-16 -std=gnu89 -w` and GCC-only; so is this one.
+
+A note on recursion, since it is the one place the two designs meet: a function
+here may call itself, and
+
+```python
+def count():
+    print(n)
+    n = n - 1
+    if n > 0:
+        count()
+    else:
+        print("liftoff")
+```
+
+prints `3 2 1 liftoff` - but CPython *rejects* that program with
+`UnboundLocalError`, because assigning `n` makes it local and it would need a
+`global n`. Every variable here is global, so this is a genuine divergence,
+not a subset: it is not in `tests/`, which only holds programs whose output
+CPython agrees with.
 
 ## How it works, in four stages
 
