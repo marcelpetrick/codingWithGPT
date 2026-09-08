@@ -19,8 +19,9 @@ was done one measurable step at a time.
 ## Results
 
 Every version is checked by `./run_tests.sh`, which diffs its output against
-real CPython for each test program. v1-v9 run the whole subset (6 programs);
-v10 and v11 are deliberately reduced to what FizzBuzz needs (1 program).
+real CPython for each test program. v1-v9 and v13 run the whole subset
+(6 programs); v10-v12 are deliberately reduced to what FizzBuzz needs
+(1 program). Each version is one commit, so `git log` is the same ladder.
 
 | Version | Bytes | Saved | Tests | What changed | What it cost |
 |---|---:|---:|:--:|---|---|
@@ -107,7 +108,8 @@ loop body is re-scanned on every pass, which is slow and wonderfully small.
 
 One precedence-climbing loop over a global character cursor. An operator's
 index in the string `"=!<>+-*/%"` gives both its precedence
-(`1+(i>3)+(i>5)`) and which operation to apply:
+(`1+(i>3)+(i>5)`) and which operation to apply - here with the character
+literals spelled out, where the source uses their codes:
 
 ```c
 while (*p && (o = strchr(O,*p)) && (i = o-O, l = 1+(i>3)+(i>5)) > k) {
@@ -183,6 +185,7 @@ program.py        the FizzBuzz that has to work
 src/pygolf_v1.c   readable reference, fully commented - start here
 src/pygolf_v13.c  the 959-byte full-subset version
 src/pygolf_v12.c  the 622-byte FizzBuzz version, one line
+src/pygolf_v*.c   all thirteen versions, one commit each
 bin/pygolf        prebuilt v13  (x86-64 Linux)
 bin/pygolf-min    prebuilt v12  (x86-64 Linux)
 tests/            programs whose output must match CPython exactly
