@@ -88,6 +88,8 @@ The subsets differ, so the byte counts are not a clean head-to-head:
 | Truthiness of a bare integer | yes | yes |
 
 His build is `gcc-16 -std=gnu89 -w` and GCC-only; so is this one.
+Full notes, with sources and the trick-by-trick split, are in
+[COMPARISON.md](COMPARISON.md).
 
 A note on recursion, since it is the one place the two designs meet: a function
 here may call itself, and
