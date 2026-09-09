@@ -8,6 +8,8 @@ FizzBuzz in [`program.py`](program.py), fed to the interpreter on stdin:
 make && ./bin/pygolf < program.py     # 101 lines, byte-identical to CPython
 ```
 
+![](screenshot.png)
+
 The challenge came from a screenshot
 ([`input_python1024running.png`](input_python1024running.png)) of
 **Austin Z. Henley**'s `python1024.c`: 1024 bytes of C that runs FizzBuzz
