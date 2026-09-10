@@ -10,6 +10,16 @@ All notable changes to tokenUsage2. Versions follow semantic versioning; the
 archive schema version is noted whenever it changes, because an older build
 refuses a newer archive.
 
+## 0.3.5
+
+### Performance
+
+- Snapshots 32/41/43 → 20/24/24 ms (day/week/month) on 45k events. Each
+  bucket walks its own time slice instead of a bisect per event, the grouping
+  key is specialised once per snapshot (project basenames memoised), bucket
+  totals are merged from their group tallies, the month/week/day totals
+  accumulate per account and merge, and the heatmap is sliced by day.
+
 ## 0.3.4
 
 ### Performance

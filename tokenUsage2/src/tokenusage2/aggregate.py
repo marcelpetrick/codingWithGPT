@@ -9,7 +9,7 @@ Bucket edges are local midnights computed with ``zoneinfo``, so days that are
 """
 
 import math
-from bisect import bisect_left, bisect_right
+from bisect import bisect_left
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from datetime import date, datetime, time, timedelta, tzinfo
@@ -275,21 +275,38 @@ def logged_route(event: Event) -> str:
     return event.route
 
 
+def key_function(
+    group: GroupBy,
+    names: Mapping[str, str],
+    backend: Callable[[Event], str] = logged_route,
+) -> Callable[[Event], str]:
+    """A grouping key specialised once per snapshot, not re-dispatched per event."""
+    if group is GroupBy.ACCOUNT:
+        return lambda event: names.get(event.account, event.account)
+    if group is GroupBy.TOOL:
+        return lambda event: event.tool.value
+    if group is GroupBy.BACKEND:
+        return backend
+    if group is GroupBy.MODEL:
+        return lambda event: event.model
+    projects: dict[str, str] = {}
+
+    def project(event: Event) -> str:
+        name = projects.get(event.project)
+        if name is None:
+            name = projects[event.project] = project_name(event.project)
+        return name
+
+    return project
+
+
 def group_key(
     event: Event,
     group: GroupBy,
     names: Mapping[str, str],
     backend: Callable[[Event], str] = logged_route,
 ) -> str:
-    if group is GroupBy.ACCOUNT:
-        return names.get(event.account, event.account)
-    if group is GroupBy.TOOL:
-        return str(event.tool)
-    if group is GroupBy.BACKEND:
-        return backend(event)
-    if group is GroupBy.MODEL:
-        return event.model
-    return project_name(event.project)
+    return key_function(group, names, backend)(event)
 
 
 def quota_view(quota: QuotaWindow, now: float) -> QuotaView:
@@ -351,12 +368,18 @@ def build_snapshot(
     for index, start in enumerate(starts[:-1]):
         short, long = labels(period, start)
         buckets.append(Bucket(start, edges[index], edges[index + 1], short, long))
-    for position in _slice(timestamps, edges[0], edges[-1]):
-        event = events[position]
-        bucket = buckets[bisect_right(edges, event.ts) - 1]
-        key = group_key(event, group, names, label)
-        bucket.groups.setdefault(key, Tally()).add(event.usage)
-        bucket.total.add(event.usage)
+    key_of = key_function(group, names, label)
+    for bucket in buckets:
+        tallies = bucket.groups
+        for position in _slice(timestamps, bucket.start_ts, bucket.end_ts):
+            event = events[position]
+            key = key_of(event)
+            tally = tallies.get(key)
+            if tally is None:
+                tally = tallies[key] = Tally()
+            tally.add(event.usage)
+        for tally in tallies.values():
+            bucket.total.merge(tally)
 
     weights: dict[str, int] = {}
     for bucket in buckets:
@@ -370,9 +393,10 @@ def build_snapshot(
     breakdown_rows: dict[str, BreakdownRow] = {}
     if buckets:
         chosen = buckets[selected]
+        detail_of = key_function(detail, names, label)
         for position in _slice(timestamps, chosen.start_ts, chosen.end_ts):
             event = events[position]
-            key = group_key(event, detail, names, label)
+            key = detail_of(event)
             row = breakdown_rows.get(key)
             if row is None:
                 extra = {GroupBy.MODEL: label(event), GroupBy.ACCOUNT: str(event.tool)}.get(
@@ -412,19 +436,20 @@ def build_snapshot(
         if row is not None:
             row.all = lifetime.tally.copy()
             row.last_ts = lifetime.last_ts
-    # Only the current week or month needs walking; all-time totals are kept.
-    for position in _slice(timestamps, min(week_start, month_start), math.inf):
-        event = events[position]
-        row = rows.get(event.account)
-        targets = []
-        if event.ts >= month_start:
-            targets += [overall["month"]] + ([row.month] if row else [])
-        if event.ts >= week_start:
-            targets += [overall["week"]] + ([row.week] if row else [])
-        if event.ts >= day_start:
-            targets += [overall["today"]] + ([row.today] if row else [])
-        for tally in targets:
+    # Only the current month, week and day are walked; all-time totals are kept.
+    for name, start in (("month", month_start), ("week", week_start), ("today", day_start)):
+        per_account: dict[str, Tally] = {}
+        for position in _slice(timestamps, start, math.inf):
+            event = events[position]
+            tally = per_account.get(event.account)
+            if tally is None:
+                tally = per_account[event.account] = Tally()
             tally.add(event.usage)
+        for account_id, tally in per_account.items():
+            overall[name].merge(tally)
+            row = rows.get(account_id)
+            if row is not None:
+                setattr(row, name, tally)
 
     rate_total = 0
     for position in _slice(timestamps, now - 24 * 3600, now + 1):
@@ -448,13 +473,13 @@ def build_snapshot(
     heat_days = [today - timedelta(days=offset) for offset in range(27, -2, -1)]
     heat_edges = [midnight(day, tz) for day in heat_days]
     heatmap = [[0] * 24 for _ in range(7)]
-    for position in _slice(timestamps, heat_edges[0], heat_edges[-1]):
-        event = events[position]
-        if event.usage.unsplit:
-            continue
-        day_index = bisect_right(heat_edges, event.ts) - 1
-        hour = min(23, int((event.ts - heat_edges[day_index]) // 3600))
-        heatmap[heat_days[day_index].weekday()][hour] += usage_value(event.usage, metric)
+    for index, day in enumerate(heat_days[:-1]):
+        start, cells = heat_edges[index], heatmap[day.weekday()]
+        for position in _slice(timestamps, start, heat_edges[index + 1]):
+            event = events[position]
+            if not event.usage.unsplit:
+                hour = min(23, int((event.ts - start) // 3600))
+                cells[hour] += usage_value(event.usage, metric)
 
     latest = [event for event in reversed(events[-(recent * 4) :]) if not event.usage.unsplit]
     return Snapshot(
