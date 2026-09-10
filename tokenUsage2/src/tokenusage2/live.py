@@ -16,7 +16,7 @@ from tokenusage2.discover import discover
 from tokenusage2.doctor import doctor_lines
 from tokenusage2.ingest import Ingestor, Progress, ScanReport
 from tokenusage2.model import Account, Event, QuotaWindow
-from tokenusage2.procscan import running_by_account, scan_processes
+from tokenusage2.procscan import ProcessScanner, running_by_account
 from tokenusage2.store import Store
 
 REDISCOVER_SECONDS = 30.0
@@ -61,7 +61,8 @@ class LiveSource:
         self.tz = tz
         self.proc = proc
         self.clock = clock
-        self.processes = scan_processes(proc)
+        self.scanner = ProcessScanner(proc)
+        self.processes = self.scanner.scan()
         self.discovery = discover(home, env, config, self.processes)
         self.ingestor = Ingestor(store, self.discovery, tz, home, env, clock)
         self._discovered_at = clock()
@@ -74,7 +75,7 @@ class LiveSource:
         ]
 
     def rediscover(self) -> None:
-        self.processes = scan_processes(self.proc)
+        self.processes = self.scanner.scan(full=True)
         self.discovery = discover(self.home, self.env, self.config, self.processes)
         self.ingestor.set_discovery(self.discovery)
         self._discovered_at = self.clock()
@@ -84,7 +85,7 @@ class LiveSource:
         if self.clock() - self._discovered_at >= REDISCOVER_SECONDS:
             self.rediscover()
         else:
-            self.processes = scan_processes(self.proc)
+            self.processes = self.scanner.scan()
         return self.ingestor.scan(progress)
 
     def events(self) -> list[Event]:

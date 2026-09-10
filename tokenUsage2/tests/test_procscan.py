@@ -9,6 +9,7 @@ import pytest
 from tokenusage2.model import Account, Tool
 from tokenusage2.procscan import (
     AgentProcess,
+    ProcessScanner,
     classify,
     model_flag,
     running_by_account,
@@ -123,3 +124,20 @@ def test_subcommand() -> None:
     assert subcommand([]) is None
     assert subcommand(["--yolo", "-c", "a=b", "resume", "x"]) == "resume"
     assert subcommand(["--model"]) is None
+
+
+def test_process_scanner_reads_each_pid_once(tmp_path: Path) -> None:
+    proc = tmp_path / "proc"
+    make_process(proc, 20, "codex", ["codex"], {})
+    make_process(proc, 21, "bash", ["bash"], {})
+    scanner = ProcessScanner(proc)
+    assert [p.pid for p in scanner.scan()] == [20]
+    make_process(proc, 22, "claude", ["claude"], {})
+    (proc / "21" / "comm").write_text("claude\n")  # an exec after the first read
+    assert [p.pid for p in scanner.scan()] == [20, 22]
+    assert [p.pid for p in scanner.scan(full=True)] == [20, 21, 22]
+    for name in ("comm", "cmdline", "environ"):
+        (proc / "20" / name).unlink()
+    (proc / "20").rmdir()
+    assert [p.pid for p in scanner.scan()] == [21, 22]
+    assert ProcessScanner(tmp_path / "missing").scan() == []

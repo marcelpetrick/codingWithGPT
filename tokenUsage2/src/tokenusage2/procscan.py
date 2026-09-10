@@ -146,42 +146,61 @@ def environ_values(raw: bytes, keys: Sequence[str] = WANTED) -> dict[str, str]:
     return values
 
 
-def scan_processes(proc: Path = Path("/proc")) -> list[AgentProcess]:
-    found = []
+def read_process(proc: Path, pid: int) -> AgentProcess | None:
+    """Classify one process; ``None`` when it is not an agent session or vanished."""
+    base = proc / str(pid)
     try:
-        entries = list(os.scandir(proc))
+        comm = (base / "comm").read_text(encoding="utf-8", errors="replace").strip()
+        argv = [
+            part.decode(errors="replace")
+            for part in (base / "cmdline").read_bytes().split(b"\0")
+            if part
+        ]
     except OSError:
-        return []
-    for entry in entries:
-        if not entry.name.isdigit():
-            continue
-        base = Path(entry.path)
+        return None
+    tool = classify(comm, argv)
+    if tool is None:
+        return None
+    try:
+        env = environ_values((base / "environ").read_bytes())
+    except OSError:
+        env = {}
+    try:
+        cwd = str((base / "cwd").readlink())
+    except OSError:
+        cwd = ""
+    return AgentProcess(pid, tool, env, model_flag(argv) or env.get("ANTHROPIC_MODEL"), cwd)
+
+
+class ProcessScanner:
+    """Incremental ``/proc`` scan: every new pid is read once, vanished pids forgotten.
+
+    A pid keeps its classification for its lifetime; the rare process that is
+    caught between fork and exec is corrected by the next ``full`` scan.
+    """
+
+    def __init__(self, proc: Path = Path("/proc")) -> None:
+        self.proc = proc
+        self._known: dict[int, AgentProcess | None] = {}
+
+    def scan(self, *, full: bool = False) -> list[AgentProcess]:
+        if full:
+            self._known.clear()
         try:
-            comm = (base / "comm").read_text(encoding="utf-8", errors="replace").strip()
-            argv = [
-                part.decode(errors="replace")
-                for part in (base / "cmdline").read_bytes().split(b"\0")
-                if part
-            ]
+            # Plain names, not a Path per process: this runs on every refresh.
+            pids = {int(name) for name in os.listdir(self.proc) if name.isdigit()}  # noqa: PTH208
         except OSError:
-            continue
-        tool = classify(comm, argv)
-        if tool is None:
-            continue
-        try:
-            env = environ_values((base / "environ").read_bytes())
-        except OSError:
-            env = {}
-        try:
-            cwd = str((base / "cwd").readlink())
-        except OSError:
-            cwd = ""
-        found.append(
-            AgentProcess(
-                int(entry.name), tool, env, model_flag(argv) or env.get("ANTHROPIC_MODEL"), cwd
-            )
-        )
-    return sorted(found, key=lambda process: process.pid)
+            self._known.clear()
+            return []
+        for pid in self._known.keys() - pids:
+            del self._known[pid]
+        for pid in pids - self._known.keys():
+            self._known[pid] = read_process(self.proc, pid)
+        return sorted((p for p in self._known.values() if p is not None), key=lambda p: p.pid)
+
+
+def scan_processes(proc: Path = Path("/proc")) -> list[AgentProcess]:
+    return ProcessScanner(proc).scan()
 
 
 def process_home(process: AgentProcess, home: Path, env: Mapping[str, str]) -> Path | None:

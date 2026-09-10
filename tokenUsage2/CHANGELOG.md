@@ -10,6 +10,16 @@ All notable changes to tokenUsage2. Versions follow semantic versioning; the
 archive schema version is noted whenever it changes, because an older build
 refuses a newer archive.
 
+## 0.3.6
+
+### Performance
+
+- The idle rescan that runs every refresh 17.8 → 4.6 ms. `/proc` is scanned
+  incrementally — each new pid is read once, vanished pids are forgotten, and
+  the 30-second rediscovery does a full rescan — and transcript files are
+  walked with `os.scandir` as plain strings instead of a `Path` object per file
+  per scan. A fresh full scan still yields an identical event fingerprint.
+
 ## 0.3.5
 
 ### Performance

@@ -25,7 +25,7 @@ from conftest import (
 from tokenusage2.aggregate import lifetimes_of
 from tokenusage2.config import Config
 from tokenusage2.discover import discover
-from tokenusage2.ingest import EventIndex, Ingestor
+from tokenusage2.ingest import EventIndex, Ingestor, walk_jsonl
 from tokenusage2.model import Event, Tool, Usage
 from tokenusage2.store import Store, StoreError
 
@@ -336,6 +336,19 @@ def test_index_trusts_ordered_rows_only_when_they_are_unique() -> None:
     assert EventIndex([late, early]).events() == [early, late]
     duplicate = replace(early, ts=3.0)
     assert EventIndex([early, late, duplicate], ordered=True).events() == [late, duplicate]
+
+
+def test_walk_jsonl_filters_by_prefix_and_skips_directory_links(tmp_path: Path) -> None:
+    (tmp_path / "a" / "b").mkdir(parents=True)
+    for name in ("a/rollout-1.jsonl", "a/b/rollout-2.jsonl", "a/other.jsonl", "a/b/note.txt"):
+        (tmp_path / name).write_text("")
+    (tmp_path / "loop").symlink_to(tmp_path / "a", target_is_directory=True)
+    found = sorted(
+        Path(path).relative_to(tmp_path).as_posix() for path in walk_jsonl(tmp_path, "rollout-")
+    )
+    assert found == ["a/b/rollout-2.jsonl", "a/rollout-1.jsonl"]
+    assert len(list(walk_jsonl(tmp_path))) == 3
+    assert list(walk_jsonl(tmp_path / "missing")) == []
 
 
 def test_schema_2_archives_keep_only_the_logged_route(tmp_path: Path) -> None:

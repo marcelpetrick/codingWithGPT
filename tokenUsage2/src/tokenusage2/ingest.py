@@ -165,11 +165,20 @@ class ScanReport:
         return bool(self.events_changed or self.quota_updates)
 
 
-def walk_jsonl(root: Path) -> Iterator[Path]:
-    for directory, _subdirectories, names in os.walk(root):
-        for name in names:
-            if name.endswith(".jsonl"):
-                yield Path(directory, name)
+def walk_jsonl(root: Path | str, prefix: str = "") -> Iterator[str]:
+    """``.jsonl`` files below ``root`` as plain strings (no Path objects per scan)."""
+    stack = [str(root)]
+    while stack:
+        try:
+            entries = os.scandir(stack.pop())
+        except OSError:
+            continue
+        with entries:
+            for entry in entries:
+                if entry.is_dir(follow_symlinks=False):
+                    stack.append(entry.path)
+                elif entry.name.endswith(".jsonl") and entry.name.startswith(prefix):
+                    yield entry.path
 
 
 class Ingestor:
@@ -207,15 +216,14 @@ class Ingestor:
     def files(self) -> list[FileState]:
         return list(self._files.values())
 
-    def files_for(self, account: Account) -> list[Path]:
+    def files_for(self, account: Account) -> list[str]:
         if account.tool is Tool.CLAUDE:
             return list(walk_jsonl(account.home / "projects"))
         if account.tool is Tool.CODEX:
             return [
                 path
                 for root in ("sessions", "archived_sessions")
-                for path in walk_jsonl(account.home / root)
-                if path.name.startswith("rollout-")
+                for path in walk_jsonl(account.home / root, "rollout-")
             ]
         return []
 
@@ -278,10 +286,9 @@ class Ingestor:
             self.store.upsert_quotas(changed)
         return len(changed)
 
-    def _ingest_file(self, account: Account, path: Path, report: ScanReport) -> None:
-        key = str(path)
+    def _ingest_file(self, account: Account, key: str, report: ScanReport) -> None:
         try:
-            stat = path.stat()
+            stat = os.stat(key)  # noqa: PTH116 - no Path object per file per scan
         except OSError:
             return
         report.files_seen += 1
@@ -301,6 +308,7 @@ class Ingestor:
         )
         start = state.offset if resume and state is not None else 0
         ctx = state.ctx if resume and state is not None else {}
+        path = Path(key)
         parser = make_parser(account, ctx, path)
         events: list[Event] = []
         offset = start
