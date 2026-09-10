@@ -20,6 +20,7 @@ from datetime import datetime, tzinfo
 from datetime import time as clock_time
 from pathlib import Path
 
+from tokenusage2.aggregate import Lifetime, lifetimes_of
 from tokenusage2.discover import Discovery, display_path
 from tokenusage2.model import Account, Event, QuotaWindow, Tool
 from tokenusage2.parsers import (
@@ -35,12 +36,24 @@ type Progress = Callable[[int, int], None]
 
 
 class EventIndex:
-    """In-memory events by key, applying the archive's keep-the-larger rule."""
+    """In-memory events by key, applying the archive's keep-the-larger rule.
+
+    Per-account lifetime totals, the first transcript timestamp and the record
+    count are maintained on every change, so neither a frame nor a scan has to
+    walk the whole history. Removing the first or newest record of an account
+    marks it stale; that one account is recomputed when next read.
+    """
 
     def __init__(self, events: Iterable[Event] = ()) -> None:
         self._by_key: dict[str, Event] = {event.key: event for event in events}
         self._sorted: list[Event] | None = None
         self.generation = 0
+        self._lifetimes = lifetimes_of(self._by_key.values())
+        self._first: dict[str, float] = {}
+        self._records: dict[str, int] = {}
+        self._stale: set[str] = set()
+        for event in self._by_key.values():
+            self._note(event)
 
     def __len__(self) -> int:
         return len(self._by_key)
@@ -48,18 +61,54 @@ class EventIndex:
     def get(self, key: str) -> Event | None:
         return self._by_key.get(key)
 
-    def count(self, account: str, skip_prefix: str) -> int:
-        return sum(
-            1
-            for key, event in self._by_key.items()
-            if event.account == account and not key.startswith(skip_prefix)
-        )
+    def _note(self, event: Event) -> None:
+        if event.key.startswith(BACKFILL_PREFIX):
+            return
+        account = event.account
+        self._records[account] = self._records.get(account, 0) + 1
+        first = self._first.get(account)
+        if first is None or event.ts < first:
+            self._first[account] = event.ts
+
+    def _add(self, event: Event) -> None:
+        lifetime = self._lifetimes.get(event.account)
+        if lifetime is None:
+            lifetime = self._lifetimes[event.account] = Lifetime()
+        lifetime.tally.add(event.usage)
+        if not event.usage.unsplit and (lifetime.last_ts is None or event.ts > lifetime.last_ts):
+            lifetime.last_ts = event.ts
+        self._note(event)
+
+    def _remove(self, event: Event) -> None:
+        account = event.account
+        lifetime = self._lifetimes[account]
+        lifetime.tally.remove(event.usage)
+        if event.ts in (lifetime.last_ts, self._first.get(account)):
+            self._stale.add(account)
+        if not event.key.startswith(BACKFILL_PREFIX):
+            self._records[account] -= 1
+
+    def _refresh(self, account: str) -> None:
+        if account not in self._stale:
+            return
+        self._stale.discard(account)
+        mine = [event for event in self._by_key.values() if event.account == account]
+        fresh = lifetimes_of(mine).get(account, Lifetime())
+        self._lifetimes.setdefault(account, Lifetime()).last_ts = fresh.last_ts
+        transcripts = [e.ts for e in mine if not e.key.startswith(BACKFILL_PREFIX)]
+        if transcripts:
+            self._first[account] = min(transcripts)
+        else:
+            self._first.pop(account, None)
 
     def upsert(self, event: Event) -> bool:
         old = self._by_key.get(event.key)
         if old is not None and event.usage.total <= old.usage.total:
             return False
+        if old is not None:
+            self._remove(old)
         self._by_key[event.key] = event
+        self._add(event)
         self._sorted = None
         self.generation += 1
         return True
@@ -71,7 +120,7 @@ class EventIndex:
             if key.startswith(prefix) and event.ts >= min_ts
         ]
         for key in doomed:
-            del self._by_key[key]
+            self._remove(self._by_key.pop(key))
         if doomed:
             self._sorted = None
             self.generation += 1
@@ -82,15 +131,19 @@ class EventIndex:
             self._sorted = sorted(self._by_key.values(), key=lambda event: event.ts)
         return self._sorted
 
-    def earliest(self, account: str, skip_prefix: str) -> float | None:
-        return min(
-            (
-                event.ts
-                for key, event in self._by_key.items()
-                if event.account == account and not key.startswith(skip_prefix)
-            ),
-            default=None,
-        )
+    def lifetimes(self) -> dict[str, Lifetime]:
+        for account in list(self._stale):
+            self._refresh(account)
+        return self._lifetimes
+
+    def earliest(self, account: str) -> float | None:
+        """First transcript record of ``account`` (retained daily totals excluded)."""
+        self._refresh(account)
+        return self._first.get(account)
+
+    def count(self, account: str) -> int:
+        """Transcript records of ``account`` (retained daily totals excluded)."""
+        return self._records.get(account, 0)
 
 
 @dataclass(slots=True)
@@ -209,7 +262,7 @@ class Ingestor:
         if not copies:
             return None
         other, count = max(copies.items(), key=lambda item: item[1])
-        return other if count > self.index.count(account, BACKFILL_PREFIX) else None
+        return other if count > self.index.count(account) else None
 
     def _apply_quotas(self, quotas: Iterable[QuotaWindow]) -> int:
         changed = []
@@ -305,7 +358,7 @@ class Ingestor:
             stat = path.stat()
         except OSError:
             return
-        first = self.index.earliest(account.id, BACKFILL_PREFIX)
+        first = self.index.earliest(account.id)
         before = datetime.fromtimestamp(first, self.tz).date() if first is not None else None
         mirror = self.mirror_of(account.id)
         signature = f"{stat.st_size}:{stat.st_mtime_ns}:{before}:{mirror}"

@@ -10,6 +10,17 @@ All notable changes to tokenUsage2. Versions follow semantic versioning; the
 archive schema version is noted whenever it changes, because an older build
 refuses a newer archive.
 
+## 0.3.2
+
+### Fixed
+
+- Every snapshot re-added the entire history to get the all-time totals, so
+  the cost grew with an archive that never shrinks. The event index now keeps
+  per-account lifetime totals, the first transcript timestamp and the record
+  count current on every change; a snapshot only walks the current week or
+  month. Measured on 45k events: snapshot 69 → 34 ms (day), 78 → 44 ms (week,
+  month); idle rescan 21 → 18 ms because the backfill check is O(1) now.
+
 ## 0.3.1
 
 ### Added

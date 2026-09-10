@@ -8,9 +8,10 @@ Bucket edges are local midnights computed with ``zoneinfo``, so days that are
 23 or 25 hours long around DST changes are still exactly one bucket.
 """
 
+import math
 from bisect import bisect_left, bisect_right
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, datetime, time, timedelta, tzinfo
 from enum import StrEnum
 from pathlib import PurePath
@@ -70,6 +71,28 @@ class Tally:
         self.reasoning += usage.reasoning
         self.unsplit += usage.unsplit
 
+    def remove(self, usage: Usage) -> None:
+        if not usage.unsplit:
+            self.calls -= 1
+        self.input -= usage.input
+        self.cache_read -= usage.cache_read
+        self.cache_write -= usage.cache_write
+        self.output -= usage.output
+        self.reasoning -= usage.reasoning
+        self.unsplit -= usage.unsplit
+
+    def merge(self, other: Tally) -> None:
+        self.calls += other.calls
+        self.input += other.input
+        self.cache_read += other.cache_read
+        self.cache_write += other.cache_write
+        self.output += other.output
+        self.reasoning += other.reasoning
+        self.unsplit += other.unsplit
+
+    def copy(self) -> Tally:
+        return replace(self)
+
     @property
     def total(self) -> int:
         return self.input + self.cache_read + self.cache_write + self.output + self.unsplit
@@ -89,6 +112,27 @@ class Tally:
     def hatched(self, metric: Metric) -> int:
         """The part of ``value`` that comes from retained, unsplit totals."""
         return self.unsplit if metric is Metric.TOTAL else 0
+
+
+@dataclass(slots=True)
+class Lifetime:
+    """An account's all-time totals, kept current instead of recounted per frame."""
+
+    tally: Tally = field(default_factory=Tally)
+    last_ts: float | None = None
+
+
+def lifetimes_of(events: Iterable[Event]) -> dict[str, Lifetime]:
+    """All-time totals and newest request per account, in one pass."""
+    found: dict[str, Lifetime] = {}
+    for event in events:
+        lifetime = found.get(event.account)
+        if lifetime is None:
+            lifetime = found[event.account] = Lifetime()
+        lifetime.tally.add(event.usage)
+        if not event.usage.unsplit and (lifetime.last_ts is None or event.ts > lifetime.last_ts):
+            lifetime.last_ts = event.ts
+    return found
 
 
 def usage_value(usage: Usage, metric: Metric) -> int:
@@ -282,11 +326,13 @@ def build_snapshot(
     archived: Iterable[str] = (),
     running: Mapping[str, int] | None = None,
     backend: Callable[[Event], str] | None = None,
+    lifetimes: Mapping[str, Lifetime] | None = None,
 ) -> Snapshot:
     """Aggregate ``events`` (sorted by ``ts``) for one dashboard frame.
 
     ``cursor`` selects the bucket that many periods before the current one;
-    the visible window scrolls only when the cursor leaves it.
+    the visible window scrolls only when the cursor leaves it. ``lifetimes``
+    are the all-time totals per account; without them they are recounted.
     """
     if account_filter is not None:
         events = [event for event in events if event.account == account_filter]
@@ -356,10 +402,21 @@ def build_snapshot(
         for account in accounts
         if account_filter is None or account.id == account_filter
     }
+    known = lifetimes_of(events) if lifetimes is None else lifetimes
+    if account_filter is not None:
+        known = {account_filter: known[account_filter]} if account_filter in known else {}
     overall = {"today": Tally(), "week": Tally(), "month": Tally(), "all": Tally()}
-    for event in events:
+    for account_id, lifetime in known.items():
+        overall["all"].merge(lifetime.tally)
+        row = rows.get(account_id)
+        if row is not None:
+            row.all = lifetime.tally.copy()
+            row.last_ts = lifetime.last_ts
+    # Only the current week or month needs walking; all-time totals are kept.
+    for position in _slice(timestamps, min(week_start, month_start), math.inf):
+        event = events[position]
         row = rows.get(event.account)
-        targets = [overall["all"]] + ([row.all] if row else [])
+        targets = []
         if event.ts >= month_start:
             targets += [overall["month"]] + ([row.month] if row else [])
         if event.ts >= week_start:
@@ -368,8 +425,6 @@ def build_snapshot(
             targets += [overall["today"]] + ([row.today] if row else [])
         for tally in targets:
             tally.add(event.usage)
-        if row is not None and not event.usage.unsplit:
-            row.last_ts = event.ts
 
     rate_total = 0
     for position in _slice(timestamps, now - 24 * 3600, now + 1):

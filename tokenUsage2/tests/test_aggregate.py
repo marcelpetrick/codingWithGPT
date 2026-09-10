@@ -9,12 +9,14 @@ from pathlib import Path
 from conftest import BERLIN
 from tokenusage2.aggregate import (
     GroupBy,
+    Lifetime,
     Metric,
     Period,
     Snapshot,
     Tally,
     build_snapshot,
     labels,
+    lifetimes_of,
     period_start,
     periods_back,
     project_name,
@@ -136,6 +138,18 @@ def test_breakdowns_and_groupings() -> None:
     relabelled = snap(events, group=GroupBy.BACKEND, backend=lambda e: f"via {e.route}")
     assert relabelled.groups == ["via anthropic", "via ollama@gpu"]
     assert snap(events, group=GroupBy.PROJECT).groups == ["alpha"]
+
+
+def test_supplied_lifetimes_replace_the_full_recount() -> None:
+    events = [ev(at(40)), ev(at(0)), ev(at(0), "b")]
+    recounted = snap(events)
+    supplied = snap(events, lifetimes=lifetimes_of(events))
+    assert (supplied.all, supplied.accounts) == (recounted.all, recounted.accounts)
+    marker = snap(events, lifetimes={"a": Lifetime(Tally(calls=1, input=999), at(5))})
+    assert marker.all.total == 999
+    row = next(r for r in marker.accounts if r.id == "a")
+    assert (row.all.total, row.last_ts) == (999, at(5))
+    assert snap(events, lifetimes={}, account_filter="a").all.total == 0
 
 
 def test_account_filter() -> None:

@@ -163,6 +163,7 @@ def take_snapshot(source: Source, view: View, *, now: float, tz: tzinfo, count: 
         archived=source.archived(),
         running=source.running(),
         backend=source.backend_of,
+        lifetimes=source.lifetimes(),
     )
 
 

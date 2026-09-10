@@ -22,6 +22,7 @@ from conftest import (
     line,
     write_jsonl,
 )
+from tokenusage2.aggregate import lifetimes_of
 from tokenusage2.config import Config
 from tokenusage2.discover import discover
 from tokenusage2.ingest import EventIndex, Ingestor
@@ -301,6 +302,31 @@ def test_schema_1_archives_are_migrated(tmp_path: Path) -> None:
     ]
     assert migrated.get_meta("schema") == "3"
     migrated.close()
+
+
+def test_index_keeps_lifetimes_first_request_and_counts_current() -> None:
+    first = Event("claude:a:", 10.0, Tool.CLAUDE, "c", "m", "", "p", "s", Usage(input=1))
+    later = Event("claude:b:", 20.0, Tool.CLAUDE, "c", "m", "", "p", "s", Usage(input=2))
+    retained = Event(
+        "claude-daily:c:2026-09-01:m",
+        5.0,
+        Tool.CLAUDE,
+        "c",
+        "m",
+        "anthropic",
+        "",
+        "",
+        Usage(unsplit=7),
+    )
+    index = EventIndex([first, later, retained])
+    assert (index.earliest("c"), index.count("c")) == (10.0, 2)
+    assert index.upsert(replace(first, ts=30.0, usage=Usage(input=9)))
+    assert index.earliest("c") == 20.0
+    assert index.lifetimes()["c"].last_ts == 30.0
+    assert index.discard("claude-daily:", 0.0) == 1
+    assert index.count("c") == 2
+    assert index.lifetimes() == lifetimes_of(index.events())
+    assert index.earliest("nobody") is None
 
 
 def test_schema_2_archives_keep_only_the_logged_route(tmp_path: Path) -> None:

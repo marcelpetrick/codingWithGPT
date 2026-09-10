@@ -221,6 +221,9 @@ class DemoSource:
         """Demo events already carry display labels."""
         return event.route
 
+    def lifetimes(self) -> None:
+        """Recounted per snapshot; the demo history is small."""
+
     def sources(self) -> list[str]:
         return [
             "demo mode — synthetic data, no files are read",

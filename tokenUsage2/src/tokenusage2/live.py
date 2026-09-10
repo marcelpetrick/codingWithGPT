@@ -10,6 +10,7 @@ from datetime import tzinfo
 from pathlib import Path
 from typing import Protocol
 
+from tokenusage2.aggregate import Lifetime
 from tokenusage2.config import Config
 from tokenusage2.discover import discover
 from tokenusage2.doctor import doctor_lines
@@ -34,6 +35,7 @@ class Source(Protocol):
     def running(self) -> dict[str, int]: ...
     def sources(self) -> list[str]: ...
     def backend_of(self, event: Event) -> str: ...
+    def lifetimes(self) -> Mapping[str, Lifetime] | None: ...
     def close(self) -> None: ...
 
 
@@ -119,6 +121,9 @@ class LiveSource:
 
     def backend_of(self, event: Event) -> str:
         return self.discovery.backends.label(event.tool, event.model, event.route)
+
+    def lifetimes(self) -> Mapping[str, Lifetime]:
+        return self.ingestor.index.lifetimes()
 
     def close(self) -> None:
         self.store.close()
