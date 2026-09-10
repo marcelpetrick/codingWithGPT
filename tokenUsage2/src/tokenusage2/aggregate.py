@@ -8,7 +8,7 @@ Bucket edges are local midnights computed with ``zoneinfo``, so days that are
 23 or 25 hours long around DST changes are still exactly one bucket.
 """
 
-from bisect import bisect_left
+from bisect import bisect_left, bisect_right
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date, datetime, time, timedelta, tzinfo
@@ -295,7 +295,7 @@ def build_snapshot(
         buckets.append(Bucket(start, edges[index], edges[index + 1], short, long))
     for position in _slice(timestamps, edges[0], edges[-1]):
         event = events[position]
-        bucket = buckets[bisect_left(edges, event.ts + 1e-9) - 1]
+        bucket = buckets[bisect_right(edges, event.ts) - 1]
         key = group_key(event, group, names)
         bucket.groups.setdefault(key, Tally()).add(event.usage)
         bucket.total.add(event.usage)
@@ -385,7 +385,7 @@ def build_snapshot(
         event = events[position]
         if event.usage.unsplit:
             continue
-        day_index = bisect_left(heat_edges, event.ts + 1e-9) - 1
+        day_index = bisect_right(heat_edges, event.ts) - 1
         hour = min(23, int((event.ts - heat_edges[day_index]) // 3600))
         heatmap[heat_days[day_index].weekday()][hour] += usage_value(event.usage, metric)
 

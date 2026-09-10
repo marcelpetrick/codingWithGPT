@@ -208,3 +208,14 @@ def test_empty_snapshot() -> None:
     assert len(snapshot.buckets) == 30
     assert not snapshot.has_hatched
     assert snapshot.selected_bucket is snapshot.buckets[-1]
+
+
+def test_events_exactly_at_midnight_open_their_own_bucket() -> None:
+    # A float epoch has no room for a 1e-9 nudge; the edge itself must bucket right.
+    oldest = at(6, 0)
+    snapshot = snap([ev(oldest), ev(at(1, 0))], count=7)
+    assert snapshot.buckets[0].start_ts == oldest
+    assert [bucket.total.calls for bucket in snapshot.buckets] == [1, 0, 0, 0, 0, 1, 0]
+    assert snapshot.heatmap[period_start(Period.DAY, TODAY - timedelta(days=6)).weekday()][0] == (
+        100
+    )

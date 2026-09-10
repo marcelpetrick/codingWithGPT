@@ -12,6 +12,7 @@ import pytest
 from conftest import NOW, FakeHome
 from tokenusage2.cli import main, resolve_tz
 from tokenusage2.store import Store
+from tokenusage2.version import __version__
 
 
 def call(
@@ -26,7 +27,7 @@ def test_version(capsys: pytest.CaptureFixture[str]) -> None:
     with pytest.raises(SystemExit) as stop:
         main(["--version"])
     assert stop.value.code == 0
-    assert "tokenusage2 0.1.0" in capsys.readouterr().out
+    assert f"tokenusage2 {__version__}" in capsys.readouterr().out
 
 
 def test_demo_frame(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
