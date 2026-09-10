@@ -214,3 +214,22 @@ def test_doctor_flags_a_copied_home(
     assert code == 0
     assert "3 records already counted under claude" in out
     assert "treated as a copy of claude" in out
+
+
+def test_backend_labels_follow_the_config_without_reingesting(
+    home: FakeHome, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    archive = tmp_path / "archive.sqlite"
+    args = ["--json", "--archive", str(archive), "--group", "backend", "--tz", "UTC"]
+
+    def groups(extra: list[str]) -> set[str]:
+        code, out, _ = call([*args, *extra], home.env, tmp_path, capsys)
+        assert code == 0
+        return {name for bucket in json.loads(out)["buckets"] for name in bucket["groups"]}
+
+    assert "ollama@10.0.0.5" in groups([])
+    config = tmp_path / "config.toml"
+    config.write_text('[backends]\n"north-mini:*" = "gpu-box"\n')
+    relabelled = groups(["--config", str(config)])
+    assert "gpu-box" in relabelled
+    assert "ollama@10.0.0.5" not in relabelled

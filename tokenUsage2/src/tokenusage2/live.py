@@ -33,6 +33,7 @@ class Source(Protocol):
     def archived(self) -> set[str]: ...
     def running(self) -> dict[str, int]: ...
     def sources(self) -> list[str]: ...
+    def backend_of(self, event: Event) -> str: ...
     def close(self) -> None: ...
 
 
@@ -115,6 +116,9 @@ class LiveSource:
             self.tz,
             self.clock(),
         )
+
+    def backend_of(self, event: Event) -> str:
+        return self.discovery.backends.label(event.tool, event.model, event.route)
 
     def close(self) -> None:
         self.store.close()

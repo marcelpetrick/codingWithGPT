@@ -9,7 +9,7 @@ Bucket edges are local midnights computed with ``zoneinfo``, so days that are
 """
 
 from bisect import bisect_left, bisect_right
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date, datetime, time, timedelta, tzinfo
 from enum import StrEnum
@@ -226,13 +226,23 @@ class Snapshot:
         return self.metric is Metric.TOTAL and any(b.total.unsplit for b in self.buckets)
 
 
-def group_key(event: Event, group: GroupBy, names: Mapping[str, str]) -> str:
+def logged_route(event: Event) -> str:
+    """The default backend label: the route exactly as logged."""
+    return event.route
+
+
+def group_key(
+    event: Event,
+    group: GroupBy,
+    names: Mapping[str, str],
+    backend: Callable[[Event], str] = logged_route,
+) -> str:
     if group is GroupBy.ACCOUNT:
         return names.get(event.account, event.account)
     if group is GroupBy.TOOL:
         return str(event.tool)
     if group is GroupBy.BACKEND:
-        return event.backend
+        return backend(event)
     if group is GroupBy.MODEL:
         return event.model
     return project_name(event.project)
@@ -271,6 +281,7 @@ def build_snapshot(
     recent: int = 30,
     archived: Iterable[str] = (),
     running: Mapping[str, int] | None = None,
+    backend: Callable[[Event], str] | None = None,
 ) -> Snapshot:
     """Aggregate ``events`` (sorted by ``ts``) for one dashboard frame.
 
@@ -281,6 +292,7 @@ def build_snapshot(
         events = [event for event in events if event.account == account_filter]
     timestamps = [event.ts for event in events]
     names = {account.id: account.label for account in accounts}
+    label = backend or logged_route
     today = datetime.fromtimestamp(now, tz).date()
     count = count or DEFAULT_BUCKETS[period]
     cursor = min(max(0, cursor), MAX_CURSOR)
@@ -296,7 +308,7 @@ def build_snapshot(
     for position in _slice(timestamps, edges[0], edges[-1]):
         event = events[position]
         bucket = buckets[bisect_right(edges, event.ts) - 1]
-        key = group_key(event, group, names)
+        key = group_key(event, group, names, label)
         bucket.groups.setdefault(key, Tally()).add(event.usage)
         bucket.total.add(event.usage)
 
@@ -314,10 +326,10 @@ def build_snapshot(
         chosen = buckets[selected]
         for position in _slice(timestamps, chosen.start_ts, chosen.end_ts):
             event = events[position]
-            key = group_key(event, detail, names)
+            key = group_key(event, detail, names, label)
             row = breakdown_rows.get(key)
             if row is None:
-                extra = {GroupBy.MODEL: event.backend, GroupBy.ACCOUNT: str(event.tool)}.get(
+                extra = {GroupBy.MODEL: label(event), GroupBy.ACCOUNT: str(event.tool)}.get(
                     detail, ""
                 )
                 row = breakdown_rows[key] = BreakdownRow(key, extra, Tally())

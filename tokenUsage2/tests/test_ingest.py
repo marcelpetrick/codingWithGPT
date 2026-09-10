@@ -74,8 +74,12 @@ def test_full_scan_normalises_every_tool(home: FakeHome, make: Factory) -> None:
     quotas = {key: quota.used_percent for key, quota in ingestor.quotas.items()}
     assert quotas[CODEX, "5h"] == 22.0
     assert quotas[CLAUDE, "5h"] == 38.0
-    backends = {e.model: e.backend for e in ingestor.index.events() if e.tool is Tool.CLAUDE}
-    assert backends == {
+    labels = {
+        e.model: ingestor.discovery.backends.label(e.tool, e.model, e.route)
+        for e in ingestor.index.events()
+        if e.tool is Tool.CLAUDE
+    }
+    assert labels == {
         "claude-opus-5": "anthropic",
         "north-mini:q4": "ollama@10.0.0.5",
         "claude-opus-4-7": "anthropic",
@@ -295,5 +299,30 @@ def test_schema_1_archives_are_migrated(tmp_path: Path) -> None:
         "claude:msg_a:req_1",
         "codex:codex:~/.codex:t:5",
     ]
-    assert migrated.get_meta("schema") == "2"
+    assert migrated.get_meta("schema") == "3"
     migrated.close()
+
+
+def test_schema_2_archives_keep_only_the_logged_route(tmp_path: Path) -> None:
+    path = tmp_path / "v2.sqlite"
+    columns = (
+        "key TEXT PRIMARY KEY, ts REAL, tool TEXT, account TEXT, model TEXT, backend TEXT, "
+        "project TEXT, session TEXT, input INTEGER, cache_read INTEGER, cache_write INTEGER, "
+        "output INTEGER, reasoning INTEGER, unsplit INTEGER"
+    )
+    with closing(sqlite3.connect(path)) as connection:
+        connection.executescript(
+            "CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT NOT NULL);"
+            "INSERT INTO meta VALUES ('schema', '2');"
+            f"CREATE TABLE events({columns});"
+            "INSERT INTO events VALUES ('claude:a:req_1', 1, 'claude', 'c', 'm', 'anthropic',"
+            " '', '', 1, 0, 0, 0, 0, 0);"
+            "INSERT INTO events VALUES ('claude:b:', 2, 'claude', 'c', 'q:7b', 'ollama@gpu',"
+            " '', '', 1, 0, 0, 0, 0, 0);"
+            "INSERT INTO events VALUES ('codex:t:1', 3, 'codex', 'x', 'gpt', 'openai',"
+            " '', '', 1, 0, 0, 0, 0, 0);"
+        )
+    store = Store(path)
+    assert [event.route for event in store.load_events()] == ["anthropic", "", "openai"]
+    assert store.get_meta("schema") == "3"
+    store.close()

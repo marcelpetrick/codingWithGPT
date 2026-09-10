@@ -54,14 +54,20 @@ class Usage:
 
 @dataclass(frozen=True, slots=True)
 class Event:
-    """One billed request (or one retained daily total when ``usage.unsplit``)."""
+    """One billed request (or one retained daily total when ``usage.unsplit``).
+
+    ``route`` is what the log itself says about the provider — ``"anthropic"``
+    when Anthropic's API answered a Claude Code request, the Codex
+    ``model_provider``, the OpenCode ``providerID``. The display label (an
+    Ollama host, a proxy) is resolved from it when drawing, never stored.
+    """
 
     key: str
     ts: float
     tool: Tool
     account: str
     model: str
-    backend: str
+    route: str
     project: str
     session: str
     usage: Usage

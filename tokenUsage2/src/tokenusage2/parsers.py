@@ -14,7 +14,6 @@ from datetime import UTC, date, datetime, time, tzinfo
 from pathlib import Path
 from typing import Protocol
 
-from tokenusage2.discover import BackendMap
 from tokenusage2.model import Account, Event, QuotaWindow, Tool, Usage
 
 CODEX_WINDOWS = {300: "5h", 10080: "week"}
@@ -48,27 +47,10 @@ def parse_ts(value: object) -> float | None:
     return moment.timestamp()
 
 
-def claude_backend(model: str, request_id: str, backends: BackendMap) -> str:
-    """Which service answered a Claude Code request.
-
-    Anthropic's API stamps every response with a ``req_…`` request id; local
-    Anthropic-compatible servers (Ollama, proxies) do not.
-    """
-    override = backends.override(model)
-    if override:
-        return override
-    if request_id.startswith("req_"):
-        return "anthropic"
-    hinted = backends.hint(model)
-    if hinted:
-        return hinted
-    if model.startswith("claude-"):
-        return "anthropic-compatible"
-    if ":" in model:
-        return "ollama"
-    if "/" in model:
-        return "gateway"
-    return "local"
+def claude_route(request_id: str) -> str:
+    """Anthropic's API stamps every response with a ``req_…`` request id; local
+    Anthropic-compatible servers (Ollama, proxies) do not."""
+    return "anthropic" if request_id.startswith("req_") else ""
 
 
 def _loads(line: bytes | str) -> dict | None:
@@ -82,9 +64,8 @@ def _loads(line: bytes | str) -> dict | None:
 class ClaudeParser:
     """Claude Code transcript lines (``projects/**/*.jsonl``)."""
 
-    def __init__(self, account: str, backends: BackendMap) -> None:
+    def __init__(self, account: str) -> None:
         self.account = account
-        self.backends = backends
         self.ctx: dict = {}
         self.errors = 0
         self.quotas: list[QuotaWindow] = []
@@ -123,7 +104,7 @@ class ClaudeParser:
             tool=Tool.CLAUDE,
             account=self.account,
             model=model,
-            backend=claude_backend(model, request_id, self.backends),
+            route=claude_route(request_id),
             project=str(obj.get("cwd") or ""),
             session=str(obj.get("sessionId") or ""),
             usage=tokens,
@@ -243,19 +224,17 @@ class CodexParser:
             tool=Tool.CODEX,
             account=self.account,
             model=str(self.ctx.get("model") or "unknown"),
-            backend=str(self.ctx.get("provider") or "openai"),
+            route=str(self.ctx.get("provider") or "openai"),
             project=str(self.ctx.get("cwd") or ""),
             session=thread,
             usage=tokens,
         )
 
 
-def make_parser(
-    account: Account, ctx: Mapping[str, object], path: Path, backends: BackendMap
-) -> Parser:
+def make_parser(account: Account, ctx: Mapping[str, object], path: Path) -> Parser:
     if account.tool is Tool.CODEX:
         return CodexParser(account.id, ctx, thread_from_filename(path))
-    return ClaudeParser(account.id, backends)
+    return ClaudeParser(account.id)
 
 
 def parse_opencode_message(account: str, row_id: str, data: str | bytes) -> Event | None:
@@ -290,7 +269,7 @@ def parse_opencode_message(account: str, row_id: str, data: str | bytes) -> Even
         tool=Tool.OPENCODE,
         account=account,
         model=str(obj.get("modelID") or "unknown"),
-        backend=str(obj.get("providerID") or "unknown"),
+        route=str(obj.get("providerID") or "unknown"),
         project=str(path.get("cwd") or ""),
         session=str(obj.get("sessionID") or ""),
         usage=usage,
@@ -302,7 +281,6 @@ def parse_stats_cache(
     data: Mapping[str, object],
     before: date | None,
     tz: tzinfo,
-    backends: BackendMap,
 ) -> list[Event]:
     """Claude's retained daily totals, only for days before the first transcript.
 
@@ -325,9 +303,6 @@ def parse_stats_cache(
             if count(tokens) == 0:
                 continue
             model = str(model)
-            backend = (
-                "anthropic" if model.startswith("claude-") else claude_backend(model, "", backends)
-            )
             events.append(
                 Event(
                     key=f"{BACKFILL_PREFIX}{account}:{when.isoformat()}:{model}",
@@ -335,7 +310,7 @@ def parse_stats_cache(
                     tool=Tool.CLAUDE,
                     account=account,
                     model=model,
-                    backend=backend,
+                    route="anthropic" if model.startswith("claude-") else "",
                     project="(retained daily total)",
                     session="",
                     usage=Usage(unsplit=count(tokens)),

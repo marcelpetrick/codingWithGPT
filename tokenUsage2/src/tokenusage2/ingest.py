@@ -245,7 +245,7 @@ class Ingestor:
         )
         start = state.offset if resume and state is not None else 0
         ctx = state.ctx if resume and state is not None else {}
-        parser = make_parser(account, ctx, path, self.discovery.backends)
+        parser = make_parser(account, ctx, path)
         events: list[Event] = []
         offset = start
         try:
@@ -334,7 +334,6 @@ class Ingestor:
             data if isinstance(data, dict) else {},
             before,
             self.tz,
-            self.discovery.backends,
         )
         report.events_changed += self._apply(events)
         self.store.set_meta(mark, signature)

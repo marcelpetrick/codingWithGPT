@@ -10,11 +10,11 @@ import pytest
 
 from conftest import BERLIN, NOW, claude_line, codex_meta, codex_tokens, codex_turn
 from tokenusage2.discover import BackendMap
-from tokenusage2.model import Usage
+from tokenusage2.model import Tool, Usage
 from tokenusage2.parsers import (
     ClaudeParser,
     CodexParser,
-    claude_backend,
+    claude_route,
     codex_usage,
     count,
     parse_claude_quota,
@@ -30,18 +30,18 @@ def encode(record: dict | str) -> bytes:
 
 
 def test_claude_record_becomes_an_event() -> None:
-    parser = ClaudeParser("acct", BackendMap())
+    parser = ClaudeParser("acct")
     event = parser.feed(encode(claude_line("msg_a", "2026-09-10T08:00:00Z")))
     assert event is not None
     assert event.key == "claude:msg_a:req_1"
     assert event.usage == Usage(input=10, cache_read=1000, cache_write=100, output=50)
-    assert event.backend == "anthropic"
+    assert event.route == "anthropic"
     assert event.project == "/work/alpha"
     assert event.ts == parse_ts("2026-09-10T08:00:00Z")
 
 
 def test_claude_ignores_non_usage_synthetic_and_junk() -> None:
-    parser = ClaudeParser("acct", BackendMap())
+    parser = ClaudeParser("acct")
     assert parser.feed(b'{"type": "user"}\n') is None
     assert parser.feed(encode({"type": "user", "message": {"usage": {}}})) is None
     assert (
@@ -56,9 +56,9 @@ def test_claude_ignores_non_usage_synthetic_and_junk() -> None:
 
 
 @pytest.mark.parametrize(
-    ("model", "request_id", "expected"),
+    ("model", "route", "expected"),
     [
-        ("claude-opus-5", "req_1", "anthropic"),
+        ("claude-opus-5", "anthropic", "anthropic"),
         ("north", "", "ollama@gpu"),
         ("claude-x", "", "anthropic-compatible"),
         ("qwen:7b", "", "ollama"),
@@ -66,15 +66,17 @@ def test_claude_ignores_non_usage_synthetic_and_junk() -> None:
         ("mystery", "", "local"),
     ],
 )
-def test_claude_backend(model: str, request_id: str, expected: str) -> None:
-    assert claude_backend(model, request_id, BackendMap({"north": "ollama@gpu"})) == expected
+def test_claude_backend_labels(model: str, route: str, expected: str) -> None:
+    assert BackendMap({"north": "ollama@gpu"}).label(Tool.CLAUDE, model, route) == expected
 
 
-def test_config_globs_beat_the_request_id() -> None:
-    assert (
-        claude_backend("claude-opus-5", "req_1", BackendMap({}, (("claude-*", "bedrock"),)))
-        == "bedrock"
-    )
+def test_config_globs_beat_the_logged_route() -> None:
+    backends = BackendMap({}, (("claude-*", "bedrock"),))
+    assert backends.label(Tool.CLAUDE, "claude-opus-5", "anthropic") == "bedrock"
+    assert backends.label(Tool.CLAUDE, "claude-opus-5", "anthropic") == "bedrock"
+    assert BackendMap().label(Tool.CODEX, "gpt", "openai") == "openai"
+    assert BackendMap().label(Tool.OPENCODE, "m", "") == "unknown"
+    assert (claude_route("req_1"), claude_route("")) == ("anthropic", "")
 
 
 def test_codex_usage_splits_cached_input() -> None:
@@ -208,14 +210,14 @@ def test_stats_cache_backfill_only_before_the_first_transcript() -> None:
             "junk",
         ]
     }
-    events = parse_stats_cache("acct", data, date(2026, 9, 10), BERLIN, BackendMap())
-    assert [(e.model, e.backend, e.usage.unsplit) for e in events] == [
+    events = parse_stats_cache("acct", data, date(2026, 9, 10), BERLIN)
+    assert [(e.model, e.route, e.usage.unsplit) for e in events] == [
         ("claude-opus-4-7", "anthropic", 5000),
-        ("qwen:7b", "ollama", 7),
+        ("qwen:7b", "", 7),
     ]
     assert events[0].key == "claude-daily:acct:2026-09-01:claude-opus-4-7"
-    assert len(parse_stats_cache("acct", data, None, BERLIN, BackendMap())) == 3
-    assert parse_stats_cache("acct", {"dailyModelTokens": 3}, None, BERLIN, BackendMap()) == []
+    assert len(parse_stats_cache("acct", data, None, BERLIN)) == 3
+    assert parse_stats_cache("acct", {"dailyModelTokens": 3}, None, BERLIN) == []
 
 
 def test_claude_quota_snapshot() -> None:

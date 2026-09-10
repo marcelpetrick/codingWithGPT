@@ -111,6 +111,10 @@ the transcripts then still say "Claude Code". tokenUsage2 separates them:
   `ollama@192.168.1.10` or `localhost:4747`. Credentials in URLs are dropped.
 - The config file can pin model globs to a label and overrides both.
 
+Labels are resolved when the dashboard draws, not stored: the archive keeps
+only what the log says, so a config change or a newly found launcher
+relabels the whole history.
+
 Codex reports its provider per session (`model_provider`), OpenCode per message.
 
 ## Where the numbers come from

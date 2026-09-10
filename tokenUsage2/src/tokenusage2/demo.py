@@ -217,6 +217,10 @@ class DemoSource:
     def running(self) -> dict[str, int]:
         return {"claude:~/.claude": 2, "codex:~/.codex": 1}
 
+    def backend_of(self, event: Event) -> str:
+        """Demo events already carry display labels."""
+        return event.route
+
     def sources(self) -> list[str]:
         return [
             "demo mode — synthetic data, no files are read",

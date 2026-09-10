@@ -18,7 +18,7 @@ from pathlib import Path
 
 from tokenusage2.model import Account, Event, QuotaWindow, Tool, Usage
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS files(
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS files(
     ctx TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS events(
     key TEXT PRIMARY KEY, ts REAL NOT NULL, tool TEXT NOT NULL, account TEXT NOT NULL,
-    model TEXT NOT NULL, backend TEXT NOT NULL, project TEXT NOT NULL, session TEXT NOT NULL,
+    model TEXT NOT NULL, route TEXT NOT NULL, project TEXT NOT NULL, session TEXT NOT NULL,
     input INTEGER NOT NULL, cache_read INTEGER NOT NULL, cache_write INTEGER NOT NULL,
     output INTEGER NOT NULL, reasoning INTEGER NOT NULL, unsplit INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS events_account_ts ON events(account, ts);
@@ -41,11 +41,11 @@ CREATE TABLE IF NOT EXISTS accounts(
 """
 _TOTAL = "{t}.input + {t}.cache_read + {t}.cache_write + {t}.output + {t}.unsplit"
 _UPSERT = f"""
-INSERT INTO events(key, ts, tool, account, model, backend, project, session,
+INSERT INTO events(key, ts, tool, account, model, route, project, session,
                    input, cache_read, cache_write, output, reasoning, unsplit)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT(key) DO UPDATE SET
-    ts = excluded.ts, model = excluded.model, backend = excluded.backend,
+    ts = excluded.ts, model = excluded.model, route = excluded.route,
     project = excluded.project, session = excluded.session,
     input = excluded.input, cache_read = excluded.cache_read,
     cache_write = excluded.cache_write, output = excluded.output,
@@ -74,8 +74,23 @@ def _claude_keys_without_account(conn: sqlite3.Connection) -> None:
     conn.execute(f"DELETE FROM events WHERE tool = 'claude' AND {_OWN_CLAUDE_PREFIX}")
 
 
+def _backend_becomes_route(conn: sqlite3.Connection) -> None:
+    """Schema 2 → 3: store what the log says, not a display label.
+
+    Labels are resolved when displaying, so config and launcher changes relabel
+    history. Claude rows keep only whether Anthropic's API answered.
+    """
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(events)")}
+    if "backend" in columns:
+        conn.execute("ALTER TABLE events RENAME COLUMN backend TO route")
+    conn.execute(
+        "UPDATE events SET route = CASE WHEN route = 'anthropic' THEN 'anthropic' ELSE '' END "
+        "WHERE tool = 'claude'"
+    )
+
+
 #: ``MIGRATIONS[n]`` upgrades an archive from schema ``n`` to ``n + 1``.
-MIGRATIONS = {1: _claude_keys_without_account}
+MIGRATIONS = {1: _claude_keys_without_account, 2: _backend_becomes_route}
 
 
 @dataclass(slots=True)
@@ -97,7 +112,7 @@ def _row(event: Event) -> tuple:
         str(event.tool),
         event.account,
         event.model,
-        event.backend,
+        event.route,
         event.project,
         event.session,
         u.input,
@@ -185,7 +200,7 @@ class Store:
 
     def load_events(self) -> list[Event]:
         rows = self.conn.execute(
-            "SELECT key, ts, tool, account, model, backend, project, session, input, "
+            "SELECT key, ts, tool, account, model, route, project, session, input, "
             "cache_read, cache_write, output, reasoning, unsplit FROM events ORDER BY ts"
         )
         return [

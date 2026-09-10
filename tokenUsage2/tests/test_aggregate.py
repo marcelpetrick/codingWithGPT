@@ -133,6 +133,8 @@ def test_breakdowns_and_groupings() -> None:
     assert [row.name for row in by_project.breakdown] == ["alpha"]
     assert snap(events, group=GroupBy.BACKEND).groups == ["anthropic", "ollama@gpu"]
     assert snap(events, group=GroupBy.TOOL).groups == ["claude"]
+    relabelled = snap(events, group=GroupBy.BACKEND, backend=lambda e: f"via {e.route}")
+    assert relabelled.groups == ["via anthropic", "via ollama@gpu"]
     assert snap(events, group=GroupBy.PROJECT).groups == ["alpha"]
 
 

@@ -70,10 +70,17 @@ class BackendHint:
 
 @dataclass(frozen=True, slots=True)
 class BackendMap:
-    """Model name → backend label; user globs override launcher hints."""
+    """Model name → backend label; user globs override launcher hints.
+
+    Labels are resolved when displaying, not when ingesting, so a config change
+    or a newly discovered launcher relabels the whole history.
+    """
 
     hints: Mapping[str, str] = field(default_factory=dict)
     globs: tuple[tuple[str, str], ...] = ()
+    _labels: dict[tuple[Tool, str, str], str] = field(
+        default_factory=dict, compare=False, repr=False
+    )
 
     def override(self, model: str) -> str | None:
         for pattern, label in self.globs:
@@ -83,6 +90,35 @@ class BackendMap:
 
     def hint(self, model: str) -> str | None:
         return self.hints.get(model)
+
+    def label(self, tool: Tool, model: str, route: str) -> str:
+        """Which service answered, from the logged ``route`` plus what is known now."""
+        key = (tool, model, route)
+        found = self._labels.get(key)
+        if found is None:
+            found = self._labels[key] = self._resolve(tool, model, route)
+        return found
+
+    def _resolve(self, tool: Tool, model: str, route: str) -> str:
+        override = self.override(model)
+        if override:
+            return override
+        if tool is not Tool.CLAUDE:
+            return route or "unknown"
+        if route == "anthropic":
+            return "anthropic"
+        return self.hint(model) or guess_backend(model)
+
+
+def guess_backend(model: str) -> str:
+    """A best guess for a locally routed Claude Code model nothing else names."""
+    if model.startswith("claude-"):
+        return "anthropic-compatible"
+    if ":" in model:
+        return "ollama"
+    if "/" in model:
+        return "gateway"
+    return "local"
 
 
 @dataclass(frozen=True, slots=True)

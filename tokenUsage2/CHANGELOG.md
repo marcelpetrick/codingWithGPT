@@ -10,6 +10,18 @@ All notable changes to tokenUsage2. Versions follow semantic versioning; the
 archive schema version is noted whenever it changes, because an older build
 refuses a newer archive.
 
+## 0.3.0
+
+Archive schema 3 — migrated in place on first start.
+
+### Fixed
+
+- Backend labels were decided once at ingest and stored, so a `[backends]`
+  config change or a newly discovered launcher never relabelled history. The
+  archive now stores only what the log says (`route`: whether Anthropic's API
+  answered, the Codex `model_provider`, the OpenCode `providerID`), and labels
+  are resolved when displaying, cached per model.
+
 ## 0.2.0
 
 Archive schema 2 — schema-1 archives are migrated in place on first start.
