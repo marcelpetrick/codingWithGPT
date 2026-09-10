@@ -10,6 +10,18 @@ All notable changes to tokenUsage2. Versions follow semantic versioning; the
 archive schema version is noted whenever it changes, because an older build
 refuses a newer archive.
 
+## 0.3.3
+
+### Performance
+
+- Cold indexing 3.1–4.1 s → 1.75 s for 1.5 GB of logs. Codex writes the record
+  type within the first ~100 bytes of every line, so only a 256-byte head is
+  searched instead of scanning every multi-megabyte line three times; the
+  parser keeps only the newest account-level rate limits instead of building
+  62k quota objects; `count()` has a fast path for plain integers. A fresh full
+  scan of the real home produces an identical event fingerprint before and
+  after.
+
 ## 0.3.2
 
 ### Fixed

@@ -115,8 +115,6 @@ def test_codex_parser_carries_context_and_collapses_repeats() -> None:
     assert first.key == repeat.key == "codex:acct:thread-1:1100"
     assert (first.model, first.project, first.session) == ("gpt-5.6-sol", "/work/beta", "thread-1")
     assert [(q.window, q.used_percent, q.plan) for q in parser.quotas] == [
-        ("5h", 20.0, "plus"),
-        ("week", 60.0, "plus"),
         ("5h", 22.0, "plus"),
         ("week", 60.0, "plus"),
     ]

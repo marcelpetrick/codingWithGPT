@@ -6,6 +6,8 @@
 
 Every parser cheaply rejects lines by substring before paying for
 ``json.loads``, because rollout files are dominated by large content records.
+Codex writes the record type within the first ~100 bytes of every line, so only
+that head is searched — never the multi-megabyte content that follows.
 """
 
 import json
@@ -17,6 +19,8 @@ from typing import Protocol
 from tokenusage2.model import Account, Event, QuotaWindow, Tool, Usage
 
 CODEX_WINDOWS = {300: "5h", 10080: "week"}
+#: Codex's record type sits at byte ~60-92 of a line; 256 leaves ample margin.
+CODEX_HEAD = 256
 BACKFILL_PREFIX = "claude-daily:"
 
 
@@ -30,9 +34,9 @@ class Parser(Protocol):
 
 def count(value: object) -> int:
     """A non-negative integer token count, tolerating junk."""
-    if isinstance(value, bool) or not isinstance(value, int | float):
-        return 0
-    return max(0, int(value))
+    if type(value) is int:  # the common case, and bool is excluded by the exact type
+        return value if value > 0 else 0
+    return max(0, int(value)) if type(value) is float else 0
 
 
 def parse_ts(value: object) -> float | None:
@@ -144,12 +148,14 @@ class CodexParser:
         self.ctx: dict = dict(ctx)
         self.ctx.setdefault("thread", fallback_thread)
         self.errors = 0
-        self.quotas: list[QuotaWindow] = []
+        self._limits: dict | None = None
+        self._limits_ts = 0.0
 
     def feed(self, line: bytes) -> Event | None:
-        if b'"token_count"' in line:
+        head = line[:CODEX_HEAD]
+        if b'"token_count"' in head:
             return self._token_count(line)
-        if b'"session_meta"' in line or b'"turn_context"' in line:
+        if b'"session_meta"' in head or b'"turn_context"' in head:
             self._context(line)
         return None
 
@@ -171,8 +177,18 @@ class CodexParser:
             self.ctx["model"] = str(payload["model"])
 
     def _rate_limits(self, limits: object, ts: float) -> None:
-        if not isinstance(limits, dict) or limits.get("limit_id") not in {None, "codex"}:
-            return
+        # Only the newest account-level limits matter; build windows once, at the end.
+        if isinstance(limits, dict) and limits.get("limit_id") in {None, "codex"}:
+            self._limits, self._limits_ts = limits, ts
+
+    @property
+    def quotas(self) -> list[QuotaWindow]:
+        """The newest account-level rate-limit windows seen in this read."""
+        limits = self._limits
+        if limits is None:
+            return []
+        plan = str(limits["plan_type"]) if limits.get("plan_type") else None
+        windows = []
         for slot in ("primary", "secondary"):
             window = limits.get(slot)
             if not isinstance(window, dict):
@@ -182,17 +198,18 @@ class CodexParser:
                 continue
             minutes = count(window.get("window_minutes"))
             resets = window.get("resets_at")
-            self.quotas.append(
+            windows.append(
                 QuotaWindow(
                     account=self.account,
                     window=CODEX_WINDOWS.get(minutes, f"{minutes}m"),
                     used_percent=float(used),
                     resets_at=float(resets) if isinstance(resets, int | float) else None,
-                    observed_at=ts,
+                    observed_at=self._limits_ts,
                     source="codex rollout",
-                    plan=str(limits["plan_type"]) if limits.get("plan_type") else None,
+                    plan=plan,
                 )
             )
+        return windows
 
     def _token_count(self, line: bytes) -> Event | None:
         obj = _loads(line)

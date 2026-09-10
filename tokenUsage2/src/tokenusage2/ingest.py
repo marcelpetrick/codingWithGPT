@@ -304,11 +304,12 @@ class Ingestor:
         try:
             with path.open("rb") as handle:
                 handle.seek(start)
+                feed = parser.feed
                 for line in handle:
                     if not line.endswith(b"\n"):
                         break
                     offset += len(line)
-                    event = parser.feed(line)
+                    event = feed(line)
                     if event is not None:
                         events.append(event)
         except OSError as error:
