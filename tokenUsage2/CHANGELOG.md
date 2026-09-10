@@ -10,6 +10,16 @@ All notable changes to tokenUsage2. Versions follow semantic versioning; the
 archive schema version is noted whenever it changes, because an older build
 refuses a newer archive.
 
+## 0.3.1
+
+### Added
+
+- `scripts/profile_app.py` times every stage the dashboard runs against the
+  real home directory — cold indexing, warm start, an idle rescan, a snapshot
+  per period, rendering and the JSON export — first without instrumentation,
+  then under cProfile. Baseline on 1.5 GB of logs (45k events): cold index
+  4.1 s, warm start 207 ms, idle rescan 21 ms, snapshot 69–79 ms, render 1.9 ms.
+
 ## 0.3.0
 
 Archive schema 3 — migrated in place on first start.

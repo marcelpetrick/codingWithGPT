@@ -206,6 +206,7 @@ python3.14 -m venv .venv && .venv/bin/pip install -e '.[dev]'
                             # gate, demo smoke run, sdist/wheel build, then launch
 ./localPipeline.sh --noRun  # the same without the final launch (what CI runs)
 ./localPipeline.sh --fix    # apply ruff fixes first
+.venv/bin/python scripts/profile_app.py   # time and cProfile every stage on your real data
 ```
 
 CI ([`.github/workflows/tokenUsage2.yml`](../.github/workflows/tokenUsage2.yml))
