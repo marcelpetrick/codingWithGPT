@@ -4,6 +4,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from tokenusage2.model import Account, Tool
 from tokenusage2.procscan import (
     AgentProcess,
@@ -11,6 +13,7 @@ from tokenusage2.procscan import (
     model_flag,
     running_by_account,
     scan_processes,
+    subcommand,
 )
 
 
@@ -92,3 +95,31 @@ def test_running_by_account(tmp_path: Path) -> None:
     ]
     assert running_by_account(processes, accounts, tmp_path, {}) == {"c": 2, "w": 1, "o": 1}
     assert running_by_account([AgentProcess(6, Tool.OPENCODE)], [], tmp_path, {}) == {}
+
+
+@pytest.mark.parametrize(
+    ("comm", "argv", "expected"),
+    [
+        ("codex", ["codex"], Tool.CODEX),
+        ("codex", ["codex", "--dangerously-bypass-approvals-and-sandbox", "resume"], Tool.CODEX),
+        ("codex", ["codex", "exec", "fix the tests"], Tool.CODEX),
+        ("codex", ["codex", "-m", "app-server"], Tool.CODEX),
+        ("codex", ["codex", "app-server"], None),
+        ("codex", ["codex", "-c", "model=x", "mcp-server"], None),
+        ("codex", ["codex", "login"], None),
+        ("claude", ["claude", "--model", "opus", "explain"], Tool.CLAUDE),
+        ("claude", ["claude", "mcp", "serve"], None),
+        ("node", ["node", "/lib/@anthropic-ai/claude-code/cli.js", "doctor"], None),
+        ("node", ["node", "/lib/@anthropic-ai/claude-code/cli.js", "-p", "hi"], Tool.CLAUDE),
+    ],
+)
+def test_helper_subcommands_are_not_sessions(
+    comm: str, argv: list[str], expected: Tool | None
+) -> None:
+    assert classify(comm, argv) is expected
+
+
+def test_subcommand() -> None:
+    assert subcommand([]) is None
+    assert subcommand(["--yolo", "-c", "a=b", "resume", "x"]) == "resume"
+    assert subcommand(["--model"]) is None

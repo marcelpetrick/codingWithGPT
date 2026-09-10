@@ -36,19 +36,96 @@ class AgentProcess:
     cwd: str = ""
 
 
+#: Subcommands that start a server or a one-shot utility, not an agent session.
+HELPER_SUBCOMMANDS = {
+    Tool.CODEX: frozenset(
+        {
+            "app-server",
+            "mcp-server",
+            "mcp",
+            "login",
+            "logout",
+            "completion",
+            "debug",
+            "sandbox",
+            "apply",
+            "proto",
+        }
+    ),
+    Tool.CLAUDE: frozenset(
+        {
+            "mcp",
+            "config",
+            "doctor",
+            "update",
+            "install",
+            "migrate-installer",
+            "setup-token",
+            "plugin",
+        }
+    ),
+}
+#: Options that take a separate value, so the value is not taken for a subcommand.
+VALUE_FLAGS = frozenset(
+    {
+        "-c",
+        "--config",
+        "-m",
+        "--model",
+        "-p",
+        "--profile",
+        "-C",
+        "--cd",
+        "-s",
+        "--sandbox",
+        "-a",
+        "--ask-for-approval",
+        "-i",
+        "--image",
+        "--add-dir",
+        "--settings",
+        "--permission-mode",
+        "--mcp-config",
+        "--fallback-model",
+        "--session-id",
+        "-r",
+        "--resume",
+    }
+)
+
+
+def subcommand(args: Sequence[str]) -> str | None:
+    """The first positional argument, skipping options and their values."""
+    skip = False
+    for arg in args:
+        if skip:
+            skip = False
+        elif arg in VALUE_FLAGS:
+            skip = True
+        elif not arg.startswith("-"):
+            return arg
+    return None
+
+
 def classify(comm: str, argv: Sequence[str]) -> Tool | None:
-    """The agent a process is, by its kernel ``comm`` name.
+    """The agent session a process is, by its kernel ``comm`` name and subcommand.
 
     Native Claude Code and Codex binaries are named ``claude`` and ``codex``;
     Codex's node launcher and helper processes (``codex-code-mode``) are not
-    counted, so one session is one process. npm-installed Claude Code runs as
+    counted, so one session is one process. The same binaries also run servers
+    and utilities (``codex app-server``, ``codex mcp-server``, ``claude mcp
+    serve``), which are not sessions either. npm-installed Claude Code runs as
     ``node …/@anthropic-ai/claude-code/cli.js``.
     """
     if comm in _COMMS:
-        return _COMMS[comm]
-    if comm in {"node", "bun"} and any("@anthropic-ai/claude-code" in arg for arg in argv[1:3]):
-        return Tool.CLAUDE
-    return None
+        tool, args = _COMMS[comm], argv[1:]
+    elif comm in {"node", "bun"} and any("@anthropic-ai/claude-code" in a for a in argv[1:3]):
+        tool, args = Tool.CLAUDE, argv[2:]
+    else:
+        return None
+    if subcommand(args) in HELPER_SUBCOMMANDS.get(tool, frozenset()):
+        return None
+    return tool
 
 
 def model_flag(argv: Sequence[str]) -> str | None:
