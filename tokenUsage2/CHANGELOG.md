@@ -10,6 +10,13 @@ All notable changes to tokenUsage2. Versions follow semantic versioning; the
 archive schema version is noted whenever it changes, because an older build
 refuses a newer archive.
 
+## 0.3.7
+
+### Documentation
+
+- README: a performance section with the measured before/after table for
+  every stage, and corrected first-start (≈2 s) and restart (≈0.2 s) figures.
+
 ## 0.3.6
 
 ### Performance

@@ -39,9 +39,9 @@ python3.14 -m venv .venv && .venv/bin/pip install -e .
 
 Without installing anything: `PYTHONPATH=src python3.14 -m tokenusage2`.
 
-The first start indexes every transcript once (about 5 s for 1.6 GB of logs)
+The first start indexes every transcript once (about 2 s for 1.5 GB of logs)
 into a local archive; every later start and refresh only reads what was
-appended, so a restart takes well under a second.
+appended, so a restart takes about 0.2 s.
 
 ## What it shows
 
@@ -140,6 +140,21 @@ tailed from their last offset; a truncated or replaced file is re-read, and
 keys make every re-read idempotent. Claude Code deletes old transcripts after
 its cleanup period — the archive keeps their history, and accounts whose home
 disappeared are listed as archived.
+
+## Performance
+
+Measured with [`scripts/profile_app.py`](scripts/profile_app.py) against a real
+home directory (1.5 GB of Claude Code and Codex logs, 46k requests, Python
+3.14, medians). Every optimisation was driven by its cProfile output, and the
+ingest changes were checked to produce an identical event fingerprint.
+
+| Stage | 0.3.0 | now | What changed |
+|-------|------:|----:|--------------|
+| Cold index (first start) | 4.1 s | 1.8 s | Codex record types checked in a 256-byte line head; only the newest rate limits kept |
+| Warm start (load archive) | 207 ms | 150–170 ms | plain slots dataclasses, no second sort |
+| Idle rescan (every refresh) | 21 ms | 4.7 ms | incremental `/proc` scan, `os.scandir` string paths, O(1) backfill check |
+| Snapshot · day / week / month | 69 / 78 / 79 ms | 20 / 25 / 26 ms | running all-time totals; buckets walked by slice |
+| Render 160 × 48 | 1.9 ms | 1.7 ms | — |
 
 ## Compared with the neighbours
 
