@@ -18,7 +18,7 @@ from pathlib import Path
 
 from tokenusage2.model import Account, Event, QuotaWindow, Tool, Usage
 
-SCHEMA_VERSION = "1"
+SCHEMA_VERSION = 2
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS files(
@@ -56,6 +56,26 @@ WHERE {_TOTAL.format(t="excluded")} > {_TOTAL.format(t="events")}
 
 class StoreError(RuntimeError):
     """The archive exists but cannot be used by this version."""
+
+
+_OWN_CLAUDE_PREFIX = "substr(key, 1, length(account) + 8) = 'claude:' || account || ':'"
+
+
+def _claude_keys_without_account(conn: sqlite3.Connection) -> None:
+    """Schema 1 → 2: Claude keys drop the account, so a copied home collapses.
+
+    Where two homes held the same message, the first renamed row wins and the
+    other, which could not take the shared key, is removed.
+    """
+    conn.execute(
+        "UPDATE OR IGNORE events SET key = 'claude:' || substr(key, length(account) + 9) "
+        f"WHERE tool = 'claude' AND {_OWN_CLAUDE_PREFIX}"
+    )
+    conn.execute(f"DELETE FROM events WHERE tool = 'claude' AND {_OWN_CLAUDE_PREFIX}")
+
+
+#: ``MIGRATIONS[n]`` upgrades an archive from schema ``n`` to ``n + 1``.
+MIGRATIONS = {1: _claude_keys_without_account}
 
 
 @dataclass(slots=True)
@@ -98,15 +118,19 @@ class Store:
         if path is not None:
             self.conn.execute("PRAGMA journal_mode=WAL")
         self.conn.executescript(_SCHEMA)
-        version = self.get_meta("schema")
-        if version is None:
-            self.set_meta("schema", SCHEMA_VERSION)
-        elif version != SCHEMA_VERSION:
-            self.conn.close()
-            raise StoreError(
-                f"archive schema {version} is not supported (expected "
-                f"{SCHEMA_VERSION}); move {path} aside to rebuild it"
-            )
+        stored = self.get_meta("schema")
+        if stored is not None:
+            version = int(stored) if stored.isdigit() else -1
+            while version < SCHEMA_VERSION and version in MIGRATIONS:
+                MIGRATIONS[version](self.conn)
+                version += 1
+            if version != SCHEMA_VERSION:
+                self.conn.close()
+                raise StoreError(
+                    f"archive schema {stored} is not supported (expected "
+                    f"{SCHEMA_VERSION}); move {path} aside to rebuild it"
+                )
+        self.set_meta("schema", str(SCHEMA_VERSION))
         self.commit()
 
     def close(self) -> None:

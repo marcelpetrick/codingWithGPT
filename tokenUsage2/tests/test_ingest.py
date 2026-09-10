@@ -239,3 +239,61 @@ def test_store_and_index_keep_the_larger_copy() -> None:
     assert index.discard("k", 0.0) == 1
     assert len(index) == 0
     store.close()
+
+
+BACKUP = "claude:~/.claude-backup"
+
+
+def test_a_copied_claude_home_is_counted_once(
+    home: FakeHome, make: Factory, tmp_path: Path
+) -> None:
+    shutil.copytree(home.root / ".claude", home.root / ".claude-backup")
+    archive = tmp_path / "archive.sqlite"
+    ingestor = make(archive)
+    ingestor.scan()
+    sums = totals(ingestor)
+    assert sums[CLAUDE] == 1160 + 700 + 5000
+    assert BACKUP not in sums
+    assert ingestor.duplicates == {BACKUP: {CLAUDE: 3}}
+    assert ingestor.mirror_of(BACKUP) == CLAUDE
+    assert ingestor.mirror_of(CLAUDE) is None
+    assert make(archive).duplicates == ingestor.duplicates
+
+
+def test_schema_1_archives_are_migrated(tmp_path: Path) -> None:
+    path = tmp_path / "old.sqlite"
+    store = Store(path)
+    old = Event(
+        "claude:claude:~/.claude:msg_a:req_1",
+        1.0,
+        Tool.CLAUDE,
+        CLAUDE,
+        "m",
+        "anthropic",
+        "p",
+        "s",
+        Usage(input=5),
+    )
+    copy = replace(old, key="claude:claude:~/.claude-backup:msg_a:req_1", account=BACKUP)
+    codex = Event(
+        "codex:codex:~/.codex:t:5",
+        2.0,
+        Tool.CODEX,
+        CODEX,
+        "m",
+        "openai",
+        "p",
+        "t",
+        Usage(input=5),
+    )
+    store.upsert_events([old, copy, codex])
+    store.set_meta("schema", "1")
+    store.commit()
+    store.close()
+    migrated = Store(path)
+    assert sorted(event.key for event in migrated.load_events()) == [
+        "claude:msg_a:req_1",
+        "codex:codex:~/.codex:t:5",
+    ]
+    assert migrated.get_meta("schema") == "2"
+    migrated.close()

@@ -117,7 +117,8 @@ class ClaudeParser:
             return None
         request_id = str(obj.get("requestId") or "")
         return Event(
-            key=f"claude:{self.account}:{ident}:{request_id}",
+            # No account in the key: a copied home must not count a message twice.
+            key=f"claude:{ident}:{request_id}",
             ts=ts,
             tool=Tool.CLAUDE,
             account=self.account,

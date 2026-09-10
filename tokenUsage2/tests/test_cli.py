@@ -4,6 +4,7 @@
 
 import json
 import runpy
+import shutil
 import sys
 from pathlib import Path
 
@@ -203,3 +204,13 @@ def test_module_entry_point(
         runpy.run_module("tokenusage2", run_name="__main__")
     assert stop.value.code == 0
     assert "tokenusage2" in capsys.readouterr().out
+
+
+def test_doctor_flags_a_copied_home(
+    home: FakeHome, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    shutil.copytree(home.root / ".claude", home.root / ".claude-backup")
+    code, out, _ = call(["--doctor", "--no-archive", "--tz", "UTC"], home.env, tmp_path, capsys)
+    assert code == 0
+    assert "3 records already counted under claude" in out
+    assert "treated as a copy of claude" in out

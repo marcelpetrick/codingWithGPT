@@ -10,6 +10,20 @@ All notable changes to tokenUsage2. Versions follow semantic versioning; the
 archive schema version is noted whenever it changes, because an older build
 refuses a newer archive.
 
+## 0.2.0
+
+Archive schema 2 — schema-1 archives are migrated in place on first start.
+
+### Fixed
+
+- A copied Claude home (for example `~/.claude-backup`, which the `$HOME` scan
+  finds) counted every message a second time, because message keys included
+  the account. Keys are now `(message.id, requestId)` across all homes; the
+  migration rewrites old keys and drops the duplicates.
+- Duplicates are recorded per pair of homes. A home whose records are mostly
+  counted elsewhere is treated as a copy, so its retained daily totals from
+  `stats-cache.json` are skipped too. `--doctor` reports both.
+
 ## 0.1.2
 
 ### Fixed

@@ -45,6 +45,16 @@ class EventIndex:
     def __len__(self) -> int:
         return len(self._by_key)
 
+    def get(self, key: str) -> Event | None:
+        return self._by_key.get(key)
+
+    def count(self, account: str, skip_prefix: str) -> int:
+        return sum(
+            1
+            for key, event in self._by_key.items()
+            if event.account == account and not key.startswith(skip_prefix)
+        )
+
     def upsert(self, event: Event) -> bool:
         old = self._by_key.get(event.key)
         if old is not None and event.usage.total <= old.usage.total:
@@ -125,6 +135,11 @@ class Ingestor:
         self.quotas = {(q.account, q.window): q for q in store.load_quotas()}
         self._files = store.load_file_states()
         self.last_report = ScanReport()
+        #: Records one home already held for another: ``{account: {other: count}}``.
+        self.duplicates: dict[str, dict[str, int]] = json.loads(
+            store.get_meta("duplicates") or "{}"
+        )
+        self._duplicates_changed = False
         self.discovery = discovery
         self.set_discovery(discovery)
 
@@ -166,16 +181,35 @@ class Ingestor:
             elif account.tool is Tool.CLAUDE:
                 self._backfill(account, report)
                 self._claude_quotas(account, report)
+        if self._duplicates_changed:
+            self.store.set_meta("duplicates", json.dumps(self.duplicates, sort_keys=True))
+            self._duplicates_changed = False
         self.store.commit()
         report.seconds = time.perf_counter() - started
         self.last_report = report
         return report
 
     def _apply(self, events: Iterable[Event]) -> int:
-        accepted = [event for event in events if self.index.upsert(event)]
+        accepted = []
+        for event in events:
+            previous = self.index.get(event.key)
+            if self.index.upsert(event):
+                accepted.append(event)
+            elif previous is not None and previous.account != event.account:
+                copies = self.duplicates.setdefault(event.account, {})
+                copies[previous.account] = copies.get(previous.account, 0) + 1
+                self._duplicates_changed = True
         if accepted:
             self.store.upsert_events(accepted)
         return len(accepted)
+
+    def mirror_of(self, account: str) -> str | None:
+        """The home ``account`` merely copies: most of its records are counted there."""
+        copies = self.duplicates.get(account)
+        if not copies:
+            return None
+        other, count = max(copies.items(), key=lambda item: item[1])
+        return other if count > self.index.count(account, BACKFILL_PREFIX) else None
 
     def _apply_quotas(self, quotas: Iterable[QuotaWindow]) -> int:
         changed = []
@@ -273,9 +307,17 @@ class Ingestor:
             return
         first = self.index.earliest(account.id, BACKFILL_PREFIX)
         before = datetime.fromtimestamp(first, self.tz).date() if first is not None else None
-        signature = f"{stat.st_size}:{stat.st_mtime_ns}:{before}"
+        mirror = self.mirror_of(account.id)
+        signature = f"{stat.st_size}:{stat.st_mtime_ns}:{before}:{mirror}"
         mark = f"statscache:{account.id}"
         if self.store.get_meta(mark) == signature:
+            return
+        if mirror is not None:
+            # A copy of another home: its retained totals are already counted there.
+            prefix = f"{BACKFILL_PREFIX}{account.id}:"
+            self.index.discard(prefix, float("-inf"))
+            self.store.delete_events(prefix, float("-inf"))
+            self.store.set_meta(mark, signature)
             return
         try:
             data = json.loads(path.read_text(encoding="utf-8"))

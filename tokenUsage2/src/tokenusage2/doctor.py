@@ -118,6 +118,17 @@ def doctor_lines(
         summary = reconcile(account, events)
         if summary:
             lines.append(f"           {summary}")
+        labels = {known.id: known.label for known in discovery.accounts}
+        for other, count in sorted(ingestor.duplicates.get(account.id, {}).items()):
+            lines.append(
+                f"           {count:,} records already counted under {labels.get(other, other)}"
+            )
+        mirror = ingestor.mirror_of(account.id)
+        if mirror is not None:
+            lines.append(
+                f"           treated as a copy of {labels.get(mirror, mirror)}: "
+                "its retained daily totals are skipped"
+            )
     discovered = {account.id for account in discovery.accounts}
     archived = [
         account for account in ingestor.store.load_accounts() if account.id not in discovered

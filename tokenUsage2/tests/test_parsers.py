@@ -33,7 +33,7 @@ def test_claude_record_becomes_an_event() -> None:
     parser = ClaudeParser("acct", BackendMap())
     event = parser.feed(encode(claude_line("msg_a", "2026-09-10T08:00:00Z")))
     assert event is not None
-    assert event.key == "claude:acct:msg_a:req_1"
+    assert event.key == "claude:msg_a:req_1"
     assert event.usage == Usage(input=10, cache_read=1000, cache_write=100, output=50)
     assert event.backend == "anthropic"
     assert event.project == "/work/alpha"
