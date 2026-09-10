@@ -31,6 +31,9 @@ dependencies = []
 [project.optional-dependencies]
 dev = ["pytest==9.1.1", "pytest-cov==7.1.0", "ruff==0.16.6", "build==1.6.0"]
 
+[project.scripts]
+tokenusage2 = "tokenusage2.cli:main"
+
 [project.urls]
 Source = "https://github.com/marcelpetrick/codingWithGPT/tree/master/tokenUsage2"
 
