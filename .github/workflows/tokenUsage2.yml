@@ -1,0 +1,83 @@
+# SPDX-FileCopyrightText: 2026 Marcel Petrick
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# -----------------------------------------------------------------------------
+# tokenUsage2 CI
+#
+# Runs exactly the verification that runs locally: ./localPipeline.sh --noRun
+# (ruff lint, ruff format check, pytest with the branch-coverage gate, a demo
+# smoke run and the sdist/wheel build). --noRun suppresses the final interactive
+# dashboard launch, which is what that option exists for.
+#
+# The job only runs when tokenUsage2 or this workflow changes, so the other
+# projects in this repository do not trigger it.
+# -----------------------------------------------------------------------------
+name: tokenUsage2
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "tokenUsage2/**"
+      - ".github/workflows/tokenUsage2.yml"
+  pull_request:
+    branches: [master]
+    paths:
+      - "tokenUsage2/**"
+      - ".github/workflows/tokenUsage2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tokenusage2-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: tokenUsage2
+
+jobs:
+  quality:
+    name: Quality gate (Python 3.14)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: tokenUsage2/pyproject.toml
+
+      - name: Install the pinned development tools
+        run: python -m pip install --disable-pip-version-check -e '.[dev]'
+
+      - name: Run the local pipeline
+        run: ./localPipeline.sh --noRun
+
+      - name: Show the demo dashboard in the job summary
+        if: always()
+        run: |
+          {
+            echo '### tokenUsage2 — demo frame'
+            echo '```'
+            python -m tokenusage2 --demo --once --color never --tz UTC --width 150 --height 44
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage and distributions
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: tokenusage2-${{ github.sha }}
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            tokenUsage2/coverage.xml
+            tokenUsage2/dist/
