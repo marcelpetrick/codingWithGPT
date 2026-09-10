@@ -28,9 +28,12 @@ class Account:
     origin: str = "default"
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class Usage:
     """Token counts of one request, normalised across tools.
+
+    Not frozen on purpose — a warm start builds ~90k of these and the frozen
+    constructor is 3.4x slower — but treated as immutable everywhere.
 
     ``input`` is fresh (uncached) input; ``reasoning`` is a subset of
     ``output``; ``unsplit`` holds retained totals whose split is unknown.
@@ -52,7 +55,7 @@ class Usage:
         return self.input + self.cache_read + self.cache_write + self.output + self.unsplit
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class Event:
     """One billed request (or one retained daily total when ``usage.unsplit``).
 

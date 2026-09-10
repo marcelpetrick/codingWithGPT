@@ -44,9 +44,12 @@ class EventIndex:
     marks it stale; that one account is recomputed when next read.
     """
 
-    def __init__(self, events: Iterable[Event] = ()) -> None:
-        self._by_key: dict[str, Event] = {event.key: event for event in events}
-        self._sorted: list[Event] | None = None
+    def __init__(self, events: Iterable[Event] = (), *, ordered: bool = False) -> None:
+        loaded = list(events)
+        self._by_key: dict[str, Event] = {event.key: event for event in loaded}
+        # The archive hands over rows already sorted by time; no need to sort again.
+        unique = len(loaded) == len(self._by_key)
+        self._sorted: list[Event] | None = loaded if ordered and unique else None
         self.generation = 0
         self._lifetimes = lifetimes_of(self._by_key.values())
         self._first: dict[str, float] = {}
@@ -184,7 +187,7 @@ class Ingestor:
         self.home = home
         self.env = env
         self.clock = clock
-        self.index = EventIndex(store.load_events())
+        self.index = EventIndex(store.load_events(), ordered=True)
         self.quotas = {(q.account, q.window): q for q in store.load_quotas()}
         self._files = store.load_file_states()
         self.last_report = ScanReport()

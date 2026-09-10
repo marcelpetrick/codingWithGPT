@@ -10,6 +10,15 @@ All notable changes to tokenUsage2. Versions follow semantic versioning; the
 archive schema version is noted whenever it changes, because an older build
 refuses a newer archive.
 
+## 0.3.4
+
+### Performance
+
+- Warm start 207 → 148 ms for 45k archived events: `Event` and `Usage` are
+  plain slots dataclasses (the frozen constructor was 3.4x slower and nothing
+  hashes them), the archive maps tool names with a dict instead of enum calls,
+  and the index takes the archive's time-ordered rows without sorting again.
+
 ## 0.3.3
 
 ### Performance

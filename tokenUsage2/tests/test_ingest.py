@@ -329,6 +329,15 @@ def test_index_keeps_lifetimes_first_request_and_counts_current() -> None:
     assert index.earliest("nobody") is None
 
 
+def test_index_trusts_ordered_rows_only_when_they_are_unique() -> None:
+    early = Event("k1", 1.0, Tool.CLAUDE, "c", "m", "", "p", "s", Usage(input=1))
+    late = Event("k2", 2.0, Tool.CLAUDE, "c", "m", "", "p", "s", Usage(input=1))
+    assert EventIndex([early, late], ordered=True).events() == [early, late]
+    assert EventIndex([late, early]).events() == [early, late]
+    duplicate = replace(early, ts=3.0)
+    assert EventIndex([early, late, duplicate], ordered=True).events() == [late, duplicate]
+
+
 def test_schema_2_archives_keep_only_the_logged_route(tmp_path: Path) -> None:
     path = tmp_path / "v2.sqlite"
     columns = (

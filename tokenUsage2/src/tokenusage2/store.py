@@ -19,6 +19,7 @@ from pathlib import Path
 from tokenusage2.model import Account, Event, QuotaWindow, Tool, Usage
 
 SCHEMA_VERSION = 3
+_TOOLS = {tool.value: tool for tool in Tool}
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS files(
@@ -204,7 +205,8 @@ class Store:
             "cache_read, cache_write, output, reasoning, unsplit FROM events ORDER BY ts"
         )
         return [
-            Event(r[0], r[1], Tool(r[2]), r[3], r[4], r[5], r[6], r[7], Usage(*r[8:])) for r in rows
+            Event(r[0], r[1], _TOOLS[r[2]], r[3], r[4], r[5], r[6], r[7], Usage(*r[8:]))
+            for r in rows
         ]
 
     def upsert_quotas(self, quotas: Iterable[QuotaWindow]) -> int:
