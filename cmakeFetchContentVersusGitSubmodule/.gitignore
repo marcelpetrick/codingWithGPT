@@ -1,0 +1,3 @@
+# CMake build trees, including the LVGL checkout FetchContent puts in build/_deps/
+build/
+build-*/
