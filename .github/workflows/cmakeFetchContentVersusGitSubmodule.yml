@@ -1,0 +1,127 @@
+# SPDX-FileCopyrightText: 2026 Marcel Petrick
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# -----------------------------------------------------------------------------
+# cmakeFetchContentVersusGitSubmodule CI
+#
+# Proves the project's claim on a clean runner: a normal checkout without
+# submodules is enough, CMake fetches LVGL itself during configure, the demo
+# links against it, and changing LVGL_GIT_TAG in the same build directory makes
+# FetchContent switch the checkout. Git is only used read-only, to inspect
+# which revision CMake checked out.
+#
+# No build/ or _deps/ cache on purpose: a warm cache would hide the first fetch.
+# The job only runs when this project or this workflow changes, so the other
+# projects in this repository do not trigger it.
+# -----------------------------------------------------------------------------
+name: cmakeFetchContentVersusGitSubmodule
+
+on:
+  push:
+    paths:
+      - "cmakeFetchContentVersusGitSubmodule/**"
+      - ".github/workflows/cmakeFetchContentVersusGitSubmodule.yml"
+  pull_request:
+    paths:
+      - "cmakeFetchContentVersusGitSubmodule/**"
+      - ".github/workflows/cmakeFetchContentVersusGitSubmodule.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cmake-fetchcontent-lvgl-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: cmakeFetchContentVersusGitSubmodule
+
+env:
+  # Second LVGL release used to prove the revision switch.
+  SWITCH_TAG: v9.4.0
+
+jobs:
+  fetchcontent:
+    name: FetchContent fetch, build and tag switch
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out this repository only (submodules disabled)
+        uses: actions/checkout@v7.0.1
+        with:
+          submodules: false
+
+      - name: Confirm there are no submodules and no vendored LVGL
+        run: |
+          test ! -e "$GITHUB_WORKSPACE/.gitmodules"
+          test ! -e .gitmodules
+          test -z "$(git ls-files -- '*lvgl.h' '*lv_obj.c')"
+          echo "No .gitmodules and no LVGL sources tracked by this repository."
+
+      - name: Install host prerequisites (SDL2, Ninja) - LVGL is not installed
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-dev ninja-build
+          cmake --version
+          ninja --version
+
+      - name: Read the default LVGL tag from CMakeLists.txt
+        run: |
+          default_tag=$(sed -n 's/^ *set(LVGL_GIT_TAG "\(.*\)")$/\1/p' CMakeLists.txt)
+          echo "Default LVGL_GIT_TAG: $default_tag"
+          test -n "$default_tag"
+          test "$default_tag" != "$SWITCH_TAG"
+          echo "DEFAULT_TAG=$default_tag" >> "$GITHUB_ENV"
+          {
+            echo '### LVGL checkout in build/_deps/lvgl-src'
+            echo
+            echo '| Step | Requested tag | Checked-out commit |'
+            echo '| --- | --- | --- |'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Configure with default LVGL tag (CMake FetchContent clones LVGL into build/_deps)
+        run: |
+          test ! -e build
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DFETCHCONTENT_QUIET=OFF
+
+      - name: Verify FetchContent checked out the default tag
+        run: |
+          head=$(git -C build/_deps/lvgl-src rev-parse HEAD)
+          want=$(git -C build/_deps/lvgl-src rev-parse "$DEFAULT_TAG^{commit}")
+          echo "build/_deps/lvgl-src is at $head ($(git -C build/_deps/lvgl-src describe --tags))"
+          test "$head" = "$want"
+          echo "| Configure (default) | \`$DEFAULT_TAG\` | \`$head\` |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build the demo against the fetched LVGL
+        run: |
+          cmake --build build
+          test -x build/hello_lvgl
+
+      - name: Reconfigure same build directory with another LVGL tag
+        run: cmake -S . -B build -DLVGL_GIT_TAG="$SWITCH_TAG"
+
+      - name: Verify FetchContent changed the LVGL checkout
+        run: |
+          head=$(git -C build/_deps/lvgl-src rev-parse HEAD)
+          want=$(git -C build/_deps/lvgl-src rev-parse "$SWITCH_TAG^{commit}")
+          echo "build/_deps/lvgl-src is at $head ($(git -C build/_deps/lvgl-src describe --tags))"
+          test "$head" = "$want"
+          echo "| Reconfigure with \`-DLVGL_GIT_TAG=$SWITCH_TAG\` | \`$SWITCH_TAG\` | \`$head\` |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build the demo against the switched LVGL release
+        run: cmake --build build
+
+      - name: Remove the cached tag override with -U and reconfigure
+        run: cmake -S . -B build -U LVGL_GIT_TAG
+
+      - name: Verify FetchContent returned to the default tag
+        run: |
+          head=$(git -C build/_deps/lvgl-src rev-parse HEAD)
+          want=$(git -C build/_deps/lvgl-src rev-parse "$DEFAULT_TAG^{commit}")
+          echo "build/_deps/lvgl-src is at $head ($(git -C build/_deps/lvgl-src describe --tags))"
+          test "$head" = "$want"
+          echo "| Reconfigure with \`-U LVGL_GIT_TAG\` | \`$DEFAULT_TAG\` | \`$head\` |" >> "$GITHUB_STEP_SUMMARY"
