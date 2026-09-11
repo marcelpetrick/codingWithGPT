@@ -15,7 +15,7 @@ This is a minimal LVGL/CMake demonstration of one idea:
 - **The fetched source lives in the build tree** (`build/_deps/lvgl-src`), not in the source tree.
 - **GitHub Actions proves the same behavior in CI**: a clean fetch and build, then a tag switch in the same build directory.
 
-The demo program opens a 480×320 window with a blue background and one centered label. The window is only there to prove that LVGL was not just downloaded: it was configured, compiled, linked and used.
+The demo program opens a 480×320 window with one centered label. The window is only there to prove that LVGL was not just downloaded: it was configured, compiled, linked and used.
 
 ![The demo window: one centered "Hello LVGL" label on a blue background](media/hello_lvgl.png)
 
@@ -25,7 +25,7 @@ The demo program opens a 480×320 window with a blue background and one centered
 | --- | --- |
 | [`CMakeLists.txt`](CMakeLists.txt) | The whole dependency story. `FetchContent_Declare()` is in this file, not in a helper module. |
 | [`lv_conf.h`](lv_conf.h) | LVGL configuration: 32-bit color and the SDL display driver, nothing else. |
-| [`src/main.cpp`](src/main.cpp) | The demo: `lv_init()`, one SDL window, a blue background, one label, the LVGL timer loop. |
+| [`src/main.cpp`](src/main.cpp) | The demo: `lv_init()`, one SDL window, one label, the LVGL timer loop. |
 | [`../.github/workflows/cmakeFetchContentVersusGitSubmodule.yml`](../.github/workflows/cmakeFetchContentVersusGitSubmodule.yml) | CI. It sits at the repository root because GitHub only runs workflows from there. |
 | [`fetchcontent_lvgl_project_spec.md`](fetchcontent_lvgl_project_spec.md) | The original vision and requirements for this project. |
 
@@ -217,7 +217,7 @@ Both LVGL tags, v9.5.0 (default) and v9.4.0, build without a single compiler or 
 | Manjaro Linux (local, window checked on screen) | 4.4.3 | GCC 16.2.1 | 2.32.72 (sdl2-compat) |
 | GitHub `ubuntu-latest` runner (Ubuntu 24.04) | 3.31.6 | GCC 13.3.0 | 2.30.0 |
 
-The CI job usually takes about a minute and a half: the LVGL clone during the first configure takes about 20 s, a full build about 20 s. A slow Ubuntu package mirror can stretch the `apt-get` step from seconds to a few minutes. The minimum stated in `CMakeLists.txt` is CMake 3.28.
+The minimum stated in `CMakeLists.txt` is CMake 3.28.
 
 ## Scope
 
