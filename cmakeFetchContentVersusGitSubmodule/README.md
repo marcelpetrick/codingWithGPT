@@ -217,7 +217,7 @@ Both LVGL tags, v9.5.0 (default) and v9.4.0, build without a single compiler or 
 | Manjaro Linux (local, window checked on screen) | 4.4.3 | GCC 16.2.1 | 2.32.72 (sdl2-compat) |
 | GitHub `ubuntu-latest` runner (Ubuntu 24.04) | 3.31.6 | GCC 13.3.0 | 2.30.0 |
 
-The whole CI job, clone included, takes about a minute and a half. The minimum stated in `CMakeLists.txt` is CMake 3.28.
+The CI job usually takes about a minute and a half: the LVGL clone during the first configure takes about 20 s, a full build about 20 s. A slow Ubuntu package mirror can stretch the `apt-get` step from seconds to a few minutes. The minimum stated in `CMakeLists.txt` is CMake 3.28.
 
 ## Scope
 
