@@ -36,7 +36,7 @@ The demo program opens a 480×320 window with a blue background and one centered
 - A C and C++ compiler (C++17)
 - The SDL2 development package, which provides the desktop window
 - Ninja (recommended; any CMake generator works)
-- Network access for the first configure, which clones LVGL from GitHub
+- Network access when configuring: the first configure clones LVGL from GitHub, and a tag switch fetches from it
 
 LVGL itself is not a prerequisite. CMake fetches it.
 
@@ -59,7 +59,7 @@ cmake --build build
 ./build/hello_lvgl
 ```
 
-The first `cmake -S . -B build` is where the dependency arrives. `FetchContent` clones LVGL at the requested tag into CMake's dependency area in the build tree:
+The first configure (`cmake -S . -B build -G Ninja`) is where the dependency arrives. `FetchContent` clones LVGL at the requested tag into CMake's dependency area in the build tree:
 
 ```text
 build/_deps/lvgl-src      the LVGL checkout (a normal Git clone, owned by CMake)
@@ -80,7 +80,7 @@ HEAD is now at 85aa60d18 chore: release v9.5.0 (#9753)
 
 ## How the CMake part works
 
-The dependency section of [`CMakeLists.txt`](CMakeLists.txt) is the core of the project:
+The dependency section of [`CMakeLists.txt`](CMakeLists.txt) is the core of the project (shortened here; the full file is under 60 lines):
 
 ```cmake
 include(FetchContent)
@@ -96,6 +96,8 @@ FetchContent_Declare(
     GIT_PROGRESS   TRUE
 )
 
+# ... LVGL's build switches as cache entries, explained below ...
+
 message(STATUS "LVGL FetchContent revision: ${LVGL_GIT_TAG}")
 FetchContent_MakeAvailable(lvgl)
 ```
@@ -109,7 +111,7 @@ FetchContent_MakeAvailable(lvgl)
 The defaults are deliberate:
 
 - **A release tag, not a branch.** `master` would change under your feet. A tag is readable and makes switching releases easy to show. Tags can in principle be moved upstream; a production project that needs strict reproducibility may prefer a full commit hash in `GIT_TAG`.
-- **No `GIT_SHALLOW`.** A full clone has every tag locally, so switching between releases is a plain checkout.
+- **No `GIT_SHALLOW`.** A full clone keeps the whole history, so a tag switch is a `git fetch` plus a checkout inside the existing clone, whichever release you move to.
 - **No `FETCHCONTENT_UPDATES_DISCONNECTED` or `FETCHCONTENT_FULLY_DISCONNECTED`.** Either would stop CMake from updating the checkout, and updating it is what this project shows.
 
 ## Changing the LVGL tag
@@ -125,13 +127,14 @@ What happens:
 
 1. This reruns the configure step in the existing build directory.
 2. CMake sees that the requested revision of the declared dependency changed.
-3. `FetchContent` updates the existing checkout in `build/_deps/lvgl-src` to the new tag. It is not cloned again.
+3. `FetchContent` updates the existing checkout in `build/_deps/lvgl-src`: it fetches from the remote (tags can move) and checks out the new tag. It is not cloned again.
 4. The build recompiles LVGL and relinks the demo.
 
 No `git submodule update`, and no Git command of your own, is involved. With `-DFETCHCONTENT_QUIET=OFF` the switch is visible in the log:
 
 ```text
 -- LVGL FetchContent revision: v9.4.0
+-- Fetching latest from the remote origin
 Previous HEAD position was 85aa60d18 chore: release v9.5.0 (#9753)
 HEAD is now at c016f72d4 chore: release v9.4.0 (#9075)
 ```
@@ -168,7 +171,7 @@ rm -rf build
 cmake -S . -B build -G Ninja
 ```
 
-To build without network access, point `FetchContent` at an existing LVGL checkout; it is then used as is, without cloning or updating:
+To build without network access, point `FetchContent` at an existing LVGL checkout. It is then used as is, without cloning or updating, so `LVGL_GIT_TAG` has no effect; the checkout's own revision is what gets built:
 
 ```bash
 cmake -S . -B build -G Ninja -DFETCHCONTENT_SOURCE_DIR_LVGL=/path/to/lvgl
@@ -188,11 +191,11 @@ With a submodule, the superproject records a commit of the dependency, the check
 
 With `FetchContent`, the revision is a line in `CMakeLists.txt`, the checkout lives in the build tree, and a normal clone is enough. Updating means changing a tag and rerunning configure.
 
-This project picks the second model because LVGL is a pure build dependency here and the goal is that a normal clone is sufficient. Neither model is better in general. A submodule is the right choice when you want to edit the dependency inside your source tree, commit against it, or have the source already present after cloning with no network at configure time. `FetchContent` costs network access on the first configure (or a local checkout passed with `FETCHCONTENT_SOURCE_DIR_LVGL`), and each build directory holds its own copy.
+This project picks the second model because LVGL is a pure build dependency here and the goal is that a normal clone is sufficient. Neither model is better in general. A submodule is the right choice when you want to edit the dependency inside your source tree, commit against it, or have the source already present after cloning with no network at configure time. `FetchContent` needs network access on the first configure and on every tag switch (or a local checkout passed with `FETCHCONTENT_SOURCE_DIR_LVGL`), and each build directory holds its own copy.
 
 ## What CI proves
 
-[The workflow](../.github/workflows/cmakeFetchContentVersusGitSubmodule.yml) runs on `ubuntu-latest` for every push and pull request that touches this project:
+[The workflow](../.github/workflows/cmakeFetchContentVersusGitSubmodule.yml) runs on `ubuntu-latest` for every push and pull request that touches this project, and on demand from the Actions tab:
 
 1. Checks out the repository with `submodules: false` and confirms there is no `.gitmodules` and no tracked LVGL source.
 2. Installs only `libsdl2-dev` and `ninja-build`. LVGL is not installed.

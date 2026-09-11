@@ -12,7 +12,7 @@ project(cmake_fetchcontent_lvgl_demo LANGUAGES C CXX)
 # Host dependency: SDL2
 # -----------------------------------------------------------------------------
 # SDL2 only provides the desktop window. It comes from the system package, not
-# from FetchContent, so the dependency being demonstrated stays the only one.
+# from FetchContent, so LVGL stays the only fetched dependency.
 find_package(SDL2 REQUIRED)
 
 # -----------------------------------------------------------------------------
