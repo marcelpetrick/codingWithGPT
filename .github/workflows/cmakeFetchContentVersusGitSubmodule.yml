@@ -59,7 +59,7 @@ jobs:
         run: |
           test ! -e "$GITHUB_WORKSPACE/.gitmodules"
           test ! -e .gitmodules
-          test -z "$(git ls-files -- '*lvgl.h' '*lv_obj.c')"
+          test -z "$(git -C "$GITHUB_WORKSPACE" ls-files -- '*lvgl.h' '*lv_obj.c')"
           echo "No .gitmodules and no LVGL sources tracked by this repository."
 
       - name: Install host prerequisites (SDL2, Ninja) - LVGL is not installed
