@@ -15,7 +15,12 @@ int main()
     // callbacks, so no further platform code is needed.
     lv_sdl_window_create(480, 320);
 
-    lv_obj_t* label = lv_label_create(lv_screen_active());
+    // Blue instead of LVGL's near-white default, so the window stands
+    // out against white pages such as the README screenshot.
+    lv_obj_t* screen = lv_screen_active();
+    lv_obj_set_style_bg_color(screen, lv_color_hex(0xA6C8F0), LV_PART_MAIN);
+
+    lv_obj_t* label = lv_label_create(screen);
     lv_label_set_text(label, "Hello LVGL");
     lv_obj_center(label);
 

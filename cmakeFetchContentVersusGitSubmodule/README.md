@@ -15,9 +15,9 @@ This is a minimal LVGL/CMake demonstration of one idea:
 - **The fetched source lives in the build tree** (`build/_deps/lvgl-src`), not in the source tree.
 - **GitHub Actions proves the same behavior in CI**: a clean fetch and build, then a tag switch in the same build directory.
 
-The demo program opens a 480×320 window with one centered label. The window is only there to prove that LVGL was not just downloaded: it was configured, compiled, linked and used.
+The demo program opens a 480×320 window with a blue background and one centered label. The window is only there to prove that LVGL was not just downloaded: it was configured, compiled, linked and used.
 
-![The demo window: one centered "Hello LVGL" label](media/hello_lvgl.png)
+![The demo window: one centered "Hello LVGL" label on a blue background](media/hello_lvgl.png)
 
 > Clone one normal GitHub repository, run CMake, and CMake obtains LVGL itself. Change the requested LVGL tag and rerun CMake; CMake updates the dependency checkout. No Git submodule is needed.
 
@@ -25,7 +25,7 @@ The demo program opens a 480×320 window with one centered label. The window is 
 | --- | --- |
 | [`CMakeLists.txt`](CMakeLists.txt) | The whole dependency story. `FetchContent_Declare()` is in this file, not in a helper module. |
 | [`lv_conf.h`](lv_conf.h) | LVGL configuration: 32-bit color and the SDL display driver, nothing else. |
-| [`src/main.cpp`](src/main.cpp) | The demo: `lv_init()`, one SDL window, one label, the LVGL timer loop. |
+| [`src/main.cpp`](src/main.cpp) | The demo: `lv_init()`, one SDL window, a blue background, one label, the LVGL timer loop. |
 | [`../.github/workflows/cmakeFetchContentVersusGitSubmodule.yml`](../.github/workflows/cmakeFetchContentVersusGitSubmodule.yml) | CI. It sits at the repository root because GitHub only runs workflows from there. |
 | [`fetchcontent_lvgl_project_spec.md`](fetchcontent_lvgl_project_spec.md) | The original vision and requirements for this project. |
 
