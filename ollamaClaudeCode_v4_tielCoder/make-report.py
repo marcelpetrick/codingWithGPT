@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""make-report.py -- build report.html from the TSVs in results/.
+"""make-report.py -- build report.html (and report.pdf) from the TSVs in results/.
 
 A generator rather than a hand-written page, because the stages land over hours
 and the report has to be regenerated as they do. Everything it draws comes from
@@ -11,7 +11,12 @@ SVG <title> elements. Palette is the validated default from the dataviz skill
 (categorical slots 1-3 + status), declared as CSS custom properties so light and
 dark swap in one place.
 
-Usage: ./make-report.py [--out report.html]
+The output is a STANDALONE local file: a complete HTML document that makes no
+network request at all -- no webfonts, no scripts, no analytics. It opens from
+disk on a machine with no internet, which is the point. Fonts are system stacks
+rather than IBM Plex webfonts for the same reason.
+
+Usage: ./make-report.py [--out report.html] [--pdf]
 """
 import argparse
 import csv
@@ -185,6 +190,8 @@ def sessions():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(HERE / "report.html"))
+    ap.add_argument("--pdf", action="store_true",
+                    help="also render report.pdf with headless chromium")
     a = ap.parse_args()
 
     gen2k, pre2k = tokrate_rows("2000")
@@ -309,19 +316,19 @@ def main():
 }
 *{box-sizing:border-box}
 body{background:var(--bg); color:var(--ink);
-  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
   font-size:15px; line-height:1.55; margin:0;}
 .wrap{max-width:900px; margin:0 auto; padding-block:36px 72px; padding-left:20px; padding-right:20px;}
-h1{font-family:"IBM Plex Serif",Georgia,serif; font-size:30px; line-height:1.2;
+h1{font-family:"IBM Plex Serif",Georgia,"Iowan Old Style","Noto Serif",serif; font-size:30px; line-height:1.2;
    margin:0 0 6px; text-wrap:balance; letter-spacing:-.01em;}
-h2{font-family:"IBM Plex Serif",Georgia,serif; font-size:21px; margin:42px 0 4px; text-wrap:balance;}
+h2{font-family:"IBM Plex Serif",Georgia,"Iowan Old Style","Noto Serif",serif; font-size:21px; margin:42px 0 4px; text-wrap:balance;}
 h3{font-size:14px; margin:26px 0 6px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3);}
 p{margin:8px 0; color:var(--ink-2); max-width:68ch;}
 .sub{color:var(--ink-3); font-size:13px; margin-bottom:18px;}
 .meta{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px;}
 .chip{display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:3px 9px;
   border-radius:999px; background:var(--wait-bg); color:var(--ink-2);
-  font-family:"IBM Plex Mono",ui-monospace,monospace;}
+  font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace;}
 .chip.ok{background:var(--good-bg); color:var(--good);}
 .chip.bad{background:var(--bad-bg); color:var(--bad);}
 .verdict{background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--hi);
@@ -338,9 +345,9 @@ figcaption{font-size:13px; font-weight:600; color:var(--ink); margin-bottom:10px
   letter-spacing:.01em;}
 .chart{width:100%; height:auto; display:block; min-width:520px;}
 .grid{stroke:var(--line-soft); stroke-width:1;}
-.tick{fill:var(--ink-3); font-size:10px; font-family:"IBM Plex Mono",monospace;}
+.tick{fill:var(--ink-3); font-size:10px; font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace;}
 .ylab{fill:var(--ink-2); font-size:11.5px;}
-.vlab{fill:var(--ink); font-size:11.5px; font-family:"IBM Plex Mono",monospace;
+.vlab{fill:var(--ink); font-size:11.5px; font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace;
   font-variant-numeric:tabular-nums;}
 .bar-s1{fill:var(--s1)} .bar-s2{fill:var(--s2)} .bar-s3{fill:var(--s3)}
 .bar-hi{fill:var(--hi)}
@@ -354,24 +361,39 @@ table{border-collapse:collapse; width:100%; font-size:13.5px; margin:10px 0;}
 th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.07em;
    color:var(--ink-3); font-weight:600; padding:6px 10px 6px 0; border-bottom:1px solid var(--line);}
 td{padding:7px 10px 7px 0; border-bottom:1px solid var(--line-soft); color:var(--ink-2);}
-td.num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; color:var(--ink);}
+td.num{font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace; font-variant-numeric:tabular-nums; color:var(--ink);}
 .tablewrap{overflow-x:auto;}
-code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.92em;
+code{font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace; font-size:.92em;
   background:var(--wait-bg); padding:1px 5px; border-radius:4px; color:var(--ink);}
 footer{margin-top:52px; padding-top:18px; border-top:1px solid var(--line);
   font-size:12.5px; color:var(--ink-3);}
 @media (max-width:560px){ h1{font-size:25px} .wrap{padding-block:26px 56px} }
+@media print{
+  :root{ --bg:#ffffff; --surface:#ffffff; --line:#d7d6d1; --line-soft:#ebeae5;
+         --ink:#111; --ink-2:#3b3a37; --ink-3:#6b6a64; }
+  body{background:#fff}
+  .wrap{max-width:none; padding:0 8mm}
+  .fig,.finding,.verdict{break-inside:avoid; page-break-inside:avoid}
+  h2{break-after:avoid}
+  .chart{min-width:0}
+  a[href]:after{content:""}
+}
 """
 
     tiel_pp0 = gen2k.get("tiel-coder:35b-q5-ctx256k-agentic")
     tiel_ship = gen2k.get("Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest")
     speedup = f"{(tiel_pp0 / tiel_ship - 1) * 100:.0f}%" if (tiel_pp0 and tiel_ship) else "—"
 
-    doc = f"""<title>Tiel-Coder on the Ollama Box</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Serif:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+    doc = f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tiel-Coder on the Ollama box \u2014 v4 benchmark</title>
+<meta name="description" content="Benchmark of Tiel-Coder 35B-A3B against the local model field on 192.168.100.67, Ollama 0.33.3.">
 <style>{css}</style>
+</head>
+<body>
 <div class="wrap">
 <h1>Tiel-Coder on the Ollama box</h1>
 <p class="sub">Benchmark round v4 &middot; <code>192.168.100.67</code> &middot; Ollama 0.33.3 &middot;
@@ -446,9 +468,26 @@ Every number here is generated from the TSVs in <code>results/</code>. Method, c
 twelve harness problems found and fixed during this round are in <code>measurements.md</code> and
 <code>review.md</code>; exact digests and versions in <code>results/provenance.txt</code>.
 </footer>
-</div>"""
+</div>
+</body>
+</html>
+"""
     Path(a.out).write_text(doc)
     print(f"wrote {a.out} ({len(doc):,} bytes)")
+    if a.pdf:
+        import shutil, subprocess
+        browser = next((b for b in ("chromium", "chromium-browser", "google-chrome")
+                        if shutil.which(b)), None)
+        if not browser:
+            print("  no chromium on PATH; skipped the PDF")
+        else:
+            pdf = str(Path(a.out).with_suffix(".pdf"))
+            subprocess.run([browser, "--headless", "--disable-gpu", "--no-sandbox",
+                            "--no-pdf-header-footer", f"--print-to-pdf={pdf}",
+                            Path(a.out).as_uri()],
+                           check=False, capture_output=True, timeout=180)
+            if Path(pdf).exists():
+                print(f"wrote {pdf} ({Path(pdf).stat().st_size:,} bytes)")
     print(f"  models with throughput: {len(gen2k)}; vision: {len(vision)}; "
           f"overflow: {len(overflow)}; session rows: {len(sess_rows)}")
 
