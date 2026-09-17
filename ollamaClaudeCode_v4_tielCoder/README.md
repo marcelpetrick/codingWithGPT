@@ -1,8 +1,78 @@
 # v4 — Tiel-Coder on the Ollama server, and the field re-measured on 0.33.3
 
-> **Status: in progress.** The connection guide below is complete. Results land in
-> [`measurements.md`](measurements.md) and the verdict is added here when the run finishes.
-> [`plan.md`](plan.md) is what was set out to do, before any benchmark ran.
+Measured on **`192.168.100.67`, Ollama 0.33.3**, 2026-09-17, ≈35.56 GB usable VRAM, server idle
+before every stage, one model resident at a time.
+
+| | |
+|---|---|
+| **the verdict** | below |
+| every number, and how it was taken | [`measurements.md`](measurements.md) |
+| the twelve harness defects found *in this round's own tooling* | [`review.md`](review.md) |
+| what to put in `~/.zshrc` | [`shell_aliases.md`](shell_aliases.md) |
+| one-page summary, offline | [`report.html`](report.html) · [`report.pdf`](report.pdf) |
+| what was planned, before any of it ran | [`plan.md`](plan.md) |
+| exact digests, versions, sampling settings | [`results/provenance.txt`](results/provenance.txt) |
+
+---
+
+## The verdict
+
+**Use `tiel-coder:35b-q5-ctx256k-agentic` — the variant, never the tag as it shipped. Append
+`<|think_off|>` for ordinary work.**
+
+It displaces `north-mini-code-1.0` as the default, and it does so on correctness rather than
+speed — north-mini is 23% faster per token and 13 GB lighter.
+
+| | `north-mini` *(v3 default)* | **`tiel-coder` (pp 0)** |
+|---|---|---|
+| hard fixture, **held-out tests** | 18/18, **14/18**, 17/18 | **18/18, 18/18, 18/18** |
+| hard fixture, median | 126 s | **83 s** *(53 s with thinking off)* |
+| generation @2k | **136.2** tok/s | 111.1 |
+| deepest verified recall | 201,737 | **254,181** |
+| resident @262,144 | **21.3 GB** | 34.13 GB |
+| past its context window | **silently halves** | **refuses (HTTP 400)** |
+| vision | no | **yes** |
+
+Two properties decide it, and neither is a speed:
+
+1. **It fixes the specification, not the test file.** On a three-module fixture with **18
+   held-out tests the model never sees**, Tiel passed all eighteen in three runs from three.
+   Only `gemma4:26b-a4b` matched that. Everything else — including the v3 default and the
+   long-running control — turned the *visible* tests green while leaving up to five held-out
+   tests failing.
+2. **It fails loudly.** Overrun its context window and it returns HTTP 400. Seven of the ten
+   models measured silently keep `num_ctx/2 + 2` tokens and answer anyway. Claude Code cannot
+   send `num_ctx`, so with those models you can get an answer computed from half your
+   repository with nothing in the transcript to say so.
+
+The cost is memory: **34.13 GB of a 35.56 GB box**, the tightest fit in the project. Nothing
+else can be resident beside it.
+
+### Three settings that matter more than the model choice
+
+| | |
+|---|---|
+| **`presence_penalty 0`** | the shipped tag carries `1.5`, added by whoever created it — the raw download has none and the publisher recommends none. It costs **41–52% of generation** and nothing else changes |
+| **`<|think_off|>`** | **2.3× faster** on the hard fixture with equal or better correctness. `MAX_THINKING_TOKENS=0` does *not* work — it only omits the field, which Ollama reads as "think" |
+| **`CLAUDE_CODE_MAX_CONTEXT_TOKENS=230000`** | below the verified 254,181 retrieval ceiling, and Tiel's overflow is a visible error rather than a silent truncation |
+
+### CyberTiel: measured, and not recommended for daily use
+
+The abliterated sibling matches Tiel to within noise on **every** axis — generation within 1%,
+recall one token apart (254,182 vs 254,181), identical memory, identical overflow behaviour,
+both 25/25 on vision, both 18/18 on the hard fixture. On eight benign defensive-security prompts
+**neither model refused anything**, so the uncensored build buys nothing on legitimate work — and
+it has to be sandboxed to be run responsibly. Run Tiel; keep CyberTiel for a refusal that
+actually blocks you, and keep it in [`cc-session-sandboxed.sh`](cc-session-sandboxed.sh) when you
+do.
+
+### What changed under everything else
+
+**Ollama 0.33.3 caches prompt prefixes; 0.32.15 did not.** An agent turn now prefills only its
+new tail — 520 tokens instead of 30,042 — so **v3's ranking rule "prefill beats generation,
+because the loop re-reads its context every turn" no longer holds here.** The control
+(`qwen3.6:35b-a3b`) moved +1.2%, so raw throughput is otherwise unchanged between the runtimes;
+session wall-clocks are not comparable across them at all.
 
 ---
 
