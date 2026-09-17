@@ -1,0 +1,6 @@
+model	num_ctx	sent_tok_est	regime	prompt_eval	detail
+ornith:35b-ctx256k-agentic	262144	275251	OTHER	224357	prompt_eval 224357, done=stop
+ornith:35b-ctx256k-agentic	262144	275250	HALVED	131074	prompt_eval 131074 ~= num_ctx/2 (131072) -- the v1-v3 silent bug
+north-mini-code-1.0:q4_K_M-ctx256k-agentic	262144	275251	HALVED	131075	prompt_eval 131075 ~= num_ctx/2 (131072) -- the v1-v3 silent bug
+Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	262144	274681	ERROR_400	 	2x2 check: refuses with AND without explicit options.num_ctx
+ornith:35b-ctx256k-agentic	262144	274681	HALVED	131074	2x2 check: halves with AND without explicit options.num_ctx
