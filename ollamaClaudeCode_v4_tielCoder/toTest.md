@@ -31,6 +31,21 @@ harness and the comparison is clean. Confirmed to exist on HF 2026-09-17 (repo n
 
 Skip the MLX repos (`-MLX-*`) — `.67` runs Ollama/GGUF, not MLX.
 
+## A2. Cross-vendor 35B-A3B on the Qwen3.6 base — verified 2026-09-17
+
+Same `qwen35moe` architecture as Tiel, ornith and the control, so they slot into the harness
+with zero changes and compare cleanly. Both confirmed on HF. **These are the strongest external
+challengers** — a different team's post-training on the *identical* base the whole box is tuned
+around, which isolates training from architecture.
+
+| priority | source repo | GGUF (community) | what it is | why test it |
+|---|---|---|---|---|
+| **1** | `Kwaipilot/KAT-Coder-V2.5-Dev` | `bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF`, `mradermacher/…-i1-GGUF` | 35B-A3B coder on Qwen3.6, post-trained for "autonomous codebase manipulation, repo traversal, AST reasoning". Vendor claims ~69% SWE-bench Verified vs base ~64% | the closest direct competitor to Tiel that isn't a peculiar-ragdoll build. Apache-family, not abliterated, MTP + APEX GGUFs exist. Pull `Q5_K_XL`/`Q5_K_M` (~24 GB), measure head to head |
+| **2** | `Accio-Lab/occamy-1.0` | `mradermacher/occamy-1.0-i1-GGUF`, `bartowski/Accio-Lab_occamy-1.0-GGUF` | Qwen3.6-35B-A3B derivative for **long-horizon co-work**, "Marathon + Sprint expert" merge. Vendor claims Claw-Eval 82.2 | tests the "co-work / multi-step" axis the hard fixture only samples. Q4≈20–24 GB fits. Claw-Eval is a vendor metric — verify against *our* sessions, do not quote theirs |
+
+Vendor benchmark numbers above are **self-reported and on different harnesses** — record them as
+claims, then measure on this box. That is the whole point of §8 of the harness.
+
 ## B. Ollama library / other vendors — new since the v3/v4 field
 
 | priority | tag (VERIFY before pull) | what the web claims | fit? |
