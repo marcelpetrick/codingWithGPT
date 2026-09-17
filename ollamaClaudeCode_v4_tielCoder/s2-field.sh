@@ -8,7 +8,15 @@
 # Depths are in words, as needle-v2.sh takes them (v3 measurements.md §8, §16, §31).
 set -uo pipefail
 D="$(dirname "$(readlink -f "$0")")"
-run() { NEEDLE_DEPTHS="$2" GATE_RUNS=1 "$D/head2head.sh" "$1"; }
+run() {
+  NEEDLE_DEPTHS="$2" GATE_RUNS=1 "$D/head2head.sh" "$1"
+  # v4 addition: cold vs warm prefill. 0.33.3 caches the prompt prefix and
+  # 0.32.15 did not (review.md R2), so this is measured per model rather than
+  # inherited from v3's "you pay prefill every turn".
+  "$D/idle.sh" --mine "$1"
+  python3 "$D/cache-probe.py" "$1"
+  "$D/idle.sh" --mine "$1"
+}
 
 run "qwen3.6:35b-a3b-q4_K_M-agentic"                "80000"    # control first: 146,957 tok
 run "north-mini-code-1.0:q4_K_M-ctx256k-agentic"    "140000"   # 201,737 tok
@@ -17,4 +25,8 @@ run "ornith:35b-ctx256k-agentic"                    "135000"   # 254,061 tok
 run "nemotron-3.5-lightning:30b-ctx256k-agentic"    "80000"    # 161,516 tok
 run "nemotron-cascade-2:30b-ctx256k-agentic"        "80000"    # 161,526 tok
 run "qwen3.8:27b-q4_K_M-ctx128k-agentic"            "65000"    # 119,015 tok
+# The two Tiel tags get the same cache measurement, for the same table.
+"$D/idle.sh"
+python3 "$D/cache-probe.py" "Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest"
+"$D/idle.sh" --mine "Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest"
 echo S2-DONE

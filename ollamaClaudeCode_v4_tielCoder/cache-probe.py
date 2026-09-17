@@ -53,6 +53,13 @@ def main():
         tsv.write_text("model\tphase\tnew_tok\tcached_tok\ttotal_tok\twall_s\timplied_tps\n")
     filler = "alpha beta gamma delta epsilon zeta eta theta. " * (a.words // 8)
     for model in a.models:
+        # Load the weights first with a trivial request. Without this the "cold"
+        # row includes a ~16 s model load and reads ~1,300 tok/s against a true
+        # ~3,650 -- the load is a separate cost, already reported by tokrate.
+        try:
+            call(a.host, model, "hi", max_tokens=1)
+        except Exception:
+            pass
         base = f"Unique run {uuid.uuid4().hex}. {filler}"
         other = f"Unique run {uuid.uuid4().hex}. {filler}"
         phases = [("cold", base), ("repeat", base),

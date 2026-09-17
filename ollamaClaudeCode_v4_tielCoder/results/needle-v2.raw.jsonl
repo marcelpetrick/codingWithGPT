@@ -5,3 +5,8 @@
 {"model":"Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest","created_at":"2026-09-17T07:55:08.464876947Z","message":{"role":"assistant","content":"CRIMSON-PANGOLIN-4471"},"done":true,"done_reason":"stop","total_duration":112999130557,"load_duration":16758207379,"prompt_eval_count":203039,"prompt_eval_cached_count":0,"prompt_eval_duration":95563996000,"eval_count":13,"eval_duration":292291000}
 {"model":"Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest","created_at":"2026-09-17T07:57:11.189166273Z","message":{"role":"assistant","content":"CRIMSON-PANGOLIN-4471"},"done":true,"done_reason":"stop","total_duration":122631887381,"load_duration":21401237,"prompt_eval_count":233729,"prompt_eval_cached_count":178,"prompt_eval_duration":117705762000,"eval_count":13,"eval_duration":271158000}
 {"model":"Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest","created_at":"2026-09-17T07:59:30.084049693Z","message":{"role":"assistant","content":"CRIMSON-PANGOLIN-4471"},"done":true,"done_reason":"stop","total_duration":138786459895,"load_duration":24176053,"prompt_eval_count":254181,"prompt_eval_cached_count":178,"prompt_eval_duration":132956430000,"eval_count":13,"eval_duration":283833000}
+
+
+
+{"error":"{\"error\":{\"code\":400,\"message\":\"request (264419 tokens) exceeds the available context size (262144 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":264419,\"n_ctx\":262144}}"}
+{"error":"{\"error\":{\"code\":400,\"message\":\"request (274633 tokens) exceeds the available context size (262144 tokens), try increasing it\",\"type\":\"exceed_context_size_error\",\"n_prompt_tokens\":274633,\"n_ctx\":262144}}"}

@@ -1,9 +1,14 @@
 # v4 self-review — 2026-09-17, after stage S1
 
 Written after S1 finished and before S2/S3/S5 ran, because a harness flaw found late is a
-re-run of everything. Ten findings, each with what was done about it. Three of them changed
-results rather than tidiness: **R1/R2** (the runtime caches prompts now), **R4** (the sandbox
-is a different environment) and **R6** (a single gate failure is not a gate failure).
+re-run of everything. Twelve findings, each with what was done about it. Four changed results
+rather than tidiness: **R1/R2** (the runtime caches prompts now), **R4** (the sandbox is a
+different environment), **R6** (a single gate failure is not a gate failure) and **R11** (three
+"measurements" that measured nothing at all).
+
+The two worth reading in full are R1/R2 and R11. R11 in particular is the argument for doing
+this at all: I had already fixed that exact footgun in one script, carried the unfixed version
+of it in another, and published three rows from it in a notification before checking them.
 
 | # | finding | severity | mitigation |
 |---|---|---|---|
@@ -17,6 +22,8 @@ is a different environment) and **R6** (a single gate failure is not a gate fail
 | R8 | no reproducibility block (digests, versions) as the brief requires | low | `results/provenance.txt`, generated |
 | R9 | `vision-bench` claims `think:false` is honoured but never checked it | low | the TSV carries a `thinking_chars` column; asserted per model |
 | R10 | S1 results were uncommitted while later stages could overwrite them | low | committed per stage |
+| R11 | **`needle-v2.sh` defaults to `127.0.0.1`**, so the deep rungs I ran to find Tiel's cliff silently measured *nothing*: empty responses scored `PARSE_FAIL` and the baked-window probe fell back to 32768 | **high** | default moved to `.67`, and an unreachable host now exits 2 with a message instead of producing rows. This is the same footgun class v3 documented for `kv-probe`'s dead port — I fixed it there and missed it here, which is exactly why the review was worth doing |
+| R12 | `cache-probe`'s "cold" row included the model load after an idle server (1,281 tok/s against a true 3,659) | medium | the probe warms the weights with a trivial request first; the load cost is `tokrate`'s `load_s`, reported separately |
 
 ## R1/R2 in full — the runtime changed the rules again
 

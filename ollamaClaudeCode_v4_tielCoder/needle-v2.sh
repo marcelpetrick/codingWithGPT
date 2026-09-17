@@ -27,7 +27,11 @@
 # Usage: ./needle-v2.sh [--host H] [--port P] [--model M] [--num-predict N]
 set -uo pipefail
 
-HOST="127.0.0.1"; PORT="11434"; MODEL="muse-glimmer:30b-ctx128k-agentic"
+# v4: default to .67, not localhost. Called without --host this hit the laptop,
+# every rung came back empty and scored PARSE_FAIL, and the baked-window probe
+# silently fell back to 32768 -- a dead-host run that reads like a broken model.
+# Same failure class v3 documented for kv-probe.sh's dead-port default.
+HOST="192.168.100.67"; PORT="11434"; MODEL="muse-glimmer:30b-ctx128k-agentic"
 NUM_PREDICT=512; TIMEOUT=3600
 # Default depths in WORDS of filler. The four below map to roughly 4k/16k/60k/120k
 # tokens and are what every model in this directory was measured at, so changing
@@ -55,7 +59,13 @@ import sys,json,re
 try: p=json.load(sys.stdin).get("parameters","") or ""
 except Exception: p=""
 m=re.search(r"num_ctx\s+(\d+)",p); print(m.group(1) if m else "")')
-[ -z "$baked" ] && baked=32768
+if [ -z "$baked" ]; then
+  # Distinguish "tag has no num_ctx" from "host is not answering at all".
+  if ! curl -s -m 10 "$BASE/api/version" >/dev/null 2>&1; then
+    echo "needle-v2: $BASE is not answering -- wrong --host/--port?" >&2; exit 2
+  fi
+  baked=32768
+fi
 printf '=== needle-v2 on %s: %s (baked num_ctx=%s, num_predict=%s) ===\n' \
   "$HOST" "$MODEL" "$baked" "$NUM_PREDICT" | tee -a "$LOG"
 
