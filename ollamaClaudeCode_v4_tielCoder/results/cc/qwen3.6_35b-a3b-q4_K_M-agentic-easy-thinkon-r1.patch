@@ -1,0 +1,13 @@
+diff --git a/stats.py b/stats.py
+index 7293aa0..fbc7c02 100644
+--- a/stats.py
++++ b/stats.py
+@@ -11,4 +11,7 @@ def median(values):
+     if not values:
+         raise ValueError("median() requires at least one value")
+     ordered = sorted(values)
+-    return ordered[len(ordered) // 2]
++    n = len(ordered)
++    if n % 2 == 0:
++        return (ordered[n // 2 - 1] + ordered[n // 2]) / 2
++    return ordered[n // 2]

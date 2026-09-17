@@ -1,0 +1,128 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..32262ef 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -1,17 +1,23 @@
+ """Money parsing."""
+-from decimal import Decimal
+-
++from decimal import Decimal, InvalidOperation
+ 
+ def parse_amount(text):
+     """Parse a ledger amount into a Decimal.
+ 
+     Accepted forms, surrounding whitespace ignored:
+ 
+-    * plain or signed decimals: "12.50", "-12.50", "+12.50", "7"
++    * plain or signed decimals: "1s2.50", "-12.50", "+12.50", "7"
+     * thousands separators: "1,234.50"
+     * accounting negatives in parentheses: "(12.50)" means -12.50
+ 
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    try:
++        text = text.strip()
++        if text.startswith('(') and text.endswith(')'):
++            text = '-' + text[1:-1]
++        text = text.replace(',', '')
++        return Decimal(text).quantize(Decimal("0.00"))
++    except (InvalidOperation, ValueError):
++        raise ValueError(f"Invalid amount: {text!r}")
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..2fe1c97 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,8 +26,23 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
+-    day, category, amount, currency = line.split(";")
+-    return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
++    stripped = line.lstrip()
++    if not stripped or stripped.startswith('#'):
++        return None
++
++    parts = line.split(";")
++    if len(parts) != 4:
++        raise ValueError(f"Expected 4 fields, got {len(parts)}")
++
++    day_str = parts[0].strip()
++    category = parts[1].strip().lower()
++    amount_str = parts[2].strip()
++    currency = parts[3].strip().upper()
++
++    if len(currency) != 3:
++        raise ValueError(f"Invalid currency: {currency!r}")
++
++    return Entry(date.fromisoformat(day_str), category, parse_amount(amount_str), currency)
+ 
+ 
+ def parse_ledger(text):
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..f07fd59 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,4 +1,8 @@
+ """Reports over parsed entries."""
++from collections import defaultdict
++from decimal import Decimal
++
++from .parser import Entry
+ 
+ 
+ def monthly_totals(entries):
+@@ -8,11 +12,19 @@ def monthly_totals(entries):
+     chronological order. All entries must share one currency, otherwise
+     ValueError is raised. An empty input returns an empty dict.
+     """
+-    totals = {}
++    if not entries:
++        return {}
++
++    currency = entries[0].currency
++    totals = defaultdict(Decimal)
++
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
+-        totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++        if entry.currency != currency:
++            raise ValueError("All entries must share one currency")
++        key = entry.day.strftime("%Y-%m")
++        totals[key] += entry.amount
++
++    return dict(sorted(totals.items()))
+ 
+ 
+ def category_breakdown(entries, month):
+@@ -23,4 +35,27 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    if not entries:
++        return []
++
++    currency = entries[0].currency
++    totals_per_category = defaultdict(Decimal)
++
++    for entry in entries:
++        if entry.currency != currency:
++            raise ValueError("All entries must share one currency")
++        if entry.day.strftime("%Y-%m") == month:
++            totals_per_category[entry.category] += entry.amount
++
++    result = [
++        (category, total)
++        for category, total in totals_per_category.items()
++        if total != 0
++    ]
++
++    # Sorted by total ascending, then category name.
++    # Wait, the test says:
++    # [("rent", Decimal("-1200.00")), ("groceries", Decimal("-60.70"))]
++    # -1200.00 is LESS than -60.70.
++    # So it is sorting by total ascending.
++    return sorted(result, key=lambda x: (x[1], x[0]))

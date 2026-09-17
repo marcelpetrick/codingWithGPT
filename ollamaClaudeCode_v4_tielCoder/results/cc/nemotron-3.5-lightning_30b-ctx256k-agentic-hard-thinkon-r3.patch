@@ -1,0 +1,123 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..d385ee0 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -1,5 +1,5 @@
+ """Money parsing."""
+-from decimal import Decimal
++from decimal import Decimal, InvalidOperation
+ 
+ 
+ def parse_amount(text):
+@@ -14,4 +14,38 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    text = text.strip()
++
++    # Accounting negatives in parentheses: "(12.50)" means -12.50
++    if text.startswith("(") and text.endswith(")"):
++        inner = text[1:-1].strip()
++        negated = "(" in text  # always negative when wrapped in parens
++        result = _parse_plain(inner)
++        return -result if negated else result
++
++    return _parse_plain(text)
++
++
++def _parse_plain(text):
++    """Parse a plain amount string, handling thousands separators and zero-padding."""
++    text = text.strip()
++
++    # Thousands separators: "1,234.50" -> "1234.50"
++    if "," in text:
++        # Remove all thousands-group commas (commas between digits)
++        # e.g., "1,234.50" -> "1234.50", "12,345,678.90" -> "12345678.90"
++        import re
++        cleaned = re.sub(r'(?<=\d),(?=\d)', '', text)
++        # If after removing intra-digit commas there are still commas, it's invalid
++        if "," in cleaned:
++            raise ValueError(f"Invalid amount with commas: {text}")
++        text = cleaned
++
++    try:
++        result = Decimal(text)
++    except InvalidOperation:
++        raise ValueError(f"Cannot parse amount: {text!r}")
++
++    # Always two decimal places
++    # Quantize to 2 decimal places; this also handles rounding
++    return result.quantize(Decimal("0.01"))
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..feea345 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,8 +26,23 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
+-    day, category, amount, currency = line.split(";")
+-    return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
++    stripped = line.strip()
++
++    # Blank lines return None
++    if stripped == "":
++        return None
++
++    # Comment lines return None (first non-space char is '#')
++    if stripped.startswith("#"):
++        return None
++
++    day, category, amount, currency = stripped.split(";")
++    return Entry(
++        day=date.fromisoformat(day),
++        category=category.strip().lower(),
++        amount=parse_amount(amount),
++        currency=currency.strip().upper(),
++    )
+ 
+ 
+ def parse_ledger(text):
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..c1efdca 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,4 +1,5 @@
+ """Reports over parsed entries."""
++from decimal import Decimal
+ 
+ 
+ def monthly_totals(entries):
+@@ -10,9 +11,10 @@ def monthly_totals(entries):
+     """
+     totals = {}
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
++        key = f"{entry.day.year}-{entry.day.month:02d}"
+         totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++    # Sort keys chronologically
++    return dict(sorted(totals.items()))
+ 
+ 
+ def category_breakdown(entries, month):
+@@ -23,4 +25,17 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    year, mon = month.split("-")
++    year = int(year)
++    mon = int(mon)
++    totals: dict[str, Decimal] = {}
++    for entry in entries:
++        if entry.day.year != year or entry.day.month != mon:
++            continue
++        cat = entry.category
++        totals[cat] = totals.get(cat, Decimal("0")) + entry.amount
++    # Filter out zero totals and sort by total ascending (largest expense first
++    # since totals are negative for expenses)
++    result = [(cat, total) for cat, total in totals.items() if total != 0]
++    result.sort(key=lambda x: x[1])
++    return result

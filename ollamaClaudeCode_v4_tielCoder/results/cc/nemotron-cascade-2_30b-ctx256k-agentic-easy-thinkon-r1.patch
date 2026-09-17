@@ -1,0 +1,27 @@
+diff --git a/stats.py b/stats.py
+index 7293aa0..6013d51 100644
+--- a/stats.py
++++ b/stats.py
+@@ -1,14 +1,17 @@
+ """Small statistics helpers."""
+ 
+-
+ def mean(values):
+     if not values:
+         raise ValueError("mean() requires at least one value")
+-    return sum(values) / len(values)
+-
++    return sum(values)  / len(values)
+ 
+ def median(values):
+     if not values:
+         raise ValueError("median() requires at least one value")
+     ordered = sorted(values)
+-    return ordered[len(ordered) // 2]
++    n = len(ordered)
++    mid = n // 2
++    if n % 2 == 1:
++        return ordered[mid]
++    else:
++        return (ordered[mid - 1] + ordered[mid]) / 2
+\ No newline at end of file

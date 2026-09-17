@@ -1,0 +1,132 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..fa98f07 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -1,5 +1,5 @@
+ """Money parsing."""
+-from decimal import Decimal
++from decimal import Decimal, InvalidOperation
+ 
+ 
+ def parse_amount(text):
+@@ -14,4 +14,18 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    text = text.strip()
++    if not text:
++        raise ValueError("Empty amount")
++
++    if text.startswith("(") and text.endswith(")"):
++        text = "-" + text[1:-1]
++
++    text = text.replace(",", "")
++
++    try:
++        amount = Decimal(text).quantize(Decimal("0.00"))
++        return amount
++    except (InvalidOperation, ValueError):
++        raise ValueError(f"Invalid amount: {text}")
++
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..70000b3 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,8 +26,25 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
+-    day, category, amount, currency = line.split(";")
+-    return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
++    line = line.strip()
++    if not line or line.startswith("#"):
++        return None
++
++    parts = [p.strip() for p in line.split(";")]
++    if len(parts) != 4:
++        raise ValueError("Expected 4 fields in line")
++
++    day, category, amount_str, currency = parts
++
++    if len(currency) != 3:
++        raise ValueError("Currency must be exactly 3 letters")
++
++    return Entry(
++        day=date.fromisoformat(day),
++        category=category.lower(),
++        amount=parse_amount(amount_str),
++        currency=currency.upper()
++    )
+ 
+ 
+ def parse_ledger(text):
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..a3f0693 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,5 +1,14 @@
+ """Reports over parsed entries."""
++from collections import defaultdict
++from decimal import Decimal
+ 
++def _check_currency(entries):
++    if not entries:
++        return
++    currency = entries[0].currency
++    for entry in entries[1:]:
++        if entry.currency != currency:
++            raise ValueError("All entries must share one currency")
+ 
+ def monthly_totals(entries):
+     """Sum amounts per calendar month.
+@@ -8,12 +17,18 @@ def monthly_totals(entries):
+     chronological order. All entries must share one currency, otherwise
+     ValueError is raised. An empty input returns an empty dict.
+     """
+-    totals = {}
++    if not entries:
++        return {}
++
++    _check_currency(entries)
++
++    totals = defaultdict(Decimal)
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
+-        totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++        key = entry.day.strftime("%Y-%m")
++        totals[key] += entry.amount
+ 
++    # Sort by key to ensure chronological order
++    return dict(sorted(totals.items()))
+ 
+ def category_breakdown(entries, month):
+     """Totals per category for one month, given as "YYYY-MM".
+@@ -23,4 +38,25 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    if not entries:
++        return []
++
++    _check_currency(entries)
++
++    totals = defaultdict(Decimal)
++    for entry in amounts_for_month(entries, month):
++        totals[entry.category] += entry.amount
++
++    # Filter out zero totals
++    results = [(cat, amt) for cat, amt in totals.items() if amt != 0]
++
++    # Sort by amount ascending (largest expense first), then by category name
++    results.sort(key=lambda x: (x[1], x[0]))
++
++    return results
++
++def amounts_for_month(entries, month):
++    """Helper to filter entries by month."""
++    for entry in entries:
++        if entry.day.strftime("%Y-%m") == month:
++            yield entry

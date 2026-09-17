@@ -1,0 +1,100 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..f6e34ca 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -1,5 +1,5 @@
+ """Money parsing."""
+-from decimal import Decimal
++from decimal import Decimal, InvalidOperation
+ 
+ 
+ def parse_amount(text):
+@@ -14,4 +14,22 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    # Remove whitespace
++    text = text.strip()
++
++    # Handle parentheses as negatives
++    if text.startswith("(") and text.endswith(")"):
++        text = "-" + text[1:-1]
++
++    # Remove thousands separators (commas)
++    if "," in text:
++        text = text.replace(",", "")
++
++    try:
++        result = Decimal(text)
++    except InvalidOperation:
++        raise ValueError(f"Invalid amount: {text}")
++
++    # Ensure exactly two decimal places
++    result = result.quantize(Decimal("0.01"))
++    return result
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..5b66e4d 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,7 +26,16 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
++    # Handle comments and blank lines
++    if not line.strip():
++        return None
++    if line.lstrip().startswith("#"):
++        return None
++
+     day, category, amount, currency = line.split(";")
++    # Normalize category and currency as specified
++    category = category.strip().lower()
++    currency = currency.strip().upper()
+     return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
+ 
+ 
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..a1f75ca 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -10,9 +10,13 @@ def monthly_totals(entries):
+     """
+     totals = {}
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
++        key = f"{entry.day.year}-{entry.day.month:02d}"
+         totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++
++    # Return dict with keys in chronological order
++    # Extract and sort the keys, then rebuild the dict with sorted keys
++    sorted_keys = sorted(totals.keys())
++    return {key: totals[key] for key in sorted_keys}
+ 
+ 
+ def category_breakdown(entries, month):
+@@ -23,4 +27,22 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    # Group entries by category for the requested month
++    category_totals = {}
++    for entry in entries:
++        key = f"{entry.day.year}-{entry.day.month:02d}"
++        if key != month:
++            continue
++
++        if entry.category not in category_totals:
++            category_totals[entry.category] = entry.amount
++        else:
++            category_totals[entry.category] += entry.amount
++
++    # Filter out categories with zero total and create sorted list
++    result = [(category, total) for category, total in category_totals.items()
++              if total != 0]
++
++    # Sort by total ascending (largest expense comes first), then by category name
++    result.sort(key=lambda x: (x[1], x[0]))
++    return result

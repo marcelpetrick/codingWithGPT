@@ -1,0 +1,100 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..1205be2 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -1,17 +1,33 @@
+ """Money parsing."""
+-from decimal import Decimal
++from decimal import Decimal, ROUND_HALF_UP
+ 
+-
+-def parse_amount(text):
++def parse_Amount(text):
+     """Parse a ledger amount into a Decimal.
+ 
+     Accepted forms, surrounding whitespace ignored:
+ 
+-    * plain or signed decimals: "12.50", "-12.50", "+12.50", "7"
+-    * thousands separators: "1,234.50"
+-    * accounting negatives in parentheses: "(12.50)" means -12.50
++      * plain or signed decimals: "12.50", "-12.50", "+12.50", "7"
++      * thousands separators: "1,234.50"
++      * accounting negatives in parentheses: "(12.50)" means -12.50
+ 
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    if not isinstance(text, str):
++        raise ValueError("Amount must be a string")
++    txt = text.strip()
++    if not txt:
++        raise ValueError("Empty amount")
++    negative = False
++    if txt.startswith('(') and txt.endswith(')'):
++        negative = True
++        txt = txt[1:-1].strip()
++    txt = txt.replace(',', '')
++    try:
++        value = Decimal(txt)
++    except Exception as e:
++        raise ValueError(f"Invalid amount: {txt}") from e
++    value = value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
++    if negative:
++        value = -value
++    return value
+\ No newline at end of file
+diff --git a/ledger/parser. py b/ledger/parser. py
+new file mode 100644
+index 0000000..10aabfc
+--- /dev/null
++++ b/ledger/parser. py	
+@@ -0,0 +1,34 @@
++"""Parse ledger text into entries."""
++from dataclasses import dataclass
++from datetime import date
++from decimal import Decimal
++from  .money import parse_Amount
++
++@dataclass(frozen=True)
++class Entry:
++    day: date
++    category: str
++    amount: Decimal
++    currency: str
++
++def parse_Line(line):
++    stripped  = line.strip()
++    if not stripped or stripped.startswith('#'):
++        return None
++    parts  = [p.strip() for p in line.split(';')]
++    if len(parts) != 4:
++        raise ValueError(f"Expected 4 fields, got {len(parts)}")
++    day_str, category, amount_str, currency = parts
++    try:
++        entry_date  = date.fromisoformat(day_str)
++    except Exception as e:
++        raise ValueError(f"Invalid date: {day_str}") from e
++    entry_category  = category.lower()
++    entry_amount  = parse_Amount(amount_str)
++    entry_currency  = currency.upper()
++    return Entry(entry_date, entry_category, entry_amount, entry_currency)
++
++def parse_ledger(text):
++    entries  = (parse_Line(line) for line in text.splitlines())
++    return [entry for entry in entries if entry is not None]
++"""
+\ No newline at end of file
+diff --git a/tests/test_ledger.py b/tests/test_ledger.py
+index 28cbb60..73f5950 100644
+--- a/tests/test_ledger.py
++++ b/tests/test_ledger.py
+@@ -4,7 +4,7 @@ from decimal import Decimal
+ import pytest
+ 
+ from ledger.money import parse_amount
+-from ledger.parser import Entry, parse_ledger, parse_line
++from ledger.parser import Entry, parse_ledger.parse_line
+ from ledger.report import category_breakdown, monthly_totals
+ 
+ SAMPLE = """\

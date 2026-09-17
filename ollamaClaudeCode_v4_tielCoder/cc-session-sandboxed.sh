@@ -7,11 +7,20 @@
 # uncensored agent is exactly what not to do. This runs the identical session
 # INSIDE a container with, in layers:
 #
-#   filesystem   no host bind mounts at all; the fixture is `docker cp`-ed in and
-#                the result `docker cp`-ed out. rootfs is read-only; the only
-#                writable path is a tmpfs at /work. So the agent cannot read the
-#                host's files, secrets or SSH keys, and nothing it writes
-#                survives the run.
+#   filesystem   no host bind mounts at all. The fixture goes IN as a base64 tar
+#                in an environment variable and the finished tree comes back OUT
+#                on stdout, so nothing is ever shared with the host filesystem.
+#                rootfs is read-only; the only writable path is a tmpfs at /work,
+#                owned by the agent uid. The agent cannot read the host's files,
+#                secrets or SSH keys, and nothing it writes survives the run.
+#
+#                Why not `docker cp`: it is refused outright against a read-only
+#                rootfs ("container rootfs is marked read-only"), and even
+#                without that flag a copy into a *tmpfs* path lands in the image
+#                directory underneath and is shadowed the moment the tmpfs
+#                mounts at start. The first version of this script did exactly
+#                that and every sandboxed session ran against an EMPTY directory
+#                -- they scored FAIL and looked like model failures.
 #   identity     non-root (uid 1000), --cap-drop ALL, --security-opt
 #                no-new-privileges, so a chosen shell command cannot escalate.
 #   limits       --pids-limit and --memory, so a fork bomb or OOM stays contained.
@@ -30,7 +39,7 @@
 #          [--runs N] [--first-run K] [--timeout S] [--keep] <model> [<model>...]
 set -uo pipefail
 
-HOST="192.168.100.67"; PORT="11434"; TMO=1800; FIXTURE="easy"; RUNS=1; FIRST=1; KEEP=0
+HOST="192.168.100.67"; PORT="11434"; TMO=1800; FIXTURE="easy"; RUNS=1; FIRST=1; KEEP=0; THINKING="on"
 while [ $# -gt 0 ]; do
   case "$1" in
     --host) HOST="$2"; shift 2 ;;
@@ -40,6 +49,7 @@ while [ $# -gt 0 ]; do
     --runs) RUNS="$2"; shift 2 ;;
     --first-run) FIRST="$2"; shift 2 ;;
     --keep) KEEP=1; shift ;;
+    --thinking) THINKING="$2"; shift 2 ;;   # off -> inject <|think_off|> (Sharp template)
     *) break ;;
   esac
 done
@@ -54,7 +64,7 @@ API="http://${HOST}:${PORT}"
 OUT="$D/results/cc"; mkdir -p "$OUT"
 TSV="$D/results/cc-session-sandboxed.tsv"
 VERSION=$(curl -s -m 10 "$API/api/version" | python3 -c 'import sys,json;print(json.load(sys.stdin)["version"])' 2>/dev/null || echo "?")
-[ -s "$TSV" ] || printf 'date\tollama\tmodel\tfixture\trun\tverdict\thidden\twall_s\twarm_s\tcalls\tturns\tin_tok\tout_tok\tthink_chars\tapi_s\tttft_s\ttools\tsandbox_egress\tnote\n' > "$TSV"
+[ -s "$TSV" ] || printf 'date\tollama\tmodel\tfixture\tthinking\trun\tverdict\thidden\twall_s\twarm_s\tcalls\tturns\tin_tok\tout_tok\tthink_chars\tapi_s\tttft_s\ttools\tsandbox_egress\tnote\n' > "$TSV"
 
 docker image inspect "$IMG" >/dev/null 2>&1 || { echo "build the image first: docker build -t $IMG $D/sandbox" >&2; exit 2; }
 
@@ -81,7 +91,7 @@ RELAY_URL="http://${RELAY}:11434"
 for M in "$@"; do
  for RUN in $(seq "$FIRST" $((FIRST + RUNS - 1))); do
   SAFE=$(echo "$M" | tr ':/' '__')
-  ID="${SAFE}-${FIXTURE}-sandbox-r${RUN}"
+  ID="${SAFE}-${FIXTURE}-sandbox-think${THINKING}-r${RUN}"
   printf '\n\033[1m## sandboxed cc-session %s  fixture=%s run %s\033[0m\n' "$M" "$FIXTURE" "$RUN"
   LOG="$OUT/$ID.jsonl"; CID="v4cc-$$-$RUN"
 
@@ -102,8 +112,10 @@ for M in "$@"; do
   # caps, non-root, capped. Then copy the fixture in and start it.
   docker create --name "$CID" \
     --network "$NET" \
-    --read-only --tmpfs /work:rw,exec,size=512m --tmpfs /home/node/.cache:size=64m \
-    --tmpfs /home/node/.claude:size=64m --tmpfs /tmp:size=64m \
+    --read-only \
+    --tmpfs /work:rw,exec,size=512m,uid=1000,gid=1000 \
+    --tmpfs /home/agent:rw,exec,size=256m,uid=1000,gid=1000 \
+    --tmpfs /tmp:rw,exec,size=128m,uid=1000,gid=1000 \
     --cap-drop ALL --security-opt no-new-privileges \
     --pids-limit 512 --memory 2g \
     -e ANTHROPIC_AUTH_TOKEN=ollama \
@@ -114,12 +126,15 @@ for M in "$@"; do
     -e ANTHROPIC_DEFAULT_OPUS_MODEL="$M" \
     -e CLAUDE_CODE_MAX_CONTEXT_TOKENS=200000 \
     -e CC_PROMPT="$PROMPT" -e CC_MODEL="$M" \
+    -e CC_THINK_ARGS="$([ "$THINKING" = off ] && printf -- '--append-system-prompt <|think_off|>')" \
+    -e CC_FIXTURE_B64="$(tar czf - -C "$STAGE" . | base64 -w0)" \
     "$IMG" \
-    'cd /work && git init -q && git add -A && git -c user.email=b@l -c user.name=b commit -qm fixture >/dev/null 2>&1;
-     timeout '"$TMO"' claude -p "$CC_PROMPT" --model "$CC_MODEL" --permission-mode bypassPermissions --output-format stream-json --verbose;
-     echo "__RC__$?"' >/dev/null
+    'cd /work && printf %s "$CC_FIXTURE_B64" | base64 -d | tar xzf - &&
+     git init -q && git add -A && git -c user.email=b@l -c user.name=b commit -qm fixture >/dev/null 2>&1;
+     timeout '"$TMO"' claude -p "$CC_PROMPT" --model "$CC_MODEL" $CC_THINK_ARGS --permission-mode bypassPermissions --output-format stream-json --verbose;
+     echo "__RC__$?";
+     echo "__WORKTAR__$(tar czf - -C /work . | base64 -w0)"' >/dev/null
 
-  docker cp "$STAGE/." "$CID:/work/" >/dev/null
   rm -rf "$STAGE"
 
   # egress self-check from an ephemeral peer on the same net (recorded per run)
@@ -145,8 +160,31 @@ for line in sys.stdin:
     print(json.dumps({"_t":t,"_raw":s}),flush=True)' > "$LOG"
   END=$(date +%s); WALL=$((END-START))
 
-  # Pull the working tree back out to score it on the host.
-  WORK=$(mktemp -d); docker cp "$CID:/work/." "$WORK/" >/dev/null 2>&1
+  # Pull the finished tree back out of the transcript and score it on the host,
+  # where the held-out tests live and the container never sees them.
+  WORK=$(mktemp -d)
+  python3 - "$LOG" "$WORK" <<'PYX'
+import base64, json, sys, io, tarfile
+log, dest = sys.argv[1], sys.argv[2]
+blob = None
+for line in open(log, errors="replace"):
+    line = line.strip()
+    if not line.startswith("{"):
+        continue
+    try:
+        ev = json.loads(line)
+    except ValueError:
+        continue
+    raw = ev.get("_raw", "")
+    if isinstance(raw, str) and raw.startswith("__WORKTAR__"):
+        blob = raw[len("__WORKTAR__"):]
+if blob:
+    with tarfile.open(fileobj=io.BytesIO(base64.b64decode(blob))) as t:
+        t.extractall(dest)
+    print("  extracted the container's working tree", file=sys.stderr)
+else:
+    print("  WARNING: no working tree came back from the container", file=sys.stderr)
+PYX
   docker rm -f "$CID" >/dev/null 2>&1
 
   RC=$(grep -o '__RC__[0-9]*' "$LOG" | tail -1 | grep -o '[0-9]*' || echo 1)
@@ -171,8 +209,8 @@ import sys,re;s=sys.stdin.read();p=re.search(r"(\d+) passed",s);print("%d/18"%(i
   A=$(python3 "$D/cc-analyse.py" "$LOG" --tsv)
   IFS=$'\t' read -r CALLS TURNS INTOK OUTTOK THINKC APIS TTFT MAXGAP TOOLS SUBFAIL ISERR <<< "$A"
 
-  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
-    "$(date +%F)" "$VERSION" "$M" "$FIXTURE" "$RUN" "$VERDICT" "$HIDDEN" "$WALL" "$WARM" \
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$(date +%F)" "$VERSION" "$M" "$FIXTURE" "$THINKING" "$RUN" "$VERDICT" "$HIDDEN" "$WALL" "$WARM" \
     "$CALLS" "$TURNS" "$INTOK" "$OUTTOK" "$THINKC" "$APIS" "$TTFT" "$TOOLS" "$EGRESS" "$NOTE" >> "$TSV"
   printf '   %-6s hidden=%-5s wall=%4ss calls=%-3s out=%-6s [%s] %s\n' \
     "$VERDICT" "$HIDDEN" "$WALL" "$CALLS" "$OUTTOK" "$EGRESS" "$NOTE"

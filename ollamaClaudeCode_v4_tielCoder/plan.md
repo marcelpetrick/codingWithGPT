@@ -131,6 +131,26 @@ them — those are `llama-server` flags), and the IQ3/Q4/Q6/Q8 quant sweep (disk
 box; Q5 is the tier that matches the Tiel already resident). The report says so plainly and
 makes no parity claim from a single run.
 
+## 4c. Narrowing, 2026-09-17 — what is no longer re-benchmarked
+
+After S2/S3 the field split cleanly, so the remaining stages stop re-measuring models that
+have now been rejected **twice on the same defect**. Their existing numbers stay in the
+report and the tables, labelled; they are simply not run again.
+
+| cut | evidence, across two rounds |
+|---|---|
+| `nemotron-cascade-2:30b` | v3: 7/10 gates, 50% parallel-call and 87.5% nested-schema failure, 84 turns / 256 s. **v4: 8/10 gates (T2 + T5), 0/3 sessions, hidden 0/18, 3/18, 3/18, 419 s median**, 41 Bash calls and nine blind `Write`s in one run. It is the fastest model on the box on both axes and it cannot finish a three-file change |
+| `qwen3.8:27b-q4_K_M` | v3: 30.4 tok/s, 4.3× slower than the field, measured and not recommended. **v4: 30.3 tok/s, 787 s median on the hard fixture.** Its capability is fine (18/18 hidden, three times) — it is simply the wrong shape for this box, and that was already settled |
+
+Kept, because each answers a question the round is about: the two **Tiel** tags and
+**CyberTiel** (the subject), **`ornith:35b`** (Tiel's own ancestor), **`qwen3.6:35b-a3b`** (the
+control since v1), **`north-mini`** (the incumbent default Tiel has to beat), **`gemma4:26b-a4b`**
+(the only other model that scored 18/18 three times) and **`nemotron-3.5-lightning`** (the only
+524k window).
+
+The remaining runs are therefore **only** the sandboxed sessions for Tiel and CyberTiel, plus
+CyberTiel's two missing probes — see `s6-focused.sh`.
+
 ## 5. Shared-server rules (unchanged from v2/v3)
 
 - `idle.sh` waits out anything foreign, never evicts it. v4's copy adds the Tiel tags to

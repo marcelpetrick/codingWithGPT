@@ -1,0 +1,9 @@
+date	ollama	model	fixture	run	verdict	hidden	wall_s	warm_s	calls	turns	in_tok	out_tok	think_chars	api_s	ttft_s	tools	sandbox_egress	note
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	easy	1	FAIL	-	39	20.5	7	7	21931	2048	1790	41.1	9.5	Bashx6	internet=000blocked relay=200	tests red (rc=0)
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	easy	2	FAIL	-	38	1.8	8	8	6623	2316	1632	38.3	3.3	Bashx7	internet=000blocked relay=200	tests red (rc=0)
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	easy	3	FAIL	-	33	1.6	7	7	5193	2014	952	37.2	7.1	Bashx6	internet=000blocked relay=200	tests red (rc=0)
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	hard	1	FAIL	0/18	47	1.4	9	9	5937	2982	2756	56.7	12.3	Bashx8	internet=000blocked relay=200	tests red (rc=0)
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	hard	2	FAIL	0/18	26	1.6	6	6	4449	1528	1074	26.4	3.4	Bashx5	internet=000blocked relay=200	tests red (rc=0)
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	hard	3	FAIL	0/18	47	1.3	10	10	6630	2943	3553	48.7	4.4	Bashx9	internet=000blocked relay=200	tests red (rc=0)
+2026-09-17	0.33.3	cyber-tiel:35b-q5-ctx256k-agentic	easy	1	FAIL	-	51	14.5	14	14	26567	3488	3375	52.9	8.7	Bashx13	internet=000blocked relay=200	tests red (rc=0)
+2026-09-17	0.33.3	cyber-tiel:35b-q5-ctx256k-agentic	hard	1	FAIL	0/18	442	1.4	22	22	16724	5388	4892	84.8	6.2	Bashx18,Readx1,TaskOutputx1,TaskStopx1	internet=000blocked relay=200	tests red (rc=0)

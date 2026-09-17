@@ -1,0 +1,96 @@
+diff --git a/ledger/money.parsing b/ledger/money.parsing
+new file mode 100644
+index 0000000..f089330
+--- /dev/null
++++ b/ledger/money.parsing
+@@ -0,0 +1,34 @@
++"""Money parsing."""
++from decimal import Decimal, ROUND_HALF_UP
++
++def parse_amount(text):
++    """Parse a ledger amount into a Decimal.
++
++    Accepted forms, surrounding whitespace ignored:
++
++       * plain or signed decimals: "12.50", "-12.50", "+12.50", "7"
++       * thousands separators: "1,234.50"
++       * accounting negatives in parentheses: "(12.50)" means -12.50
++
++    The result always carries exactly two decimal places, so "7" parses to
++    Decimal("7.00"). Anything else raises ValueError.
++    """
++    if not isinstance(text, str):
++        raise ValueError("Amount must be a string")
++    txt = text.strip()
++    if not txt:
++        raise ValueError("Empty amount")
++    negative = False
++    if txt.startswith('(') and txt.endswith(')'):
++        negative = True
++        txt = txt[1:-1].strip()
++    # Remove thousands separators (commas)
++    txt = txt.replace(',', '')
++    try:
++        value = Decimal(txt)
++    except Exception as e:
++        raise ValueError(f"Invalid amount: {txt}") from e
++    value = value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
++    if negative:
++        value = -value
++    return value
+diff --git a/ledger/parser.parsing b/ledger/parser.parsing
+new file mode 100644
+index 0000000..94a39ac
+--- /dev/null
++++ b/ledger/parser.parsing
+@@ -0,0 +1,50 @@
++"""Parse ledger text into entries.""" 
++from dataclasses import dataclass
++from datetime import date
++from decimal import Decimal
++
++from ledger.money import parse_amount
++
++@dataclass(frozen=True) 
++class Entry:
++    day: date
++    category: str
++    amount: Decimal
++    currency: str
++
++def parse_line(line): 
++    """Parse one line of the form DATE;CATEGORY;AMOUNT;CURRENCY 
++
++    * DATE is ISO 8601, YYYY-MM-DD 
++    * CATEGORY is stripped and lower‑cased 
++    * AMOUNT is parsed with parse_amount 
++    * CURRENCY is stripped, upper‑cased, and must be exactly three letters 
++    * any field may be surrounded by whitespace 
++
++    Blank lines, and lines whose first non‑space character is  ' #', return None. 
++    Anything malformed raises ValueError. 
++    """ 
++    stripped  = line.strip() 
++    if not stripped or stripped.startswith('#'): 
++        return None 
++
++    parts  =  [p.strip() for p in stripped.split(';')] 
++    if len(parts)  != 4: 
++        raise ValueError(f"Expected 4 fields, got {len(parts)}") 
++
++    day_str, category, amount_str, currency = parts 
++
++    try: 
++        entry_date = date.fromisoformat(day_str) 
++    except Exception as e: 
++        raise ValueError(f"Invalid date: {day_str}") from e 
++
++    entry_category = category.lower() 
++    entry_amount  = parse_amount(amount_str) 
++    entry_currency = currency.upper() 
++
++    return Entry( entry_date, entry_category, entry_amount, entry_currency ) 
++
++def parse_ledger(text): 
++    entries  =  (parse_line(line) for line in text.splitlines()) 
++    return  [e for e in entries if e is not None] 

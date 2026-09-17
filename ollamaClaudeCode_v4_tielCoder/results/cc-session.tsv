@@ -1,0 +1,61 @@
+date	ollama	model	fixture	thinking	run	verdict	hidden	wall_s	warm_s	calls	turns	in_tok	out_tok	think_chars	api_s	ttft_s	max_gap_s	tools	reloads	foreign	note
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	easy	on	1	PASS	-	26	17.0	7	8	22935	1063	885	27.7	9.7	9.6	Bashx4,Readx2,Editx1	0	-	
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	hard	on	1	PASS	18/18	131	1.5	12	15	26224	8641	18961	134.0	11.6	52.8	Bashx5,Readx5,Editx4	0	-	
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	easy	off	1	PASS	-	23	1.6	6	8	21403	884	0	24.6	11.2	11.1	Bashx3,Readx3,Editx1	0	-	
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	hard	off	1	PASS	18/18	74	1.2	19	22	25401	3983	0	76.7	13.3	13.3	Bashx9,Editx7,Readx5	0	-	
+2026-09-17	0.33.3	tiel-coder:35b-q5-ctx256k-agentic	easy	on	1	PASS	-	19	17.0	6	7	22592	779	467	19.8	8.9	8.8	Bashx3,Readx2,Editx1	0	-	
+2026-09-17	0.33.3	tiel-coder:35b-q5-ctx256k-agentic	hard	on	1	PASS	18/18	73	1.1	12	17	26203	5609	9423	73.4	9.7	13.4	Bashx6,Readx4,Writex3,Editx3	0	-	
+2026-09-17	0.33.3	north-mini-code-1.0:q4_K_M-ctx256k-agentic	easy	on	1	PASS	-	156	18.3	57	57	37032	9776	18382	160.1	13.6	13.5	Bashx44,Readx6,Writex4,Editx2	0	-	
+2026-09-17	0.33.3	north-mini-code-1.0:q4_K_M-ctx256k-agentic	hard	on	1	PASS	18/18	134	2.8	34	34	40353	10125	7895	136.6	11.1	14.9	Bashx17,Readx10,Editx3,Writex3	0	-	
+2026-09-17	0.33.3	gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	easy	on	1	PASS	-	24	17.4	6	6	20705	1551	1752	30.0	12.0	11.9	Bashx3,Readx1,Editx1	0	-	
+2026-09-17	0.33.3	gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	hard	on	1	PASS	18/18	89	1.9	16	16	27672	6863	10194	100.0	17.9	17.8	Readx5,Editx5,Bashx4,Writex1	0	-	
+2026-09-17	0.33.3	ornith:35b-ctx256k-agentic	easy	on	1	PASS	-	23	25.2	9	9	22575	1472	1936	24.9	9.9	9.8	Bashx5,Readx2,Editx1	0	-	
+2026-09-17	0.33.3	ornith:35b-ctx256k-agentic	hard	on	1	PASS	18/18	49	1.3	11	17	27317	4126	2799	52.3	11.9	11.8	Bashx6,Readx6,Editx4	0	-	
+2026-09-17	0.33.3	qwen3.6:35b-a3b-q4_K_M-agentic	easy	on	1	PASS	-	27	21.0	6	9	22257	2241	995	35.6	15.9	15.8	Bashx4,Readx3,Editx1	0	-	
+2026-09-17	0.33.3	qwen3.6:35b-a3b-q4_K_M-agentic	hard	on	1	PASS	17/18	61	2.2	13	19	27573	5661	2172	73.3	20.6	20.5	Editx7,Readx6,Bashx5	0	-	
+2026-09-17	0.33.3	nemotron-3.5-lightning:30b-ctx256k-agentic	easy	on	1	PASS	-	38	31.5	8	11	23657	3886	1385	53.6	25.1	25.0	Bashx8,Readx1,Editx1	0	-	
+2026-09-17	0.33.3	nemotron-3.5-lightning:30b-ctx256k-agentic	hard	on	1	PASS	14/18	60	1.2	13	21	34105	6785	5392	68.6	18.7	18.6	Readx11,Bashx5,Editx4	0	-	
+2026-09-17	0.33.3	nemotron-cascade-2:30b-ctx256k-agentic	easy	on	1	PASS	-	68	20.7	16	16	34113	7862	26258	70.4	8.7	30.1	Readx7,Bashx6,Editx1,Writex1	0	-	
+2026-09-17	0.33.3	nemotron-cascade-2:30b-ctx256k-agentic	hard	on	1	FAIL	0/18	419	1.5	71	71	118273	46133	158276	418.6	7.4	28.4	Bashx41,Readx16,Writex9	0	-	tests still red (rc=0)
+2026-09-17	0.33.3	qwen3.8:27b-q4_K_M-ctx128k-agentic	easy	on	1	PASS	-	106	18.7	7	9	33764	2111	1887	124.4	38.2	38.1	Bashx4,Readx3,Editx1	0	-	
+2026-09-17	0.33.3	qwen3.8:27b-q4_K_M-ctx128k-agentic	hard	on	1	PASS	18/18	565	3.6	13	16	138704	12385	25843	587.3	43.6	240.9	Bashx5,Readx5,Writex3,Editx2	0	-	
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	easy	on	2	PASS	-	26	34.8	7	9	23080	1005	396	26.5	9.4	9.4	Bashx4,Readx3,Editx1	0	-	
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	hard	on	2	FAIL	16/18	148	1.5	11	15	26233	9930	24994	152.9	13.7	81.3	Readx5,Bashx4,Writex3,Editx2	0	-	tests still red (rc=0)
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	easy	off	2	PASS	-	23	1.6	6	8	21873	889	0	25.2	11.4	11.3	Bashx3,Readx3,Editx1	0	-	
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	hard	off	2	PASS	18/18	53	1.4	12	12	23260	2865	0	60.6	17.4	17.3	Bashx7,Writex3,Editx1	0	-	
+2026-09-17	0.33.3	tiel-coder:35b-q5-ctx256k-agentic	easy	on	2	PASS	-	21	14.4	6	8	22865	1032	763	22.9	9.3	9.2	Bashx3,Readx3,Editx1	0	-	
+2026-09-17	0.33.3	tiel-coder:35b-q5-ctx256k-agentic	hard	on	2	PASS	18/18	83	1.2	12	18	26922	6640	12042	84.6	10.3	28.8	Bashx7,Readx5,Editx5	0	-	
+2026-09-17	0.33.3	north-mini-code-1.0:q4_K_M-ctx256k-agentic	easy	on	2	PASS	-	39	12.7	8	12	24333	3211	4019	43.7	14.1	14.0	Bashx6,Readx4,Editx1	0	-	
+2026-09-17	0.33.3	north-mini-code-1.0:q4_K_M-ctx256k-agentic	hard	on	2	PASS	14/18	126	1.9	34	34	41159	9154	10655	126.4	9.1	9.0	Bashx12,Editx11,Readx10	0	-	
+2026-09-17	0.33.3	gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	easy	on	2	PASS	-	27	14.6	7	7	20797	1727	1634	33.6	12.7	12.6	Bashx3,Editx2,Readx1	0	-	
+2026-09-17	0.33.3	gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	hard	on	2	PASS	18/18	92	2.0	14	14	25391	7241	11499	103.4	17.6	17.5	Readx5,Bashx3,Writex3,Editx2	0	-	
+2026-09-17	0.33.3	ornith:35b-ctx256k-agentic	easy	on	2	PASS	-	18	18.6	6	6	21788	932	637	19.6	9.8	9.8	Bashx3,Readx1,Editx1	0	-	
+2026-09-17	0.33.3	ornith:35b-ctx256k-agentic	hard	on	2	PASS	16/18	47	2.8	11	16	29445	3593	2361	47.9	10.3	10.2	Readx6,Bashx5,Editx4	0	-	
+2026-09-17	0.33.3	qwen3.6:35b-a3b-q4_K_M-agentic	easy	on	2	PASS	-	27	22.6	6	9	22258	2285	879	35.7	15.6	15.6	Bashx4,Readx3,Editx1	0	-	
+2026-09-17	0.33.3	qwen3.6:35b-a3b-q4_K_M-agentic	hard	on	2	PASS	15/18	60	2.2	8	18	28137	5748	4352	72.6	20.6	20.5	Readx6,Editx6,Bashx5	0	-	
+2026-09-17	0.33.3	nemotron-3.5-lightning:30b-ctx256k-agentic	easy	on	2	PASS	-	39	31.9	8	11	23651	3885	1492	54.5	25.7	25.6	Bashx8,Readx1,Editx1	0	-	
+2026-09-17	0.33.3	nemotron-3.5-lightning:30b-ctx256k-agentic	hard	on	2	PASS	14/18	74	1.2	14	22	34774	8837	10819	82.5	18.7	18.6	Readx9,Bashx7,Editx5	0	-	
+2026-09-17	0.33.3	nemotron-cascade-2:30b-ctx256k-agentic	easy	on	2	PASS	-	59	32.6	19	19	30778	6203	13375	69.9	17.8	17.7	Bashx9,Readx9	0	-	
+2026-09-17	0.33.3	nemotron-cascade-2:30b-ctx256k-agentic	hard	on	2	FAIL	3/18	361	0.9	45	45	101881	42894	149785	363.7	11.8	29.6	Bashx24,Readx18	0	-	tests still red (rc=0)
+2026-09-17	0.33.3	qwen3.8:27b-q4_K_M-ctx128k-agentic	easy	on	2	PASS	-	87	20.1	7	9	32857	1595	1223	101.9	34.5	34.4	Bashx4,Readx3,Editx1	0	-	
+2026-09-17	0.33.3	qwen3.8:27b-q4_K_M-ctx128k-agentic	hard	on	2	PASS	18/18	921	3.6	14	19	225397	19695	45975	956.6	56.2	435.4	Bashx8,Readx6,Writex3,Editx1	0	-	
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	easy	on	3	PASS	-	27	26.7	6	8	22910	1158	968	29.0	10.2	10.2	Bashx3,Readx3,Editx1	0	-	
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	hard	on	3	PASS	17/18	117	1.3	12	15	26258	7558	15650	125.6	17.5	32.6	Bashx5,Readx4,Editx3,Writex2	0	-	
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	easy	off	3	PASS	-	23	1.9	6	8	21596	953	0	26.8	12.1	12.0	Bashx3,Readx3,Editx1	0	-	
+2026-09-17	0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	hard	off	3	PASS	17/18	56	1.7	12	15	24552	3006	0	57.2	11.1	11.0	Bashx6,Readx4,Writex3,Editx1	0	-	
+2026-09-17	0.33.3	tiel-coder:35b-q5-ctx256k-agentic	easy	on	3	PASS	-	21	14.0	6	7	23205	903	645	21.4	8.8	8.7	Bashx4,Readx1,Editx1	0	-	
+2026-09-17	0.33.3	tiel-coder:35b-q5-ctx256k-agentic	hard	on	3	PASS	18/18	83	1.2	11	15	25969	6732	13461	84.7	10.9	20.5	Bashx5,Readx5,Editx4	0	-	
+2026-09-17	0.33.3	north-mini-code-1.0:q4_K_M-ctx256k-agentic	easy	on	3	PASS	-	44	16.5	12	15	25393	3211	4922	44.1	8.0	7.9	Bashx9,Readx4,Editx1	0	-	
+2026-09-17	0.33.3	north-mini-code-1.0:q4_K_M-ctx256k-agentic	hard	on	3	PASS	17/18	112	2.0	24	24	37981	9090	10120	113.6	9.5	11.6	Bashx7,Readx7,Editx6,Writex3	0	-	
+2026-09-17	0.33.3	gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	easy	on	3	PASS	-	26	15.1	8	8	21181	1596	1667	32.4	12.4	12.3	Bashx4,Readx2,Editx1	0	-	
+2026-09-17	0.33.3	gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	hard	on	3	PASS	18/18	103	1.9	19	19	27205	7899	9268	106.2	9.4	11.4	Editx6,Readx5,Bashx4,Writex3	0	-	
+2026-09-17	0.33.3	ornith:35b-ctx256k-agentic	easy	on	3	PASS	-	19	19.6	6	6	21791	1101	995	21.5	10.5	10.4	Bashx3,Readx1,Editx1	0	-	
+2026-09-17	0.33.3	ornith:35b-ctx256k-agentic	hard	on	3	PASS	17/18	44	1.3	11	16	28865	3353	1975	47.0	12.0	12.0	Readx6,Bashx5,Editx4	0	-	
+2026-09-17	0.33.3	qwen3.6:35b-a3b-q4_K_M-agentic	easy	on	3	PASS	-	30	21.7	6	10	22270	2662	1137	39.2	15.4	15.3	Bashx5,Readx3,Editx1	0	-	
+2026-09-17	0.33.3	qwen3.6:35b-a3b-q4_K_M-agentic	hard	on	3	PASS	16/18	58	2.5	9	18	28090	5435	2086	70.4	20.2	20.2	Readx6,Editx6,Bashx5	0	-	
+2026-09-17	0.33.3	nemotron-3.5-lightning:30b-ctx256k-agentic	easy	on	3	PASS	-	39	30.4	8	11	24049	3905	1456	54.0	25.2	25.1	Bashx5,Readx4,Editx1	0	-	
+2026-09-17	0.33.3	nemotron-3.5-lightning:30b-ctx256k-agentic	hard	on	3	PASS	13/18	88	1.1	19	27	39788	10374	11320	96.5	19.0	18.9	Readx10,Bashx9,Editx7	0	-	
+2026-09-17	0.33.3	nemotron-cascade-2:30b-ctx256k-agentic	easy	on	3	FAIL	-	124	19.0	19	19	43653	15281	55333	125.9	8.0	25.7	Readx8,Bashx7,Writex2	0	-	tests still red (rc=0)
+2026-09-17	0.33.3	nemotron-cascade-2:30b-ctx256k-agentic	hard	on	3	FAIL	3/18	467	1.7	54	54	101989	52888	190245	468.0	8.4	73.6	Bashx24,Readx21,Writex6,bashx1	0	-	tests still red (rc=0)
+2026-09-17	0.33.3	qwen3.8:27b-q4_K_M-ctx128k-agentic	easy	on	3	PASS	-	73	15.8	6	9	30558	1248	934	79.5	26.1	26.0	Bashx4,Readx3,Editx1	0	-	
+2026-09-17	0.33.3	qwen3.8:27b-q4_K_M-ctx128k-agentic	hard	on	3	PASS	18/18	787	3.3	12	17	164169	17642	37749	805.1	40.2	354.2	Bashx7,Readx6,Writex3	0	-	

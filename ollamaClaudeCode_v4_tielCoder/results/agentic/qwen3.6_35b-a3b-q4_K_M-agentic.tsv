@@ -1,0 +1,11 @@
+test	result	detail
+T1_single_tool	PASS	correct_args
+T2_tool_selection	PASS	chose_search_code
+T3_multiturn	PASS	used_tool_result
+T4_parallel_calls	PASS	2_parallel_calls
+T5_complex_schema	PASS	nested_schema_exact_2_edits
+T6_needle_4k	PASS	found_at_4411_prompt_tokens
+T6_needle_16k	PASS	found_at_17861_prompt_tokens
+T6_needle_60k	PASS	found_at_72419_prompt_tokens
+T6_needle_120k	PASS	found_at_146957_prompt_tokens
+T7_tool_at_long_ctx	PASS	3/3_at_53283_tokens[PASS,PASS,PASS]
