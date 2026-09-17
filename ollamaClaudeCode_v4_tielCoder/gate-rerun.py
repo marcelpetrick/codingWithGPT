@@ -15,6 +15,9 @@ Usage: gate-rerun.py [--host URL] [--n 8] [--gate T5] <model> [<model>...]
 import argparse
 import json
 import urllib.request
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
 
 TOOLS_MULTI = [
     {"name": "read_file", "description": "Read the contents of a file from disk",
@@ -104,10 +107,19 @@ def main():
                 d = {"error": str(e)}
             v, why = judge(a.gate, d)
             results.append(v)
+            out = HERE / "results"; out.mkdir(exist_ok=True)
+            with (out / "gate-rerun.raw.jsonl").open("a") as f:
+                f.write(json.dumps({"model": model, "gate": a.gate, "run": i + 1,
+                                    "verdict": v, "why": why, "response": d}) + "\n")
             print(f"  {model[:44]:44} {a.gate} run{i + 1}: {v:8} {why}")
         n_pass = results.count("PASS")
-        print(f"  {model[:44]:44} {a.gate}: {n_pass}/{a.n} PASS  -> "
-              f"{'clean' if n_pass == a.n else 'systematic' if n_pass <= a.n // 2 else 'flaky'}\n")
+        # v3 §25a's threshold: <= half the runs failing is 'systematic' and
+        # disqualifying; a single failure in eight is sampling noise at the tag's
+        # shipped temperature (v3 §19f) and must not be published as a defect.
+        verdict = "clean" if n_pass == a.n else "systematic" if n_pass <= a.n // 2 else "flaky"
+        with (HERE / "results" / "gate-rerun.tsv").open("a") as f:
+            f.write(f"{model}\t{a.gate}\t{n_pass}/{a.n}\t{verdict}\n")
+        print(f"  {model[:44]:44} {a.gate}: {n_pass}/{a.n} PASS  -> {verdict}\n")
 
 
 if __name__ == "__main__":

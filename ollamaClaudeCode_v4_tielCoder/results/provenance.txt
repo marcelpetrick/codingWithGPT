@@ -1,0 +1,71 @@
+# v4 provenance — generated 2026-09-17T10:09:31+02:00
+
+## Inference server
+host            http://192.168.100.67:11434
+ollama          0.33.3
+usable VRAM     35.56 GB (measured in v3 §19c; no API exposes it, no SSH to the box)
+reachable via   USB ethernet enp0s13f0u1u4 (192.168.100.0/24); wifi 10.x cannot see it
+
+## Models under test (digest = ollama manifest digest)
+  Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest                 69b0f495f63e73c5     27.50 GB  Q5_K_M   34.7B
+  gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic                       ed9d11766bbfbef3     17.99 GB  Q4_K_M   25.8B
+  hf.co/peculiar-ragdoll/Cyber-Tiel-Coder-35B-A3B-GGUF:UD-Q5_K_XL 721cdda7cb91f753     27.50 GB  unknown  34.7B
+  hf.co/peculiar-ragdoll/Tiel-Coder-35B-A3B-GGUF:UD-Q5_K_XL      0f4198e1e0abb476     27.50 GB  unknown  34.7B
+  nemotron-3.5-lightning:30b                                     e7a64ff15fb174c4     25.43 GB  Q4_K_M   32.9B
+  nemotron-3.5-lightning:30b-ctx256k-agentic                     7f0838325562d984     25.43 GB  Q4_K_M   32.9B
+  nemotron-3.5-lightning:30b-ctx512k-agentic                     418f0ae8432eb7c4     25.43 GB  Q4_K_M   32.9B
+  nemotron-cascade-2:30b                                         e0705e3fe8f71df9     24.27 GB  Q4_K_M   31.6B
+  nemotron-cascade-2:30b-ctx256k-agentic                         68ccdc4c614c00ad     24.27 GB  Q4_K_M   31.6B
+  north-mini-code-1.0:q4_K_M-ctx256k-agentic                     a10155ea66956c8e     18.59 GB  Q4_K_M   30.5B
+  ornith:35b                                                     5a470e0f652cac9b     21.17 GB  Q4_K_M   34.7B
+  ornith:35b-ctx256k-agentic                                     cea37a0ccb1b7f2f     21.17 GB  Q4_K_M   34.7B
+  qwen3.6:35b-a3b-q4_K_M-agentic                                 891b2ad6882e6e8e     23.94 GB  Q4_K_M   36.0B
+  qwen3.8:27b-q4_K_M-ctx128k-agentic                             19cce17588980b04     17.74 GB  Q4_K_M   27.3B
+  tiel-coder:35b-q5-ctx256k-agentic                              b9b32345050d36d0     27.50 GB  Q5_K_M   34.7B
+
+## Baked parameters of the two Tiel tags
+  Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest
+      temperature                    0.6
+      top_k                          20
+      top_p                          0.95
+      min_p                          0
+      num_ctx                        262144
+      presence_penalty               1.5
+      stop                           "<|im_start|>"
+      stop                           "<|im_end|>"
+      stop                           "<think>"
+      stop                           "<|im_start|>user"
+      capabilities: ['tools', 'thinking', 'completion', 'vision']
+  tiel-coder:35b-q5-ctx256k-agentic
+      min_p                          0
+      num_ctx                        262144
+      presence_penalty               0
+      stop                           "<|im_start|>"
+      stop                           "<|im_end|>"
+      stop                           "<think>"
+      stop                           "<|im_start|>user"
+      temperature                    0.6
+      top_k                          20
+      top_p                          0.95
+      capabilities: ['tools', 'thinking', 'completion', 'vision']
+
+## Client / harness
+claude code     2.1.274 (Claude Code)
+host python     3.14.7, pytest 9.1.1
+sandbox image   v4-cc-sandbox:latest ab4c11204031 (python 3.11.2, pytest 7.2.1, claude 2.1.274)
+docker          29.7.2
+repo commit     51b46b0
+
+## Laptop (the client; it does no inference)
+os              Linux 7.1.13-2-MANJARO
+cpu             12th Gen Intel(R) Core(TM) i9-12900H
+ram             31Gi
+
+## Sampling / request settings used by the harness
+  tokrate.sh      temperature 0, seed 42, think:false, num_predict 256, /api/chat
+  agentic-test.sh /v1/messages, thinking disabled, max_tokens 4000, tag's own temperature (0.6)
+  needle-v2.sh    temperature 0, think:false, num_predict 2048, num_ctx = min(words*2.4+8192, baked)
+  vision-bench.py temperature 0, seed 42, think:false, num_predict 2048, AT the baked window
+  cache-probe.py  /v1/messages, thinking disabled, 24k-word unique prompts
+  cc-session*.sh  real Claude Code, CLAUDE_CODE_MAX_CONTEXT_TOKENS=200000, all four model
+                  slots pinned to the tag, --permission-mode bypassPermissions
