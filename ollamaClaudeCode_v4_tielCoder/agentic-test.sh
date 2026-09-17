@@ -277,7 +277,11 @@ try: d=json.loads(sys.stdin.read(),strict=False)
 except Exception: print('V=FAIL; T=?'); raise SystemExit
 if d.get('error'): print('V=ERROR; T=?'); raise SystemExit
 tu=[b for b in d.get('content',[]) if b.get('type')=='tool_use']
-it=(d.get('usage') or {}).get('input_tokens','?')
+# v4: 0.33.3 splits the prompt into freshly-prefilled and cache-served tokens.
+# Reading only input_tokens printed '4' for a 53k-token context on a cache hit,
+# which looked like the test had not loaded the context at all.
+_u=(d.get('usage') or {})
+it=(_u.get('input_tokens') or 0)+(_u.get('cache_read_input_tokens') or 0)
 if tu and tu[0]['name']=='write_file': print('V=PASS; T=%s'%it)
 elif tu: print('V=WRONGTOOL; T=%s'%it)
 else: print('V=FAIL; T=%s'%it)

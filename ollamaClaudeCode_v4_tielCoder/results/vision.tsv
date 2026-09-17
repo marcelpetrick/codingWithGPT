@@ -1,0 +1,7 @@
+model	case	checks	wall_s	prompt_tok	gen_tok	gen_tps	thinking_chars	done	resident_gb	pct_gpu	ctx	error
+Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	ocr-invoice	9/9	18.3	1283	128	75.0	0	stop	34.13	100	262144	
+Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	embedded-ui	6/6	3.1	801	169	76.6	0	stop	34.13	100	262144	
+Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	expenses-treemap	10/10	9.5	4286	134	77.9	0	stop	34.13	100	262144	
+tiel-coder:35b-q5-ctx256k-agentic	ocr-invoice	9/9	18.8	1283	128	109.6	0	stop	34.13	100	262144	
+tiel-coder:35b-q5-ctx256k-agentic	embedded-ui	6/6	2.6	801	195	112.3	0	stop	34.13	100	262144	
+tiel-coder:35b-q5-ctx256k-agentic	expenses-treemap	10/10	9.0	4286	147	109.5	0	stop	34.13	100	262144	

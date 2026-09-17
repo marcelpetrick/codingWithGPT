@@ -1,0 +1,7 @@
+ollama	model	prompt_words	prompt_tok	gen_tok	prefill_tps	gen_tps	load_s	total_s
+0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	0	203	182	428.6	72.58	14.5	17.5
+0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	2000	3358	243	2805.1	73.16	0.0	4.7
+0.33.3	Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	20000	35280	254	3547.7	69.41	0.0	14.0
+0.33.3	tiel-coder:35b-q5-ctx256k-agentic	0	203	186	418.6	107.08	16.1	18.3
+0.33.3	tiel-coder:35b-q5-ctx256k-agentic	2000	3358	201	2772.4	111.13	0.0	3.2
+0.33.3	tiel-coder:35b-q5-ctx256k-agentic	20000	35280	232	3483.4	97.64	0.0	12.9

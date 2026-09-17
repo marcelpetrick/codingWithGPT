@@ -81,58 +81,13 @@ command -v claude >/dev/null || { echo "no claude CLI on PATH" >&2; exit 2; }
 command -v pytest >/dev/null || { echo "no pytest on PATH" >&2; exit 2; }
 VERSION=$(curl -s -m 10 "$API/api/version" | python3 -c 'import sys,json;print(json.load(sys.stdin)["version"])' 2>/dev/null || echo "?")
 
-make_easy() {  # v3's fixture, byte-identical, so easy-fixture numbers stay comparable
-  local dir="$1"
-  mkdir -p "$dir/tests"
-  cat > "$dir/stats.py" <<'PY'
-"""Small statistics helpers."""
-
-
-def mean(values):
-    if not values:
-        raise ValueError("mean() requires at least one value")
-    return sum(values) / len(values)
-
-
-def median(values):
-    if not values:
-        raise ValueError("median() requires at least one value")
-    ordered = sorted(values)
-    return ordered[len(ordered) // 2]
-PY
-  cat > "$dir/tests/test_stats.py" <<'PY'
-import pytest
-
-from stats import mean, median
-
-
-def test_mean():
-    assert mean([1, 2, 3, 4]) == 2.5
-
-
-def test_median_odd():
-    assert median([3, 1, 2]) == 2
-
-
-def test_median_even():
-    # With an even number of values the median is the mean of the two middle
-    # values, not the upper one.
-    assert median([1, 2, 3, 4]) == 2.5
-
-
-def test_median_does_not_mutate():
-    values = [3, 1, 2]
-    median(values)
-    assert values == [3, 1, 2]
-PY
-  printf '[pytest]\npythonpath = .\n' > "$dir/pytest.ini"
-  printf '__pycache__/\n*.pyc\n.pytest_cache/\n' > "$dir/.gitignore"
-}
-
 make_fixture() {
   local dir="$1"
   rm -rf "$dir"; mkdir -p "$dir"
-  if [ "$FIXTURE" = easy ]; then make_easy "$dir"; SRC="stats.py"
+  # One source of truth per fixture: fixtures/easy and fixtures/ledger, the same
+  # directories cc-session-sandboxed.sh copies. The easy fixture used to be a
+  # heredoc here, which is how a fixture silently drifts between two harnesses.
+  if [ "$FIXTURE" = easy ]; then command cp -r "$D/fixtures/easy/." "$dir/"; SRC="stats.py"
   else command cp -r "$D/fixtures/ledger/." "$dir/"; SRC="ledger"; fi
   ( cd "$dir" && git init -q && git add -A && git -c user.email=bench@local \
       -c user.name=bench commit -qm "fixture" )
