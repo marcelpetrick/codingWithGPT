@@ -1,4 +1,4 @@
-# v4 provenance — generated 2026-09-17T10:09:31+02:00
+# v4 provenance — generated 2026-09-17T15:05:22+02:00
 
 ## Inference server
 host            http://192.168.100.67:11434
@@ -8,6 +8,7 @@ reachable via   USB ethernet enp0s13f0u1u4 (192.168.100.0/24); wifi 10.x cannot 
 
 ## Models under test (digest = ollama manifest digest)
   Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest                 69b0f495f63e73c5     27.50 GB  Q5_K_M   34.7B
+  cyber-tiel:35b-q5-ctx256k-agentic                              6a73539c4f589448     27.50 GB  Q5_K_M   34.7B
   gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic                       ed9d11766bbfbef3     17.99 GB  Q4_K_M   25.8B
   hf.co/peculiar-ragdoll/Cyber-Tiel-Coder-35B-A3B-GGUF:UD-Q5_K_XL 721cdda7cb91f753     27.50 GB  unknown  34.7B
   hf.co/peculiar-ragdoll/Tiel-Coder-35B-A3B-GGUF:UD-Q5_K_XL      0f4198e1e0abb476     27.50 GB  unknown  34.7B
@@ -52,9 +53,9 @@ reachable via   USB ethernet enp0s13f0u1u4 (192.168.100.0/24); wifi 10.x cannot 
 ## Client / harness
 claude code     2.1.274 (Claude Code)
 host python     3.14.7, pytest 9.1.1
-sandbox image   v4-cc-sandbox:latest ab4c11204031 (python 3.11.2, pytest 7.2.1, claude 2.1.274)
+sandbox image   v4-cc-sandbox:latest f387bf4f0b46 (python 3.11.2, pytest 7.2.1, claude 2.1.274)
 docker          29.7.2
-repo commit     51b46b0
+repo commit     7b862bb
 
 ## Laptop (the client; it does no inference)
 os              Linux 7.1.13-2-MANJARO

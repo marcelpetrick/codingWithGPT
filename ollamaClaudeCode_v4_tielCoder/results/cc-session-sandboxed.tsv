@@ -4,3 +4,13 @@ date	ollama	model	fixture	thinking	run	verdict	hidden	wall_s	warm_s	calls	turns	
 2026-09-17	0.33.3	cyber-tiel:35b-q5-ctx256k-agentic	easy	on	1	PASS	-	19	13.5	6	9	19940	853	487	19.5	7.8	Readx4,Bashx3,Editx1	internet=000blocked relay=200	
 2026-09-17	0.33.3	cyber-tiel:35b-q5-ctx256k-agentic	hard	on	1	PASS	18/18	57	1.1	14	16	7778	4601	6205	59.9	6.0	Bashx5,Readx4,Editx4,Writex2	internet=000blocked relay=200	
 2026-09-17	0.33.3	cyber-tiel:35b-q5-ctx256k-agentic	hard	off	1	PASS	18/18	37	13.8	11	14	22465	2382	0	40.6	11.0	Readx5,Bashx4,Editx3,Writex1	internet=000blocked relay=200	
+2026-09-17	0.33.3	tiel-coder:35b-q5-ctx256k-agentic	easy	on	2	PASS	-	19	15.3	6	9	20252	904	583	20.2	8.0	Bashx4,Readx3,Editx1	internet=000blocked relay=200	
+2026-09-17	0.33.3	tiel-coder:35b-q5-ctx256k-agentic	hard	on	2	PASS	17/18	84	1.1	15	18	8155	7351	15368	88.2	7.2	Editx8,Bashx5,Readx4	internet=000blocked relay=200	
+2026-09-17	0.33.3	cyber-tiel:35b-q5-ctx256k-agentic	easy	on	2	PASS	-	20	13.5	6	9	20296	970	459	21.7	8.9	Bashx4,Readx3,Editx1	internet=000blocked relay=200	
+2026-09-17	0.33.3	cyber-tiel:35b-q5-ctx256k-agentic	hard	on	2	PASS	18/18	139	1.2	17	21	11551	12539	25277	143.9	8.6	Bashx9,Readx5,Editx4,Writex2	internet=000blocked relay=200	
+2026-09-17	0.33.3	cyber-tiel:35b-q5-ctx256k-agentic	hard	off	2	PASS	18/18	60	13.4	16	20	26025	4134	0	65.0	13.3	Bashx6,Readx6,Editx6,Writex1	internet=000blocked relay=200	
+2026-09-17	0.33.3	tiel-coder:35b-q5-ctx256k-agentic	easy	on	3	PASS	-	19	14.0	6	9	20088	811	452	19.0	7.7	Bashx4,Readx3,Editx1	internet=000blocked relay=200	
+2026-09-17	0.33.3	tiel-coder:35b-q5-ctx256k-agentic	hard	on	3	PASS	18/18	110	1.1	16	19	9129	9604	22547	108.8	3.8	Bashx8,Readx4,Writex3,Editx3	internet=000blocked relay=200	
+2026-09-17	0.33.3	cyber-tiel:35b-q5-ctx256k-agentic	easy	on	3	PASS	-	19	13.3	6	9	19964	941	580	20.8	8.3	Bashx4,Readx3,Editx1	internet=000blocked relay=200	
+2026-09-17	0.33.3	cyber-tiel:35b-q5-ctx256k-agentic	hard	on	3	PASS	18/18	65	1.2	12	15	7532	5563	10631	67.1	5.2	Bashx5,Readx4,Writex3,Editx2	internet=000blocked relay=200	
+2026-09-17	0.33.3	cyber-tiel:35b-q5-ctx256k-agentic	hard	off	3	PASS	17/18	60	14.7	19	19	24254	4166	0	63.3	11.0	Bashx5,Readx5,Writex4,Editx4	internet=000blocked relay=200	

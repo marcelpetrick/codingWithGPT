@@ -24,6 +24,7 @@ of it in another, and published three rows from it in a notification before chec
 | R10 | S1 results were uncommitted while later stages could overwrite them | low | committed per stage |
 | R11 | **`needle-v2.sh` defaults to `127.0.0.1`**, so the deep rungs I ran to find Tiel's cliff silently measured *nothing*: empty responses scored `PARSE_FAIL` and the baked-window probe fell back to 32768 | **high** | default moved to `.67`, and an unreachable host now exits 2 with a message instead of producing rows. This is the same footgun class v3 documented for `kv-probe`'s dead port — I fixed it there and missed it here, which is exactly why the review was worth doing |
 | R12 | `cache-probe`'s "cold" row included the model load after an idle server (1,281 tok/s against a true 3,659) | medium | the probe warms the weights with a trivial request first; the load cost is `tokrate`'s `load_s`, reported separately |
+| R13 | the first `gate-extra` T10 scored four models PARTIAL for "content differs" — but the non-ASCII, tab, quote and backslash all survived; they had merely kept the `---8<---` delimiter the prompt used to bracket the content | medium | the gate now checks that the hard-to-encode tokens *survived*, not that the reply equals a fenced string byte-for-byte. Re-run: all seven models PASS 3/3. A fidelity gate that fails a model for keeping a wrapper is measuring formatting, not fidelity |
 
 ## R1/R2 in full — the runtime changed the rules again
 

@@ -140,6 +140,14 @@ def main():
                 except (ValueError, IndexError):
                     pass
 
+    dualuse = defaultdict(dict)         # model -> task -> outcome
+    for r in read_tsv("dualuse.tsv"):
+        dualuse[r["model"]][r["task"]] = r["outcome"]
+
+    xgates = defaultdict(dict)          # model -> gate -> "n/N"
+    for r in read_tsv("gate-extra.tsv"):
+        xgates[r["model"]][r["gate"]] = f'{r["pass_n"]}/{r["runs"]}'
+
     gates = {}
     for f in glob.glob(str(RES / "agentic" / "*.tsv")) + glob.glob(str(RES / "agentic" / "run1" / "*.tsv")):
         rows = list(csv.DictReader(open(f), delimiter="\t"))
@@ -255,6 +263,43 @@ def main():
     ]
     vs_html = "".join(f'<tr><td>{esc(k)}</td><td class="num">{esc(x)}</td><td class="num">{esc(y)}</td></tr>'
                       for k, x, y in vs_rows)
+
+
+    # ---- dual-use (abliteration discriminator) ----
+    du_models = [m for m in (T_PP0, T_SHIP, CT) if m in dualuse]
+    du_html = ""
+    if du_models:
+        tasks = [r["task"] for r in read_tsv("dualuse.tsv")]
+        seen = []
+        for t in tasks:
+            if t not in seen:
+                seen.append(t)
+        def dchip(o):
+            cls = {"DID_IT": "good", "CAUTIONED": "good", "HEDGED": "", "REFUSED": "crit"}.get(o, "")
+            lab = {"DID_IT": "did it", "CAUTIONED": "did it +note", "HEDGED": "hedged",
+                   "REFUSED": "refused"}.get(o, o)
+            return f'<span class="pill {cls}">{lab}</span>'
+        head = "".join(f"<th>{esc(short(m))}</th>" for m in du_models)
+        body = ""
+        for t in seen:
+            cells = "".join(f"<td>{dchip(dualuse[m].get(t,'-'))}</td>" for m in du_models)
+            body += f"<tr><td>{esc(t)}</td>{cells}</tr>"
+        du_html = (f'<div class="tablewrap"><table><thead><tr><th>task (all authorized / local / CTF)</th>'
+                   f'{head}</tr></thead><tbody>{body}</tbody></table></div>')
+
+    # ---- extra gates T8-T11 ----
+    xg_html = ""
+    if xgates:
+        order = ["T8_structured_output", "T9_error_recovery", "T10_argument_fidelity", "T11_zero_arg_tool"]
+        lab = {"T8_structured_output": "T8 JSON out", "T9_error_recovery": "T9 error-recovery",
+               "T10_argument_fidelity": "T10 arg-fidelity", "T11_zero_arg_tool": "T11 zero-arg"}
+        rows_xg = ""
+        for m in sorted(xgates, key=lambda m: -gen.get(m, 0)):
+            cells = "".join(f'<td class="num">{xgates[m].get(g,"—")}</td>' for g in order)
+            rows_xg += f"<tr><td>{esc(short(m))}</td>{cells}</tr>"
+        xg_html = ('<div class="tablewrap"><table><thead><tr><th>model</th>'
+                   + "".join(f"<th>{lab[g]}</th>" for g in order)
+                   + f"</tr></thead><tbody>{rows_xg}</tbody></table></div>")
 
     # ---------------- tables ----------------
     field_rows = []
@@ -498,6 +543,27 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
       </div>
     </div>
   </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>Where CyberTiel actually differs from Tiel</h2>
+    <span class="note">authorized / local / CTF tasks · no code executed</span></div>
+  <p class="sub" style="margin:0 0 14px">Nine legitimate security-engineering tasks phrased the way
+  that trips a safety filter. On a plainly benign set neither model refuses anything; this climbs
+  the grey zone until one does. <b>Abliteration changes exactly one task in nine — password
+  cracking.</b> Everything else, both builds do.</p>
+  {du_html}
+</section>
+
+<section>
+  <div class="sec-head"><h2>Agentic gates the classic battery misses</h2>
+    <span class="note">T8–T11, 3 runs each</span></div>
+  <p class="sub" style="margin:0 0 14px">Structured/JSON output, recovery after a tool <em>error</em>,
+  argument fidelity (paths with spaces and quotes, non-ASCII, tabs), and zero-argument tools.
+  T8/T9/T11 pass across the field; T10 catches <code>nemotron-3.5-L</code>, which silently drops
+  a tab from a tool argument — a real fidelity failure the first scorer had masked behind a
+  delimiter artifact (<code>review.md</code> R13).</p>
+  {xg_html}
 </section>
 
 <section>

@@ -1,0 +1,29 @@
+model	gate	pass_n	runs	verdicts	last_detail
+tiel-coder:35b-q5-ctx256k-agentic	T11_zero_arg_tool	3	3	PASS,PASS,PASS	called with no arguments
+tiel-coder:35b-q5-ctx256k-agentic	T8_structured_output	3	3	PASS,PASS,PASS	valid+correct {"functions": ["add", "mul", "test_add"], "has_tests
+tiel-coder:35b-q5-ctx256k-agentic	T9_error_recovery	3	3	PASS,PASS,PASS	corrected to '/app/config/settings.yaml'
+cyber-tiel:35b-q5-ctx256k-agentic	T11_zero_arg_tool	3	3	PASS,PASS,PASS	called with no arguments
+cyber-tiel:35b-q5-ctx256k-agentic	T8_structured_output	3	3	PASS,PASS,PASS	valid+correct {"functions": ["add", "mul", "test_add"], "has_tests
+cyber-tiel:35b-q5-ctx256k-agentic	T9_error_recovery	3	3	PASS,PASS,PASS	corrected to '/app/config/settings.yaml'
+ornith:35b-ctx256k-agentic	T11_zero_arg_tool	3	3	PASS,PASS,PASS	called with no arguments
+ornith:35b-ctx256k-agentic	T8_structured_output	3	3	PASS,PASS,PASS	valid+correct {"language": "Python", "functions": ["add", "mul", "
+ornith:35b-ctx256k-agentic	T9_error_recovery	3	3	PASS,PASS,PASS	corrected to '/app/config/settings.yaml'
+north-mini-code-1.0:q4_K_M-ctx256k-agentic	T11_zero_arg_tool	3	3	PASS,PASS,PASS	called with no arguments
+north-mini-code-1.0:q4_K_M-ctx256k-agentic	T8_structured_output	3	3	PASS,PASS,PASS	valid+correct {"language": "python", "functions": ["add", "mul", "
+north-mini-code-1.0:q4_K_M-ctx256k-agentic	T9_error_recovery	3	3	PASS,PASS,PASS	corrected to '/app/config/settings.yaml'
+qwen3.6:35b-a3b-q4_K_M-agentic	T11_zero_arg_tool	3	3	PASS,PASS,PASS	called with no arguments
+qwen3.6:35b-a3b-q4_K_M-agentic	T8_structured_output	3	3	PASS,PASS,PASS	valid+correct {"language": "Python", "functions": ["add", "mul", "
+qwen3.6:35b-a3b-q4_K_M-agentic	T9_error_recovery	3	3	PASS,PASS,PASS	corrected to '/app/config/settings.yaml'
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	T11_zero_arg_tool	3	3	PASS,PASS,PASS	called with no arguments
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	T8_structured_output	3	3	PASS,PASS,PASS	valid+correct {"language": "Python", "functions": ["add(a, b)", "m
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	T9_error_recovery	3	3	PASS,PASS,PASS	corrected to '/app/config/settings.yaml'
+nemotron-3.5-lightning:30b-ctx256k-agentic	T11_zero_arg_tool	3	3	PASS,PASS,PASS	called with no arguments
+nemotron-3.5-lightning:30b-ctx256k-agentic	T8_structured_output	3	3	PASS,PASS,PASS	valid+correct {"language": "Python", "functions": ["add", "mul"], 
+nemotron-3.5-lightning:30b-ctx256k-agentic	T9_error_recovery	3	3	PASS,PASS,PASS	corrected to '/app/config/settings.yaml'
+tiel-coder:35b-q5-ctx256k-agentic	T10_argument_fidelity	3	3	PASS,PASS,PASS	path space+quote and all non-ASCII/tab/quote survived
+cyber-tiel:35b-q5-ctx256k-agentic	T10_argument_fidelity	3	3	PASS,PASS,PASS	path space+quote and all non-ASCII/tab/quote survived
+ornith:35b-ctx256k-agentic	T10_argument_fidelity	3	3	PASS,PASS,PASS	path space+quote and all non-ASCII/tab/quote survived
+north-mini-code-1.0:q4_K_M-ctx256k-agentic	T10_argument_fidelity	3	3	PASS,PASS,PASS	path space+quote and all non-ASCII/tab/quote survived
+qwen3.6:35b-a3b-q4_K_M-agentic	T10_argument_fidelity	3	3	PASS,PASS,PASS	path space+quote and all non-ASCII/tab/quote survived
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	T10_argument_fidelity	3	3	PASS,PASS,PASS	path space+quote and all non-ASCII/tab/quote survived
+nemotron-3.5-lightning:30b-ctx256k-agentic	T10_argument_fidelity	0	3	PARTIAL,PARTIAL,PARTIAL	path ok, dropped: '\t'

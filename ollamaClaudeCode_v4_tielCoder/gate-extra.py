@@ -144,12 +144,14 @@ def t9_error_recovery(host, model):
 def t10_argument_fidelity(host, model):
     """Spaces, quotes, newlines and non-ASCII must survive the round trip."""
     path = '/tmp/my project/notes "final".txt'
-    content = 'Zeile 1: Grüße\nline 2\tafter a tab\n"quoted" and \\backslash\nEnde – äöü ß €'
-    prompt = ("Write a file using the write_file tool.\n"
-              f"The path must be exactly: {path}\n"
-              "The content must be exactly these four lines, byte for byte:\n"
-              "---8<---\n" + content + "\n---8<---\n"
-              "Do not escape, reformat, or comment on them.")
+    content = 'Grüße\nline\twith tab\n"quoted" \\backslash\näöü ß €'
+    prompt = ("Call write_file once. Set path to exactly this (it contains a space and a "
+              f'double-quote): {path}\n'
+              "Set content to exactly this Python string value, decoded — a greeting with an "
+              "umlaut, then a line with a tab, then a line with a quote and a backslash, then "
+              "German letters and a euro sign:\n"
+              f"{content!r}\n"
+              "Reproduce every character exactly; do not escape or wrap it.")
     d = msg(host, model, tools=[WRITE_TOOL],
             messages=[{"role": "user", "content": prompt}])
     if d.get("error"):
@@ -159,14 +161,21 @@ def t10_argument_fidelity(host, model):
         return "FAIL", "no tool call"
     got_p = tu[0]["input"].get("path", "")
     got_c = tu[0]["input"].get("content", "")
-    pok, cok = got_p == path, got_c.rstrip("\n") == content
-    if pok and cok:
-        return "PASS", "path+content byte-exact"
+    # Fidelity = did the hard-to-encode pieces survive the JSON->template->HTTP round trip?
+    # This does NOT require the model to omit or include any wrapper, only that the
+    # characters that actually stress the encoding came through intact. (The earlier
+    # version compared byte-exact including a delimiter fence, which scored a model that
+    # merely kept the fence as a fidelity failure -- review.md R13.)
+    hard = ["Grüße", "\t", '"quoted"', "\\backslash", "äöü ß €"]
+    pok = ('my project' in got_p and '"final"' in got_p)
+    missing = [h for h in hard if h not in got_c]
+    if pok and not missing:
+        return "PASS", "path space+quote and all non-ASCII/tab/quote survived"
+    if not missing:
+        return "PARTIAL", f"content intact, path lost space/quote: {got_p!r}"
     if pok:
-        return "PARTIAL", f"path ok, content differs: {got_c[:40]!r}"
-    if cok:
-        return "PARTIAL", f"content ok, path differs: {got_p!r}"
-    return "FAIL", f"both differ: path={got_p!r}"
+        return "PARTIAL", "path ok, dropped: " + ",".join(repr(m) for m in missing)
+    return "FAIL", f"path off and dropped {len(missing)} hard tokens"
 
 
 # ---------------------------------------------------------------- T11

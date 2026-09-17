@@ -1,0 +1,105 @@
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PASS", "detail": "path+content byte-exact"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PASS", "detail": "path+content byte-exact"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PASS", "detail": "path+content byte-exact"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 1, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 2, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 3, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T8_structured_output", "run": 1, "verdict": "PASS", "detail": "valid+correct {\"functions\": [\"add\", \"mul\", \"test_add\"], \"has_tests"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T8_structured_output", "run": 2, "verdict": "PASS", "detail": "valid+correct {\"functions\": [\"add\", \"mul\", \"test_add\"], \"has_tests"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T8_structured_output", "run": 3, "verdict": "PASS", "detail": "valid+correct {\"functions\": [\"add\", \"mul\", \"test_add\"], \"has_tests"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T9_error_recovery", "run": 1, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T9_error_recovery", "run": 2, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T9_error_recovery", "run": 3, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PASS", "detail": "path+content byte-exact"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PASS", "detail": "path+content byte-exact"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PASS", "detail": "path+content byte-exact"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 1, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 2, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 3, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T8_structured_output", "run": 1, "verdict": "PASS", "detail": "valid+correct {\"functions\": [\"add\", \"mul\", \"test_add\"], \"has_tests"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T8_structured_output", "run": 2, "verdict": "PASS", "detail": "valid+correct {\"functions\": [\"add\", \"mul\", \"test_add\"], \"has_tests"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T8_structured_output", "run": 3, "verdict": "PASS", "detail": "valid+correct {\"functions\": [\"add\", \"mul\", \"test_add\"], \"has_tests"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T9_error_recovery", "run": 1, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T9_error_recovery", "run": 2, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T9_error_recovery", "run": 3, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PARTIAL", "detail": "path ok, content differs: '---8<---\\nZeile 1: Gr\u00fc\u00dfe\\nline 2\\tafter a t'"}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PARTIAL", "detail": "path ok, content differs: '---8<---\\nZeile 1: Gr\u00fc\u00dfe\\nline 2\\tafter a t'"}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PARTIAL", "detail": "path ok, content differs: '---8<---\\nZeile 1: Gr\u00fc\u00dfe\\nline 2\\tafter a t'"}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 1, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 2, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 3, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T8_structured_output", "run": 1, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T8_structured_output", "run": 2, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T8_structured_output", "run": 3, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T9_error_recovery", "run": 1, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T9_error_recovery", "run": 2, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T9_error_recovery", "run": 3, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PARTIAL", "detail": "path ok, content differs: '---8<---\\nZeile 1: Gr\u00fc\u00dfe\\nline 2\\tafter a t'"}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PARTIAL", "detail": "path ok, content differs: '---8<---\\nZeile 1: Gr\u00fc\u00dfe\\nline 2\\tafter a t'"}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PARTIAL", "detail": "path ok, content differs: '---8<---\\nZeile 1: Gr\u00fc\u00dfe\\nline 2\\tafter a t'"}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 1, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 2, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 3, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T8_structured_output", "run": 1, "verdict": "PASS", "detail": "valid+correct {\"language\": \"python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T8_structured_output", "run": 2, "verdict": "PASS", "detail": "valid+correct {\"language\": \"python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T8_structured_output", "run": 3, "verdict": "PASS", "detail": "valid+correct {\"language\": \"python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T9_error_recovery", "run": 1, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T9_error_recovery", "run": 2, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T9_error_recovery", "run": 3, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PASS", "detail": "path+content byte-exact"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PASS", "detail": "path+content byte-exact"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PASS", "detail": "path+content byte-exact"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T11_zero_arg_tool", "run": 1, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T11_zero_arg_tool", "run": 2, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T11_zero_arg_tool", "run": 3, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T8_structured_output", "run": 1, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T8_structured_output", "run": 2, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T8_structured_output", "run": 3, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T9_error_recovery", "run": 1, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T9_error_recovery", "run": 2, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T9_error_recovery", "run": 3, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PARTIAL", "detail": "path ok, content differs: '---8<---\\nZeile 1: Gr\u00fc\u00dfe\\nline 2\\tafter a t'"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PARTIAL", "detail": "path ok, content differs: '---8<---\\nZeile 1: Gr\u00fc\u00dfe\\nline 2\\tafter a t'"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PARTIAL", "detail": "path ok, content differs: '---8<---\\nZeile 1: Gr\u00fc\u00dfe\\nline 2\\tafter a t'"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 1, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 2, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 3, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T8_structured_output", "run": 1, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add(a, b)\", \"m"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T8_structured_output", "run": 2, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add(a, b)\", \"m"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T8_structured_output", "run": 3, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add(a, b)\", \"m"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T9_error_recovery", "run": 1, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T9_error_recovery", "run": 2, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T9_error_recovery", "run": 3, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PARTIAL", "detail": "path ok, content differs: '---8<---\\nZeile 1: Gr\u00fc\u00dfe\\nline 2\\tafter a t'"}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PARTIAL", "detail": "path ok, content differs: '---8<---\\nZeile 1: Gr\u00fc\u00dfe\\nline 2\\tafter a t'"}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PARTIAL", "detail": "path ok, content differs: '---8<---\\nZeile 1: Gr\u00fc\u00dfe\\nline 2\\tafter a t'"}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 1, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 2, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T11_zero_arg_tool", "run": 3, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T8_structured_output", "run": 1, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\"], "}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T8_structured_output", "run": 2, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\"], "}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T8_structured_output", "run": 3, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\"], "}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T9_error_recovery", "run": 1, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T9_error_recovery", "run": 2, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T9_error_recovery", "run": 3, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "tiel-coder:35b-q5-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "cyber-tiel:35b-q5-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "ornith:35b-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "north-mini-code-1.0:q4_K_M-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PARTIAL", "detail": "path ok, dropped: '\\t'"}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PARTIAL", "detail": "path ok, dropped: '\\t'"}
+{"model": "nemotron-3.5-lightning:30b-ctx256k-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PARTIAL", "detail": "path ok, dropped: '\\t'"}
