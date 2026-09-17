@@ -1,0 +1,159 @@
+<title>Tiel-Coder on the Ollama Box</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Serif:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f7f7f4; --surface:#fcfcfb; --line:#e3e2dd; --line-soft:#eeede8;
+  --ink:#141413; --ink-2:#52514e; --ink-3:#86847d;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --good:#1f7a3d; --good-bg:#e7f3ea; --bad:#b3261e; --bad-bg:#fbeae8;
+  --wait-bg:#f0efe9; --hi:#4a3aa7;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  color-scheme: dark;
+  --bg:#121211; --surface:#1a1a19; --line:#33322e; --line-soft:#26251f;
+  --ink:#f5f4ef; --ink-2:#c3c2b7; --ink-3:#8d8b82;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --good:#5ec27f; --good-bg:#16291d; --bad:#ef8b83; --bad-bg:#2c1817;
+  --wait-bg:#232320; --hi:#9085e9;
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#121211; --surface:#1a1a19; --line:#33322e; --line-soft:#26251f;
+  --ink:#f5f4ef; --ink-2:#c3c2b7; --ink-3:#8d8b82;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --good:#5ec27f; --good-bg:#16291d; --bad:#ef8b83; --bad-bg:#2c1817;
+  --wait-bg:#232320; --hi:#9085e9;
+}
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  font-size:15px; line-height:1.55; margin:0;}
+.wrap{max-width:900px; margin:0 auto; padding-block:36px 72px; padding-left:20px; padding-right:20px;}
+h1{font-family:"IBM Plex Serif",Georgia,serif; font-size:30px; line-height:1.2;
+   margin:0 0 6px; text-wrap:balance; letter-spacing:-.01em;}
+h2{font-family:"IBM Plex Serif",Georgia,serif; font-size:21px; margin:42px 0 4px; text-wrap:balance;}
+h3{font-size:14px; margin:26px 0 6px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3);}
+p{margin:8px 0; color:var(--ink-2); max-width:68ch;}
+.sub{color:var(--ink-3); font-size:13px; margin-bottom:18px;}
+.meta{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px;}
+.chip{display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:3px 9px;
+  border-radius:999px; background:var(--wait-bg); color:var(--ink-2);
+  font-family:"IBM Plex Mono",ui-monospace,monospace;}
+.chip.ok{background:var(--good-bg); color:var(--good);}
+.chip.bad{background:var(--bad-bg); color:var(--bad);}
+.verdict{background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--hi);
+  border-radius:8px; padding:18px 20px; margin:22px 0;}
+.verdict p{margin:6px 0;}
+.verdict strong{color:var(--ink);}
+.finding{background:var(--surface); border:1px solid var(--line); border-radius:8px;
+  padding:14px 16px; margin:10px 0;}
+.finding b{color:var(--ink); display:block; margin-bottom:2px; font-size:14px;}
+.finding span{font-size:13.5px; color:var(--ink-2);}
+.fig{margin:18px 0 26px; background:var(--surface); border:1px solid var(--line);
+  border-radius:8px; padding:16px 14px 10px; overflow-x:auto;}
+figcaption{font-size:13px; font-weight:600; color:var(--ink); margin-bottom:10px;
+  letter-spacing:.01em;}
+.chart{width:100%; height:auto; display:block; min-width:520px;}
+.grid{stroke:var(--line-soft); stroke-width:1;}
+.tick{fill:var(--ink-3); font-size:10px; font-family:"IBM Plex Mono",monospace;}
+.ylab{fill:var(--ink-2); font-size:11.5px;}
+.vlab{fill:var(--ink); font-size:11.5px; font-family:"IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums;}
+.bar-s1{fill:var(--s1)} .bar-s2{fill:var(--s2)} .bar-s3{fill:var(--s3)}
+.bar-hi{fill:var(--hi)}
+.legend{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:8px; font-size:12px; color:var(--ink-2);}
+.lg{display:inline-flex; align-items:center; gap:6px;}
+.sw{width:11px; height:11px; border-radius:3px; display:inline-block;}
+.sw1{background:var(--s1)} .sw2{background:var(--s2)} .sw3{background:var(--s3)}
+.note{font-size:12.5px; color:var(--ink-3); margin:4px 2px 2px; max-width:none;}
+.empty{font-size:13px; color:var(--ink-3); font-style:italic;}
+table{border-collapse:collapse; width:100%; font-size:13.5px; margin:10px 0;}
+th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.07em;
+   color:var(--ink-3); font-weight:600; padding:6px 10px 6px 0; border-bottom:1px solid var(--line);}
+td{padding:7px 10px 7px 0; border-bottom:1px solid var(--line-soft); color:var(--ink-2);}
+td.num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; color:var(--ink);}
+.tablewrap{overflow-x:auto;}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.92em;
+  background:var(--wait-bg); padding:1px 5px; border-radius:4px; color:var(--ink);}
+footer{margin-top:52px; padding-top:18px; border-top:1px solid var(--line);
+  font-size:12.5px; color:var(--ink-3);}
+@media (max-width:560px){ h1{font-size:25px} .wrap{padding-block:26px 56px} }
+</style>
+<div class="wrap">
+<h1>Tiel-Coder on the Ollama box</h1>
+<p class="sub">Benchmark round v4 &middot; <code>192.168.100.67</code> &middot; Ollama 0.33.3 &middot;
+35.56&nbsp;GB usable VRAM &middot; generated from <code>results/*.tsv</code></p>
+
+<div class="meta"><span class="chip ok">✔ S1 Tiel battery</span><span class="chip ok">✔ S2 field on 0.33.3</span><span class="chip wait">⋯ S3 sessions</span><span class="chip wait">⋯ S5 CyberTiel</span></div>
+<p class="note">Stages still running append to the same files; regenerate with
+<code>./make-report.py</code>.</p>
+
+<div class="verdict">
+<p><strong>Use <code>tiel-coder:35b-q5-ctx256k-agentic</code>, not the tag as shipped.</strong>
+Identical weights; the shipped <code>-ctx262k</code> tag carries
+<code>presence_penalty 1.5</code>, which costs <strong>52%</strong> of generation speed and
+buys nothing measurable.</p>
+<p>Tiel holds its full <strong>262,144-token window at 34.13&nbsp;GB, 100% on GPU</strong>, retrieves
+a needle at <strong>254,181 tokens</strong> (the deepest in v1&ndash;v4), scores <strong>25/25</strong>
+on the vision checks at that full window, and is the <strong>only model tested that refuses an
+over-long prompt</strong> instead of silently answering from half of it.</p>
+</div>
+
+<h2>Findings that change what you should do</h2>
+
+<div class="finding"><b>1 &middot; The runtime now caches prompt prefixes &mdash; v3's ranking rule is void</b>
+<span>Ollama 0.33.3 reports <code>cache_read_input_tokens</code>; 0.32.15 did not, and every v3
+transcript shows zero. A repeated 30k-token prompt prefills <strong>4 tokens instead of 30,042</strong>,
+and an agent turn (same prefix, new tail) prefills only the tail. v3 ranked models on prefill because
+"the loop re-reads its context every turn" &mdash; that is no longer true here.</span></div>
+
+<div class="finding"><b>2 &middot; The silent half-window bug is still live &mdash; but not on Tiel</b>
+<span>Past its window, <code>ornith</code>, <code>north-mini</code> (the v3 default) and the
+<code>qwen3.6</code> control all silently keep <code>num_ctx/2 + 2</code> tokens and answer anyway.
+Tiel returns <strong>HTTP 400</strong>. Claude Code cannot send <code>num_ctx</code>, so a model in the
+halving class can answer from half your context with nothing in the transcript saying so.</span></div>
+
+<div class="finding"><b>3 &middot; <code>presence_penalty 1.5</code> is a pure tax</b>
+<span>It was added by whoever created the <code>-ctx262k</code> tag, not by the model publisher, whose
+card recommends no penalty at all. It costs 41&ndash;52% of generation, leaves prefill unchanged, and
+makes no measurable difference to tool reliability (T5 re-runs: 13/16 with it, 15/16 without).</span></div>
+
+<div class="finding"><b>4 &middot; A clean gate battery is not a reliability figure</b>
+<span>Tiel passed T1&ndash;T7 three times over. Re-running the nested-schema gate alone sixteen times
+gives <strong>13/16</strong>. The battery samples once at the tag's shipped temperature 0.6, so any
+single-shot gate result in v1&ndash;v4 is one sample.</span></div>
+
+<h2>Speed</h2>
+<figure class="fig"><figcaption>Generation throughput — 2,000-word prompt</figcaption><svg viewBox="0 0 720 188" role="img" aria-label="Generation throughput — 2,000-word prompt" preserveAspectRatio="xMinYMin meet" class="chart"><line x1="318.0" y1="4" x2="318.0" y2="182" class="grid"/><text x="318.0" y="188" class="tick" text-anchor="middle">34</text><line x1="426.0" y1="4" x2="426.0" y2="182" class="grid"/><text x="426.0" y="188" class="tick" text-anchor="middle">68</text><line x1="534.0" y1="4" x2="534.0" y2="182" class="grid"/><text x="534.0" y="188" class="tick" text-anchor="middle">102</text><line x1="642.0" y1="4" x2="642.0" y2="182" class="grid"/><text x="642.0" y="188" class="tick" text-anchor="middle">136</text><g><title>north-mini-code-1.0:q4_K_M-ctx256k-agentic: 136.25 tok/s generation at a 2,000-word prompt</title><rect x="210" y="8" width="432.0" height="26" rx="4" class="bar-s1"/><text x="200" y="26.2" class="ylab" text-anchor="end">north-mini (v3 default)</text><text x="650.0" y="26.2" class="vlab">136 tok/s</text></g><g><title>qwen3.6:35b-a3b-q4_K_M-agentic: 131.6 tok/s generation at a 2,000-word prompt</title><rect x="210" y="44" width="417.3" height="26" rx="4" class="bar-s1"/><text x="200" y="62.2" class="ylab" text-anchor="end">qwen3.6 35b (control)</text><text x="635.3" y="62.2" class="vlab">132 tok/s</text></g><g><title>tiel-coder:35b-q5-ctx256k-agentic: 111.13 tok/s generation at a 2,000-word prompt</title><rect x="210" y="80" width="352.4" height="26" rx="4" class="bar-hi"/><text x="200" y="98.2" class="ylab" text-anchor="end">Tiel Q5 (pp0)</text><text x="570.4" y="98.2" class="vlab">111 tok/s</text></g><g><title>gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic: 109.23 tok/s generation at a 2,000-word prompt</title><rect x="210" y="116" width="346.3" height="26" rx="4" class="bar-s1"/><text x="200" y="134.2" class="ylab" text-anchor="end">gemma4 26b (vision pick)</text><text x="564.3" y="134.2" class="vlab">109 tok/s</text></g><g><title>Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest: 73.16 tok/s generation at a 2,000-word prompt</title><rect x="210" y="152" width="232.0" height="26" rx="4" class="bar-s1"/><text x="200" y="170.2" class="ylab" text-anchor="end">Tiel Q5 (shipped, pp1.5)</text><text x="450.0" y="170.2" class="vlab">73 tok/s</text></g></svg><p class="note">Ollama's own counters, temperature 0, seed 42, thinking off, 256-token budget. Cold prompts. Higher is better.</p></figure>
+<figure class="fig"><figcaption>What presence_penalty 1.5 costs — generation tok/s</figcaption><div class="legend"><span class="lg"><i class="sw sw1"></i>shipped tag (presence_penalty 1.5)</span><span class="lg"><i class="sw sw2"></i>same weights, presence_penalty 0</span></div><svg viewBox="0 0 720 205" role="img" aria-label="What presence_penalty 1.5 costs — generation tok/s" preserveAspectRatio="xMinYMin meet" class="chart"><line x1="271.0" y1="6" x2="271.0" y2="199" class="grid"/><text x="271.0" y="205" class="tick" text-anchor="middle">28</text><line x1="392.0" y1="6" x2="392.0" y2="199" class="grid"/><text x="392.0" y="205" class="tick" text-anchor="middle">56</text><line x1="513.0" y1="6" x2="513.0" y2="199" class="grid"/><text x="513.0" y="205" class="tick" text-anchor="middle">83</text><line x1="634.0" y1="6" x2="634.0" y2="199" class="grid"/><text x="634.0" y="205" class="tick" text-anchor="middle">111</text><text x="140" y="36.0" class="ylab" text-anchor="end">empty prompt</text><g><title>shipped tag (presence_penalty 1.5) — empty prompt: 72.58</title><rect x="150" y="10" width="316.1" height="22" rx="4" class="bar-s1"/><text x="474.1" y="26.5" class="vlab">73 tok/s</text></g><g><title>same weights, presence_penalty 0 — empty prompt: 107.08</title><rect x="150" y="35" width="466.4" height="22" rx="4" class="bar-s2"/><text x="624.4" y="51.5" class="vlab">107 tok/s</text></g><text x="140" y="101.0" class="ylab" text-anchor="end">2,000 words</text><g><title>shipped tag (presence_penalty 1.5) — 2,000 words: 73.16</title><rect x="150" y="75" width="318.6" height="22" rx="4" class="bar-s1"/><text x="476.6" y="91.5" class="vlab">73 tok/s</text></g><g><title>same weights, presence_penalty 0 — 2,000 words: 111.13</title><rect x="150" y="100" width="484.0" height="22" rx="4" class="bar-s2"/><text x="642.0" y="116.5" class="vlab">111 tok/s</text></g><text x="140" y="166.0" class="ylab" text-anchor="end">20,000 words</text><g><title>shipped tag (presence_penalty 1.5) — 20,000 words: 69.41</title><rect x="150" y="140" width="302.3" height="22" rx="4" class="bar-s1"/><text x="460.3" y="156.5" class="vlab">69 tok/s</text></g><g><title>same weights, presence_penalty 0 — 20,000 words: 97.64</title><rect x="150" y="165" width="425.2" height="22" rx="4" class="bar-s2"/><text x="583.2" y="181.5" class="vlab">98 tok/s</text></g></svg><p class="note">Identical weights; only the sampler setting differs. Prefill is unchanged (within 2%), because the penalty is paid per generated token.</p></figure>
+<figure class="fig"><figcaption>Cold prefill — ~35,000-token prompt</figcaption><svg viewBox="0 0 720 188" role="img" aria-label="Cold prefill — ~35,000-token prompt" preserveAspectRatio="xMinYMin meet" class="chart"><line x1="318.0" y1="4" x2="318.0" y2="182" class="grid"/><text x="318.0" y="188" class="tick" text-anchor="middle">1,531</text><line x1="426.0" y1="4" x2="426.0" y2="182" class="grid"/><text x="426.0" y="188" class="tick" text-anchor="middle">3,063</text><line x1="534.0" y1="4" x2="534.0" y2="182" class="grid"/><text x="534.0" y="188" class="tick" text-anchor="middle">4,594</text><line x1="642.0" y1="4" x2="642.0" y2="182" class="grid"/><text x="642.0" y="188" class="tick" text-anchor="middle">6,126</text><g><title>gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic: 6125.8 tok/s cold prefill at ~35k tokens</title><rect x="210" y="8" width="432.0" height="26" rx="4" class="bar-s3"/><text x="200" y="26.2" class="ylab" text-anchor="end">gemma4 26b (vision pick)</text><text x="650.0" y="26.2" class="vlab">6,126 tok/s</text></g><g><title>north-mini-code-1.0:q4_K_M-ctx256k-agentic: 4592.1 tok/s cold prefill at ~35k tokens</title><rect x="210" y="44" width="323.8" height="26" rx="4" class="bar-s3"/><text x="200" y="62.2" class="ylab" text-anchor="end">north-mini (v3 default)</text><text x="541.8" y="62.2" class="vlab">4,592 tok/s</text></g><g><title>qwen3.6:35b-a3b-q4_K_M-agentic: 4046.1 tok/s cold prefill at ~35k tokens</title><rect x="210" y="80" width="285.3" height="26" rx="4" class="bar-s3"/><text x="200" y="98.2" class="ylab" text-anchor="end">qwen3.6 35b (control)</text><text x="503.3" y="98.2" class="vlab">4,046 tok/s</text></g><g><title>Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest: 3547.7 tok/s cold prefill at ~35k tokens</title><rect x="210" y="116" width="250.2" height="26" rx="4" class="bar-s3"/><text x="200" y="134.2" class="ylab" text-anchor="end">Tiel Q5 (shipped, pp1.5)</text><text x="468.2" y="134.2" class="vlab">3,548 tok/s</text></g><g><title>tiel-coder:35b-q5-ctx256k-agentic: 3483.4 tok/s cold prefill at ~35k tokens</title><rect x="210" y="152" width="245.7" height="26" rx="4" class="bar-s3"/><text x="200" y="170.2" class="ylab" text-anchor="end">Tiel Q5 (pp0)</text><text x="463.7" y="170.2" class="vlab">3,483 tok/s</text></g></svg><p class="note">What the FIRST turn of a session costs. Later turns hit the prefix cache instead — see below.</p></figure>
+<figure class="fig"><figcaption>Prefix caching on Ollama 0.33.3 — seconds to first token</figcaption><div class="legend"><span class="lg"><i class="sw sw1"></i>cold: a new 30k prompt</span><span class="lg"><i class="sw sw2"></i>agent turn: same prefix + new tail</span></div><svg viewBox="0 0 720 205" role="img" aria-label="Prefix caching on Ollama 0.33.3 — seconds to first token" preserveAspectRatio="xMinYMin meet" class="chart"><line x1="271.0" y1="6" x2="271.0" y2="199" class="grid"/><text x="271.0" y="205" class="tick" text-anchor="middle">2.1</text><line x1="392.0" y1="6" x2="392.0" y2="199" class="grid"/><text x="392.0" y="205" class="tick" text-anchor="middle">4.1</text><line x1="513.0" y1="6" x2="513.0" y2="199" class="grid"/><text x="513.0" y="205" class="tick" text-anchor="middle">6.2</text><line x1="634.0" y1="6" x2="634.0" y2="199" class="grid"/><text x="634.0" y="205" class="tick" text-anchor="middle">8.3</text><text x="140" y="36.0" class="ylab" text-anchor="end">Tiel Q5 (pp0)</text><g><title>cold: a new 30k prompt — Tiel Q5 (pp0): 8.26</title><rect x="150" y="10" width="484.0" height="22" rx="4" class="bar-s1"/><text x="642.0" y="26.5" class="vlab">8.3 s</text></g><g><title>agent turn: same prefix + new tail — Tiel Q5 (pp0): 0.81</title><rect x="150" y="35" width="47.5" height="22" rx="4" class="bar-s2"/><text x="205.5" y="51.5" class="vlab">0.8 s</text></g><text x="140" y="101.0" class="ylab" text-anchor="end">qwen3.6 35b (control)</text><g><title>cold: a new 30k prompt — qwen3.6 35b (control): 8.15</title><rect x="150" y="75" width="477.6" height="22" rx="4" class="bar-s1"/><text x="635.6" y="91.5" class="vlab">8.2 s</text></g><g><title>agent turn: same prefix + new tail — qwen3.6 35b (control): 0.9</title><rect x="150" y="100" width="52.7" height="22" rx="4" class="bar-s2"/><text x="210.7" y="116.5" class="vlab">0.9 s</text></g><text x="140" y="166.0" class="ylab" text-anchor="end">north-mini (v3 default)</text><g><title>cold: a new 30k prompt — north-mini (v3 default): 6.97</title><rect x="150" y="140" width="408.4" height="22" rx="4" class="bar-s1"/><text x="566.4" y="156.5" class="vlab">7.0 s</text></g><g><title>agent turn: same prefix + new tail — north-mini (v3 default): 1.08</title><rect x="150" y="165" width="63.3" height="22" rx="4" class="bar-s2"/><text x="221.3" y="181.5" class="vlab">1.1 s</text></g></svg><p class="note">0.32.15 had no prefix cache (every v3 transcript reports cache_read 0). An agent turn appends to a stable prefix, so it now prefills only the tail.</p></figure>
+
+<h2>Capability</h2>
+<figure class="fig"><figcaption>Vision — objective checks passed (max 25)</figcaption><svg viewBox="0 0 720 152" role="img" aria-label="Vision — objective checks passed (max 25)" preserveAspectRatio="xMinYMin meet" class="chart"><line x1="318.0" y1="4" x2="318.0" y2="146" class="grid"/><text x="318.0" y="152" class="tick" text-anchor="middle">6</text><line x1="426.0" y1="4" x2="426.0" y2="146" class="grid"/><text x="426.0" y="152" class="tick" text-anchor="middle">12</text><line x1="534.0" y1="4" x2="534.0" y2="146" class="grid"/><text x="534.0" y="152" class="tick" text-anchor="middle">19</text><line x1="642.0" y1="4" x2="642.0" y2="146" class="grid"/><text x="642.0" y="152" class="tick" text-anchor="middle">25</text><g><title>Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest: 25/25 objective checks</title><rect x="210" y="8" width="432.0" height="26" rx="4" class="bar-s2"/><text x="200" y="26.2" class="ylab" text-anchor="end">Tiel Q5 (shipped, pp1.5)</text><text x="650.0" y="26.2" class="vlab">25/25</text></g><g><title>tiel-coder:35b-q5-ctx256k-agentic: 25/25 objective checks</title><rect x="210" y="44" width="432.0" height="26" rx="4" class="bar-s2"/><text x="200" y="62.2" class="ylab" text-anchor="end">Tiel Q5 (pp0)</text><text x="650.0" y="62.2" class="vlab">25/25</text></g><g><title>qwen3.6:35b-a3b-q4_K_M-agentic: 25/25 objective checks</title><rect x="210" y="80" width="432.0" height="26" rx="4" class="bar-s2"/><text x="200" y="98.2" class="ylab" text-anchor="end">qwen3.6 35b (control)</text><text x="650.0" y="98.2" class="vlab">25/25</text></g><g><title>gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic: 25/25 objective checks</title><rect x="210" y="116" width="432.0" height="26" rx="4" class="bar-s2"/><text x="200" y="134.2" class="ylab" text-anchor="end">gemma4 26b (vision pick)</text><text x="650.0" y="134.2" class="vlab">25/25</text></g></svg><p class="note">Invoice OCR (9), UI description (6), chart extraction (10), run AT each tag's baked window.</p></figure>
+
+<h3>Behaviour past the context window</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>model</th><th>what happens when the prompt exceeds num_ctx</th><th>tokens kept</th></tr></thead>
+<tbody><tr><td>ornith 1.0 (Tiel&#x27;s base line)</td><td><span class="chip bad">✖ silently halves</span></td><td class="num">131074</td></tr><tr><td>north-mini (v3 default)</td><td><span class="chip bad">✖ silently halves</span></td><td class="num">131075</td></tr><tr><td>Tiel Q5 (shipped, pp1.5)</td><td><span class="chip ok">✔ refuses (HTTP 400)</span></td><td class="num"> </td></tr><tr><td>qwen3.6 35b (control)</td><td><span class="chip bad">✖ silently halves</span></td><td class="num">131074</td></tr></tbody>
+</table></div>
+
+<h2>End-to-end Claude Code sessions</h2>
+<p>Two fixtures against a real <code>claude -p</code> session, scored from the repository rather than
+the model's summary: a one-function bug, and a three-module <code>ledger</code> package with three bugs
+and one unimplemented function, checked against <strong>18 held-out tests the model never sees</strong>.
+<code>sandbox</code> rows run inside the isolated container used for the abliterated model.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>model</th><th>fixture</th><th>harness</th><th>verdict</th><th>median</th><th>range</th><th>hidden tests</th></tr></thead>
+<tbody><tr><td colspan="7" class="empty">Sessions still running.</td></tr></tbody>
+</table></div>
+
+<footer>
+Every number here is generated from the TSVs in <code>results/</code>. Method, caveats and the
+twelve harness problems found and fixed during this round are in <code>measurements.md</code> and
+<code>review.md</code>; exact digests and versions in <code>results/provenance.txt</code>.
+</footer>
+</div>
