@@ -1,127 +1,185 @@
 # Why update Ollama on `.67` (and `.37`)
 
-Checked 2026-09-17, using `/api/version` on both hosts, the GitHub releases and diffs of
-`ollama/ollama` and `ggml-org/llama.cpp`, and `/api/show` for the tags on `.67`. The
-filter was this repo's own workload: Claude Code over `/v1/messages`, CUDA, GGUF MoE
-models (`qwen35moe`, `qwen35`, `nemotron_h_moe`, `cohere2moe`, `gemma4`) and vision with
-`qwen3-vl`. Changes for macOS/MLX, Codex, ChatGPT Desktop, Vulkan, SYCL and ROCm are ignored.
+Reviewed 2026-09-17 from the **code diffs**, not the release notes. Sources: local clones of
+`ollama/ollama` (v0.32.15 → v0.34.2-rc1) and `ggml-org/llama.cpp` (b10488 → b10969), live
+`/api/version`, `/api/show` and `/api/tags` on both hosts, and this repo's `results/`.
+
+Scope is our workload only: Claude Code → `/v1/messages` → Ollama → `llama-server` on CUDA,
+GGUF models. Changes for MLX/Metal, Vulkan, SYCL, ROCm/HIP, OpenCL, Hexagon, the desktop app,
+Codex and ChatGPT were read at title level and dropped. Nothing was run against the new version.
+
+## Verdict
+
+- **`.67` → 0.34.1: worth doing after v4, not urgent.** It brings one real reliability fix
+  (a silent output cut-off on library models), one change to match the reference math for
+  Qwen3.5-family layers (the numeric effect is small), and CUDA thread-sync fixes.
+  **For our setup there is no speed gain.** Every speed-related change was checked and none
+  applies (see below).
+- **`.37` → 0.34.1: less than the release notes suggest.** The 0.33.0 "improved caching"
+  items are Apple-MLX-only.
+- **One thing to do now, with no update at all:** set `CLAUDE_CODE_TOTAL_TOKENS_REMINDER=off`
+  in the `claude-ol*` functions (§ Do now).
 
 ## Where we are
 
-| host | running | llama.cpp pin | latest stable | behind by |
+| host | running | llama.cpp pin | target | gap |
 |---|---|---|---|---|
-| `.67` | **0.33.3** (2026-09-02) | b10760 | **0.34.1** (2026-09-14), pin b10864 | 2 releases, 104 llama.cpp commits |
-| `.37` | **0.32.15** (2026-08-19) | b10488 | 0.34.1 | 6 releases, the whole 0.33 cache rework |
-| — | 0.34.2-rc1 (2026-09-15) | b10969 | pre-release | +105 more llama.cpp commits |
+| `.67` | **0.33.3** | b10760 | **0.34.1** (pin b10864) | 2 Ollama releases, 104 llama.cpp commits |
+| `.37` | **0.32.15** | b10488 | 0.34.1 | 6 releases, 376 llama.cpp commits |
+| — | 0.34.2-rc1 | b10969 | pre-release | differs from 0.34.1 **only** by the llama.cpp bump (+105) and MLX refactors |
 
-Ollama runs GGUF models through upstream `llama-server`, built at the version in
-`LLAMA_CPP_VERSION` plus a small compatibility patch. There is no Go-native model engine any
-more (`model/models/` is gone). **Every llama.cpp fix below applies to our models directly.**
+**Our models use two different chat paths.** This decides which fixes reach which model
+(`server/routes.go` `usesOllamaRenderedChat`):
 
-## Hard reasons to update `.67` → 0.34.1
+| path | models on `.67` | what does templating and tool parsing |
+|---|---|---|
+| Ollama Go renderer → `llama-server /completion` | ornith, qwen3.6, qwen3.8, north-mini, nemotron ×2, gemma4, qwen3-vl (all have `RENDERER`/`PARSER`) | Ollama Go code. `model/renderers` and `model/parsers` have **no** non-test changes up to rc1 |
+| GGUF Jinja template → `llama-server /v1/chat/completions` | **Tiel-Coder, CyberTiel** (no renderer, 30,505-char Jinja template) | llama.cpp `common/chat` (the template matches the **Qwen3-Coder** parser), `common/jinja` |
 
-### 1. Output silently cut off after 31 repeated tokens (ollama #18374)
+`anthropic/` (the `/v1/messages` translation) has **no changes** from 0.33.3 to rc1.
 
-In 0.33.3, `llm/llama_server.go:1697-1706`:
+## Do now: no update needed
+
+Ollama's `ollama launch claude` sets **`CLAUDE_CODE_TOTAL_TOKENS_REMINDER=off`** (ollama
+`add1f92b`, in 0.33.0). The commit says Claude Code appends a "tokens left" system message
+after every tool result, and Ollama moves system messages to the front of the prompt, so
+**the KV cache prefix breaks on every request**. Our `claude-ol*` functions in `~/.zshrc`
+start Claude Code directly and do **not** set it, on any Ollama version. This is Ollama's
+claim, and we have not measured it. Adding the variable is one line per function, and v4's
+`cache-probe.py` shape (a stable prefix plus a new tail) is how to check it.
+
+## Reasons to update `.67` → 0.34.1
+
+### 1. Silent cut-off after 32 identical tokens: library models only (ollama #18374)
+
+`llm/llama_server.go`, `Completion()` (the `/completion` path):
 
 ```go
 case strings.TrimSpace(lsResp.Content) == lastToken: tokenRepeat++
-...
-if tokenRepeat > 30 { return ctx.Err() }   // ctx.Err() is nil → looks like a normal end
+if tokenRepeat > 30 { return ctx.Err() }   // 0.33.3: ctx.Err() is nil → ends like success
+if tokenRepeat > 100 { return fmt.Errorf("prediction aborted, token repeat limit reached") } // 0.34.1
 ```
 
-- Once 31 consecutive tokens are identical **after trimming whitespace**, generation stops.
-  **No error is raised**, because `ctx.Err()` is nil at that point. The PR's own pre-fix
-  repro gets back a truncated response with `"done": false` and nothing else.
-- **Whitespace-only tokens all trim to `""` and count as repeats.** Runs of newlines or
-  indentation tokens, `=====` or `-----` rules, dotted leaders in OCR and ASCII tables are all
-  ordinary output for an agent that writes code and markdown, or for our OCR benchmark.
-- In 0.34.1 the limit is 100 and the cut-off returns an **error**. That turns a third silent
-  failure mode into a visible one. v2 already found two silent truncation bugs, and v2 also
-  found that models **make up content** on truncated input.
+- In 0.33.3, the 32nd consecutive identical token ends generation with **no error**. The PR's
+  pre-fix repro returns HTTP 200 with a truncated response and `"done": false`. Whitespace-only
+  tokens all trim to `""`, so they count as identical.
+- Applies to **ornith, qwen3.6/3.8, north-mini (the default), nemotron, gemma4 and qwen3-vl**,
+  including OCR with dotted leaders, which is the PR's own trigger. It does **not** apply to
+  Tiel or CyberTiel: `Chat()` has no repeat check.
+- 0.34.1 raises the threshold to 101 repeats and returns an **error**, so a false cut-off
+  becomes visible. Frequency on our workload is unmeasured.
 
-### 2. Qwen3.5/3.6/3.8 layers compute a formula that differs from the reference (llama.cpp #28068, in b10864)
+### 2. Qwen3.5-family GDN normalisation now matches the reference (llama.cpp #28068, in b10864)
 
-- The GDN (Gated DeltaNet) layers normalised q/k as `x / max(‖x‖, eps)`. The reference
-  implementations (Qwen FlashQLA, transformers, vLLM, SGLang) use `x * rsqrt(Σx² + eps)`.
-- It affects the **`qwen35` and `qwen35moe` architectures**, which covers **Tiel-Coder,
-  CyberTiel, ornith, qwen3.6:35b-a3b, qwen3.6:27b and qwen3.8:27b**: most of the field.
-- Measured effect on Qwen3.8-27B Q4_K_M: mean KLD 0.001769 → 0.001750, the 99.9% KLD tail
-  0.0768 → 0.0694 (**−10%**), same top-1 token 98.35% → 98.41%. The gain is small on average
-  but largest in the tail, where the rare token choices sit. The bigger point is that current
-  output does not match what the model was trained with.
+- `x / max(‖x‖, eps)` becomes `x * rsqrt(Σx² + eps)`, the form FlashQLA, transformers,
+  vLLM and SGLang use (`build_gdn_l2_norm` = `rms_norm` plus `scale`, both standard ops).
+- Affects the `qwen35` and `qwen35moe` architectures: **Tiel, CyberTiel, ornith, qwen3.6,
+  qwen3.8**.
+- Effect is small. On Qwen3.8-27B Q4_K_M: mean KLD 0.001769 → 0.001750, 99.9% tail
+  0.0768 → 0.0694, top-1 agreement 98.35% → 98.41%. Reviewers called the difference
+  insignificant, and it was merged to match the reference. A behavioural claim made in the
+  thread was **retracted by its author** for lack of a control, so there is no evidence of
+  better answers.
 
-### 3. CUDA correctness fixes in paths every request uses (in b10864)
+### 3. CUDA thread-sync fixes on paths we use (in b10864)
 
-- **#28475 `cuda: fixes races in mmid and mmf`**: race conditions in `MUL_MAT_ID`, the MoE
-  expert matmul. **All of our agentic models are MoE.**
-- **#27870 flash-attention f16 divergent barrier**: `compute-sanitizer` reported 3,232 sync
-  errors in the f16 FA kernel. After the fix: 0, with no speed cost (Qwen3.8-27B tg @100k:
-  59.75 → 59.73 t/s). We use FA with f16 KV at 256k windows.
+- **#28475:** a missing `syncwarp` before reading a reduced value in `mm_ids_helper`, which
+  groups tokens by expert during MoE prefill (`mmid.cu`), and in `mul_mat_f`/`_ids`
+  (`mmf.cuh`). Found by `compute-sanitizer --tool racecheck`. **All our agentic models are
+  MoE.**
+- **#27870:** a thread barrier not reached by all threads in the f16 flash-attention kernel.
+  3,232 sanitizer errors before, 0 after, speed unchanged. We use FA.
+- Neither PR shows a wrong output. Both are undefined-behaviour fixes: a flakiness risk, not
+  a measured accuracy loss.
 
-Neither PR shows a wrong-output case on a benchmark. They are undefined-behaviour fixes, so
-treat them as a flakiness risk, not a known accuracy loss.
+### 4. Smaller, still ours
 
-### 4. Smaller, still relevant
+| change | in | who |
+|---|---|---|
+| gemma4 vision: dense layers kept causal on image tokens (was bidirectional, unlike HF); image-token budget 40–280 → **70–1120** (#28335) | 0.34.1 | `claude-ol-vision` (gemma4). Expect different OCR results and **more prompt tokens per image** |
+| Qwen3-Coder tool-call parser: arguments whose schema is a union with `string` are now typed (`{"a":1}` becomes an object, `null` becomes null) instead of always raw strings (#28742) | **rc1 only** | Tiel, CyberTiel |
+| context checkpoints no longer evicted before the list is full (#28302). Hybrid models otherwise re-prefill from an older checkpoint | 0.34.1 | only prompts < 8,192 tokens (`checkpoint_min_step`); Claude Code's prompt is far above that, and v4's cache-probe at 30k already prefilled only 517 new tokens |
+| `/api/tags` 3.1 s → 294 ms; capabilities come from one metadata extract (#17858) | 0.34.1 | tooling (`head2head.sh` reads `capabilities`) |
+| scheduler debug-log `LogValue` race (#18319) | 0.34.1 | log output only |
 
-| change | why it matters here |
+## Speed: checked, nothing applies
+
+| change | why not for us |
 |---|---|
-| gemma4 vision fix: causal global layer, token budget (llama.cpp #28335) | `gemma4:26b-a4b` is in the field. Vision results on 0.33.3 predate the fix |
-| model-load RAM peak removed (llama.cpp #27483) | lower host-RAM spike when 20–34 GB models load |
-| `fix data races in progress and sched` (ollama #18319) | the scheduler of a box shared with a colleague |
-| GGUF metadata extracted once, capabilities unified (ollama #17858) | `/api/tags` 3.1 s → 294 ms cold. `tools`/`thinking` capability detection is now consistent for `hf.co/…` GGUF imports such as both Tiel repos |
-| grammar max-repetition threshold fix (llama.cpp #28469) | structured `format` output |
+| branchless Q4_K/Q5_K MMVQ unpack (#26705) | batch 1: −0.56% (Q4_K), +3.6% (Q5_K); gains only at batch ≥ 4–8 |
+| MMVQ→MMQ crossover retune (#28285) | RTX 4090/5090 at batch 6–8, Jetson Orin; we decode at 1, MTP verifies 2–3 |
+| multi-GPU CUDA graph-optimise pass (#28198) | **only with `GGML_CUDA_GRAPH_OPT=1`**; default unchanged. (`.67` having two GPUs is inferred in v1, never confirmed) |
+| sparse flash attention (#27970) | DeepSeek-V4/GLM indexer only (`n_kv_max > 0`) |
+| BF16 → F32 cuBLAS fallback (#28846) | NVIDIA **pre-Ampere** only. Tiel's UD-XL BF16 tensors are affected only if `.67`'s cards are Turing or older (unknown) |
+| `GGML_CUDA_FA_QUANTS` replaces `FA_ALL_QUANTS` (#28079) | default still compiles f16, q8_0, q4_0 and bf16 KV kernels; no kernel lost |
+| RAM peak at load (#27483) | CPU weight repacking; our models are 100% on GPU |
+| cpp-httplib 0.54.1 → 0.56.0 (rc1) | WebSocket and server features; Ollama talks to `llama-server` on 127.0.0.1 |
 
-## `.37` (0.32.15) has much more to gain
+## Checked, not ours
 
-`.37` has everything above, plus the **0.33.0 agent-cache rework**, which is the largest
-functional gap:
+- **`preserve_reasoning` on by default (#28174):** a no-op for us. Ollama's
+  `llamaServerChatMessage` never sends earlier thinking as `reasoning_content`, and Tiel's
+  template already defaults `_preserve_thinking = true`.
+- **Model graphs** (`qwen35moe`, `nemotron-h`, `cohere2moe`): refactors only
+  (`n_ff_exp` → per-layer array, `build_qkv`), same math. `get_key_or_arr` fix (#28868)
+  concerns a gemma4 line identical in b10760 and b10864, and our gemma4 loads.
+- MTP KV over-allocation (#28630): north-mini has no NextN layers. Nemotron MTP crash guard
+  (#28779): our Nemotron loads. Speculation after an image (#28715): no MTP plus vision in use.
+- Deprecated `--mmap/--mlock/--dio` (#28334): Ollama passes `--load-mode`, which remains.
+- Go dependencies: removals only (converter and tokenizer deleted), no version bumps. CUDA 13
+  base image unchanged. The compat patch only adds `LLAMA_API` exports.
 
-- **Claude Code's "tokens left" countdown message broke the KV cache on every request.**
-  Ollama moved it to the front of the prompt, so each turn prefilled from zero. 0.33.0
-  removes it.
-- On models with recurrent layers (qwen35, nemotron_h), a request matching **46k of 47k**
-  cached tokens was **reprocessed from zero**. Fixed in 0.33.0.
-- A cancelled long prefill (Claude Code cancels constantly) could **hang**. After the fix it
-  resumes from its restore points.
-- 0.33.3 reports `cache_read_input_tokens`. Measured in `review.md` R2: repeating a 30k
-  prefix with a new tail went from **~8 s to 0.94 s**. Every v3 run on 0.32.15 shows
-  `cache_read = 0`.
+## Behaviour changes when updating (risks)
 
-On a multi-turn agent session this is the difference between re-reading the whole context
-every turn and reading only the new tail.
+1. **Requests or `api/create` calls that set `typical_p` now fail** (#18448). Checked: no tag
+   on `.67` and no script in this repo uses it.
+2. **`ollama create` can no longer convert safetensors or quantize** (#14969). Checked:
+   create-from-existing-model with `parameters` (our `-agentic` tags) is unchanged in
+   `server/create.go`.
+3. **Qwen outputs change by design (#2):** v4 gate and needle numbers for qwen35 models are
+   not bit-comparable across the update.
+4. **The runtime version is a variable** (v3). Finish v4 on 0.33.3, then update and re-run
+   the control (`qwen3.6:35b-a3b` gen @2k, 130.04 tok/s) before comparing anything.
+5. `.67` is shared, and its admin upgrades it. Ask for **0.34.1**. rc1 adds only #28742 for
+   Tiel, plus fixes for models we don't run.
 
-## Checked and *not* a reason
+## `.37` (0.32.15): what is real
 
-- **The two context-truncation bugs (bare tag capped at 16k; overflow keeps half the window)
-  are not fixed** in anything up to 0.34.2-rc1. Keep baking `num_ctx` and keep
-  `CLAUDE_CODE_MAX_CONTEXT_TOKENS` below it.
-- Branchless Q4_K/Q5_K CUDA unpack (#26705): **no gain at batch 1**, measured −0.56% (Q4_K)
-  and +3.6% (Q5_K). It only pays at batch ≥ 4–8, and we run single-stream.
-- MTP KV over-allocation fix for `cohere2moe` (#28630, rc1 only): north-mini has no NextN
-  layers. Nemotron's zero-divisor MTP crash guard (#28779): our Nemotron loads fine.
-- `typical_p` deprecation and GGUF-from-safetensors removal: no tag on `.67` uses
-  `typical_p`, and every tag is a parameter overlay on an existing GGUF. No breakage.
-- Everything under ChatGPT Desktop, Codex, MLX, Vulkan, SYCL or ROCm.
+`.37` runs small models (qwen3.5:9b variants, qwen3:8b/14b, qwen3-vl:4b/8b, qwen3-coder:30b,
+mistral-nemo, codestral). It gets everything above, plus the 0.33.x and b10488→b10760 range:
 
-## Caveats before pulling the trigger
+| change | applies on `.37` |
+|---|---|
+| `cache_read_input_tokens` reported on `/v1/messages` (ollama #17943) | observability only; the cache itself already worked |
+| **model GGUF sampling defaults now honoured** (ollama #16471) | **behaviour change**: tags without baked sampler params may sample differently |
+| qwen3-coder parser workarounds scoped to Qwen3-Coder; they slowed grammar with many tools (llama.cpp #27679) | Jinja-path models with Claude Code's large tool list |
+| pillow-accurate image resize for all vision models (#27594) | qwen3-vl:4b/8b OCR |
+| fused MoE expert reduction (#25952) | qwen3-coder:30b only (the one MoE) |
+| cuBLAS static workspace, a crash fix on Volta/Turing plus CUDA graphs (#26574) | only if `.37` is Volta or Turing (unknown) |
+| ~~0.33.0 "improved caching": prefill restore points, cancelled-prefill hang~~ | **not ours**: all `mlxrunner` commits (Apple Silicon) |
+| ~~Claude Code token countdown fix~~ | **not ours via the server**: it is `ollama launch` config; see § Do now |
 
-1. **The runtime version is a variable** (v3's lesson; 0.32.9 → 0.32.15 moved generation
-   speed by 0–221%). v4's S1 results are on 0.33.3. Updating in the middle of v4 means
-   re-running the control (`qwen3.6:35b-a3b` gen @2k, 130.04 tok/s) and labelling every row
-   with its version. **Better: finish v4 on 0.33.3, then update.**
-2. **#28068 changes Qwen outputs by design.** Gate and needle results for qwen35 models on
-   0.33.3 are not bit-comparable with results after the update.
-3. `.67` belongs to a colleague and its admin does the upgrades, so this is a request, not
-   something we run.
-4. **Target 0.34.1 (stable).** 0.34.2-rc1 only adds llama.cpp b10969 (Qwen3-Coder
-   complex-type parsing in llama.cpp's own chat parser, which Ollama does not use, a CUDA BF16
-   fallback, and fixes for other models).
+## Corrections to the first version of this file (commit 607dfcf)
+
+- The repeat cut-off does **not** affect Tiel (the `Chat()` path has no repeat check). The
+  trigger is 32 identical tokens, not 31.
+- The GDN fix was oversold. The magnitude is small, and the behavioural claim in its thread
+  was retracted.
+- "f16 KV" was never verified. The measured KV cost (≥ 16.8 kB/token marginal) is above the
+  f16 theoretical 10.2 kB/token for Tiel, so f16 is likely, but unconfirmed.
+- The RAM-peak fix (#27483) is CPU-repack only, so it doesn't apply to us.
+- The `.37` cache rework (0.33.0) is MLX-only, and the token-countdown fix is client-side.
 
 ## Sources
 
-- Releases: <https://github.com/ollama/ollama/releases> (v0.33.0 – v0.34.2-rc1)
-- ollama PRs: #18374, #17858, #18319, #18448, #14969
-- llama.cpp PRs: #28068, #28475, #27870, #28335, #27483, #28469, #26705, #28630, #28779
-- Pins: `LLAMA_CPP_VERSION` at each tag (b10488 / b10760 / b10864 / b10969)
-- Local: `review.md` R1/R2 (cache measurements), `../ollamaClaudeCode_v2/muse_ollama.md` (truncation bugs)
+- Ollama: `llm/llama_server.go` (`Completion`, `Chat`, `llamaServerChatRequest`),
+  `server/routes.go`, `server/images.go`, `server/create.go`, `server/sched.go`, `go.mod`,
+  `LLAMA_CPP_VERSION` at v0.32.15 / v0.33.3 / v0.34.1 / v0.34.2-rc1; PRs #18374, #17858,
+  #18319, #18448, #14969, #17943, #16471; commit `add1f92b`
+- llama.cpp: `src/models/{qwen35moe,nemotron-h,cohere2moe,gemma4}.cpp`, `src/llama-graph.cpp`,
+  `src/llama-kv-cache.cpp`, `ggml/src/ggml-cuda/{mmid.cu,mmf.cuh,mmvq.cu,fattn.cu,ggml-cuda.cu}`,
+  `tools/server/server-context.cpp`, `common/parsers/qwen3-coder.cpp`, `common/arg.cpp`;
+  PRs #28068, #28475, #27870, #28335, #28742, #28302, #28174, #26705, #28285, #28198, #27970,
+  #28846, #28079, #27483, #28630, #28779, #28715, #28868, #28334, #27679, #27594, #25952, #26574
+- Local: `results/kv-ladder-tiel.txt`, `review.md` R2, `~/.zshrc` `claude-ol*`,
+  `../ollamaClaudeCode_v1/review.md` (two-GPU inference)
