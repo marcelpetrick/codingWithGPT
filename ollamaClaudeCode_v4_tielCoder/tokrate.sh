@@ -36,6 +36,8 @@ while [ $# -gt 0 ]; do
 done
 [ $# -ge 1 ] || { echo "usage: tokrate.sh [--host H] [--n N] <model>..." >&2; exit 2; }
 BASE="http://${HOST}:${PORT}"
+D_PRE="$(dirname "$(readlink -f "$0")")"; . "$D_PRE/lib-preflight.sh"
+preflight "$HOST" "$PORT"
 OUT="$(dirname "$(readlink -f "$0")")/results"; mkdir -p "$OUT"
 TSV="$OUT/tokrate.tsv"
 # v4: the runtime version is a column. v3's first lesson was that a speed number

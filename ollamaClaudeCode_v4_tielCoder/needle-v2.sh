@@ -49,6 +49,8 @@ while [ $# -gt 0 ]; do
   esac
 done
 BASE="http://${HOST}:${PORT}"
+D_PRE="$(dirname "$(readlink -f "$0")")"; . "$D_PRE/lib-preflight.sh"
+preflight "$HOST" "$PORT"
 OUT="$(dirname "$(readlink -f "$0")")/results"
 mkdir -p "$OUT"
 LOG="$OUT/needle-v2.log"

@@ -36,6 +36,8 @@ while [ $# -gt 0 ]; do
   esac
 done
 API="http://${HOST}:${PORT}"
+D_PRE="$(dirname "$(readlink -f "$0")")"; . "$D_PRE/lib-preflight.sh"
+preflight "$HOST" "$PORT"
 
 printf '%-10s %14s %14s %14s\n' num_ctx total_GB vram_GB pct_gpu
 RESULTS=""

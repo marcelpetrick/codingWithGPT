@@ -38,6 +38,8 @@ NEEDLE_DEPTHS="${NEEDLE_DEPTHS-2700 10700 40000 80000}"
 D="$(dirname "$(readlink -f "$0")")"
 OUT="$D/results"; mkdir -p "$OUT"
 API="http://${HOST}:${PORT}"
+D_PRE="$(dirname "$(readlink -f "$0")")"; . "$D_PRE/lib-preflight.sh"
+preflight "$HOST" "$PORT"
 
 for M in "$@"; do
   gate() {
