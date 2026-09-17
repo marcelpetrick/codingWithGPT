@@ -102,8 +102,12 @@ fi
 # v3 stage D additions (2026-08-27): nemotron-cascade-2 and granite4.2, pulled
 # by this project on 2026-08-27. gemma4: already covered the 31b tag.
 # v4 additions (2026-09-17): the Tiel-Coder tag the user put on .67 to be
-# benchmarked, its hf.co parent, and the presence_penalty-0 variant v4 creates.
-OURS='^(Tiel-Coder-|hf\.co/peculiar-ragdoll/|tiel-coder:|ornith:|muse-glimmer:|nemotron-3\.5-lightning:|nemotron-cascade-2:|granite4\.2:|kvprobe-|tune-|qwen3\.8:|laguna-xs-|north-mini-code-|gemma4:)'
+# benchmarked, its hf.co parent, and the presence_penalty-0 variants v4 creates
+# for Tiel and CyberTiel. cyber-tiel: is listed because v4 pulled and baked it;
+# without it a round-robin driver stalls for the full --wait as soon as the
+# PREVIOUS model in the loop is still resident and only the current one was
+# passed as --mine.
+OURS='^(Tiel-Coder-|hf\.co/peculiar-ragdoll/|tiel-coder:|cyber-tiel:|ornith:|muse-glimmer:|nemotron-3\.5-lightning:|nemotron-cascade-2:|granite4\.2:|kvprobe-|tune-|qwen3\.8:|laguna-xs-|north-mini-code-|gemma4:)'
 foreign() {
   printf '%s\n' $R | grep -Ev "$OURS" | while read -r t; do
     case " ${MINE:-} " in *" $t "*) ;; *) printf '%s\n' "$t" ;; esac

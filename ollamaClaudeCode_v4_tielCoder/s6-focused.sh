@@ -29,7 +29,7 @@ python3 ./overflow-probe.py "$CT" || true
 echo "### 2. Sandboxed sessions — Tiel (parity) and CyberTiel"
 for R in 1 2 3; do
   for M in "$T2" "$CT"; do
-    ./idle.sh --mine "$M" || true
+    ./idle.sh --mine "$T2" --mine "$CT" || true
     ./cc-session-sandboxed.sh --fixture easy --runs 1 --first-run "$R" --timeout 900 "$M" || true
     ./cc-session-sandboxed.sh --fixture hard --runs 1 --first-run "$R" --timeout 1200 "$M" || true
   done
