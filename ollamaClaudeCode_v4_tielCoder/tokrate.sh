@@ -38,7 +38,10 @@ done
 BASE="http://${HOST}:${PORT}"
 OUT="$(dirname "$(readlink -f "$0")")/results"; mkdir -p "$OUT"
 TSV="$OUT/tokrate.tsv"
-[ -s "$TSV" ] || printf 'model\tprompt_words\tprompt_tok\tgen_tok\tprefill_tps\tgen_tps\tload_s\ttotal_s\n' > "$TSV"
+# v4: the runtime version is a column. v3's first lesson was that a speed number
+# without its Ollama version is not a result (0.32.9 -> 0.32.15 moved gen 0-221%).
+VER=$(curl -s -m 10 "$BASE/api/version" | python3 -c 'import sys,json;print(json.load(sys.stdin)["version"])' 2>/dev/null || echo "?")
+[ -s "$TSV" ] || printf 'ollama\tmodel\tprompt_words\tprompt_tok\tgen_tok\tprefill_tps\tgen_tps\tload_s\ttotal_s\n' > "$TSV"
 
 run() {
   local M="$1" W="$2" body; body=$(mktemp)
@@ -75,7 +78,7 @@ ec=d.get('eval_count',0);        ed=d.get('eval_duration',0) or 1
 ld=d.get('load_duration',0);     td=d.get('total_duration',0)
 pf=pe/(pd/1e9); gt=ec/(ed/1e9)
 print('  %-42s %7s %8s %8s %9.1f %9.2f %8.1f %8.1f'%(m,w,pe,ec,pf,gt,ld/1e9,td/1e9))
-open('$TSV','a').write('%s\t%s\t%d\t%d\t%.1f\t%.2f\t%.1f\t%.1f\n'%(m,w,pe,ec,pf,gt,ld/1e9,td/1e9))
+open('$TSV','a').write('$VER\t%s\t%s\t%d\t%d\t%.1f\t%.2f\t%.1f\t%.1f\n'%(m,w,pe,ec,pf,gt,ld/1e9,td/1e9))
 "
 }
 
