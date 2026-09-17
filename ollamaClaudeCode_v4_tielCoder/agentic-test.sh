@@ -24,7 +24,7 @@ set -uo pipefail
 
 HOST="${1:?usage: agentic-test.sh <host> <model> [outdir]}"
 MODEL="${2:?usage: agentic-test.sh <host> <model> [outdir]}"
-OUT="${3:-$(dirname "$(readlink -f "$0")")/agentic}"
+OUT="${3:-$(dirname "$(readlink -f "$0")")/results/agentic}"
 BASE="http://${HOST}:11434"
 mkdir -p "$OUT"
 SAFE=$(echo "$MODEL" | tr ':/' '__')
@@ -291,10 +291,10 @@ elif [ "$T7_PASS" = "0" ]; then T7V=FAIL
 else T7V=FLAKY; fi
 rec T7_tool_at_long_ctx "$T7V" "${T7_PASS}/3_at_${T7_TOKENS}_tokens[${T7_MODES%,}]"
 
-# unload so the next model starts clean
-for m in $(curl -s --max-time 10 "$BASE/api/ps" | jq -r '.models[]?.name'); do
-  curl -s --max-time 30 -X POST "$BASE/api/generate" -H "Content-Type: application/json" \
-    -d "{\"model\":\"$m\",\"keep_alive\":0}" >/dev/null 2>&1
-done
+# Unload the model under test so the next one starts clean -- and ONLY that one.
+# v1's version looped over everything in /api/ps, which on a shared .67 evicts a
+# colleague's resident session mid-work. Fixed in the v4 copy.
+curl -s --max-time 30 -X POST "$BASE/api/generate" -H "Content-Type: application/json" \
+  -d "{\"model\":\"$MODEL\",\"keep_alive\":0}" >/dev/null 2>&1
 
 echo "=> $RES"

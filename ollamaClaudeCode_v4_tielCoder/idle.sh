@@ -17,11 +17,12 @@
 # not a command, so this polls /api/ps until it is actually empty instead of
 # sleeping a guessed interval.
 #
-# Copied from ../ollamaClaudeCode_v2/idle.sh. The only change is the OURS
-# ownership regex below, extended with v3's tags. v2's copy is left untouched
-# because it is the harness that produced v2's published verdict.
+# Copied from ../ollamaClaudeCode_v3_qwen3.8/idle.sh. v4 changes: the Tiel tags
+# join OURS, and --mine (below). v3's copy is left untouched because it is the
+# harness that produced v3's published verdict.
 #
 # Usage: ./idle.sh [--host H] [--port P] [--timeout S] [--wait S] [--force]
+#                  [--mine TAG]...
 #
 # Unloads only models this project owns. A foreign model is waited out, never
 # evicted -- see the shared-server guard below.
@@ -36,6 +37,15 @@ while [ $# -gt 0 ]; do
     --timeout) TMO="$2"; shift 2 ;;
     --wait)    WAIT="$2"; shift 2 ;;
     --force)   FORCE=1; shift ;;
+    # --mine TAG: this exact tag was loaded by the benchmark that is calling us,
+    # so it is ours to unload even though its NAME is on the foreign side. This
+    # exists for the qwen3.6 control: v3 needed --force (which also evicts
+    # everything else) or a 600 s wait after every stage it ran. --mine is exact
+    # match on one tag, not a pattern, so a colleague's *other* model is still
+    # waited out. What it cannot tell apart is a colleague loading the very same
+    # tag in the seconds between our stage finishing and this call -- accepted,
+    # and the reason the caller passes it only right after its own stage.
+    --mine)    MINE="${MINE:-}${MINE:+ }$2"; shift 2 ;;
     *) echo "unknown: $1" >&2; exit 2 ;;
   esac
 done
@@ -91,8 +101,14 @@ fi
 # someone mid-session costs them a 70 s reload.
 # v3 stage D additions (2026-08-27): nemotron-cascade-2 and granite4.2, pulled
 # by this project on 2026-08-27. gemma4: already covered the 31b tag.
-OURS='^(ornith:|muse-glimmer:|nemotron-3\.5-lightning:|nemotron-cascade-2:|granite4\.2:|kvprobe-|tune-|qwen3\.8:|laguna-xs-|north-mini-code-|gemma4:)'
-foreign() { printf '%s\n' $R | grep -Ev "$OURS" || true; }
+# v4 additions (2026-09-17): the Tiel-Coder tag the user put on .67 to be
+# benchmarked, its hf.co parent, and the presence_penalty-0 variant v4 creates.
+OURS='^(Tiel-Coder-|hf\.co/peculiar-ragdoll/|tiel-coder:|ornith:|muse-glimmer:|nemotron-3\.5-lightning:|nemotron-cascade-2:|granite4\.2:|kvprobe-|tune-|qwen3\.8:|laguna-xs-|north-mini-code-|gemma4:)'
+foreign() {
+  printf '%s\n' $R | grep -Ev "$OURS" | while read -r t; do
+    case " ${MINE:-} " in *" $t "*) ;; *) printf '%s\n' "$t" ;; esac
+  done
+}
 
 F=$(foreign)
 if [ -n "$F" ] && [ "${FORCE:-0}" != "1" ]; then
