@@ -22,7 +22,9 @@
 # Usage: ./kv-probe.sh [--host H] [--port P] [--model M]
 set -uo pipefail
 
-HOST="127.0.0.1"; PORT="11435"; MODEL="muse-glimmer:30b"
+# v4: defaults point at .67. v3 README: "--host without --port sends everything
+# to a dead port and fails as a JSON decode error, which reads like a broken model".
+HOST="192.168.100.67"; PORT="11434"; MODEL="muse-glimmer:30b"
 CTXS="4096 8192 16384 32768"
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -85,6 +87,13 @@ if len(pts)<2: print("not enough successful loads to fit a slope"); raise System
 n=len(pts); sx=sum(p[0] for p in pts); sy=sum(p[1] for p in pts)
 sxx=sum(p[0]*p[0] for p in pts); sxy=sum(p[0]*p[1] for p in pts)
 slope=(n*sxy-sx*sy)/(n*sxx-sx*sx); inter=(sy-slope*sx)/n
+# v4: v3 §19b showed the least-squares slope is the wrong estimator (it averages
+# over rungs that spill or have not amortised fixed overhead). The marginal cost
+# between adjacent rungs is printed first and is the number to quote; the fit
+# and the muse-specific SWA verdict below are kept only for continuity.
+pts.sort()
+for (a,ta),(b,tb) in zip(pts,pts[1:]):
+    print("marginal %7d -> %7d : %8.0f bytes/token"%(a,b,(tb-ta)/(b-a)))
 print("fit: total_bytes = %.0f + %.1f * num_ctx"%(inter,slope))
 print("  weights (intercept)      %.2f GB"%(inter/1e9))
 print("  KV cost per token        %.0f bytes"%slope)
