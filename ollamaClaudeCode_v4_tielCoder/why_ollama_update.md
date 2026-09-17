@@ -43,10 +43,23 @@ Codex and ChatGPT were read at title level and dropped. Nothing was run against 
 Ollama's `ollama launch claude` sets **`CLAUDE_CODE_TOTAL_TOKENS_REMINDER=off`** (ollama
 `add1f92b`, in 0.33.0). The commit says Claude Code appends a "tokens left" system message
 after every tool result, and Ollama moves system messages to the front of the prompt, so
-**the KV cache prefix breaks on every request**. Our `claude-ol*` functions in `~/.zshrc`
-start Claude Code directly and do **not** set it, on any Ollama version. This is Ollama's
-claim, and we have not measured it. Adding the variable is one line per function, and v4's
-`cache-probe.py` shape (a stable prefix plus a new tail) is how to check it.
+**the KV cache prefix breaks on every request**.
+
+**Done 2026-09-17:** all eight Ollama launchers in `~/.zshrc` (`claude-ol`, `-mistral`,
+`-local`, `claude-locallama`, `claude-ol2`, `-nemo`, `-north`, `-ornith`) now set it.
+Verified on Claude Code 2.1.274 against a fake `/v1/messages` endpoint that records the
+request bodies:
+
+| setting | `<total_tokens>… tokens left</total_tokens>` in requests |
+|---|---|
+| unset (default) | yes: a trailing **system** message after every tool result (`padded-countdown`, 14,998,990) |
+| `countdown` | yes: 198,990 (counts down from `CLAUDE_CODE_MAX_CONTEXT_TOKENS`) |
+| **`off`** | **none** |
+
+The separate `Token usage: X/Y` reminder did not appear in any run. What was **not**
+measured: the resulting cache-hit gain through Ollama. That is still Ollama's claim, and
+checking it needs a real session on `.67` comparing `cache_read_input_tokens` per turn.
+`claude-vision` (in `../ollamaClaude_ImageProcessing/claude-vision.zsh`) does not set it yet.
 
 ## Reasons to update `.67` → 0.34.1
 
