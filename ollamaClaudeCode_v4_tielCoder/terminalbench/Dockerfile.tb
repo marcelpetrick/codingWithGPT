@@ -1,0 +1,12 @@
+# Terminal-Bench sandbox: the v4 agent image + a real C/CMake toolchain.
+# Terminal-Bench-style tasks are about operating a shell -- configure, compile,
+# run, read the error, fix, re-run -- so the container needs to actually build C.
+# Same isolation contract as v4-cc-sandbox: non-root, and at run time it sits on
+# a --internal network whose only egress is the .67 relay (agent phase) or no
+# network at all (verify phase).
+FROM v4-cc-sandbox:latest
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      build-essential cmake gdb valgrind file \
+ && rm -rf /var/lib/apt/lists/*
+USER agent

@@ -186,6 +186,14 @@ def main():
             return None
         return sum(1 for x in d["h"] if x == "18/18"), len(d["h"])
 
+    # ---------------- terminal-bench ----------------
+    tb = defaultdict(lambda: defaultdict(list))   # model -> task -> [verdicts]
+    tb_tasks = []
+    for r in read_tsv("terminalbench.tsv"):
+        tb[r["model"]][r["task"]].append(r["verdict"])
+        if r["task"] not in tb_tasks:
+            tb_tasks.append(r["task"])
+
     # ---------------- KPIs ----------------
     pp_gain = (f"+{(gen[T_PP0] / gen[T_SHIP] - 1) * 100:.0f}%"
                if gen.get(T_PP0) and gen.get(T_SHIP) else "—")
@@ -331,6 +339,23 @@ def main():
             f'<td class="num">{statistics.median(d["w"]):.0f} s</td>'
             f'<td class="num {"good" if perfect else ""}">{esc(allh)}</td></tr>')
 
+    tb_html = ""
+    if tb_tasks:
+        head = "".join(f"<th>{esc(t)}</th>" for t in tb_tasks)
+        rows_tb = ""
+        for m in sorted(tb, key=lambda m: -gen.get(m, 0)):
+            cells = ""
+            for t in tb_tasks:
+                vs = tb[m].get(t, [])
+                ok = sum(1 for v in vs if v == "SOLVED")
+                if not vs:
+                    cells += '<td>—</td>'; continue
+                cls = "good" if ok == len(vs) else ("crit" if ok == 0 else "")
+                cells += f'<td><span class="pill {cls}">{ok}/{len(vs)}</span></td>'
+            rows_tb += f"<tr><td>{esc(short(m))}</td>{cells}</tr>"
+        tb_html = ('<div class="tablewrap"><table><thead><tr><th>model</th>' + head +
+                   f'</tr></thead><tbody>{rows_tb}</tbody></table></div>')
+
     stages = {"S1 Tiel": bool(gen.get(T_SHIP)), "S2 field": len(gen) > 4,
               "S3 sessions": bool(sess), "S5 CyberTiel": bool(gen.get(CT)),
               "S6 sandboxed": any(k[3] == "sandbox" for k in sess)}
@@ -458,6 +483,16 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
 }
 """
 
+    tb_section_html = ("" if not tb_tasks else f"""<section>
+  <div class="sec-head"><h2>Terminal-Bench-style — real build/debug loop</h2>
+    <span class="note">our C/CMake tasks, local harness · not official Terminal-Bench</span></div>
+  <p class="sub" style="margin:0 0 14px">Configure, compile, read the error, fix, re-run — the
+  actual agentic loop, on C. Each cell is SOLVED runs / total; deterministic verifier in an
+  isolated container.</p>
+  {tb_html}
+</section>
+
+""")
     doc = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -576,7 +611,7 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
   </table></div>
 </section>
 
-<section>
+{tb_section_html}<section>
   <div class="sec-head"><h2>Who actually fixed the code</h2>
     <span class="note">three modules · three bugs · one missing function · 18 held-out tests</span></div>
   <p class="sub" style="margin:0 0 14px">The visible tests are the ones the model can see. The
