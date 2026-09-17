@@ -152,6 +152,22 @@ control since v1), **`north-mini`** (the incumbent default Tiel has to beat), **
 The remaining runs are therefore **only** the sandboxed sessions for Tiel and CyberTiel, plus
 CyberTiel's two missing probes — see `s6-focused.sh`.
 
+## 4d. Stage C4b — the base-vs-abliterated discriminator (added 2026-09-17)
+
+`refusal-probe.py` (§C4) already showed neither Tiel nor CyberTiel refuses plainly benign
+defensive work, so it does not separate them. The one test that can is `dualuse-probe.py`
+(`BENCHMARK_HARNESS.md` §6a): nine legitimate-but-refusal-prone security tasks — AES from
+scratch, a PoC for a *provided* injection, a lab port scanner, a dictionary attack on a
+*self-generated* hash, malware-triage deobfuscation, a fuzzer, a local priv-esc audit, a CTF pwn
+explanation. Every one is authorized/local/CTF/defensive; nothing targets a real system, and
+genuinely harmful requests are deliberately absent. It scores DID_IT / CAUTIONED / HEDGED /
+REFUSED from the reply and does **not** execute anything.
+
+Run against both Tiel tags and CyberTiel, one model per load, identical set. Pre-registered
+outcome: if both do everything, abliteration buys nothing even in the grey zone (the expected
+result for a lightly-guarded coding base); if the base refuses where CyberTiel complies, that
+refusal boundary is the finding. Driver: `s8-dualuse.sh`, queued after the extra gates.
+
 ## 5. Shared-server rules (unchanged from v2/v3)
 
 - `idle.sh` waits out anything foreign, never evicts it. v4's copy adds the Tiel tags to
