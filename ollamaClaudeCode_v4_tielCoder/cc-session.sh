@@ -50,10 +50,10 @@
 # diff are kept under results/cc/.
 #
 # Usage: ./cc-session.sh [--host H] [--port P] [--timeout S] [--fixture easy|hard]
-#                        [--runs N] [--thinking on|off] <model> [<model>...]
+#                        [--runs N] [--first-run K] [--thinking on|off] <model>...
 set -uo pipefail
 
-HOST="192.168.100.67"; PORT="11434"; TMO=1800; FIXTURE="easy"; RUNS=1; THINKING="on"
+HOST="192.168.100.67"; PORT="11434"; TMO=1800; FIXTURE="easy"; RUNS=1; THINKING="on"; FIRST=1
 while [ $# -gt 0 ]; do
   case "$1" in
     --host) HOST="$2"; shift 2 ;;
@@ -62,6 +62,7 @@ while [ $# -gt 0 ]; do
     --fixture) FIXTURE="$2"; shift 2 ;;
     --runs) RUNS="$2"; shift 2 ;;
     --thinking) THINKING="$2"; shift 2 ;;
+    --first-run) FIRST="$2"; shift 2 ;;   # run numbering, for round-robin callers
     *) break ;;
   esac
 done
@@ -172,7 +173,7 @@ for line in sys.stdin:
 }
 
 for M in "$@"; do
- for RUN in $(seq 1 "$RUNS"); do
+ for RUN in $(seq "$FIRST" $((FIRST + RUNS - 1))); do
   SAFE=$(echo "$M" | tr ':/' '__')
   ID="${SAFE}-${FIXTURE}-think${THINKING}-r${RUN}"
   printf '\n\033[1m## cc-session %s  fixture=%s thinking=%s run %s/%s\033[0m\n' "$M" "$FIXTURE" "$THINKING" "$RUN" "$RUNS"
