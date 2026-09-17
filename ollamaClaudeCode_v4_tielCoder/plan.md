@@ -100,6 +100,37 @@ bump does not touch. **Not pulled:** Tiel's UD-Q4_K_XL (the vendor-benchmarked t
 5. **`presence_penalty`.** If T2 is ≥10% faster than T1 on generation with no gate loss, the
    recommended tag is T2 and the shipped tag is documented as a trap.
 
+## 4b. Stage C — CyberTiel, the abliterated sibling (added 2026-09-17)
+
+The user asked to also benchmark `peculiar-ragdoll/Cyber-Tiel-Coder-35B-A3B-GGUF`:
+**Huihui-Ornith-1.5-35B-A3B-abliterated** (refusals removed) → the same Sharp template and a
+cyber-weighted imatrix. Same architecture and family as Tiel, so it drops into the field as a
+**same-quant (Q5_K_XL) abliterated-vs-censored comparison**.
+
+**Feasible here, and run identically to Tiel:** provenance (§C1: tag, SHA256, size, params vs
+card), the full S1 server battery (§C2: kv-probe, tokrate with `presence_penalty 0` baked,
+gates ×3, needle ladder, vision), and end-to-end sessions (§C3).
+
+**The one hard difference — sessions run sandboxed.** CyberTiel is uncensored; the publisher's
+own instruction is to isolate it at the OS level. `cc-session.sh` runs Claude Code with
+`bypassPermissions` **on the host**, which is unacceptable for an abliterated agent. So
+CyberTiel sessions use `cc-session-sandboxed.sh`: the agent runs in a Docker container with no
+host mounts (fixture `docker cp`-ed in/out), read-only rootfs + tmpfs `/work`, non-root,
+`--cap-drop ALL`, `no-new-privileges`, pids/memory caps, and a Docker `--internal` network
+whose **only** route out is a `socat` relay to `.67:11434` (internet and direct-`.67` both
+verified blocked). Every run records an egress self-check. Same fixtures and scoring as the
+host harness, so the numbers are comparable; the isolation is the only variable.
+
+**Safety scope (§C4):** the abliteration is documented through *benign* over-refusal probes —
+does it engage a defensive security-engineering task without hedging — never HarmBench prompts
+or any harmful content. The sandbox, not the model, is the safety boundary.
+
+**Out of scope, stated rather than faked:** SWE-bench-Live and Cybench (multi-hour harnesses,
+shared box), the `--n-cpu-moe` / KV-type / reasoning-budget sweeps (Ollama exposes none of
+them — those are `llama-server` flags), and the IQ3/Q4/Q6/Q8 quant sweep (disk on a shared
+box; Q5 is the tier that matches the Tiel already resident). The report says so plainly and
+makes no parity claim from a single run.
+
 ## 5. Shared-server rules (unchanged from v2/v3)
 
 - `idle.sh` waits out anything foreign, never evicts it. v4's copy adds the Tiel tags to

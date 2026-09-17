@@ -13,3 +13,6 @@ results/*.log.done
 # (cc-*.jsonl), the verdict table (cc-session.tsv) and the inspected diffs in
 # measurements.md are the evidence that is kept.
 results/cc-*/
+
+# sandbox: the built image is not a repo artefact; results are.
+sandbox/*.log
