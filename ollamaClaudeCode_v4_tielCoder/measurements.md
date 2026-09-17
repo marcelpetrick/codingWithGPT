@@ -262,3 +262,118 @@ comparison object, annotated with its version.
 **That does not extend to session wall-clocks**, which the prefix cache (§2) changes
 independently of throughput. Speed per token and time per session are now two different
 questions, and v4 reports both.
+
+---
+
+# Stage S2 — the field on 0.33.3
+
+## 11. Throughput, and where Tiel sits
+
+Generation at a 2,000-word prompt; cold prefill at ~35k tokens. All on 0.33.3, one model
+resident at a time, server idle before each.
+
+| model | generation | cold prefill | gates | notes |
+|---|---|---|---|---|
+| `nemotron-cascade-2` | **140.7** | **7,017** | 8/10 | fastest on both axes, and still rejected — see §13 |
+| `north-mini-code-1.0` | 136.2 | 4,592 | 10/10 | the v3 default |
+| `qwen3.6:35b-a3b` *(control)* | 131.6 | 4,046 | 10/10 | +1.2% vs 0.32.15 |
+| `ornith:35b` | 127.3 | 3,555 | 10/10 | Ornith **1.0** — Tiel's ancestor, q4 |
+| `nemotron-3.5-lightning` | 126.6 | 2,674 | 10/10 | the 524k-window model |
+| **`tiel-coder` (pp 0)** | **111.1** | 3,483 | 9/10 | Q5 weights |
+| **`cyber-tiel` (pp 0)** | **110.0** | 3,519 | — | abliterated sibling, §16 |
+| `gemma4:26b-a4b` | 109.2 | **6,126** | 10/10 | the vision pick |
+| `Tiel` *(shipped, pp 1.5)* | 73.2 | 3,548 | 9/10 | the penalty, §6 |
+| `qwen3.8:27b` | 30.3 | 1,457 | 9/10 | dense |
+
+**Tiel generates ~18% slower than the q4 MoEs and that is the quant tier, not the model**: it
+is the only Q5 in the field, 27.5 GB of weights against 18–24 GB. Its ancestor `ornith:35b` at
+q4 runs 127.3. The Q5 tier buys the memory headroom back in retrieval quality (§5) and costs
+generation speed.
+
+## 12. Prefix caching, measured across the field
+
+The `extend` row is the agent-turn case: same long prefix, new tail.
+
+| model | cold (unique 27–30k prompt) | agent turn | tokens actually prefilled |
+|---|---|---|---|
+| `nemotron-cascade-2` | 4.01 s | **0.86 s** | 1,032 |
+| `gemma4:26b-a4b` | 6.05 s | 1.08 s | **17** |
+| `north-mini` | 6.97 s | 1.08 s | **13** |
+| `qwen3.6` control | 8.15 s | 0.90 s | 1,032 |
+| `tiel-coder` (pp 0) | 8.26 s | **0.81 s** | 520 |
+| `ornith` | 8.50 s | 0.85 s | 520 |
+| `nemotron-3.5-L` | 8.55 s | 0.71 s | 1,031 |
+| `qwen3.8` dense | 25.58 s | 2.42 s | 520 |
+
+**Every model on 0.33.3 gets the prefix cache**, and it collapses the per-turn cost by 5–10×.
+The spread in "tokens actually prefilled" is the tokenizer, not the cache: north-mini and gemma4
+encode the appended sentence in 13–17 tokens where Tiel and ornith need 520 and the qwen3.6
+family 1,032.
+
+This is why **prefill no longer ranks the field**. `gemma4` has 1.76× the cold prefill of Tiel
+and the difference shows up once, on the first turn of a session.
+
+## 13. Tool gates on 0.33.3 — one battery each
+
+| model | score | failures |
+|---|---|---|
+| `gemma4`, `nemotron-3.5-L`, `north-mini`, `ornith`, `qwen3.6` | **10/10** | — |
+| `tiel-coder` (pp 0) | 9/10 | T5 nested schema (see §8: 15/16 on re-runs) |
+| `qwen3.8:27b` | 9/10 | T6 needle at 120k — the half-window artifact |
+| **`nemotron-cascade-2`** | **8/10** | **T2 tool selection, T5 nested schema** |
+
+**`nemotron-cascade-2` reproduces its v3 rejection exactly**, on a new runtime, a year of
+Ollama releases later: fastest model on the box on both axes, and the worst tool caller. v3 said
+to re-test it "if a tool-template fix ships". Nothing has shipped. §15 shows what that costs
+end to end.
+
+# Stage S3 — Claude Code sessions, n=3
+
+## 14. The easy fixture stopped discriminating, so the hard one carries the result
+
+v3's `stats` fixture was passed by 19 of 19 sessions. On 0.33.3, with prefix caching, it is
+faster still and equally undiscriminating — every model passes it, in 19–87 s. The
+`ledger` fixture (three modules, three bugs, one unimplemented function, **18 held-out tests**)
+is where models separate:
+
+| model | verdict | median | range | hidden tests, per run |
+|---|---|---|---|---|
+| **`tiel-coder` (pp 0)** | **3/3 PASS** | 83 s | 73–83 | **18/18, 18/18, 18/18** |
+| **`gemma4:26b-a4b`** | **3/3 PASS** | 92 s | 89–103 | **18/18, 18/18, 18/18** |
+| `ornith:35b` | 3/3 PASS | **47 s** | 44–49 | 18/18, 16/18, 17/18 |
+| `qwen3.6` control | 3/3 PASS | 60 s | 58–61 | 17/18, 15/18, 16/18 |
+| `north-mini` *(v3 default)* | 3/3 PASS | 126 s | 112–134 | 18/18, 14/18, 17/18 |
+| `Tiel` *(shipped, pp 1.5)* | 2/3 PASS | 131 s | 117–148 | 18/18, 16/18, 17/18 |
+| `nemotron-3.5-L` | 3/3 PASS | 74 s | 60–88 | 14/18, 14/18, 13/18 |
+| `qwen3.8:27b` | 3/3 PASS | 787 s | 565–921 | 18/18, 18/18, 18/18 |
+| **`nemotron-cascade-2`** | **0/3 PASS** | 419 s | 361–467 | **0/18, 3/18, 3/18** |
+
+**Two models solve the spec rather than the tests: `tiel-coder` and `gemma4`, 18/18 three times
+out of three.** Everything else that "passed" left between one and five held-out tests failing —
+it made the visible tests green without implementing what the docstrings actually specify. That
+distinction is invisible to a pass/fail harness and is the reason the fixture was built.
+
+`nemotron-cascade-2` is the clearest result in the round: **0/3, 419 s median, 41 Bash calls,
+nine blind `Write`s in one run**, and hidden scores of 0, 3 and 3 out of 18. The fastest model on
+the box cannot finish a three-file change.
+
+## 15. Turning thinking off halves Tiel's session and costs nothing
+
+`--thinking off` injects `<|think_off|>` (§review R1). Same model, same fixture, n=3:
+
+| fixture | thinking | wall (3 runs) | thinking chars | output tokens | hidden |
+|---|---|---|---|---|---|
+| hard | **on** | 131, 148, 117 s | 18,961 / 24,994 / 15,650 | 8,641 / 9,930 / 7,558 | 18/18, **16/18**, 17/18 |
+| hard | **off** | **74, 53, 56 s** | **0** | 3,983 / 2,865 / 3,006 | **18/18, 18/18**, 17/18 |
+| easy | on | 26, 26, 27 s | 885 / 396 / 968 | ~1,075 | — |
+| easy | off | **23, 23, 23 s** | 0 | ~908 | — |
+
+**2.3× faster on the hard fixture, with equal or better hidden scores and no FAIL.** The one
+session failure Tiel had all day was a thinking-on run. Thinking costs ~60% of output tokens on
+this workload and buys nothing measurable.
+
+This also answers the question v3 left open about `ornith`'s 308 s session (v3 §32, "suspected
+cause, NOT verified"). The mechanism is real — thinking does dominate wall-clock on a
+tool-heavy session — but v3's arithmetic was wrong: its own transcript showed only 1,101 output
+tokens. The dominant term on 0.32.15 was **uncached prefill**, ~160k input tokens re-read across
+6 calls, which 0.33.3 has since removed.
