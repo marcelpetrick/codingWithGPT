@@ -45,7 +45,7 @@ Reviewing v3's record turned up eight gaps:
 | G2 | Claude Code sessions are **n=1**. v3 itself showed the incumbent move 46 s → 58 s with no throughput change | **n=3** per model, report median and range |
 | G3 | the session fixture is too easy: **19 of 19 sessions PASSed**, so it cannot separate models on capability | add a **harder multi-file fixture with hidden held-out tests** (scores overfitting and cheating, not just green/red) |
 | G4 | ornith's 308 s session is **unexplained**. The thinking hypothesis was never tested (v3 §32) | record **output tokens and thinking volume per turn** from the transcript, and run Tiel + ornith with thinking on **and** off (`MAX_THINKING_TOKENS=0`) |
-| G5 | vision was yes/no plus one qualitative screenshot read | scored vision bench: 3 fixtures, **25 objective checks**, reused from `../ollamaClaude_ImageProcessing`, on every vision-capable model, **at the full baked window**. Tiel's 1.43 GB margin may not hold an image workspace (qwen3-vl hit HTTP 500 exactly that way) |
+| G5 | vision was yes/no plus one qualitative screenshot read | scored it once, at the full baked window — and **retired the category**: all four vision-capable models scored 25/25, so it ranked nothing. The one thing worth keeping is that Tiel reads images at 262,144 with 1.43 GB of headroom, where `qwen3-vl` hit HTTP 500 and had to drop to a 49k tag |
 | G6 | `cc-session.sh` wires only the Haiku slot; v3 later found subagents resolve `opus` and 404 | wire all four model slots, as the fixed aliases do |
 | G7 | v1's `agentic-test.sh` unloads **every** resident model when it finishes, including a colleague's | v4 copy unloads only the model it tested |
 | G8 | T1–T5 are single shots at the shipped temperature (v3 §19f) | full battery **×3** for Tiel; field ×1 with every non-PASS re-run 8× before it is believed |
@@ -95,8 +95,9 @@ bump does not touch. **Not pulled:** Tiel's UD-Q4_K_XL (the vendor-benchmarked t
 3. **Tiel displaces north-mini as default only if** it passes 10/10 gates, is PASS on both
    fixtures in ≥ 2 of 3 runs, and its **median hard-fixture session** is no slower than
    north-mini's by more than the larger of the two models' ranges.
-4. **Tiel takes the vision slot only if** it scores ≥ gemma4 on the 25 checks *at its baked
-   262,144 window* (an image that only works at a smaller window is a different, smaller tag).
+4. ~~**Tiel takes the vision slot only if** it scores ≥ gemma4 on the 25 checks.~~
+   **Retired 2026-09-17**: every vision-capable model on the box scored 25/25, so the check
+   ranked nothing. Vision is reported as a yes/no capability alongside speed, not as a category.
 5. **`presence_penalty`.** If T2 is ≥10% faster than T1 on generation with no gate loss, the
    recommended tag is T2 and the shipped tag is documented as a trap.
 

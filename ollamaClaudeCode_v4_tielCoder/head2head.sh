@@ -78,11 +78,9 @@ for m in json.load(sys.stdin).get("models",[]):
     "$D/needle-v2.sh" --host "$HOST" --port "$PORT" --model "$M" --num-predict 2048 --depths "$NEEDLE_DEPTHS"
   fi
 
-  if curl -s "$API/api/show" -d "{\"model\":\"$M\"}" | python3 -c 'import sys,json;sys.exit(0 if "vision" in json.load(sys.stdin).get("capabilities",[]) else 1)'; then
-    gate
-    printf '\n\033[1m-- vision, at the baked window --\033[0m\n'
-    python3 "$D/vision-bench.py" --host "$API" "$M"
-  fi
+  # Vision is reported as a capability flag from /api/show, not measured as its
+  # own category: on this box every vision-capable model scored a clean 25/25 and
+  # the stage separated nothing. vision-bench.py is kept for when that changes.
   gate
 done
 

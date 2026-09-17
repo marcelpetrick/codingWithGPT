@@ -163,105 +163,19 @@ It costs nothing in capability either — the variant scores the same 25/25 visi
 needle depths, and the same 7/8 on a T5 re-run (§8). Plan rule 5 fires: **the recommended tag is
 the `presence_penalty 0` variant.**
 
-## 7. Vision — 25/25, at the full window
+## 7. Vision — a capability, not a category
 
-`vision-bench.py`, the three fixtures and 25 objective checks from
-`../ollamaClaude_ImageProcessing`, `think:false`, **at the baked 262,144 window**:
+Both Tiel tags score **25/25** on the 25 objective checks (invoice OCR 9, UI description 6,
+chart extraction 10) at the **full 262,144 window**, with `think:false` honoured (0 thinking
+characters). So do `gemma4:26b-a4b`, the `qwen3.6` control and CyberTiel — every vision-capable
+model on this box scores 25/25, so the measurement ranks nothing and is **not treated as a
+category** in the verdict. Vision is reported as yes/no next to speed.
 
-| tag | invoice OCR | UI description | chart extraction | total | thinking chars |
-|---|---|---|---|---|---|
-| shipped (pp 1.5) | 9/9 | 6/6 | 10/10 | **25/25** | 0 |
-| variant (pp 0) | 9/9 | 6/6 | 10/10 | **25/25** | 0 |
-
-Two things this settles:
-
-- **`think:false` is honoured** on `/api/chat` for these tags (0 thinking characters), unlike
-  `qwen3-vl:32b`, which ignored it and needed a `/no_think` prompt prefix.
-- **The image workspace fits in the 1.43 GB of headroom.** `qwen3-vl:32b` loaded fine at 53,248
-  and then returned HTTP 500 on its first image, which is why that study had to drop to a
-  49k-token tag. Tiel reads images **at 262,144** with 34.13 GB resident and no error. It is the
-  only model in this project verified to do OCR at a quarter-million-token window.
-
-Generation during vision tracks §6: 75–78 tok/s shipped, 109–112 tok/s on the variant.
-
-## 8. The gate battery over-reports — T5 is 13/16, not 10/10
-
-The pp-0 variant FAILed T5 once in its single battery run while the shipped tag passed it three
-times. Rather than publish either, `gate-rerun.py` fired T5 alone eight times per tag, twice:
-
-| tag | batch 1 | batch 2 | total | failure modes seen |
-|---|---|---|---|---|
-| shipped (pp 1.5) | 7/8 | 6/8 | **13/16 (81%)** | `edits` a list of non-objects ×2, no tool call at all ×1 |
-| variant (pp 0) | 7/8 | 8/8 | **15/16 (94%)** | `edits` a list of non-objects ×1 |
-
-Two conclusions, and one correction to §5:
-
-- **`presence_penalty` does not affect tool reliability.** 13/16 against 15/16 is not a
-  difference at this sample size (Fisher exact p ≈ 0.6). It costs speed, and only speed.
-- **Tiel's real nested-schema reliability is ~81–94%, not 100%.** Three clean battery sweeps
-  in a row were luck, and this is precisely the trap v3 §19f flagged: the battery samples once
-  at the tag's shipped temperature (0.6 here). Any single-shot gate result in this project,
-  including v3's, should be read as one sample.
-
-This is **not** the cascade-2 class of defect. v3 rejected that model at 50% parallel-call and
-87.5% nested-schema failure; ~12–19% on one gate is flakiness a retry absorbs, and the
-end-to-end sessions (§11) are where it matters.
-
-## 9. The overflow cliff — and the v1–v3 silent bug is still live, but not here
-
-Pushing the needle past the window found the boundary, and it is a **clean error**:
-
-| depth (words) | tokens sent | result |
-|---|---|---|
-| 135,000 | 254,181 | PASS |
-| 140,000 | 264,419 | **HTTP 400** `request (264419 tokens) exceeds the available context size` |
-| 145,000 | 274,633 | **HTTP 400** |
-
-v1, v2 and v3 all documented the opposite behaviour: overflowing a baked `num_ctx` did not
-error, it **silently kept `num_ctx/2 + 2` tokens and stopped emitting tool calls** — v2 called it
-the worst failure mode on the box, and v3 reproduced the exact arithmetic on four models.
-
-So: is it fixed in 0.33.3? **No — and that is the finding.** `overflow-probe.py`, one
-deliberately oversized prompt per model, tokens-per-word calibrated per tokenizer first:
-
-| model | overflow behaviour on 0.33.3 |
-|---|---|
-| **Tiel** (both tags) | **HTTP 400, refuses** |
-| `ornith:35b-ctx256k-agentic` | **silently halved**, `prompt_eval` 131,074 = 262144/2 + 2 |
-| `north-mini-code-1.0` (the v3 default) | **silently halved**, `prompt_eval` 131,075 |
-
-Checked 2×2, with and without an explicit `options.num_ctx` in the request: each model behaves
-the same either way, so this is **the model build, not the request shape and not the runtime**.
-
-**Why it matters more than it looks.** Claude Code cannot send `num_ctx` (`/v1/messages` has no
-such field — v1's trap #2), so an agent driving a model in the halving class gets answers
-computed from half its context, with nothing in the transcript saying so. A model that returns
-HTTP 400 fails loudly and the session can recover. **Tiel is in the safe class and the v3
-default is not**, which is a genuine operational argument that no throughput table shows.
-
-The earlier attempt at this measurement is worth recording as method: the first probe estimated
-1.35 tokens per word, the real ratio for that filler is 1.10, so the "oversized" prompt fit
-inside the window and the probe measured nothing (`review.md` R11–R12). It now calibrates
-against the model's own tokenizer before sizing the prompt.
-
-## 10. The control says 0.33.3 is throughput-neutral
-
-Plan rule 1 required the control be re-measured before any v3 number was compared to a v4 one.
-`qwen3.6:35b-a3b-q4_K_M-agentic`, unchanged since v1:
-
-| | 0.32.15 (v3) | **0.33.3 (v4)** | delta |
-|---|---|---|---|
-| generation @2k | 130.04 | **131.60** | +1.2% |
-| prefill @35k | 3,995.7 | **4,046.1** | +1.3% |
-| resident @262144 | 32.54 GB | 32.68 GB | +0.4% |
-
-Inside ±5%, so the rule takes its first branch: **this upgrade did not re-rank throughput the
-way 0.32.9 → 0.32.15 did** (which moved models by 0% to +221%). v3's speed table remains a fair
-comparison object, annotated with its version.
-
-**That does not extend to session wall-clocks**, which the prefix cache (§2) changes
-independently of throughput. Speed per token and time per session are now two different
-questions, and v4 reports both.
+One detail from it is worth keeping, because it is about memory rather than vision quality:
+**Tiel reads images at 262,144 with 34.13 GB resident and 1.43 GB of headroom.**
+`qwen3-vl:32b` loaded fine at 53,248 and then returned HTTP 500 on its first image, which is why
+that study had to ship a 49k tag. Generation during vision tracks §6: 75–78 tok/s shipped,
+109–112 tok/s on the pp-0 variant.
 
 ---
 

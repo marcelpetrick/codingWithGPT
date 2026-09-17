@@ -37,3 +37,5 @@ Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	extend	520	29710	30230	0.93	32467
 Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	unique	30045	178	30223	8.57	3525
 cyber-tiel:35b-q5-ctx256k-agentic	cold	30043	179	30222	7.62	3967
 cyber-tiel:35b-q5-ctx256k-agentic	repeat	4	30218	30222	0.52	58031
+cyber-tiel:35b-q5-ctx256k-agentic	extend	520	29710	30230	0.79	38252
+cyber-tiel:35b-q5-ctx256k-agentic	unique	30044	179	30223	8.15	3710

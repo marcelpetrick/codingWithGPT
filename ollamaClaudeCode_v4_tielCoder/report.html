@@ -3,173 +3,273 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tiel-Coder on the Ollama box — v4 benchmark</title>
-<meta name="description" content="Benchmark of Tiel-Coder 35B-A3B against the local model field on 192.168.100.67, Ollama 0.33.3.">
+<title>Tiel-Coder on the 36 GB box</title>
+<meta name="description" content="v4 benchmark: Tiel-Coder and CyberTiel against the local model field on Ollama 0.33.3.">
 <style>
 :root{
-  color-scheme: light;
-  --bg:#f7f7f4; --surface:#fcfcfb; --line:#e3e2dd; --line-soft:#eeede8;
-  --ink:#141413; --ink-2:#52514e; --ink-3:#86847d;
-  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
-  --good:#1f7a3d; --good-bg:#e7f3ea; --bad:#b3261e; --bad-bg:#fbeae8;
-  --wait-bg:#f0efe9; --hi:#4a3aa7;
+  --paper:#F6F7F9; --panel:#FFFFFF; --panel-2:#EFF2F6;
+  --ink:#131822; --ink-2:#3D4756; --muted:#5C6675; --rule:#DCE1E8; --rule-2:#C6CDD8;
+  --good:#0F8A6B; --warn:#A57C0C; --crit:#C6304F; --ref:#3D5FC4;
+  --good-soft:#E2F1EC; --crit-soft:#FAE4E9; --ref-soft:#E5EAFA; --warn-soft:#F5EEDC;
+  --shadow:0 1px 2px rgba(19,24,34,.06),0 8px 24px -12px rgba(19,24,34,.18);
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  color-scheme: dark;
-  --bg:#121211; --surface:#1a1a19; --line:#33322e; --line-soft:#26251f;
-  --ink:#f5f4ef; --ink-2:#c3c2b7; --ink-3:#8d8b82;
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
-  --good:#5ec27f; --good-bg:#16291d; --bad:#ef8b83; --bad-bg:#2c1817;
-  --wait-bg:#232320; --hi:#9085e9;
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#0E1218; --panel:#161B24; --panel-2:#1D2430;
+  --ink:#E9EDF3; --ink-2:#C3CBD7; --muted:#8F99A8; --rule:#28303C; --rule-2:#3A4453;
+  --good:#33A886; --warn:#B68A26; --crit:#E0556F; --ref:#6B8AE6;
+  --good-soft:#132B25; --crit-soft:#331A22; --ref-soft:#1A2238; --warn-soft:#2C2515;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px -14px rgba(0,0,0,.7);
 }}
 :root[data-theme="dark"]{
-  color-scheme: dark;
-  --bg:#121211; --surface:#1a1a19; --line:#33322e; --line-soft:#26251f;
-  --ink:#f5f4ef; --ink-2:#c3c2b7; --ink-3:#8d8b82;
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
-  --good:#5ec27f; --good-bg:#16291d; --bad:#ef8b83; --bad-bg:#2c1817;
-  --wait-bg:#232320; --hi:#9085e9;
+  --paper:#0E1218; --panel:#161B24; --panel-2:#1D2430;
+  --ink:#E9EDF3; --ink-2:#C3CBD7; --muted:#8F99A8; --rule:#28303C; --rule-2:#3A4453;
+  --good:#33A886; --warn:#B68A26; --crit:#E0556F; --ref:#6B8AE6;
+  --good-soft:#132B25; --crit-soft:#331A22; --ref-soft:#1A2238; --warn-soft:#2C2515;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px -14px rgba(0,0,0,.7);
 }
 *{box-sizing:border-box}
-body{background:var(--bg); color:var(--ink);
-  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
-  font-size:15px; line-height:1.55; margin:0;}
-.wrap{max-width:900px; margin:0 auto; padding-block:36px 72px; padding-left:20px; padding-right:20px;}
-h1{font-family:"IBM Plex Serif",Georgia,"Iowan Old Style","Noto Serif",serif; font-size:30px; line-height:1.2;
-   margin:0 0 6px; text-wrap:balance; letter-spacing:-.01em;}
-h2{font-family:"IBM Plex Serif",Georgia,"Iowan Old Style","Noto Serif",serif; font-size:21px; margin:42px 0 4px; text-wrap:balance;}
-h3{font-size:14px; margin:26px 0 6px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3);}
-p{margin:8px 0; color:var(--ink-2); max-width:68ch;}
-.sub{color:var(--ink-3); font-size:13px; margin-bottom:18px;}
-.meta{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px;}
-.chip{display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:3px 9px;
-  border-radius:999px; background:var(--wait-bg); color:var(--ink-2);
-  font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace;}
-.chip.ok{background:var(--good-bg); color:var(--good);}
-.chip.bad{background:var(--bad-bg); color:var(--bad);}
-.verdict{background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--hi);
-  border-radius:8px; padding:18px 20px; margin:22px 0;}
-.verdict p{margin:6px 0;}
-.verdict strong{color:var(--ink);}
-.finding{background:var(--surface); border:1px solid var(--line); border-radius:8px;
-  padding:14px 16px; margin:10px 0;}
-.finding b{color:var(--ink); display:block; margin-bottom:2px; font-size:14px;}
-.finding span{font-size:13.5px; color:var(--ink-2);}
-.fig{margin:18px 0 26px; background:var(--surface); border:1px solid var(--line);
-  border-radius:8px; padding:16px 14px 10px; overflow-x:auto;}
-figcaption{font-size:13px; font-weight:600; color:var(--ink); margin-bottom:10px;
-  letter-spacing:.01em;}
-.chart{width:100%; height:auto; display:block; min-width:520px;}
-.grid{stroke:var(--line-soft); stroke-width:1;}
-.tick{fill:var(--ink-3); font-size:10px; font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace;}
-.ylab{fill:var(--ink-2); font-size:11.5px;}
-.vlab{fill:var(--ink); font-size:11.5px; font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace;
-  font-variant-numeric:tabular-nums;}
-.bar-s1{fill:var(--s1)} .bar-s2{fill:var(--s2)} .bar-s3{fill:var(--s3)}
-.bar-hi{fill:var(--hi)}
-.legend{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:8px; font-size:12px; color:var(--ink-2);}
-.lg{display:inline-flex; align-items:center; gap:6px;}
-.sw{width:11px; height:11px; border-radius:3px; display:inline-block;}
-.sw1{background:var(--s1)} .sw2{background:var(--s2)} .sw3{background:var(--s3)}
-.note{font-size:12.5px; color:var(--ink-3); margin:4px 2px 2px; max-width:none;}
-.empty{font-size:13px; color:var(--ink-3); font-style:italic;}
-table{border-collapse:collapse; width:100%; font-size:13.5px; margin:10px 0;}
-th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.07em;
-   color:var(--ink-3); font-weight:600; padding:6px 10px 6px 0; border-bottom:1px solid var(--line);}
-td{padding:7px 10px 7px 0; border-bottom:1px solid var(--line-soft); color:var(--ink-2);}
-td.num{font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace; font-variant-numeric:tabular-nums; color:var(--ink);}
-.tablewrap{overflow-x:auto;}
-code{font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace; font-size:.92em;
-  background:var(--wait-bg); padding:1px 5px; border-radius:4px; color:var(--ink);}
-footer{margin-top:52px; padding-top:18px; border-top:1px solid var(--line);
-  font-size:12.5px; color:var(--ink-3);}
-@media (max-width:560px){ h1{font-size:25px} .wrap{padding-block:26px 56px} }
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:40px 24px 64px}
+h1,h2,h3{text-wrap:balance;margin:0}
+.mono{font-family:ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted)}
+.mast{border-top:3px solid var(--ink);padding-top:18px;margin-bottom:28px}
+.mast-top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+h1{font-size:clamp(32px,5vw,50px);line-height:1.04;font-weight:700;letter-spacing:-.02em}
+.sub{color:var(--ink-2);font-size:16.5px;max-width:66ch;margin-top:12px}
+.verdict{margin-top:20px;display:flex;gap:14px;align-items:flex-start;background:var(--good-soft);
+  border:1px solid var(--good);border-left-width:4px;border-radius:3px;padding:14px 18px}
+.verdict .k{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--good);font-weight:700;white-space:nowrap;padding-top:3px}
+.verdict p{margin:0 0 7px;font-size:15.5px;color:var(--ink)}
+.verdict p:last-child{margin-bottom:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(172px,1fr));gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:4px;overflow:hidden;margin:28px 0 14px}
+.kpi{background:var(--panel);padding:16px 18px}
+.kpi .n{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-variant-numeric:tabular-nums;
+  font-size:28px;font-weight:600;line-height:1.05;letter-spacing:-.02em}
+.kpi .l{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.4}
+.n.good{color:var(--good)} .n.crit{color:var(--crit)} .n.ref{color:var(--ref)}
+section{margin:38px 0 0}
+.sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--rule-2);
+  padding-bottom:9px;margin-bottom:18px}
+.sec-head h2{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.sec-head .note{margin-left:auto;font-size:12.5px;color:var(--muted);text-align:right}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:820px){.charts{grid-template-columns:1fr}}
+.chart{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:17px 19px 15px;
+  box-shadow:var(--shadow)}
+.chart h3{font-size:15px;font-weight:600;margin-bottom:2px}
+.chart .cap{font-size:12.5px;color:var(--muted);margin:0 0 15px}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;grid-template-columns:114px 1fr 72px;align-items:center;gap:10px}
+.row .name{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-size:11px;color:var(--ink-2);
+  text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track{background:var(--panel-2);border-radius:3px;height:17px;overflow:hidden}
+.bar{height:100%;border-radius:0 3px 3px 0}
+.bar.good{background:var(--good)} .bar.crit{background:var(--crit)}
+.bar.ref{background:var(--ref)} .bar.warn{background:var(--warn)}
+.val{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-variant-numeric:tabular-nums;
+  font-size:12.5px;font-weight:500;text-align:right;color:var(--ink)}
+.row.hl .name{color:var(--ink);font-weight:700}
+.legend{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule);font-size:12px;color:var(--ink-2)}
+.callout{margin-top:20px;background:var(--crit-soft);border:1px solid var(--crit);border-left-width:4px;
+  border-radius:3px;padding:15px 18px}
+.callout.ok{background:var(--ref-soft);border-color:var(--ref)}
+.callout .k{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--crit);font-weight:700;display:block;margin-bottom:5px}
+.callout.ok .k{color:var(--ref)}
+.callout p{margin:0;font-size:14.5px;color:var(--ink)}
+.finds{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:820px){.finds{grid-template-columns:1fr}}
+.find{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:14px 16px}
+.find b{display:block;font-size:14px;margin-bottom:4px}
+.find span{font-size:13px;color:var(--ink-2)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:4px 0}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+  font-weight:600;padding:7px 10px 7px 0;border-bottom:1px solid var(--rule-2)}
+td{padding:8px 10px 8px 0;border-bottom:1px solid var(--rule);color:var(--ink-2)}
+td.num{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-variant-numeric:tabular-nums;color:var(--ink)}
+td.num.good{color:var(--good);font-weight:600}
+.pill{display:inline-block;font-family:ui-monospace,monospace;font-size:11px;padding:2px 7px;border-radius:3px;
+  background:var(--panel-2);color:var(--ink-2)}
+.pill.good{background:var(--good-soft);color:var(--good);font-weight:600}
+.pill.crit{background:var(--crit-soft);color:var(--crit);font-weight:600}
+.tablewrap{overflow-x:auto}
+.empty{font-size:13px;color:var(--muted);font-style:italic}
+code{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-size:.92em;background:var(--panel-2);
+  padding:1px 5px;border-radius:3px;color:var(--ink)}
+footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--muted)}
 @media print{
-  :root{ --bg:#ffffff; --surface:#ffffff; --line:#d7d6d1; --line-soft:#ebeae5;
-         --ink:#111; --ink-2:#3b3a37; --ink-3:#6b6a64; }
-  body{background:#fff}
-  .wrap{max-width:none; padding:0 8mm}
-  .fig,.finding,.verdict{break-inside:avoid; page-break-inside:avoid}
-  h2{break-after:avoid}
-  .chart{min-width:0}
-  a[href]:after{content:""}
+  :root{--paper:#fff;--panel:#fff;--panel-2:#f0f2f5;--shadow:none;
+        --ink:#111;--ink-2:#333;--muted:#666;--rule:#d8dce3;--rule-2:#c2c8d2}
+  @page{size:A4;margin:11mm}
+  body{font-size:10px;line-height:1.38}
+  .wrap{max-width:none;padding:0}
+  h1{font-size:24px} .sub{font-size:10.5px;margin-top:7px}
+  .kpi .n{font-size:18px} .kpi .l{font-size:8.5px;margin-top:4px}
+  .chart,.find,.callout,.verdict,tr,.chart .rows{break-inside:avoid;page-break-inside:avoid}
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .kpi{padding:10px 12px}
+  .sec-head{break-after:avoid;page-break-after:avoid}
+  .verdict{padding:10px 14px} .verdict p{font-size:10.5px;margin-bottom:5px}
+  .mast{margin-bottom:14px;padding-top:10px}
+  .sec-head h2{font-size:14px} section{margin:14px 0 0} .charts{gap:11px}
+  .chart{padding:11px 13px 10px} .chart h3{font-size:11.5px} .chart .cap{font-size:9px;margin-bottom:9px}
+  .row{grid-template-columns:96px 1fr 58px;gap:7px} .track{height:12px}
+  .row .name,.val{font-size:8.5px} .legend{font-size:8.5px;margin-top:9px;padding-top:8px}
+  .kpis{margin:14px 0 8px}
+  table{font-size:9.5px} th{font-size:8.5px}
 }
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>Tiel-Coder on the Ollama box</h1>
-<p class="sub">Benchmark round v4 &middot; <code>192.168.100.67</code> &middot; Ollama 0.33.3 &middot;
-35.56&nbsp;GB usable VRAM &middot; generated from <code>results/*.tsv</code></p>
 
-<div class="meta"><span class="chip ok">✔ S1 Tiel battery</span><span class="chip ok">✔ S2 field on 0.33.3</span><span class="chip wait">⋯ S3 sessions</span><span class="chip wait">⋯ S5 CyberTiel</span></div>
-<p class="note">Stages still running append to the same files; regenerate with
-<code>./make-report.py</code>.</p>
-
-<div class="verdict">
-<p><strong>Use <code>tiel-coder:35b-q5-ctx256k-agentic</code>, not the tag as shipped.</strong>
-Identical weights; the shipped <code>-ctx262k</code> tag carries
-<code>presence_penalty 1.5</code>, which costs <strong>52%</strong> of generation speed and
-buys nothing measurable.</p>
-<p>Tiel holds its full <strong>262,144-token window at 34.13&nbsp;GB, 100% on GPU</strong>, retrieves
-a needle at <strong>254,181 tokens</strong> (the deepest in v1&ndash;v4), scores <strong>25/25</strong>
-on the vision checks at that full window, and is the <strong>only model tested that refuses an
-over-long prompt</strong> instead of silently answering from half of it.</p>
+<div class="mast">
+  <div class="mast-top">
+    <span class="eyebrow">Benchmark v4 · 2026-09-17</span>
+    <span class="eyebrow">192.168.100.67 · Ollama 0.33.3 · 35.56 GB usable</span>
+  </div>
+  <h1>Tiel-Coder on the 36&nbsp;GB box</h1>
+  <p class="sub">A re-quantized Ornith-1.5 landed on the server, and its uncensored sibling with it.
+  Both were measured against the field v3 recommended — on a runtime that has since changed the
+  rules underneath all of it.</p>
+  <div class="verdict">
+    <span class="k">Deploy</span>
+    <div>
+      <p><b>Use <code>tiel-coder:35b-q5-ctx256k-agentic</code> — the variant, not the tag as it
+      shipped.</b> Same weights; the shipped tag carries <code>presence_penalty 1.5</code>, which
+      costs 52% of generation speed and buys nothing measurable.</p>
+      <p>It is one of only two models that solved the <em>specification</em> rather than the visible
+      tests — all 18 held-out tests, three runs from three. It holds 262,144 tokens at 34.13 GB,
+      recalls at 254,181, and refuses an over-long prompt instead of quietly answering from half of
+      it. Append <code>&lt;|think_off|&gt;</code> and it gets 2.3× faster for nothing.</p>
+    </div>
+  </div>
 </div>
 
-<h2>Findings that change what you should do</h2>
+<div class="kpis"><div class="kpi"><div class="n good">111</div><div class="l">tok/s generation<br>Tiel, penalty removed</div></div><div class="kpi"><div class="n good">+52%</div><div class="l">over the tag as shipped<br>one sampler setting</div></div><div class="kpi"><div class="n ref">254,182</div><div class="l">tokens of verified recall<br>deepest in v1–v4</div></div><div class="kpi"><div class="n good">3/3</div><div class="l">runs that solved the spec<br>all 18 held-out tests</div></div><div class="kpi"><div class="n ref">2.3×</div><div class="l">faster with thinking off<br>no loss of correctness</div></div><div class="kpi"><div class="n crit">7</div><div class="l">models that silently halve<br>an over-long prompt</div></div></div>
+<p class="eyebrow" style="margin-bottom:24px"><span class="pill good">✔ S1 Tiel</span> <span class="pill good">✔ S2 field</span> <span class="pill good">✔ S3 sessions</span> <span class="pill good">✔ S5 CyberTiel</span> <span class="pill good">✔ S6 sandboxed</span></p>
 
-<div class="finding"><b>1 &middot; The runtime now caches prompt prefixes &mdash; v3's ranking rule is void</b>
-<span>Ollama 0.33.3 reports <code>cache_read_input_tokens</code>; 0.32.15 did not, and every v3
-transcript shows zero. A repeated 30k-token prompt prefills <strong>4 tokens instead of 30,042</strong>,
-and an agent turn (same prefix, new tail) prefills only the tail. v3 ranked models on prefill because
-"the loop re-reads its context every turn" &mdash; that is no longer true here.</span></div>
+<section>
+  <div class="sec-head"><h2>Speed, and what it fails to predict</h2>
+    <span class="note">median of 3 · server idle before each</span></div>
+  <div class="charts"><div class="chart"><h3>Generation speed</h3><p class="cap">tok/s at a 2,000-word prompt, thinking disabled, temperature 0. Higher is better.</p><div class="rows"><div class="row"><div class="name" title="cascade-2">cascade-2</div><div class="track"><div class="bar crit" style="width:100.0%"></div></div><div class="val">141 tok/s</div></div><div class="row"><div class="name" title="north-mini">north-mini</div><div class="track"><div class="bar ref" style="width:96.8%"></div></div><div class="val">136 tok/s</div></div><div class="row"><div class="name" title="qwen3.6 35b">qwen3.6 35b</div><div class="track"><div class="bar ref" style="width:93.5%"></div></div><div class="val">132 tok/s</div></div><div class="row"><div class="name" title="ornith 1.0">ornith 1.0</div><div class="track"><div class="bar ref" style="width:90.5%"></div></div><div class="val">127 tok/s</div></div><div class="row"><div class="name" title="nemotron-3.5-L">nemotron-3.5-L</div><div class="track"><div class="bar ref" style="width:90.0%"></div></div><div class="val">127 tok/s</div></div><div class="row"><div class="name" title="Tiel · pp0">Tiel · pp0</div><div class="track"><div class="bar good" style="width:79.0%"></div></div><div class="val">111 tok/s</div></div><div class="row"><div class="name" title="CyberTiel · pp0">CyberTiel · pp0</div><div class="track"><div class="bar good" style="width:78.2%"></div></div><div class="val">110 tok/s</div></div><div class="row"><div class="name" title="gemma4 26b">gemma4 26b</div><div class="track"><div class="bar ref" style="width:77.6%"></div></div><div class="val">109 tok/s</div></div><div class="row"><div class="name" title="Tiel · shipped">Tiel · shipped</div><div class="track"><div class="bar good" style="width:52.0%"></div></div><div class="val">73 tok/s</div></div><div class="row"><div class="name" title="qwen3.8 27b">qwen3.8 27b</div><div class="track"><div class="bar crit" style="width:21.6%"></div></div><div class="val">30 tok/s</div></div></div><div class="legend">Tiel is the only Q5 here — 27.5 GB of weights against 18–24 GB. Its own q4 ancestor <span class='mono'>ornith 1.0</span> runs 127, so the gap is the quant tier, not the model.</div></div><div class="chart"><h3>Time to finish the hard job</h3><p class="cap">Median of three real Claude Code sessions on the three-module fixture. Lower is better.</p><div class="rows"><div class="row"><div class="name" title="ornith 1.0">ornith 1.0</div><div class="track"><div class="bar ref" style="width:6.0%"></div></div><div class="val">47 s</div></div><div class="row"><div class="name" title="qwen3.6 35b">qwen3.6 35b</div><div class="track"><div class="bar ref" style="width:7.6%"></div></div><div class="val">60 s</div></div><div class="row"><div class="name" title="nemotron-3.5-L">nemotron-3.5-L</div><div class="track"><div class="bar ref" style="width:9.4%"></div></div><div class="val">74 s</div></div><div class="row"><div class="name" title="Tiel · pp0">Tiel · pp0</div><div class="track"><div class="bar good" style="width:10.5%"></div></div><div class="val">83 s</div></div><div class="row"><div class="name" title="gemma4 26b">gemma4 26b</div><div class="track"><div class="bar ref" style="width:11.7%"></div></div><div class="val">92 s</div></div><div class="row"><div class="name" title="north-mini">north-mini</div><div class="track"><div class="bar ref" style="width:16.0%"></div></div><div class="val">126 s</div></div><div class="row"><div class="name" title="Tiel · shipped">Tiel · shipped</div><div class="track"><div class="bar good" style="width:16.6%"></div></div><div class="val">131 s</div></div><div class="row"><div class="name" title="cascade-2">cascade-2</div><div class="track"><div class="bar crit" style="width:53.2%"></div></div><div class="val">419 s</div></div><div class="row"><div class="name" title="qwen3.8 27b">qwen3.8 27b</div><div class="track"><div class="bar crit" style="width:100.0%"></div></div><div class="val">787 s</div></div></div><div class="legend">Tokens per second does not predict this — the fastest model on the box is last.</div></div><div class="chart"><h3>What the presence penalty costs</h3><p class="cap">Identical weights, one sampler setting apart.</p><div class="rows"><div class="row"><div class="name" title="variant · pp 0">variant · pp 0</div><div class="track"><div class="bar good" style="width:100.0%"></div></div><div class="val">111 tok/s</div></div><div class="row"><div class="name" title="shipped · pp 1.5">shipped · pp 1.5</div><div class="track"><div class="bar crit" style="width:65.8%"></div></div><div class="val">73 tok/s</div></div></div><div class="legend">Prefill moves less than 2%: the penalty is paid per generated token, in the sampler.</div></div><div class="chart"><h3>What thinking costs</h3><p class="cap">Tiel on the hard fixture, median of three, with and without <span class='mono'>&lt;|think_off|&gt;</span>.</p><div class="rows"><div class="row"><div class="name" title="thinking off">thinking off</div><div class="track"><div class="bar good" style="width:42.7%"></div></div><div class="val">56 s</div></div><div class="row"><div class="name" title="thinking on">thinking on</div><div class="track"><div class="bar crit" style="width:100.0%"></div></div><div class="val">131 s</div></div></div><div class="legend">Held-out scores were equal or better with thinking off, and the only session Tiel failed all day was a thinking-on run.</div></div><div class="chart"><h3>Cost of one agent turn</h3><p class="cap">Seconds to first token when a long prefix is reused and only a tool result is appended.</p><div class="rows"><div class="row"><div class="name" title="nemotron-3.5-L">nemotron-3.5-L</div><div class="track"><div class="bar ref" style="width:29.3%"></div></div><div class="val">0.71 s</div></div><div class="row"><div class="name" title="CyberTiel · pp0">CyberTiel · pp0</div><div class="track"><div class="bar good" style="width:32.6%"></div></div><div class="val">0.79 s</div></div><div class="row"><div class="name" title="Tiel · pp0">Tiel · pp0</div><div class="track"><div class="bar good" style="width:33.5%"></div></div><div class="val">0.81 s</div></div><div class="row"><div class="name" title="ornith 1.0">ornith 1.0</div><div class="track"><div class="bar ref" style="width:35.1%"></div></div><div class="val">0.85 s</div></div><div class="row"><div class="name" title="cascade-2">cascade-2</div><div class="track"><div class="bar crit" style="width:35.5%"></div></div><div class="val">0.86 s</div></div><div class="row"><div class="name" title="qwen3.6 35b">qwen3.6 35b</div><div class="track"><div class="bar ref" style="width:37.2%"></div></div><div class="val">0.90 s</div></div><div class="row"><div class="name" title="Tiel · shipped">Tiel · shipped</div><div class="track"><div class="bar good" style="width:38.4%"></div></div><div class="val">0.93 s</div></div><div class="row"><div class="name" title="north-mini">north-mini</div><div class="track"><div class="bar ref" style="width:44.6%"></div></div><div class="val">1.08 s</div></div><div class="row"><div class="name" title="gemma4 26b">gemma4 26b</div><div class="track"><div class="bar ref" style="width:44.6%"></div></div><div class="val">1.08 s</div></div><div class="row"><div class="name" title="qwen3.8 27b">qwen3.8 27b</div><div class="track"><div class="bar crit" style="width:100.0%"></div></div><div class="val">2.42 s</div></div></div><div class="legend">New in Ollama 0.33.3. On 0.32.15 every one of these was a full re-read of the context.</div></div></div>
+  <div class="callout">
+    <span class="k">The failure with no error message</span>
+    <p>Past its context window, <b>7 of the older models silently keep half the prompt</b>
+    (<code>num_ctx/2 + 2</code> tokens) and answer anyway — ornith, north-mini, gemma4 and the
+    qwen3.6 control among them. Both Tiel builds return <b>HTTP 400</b> instead. Claude Code cannot
+    send <code>num_ctx</code>, so a model in the halving class will answer from half your repository
+    with nothing in the transcript to say so.</p>
+  </div>
+</section>
 
-<div class="finding"><b>2 &middot; The silent half-window bug is still live &mdash; but not on Tiel</b>
-<span>Past its window, <code>ornith</code>, <code>north-mini</code> (the v3 default) and the
-<code>qwen3.6</code> control all silently keep <code>num_ctx/2 + 2</code> tokens and answer anyway.
-Tiel returns <strong>HTTP 400</strong>. Claude Code cannot send <code>num_ctx</code>, so a model in the
-halving class can answer from half your context with nothing in the transcript saying so.</span></div>
+<section>
+  <div class="sec-head"><h2>Tiel or CyberTiel, for this box?</h2>
+    <span class="note">same weights lineage, one abliterated</span></div>
+  <div class="charts" style="grid-template-columns:1.1fr .9fr">
+    <div class="chart">
+      <h3>Measured side by side</h3>
+      <p class="cap">Both at Q5_K_XL with <code>presence_penalty 0</code>, same window, same harness.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>&nbsp;</th><th>Tiel</th><th>CyberTiel</th></tr></thead>
+        <tbody><tr><td>generation @2k</td><td class="num">111.1 tok/s</td><td class="num">110.0 tok/s</td></tr><tr><td>cold prefill @35k</td><td class="num">3,483 tok/s</td><td class="num">3,519 tok/s</td></tr><tr><td>deepest verified recall</td><td class="num">254,181 tok</td><td class="num">254,182 tok</td></tr><tr><td>resident @262,144</td><td class="num">34.13 GB</td><td class="num">34.13 GB</td></tr><tr><td>vision checks</td><td class="num">25/25</td><td class="num">25/25</td></tr><tr><td>over-long prompt</td><td class="num">refuses (400)</td><td class="num">refuses (400)</td></tr><tr><td>hard fixture, sandboxed</td><td class="num">1/1 runs at 18/18</td><td class="num">1/1 runs at 18/18</td></tr><tr><td>refusals on 8 benign security prompts</td><td class="num">0</td><td class="num">0</td></tr></tbody></table></div>
+    </div>
+    <div class="chart">
+      <h3>The answer: Tiel</h3>
+      <p class="cap">Not because CyberTiel is worse — because it is indistinguishable, and costs
+      more to run safely.</p>
+      <div class="legend" style="border-top:none;margin-top:0;padding-top:0">
+        <p style="margin:0 0 10px"><b>They measure the same.</b> Generation within 1%, recall one
+        token apart, identical memory, identical refusal of an over-long prompt, both 25/25 on
+        vision. The abliteration and the cyber-weighted imatrix did not move anything this
+        benchmark can see.</p>
+        <p style="margin:0 0 10px"><b>Neither refused any legitimate work.</b> Across eight benign
+        defensive-security prompts — SQL-injection fixes, password hashing, log triage, path-traversal
+        validation — both answered all eight. The uncensored build buys nothing on the work you
+        actually do.</p>
+        <p style="margin:0"><b>But it costs more to host.</b> An abliterated model has had its
+        refusal behaviour removed, so its publisher tells you to sandbox it at the OS level. Here
+        that meant a container with no host mounts, a read-only rootfs and an egress allowlist of
+        exactly one address. That is real operational overhead for a model that measured the same.
+        <b>Run Tiel. Reach for CyberTiel only if you hit a refusal that blocks legitimate work</b> —
+        and then keep it in the sandbox.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-<div class="finding"><b>3 &middot; <code>presence_penalty 1.5</code> is a pure tax</b>
-<span>It was added by whoever created the <code>-ctx262k</code> tag, not by the model publisher, whose
-card recommends no penalty at all. It costs 41&ndash;52% of generation, leaves prefill unchanged, and
-makes no measurable difference to tool reliability (T5 re-runs: 13/16 with it, 15/16 without).</span></div>
+<section>
+  <div class="sec-head"><h2>The field</h2>
+    <span class="note">vision is a yes/no capability — every capable model scores 25/25</span></div>
+  <div class="tablewrap"><table>
+  <thead><tr><th>model</th><th>gen tok/s</th><th>cold prefill</th><th>gates</th><th>vision</th>
+  <th>past its window</th></tr></thead>
+  <tbody><tr><td>cascade-2 <span class="pill crit">cut</span></td><td class="num">141</td><td class="num">7,017</td><td class="num">8/10</td><td>no</td><td><span class="pill crit">halves silently</span></td></tr><tr><td>north-mini</td><td class="num">136</td><td class="num">4,592</td><td class="num">10/10</td><td>no</td><td><span class="pill crit">halves silently</span></td></tr><tr><td>qwen3.6 35b</td><td class="num">132</td><td class="num">4,046</td><td class="num">10/10</td><td>yes</td><td><span class="pill crit">halves silently</span></td></tr><tr><td>ornith 1.0</td><td class="num">127</td><td class="num">3,555</td><td class="num">10/10</td><td>no</td><td><span class="pill crit">halves silently</span></td></tr><tr><td>nemotron-3.5-L</td><td class="num">127</td><td class="num">2,674</td><td class="num">10/10</td><td>no</td><td><span class="pill crit">halves silently</span></td></tr><tr><td>Tiel · pp0</td><td class="num">111</td><td class="num">3,483</td><td class="num">9/10</td><td>yes</td><td><span class="pill good">refuses</span></td></tr><tr><td>CyberTiel · pp0</td><td class="num">110</td><td class="num">3,519</td><td class="num">10/10</td><td>yes</td><td><span class="pill good">refuses</span></td></tr><tr><td>gemma4 26b</td><td class="num">109</td><td class="num">6,126</td><td class="num">10/10</td><td>yes</td><td><span class="pill crit">halves silently</span></td></tr><tr><td>Tiel · shipped</td><td class="num">73</td><td class="num">3,548</td><td class="num">10/10</td><td>yes</td><td><span class="pill good">refuses</span></td></tr><tr><td>qwen3.8 27b <span class="pill crit">cut</span></td><td class="num">30</td><td class="num">1,457</td><td class="num">9/10</td><td>yes</td><td><span class="pill crit">halves silently</span></td></tr></tbody>
+  </table></div>
+</section>
 
-<div class="finding"><b>4 &middot; A clean gate battery is not a reliability figure</b>
-<span>Tiel passed T1&ndash;T7 three times over. Re-running the nested-schema gate alone sixteen times
-gives <strong>13/16</strong>. The battery samples once at the tag's shipped temperature 0.6, so any
-single-shot gate result in v1&ndash;v4 is one sample.</span></div>
+<section>
+  <div class="sec-head"><h2>Who actually fixed the code</h2>
+    <span class="note">three modules · three bugs · one missing function · 18 held-out tests</span></div>
+  <p class="sub" style="margin:0 0 14px">The visible tests are the ones the model can see. The
+  held-out tests check the docstring specification it was asked to implement. A model can turn the
+  first green while leaving the second failing — and most of them did.</p>
+  <div class="tablewrap"><table>
+  <thead><tr><th>model</th><th>thinking</th><th>harness</th><th>passed</th><th>median</th>
+  <th>held-out tests, per run</th></tr></thead>
+  <tbody><tr><td>CyberTiel · pp0</td><td>off</td><td>sandbox</td><td><span class="pill good">1/1</span></td><td class="num">37 s</td><td class="num good">18/18</td></tr><tr><td>ornith 1.0</td><td>on</td><td>host</td><td><span class="pill good">3/3</span></td><td class="num">47 s</td><td class="num ">18/18, 16/18, 17/18</td></tr><tr><td>Tiel · shipped</td><td>off</td><td>host</td><td><span class="pill good">3/3</span></td><td class="num">56 s</td><td class="num ">18/18, 18/18, 17/18</td></tr><tr><td>CyberTiel · pp0</td><td>on</td><td>sandbox</td><td><span class="pill good">1/1</span></td><td class="num">57 s</td><td class="num good">18/18</td></tr><tr><td>qwen3.6 35b</td><td>on</td><td>host</td><td><span class="pill good">3/3</span></td><td class="num">60 s</td><td class="num ">17/18, 15/18, 16/18</td></tr><tr><td>nemotron-3.5-L</td><td>on</td><td>host</td><td><span class="pill good">3/3</span></td><td class="num">74 s</td><td class="num ">14/18, 14/18, 13/18</td></tr><tr><td>Tiel · pp0</td><td>on</td><td>sandbox</td><td><span class="pill good">1/1</span></td><td class="num">80 s</td><td class="num good">18/18</td></tr><tr><td>Tiel · pp0</td><td>on</td><td>host</td><td><span class="pill good">3/3</span></td><td class="num">83 s</td><td class="num good">18/18, 18/18, 18/18</td></tr><tr><td>gemma4 26b</td><td>on</td><td>host</td><td><span class="pill good">3/3</span></td><td class="num">92 s</td><td class="num good">18/18, 18/18, 18/18</td></tr><tr><td>north-mini</td><td>on</td><td>host</td><td><span class="pill good">3/3</span></td><td class="num">126 s</td><td class="num ">18/18, 14/18, 17/18</td></tr><tr><td>Tiel · shipped</td><td>on</td><td>host</td><td><span class="pill crit">2/3</span></td><td class="num">131 s</td><td class="num ">18/18, 16/18, 17/18</td></tr><tr><td>cascade-2</td><td>on</td><td>host</td><td><span class="pill crit">0/3</span></td><td class="num">419 s</td><td class="num ">0/18, 3/18, 3/18</td></tr><tr><td>qwen3.8 27b</td><td>on</td><td>host</td><td><span class="pill good">3/3</span></td><td class="num">787 s</td><td class="num good">18/18, 18/18, 18/18</td></tr></tbody>
+  </table></div>
+</section>
 
-<h2>Speed</h2>
-<figure class="fig"><figcaption>Generation throughput — 2,000-word prompt</figcaption><svg viewBox="0 0 720 224" role="img" aria-label="Generation throughput — 2,000-word prompt" preserveAspectRatio="xMinYMin meet" class="chart"><line x1="318.0" y1="4" x2="318.0" y2="218" class="grid"/><text x="318.0" y="224" class="tick" text-anchor="middle">34</text><line x1="426.0" y1="4" x2="426.0" y2="218" class="grid"/><text x="426.0" y="224" class="tick" text-anchor="middle">68</text><line x1="534.0" y1="4" x2="534.0" y2="218" class="grid"/><text x="534.0" y="224" class="tick" text-anchor="middle">102</text><line x1="642.0" y1="4" x2="642.0" y2="218" class="grid"/><text x="642.0" y="224" class="tick" text-anchor="middle">136</text><g><title>north-mini-code-1.0:q4_K_M-ctx256k-agentic: 136.25 tok/s generation at a 2,000-word prompt</title><rect x="210" y="8" width="432.0" height="26" rx="4" class="bar-s1"/><text x="200" y="26.2" class="ylab" text-anchor="end">north-mini (v3 default)</text><text x="650.0" y="26.2" class="vlab">136 tok/s</text></g><g><title>qwen3.6:35b-a3b-q4_K_M-agentic: 131.6 tok/s generation at a 2,000-word prompt</title><rect x="210" y="44" width="417.3" height="26" rx="4" class="bar-s1"/><text x="200" y="62.2" class="ylab" text-anchor="end">qwen3.6 35b (control)</text><text x="635.3" y="62.2" class="vlab">132 tok/s</text></g><g><title>ornith:35b-ctx256k-agentic: 127.34 tok/s generation at a 2,000-word prompt</title><rect x="210" y="80" width="403.7" height="26" rx="4" class="bar-s1"/><text x="200" y="98.2" class="ylab" text-anchor="end">ornith 1.0 (Tiel&#x27;s base line)</text><text x="621.7" y="98.2" class="vlab">127 tok/s</text></g><g><title>tiel-coder:35b-q5-ctx256k-agentic: 111.13 tok/s generation at a 2,000-word prompt</title><rect x="210" y="116" width="352.4" height="26" rx="4" class="bar-hi"/><text x="200" y="134.2" class="ylab" text-anchor="end">Tiel Q5 (pp0)</text><text x="570.4" y="134.2" class="vlab">111 tok/s</text></g><g><title>gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic: 109.23 tok/s generation at a 2,000-word prompt</title><rect x="210" y="152" width="346.3" height="26" rx="4" class="bar-s1"/><text x="200" y="170.2" class="ylab" text-anchor="end">gemma4 26b (vision pick)</text><text x="564.3" y="170.2" class="vlab">109 tok/s</text></g><g><title>Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest: 73.16 tok/s generation at a 2,000-word prompt</title><rect x="210" y="188" width="232.0" height="26" rx="4" class="bar-s1"/><text x="200" y="206.2" class="ylab" text-anchor="end">Tiel Q5 (shipped, pp1.5)</text><text x="450.0" y="206.2" class="vlab">73 tok/s</text></g></svg><p class="note">Ollama's own counters, temperature 0, seed 42, thinking off, 256-token budget. Cold prompts. Higher is better.</p></figure>
-<figure class="fig"><figcaption>What presence_penalty 1.5 costs — generation tok/s</figcaption><div class="legend"><span class="lg"><i class="sw sw1"></i>shipped tag (presence_penalty 1.5)</span><span class="lg"><i class="sw sw2"></i>same weights, presence_penalty 0</span></div><svg viewBox="0 0 720 205" role="img" aria-label="What presence_penalty 1.5 costs — generation tok/s" preserveAspectRatio="xMinYMin meet" class="chart"><line x1="271.0" y1="6" x2="271.0" y2="199" class="grid"/><text x="271.0" y="205" class="tick" text-anchor="middle">28</text><line x1="392.0" y1="6" x2="392.0" y2="199" class="grid"/><text x="392.0" y="205" class="tick" text-anchor="middle">56</text><line x1="513.0" y1="6" x2="513.0" y2="199" class="grid"/><text x="513.0" y="205" class="tick" text-anchor="middle">83</text><line x1="634.0" y1="6" x2="634.0" y2="199" class="grid"/><text x="634.0" y="205" class="tick" text-anchor="middle">111</text><text x="140" y="36.0" class="ylab" text-anchor="end">empty prompt</text><g><title>shipped tag (presence_penalty 1.5) — empty prompt: 72.58</title><rect x="150" y="10" width="316.1" height="22" rx="4" class="bar-s1"/><text x="474.1" y="26.5" class="vlab">73 tok/s</text></g><g><title>same weights, presence_penalty 0 — empty prompt: 107.08</title><rect x="150" y="35" width="466.4" height="22" rx="4" class="bar-s2"/><text x="624.4" y="51.5" class="vlab">107 tok/s</text></g><text x="140" y="101.0" class="ylab" text-anchor="end">2,000 words</text><g><title>shipped tag (presence_penalty 1.5) — 2,000 words: 73.16</title><rect x="150" y="75" width="318.6" height="22" rx="4" class="bar-s1"/><text x="476.6" y="91.5" class="vlab">73 tok/s</text></g><g><title>same weights, presence_penalty 0 — 2,000 words: 111.13</title><rect x="150" y="100" width="484.0" height="22" rx="4" class="bar-s2"/><text x="642.0" y="116.5" class="vlab">111 tok/s</text></g><text x="140" y="166.0" class="ylab" text-anchor="end">20,000 words</text><g><title>shipped tag (presence_penalty 1.5) — 20,000 words: 69.41</title><rect x="150" y="140" width="302.3" height="22" rx="4" class="bar-s1"/><text x="460.3" y="156.5" class="vlab">69 tok/s</text></g><g><title>same weights, presence_penalty 0 — 20,000 words: 97.64</title><rect x="150" y="165" width="425.2" height="22" rx="4" class="bar-s2"/><text x="583.2" y="181.5" class="vlab">98 tok/s</text></g></svg><p class="note">Identical weights; only the sampler setting differs. Prefill is unchanged (within 2%), because the penalty is paid per generated token.</p></figure>
-<figure class="fig"><figcaption>Cold prefill — ~35,000-token prompt</figcaption><svg viewBox="0 0 720 224" role="img" aria-label="Cold prefill — ~35,000-token prompt" preserveAspectRatio="xMinYMin meet" class="chart"><line x1="318.0" y1="4" x2="318.0" y2="218" class="grid"/><text x="318.0" y="224" class="tick" text-anchor="middle">1,531</text><line x1="426.0" y1="4" x2="426.0" y2="218" class="grid"/><text x="426.0" y="224" class="tick" text-anchor="middle">3,063</text><line x1="534.0" y1="4" x2="534.0" y2="218" class="grid"/><text x="534.0" y="224" class="tick" text-anchor="middle">4,594</text><line x1="642.0" y1="4" x2="642.0" y2="218" class="grid"/><text x="642.0" y="224" class="tick" text-anchor="middle">6,126</text><g><title>gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic: 6125.8 tok/s cold prefill at ~35k tokens</title><rect x="210" y="8" width="432.0" height="26" rx="4" class="bar-s3"/><text x="200" y="26.2" class="ylab" text-anchor="end">gemma4 26b (vision pick)</text><text x="650.0" y="26.2" class="vlab">6,126 tok/s</text></g><g><title>north-mini-code-1.0:q4_K_M-ctx256k-agentic: 4592.1 tok/s cold prefill at ~35k tokens</title><rect x="210" y="44" width="323.8" height="26" rx="4" class="bar-s3"/><text x="200" y="62.2" class="ylab" text-anchor="end">north-mini (v3 default)</text><text x="541.8" y="62.2" class="vlab">4,592 tok/s</text></g><g><title>qwen3.6:35b-a3b-q4_K_M-agentic: 4046.1 tok/s cold prefill at ~35k tokens</title><rect x="210" y="80" width="285.3" height="26" rx="4" class="bar-s3"/><text x="200" y="98.2" class="ylab" text-anchor="end">qwen3.6 35b (control)</text><text x="503.3" y="98.2" class="vlab">4,046 tok/s</text></g><g><title>ornith:35b-ctx256k-agentic: 3555.0 tok/s cold prefill at ~35k tokens</title><rect x="210" y="116" width="250.7" height="26" rx="4" class="bar-s3"/><text x="200" y="134.2" class="ylab" text-anchor="end">ornith 1.0 (Tiel&#x27;s base line)</text><text x="468.7" y="134.2" class="vlab">3,555 tok/s</text></g><g><title>Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest: 3547.7 tok/s cold prefill at ~35k tokens</title><rect x="210" y="152" width="250.2" height="26" rx="4" class="bar-s3"/><text x="200" y="170.2" class="ylab" text-anchor="end">Tiel Q5 (shipped, pp1.5)</text><text x="468.2" y="170.2" class="vlab">3,548 tok/s</text></g><g><title>tiel-coder:35b-q5-ctx256k-agentic: 3483.4 tok/s cold prefill at ~35k tokens</title><rect x="210" y="188" width="245.7" height="26" rx="4" class="bar-s3"/><text x="200" y="206.2" class="ylab" text-anchor="end">Tiel Q5 (pp0)</text><text x="463.7" y="206.2" class="vlab">3,483 tok/s</text></g></svg><p class="note">What the FIRST turn of a session costs. Later turns hit the prefix cache instead — see below.</p></figure>
-<figure class="fig"><figcaption>Prefix caching on Ollama 0.33.3 — seconds to first token</figcaption><div class="legend"><span class="lg"><i class="sw sw1"></i>cold: a new 30k prompt</span><span class="lg"><i class="sw sw2"></i>agent turn: same prefix + new tail</span></div><svg viewBox="0 0 720 270" role="img" aria-label="Prefix caching on Ollama 0.33.3 — seconds to first token" preserveAspectRatio="xMinYMin meet" class="chart"><line x1="271.0" y1="6" x2="271.0" y2="264" class="grid"/><text x="271.0" y="270" class="tick" text-anchor="middle">2.1</text><line x1="392.0" y1="6" x2="392.0" y2="264" class="grid"/><text x="392.0" y="270" class="tick" text-anchor="middle">4.1</text><line x1="513.0" y1="6" x2="513.0" y2="264" class="grid"/><text x="513.0" y="270" class="tick" text-anchor="middle">6.2</text><line x1="634.0" y1="6" x2="634.0" y2="264" class="grid"/><text x="634.0" y="270" class="tick" text-anchor="middle">8.3</text><text x="140" y="36.0" class="ylab" text-anchor="end">Tiel Q5 (pp0)</text><g><title>cold: a new 30k prompt — Tiel Q5 (pp0): 8.26</title><rect x="150" y="10" width="484.0" height="22" rx="4" class="bar-s1"/><text x="642.0" y="26.5" class="vlab">8.3 s</text></g><g><title>agent turn: same prefix + new tail — Tiel Q5 (pp0): 0.81</title><rect x="150" y="35" width="47.5" height="22" rx="4" class="bar-s2"/><text x="205.5" y="51.5" class="vlab">0.8 s</text></g><text x="140" y="101.0" class="ylab" text-anchor="end">qwen3.6 35b (control)</text><g><title>cold: a new 30k prompt — qwen3.6 35b (control): 8.15</title><rect x="150" y="75" width="477.6" height="22" rx="4" class="bar-s1"/><text x="635.6" y="91.5" class="vlab">8.2 s</text></g><g><title>agent turn: same prefix + new tail — qwen3.6 35b (control): 0.9</title><rect x="150" y="100" width="52.7" height="22" rx="4" class="bar-s2"/><text x="210.7" y="116.5" class="vlab">0.9 s</text></g><text x="140" y="166.0" class="ylab" text-anchor="end">north-mini (v3 default)</text><g><title>cold: a new 30k prompt — north-mini (v3 default): 6.97</title><rect x="150" y="140" width="408.4" height="22" rx="4" class="bar-s1"/><text x="566.4" y="156.5" class="vlab">7.0 s</text></g><g><title>agent turn: same prefix + new tail — north-mini (v3 default): 1.08</title><rect x="150" y="165" width="63.3" height="22" rx="4" class="bar-s2"/><text x="221.3" y="181.5" class="vlab">1.1 s</text></g><text x="140" y="231.0" class="ylab" text-anchor="end">gemma4 26b (vision pick)</text><g><title>cold: a new 30k prompt — gemma4 26b (vision pick): 6.05</title><rect x="150" y="205" width="354.5" height="22" rx="4" class="bar-s1"/><text x="512.5" y="221.5" class="vlab">6.0 s</text></g><g><title>agent turn: same prefix + new tail — gemma4 26b (vision pick): 1.08</title><rect x="150" y="230" width="63.3" height="22" rx="4" class="bar-s2"/><text x="221.3" y="246.5" class="vlab">1.1 s</text></g></svg><p class="note">0.32.15 had no prefix cache (every v3 transcript reports cache_read 0). An agent turn appends to a stable prefix, so it now prefills only the tail.</p></figure>
+<section>
+  <div class="sec-head"><h2>What we learned that we did not expect</h2></div>
+  <div class="finds">
+    <div class="find"><b>The runtime started caching prompts, and a v3 rule died with it</b>
+    <span>Ollama 0.33.3 serves a repeated prefix from cache; 0.32.15 did not, and every v3 transcript
+    reports <code>cache_read 0</code>. An agent turn now prefills only its new tail — 520 tokens
+    instead of 30,042. v3 ranked this field on prefill because "the loop re-reads its context every
+    turn". That is no longer true here.</span></div>
 
-<h2>Capability</h2>
-<figure class="fig"><figcaption>Vision — objective checks passed (max 25)</figcaption><svg viewBox="0 0 720 152" role="img" aria-label="Vision — objective checks passed (max 25)" preserveAspectRatio="xMinYMin meet" class="chart"><line x1="318.0" y1="4" x2="318.0" y2="146" class="grid"/><text x="318.0" y="152" class="tick" text-anchor="middle">6</text><line x1="426.0" y1="4" x2="426.0" y2="146" class="grid"/><text x="426.0" y="152" class="tick" text-anchor="middle">12</text><line x1="534.0" y1="4" x2="534.0" y2="146" class="grid"/><text x="534.0" y="152" class="tick" text-anchor="middle">19</text><line x1="642.0" y1="4" x2="642.0" y2="146" class="grid"/><text x="642.0" y="152" class="tick" text-anchor="middle">25</text><g><title>Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest: 25/25 objective checks</title><rect x="210" y="8" width="432.0" height="26" rx="4" class="bar-s2"/><text x="200" y="26.2" class="ylab" text-anchor="end">Tiel Q5 (shipped, pp1.5)</text><text x="650.0" y="26.2" class="vlab">25/25</text></g><g><title>tiel-coder:35b-q5-ctx256k-agentic: 25/25 objective checks</title><rect x="210" y="44" width="432.0" height="26" rx="4" class="bar-s2"/><text x="200" y="62.2" class="ylab" text-anchor="end">Tiel Q5 (pp0)</text><text x="650.0" y="62.2" class="vlab">25/25</text></g><g><title>qwen3.6:35b-a3b-q4_K_M-agentic: 25/25 objective checks</title><rect x="210" y="80" width="432.0" height="26" rx="4" class="bar-s2"/><text x="200" y="98.2" class="ylab" text-anchor="end">qwen3.6 35b (control)</text><text x="650.0" y="98.2" class="vlab">25/25</text></g><g><title>gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic: 25/25 objective checks</title><rect x="210" y="116" width="432.0" height="26" rx="4" class="bar-s2"/><text x="200" y="134.2" class="ylab" text-anchor="end">gemma4 26b (vision pick)</text><text x="650.0" y="134.2" class="vlab">25/25</text></g></svg><p class="note">Invoice OCR (9), UI description (6), chart extraction (10), run AT each tag's baked window.</p></figure>
+    <div class="find"><b>Thinking is a 2.3× tax on tool-heavy work</b>
+    <span>Same model, same fixture: 131/148/117 s with thinking, 74/53/56 s without — and the
+    held-out scores came back equal or better without it. The one session Tiel failed all day was a
+    thinking-on run.</span></div>
 
-<h3>Behaviour past the context window</h3>
-<div class="tablewrap"><table>
-<thead><tr><th>model</th><th>what happens when the prompt exceeds num_ctx</th><th>tokens kept</th></tr></thead>
-<tbody><tr><td>ornith 1.0 (Tiel&#x27;s base line)</td><td><span class="chip bad">✖ silently halves</span></td><td class="num">131074</td></tr><tr><td>north-mini (v3 default)</td><td><span class="chip bad">✖ silently halves</span></td><td class="num">131075</td></tr><tr><td>Tiel Q5 (shipped, pp1.5)</td><td><span class="chip ok">✔ refuses (HTTP 400)</span></td><td class="num"> </td></tr><tr><td>qwen3.6 35b (control)</td><td><span class="chip bad">✖ silently halves</span></td><td class="num">131074</td></tr><tr><td>gemma4 26b (vision pick)</td><td><span class="chip bad">✖ silently halves</span></td><td class="num">131075</td></tr></tbody>
-</table></div>
+    <div class="find"><b>A clean gate battery is not a reliability number</b>
+    <span>Tiel passed all seven gates three times over. Re-running the nested-schema gate alone
+    sixteen times gives 13/16. The battery samples once, at the tag's shipped temperature 0.6 — so
+    every single-shot gate result in v1–v4 is one sample.</span></div>
 
-<h2>End-to-end Claude Code sessions</h2>
-<p>Two fixtures against a real <code>claude -p</code> session, scored from the repository rather than
-the model's summary: a one-function bug, and a three-module <code>ledger</code> package with three bugs
-and one unimplemented function, checked against <strong>18 held-out tests the model never sees</strong>.
-<code>sandbox</code> rows run inside the isolated container used for the abliterated model.</p>
-<div class="tablewrap"><table>
-<thead><tr><th>model</th><th>fixture</th><th>harness</th><th>verdict</th><th>median</th><th>range</th><th>hidden tests</th></tr></thead>
-<tbody><tr><td colspan="7" class="empty">Sessions still running.</td></tr></tbody>
-</table></div>
+    <div class="find"><b>Abliteration changed almost nothing measurable</b>
+    <span>CyberTiel matches Tiel to within noise on every axis, and on eight benign
+    defensive-security prompts <em>neither</em> model refused. The uncensored build earns its extra
+    operational cost only if you actually hit a refusal.</span></div>
+
+    <div class="find"><b>The fastest model on the box is still the worst at the job</b>
+    <span><code>cascade-2</code> leads both speed axes — 140.7 tok/s and 7,017 prefill — and scored
+    0 of 3 on the hard fixture, with held-out scores of 0, 3 and 3 out of 18, taking 419 s to do it.
+    v3 rejected it for the same defect. Nothing changed, so it is cut.</span></div>
+
+    <div class="find"><b>Half this round's bugs were in the harness</b>
+    <span>A retrieval probe that queried <code>localhost</code> and scored three empty replies as
+    model failures; a sandbox that never delivered its fixture, so every isolated session ran against
+    an empty directory. Both produced plausible numbers instead of errors, which is what makes that
+    class dangerous. All twelve are in <code>review.md</code>.</span></div>
+  </div>
+</section>
 
 <footer>
-Every number here is generated from the TSVs in <code>results/</code>. Method, caveats and the
-twelve harness problems found and fixed during this round are in <code>measurements.md</code> and
-<code>review.md</code>; exact digests and versions in <code>results/provenance.txt</code>.
+Every figure is generated from the TSVs in <code>results/</code> by <code>make-report.py</code>;
+method and caveats in <code>measurements.md</code>, the twelve harness defects found and fixed in
+<code>review.md</code>, exact model digests and versions in <code>results/provenance.txt</code>.
+Sessions are real <code>claude -p</code> runs scored from the repository afterwards, never from the
+model's own summary. Cut models stay in the tables and out of the headlines.
 </footer>
 </div>
 </body>

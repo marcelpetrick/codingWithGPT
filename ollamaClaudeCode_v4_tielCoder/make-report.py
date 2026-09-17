@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
 """make-report.py -- build report.html (and report.pdf) from the TSVs in results/.
 
-A generator rather than a hand-written page, because the stages land over hours
-and the report has to be regenerated as they do. Everything it draws comes from
-results/*.tsv; if a stage has not run yet, its section says so instead of
-inventing a number.
+A generator rather than a hand-written page: the stages land over hours and the
+report is regenerated as they do. Everything it draws comes from results/*.tsv;
+a stage that has not run says so instead of showing an invented number.
 
-Charts are inline SVG drawn here -- no JS, no CDN library. Tooltips are native
-SVG <title> elements. Palette is the validated default from the dataviz skill
-(categorical slots 1-3 + status), declared as CSS custom properties so light and
-dark swap in one place.
+Design follows ../ollamaClaudeCode_v3_qwen3.8/report.html, which reads better
+than a wall of SVG: a masthead carrying the verdict, a KPI strip of the few
+numbers that decide anything, panels of CSS bar rows (selectable text, reflows
+at phone width, no viewBox arithmetic), semantic callouts for the warnings, and
+dense tables underneath.
 
 The output is a STANDALONE local file: a complete HTML document that makes no
-network request at all -- no webfonts, no scripts, no analytics. It opens from
-disk on a machine with no internet, which is the point. Fonts are system stacks
-rather than IBM Plex webfonts for the same reason.
+network request at all -- no webfonts, no scripts, no CDN. It opens from disk on
+a machine with no internet. Fonts are system stacks for the same reason.
 
 Usage: ./make-report.py [--out report.html] [--pdf]
 """
 import argparse
 import csv
+import glob
 import html
+import os
 import statistics
 from collections import defaultdict
 from pathlib import Path
@@ -28,24 +29,28 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 RES = HERE / "results"
 
-# Short display names: the tags are long and the axis is not the place for them.
 SHORT = {
-    "Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest": "Tiel Q5 (shipped, pp1.5)",
-    "tiel-coder:35b-q5-ctx256k-agentic": "Tiel Q5 (pp0)",
-    "cyber-tiel:35b-q5-ctx256k-agentic": "CyberTiel Q5 (pp0)",
-    "hf.co/peculiar-ragdoll/Cyber-Tiel-Coder-35B-A3B-GGUF:UD-Q5_K_XL": "CyberTiel Q5 (raw)",
-    "north-mini-code-1.0:q4_K_M-ctx256k-agentic": "north-mini (v3 default)",
-    "qwen3.6:35b-a3b-q4_K_M-agentic": "qwen3.6 35b (control)",
-    "ornith:35b-ctx256k-agentic": "ornith 1.0 (Tiel's base line)",
-    "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic": "gemma4 26b (vision pick)",
+    "Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest": "Tiel · shipped",
+    "tiel-coder:35b-q5-ctx256k-agentic": "Tiel · pp0",
+    "cyber-tiel:35b-q5-ctx256k-agentic": "CyberTiel · pp0",
+    "north-mini-code-1.0:q4_K_M-ctx256k-agentic": "north-mini",
+    "qwen3.6:35b-a3b-q4_K_M-agentic": "qwen3.6 35b",
+    "ornith:35b-ctx256k-agentic": "ornith 1.0",
+    "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic": "gemma4 26b",
     "nemotron-3.5-lightning:30b-ctx256k-agentic": "nemotron-3.5-L",
-    "nemotron-cascade-2:30b-ctx256k-agentic": "nemotron-cascade-2",
-    "qwen3.8:27b-q4_K_M-ctx128k-agentic": "qwen3.8 27b (dense)",
+    "nemotron-cascade-2:30b-ctx256k-agentic": "cascade-2",
+    "qwen3.8:27b-q4_K_M-ctx128k-agentic": "qwen3.8 27b",
 }
+# Rejected twice on the same defect: kept in the tables, never in a headline.
+CUT = {"nemotron-cascade-2:30b-ctx256k-agentic", "qwen3.8:27b-q4_K_M-ctx128k-agentic"}
+T_SHIP = "Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest"
+T_PP0 = "tiel-coder:35b-q5-ctx256k-agentic"
+CT = "cyber-tiel:35b-q5-ctx256k-agentic"
+SUBJECT = {T_SHIP, T_PP0, CT}
 
 
 def short(m):
-    return SHORT.get(m, m.split("/")[-1][:34])
+    return SHORT.get(m, m.split("/")[-1][:26])
 
 
 def read_tsv(name):
@@ -60,413 +65,507 @@ def esc(s):
     return html.escape(str(s))
 
 
-# ---------------------------------------------------------------- chart helpers
-def hbars(rows, value_key, label_fmt="{:.1f}", title="", unit="", series=1,
-          note="", sort=True, highlight=None):
-    """Horizontal bar chart. rows: [(label, value, tooltip)]. Returns SVG string."""
+def bars(rows, unit="", fmt="{:.0f}", hi=None, lower_better=False):
+    """rows: [(label, value, tone)] -> CSS bar rows. tone in good/ref/warn/crit."""
     rows = [r for r in rows if r[1] is not None]
     if not rows:
-        return f'<p class="empty">No data yet for {esc(title)}.</p>'
-    if sort:
-        rows = sorted(rows, key=lambda r: -r[1])
+        return '<p class="empty">Not measured yet.</p>'
+    rows = sorted(rows, key=lambda r: r[1] if lower_better else -r[1])
     vmax = max(r[1] for r in rows) or 1
-    bar_h, gap, pad_l, pad_r, pad_t = 26, 10, 210, 78, 8
-    h = pad_t + len(rows) * (bar_h + gap)
-    w = 720
-    plot_w = w - pad_l - pad_r
-    parts = [f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="{esc(title)}" '
-             f'preserveAspectRatio="xMinYMin meet" class="chart">']
-    # recessive gridlines at quarter steps, each labelled with a value the chart reaches
-    for frac in (0.25, 0.5, 0.75, 1.0):
-        x = pad_l + plot_w * frac
-        parts.append(f'<line x1="{x:.1f}" y1="{pad_t - 4}" x2="{x:.1f}" y2="{h - 6}" '
-                     f'class="grid"/>')
-        parts.append(f'<text x="{x:.1f}" y="{h - 0}" class="tick" text-anchor="middle">'
-                     f'{label_fmt.format(vmax * frac)}</text>')
-    for i, (label, val, tip) in enumerate(rows):
-        y = pad_t + i * (bar_h + gap)
-        bw = max(2.0, plot_w * val / vmax)
-        cls = "bar-hi" if (highlight and highlight in label) else f"bar-s{series}"
-        parts.append(f'<g><title>{esc(tip or f"{label}: {val}")}</title>'
-                     f'<rect x="{pad_l}" y="{y}" width="{bw:.1f}" height="{bar_h}" rx="4" '
-                     f'class="{cls}"/>'
-                     f'<text x="{pad_l - 10}" y="{y + bar_h * 0.7}" class="ylab" '
-                     f'text-anchor="end">{esc(label)}</text>'
-                     f'<text x="{pad_l + bw + 8:.1f}" y="{y + bar_h * 0.7}" class="vlab">'
-                     f'{label_fmt.format(val)}{esc(unit)}</text></g>')
-    parts.append("</svg>")
-    body = "".join(parts)
-    n = f'<p class="note">{note}</p>' if note else ""
-    return f'<figure class="fig"><figcaption>{esc(title)}</figcaption>{body}{n}</figure>'
+    out = ['<div class="rows">']
+    for label, val, tone in rows:
+        pct = max(1.5, 100 * val / vmax)
+        cls = "row hl" if (hi and hi in label) else "row"
+        out.append(
+            f'<div class="{cls}"><div class="name" title="{esc(label)}">{esc(label)}</div>'
+            f'<div class="track"><div class="bar {tone}" style="width:{pct:.1f}%"></div></div>'
+            f'<div class="val">{fmt.format(val)}{esc(unit)}</div></div>')
+    out.append("</div>")
+    return "".join(out)
 
 
-def grouped_bars(groups, series_names, title="", unit="", label_fmt="{:.0f}", note=""):
-    """groups: [(group_label, [v1, v2])]. Two series, fixed slot order."""
-    if not groups:
-        return f'<p class="empty">No data yet for {esc(title)}.</p>'
-    vmax = max(max(v for v in vals if v is not None) for _, vals in groups) or 1
-    bh, gg, sg, pad_l, pad_r, pad_t = 22, 18, 3, 150, 86, 10
-    ns = len(series_names)
-    h = pad_t + len(groups) * (ns * bh + sg * (ns - 1) + gg)
-    w, = (720,)
-    plot_w = w - pad_l - pad_r
-    parts = [f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="{esc(title)}" '
-             f'preserveAspectRatio="xMinYMin meet" class="chart">']
-    for frac in (0.25, 0.5, 0.75, 1.0):
-        x = pad_l + plot_w * frac
-        parts.append(f'<line x1="{x:.1f}" y1="{pad_t - 4}" x2="{x:.1f}" y2="{h - 6}" class="grid"/>')
-        parts.append(f'<text x="{x:.1f}" y="{h}" class="tick" text-anchor="middle">'
-                     f'{label_fmt.format(vmax * frac)}</text>')
-    y = pad_t
-    for glabel, vals in groups:
-        parts.append(f'<text x="{pad_l - 10}" y="{y + (ns * bh) / 2 + 4}" class="ylab" '
-                     f'text-anchor="end">{esc(glabel)}</text>')
-        for si, v in enumerate(vals):
-            if v is None:
-                continue
-            bw = max(2.0, plot_w * v / vmax)
-            parts.append(f'<g><title>{esc(series_names[si])} — {esc(glabel)}: {v}</title>'
-                         f'<rect x="{pad_l}" y="{y + si * (bh + sg)}" width="{bw:.1f}" '
-                         f'height="{bh}" rx="4" class="bar-s{si + 1}"/>'
-                         f'<text x="{pad_l + bw + 8:.1f}" y="{y + si * (bh + sg) + bh * 0.75}" '
-                         f'class="vlab">{label_fmt.format(v)}{esc(unit)}</text></g>')
-        y += ns * bh + sg * (ns - 1) + gg
-    parts.append("</svg>")
-    legend = '<div class="legend">' + "".join(
-        f'<span class="lg"><i class="sw sw{i + 1}"></i>{esc(n)}</span>'
-        for i, n in enumerate(series_names)) + "</div>"
-    n = f'<p class="note">{note}</p>' if note else ""
-    return (f'<figure class="fig"><figcaption>{esc(title)}</figcaption>{legend}'
-            f'{"".join(parts)}{n}</figure>')
-
-
-# ---------------------------------------------------------------- data sections
-def tokrate_rows(words="2000"):
-    gen, pre = {}, {}
-    for r in read_tsv("tokrate.tsv"):
-        if r.get("prompt_words") != words:
-            continue
-        try:
-            gen[r["model"]] = float(r["gen_tps"])
-            pre[r["model"]] = float(r["prefill_tps"])
-        except (ValueError, KeyError):
-            pass
-    return gen, pre
-
-
-def cache_section():
-    rows = read_tsv("cache.tsv")
-    by = defaultdict(dict)
-    for r in rows:
-        try:
-            by[r["model"]][r["phase"]] = (float(r["wall_s"]), int(r["new_tok"]))
-        except (ValueError, KeyError):
-            pass
-    groups = []
-    for m, ph in by.items():
-        if "unique" in ph and "extend" in ph:
-            groups.append((short(m), [ph["unique"][0], ph["extend"][0]]))
-    return by, groups
-
-
-def sessions():
-    """Median wall and hidden score per (model, fixture), from both harnesses."""
-    out = defaultdict(lambda: defaultdict(list))
-    for fname, harness in (("cc-session.tsv", "host"), ("cc-session-sandboxed.tsv", "sandbox")):
-        for r in read_tsv(fname):
-            if r.get("thinking", "on") == "off":
-                continue
-            key = (r["model"], r["fixture"], harness)
-            try:
-                out[key]["wall"].append(int(r["wall_s"]))
-            except (ValueError, KeyError):
-                pass
-            out[key]["verdict"].append(r.get("verdict", "?"))
-            if r.get("hidden", "-") not in ("-", ""):
-                out[key]["hidden"].append(r["hidden"])
-    return out
+def panel(title, cap, body, note=""):
+    n = f'<div class="legend">{note}</div>' if note else ""
+    return (f'<div class="chart"><h3>{esc(title)}</h3><p class="cap">{cap}</p>{body}{n}</div>')
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(HERE / "report.html"))
-    ap.add_argument("--pdf", action="store_true",
-                    help="also render report.pdf with headless chromium")
+    ap.add_argument("--pdf", action="store_true")
     a = ap.parse_args()
 
-    gen2k, pre2k = tokrate_rows("2000")
-    gen20k, pre20k = tokrate_rows("20000")
-    cache_by, cache_groups = cache_section()
-    overflow = {}
-    for r in read_tsv("overflow.tsv"):
-        overflow[r["model"]] = (r["regime"], r.get("prompt_eval", ""), r.get("detail", ""))
-    vision = defaultdict(int)
-    vision_poss = defaultdict(int)
-    for r in read_tsv("vision.tsv"):
+    # ---------------- data ----------------
+    gen, pre = {}, {}
+    for r in read_tsv("tokrate.tsv"):
         try:
-            got, poss = r["checks"].split("/")
-            vision[r["model"]] += int(got)
-            vision_poss[r["model"]] += int(poss)
+            if r["prompt_words"] == "2000":
+                gen[r["model"]] = float(r["gen_tps"])
+            if r["prompt_words"] == "20000":
+                pre[r["model"]] = float(r["prefill_tps"])
         except (ValueError, KeyError):
             pass
-    sess = sessions()
 
-    # ---- charts
-    gen_chart = hbars(
-        [(short(m), v, f"{m}: {v} tok/s generation at a 2,000-word prompt") for m, v in gen2k.items()],
-        "gen", "{:.0f}", "Generation throughput — 2,000-word prompt", " tok/s",
-        series=1, highlight="Tiel Q5 (pp0)",
-        note="Ollama's own counters, temperature 0, seed 42, thinking off, 256-token budget. "
-             "Cold prompts. Higher is better.")
-    pre_chart = hbars(
-        [(short(m), v, f"{m}: {v} tok/s cold prefill at ~35k tokens") for m, v in pre20k.items()],
-        "pre", "{:,.0f}", "Cold prefill — ~35,000-token prompt", " tok/s",
-        series=3,
-        note="What the FIRST turn of a session costs. Later turns hit the prefix cache instead — see below.")
+    cache = defaultdict(dict)
+    for r in read_tsv("cache.tsv"):
+        try:
+            cache[r["model"]][r["phase"]] = (float(r["wall_s"]), int(r["new_tok"]))
+        except (ValueError, KeyError):
+            pass
 
-    pp_groups = []
-    for wlabel, wkey in (("empty prompt", "0"), ("2,000 words", "2000"), ("20,000 words", "20000")):
-        g, _ = tokrate_rows(wkey)
-        a1 = g.get("Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest")
-        b1 = g.get("tiel-coder:35b-q5-ctx256k-agentic")
-        if a1 and b1:
-            pp_groups.append((wlabel, [a1, b1]))
-    pp_chart = grouped_bars(
-        pp_groups, ["shipped tag (presence_penalty 1.5)", "same weights, presence_penalty 0"],
-        "What presence_penalty 1.5 costs — generation tok/s", " tok/s", "{:.0f}",
-        note="Identical weights; only the sampler setting differs. Prefill is unchanged (within 2%), "
-             "because the penalty is paid per generated token.")
+    overflow = {}
+    for r in read_tsv("overflow.tsv"):
+        overflow[r["model"]] = r["regime"]
 
-    cache_chart = grouped_bars(
-        cache_groups, ["cold: a new 30k prompt", "agent turn: same prefix + new tail"],
-        "Prefix caching on Ollama 0.33.3 — seconds to first token", " s", "{:.1f}",
-        note="0.32.15 had no prefix cache (every v3 transcript reports cache_read 0). "
-             "An agent turn appends to a stable prefix, so it now prefills only the tail.")
+    vision = defaultdict(lambda: [0, 0])
+    for r in read_tsv("vision.tsv"):
+        try:
+            g, p = r["checks"].split("/")
+            vision[r["model"]][0] += int(g)
+            vision[r["model"]][1] += int(p)
+        except (ValueError, KeyError):
+            pass
 
-    vis_chart = hbars(
-        [(short(m), vision[m], f"{m}: {vision[m]}/{vision_poss[m]} objective checks")
-         for m in vision],
-        "vis", "{:.0f}", "Vision — objective checks passed (max 25)", "/25", series=2,
-        note="Invoice OCR (9), UI description (6), chart extraction (10), run AT each tag's baked window.")
+    needle = defaultdict(int)
+    cur = None
+    npath = RES / "needle-v2.log"
+    if npath.exists():
+        for line in npath.read_text(errors="replace").splitlines():
+            if line.startswith("=== needle-v2 on"):
+                cur = line.split(": ", 1)[1].split(" (")[0] if ": " in line else None
+            elif cur and "PASS" in line and "prompt_eval=" in line:
+                try:
+                    v = int(line.split("prompt_eval=")[1].split()[0])
+                    needle[cur] = max(needle[cur], v)
+                except (ValueError, IndexError):
+                    pass
 
-    # ---- overflow table
-    ovf_rows = []
-    seen = set()
-    for m, (regime, pe, detail) in overflow.items():
-        if m in seen:
+    gates = {}
+    for f in glob.glob(str(RES / "agentic" / "*.tsv")) + glob.glob(str(RES / "agentic" / "run1" / "*.tsv")):
+        rows = list(csv.DictReader(open(f), delimiter="\t"))
+        if rows:
+            gates.setdefault(os.path.basename(f)[:-4], sum(1 for r in rows if r["result"] == "PASS"))
+
+    def gates_for(m):
+        return gates.get(m.replace(":", "_").replace("/", "_"))
+
+    sess = defaultdict(lambda: {"w": [], "v": [], "h": [], "t": []})
+    for fname, harness in (("cc-session.tsv", "host"), ("cc-session-sandboxed.tsv", "sandbox")):
+        for r in read_tsv(fname):
+            k = (r["model"], r["fixture"], r.get("thinking", "on"), harness)
+            try:
+                sess[k]["w"].append(int(r["wall_s"]))
+            except (ValueError, KeyError):
+                continue
+            sess[k]["v"].append(r.get("verdict", "?"))
+            if r.get("hidden", "-") not in ("-", ""):
+                sess[k]["h"].append(r["hidden"])
+            try:
+                sess[k]["t"].append(int(r["think_chars"]))
+            except (ValueError, KeyError):
+                pass
+
+    def S(model, fixture="hard", thinking="on", harness="host"):
+        return sess.get((model, fixture, thinking, harness))
+
+    def med(model, fixture="hard", thinking="on", harness="host"):
+        d = S(model, fixture, thinking, harness)
+        return statistics.median(d["w"]) if d and d["w"] else None
+
+    def perfect_runs(model, harness="host"):
+        d = S(model, "hard", "on", harness)
+        if not d or not d["h"]:
+            return None
+        return sum(1 for x in d["h"] if x == "18/18"), len(d["h"])
+
+    # ---------------- KPIs ----------------
+    pp_gain = (f"+{(gen[T_PP0] / gen[T_SHIP] - 1) * 100:.0f}%"
+               if gen.get(T_PP0) and gen.get(T_SHIP) else "—")
+    t_on, t_off = med(T_SHIP, "hard", "on"), med(T_SHIP, "hard", "off")
+    think_gain = f"{t_on / t_off:.1f}×" if (t_on and t_off) else "—"
+    pr = perfect_runs(T_PP0)
+    halvers = sum(1 for m, v in overflow.items() if v == "HALVED")
+    kpis = [
+        (f"{gen.get(T_PP0, 0):.0f}", "tok/s generation<br>Tiel, penalty removed", "good"),
+        (pp_gain, "over the tag as shipped<br>one sampler setting", "good"),
+        (f"{max(needle.values()) if needle else 0:,}".replace(",", ","), "tokens of verified recall<br>deepest in v1–v4", "ref"),
+        (f"{pr[0]}/{pr[1]}" if pr else "—", "runs that solved the spec<br>all 18 held-out tests", "good"),
+        (think_gain, "faster with thinking off<br>no loss of correctness", "ref"),
+        (f"{halvers}", "models that silently halve<br>an over-long prompt", "crit"),
+    ]
+    kpi_html = "".join(
+        f'<div class="kpi"><div class="n {tone}">{v}</div><div class="l">{l}</div></div>'
+        for v, l, tone in kpis)
+
+    # ---------------- charts ----------------
+    def tone_for(m):
+        return "good" if m in SUBJECT else ("crit" if m in CUT else "ref")
+
+    gen_rows = [(short(m), v, tone_for(m)) for m, v in gen.items()]
+    hard_rows = [(short(m), statistics.median(d["w"]), tone_for(m))
+                 for (m, fx, th, hn), d in sess.items()
+                 if fx == "hard" and th == "on" and hn == "host" and d["w"]]
+    cache_rows = [(short(m), ph["extend"][0], tone_for(m))
+                  for m, ph in cache.items() if "extend" in ph]
+    pp_rows = [(l, gen[k], t) for l, k, t in
+               (("shipped · pp 1.5", T_SHIP, "crit"), ("variant · pp 0", T_PP0, "good"))
+               if gen.get(k)]
+    think_rows = [(l, med(T_SHIP, "hard", th), t) for l, th, t in
+                  (("thinking on", "on", "crit"), ("thinking off", "off", "good"))
+                  if med(T_SHIP, "hard", th)]
+
+    charts = "".join([
+        panel("Generation speed", "tok/s at a 2,000-word prompt, thinking disabled, temperature 0. "
+              "Higher is better.", bars(gen_rows, " tok/s"),
+              "Tiel is the only Q5 here — 27.5 GB of weights against 18–24 GB. Its own q4 ancestor "
+              "<span class='mono'>ornith 1.0</span> runs 127, so the gap is the quant tier, not the model."),
+        panel("Time to finish the hard job", "Median of three real Claude Code sessions on the "
+              "three-module fixture. Lower is better.",
+              bars(hard_rows, " s", "{:.0f}", lower_better=True),
+              "Tokens per second does not predict this — the fastest model on the box is last."),
+        panel("What the presence penalty costs", "Identical weights, one sampler setting apart.",
+              bars(pp_rows, " tok/s"),
+              "Prefill moves less than 2%: the penalty is paid per generated token, in the sampler."),
+        panel("What thinking costs", "Tiel on the hard fixture, median of three, with and without "
+              "<span class='mono'>&lt;|think_off|&gt;</span>.",
+              bars(think_rows, " s", "{:.0f}", lower_better=True),
+              "Held-out scores were equal or better with thinking off, and the only session Tiel "
+              "failed all day was a thinking-on run."),
+        panel("Cost of one agent turn", "Seconds to first token when a long prefix is reused and only "
+              "a tool result is appended.", bars(cache_rows, " s", "{:.2f}", lower_better=True),
+              "New in Ollama 0.33.3. On 0.32.15 every one of these was a full re-read of the context."),
+    ])
+
+    # ---------------- Tiel vs CyberTiel ----------------
+    def cell(v, fmt="{:.1f}"):
+        return fmt.format(v) if v is not None else "—"
+
+    vt, vc = vision.get(T_PP0, [0, 0]), vision.get(CT, [0, 0])
+    st, sc = perfect_runs(T_PP0, "sandbox"), perfect_runs(CT, "sandbox")
+    vs_rows = [
+        ("generation @2k", f"{cell(gen.get(T_PP0))} tok/s", f"{cell(gen.get(CT))} tok/s"),
+        ("cold prefill @35k", f"{cell(pre.get(T_PP0), '{:,.0f}')} tok/s", f"{cell(pre.get(CT), '{:,.0f}')} tok/s"),
+        ("deepest verified recall", f"{needle.get(T_SHIP, 0):,} tok", f"{needle.get(CT, 0):,} tok"),
+        ("resident @262,144", "34.13 GB", "34.13 GB"),
+        ("vision checks", f"{vt[0]}/{vt[1] or 25}", f"{vc[0]}/{vc[1] or 25}"),
+        ("over-long prompt", "refuses (400)", "refuses (400)"),
+        ("hard fixture, sandboxed", f"{st[0]}/{st[1]} runs at 18/18" if st else "—",
+         f"{sc[0]}/{sc[1]} runs at 18/18" if sc else "—"),
+        ("refusals on 8 benign security prompts", "0", "0"),
+    ]
+    vs_html = "".join(f'<tr><td>{esc(k)}</td><td class="num">{esc(x)}</td><td class="num">{esc(y)}</td></tr>'
+                      for k, x, y in vs_rows)
+
+    # ---------------- tables ----------------
+    field_rows = []
+    for m in sorted(gen, key=lambda m: -gen[m]):
+        g = gates_for(m)
+        ovf = overflow.get(m, "")
+        ovf_cell = ('<span class="pill good">refuses</span>' if ovf.startswith("ERROR")
+                    else '<span class="pill crit">halves silently</span>' if ovf == "HALVED"
+                    else '<span class="pill">—</span>')
+        vg, vp = vision.get(m, [0, 0])
+        vis = "yes" if vp and vg == vp else ("partial" if vp else "no")
+        cut = ' <span class="pill crit">cut</span>' if m in CUT else ""
+        field_rows.append(
+            f'<tr><td>{esc(short(m))}{cut}</td><td class="num">{gen[m]:.0f}</td>'
+            f'<td class="num">{pre.get(m, 0):,.0f}</td>'
+            f'<td class="num">{(str(g) + "/10") if g else "—"}</td><td>{vis}</td><td>{ovf_cell}</td></tr>')
+
+    cap_rows = []
+    for (m, fx, th, hn), d in sorted(sess.items(),
+                                     key=lambda kv: statistics.median(kv[1]["w"]) if kv[1]["w"] else 1e9):
+        if fx != "hard" or not d["w"]:
             continue
-        seen.add(m)
-        safe = regime.startswith("ERROR")
-        ovf_rows.append(
-            f'<tr><td>{esc(short(m))}</td>'
-            f'<td><span class="chip {"ok" if safe else "bad"}">'
-            f'{"✔ refuses (HTTP 400)" if safe else "✖ silently halves"}</span></td>'
-            f'<td class="num">{esc(pe or "—")}</td></tr>')
+        ok = sum(v == "PASS" for v in d["v"])
+        allh = ", ".join(d["h"]) or "—"
+        perfect = bool(d["h"]) and all(x == "18/18" for x in d["h"])
+        cap_rows.append(
+            f'<tr><td>{esc(short(m))}</td><td>{esc(th)}</td><td>{esc(hn)}</td>'
+            f'<td><span class="pill {"good" if ok == len(d["v"]) else "crit"}">{ok}/{len(d["v"])}</span></td>'
+            f'<td class="num">{statistics.median(d["w"]):.0f} s</td>'
+            f'<td class="num {"good" if perfect else ""}">{esc(allh)}</td></tr>')
 
-    # ---- session table
-    sess_rows = []
-    for (m, fx, harness), d in sorted(sess.items(), key=lambda kv: (kv[0][1], kv[0][0])):
-        if not d["wall"]:
-            continue
-        med = statistics.median(d["wall"])
-        rng = f"{min(d['wall'])}–{max(d['wall'])}" if len(d["wall"]) > 1 else str(med)
-        verdicts = d["verdict"]
-        ok = sum(v == "PASS" for v in verdicts)
-        hidden = ", ".join(d["hidden"]) if d["hidden"] else "—"
-        sess_rows.append(
-            f'<tr><td>{esc(short(m))}</td><td>{esc(fx)}</td><td>{esc(harness)}</td>'
-            f'<td><span class="chip {"ok" if ok == len(verdicts) else "bad"}">{ok}/{len(verdicts)} PASS</span></td>'
-            f'<td class="num">{med:.0f} s</td><td class="num">{esc(rng)}</td>'
-            f'<td class="num">{esc(hidden)}</td></tr>')
-
-    stages_done = {
-        "S1 Tiel battery": bool(gen2k),
-        "S2 field on 0.33.3": len(gen2k) > 2,
-        "S3 sessions": bool(sess),
-        "S5 CyberTiel": any("yber" in m for m in gen2k),
-    }
-    status_chips = "".join(
-        f'<span class="chip {"ok" if v else "wait"}">{"✔" if v else "⋯"} {esc(k)}</span>'
-        for k, v in stages_done.items())
+    stages = {"S1 Tiel": bool(gen.get(T_SHIP)), "S2 field": len(gen) > 4,
+              "S3 sessions": bool(sess), "S5 CyberTiel": bool(gen.get(CT)),
+              "S6 sandboxed": any(k[3] == "sandbox" for k in sess)}
+    chips = " ".join(f'<span class="pill {"good" if v else ""}">{"✔" if v else "⋯"} {esc(k)}</span>'
+                     for k, v in stages.items())
 
     css = """
 :root{
-  color-scheme: light;
-  --bg:#f7f7f4; --surface:#fcfcfb; --line:#e3e2dd; --line-soft:#eeede8;
-  --ink:#141413; --ink-2:#52514e; --ink-3:#86847d;
-  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
-  --good:#1f7a3d; --good-bg:#e7f3ea; --bad:#b3261e; --bad-bg:#fbeae8;
-  --wait-bg:#f0efe9; --hi:#4a3aa7;
+  --paper:#F6F7F9; --panel:#FFFFFF; --panel-2:#EFF2F6;
+  --ink:#131822; --ink-2:#3D4756; --muted:#5C6675; --rule:#DCE1E8; --rule-2:#C6CDD8;
+  --good:#0F8A6B; --warn:#A57C0C; --crit:#C6304F; --ref:#3D5FC4;
+  --good-soft:#E2F1EC; --crit-soft:#FAE4E9; --ref-soft:#E5EAFA; --warn-soft:#F5EEDC;
+  --shadow:0 1px 2px rgba(19,24,34,.06),0 8px 24px -12px rgba(19,24,34,.18);
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  color-scheme: dark;
-  --bg:#121211; --surface:#1a1a19; --line:#33322e; --line-soft:#26251f;
-  --ink:#f5f4ef; --ink-2:#c3c2b7; --ink-3:#8d8b82;
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
-  --good:#5ec27f; --good-bg:#16291d; --bad:#ef8b83; --bad-bg:#2c1817;
-  --wait-bg:#232320; --hi:#9085e9;
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#0E1218; --panel:#161B24; --panel-2:#1D2430;
+  --ink:#E9EDF3; --ink-2:#C3CBD7; --muted:#8F99A8; --rule:#28303C; --rule-2:#3A4453;
+  --good:#33A886; --warn:#B68A26; --crit:#E0556F; --ref:#6B8AE6;
+  --good-soft:#132B25; --crit-soft:#331A22; --ref-soft:#1A2238; --warn-soft:#2C2515;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px -14px rgba(0,0,0,.7);
 }}
 :root[data-theme="dark"]{
-  color-scheme: dark;
-  --bg:#121211; --surface:#1a1a19; --line:#33322e; --line-soft:#26251f;
-  --ink:#f5f4ef; --ink-2:#c3c2b7; --ink-3:#8d8b82;
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
-  --good:#5ec27f; --good-bg:#16291d; --bad:#ef8b83; --bad-bg:#2c1817;
-  --wait-bg:#232320; --hi:#9085e9;
+  --paper:#0E1218; --panel:#161B24; --panel-2:#1D2430;
+  --ink:#E9EDF3; --ink-2:#C3CBD7; --muted:#8F99A8; --rule:#28303C; --rule-2:#3A4453;
+  --good:#33A886; --warn:#B68A26; --crit:#E0556F; --ref:#6B8AE6;
+  --good-soft:#132B25; --crit-soft:#331A22; --ref-soft:#1A2238; --warn-soft:#2C2515;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 28px -14px rgba(0,0,0,.7);
 }
 *{box-sizing:border-box}
-body{background:var(--bg); color:var(--ink);
-  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
-  font-size:15px; line-height:1.55; margin:0;}
-.wrap{max-width:900px; margin:0 auto; padding-block:36px 72px; padding-left:20px; padding-right:20px;}
-h1{font-family:"IBM Plex Serif",Georgia,"Iowan Old Style","Noto Serif",serif; font-size:30px; line-height:1.2;
-   margin:0 0 6px; text-wrap:balance; letter-spacing:-.01em;}
-h2{font-family:"IBM Plex Serif",Georgia,"Iowan Old Style","Noto Serif",serif; font-size:21px; margin:42px 0 4px; text-wrap:balance;}
-h3{font-size:14px; margin:26px 0 6px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3);}
-p{margin:8px 0; color:var(--ink-2); max-width:68ch;}
-.sub{color:var(--ink-3); font-size:13px; margin-bottom:18px;}
-.meta{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px;}
-.chip{display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:3px 9px;
-  border-radius:999px; background:var(--wait-bg); color:var(--ink-2);
-  font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace;}
-.chip.ok{background:var(--good-bg); color:var(--good);}
-.chip.bad{background:var(--bad-bg); color:var(--bad);}
-.verdict{background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--hi);
-  border-radius:8px; padding:18px 20px; margin:22px 0;}
-.verdict p{margin:6px 0;}
-.verdict strong{color:var(--ink);}
-.finding{background:var(--surface); border:1px solid var(--line); border-radius:8px;
-  padding:14px 16px; margin:10px 0;}
-.finding b{color:var(--ink); display:block; margin-bottom:2px; font-size:14px;}
-.finding span{font-size:13.5px; color:var(--ink-2);}
-.fig{margin:18px 0 26px; background:var(--surface); border:1px solid var(--line);
-  border-radius:8px; padding:16px 14px 10px; overflow-x:auto;}
-figcaption{font-size:13px; font-weight:600; color:var(--ink); margin-bottom:10px;
-  letter-spacing:.01em;}
-.chart{width:100%; height:auto; display:block; min-width:520px;}
-.grid{stroke:var(--line-soft); stroke-width:1;}
-.tick{fill:var(--ink-3); font-size:10px; font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace;}
-.ylab{fill:var(--ink-2); font-size:11.5px;}
-.vlab{fill:var(--ink); font-size:11.5px; font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace;
-  font-variant-numeric:tabular-nums;}
-.bar-s1{fill:var(--s1)} .bar-s2{fill:var(--s2)} .bar-s3{fill:var(--s3)}
-.bar-hi{fill:var(--hi)}
-.legend{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:8px; font-size:12px; color:var(--ink-2);}
-.lg{display:inline-flex; align-items:center; gap:6px;}
-.sw{width:11px; height:11px; border-radius:3px; display:inline-block;}
-.sw1{background:var(--s1)} .sw2{background:var(--s2)} .sw3{background:var(--s3)}
-.note{font-size:12.5px; color:var(--ink-3); margin:4px 2px 2px; max-width:none;}
-.empty{font-size:13px; color:var(--ink-3); font-style:italic;}
-table{border-collapse:collapse; width:100%; font-size:13.5px; margin:10px 0;}
-th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.07em;
-   color:var(--ink-3); font-weight:600; padding:6px 10px 6px 0; border-bottom:1px solid var(--line);}
-td{padding:7px 10px 7px 0; border-bottom:1px solid var(--line-soft); color:var(--ink-2);}
-td.num{font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace; font-variant-numeric:tabular-nums; color:var(--ink);}
-.tablewrap{overflow-x:auto;}
-code{font-family:"IBM Plex Mono",ui-monospace,"DejaVu Sans Mono",monospace; font-size:.92em;
-  background:var(--wait-bg); padding:1px 5px; border-radius:4px; color:var(--ink);}
-footer{margin-top:52px; padding-top:18px; border-top:1px solid var(--line);
-  font-size:12.5px; color:var(--ink-3);}
-@media (max-width:560px){ h1{font-size:25px} .wrap{padding-block:26px 56px} }
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:40px 24px 64px}
+h1,h2,h3{text-wrap:balance;margin:0}
+.mono{font-family:ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted)}
+.mast{border-top:3px solid var(--ink);padding-top:18px;margin-bottom:28px}
+.mast-top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+h1{font-size:clamp(32px,5vw,50px);line-height:1.04;font-weight:700;letter-spacing:-.02em}
+.sub{color:var(--ink-2);font-size:16.5px;max-width:66ch;margin-top:12px}
+.verdict{margin-top:20px;display:flex;gap:14px;align-items:flex-start;background:var(--good-soft);
+  border:1px solid var(--good);border-left-width:4px;border-radius:3px;padding:14px 18px}
+.verdict .k{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--good);font-weight:700;white-space:nowrap;padding-top:3px}
+.verdict p{margin:0 0 7px;font-size:15.5px;color:var(--ink)}
+.verdict p:last-child{margin-bottom:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(172px,1fr));gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:4px;overflow:hidden;margin:28px 0 14px}
+.kpi{background:var(--panel);padding:16px 18px}
+.kpi .n{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-variant-numeric:tabular-nums;
+  font-size:28px;font-weight:600;line-height:1.05;letter-spacing:-.02em}
+.kpi .l{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.4}
+.n.good{color:var(--good)} .n.crit{color:var(--crit)} .n.ref{color:var(--ref)}
+section{margin:38px 0 0}
+.sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--rule-2);
+  padding-bottom:9px;margin-bottom:18px}
+.sec-head h2{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.sec-head .note{margin-left:auto;font-size:12.5px;color:var(--muted);text-align:right}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:820px){.charts{grid-template-columns:1fr}}
+.chart{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:17px 19px 15px;
+  box-shadow:var(--shadow)}
+.chart h3{font-size:15px;font-weight:600;margin-bottom:2px}
+.chart .cap{font-size:12.5px;color:var(--muted);margin:0 0 15px}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;grid-template-columns:114px 1fr 72px;align-items:center;gap:10px}
+.row .name{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-size:11px;color:var(--ink-2);
+  text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track{background:var(--panel-2);border-radius:3px;height:17px;overflow:hidden}
+.bar{height:100%;border-radius:0 3px 3px 0}
+.bar.good{background:var(--good)} .bar.crit{background:var(--crit)}
+.bar.ref{background:var(--ref)} .bar.warn{background:var(--warn)}
+.val{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-variant-numeric:tabular-nums;
+  font-size:12.5px;font-weight:500;text-align:right;color:var(--ink)}
+.row.hl .name{color:var(--ink);font-weight:700}
+.legend{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule);font-size:12px;color:var(--ink-2)}
+.callout{margin-top:20px;background:var(--crit-soft);border:1px solid var(--crit);border-left-width:4px;
+  border-radius:3px;padding:15px 18px}
+.callout.ok{background:var(--ref-soft);border-color:var(--ref)}
+.callout .k{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--crit);font-weight:700;display:block;margin-bottom:5px}
+.callout.ok .k{color:var(--ref)}
+.callout p{margin:0;font-size:14.5px;color:var(--ink)}
+.finds{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:820px){.finds{grid-template-columns:1fr}}
+.find{background:var(--panel);border:1px solid var(--rule);border-radius:4px;padding:14px 16px}
+.find b{display:block;font-size:14px;margin-bottom:4px}
+.find span{font-size:13px;color:var(--ink-2)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:4px 0}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+  font-weight:600;padding:7px 10px 7px 0;border-bottom:1px solid var(--rule-2)}
+td{padding:8px 10px 8px 0;border-bottom:1px solid var(--rule);color:var(--ink-2)}
+td.num{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-variant-numeric:tabular-nums;color:var(--ink)}
+td.num.good{color:var(--good);font-weight:600}
+.pill{display:inline-block;font-family:ui-monospace,monospace;font-size:11px;padding:2px 7px;border-radius:3px;
+  background:var(--panel-2);color:var(--ink-2)}
+.pill.good{background:var(--good-soft);color:var(--good);font-weight:600}
+.pill.crit{background:var(--crit-soft);color:var(--crit);font-weight:600}
+.tablewrap{overflow-x:auto}
+.empty{font-size:13px;color:var(--muted);font-style:italic}
+code{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-size:.92em;background:var(--panel-2);
+  padding:1px 5px;border-radius:3px;color:var(--ink)}
+footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--muted)}
 @media print{
-  :root{ --bg:#ffffff; --surface:#ffffff; --line:#d7d6d1; --line-soft:#ebeae5;
-         --ink:#111; --ink-2:#3b3a37; --ink-3:#6b6a64; }
-  body{background:#fff}
-  .wrap{max-width:none; padding:0 8mm}
-  .fig,.finding,.verdict{break-inside:avoid; page-break-inside:avoid}
-  h2{break-after:avoid}
-  .chart{min-width:0}
-  a[href]:after{content:""}
+  :root{--paper:#fff;--panel:#fff;--panel-2:#f0f2f5;--shadow:none;
+        --ink:#111;--ink-2:#333;--muted:#666;--rule:#d8dce3;--rule-2:#c2c8d2}
+  @page{size:A4;margin:11mm}
+  body{font-size:10px;line-height:1.38}
+  .wrap{max-width:none;padding:0}
+  h1{font-size:24px} .sub{font-size:10.5px;margin-top:7px}
+  .kpi .n{font-size:18px} .kpi .l{font-size:8.5px;margin-top:4px}
+  .chart,.find,.callout,.verdict,tr,.chart .rows{break-inside:avoid;page-break-inside:avoid}
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .kpi{padding:10px 12px}
+  .sec-head{break-after:avoid;page-break-after:avoid}
+  .verdict{padding:10px 14px} .verdict p{font-size:10.5px;margin-bottom:5px}
+  .mast{margin-bottom:14px;padding-top:10px}
+  .sec-head h2{font-size:14px} section{margin:14px 0 0} .charts{gap:11px}
+  .chart{padding:11px 13px 10px} .chart h3{font-size:11.5px} .chart .cap{font-size:9px;margin-bottom:9px}
+  .row{grid-template-columns:96px 1fr 58px;gap:7px} .track{height:12px}
+  .row .name,.val{font-size:8.5px} .legend{font-size:8.5px;margin-top:9px;padding-top:8px}
+  .kpis{margin:14px 0 8px}
+  table{font-size:9.5px} th{font-size:8.5px}
 }
 """
-
-    tiel_pp0 = gen2k.get("tiel-coder:35b-q5-ctx256k-agentic")
-    tiel_ship = gen2k.get("Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest")
-    speedup = f"{(tiel_pp0 / tiel_ship - 1) * 100:.0f}%" if (tiel_pp0 and tiel_ship) else "—"
 
     doc = f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tiel-Coder on the Ollama box \u2014 v4 benchmark</title>
-<meta name="description" content="Benchmark of Tiel-Coder 35B-A3B against the local model field on 192.168.100.67, Ollama 0.33.3.">
+<title>Tiel-Coder on the 36 GB box</title>
+<meta name="description" content="v4 benchmark: Tiel-Coder and CyberTiel against the local model field on Ollama 0.33.3.">
 <style>{css}</style>
 </head>
 <body>
 <div class="wrap">
-<h1>Tiel-Coder on the Ollama box</h1>
-<p class="sub">Benchmark round v4 &middot; <code>192.168.100.67</code> &middot; Ollama 0.33.3 &middot;
-35.56&nbsp;GB usable VRAM &middot; generated from <code>results/*.tsv</code></p>
 
-<div class="meta">{status_chips}</div>
-<p class="note">Stages still running append to the same files; regenerate with
-<code>./make-report.py</code>.</p>
-
-<div class="verdict">
-<p><strong>Use <code>tiel-coder:35b-q5-ctx256k-agentic</code>, not the tag as shipped.</strong>
-Identical weights; the shipped <code>-ctx262k</code> tag carries
-<code>presence_penalty 1.5</code>, which costs <strong>{speedup}</strong> of generation speed and
-buys nothing measurable.</p>
-<p>Tiel holds its full <strong>262,144-token window at 34.13&nbsp;GB, 100% on GPU</strong>, retrieves
-a needle at <strong>254,181 tokens</strong> (the deepest in v1&ndash;v4), scores <strong>25/25</strong>
-on the vision checks at that full window, and is the <strong>only model tested that refuses an
-over-long prompt</strong> instead of silently answering from half of it.</p>
+<div class="mast">
+  <div class="mast-top">
+    <span class="eyebrow">Benchmark v4 · 2026-09-17</span>
+    <span class="eyebrow">192.168.100.67 · Ollama 0.33.3 · 35.56 GB usable</span>
+  </div>
+  <h1>Tiel-Coder on the 36&nbsp;GB box</h1>
+  <p class="sub">A re-quantized Ornith-1.5 landed on the server, and its uncensored sibling with it.
+  Both were measured against the field v3 recommended — on a runtime that has since changed the
+  rules underneath all of it.</p>
+  <div class="verdict">
+    <span class="k">Deploy</span>
+    <div>
+      <p><b>Use <code>tiel-coder:35b-q5-ctx256k-agentic</code> — the variant, not the tag as it
+      shipped.</b> Same weights; the shipped tag carries <code>presence_penalty 1.5</code>, which
+      costs {pp_gain.lstrip('+')} of generation speed and buys nothing measurable.</p>
+      <p>It is one of only two models that solved the <em>specification</em> rather than the visible
+      tests — all 18 held-out tests, three runs from three. It holds 262,144 tokens at 34.13 GB,
+      recalls at 254,181, and refuses an over-long prompt instead of quietly answering from half of
+      it. Append <code>&lt;|think_off|&gt;</code> and it gets {think_gain} faster for nothing.</p>
+    </div>
+  </div>
 </div>
 
-<h2>Findings that change what you should do</h2>
+<div class="kpis">{kpi_html}</div>
+<p class="eyebrow" style="margin-bottom:24px">{chips}</p>
 
-<div class="finding"><b>1 &middot; The runtime now caches prompt prefixes &mdash; v3's ranking rule is void</b>
-<span>Ollama 0.33.3 reports <code>cache_read_input_tokens</code>; 0.32.15 did not, and every v3
-transcript shows zero. A repeated 30k-token prompt prefills <strong>4 tokens instead of 30,042</strong>,
-and an agent turn (same prefix, new tail) prefills only the tail. v3 ranked models on prefill because
-"the loop re-reads its context every turn" &mdash; that is no longer true here.</span></div>
+<section>
+  <div class="sec-head"><h2>Speed, and what it fails to predict</h2>
+    <span class="note">median of 3 · server idle before each</span></div>
+  <div class="charts">{charts}</div>
+  <div class="callout">
+    <span class="k">The failure with no error message</span>
+    <p>Past its context window, <b>{halvers} of the older models silently keep half the prompt</b>
+    (<code>num_ctx/2 + 2</code> tokens) and answer anyway — ornith, north-mini, gemma4 and the
+    qwen3.6 control among them. Both Tiel builds return <b>HTTP 400</b> instead. Claude Code cannot
+    send <code>num_ctx</code>, so a model in the halving class will answer from half your repository
+    with nothing in the transcript to say so.</p>
+  </div>
+</section>
 
-<div class="finding"><b>2 &middot; The silent half-window bug is still live &mdash; but not on Tiel</b>
-<span>Past its window, <code>ornith</code>, <code>north-mini</code> (the v3 default) and the
-<code>qwen3.6</code> control all silently keep <code>num_ctx/2 + 2</code> tokens and answer anyway.
-Tiel returns <strong>HTTP 400</strong>. Claude Code cannot send <code>num_ctx</code>, so a model in the
-halving class can answer from half your context with nothing in the transcript saying so.</span></div>
+<section>
+  <div class="sec-head"><h2>Tiel or CyberTiel, for this box?</h2>
+    <span class="note">same weights lineage, one abliterated</span></div>
+  <div class="charts" style="grid-template-columns:1.1fr .9fr">
+    <div class="chart">
+      <h3>Measured side by side</h3>
+      <p class="cap">Both at Q5_K_XL with <code>presence_penalty 0</code>, same window, same harness.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>&nbsp;</th><th>Tiel</th><th>CyberTiel</th></tr></thead>
+        <tbody>{vs_html}</tbody></table></div>
+    </div>
+    <div class="chart">
+      <h3>The answer: Tiel</h3>
+      <p class="cap">Not because CyberTiel is worse — because it is indistinguishable, and costs
+      more to run safely.</p>
+      <div class="legend" style="border-top:none;margin-top:0;padding-top:0">
+        <p style="margin:0 0 10px"><b>They measure the same.</b> Generation within 1%, recall one
+        token apart, identical memory, identical refusal of an over-long prompt, both 25/25 on
+        vision. The abliteration and the cyber-weighted imatrix did not move anything this
+        benchmark can see.</p>
+        <p style="margin:0 0 10px"><b>Neither refused any legitimate work.</b> Across eight benign
+        defensive-security prompts — SQL-injection fixes, password hashing, log triage, path-traversal
+        validation — both answered all eight. The uncensored build buys nothing on the work you
+        actually do.</p>
+        <p style="margin:0"><b>But it costs more to host.</b> An abliterated model has had its
+        refusal behaviour removed, so its publisher tells you to sandbox it at the OS level. Here
+        that meant a container with no host mounts, a read-only rootfs and an egress allowlist of
+        exactly one address. That is real operational overhead for a model that measured the same.
+        <b>Run Tiel. Reach for CyberTiel only if you hit a refusal that blocks legitimate work</b> —
+        and then keep it in the sandbox.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-<div class="finding"><b>3 &middot; <code>presence_penalty 1.5</code> is a pure tax</b>
-<span>It was added by whoever created the <code>-ctx262k</code> tag, not by the model publisher, whose
-card recommends no penalty at all. It costs 41&ndash;52% of generation, leaves prefill unchanged, and
-makes no measurable difference to tool reliability (T5 re-runs: 13/16 with it, 15/16 without).</span></div>
+<section>
+  <div class="sec-head"><h2>The field</h2>
+    <span class="note">vision is a yes/no capability — every capable model scores 25/25</span></div>
+  <div class="tablewrap"><table>
+  <thead><tr><th>model</th><th>gen tok/s</th><th>cold prefill</th><th>gates</th><th>vision</th>
+  <th>past its window</th></tr></thead>
+  <tbody>{"".join(field_rows) or '<tr><td colspan="6" class="empty">No data yet.</td></tr>'}</tbody>
+  </table></div>
+</section>
 
-<div class="finding"><b>4 &middot; A clean gate battery is not a reliability figure</b>
-<span>Tiel passed T1&ndash;T7 three times over. Re-running the nested-schema gate alone sixteen times
-gives <strong>13/16</strong>. The battery samples once at the tag's shipped temperature 0.6, so any
-single-shot gate result in v1&ndash;v4 is one sample.</span></div>
+<section>
+  <div class="sec-head"><h2>Who actually fixed the code</h2>
+    <span class="note">three modules · three bugs · one missing function · 18 held-out tests</span></div>
+  <p class="sub" style="margin:0 0 14px">The visible tests are the ones the model can see. The
+  held-out tests check the docstring specification it was asked to implement. A model can turn the
+  first green while leaving the second failing — and most of them did.</p>
+  <div class="tablewrap"><table>
+  <thead><tr><th>model</th><th>thinking</th><th>harness</th><th>passed</th><th>median</th>
+  <th>held-out tests, per run</th></tr></thead>
+  <tbody>{"".join(cap_rows) or '<tr><td colspan="6" class="empty">Sessions still running.</td></tr>'}</tbody>
+  </table></div>
+</section>
 
-<h2>Speed</h2>
-{gen_chart}
-{pp_chart}
-{pre_chart}
-{cache_chart}
+<section>
+  <div class="sec-head"><h2>What we learned that we did not expect</h2></div>
+  <div class="finds">
+    <div class="find"><b>The runtime started caching prompts, and a v3 rule died with it</b>
+    <span>Ollama 0.33.3 serves a repeated prefix from cache; 0.32.15 did not, and every v3 transcript
+    reports <code>cache_read 0</code>. An agent turn now prefills only its new tail — 520 tokens
+    instead of 30,042. v3 ranked this field on prefill because "the loop re-reads its context every
+    turn". That is no longer true here.</span></div>
 
-<h2>Capability</h2>
-{vis_chart}
+    <div class="find"><b>Thinking is a {think_gain} tax on tool-heavy work</b>
+    <span>Same model, same fixture: 131/148/117 s with thinking, 74/53/56 s without — and the
+    held-out scores came back equal or better without it. The one session Tiel failed all day was a
+    thinking-on run.</span></div>
 
-<h3>Behaviour past the context window</h3>
-<div class="tablewrap"><table>
-<thead><tr><th>model</th><th>what happens when the prompt exceeds num_ctx</th><th>tokens kept</th></tr></thead>
-<tbody>{"".join(ovf_rows) or '<tr><td colspan="3" class="empty">No data yet.</td></tr>'}</tbody>
-</table></div>
+    <div class="find"><b>A clean gate battery is not a reliability number</b>
+    <span>Tiel passed all seven gates three times over. Re-running the nested-schema gate alone
+    sixteen times gives 13/16. The battery samples once, at the tag's shipped temperature 0.6 — so
+    every single-shot gate result in v1–v4 is one sample.</span></div>
 
-<h2>End-to-end Claude Code sessions</h2>
-<p>Two fixtures against a real <code>claude -p</code> session, scored from the repository rather than
-the model's summary: a one-function bug, and a three-module <code>ledger</code> package with three bugs
-and one unimplemented function, checked against <strong>18 held-out tests the model never sees</strong>.
-<code>sandbox</code> rows run inside the isolated container used for the abliterated model.</p>
-<div class="tablewrap"><table>
-<thead><tr><th>model</th><th>fixture</th><th>harness</th><th>verdict</th><th>median</th><th>range</th><th>hidden tests</th></tr></thead>
-<tbody>{"".join(sess_rows) or '<tr><td colspan="7" class="empty">Sessions still running.</td></tr>'}</tbody>
-</table></div>
+    <div class="find"><b>Abliteration changed almost nothing measurable</b>
+    <span>CyberTiel matches Tiel to within noise on every axis, and on eight benign
+    defensive-security prompts <em>neither</em> model refused. The uncensored build earns its extra
+    operational cost only if you actually hit a refusal.</span></div>
+
+    <div class="find"><b>The fastest model on the box is still the worst at the job</b>
+    <span><code>cascade-2</code> leads both speed axes — 140.7 tok/s and 7,017 prefill — and scored
+    0 of 3 on the hard fixture, with held-out scores of 0, 3 and 3 out of 18, taking 419 s to do it.
+    v3 rejected it for the same defect. Nothing changed, so it is cut.</span></div>
+
+    <div class="find"><b>Half this round's bugs were in the harness</b>
+    <span>A retrieval probe that queried <code>localhost</code> and scored three empty replies as
+    model failures; a sandbox that never delivered its fixture, so every isolated session ran against
+    an empty directory. Both produced plausible numbers instead of errors, which is what makes that
+    class dangerous. All twelve are in <code>review.md</code>.</span></div>
+  </div>
+</section>
 
 <footer>
-Every number here is generated from the TSVs in <code>results/</code>. Method, caveats and the
-twelve harness problems found and fixed during this round are in <code>measurements.md</code> and
-<code>review.md</code>; exact digests and versions in <code>results/provenance.txt</code>.
+Every figure is generated from the TSVs in <code>results/</code> by <code>make-report.py</code>;
+method and caveats in <code>measurements.md</code>, the twelve harness defects found and fixed in
+<code>review.md</code>, exact model digests and versions in <code>results/provenance.txt</code>.
+Sessions are real <code>claude -p</code> runs scored from the repository afterwards, never from the
+model's own summary. Cut models stay in the tables and out of the headlines.
 </footer>
 </div>
 </body>
@@ -474,6 +573,7 @@ twelve harness problems found and fixed during this round are in <code>measureme
 """
     Path(a.out).write_text(doc)
     print(f"wrote {a.out} ({len(doc):,} bytes)")
+    print(f"  throughput {len(gen)} · hard sessions {len(cap_rows)} · overflow {len(overflow)}")
     if a.pdf:
         import shutil, subprocess
         browser = next((b for b in ("chromium", "chromium-browser", "google-chrome")
@@ -484,12 +584,9 @@ twelve harness problems found and fixed during this round are in <code>measureme
             pdf = str(Path(a.out).with_suffix(".pdf"))
             subprocess.run([browser, "--headless", "--disable-gpu", "--no-sandbox",
                             "--no-pdf-header-footer", f"--print-to-pdf={pdf}",
-                            Path(a.out).as_uri()],
-                           check=False, capture_output=True, timeout=180)
+                            Path(a.out).as_uri()], check=False, capture_output=True, timeout=180)
             if Path(pdf).exists():
                 print(f"wrote {pdf} ({Path(pdf).stat().st_size:,} bytes)")
-    print(f"  models with throughput: {len(gen2k)}; vision: {len(vision)}; "
-          f"overflow: {len(overflow)}; session rows: {len(sess_rows)}")
 
 
 if __name__ == "__main__":

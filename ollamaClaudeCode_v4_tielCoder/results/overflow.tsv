@@ -12,3 +12,4 @@ nemotron-3.5-lightning:30b-ctx256k-agentic	262144	275251	HALVED	131074	prompt_ev
 nemotron-cascade-2:30b-ctx256k-agentic	262144	275250	HALVED	131074	prompt_eval 131074 ~= num_ctx/2 (131072) -- the v1-v3 silent bug
 qwen3.8:27b-q4_K_M-ctx128k-agentic	131072	137625	HALVED	65538	prompt_eval 65538 ~= num_ctx/2 (65536) -- the v1-v3 silent bug
 tiel-coder:35b-q5-ctx256k-agentic	262144	275250	ERROR_400		{"error":"{\"error\":{\"code\":400,\"message\":\"request (274681 tokens) exceeds the available context size (262144 tokens), try increasing
+cyber-tiel:35b-q5-ctx256k-agentic	262144	275250	ERROR_400		{"error":"{\"error\":{\"code\":400,\"message\":\"request (274682 tokens) exceeds the available context size (262144 tokens), try increasing
