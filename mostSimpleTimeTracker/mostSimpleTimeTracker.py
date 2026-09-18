@@ -22,6 +22,13 @@ from collections import Counter
 import configparser
 
 
+def create_config_parser():
+    """Create a parser that preserves task names, including colons and casing."""
+    config = configparser.ConfigParser(delimiters=("=",))
+    config.optionxform = str
+    return config
+
+
 def seconds_to_hms(seconds):
     """
     Convert seconds to hours, minutes, and seconds format.
@@ -159,7 +166,7 @@ class TimeTrackingApp(QMainWindow):
         """
         Load the configuration from the config.ini file.
         """
-        config = configparser.ConfigParser()
+        config = create_config_parser()
         config.read("config.ini")
         if "items" in config:
             for item_name, status in config["items"].items():
@@ -173,7 +180,7 @@ class TimeTrackingApp(QMainWindow):
         """
         Save the configuration to the config.ini file.
         """
-        config = configparser.ConfigParser()
+        config = create_config_parser()
         config["items"] = {}
         for button in self.radio_group.buttons():
             item_name = button.text()

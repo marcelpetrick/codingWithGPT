@@ -1,2 +1,1 @@
-PyQt5
-configparser
+PyQt5==5.15.11
