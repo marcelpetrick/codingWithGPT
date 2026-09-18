@@ -194,6 +194,76 @@ environment's actual contract. **That is the failure mode least likely to surviv
 of the agent's own output**, and the reason the transcript analysis is committed alongside the
 scores rather than left as a one-off grep.
 
+### Why the failures failed — the post-round investigation
+
+All 123 transcripts were read before any conclusion was drawn about model weakness. The
+failures are **not one thing**, and roughly a third of them are ours.
+
+**`nginx-request-logging` (0/12) is a defective task; no model could have passed it.** Its
+instruction says *"Place the configuration in `/etc/nginx/conf.d/benchmark-site.conf`"*. Its
+tests read `/etc/nginx/nginx.conf` and require a `log_format` named literally `detailed` —
+a file and a name the instruction never states. All 12 trials fail the identical assertion, and
+the config dumped in every failure message begins `user www-data;`, i.e. the stock, untouched
+`nginx.conf`. qwen3.6 meanwhile wrote a complete and correct format into the file it was told to
+use: `log_format benchmark '$time_local | $request_method | $status | …'`. Every model passed 7
+of the 8 sub-tests. It is now **run but not scored** (`DEFECTIVE` in `summarise.py`,
+`DEFECT` in the report grid).
+
+**`fibonacci-server` (3/12) measures scaffold persistence, not Fibonacci.** qwen3.6 passed 3/3;
+every other model failed identically on *"Server is not running on port 3000"*. The difference
+is one character:
+
+| launch | survives the agent session? |
+|---|---|
+| `node server.js &` — shell background (qwen3.6) | yes → passes |
+| Claude Code's `run_in_background` tool (everyone else) | no, the harness reaps it → fails |
+
+Tiel's own closing message names the mechanism: *"The server runs in the background (task
+`b36gk066o`). Stop it with `task stop b36gk066o`."* That task dies with the session; the tests
+then run in a separate shell and find nothing. The task is **kept and scored** — a server that
+dies when your agent exits is not running — but it is recorded as measuring agent-scaffold
+awareness, which is worth knowing and is not what the task name suggests.
+
+**`polyglot-c-py` (0/12) is genuine difficulty.** One file that is valid C *and* valid Python.
+`gcc` works, the toolchain is present, and one run alone issued **179 compile attempts** with
+real linker errors and explicit reasoning (*"gcc ignores the extension, I need a real polyglot
+structure"*). The models iterated hard against the full 360 s budget and could not do it. 8 of
+12 trials are timeouts.
+
+**No systematic harness fault exists.** Across all 123 transcripts: 0 API errors, 0 context-limit
+hits, 0 connection failures, 0 model-not-found 404s, thinking confirmed off as configured. (Apparent
+"404" matches were hex inside UUIDs; "rate limit" was the nginx task's own requirement.)
+
+**Effect on the standings — the ordering does not change**, because the defects cost every model
+about the same:
+
+| model | as run | −nginx (now reported) | −nginx, −fibonacci |
+|---|---|---|---|
+| qwen3.6 | 53 % | **59 %** | 54 % |
+| north-mini | 50 % | 56 % | **62 %** |
+| Tiel | 37 % | 41 % | 46 % |
+| gemma4 | 30 % | 33 % | 38 % |
+| ornith | 30 % | 33 % | 38 % |
+| CyberTiel | 27 % | 30 % | 33 % |
+
+Two things do move: absolute scores were depressed ~6 points by a broken task, and **north-mini
+overtakes qwen3.6 once the scaffold task is also removed** — qwen3.6's win there was about using
+`&`, not about capability.
+
+**One confound this round cannot resolve.** Thinking was off, on v4's 2.3×-for-free finding —
+which was measured on the *ledger* fixture, never on hard puzzle tasks. A thinking-on arm over
+`polyglot-c-py` and `git-multibranch` is the honest next test, and it is not run yet.
+
+### Before a subset is ever frozen again
+
+`validate-subset.py` was written out of this and is now a gate: it parses each task's tests with
+`ast` and reports the literals they **compare against** — never their failure messages — that the
+instruction does not mention. Run on the round-1 subset it flags `/etc/nginx/nginx.conf` for
+nginx, which is exactly the defect, three hours of compute after the fact.
+
+A hit is a question, not a verdict. The rule is that every hit gets answered, and the oracle
+scores 100 %, **before** the set is frozen — because afterwards the comparison is already spent.
+
 ### What is not settled
 
 **north-mini is tied for the lead on a single sample.** It scored 50 % at n=1, solved

@@ -24,6 +24,18 @@ HERE = Path(__file__).resolve().parent
 INFRA = {"unknown_agent_error", "agent_installation_failed", "test_timeout",
          "unknown_error", "fatal_llm_parse_error"}
 
+# Tasks that CANNOT be passed by following their own instruction. These are our
+# problem, not the model's, and counting them is counting our defect as their
+# failure -- the same reasoning that makes an infra failure VOID rather than a
+# zero. Still run and still shown; simply not in the denominator.
+DEFECTIVE = {
+    "nginx-request-logging":
+        "instruction says to configure /etc/nginx/conf.d/benchmark-site.conf; the "
+        "tests read /etc/nginx/nginx.conf and require a log format named literally "
+        "'detailed'. 0/12 in round 1, all on the same assertion, all with a correct "
+        "config in the file the task named. 7 of 8 sub-tests passed every time.",
+}
+
 
 def main():
     runs = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "runs"
@@ -76,23 +88,31 @@ def main():
         print(f"published  {repo_res / tsv.name}")
 
     # per-model roll-up, with infra failures held out of the denominator
-    agg = defaultdict(lambda: {"soln": 0, "n": 0, "void": 0, "sec": 0.0})
+    agg = defaultdict(lambda: {"soln": 0, "n": 0, "void": 0, "defect": 0, "sec": 0.0})
     for r in rows:
         a = agg[r["model"]]
         if r["failure_mode"] in INFRA:
             a["void"] += 1
+            continue
+        if r["task"] in DEFECTIVE:
+            a["defect"] += 1
             continue
         a["n"] += 1
         a["soln"] += int(r["resolved"])
         a["sec"] += r["agent_sec"]
     if not agg:
         print("no trials yet"); return
-    print(f"\n{'model':44} {'solved':>10} {'rate':>7} {'void':>5} {'median_s':>9}")
+    if DEFECTIVE:
+        print("\nheld out of the rate as DEFECTIVE (the task cannot be passed as written):")
+        for t, why in DEFECTIVE.items():
+            print(f"  {t} — {why}")
+    print(f"\n{'model':44} {'solved':>10} {'rate':>7} {'void':>5} {'defect':>7} {'median_s':>9}")
     for m, a in sorted(agg.items(), key=lambda kv: -(kv[1]["soln"] / max(kv[1]["n"], 1))):
         rate = a["soln"] / a["n"] * 100 if a["n"] else 0.0
         avg = a["sec"] / a["n"] if a["n"] else 0.0
         warn = "  <-- VOID trials, investigate" if a["void"] else ""
-        print(f"{m:44} {a['soln']:>4}/{a['n']:<5} {rate:>6.1f}% {a['void']:>5} {avg:>9.0f}{warn}")
+        print(f"{m:44} {a['soln']:>4}/{a['n']:<5} {rate:>6.1f}% {a['void']:>5} "
+              f"{a['defect']:>7} {avg:>9.0f}{warn}")
 
 
 def _tok(v):

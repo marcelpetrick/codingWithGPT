@@ -49,6 +49,8 @@ north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-
 north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	modernize-fortran-build	modernize-fortran-build.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	True	unset	n/a	n/a	68.608665
 north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	fix-git	fix-git.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	True	unset	n/a	n/a	66.155292
 north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	fibonacci-server	fibonacci-server.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	False	unset	n/a	n/a	99.682067
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	git-multibranch	git-multibranch.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	414.569646
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	git-multibranch	git-multibranch.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	252.036365
 ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	git-multibranch	git-multibranch.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	79.358783
 ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	nginx-request-logging	nginx-request-logging.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	43.87402
 ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	polyglot-c-py	polyglot-c-py.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	agent_timeout	n/a	n/a	409.999827

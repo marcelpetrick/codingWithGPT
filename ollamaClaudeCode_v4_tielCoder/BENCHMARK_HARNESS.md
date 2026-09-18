@@ -313,6 +313,45 @@ than showing an invented number. Rules it follows:
 
 ---
 
+## 8a. A benchmark task is not evidence until it can be passed
+
+**Validate the tasks before the subset is frozen, not after the round.** A task whose tests
+demand something its instruction never states measures our reading of it, not the model.
+
+v4 spent three hours proving this. `nginx-request-logging` told the agent to configure
+`/etc/nginx/conf.d/benchmark-site.conf`; its tests read `/etc/nginx/nginx.conf` and required a
+`log_format` named literally `detailed`. Every model wrote a correct config in the file it was
+told to use, passed 7 of 8 sub-tests, and scored **0/12**. Read as a score it says six models
+cannot configure nginx. Read as a transcript it says the task contradicts itself.
+
+The gate is `terminalbench/official/validate-subset.py`:
+
+```shell
+./validate-subset.py                 # the frozen subset
+./validate-subset.py <candidate>     # before adding one
+```
+
+It parses each test with `ast` and reports the literals the tests **compare against** — never
+their failure messages, which was the first version's mistake and produced nothing but noise —
+that the instruction does not mention. It reads files; it runs no models.
+
+**A hit is a question, not a verdict.** A test may legitimately check something a correct answer
+implies. The rule is that every hit is *answered*, and the oracle scores 100 %, before the set
+is frozen. Afterwards the comparison is already spent.
+
+**A task that cannot be passed is held out of the rate, never counted as a zero** — the same
+reasoning that makes an infra failure VOID. It stays visible in the grid as `DEFECT`
+(`DEFECTIVE` in `summarise.py`), because a task quietly dropped is a result quietly edited.
+
+**And know what a task actually measures.** `fibonacci-server` looks like a coding task and is
+really a test of process persistence: `node server.js &` survives the agent session and Claude
+Code's own `run_in_background` task does not, because the harness reaps it. qwen3.6 passed 3/3
+on the strength of one `&`; four other models produced working servers and scored zero. Keep the
+task — a server that dies when your agent exits is not running — but do not read it as
+arithmetic.
+
+---
+
 ## 9. When to stop benchmarking a model
 
 Re-running a settled answer is the cheapest way to waste an afternoon. **Cut a model when it has
@@ -385,6 +424,7 @@ holds the vision slot on the v3 finding, not on this number.
 
 - [ ] runtime version recorded; control re-measured in the same session
 - [ ] measured against **the standing four only** (§9a) — not the whole historical field
+- [ ] `validate-subset.py` clean, or every hit answered, **before** the subset is frozen (§8a)
 - [ ] `/api/show` read: base model, quant tier, capabilities, **the `template` field**
 - [ ] `-agentic` variant baked with `num_ctx` and `presence_penalty 0`
 - [ ] residency ladder at 100% GPU; the deployed window fits

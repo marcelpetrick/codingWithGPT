@@ -1,7 +1,23 @@
 # Frozen Terminal-Bench-core (0.1.1) subset — coding/systems-weighted.
-# 10 tasks, 3 easy / 5 medium / 2 hard. Every model runs THIS EXACT set
-# (harness §5: change the subset and the comparison is void).
 # Chosen 2026-09-18 toward build/debug/git/systems work — the embedded use case.
+# Every model runs THIS EXACT set (harness §5: change the subset and the
+# comparison is void).
+#
+# --- revision 2, 2026-09-18, after the first round --------------------------
+# `nginx-request-logging` is still RUN but no longer SCORED. It is defective:
+# its instruction says "Place the configuration in
+# /etc/nginx/conf.d/benchmark-site.conf" while its tests read
+# /etc/nginx/nginx.conf and require a log format named literally "detailed" —
+# a file and a name the instruction never mentions. All 12 trials in the first
+# round failed the same assertion with the stock nginx.conf dumped in the error,
+# after writing a correct config in the file they were told to use. 7 of 8
+# sub-tests passed every time. No model could have passed it, so counting it is
+# counting our own defect as their failure. It stays in the run because the other
+# 7 sub-tests are still a real signal and re-running the subset without it would
+# break comparability with round 1.
+#
+# Excluded from the rate by DEFECTIVE in summarise.py and make-report.py, shown
+# in the grid as DEFECT so it cannot quietly vanish.
 modernize-fortran-build
 csv-to-parquet
 fix-permissions
@@ -12,3 +28,16 @@ nginx-request-logging
 openssl-selfsigned-cert
 git-multibranch
 oom
+
+# --- candidate 10th task, NOT yet part of the scored set -------------------
+# A replacement must be validated before it is frozen, which is the whole lesson
+# of the nginx defect. Required before promoting it:
+#   1. ./validate-subset.py <task>  — and a human answers every "UNSTATED" line
+#   2. tb run -t <task> -a oracle   — the oracle must score 100%
+#   3. the promotion is its own commit, and round N+1 does not compare to round N
+#      on the changed set
+# Nominee: conda-env-conflict-resolution (medium; debugging + package management
+# + system). Its unstated literals are version numbers and a path the agent
+# discovers by reading the environment file, which is legitimate exploration
+# rather than a contradiction — but that judgement still needs the oracle.
+# NOT run, NOT scored, until both checks pass.

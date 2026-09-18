@@ -218,6 +218,10 @@ def main():
     tag_by_runid = {m.replace("/", "_").replace(":", "_").lower(): m for m in SHORT}
     INFRA_MODES = {"unknown_agent_error", "agent_installation_failed", "test_timeout",
                    "unknown_error", "fatal_llm_parse_error"}
+    # Tasks that cannot be passed by following their own instruction: our defect,
+    # not the model's, so held out of the rate exactly as an infra failure is.
+    # Kept visible in the grid — a task quietly dropped is a result quietly edited.
+    DEFECTIVE_TASKS = {"nginx-request-logging"}
     tbo = defaultdict(lambda: defaultdict(list))   # model -> task -> [row]
     tbo_tasks = []
     for r in read_tsv("terminal-bench-official.tsv"):
@@ -471,7 +475,8 @@ def main():
     tbo_html = ""
     if tbo_tasks:
         def rate_of(rows):
-            live = [r for r in rows if r["failure_mode"] not in INFRA_MODES]
+            live = [r for r in rows if r["failure_mode"] not in INFRA_MODES
+                    and r["task"] not in DEFECTIVE_TASKS]
             if not live:
                 return None
             return sum(r["resolved"] == "True" for r in live) / len(live)
@@ -488,6 +493,12 @@ def main():
             """
             if not rows:
                 return '<td class="tbo-na">not run</td>'
+            if rows[0]["task"] in DEFECTIVE_TASKS:
+                n = len(rows)
+                ok = sum(r["resolved"] == "True" for r in rows)
+                return ('<td><span class="pill" title="the task cannot be passed as '
+                        'written — held out of the rate">DEFECT</span>'
+                        f'<span class="tbo-s">{ok}/{n}</span></td>')
             void = [r for r in rows if r["failure_mode"] in INFRA_MODES]
             if len(void) == len(rows):
                 return ('<td><span class="pill" title="infrastructure failure, '
@@ -514,7 +525,8 @@ def main():
         head = "".join(f'<th>{esc(t)}</th>' for t in tbo_tasks)
         rows_tbo = ""
         for m in order:
-            allrows = [r for t in tbo[m] for r in tbo[m][t]]
+            allrows = [r for t in tbo[m] for r in tbo[m][t]
+                       if t not in DEFECTIVE_TASKS]
             rt = rate_of(allrows)
             nvoid = sum(1 for r in allrows if r["failure_mode"] in INFRA_MODES)
             rr = f'{rt * 100:.0f}%' if rt is not None else "—"
@@ -531,7 +543,7 @@ def main():
                   '<b>FLIPS</b> passed some runs and not others · '
                   '<b>failed</b> no run passed · '
                   '<b>TIMEOUT</b> no run passed, every one hit the task\'s time budget · '
-                  '<b>VOID</b> infrastructure failure, excluded from the rate. '
+                  '<b>VOID</b> infrastructure failure · <b>DEFECT</b> the task cannot be passed as written — both excluded from the rate. '
                   'Each cell reads <i>passed/runs · median agent seconds</i>.</div>')
         tbo_html = ('<div class="tablewrap"><table class="tbo"><thead><tr>'
                     '<th>model</th><th>resolved</th>'
@@ -724,8 +736,13 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
   through Claude Code pointed at the local server — so these are leaderboard-shaped numbers, not
   a look-alike of our own. Every model runs the identical frozen subset; change the subset and
   the comparison is void. Each cell is the verdict and the agent's median wall clock.
-  <b>VOID</b> marks an infrastructure failure, which is held out of the resolved rate rather
-  than counted as a zero.</p>
+  <b>VOID</b> marks an infrastructure failure and <b>DEFECT</b> a task that cannot be passed by
+  following its own instruction; both are held out of the resolved rate rather than counted as a
+  zero. <span class="mono">nginx-request-logging</span> is the second case: it tells the agent to
+  configure <span class="mono">conf.d/benchmark-site.conf</span> while its tests read
+  <span class="mono">/etc/nginx/nginx.conf</span>. Every model wrote a correct config in the file
+  it was told to use, passed 7 of its 8 sub-tests, and scored zero. Counting that would be
+  counting our own defect as their failure.</p>
   {tbo_html}
   <p class="sub" style="margin:12px 0 0;font-size:11.5px">Two models can land on the same rate
   and solve disjoint sets — the grid is there so that is visible. A single sample at the shipped
