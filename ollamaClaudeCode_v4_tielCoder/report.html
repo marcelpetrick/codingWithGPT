@@ -104,6 +104,19 @@ table.tbo th{white-space:nowrap}
 table.tbo td{white-space:nowrap;vertical-align:middle}
 table.tbo tr.hl td:first-child{font-weight:700;color:var(--ink)}
 table.tbo tr.hl{background:var(--panel-2)}
+.picks{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4px}
+.pick{border:1px solid var(--rule);border-left:3px solid var(--rule-2);border-radius:6px;
+  padding:12px 14px;background:var(--panel)}
+.pick.good{border-left-color:var(--good)} .pick.ref{border-left-color:var(--ref)}
+.pick.warn{border-left-color:var(--warn)} .pick.crit{border-left-color:var(--crit)}
+.pick-h{display:flex;gap:10px;align-items:baseline}
+.pick-n{font-family:ui-monospace,monospace;font-size:18px;font-weight:700;color:var(--rule-2);line-height:1}
+.pick-m{font-size:14px;font-weight:700;color:var(--ink)}
+.pick-r{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.pick-tag{display:inline-block;margin:8px 0 2px;font-size:10.5px}
+.pick-why{margin:6px 0 0;padding-left:16px}
+.pick-why li{font-size:12px;line-height:1.5;color:var(--ink-2);margin:5px 0}
+@media(max-width:700px){.picks{grid-template-columns:1fr}}
 table.tbo td.tbo-na{color:var(--muted);font-style:italic;font-size:10px}
 table.tbo td.tbo-thin{color:var(--warn);font-weight:700}
 .tbo-s{display:block;font-family:ui-monospace,"DejaVu Sans Mono",monospace;
@@ -245,6 +258,19 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
   <th>past its window</th></tr></thead>
   <tbody><tr><td>cascade-2 <span class="pill crit">cut</span></td><td class="num">141</td><td class="num">7,017</td><td class="num">8/10</td><td>no</td><td><span class="pill crit">halves silently</span></td></tr><tr><td>north-mini</td><td class="num">136</td><td class="num">4,592</td><td class="num">10/10</td><td>no</td><td><span class="pill crit">halves silently</span></td></tr><tr><td>qwen3.6 35b</td><td class="num">132</td><td class="num">4,046</td><td class="num">10/10</td><td>yes</td><td><span class="pill crit">halves silently</span></td></tr><tr><td>ornith 1.0</td><td class="num">127</td><td class="num">3,555</td><td class="num">10/10</td><td>no</td><td><span class="pill crit">halves silently</span></td></tr><tr><td>nemotron-3.5-L</td><td class="num">127</td><td class="num">2,674</td><td class="num">10/10</td><td>no</td><td><span class="pill crit">halves silently</span></td></tr><tr><td>Tiel · pp0</td><td class="num">111</td><td class="num">3,483</td><td class="num">9/10</td><td>yes</td><td><span class="pill good">refuses</span></td></tr><tr><td>CyberTiel · pp0</td><td class="num">110</td><td class="num">3,519</td><td class="num">10/10</td><td>yes</td><td><span class="pill good">refuses</span></td></tr><tr><td>gemma4 26b</td><td class="num">109</td><td class="num">6,126</td><td class="num">10/10</td><td>yes</td><td><span class="pill crit">halves silently</span></td></tr><tr><td>Tiel · shipped</td><td class="num">73</td><td class="num">3,548</td><td class="num">10/10</td><td>yes</td><td><span class="pill good">refuses</span></td></tr><tr><td>qwen3.8 27b <span class="pill crit">cut</span></td><td class="num">30</td><td class="num">1,457</td><td class="num">9/10</td><td>yes</td><td><span class="pill crit">halves silently</span></td></tr></tbody>
   </table></div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>The four to run</h2>
+    <span class="note">one slot per strength, not four runners-up</span></div>
+  <p class="sub" style="margin:0 0 14px">Each earns its place on a different axis — capability,
+  speed, footprint, overflow safety — because on a 10-task subset the middle of the table is not
+  separable: places 2–4 sit within roughly one task of each other.</p>
+  <div class="picks"><div class="pick good"><div class="pick-h"><span class="pick-n">1</span><div><div class="pick-m">qwen3.6 35b</div><div class="pick-r">the default</div></div></div><code class="pick-tag">qwen3.6:35b-a3b-q4_K_M-agentic</code><ul class="pick-why"><li>Top of the field on official Terminal-Bench at 53%, and the most reproducible model measured — decided on 9 of 10 tasks, 1 flip in 3 samples.</li><li>131.6 tok/s and a 60 s hard fixture, at 32.68 GB — fast, and it still fits the box with headroom.</li></ul></div><div class="pick ref"><div class="pick-h"><span class="pick-n">2</span><div><div class="pick-m">north-mini</div><div class="pick-r">the challenger</div></div></div><code class="pick-tag">north-mini-code-1.0:q4_K_M-ctx256k-agentic</code><ul class="pick-why"><li>Fastest generation on the box, 136.2 tok/s, and the only model that solved <span class='mono'>git-multibranch</span> — 1 of 12 trials field-wide.</li><li>But its 50% rests on a single pass, and it is the slowest to finish the hard fixture (126 s). Re-run at n=2 before trusting the tie.</li></ul></div><div class="pick ref"><div class="pick-h"><span class="pick-n">3</span><div><div class="pick-m">gemma4 26b</div><div class="pick-r">the shared-box option</div></div></div><code class="pick-tag">gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic</code><ul class="pick-why"><li>22.34 GB at the full 262k window — by far the smallest, leaving ~13 GB free for a colleague.</li><li>Best prefill in the field at 3,400 tok/s: the one to point at a large codebase when the job is reading, not hard reasoning.</li></ul></div><div class="pick warn"><div class="pick-h"><span class="pick-n">4</span><div><div class="pick-m">Tiel · pp0</div><div class="pick-r">the safe-context option</div></div></div><code class="pick-tag">tiel-coder:35b-q5-ctx256k-agentic</code><ul class="pick-why"><li>The only family that <b>refuses</b> an over-long prompt. Every other model here silently halves the context — an unlogged, unrecoverable truncation.</li><li>262,144 tokens at 34.13 GB with recall verified at 254,181; solved the specification rather than the visible tests, 3 runs from 3.</li></ul></div></div>
+  <p class="sub" style="margin:12px 0 0;font-size:11.5px">Not recommended:
+  <span class="mono">cyber-tiel</span> (last in the field; abliteration costs capability here),
+  <span class="mono">nemotron-cascade-2</span> (fastest tokens on the box, fails the hard fixture
+  every run), <span class="mono">qwen3.8</span> (30.3 tok/s, 4× slower than the field).</p>
 </section>
 
 <section>

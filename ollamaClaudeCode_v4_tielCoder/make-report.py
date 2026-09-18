@@ -86,6 +86,14 @@ def bars(rows, unit="", fmt="{:.0f}", hi=None, lower_better=False):
     return "".join(out)
 
 
+def _tbo_rate(model, rank):
+    """That model's Terminal-Bench resolved rate, or a dash if it has none."""
+    for r, m, _ in rank:
+        if m == model:
+            return f"{r * 100:.0f}%"
+    return "\u2014"
+
+
 def panel(title, cap, body, note=""):
     n = f'<div class="legend">{note}</div>' if note else ""
     return (f'<div class="chart"><h3>{esc(title)}</h3><p class="cap">{cap}</p>{body}{n}</div>')
@@ -248,6 +256,38 @@ def main():
         tbo_flips[m] = sum(1 for t, v in tbo[m].items()
                            if 0 < sum(r["resolved"] == "True" for r in v) < len(v))
     tbo_rank.sort(reverse=True)
+
+    # The four to actually run, each earning its slot on a DIFFERENT axis --
+    # capability, speed, footprint, overflow safety. Two reasons each, no more:
+    # a recommendation that needs five bullets is not a recommendation.
+    PICKS = [
+        ("qwen3.6:35b-a3b-q4_K_M-agentic", "the default", "good", [
+            f"Top of the field on official Terminal-Bench at "
+            f"{_tbo_rate('qwen3.6:35b-a3b-q4_K_M-agentic', tbo_rank)}, and the most "
+            f"reproducible model measured — decided on 9 of 10 tasks, 1 flip in 3 samples.",
+            "131.6 tok/s and a 60 s hard fixture, at 32.68 GB — fast, and it still fits "
+            "the box with headroom.",
+        ]),
+        ("north-mini-code-1.0:q4_K_M-ctx256k-agentic", "the challenger", "ref", [
+            "Fastest generation on the box, 136.2 tok/s, and the only model that solved "
+            "<span class='mono'>git-multibranch</span> — 1 of 12 trials field-wide.",
+            f"But its {_tbo_rate('north-mini-code-1.0:q4_K_M-ctx256k-agentic', tbo_rank)} "
+            "rests on a single pass, and it is the slowest to finish the hard fixture "
+            "(126 s). Re-run at n=2 before trusting the tie.",
+        ]),
+        ("gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "the shared-box option", "ref", [
+            "22.34 GB at the full 262k window — by far the smallest, leaving ~13 GB free "
+            "for a colleague.",
+            "Best prefill in the field at 3,400 tok/s: the one to point at a large "
+            "codebase when the job is reading, not hard reasoning.",
+        ]),
+        ("tiel-coder:35b-q5-ctx256k-agentic", "the safe-context option", "warn", [
+            "The only family that <b>refuses</b> an over-long prompt. Every other model "
+            "here silently halves the context — an unlogged, unrecoverable truncation.",
+            "262,144 tokens at 34.13 GB with recall verified at 254,181; solved the "
+            "specification rather than the visible tests, 3 runs from 3.",
+        ]),
+    ]
 
     if tbo_rank:
         (br, bm, _), = tbo_rank[:1]
@@ -596,6 +636,19 @@ table.tbo th{white-space:nowrap}
 table.tbo td{white-space:nowrap;vertical-align:middle}
 table.tbo tr.hl td:first-child{font-weight:700;color:var(--ink)}
 table.tbo tr.hl{background:var(--panel-2)}
+.picks{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4px}
+.pick{border:1px solid var(--rule);border-left:3px solid var(--rule-2);border-radius:6px;
+  padding:12px 14px;background:var(--panel)}
+.pick.good{border-left-color:var(--good)} .pick.ref{border-left-color:var(--ref)}
+.pick.warn{border-left-color:var(--warn)} .pick.crit{border-left-color:var(--crit)}
+.pick-h{display:flex;gap:10px;align-items:baseline}
+.pick-n{font-family:ui-monospace,monospace;font-size:18px;font-weight:700;color:var(--rule-2);line-height:1}
+.pick-m{font-size:14px;font-weight:700;color:var(--ink)}
+.pick-r{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.pick-tag{display:inline-block;margin:8px 0 2px;font-size:10.5px}
+.pick-why{margin:6px 0 0;padding-left:16px}
+.pick-why li{font-size:12px;line-height:1.5;color:var(--ink-2);margin:5px 0}
+@media(max-width:700px){.picks{grid-template-columns:1fr}}
 table.tbo td.tbo-na{color:var(--muted);font-style:italic;font-size:10px}
 table.tbo td.tbo-thin{color:var(--warn);font-weight:700}
 .tbo-s{display:block;font-family:ui-monospace,"DejaVu Sans Mono",monospace;
@@ -625,6 +678,31 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
   .kpis{margin:14px 0 8px}
   table{font-size:9.5px} th{font-size:8.5px}
 }
+"""
+
+    picks_html = ""
+    for i, (tag, role, tone, why) in enumerate(PICKS, 1):
+        bullets = "".join(f"<li>{b}</li>" for b in why)
+        picks_html += (
+            f'<div class="pick {tone}"><div class="pick-h">'
+            f'<span class="pick-n">{i}</span>'
+            f'<div><div class="pick-m">{esc(short(tag))}</div>'
+            f'<div class="pick-r">{esc(role)}</div></div></div>'
+            f'<code class="pick-tag">{esc(tag)}</code>'
+            f'<ul class="pick-why">{bullets}</ul></div>')
+    picks_section_html = f"""<section>
+  <div class="sec-head"><h2>The four to run</h2>
+    <span class="note">one slot per strength, not four runners-up</span></div>
+  <p class="sub" style="margin:0 0 14px">Each earns its place on a different axis — capability,
+  speed, footprint, overflow safety — because on a 10-task subset the middle of the table is not
+  separable: places 2–4 sit within roughly one task of each other.</p>
+  <div class="picks">{picks_html}</div>
+  <p class="sub" style="margin:12px 0 0;font-size:11.5px">Not recommended:
+  <span class="mono">cyber-tiel</span> (last in the field; abliteration costs capability here),
+  <span class="mono">nemotron-cascade-2</span> (fastest tokens on the box, fails the hard fixture
+  every run), <span class="mono">qwen3.8</span> (30.3 tok/s, 4× slower than the field).</p>
+</section>
+
 """
 
     tbo_section_html = ("" if not tbo_tasks else f"""<section>
@@ -774,7 +852,7 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
   </table></div>
 </section>
 
-{tbo_section_html}{tb_section_html}<section>
+{picks_section_html}{tbo_section_html}{tb_section_html}<section>
   <div class="sec-head"><h2>Who actually fixed the code</h2>
     <span class="note">three modules · three bugs · one missing function · 18 held-out tests</span></div>
   <p class="sub" style="margin:0 0 14px">The visible tests are the ones the model can see. The
