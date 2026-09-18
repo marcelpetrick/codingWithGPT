@@ -231,13 +231,10 @@ def normalize_repo_url(repo: str) -> str:
     if _SSH_GH_RE.match(repo):
         return _canonical_github_repo(repo.split(":", 1)[1])
 
-    # If user omits scheme but starts with github.com/.
-    if repo.startswith("github.com/"):
-        repo = "https://" + repo
-
-    parsed = urlsplit(repo)
+    # Prefix scheme-less input only to make urlsplit parse its hostname.
+    parsed = urlsplit(repo if "://" in repo else f"//{repo}")
     if (
-        parsed.scheme.lower() == "https"
+        parsed.scheme.lower() in {"", "https"}
         and parsed.hostname is not None
         and parsed.hostname.lower() in {"github.com", "www.github.com"}
         and parsed.username is None
