@@ -66,6 +66,62 @@ These would need multi-GPU or heavy CPU spill; the box holds one ~30 GB model at
 
 ---
 
+## E. From the r/LocalLLaMA 35B-A3B tool-calling benchmark (read 2026-09-18)
+
+Source: OsmanthusBloom's `tool-eval-bench 2.6.0` run, 13 GGUFs × 5 seeds on 32 GB V100s,
+hardmode, 50 % context pressure. **It measures tool calling, not coding** — the author says so —
+so it ranks candidates for us, it does not score them. Useful because it used 5 seeds and
+published confidence intervals, which is more sampling discipline than most posts.
+
+| reported | avg points | our read |
+|---|---|---|
+| Qwen3.8-27B | 152.6 | **already rejected here** — 30.3 tok/s, 4× slower than the field (§4c). Wrong shape for this box regardless of score |
+| Ornith-1.5 | 144.2 | this *is* Tiel's base. We run the re-quant |
+| Tiel-Coder | 144.0 | in the standing field |
+| Qwen3.6-27B | 134.8 | **worth testing** — dense 27B, beats the 35B-A3B on tool calls, and unlike Qwen3.8-27B it is not automatically too slow. Check tok/s first |
+| KAT-Coder-V2.5-Dev | 133.8 | already on the list (§A). CI overlaps the base Qwen — low priority |
+| Ornith-1.5-Heretic | 132.2 | **skip.** The abliterated Ornith, and it lost to plain Ornith. Matches our CyberTiel result exactly: abliteration cost capability and bought nothing |
+| Qwen3.6-35B-A3B | 131.5 | our control |
+
+**Candidates this adds, in priority order:**
+
+1. **`Qwen3.6-27B`** (dense). The one genuinely new signal: it beat the 35B-A3B on tool calling
+   and it is the model the thread's most sceptical commenter says they keep using for real work.
+   Gate on speed — dense 27B is the shape that sank Qwen3.8 here.
+2. **`ManniX-ITA/OmniMerge` v4 and v6** (from the `mann1x` comment). A 27B merge on the Qwen3.6/3.8
+   base; the author claims v4 finishes a job in 5–20 min where Ornith 27B needs 2 h 30. Claims are
+   the author's own and uncontrolled — but "much faster at equal fix rate" is the axis this box
+   cares about most, so it is worth one measured round.
+3. **`Qwen3.6-35B-A3B` ByteShape CPU-5 quant.** Same model we already run, different quant, and it
+   scored slightly above the Unsloth build. Cheap to test, and it would tell us whether our
+   quant choice is leaving anything on the table.
+
+**Explicitly not adding:** `Ornith-1.5-Heretic` (abliterated, lost to its base — we have that
+result already), `Qwen-AgentWorld-35B-A3B` (the OP measured it at 121.0, ten points *below* the
+base model), `BigBang` (one unsourced "I kinda liked it").
+
+### What the thread is worth beyond the candidate list
+
+- **`suprjami` posts Terminal-Bench 2.1 Terminus numbers**: Qwen3.8-27B 73.0, **Ornith-1.5 67.8**,
+  Ornith-1.0 64.2, Qwen3.6-27B 63.4, **Qwen3.6-35B 52.5**, Muse Glimmer 51.7. Different harness
+  version, different agent and an unknown subset, so the absolute numbers are not ours to quote —
+  but the **ordering puts Ornith-1.5 fifteen points above Qwen3.6-35B, and our round found the
+  reverse.** That contradiction is what led to finding our thinking asymmetry
+  (`OFFICIAL_TB_PLAN.md`). Outside results are most useful exactly here: not as scores to copy,
+  but as a check on whether our own ordering is believable.
+- **The `peculiar-ragdoll` / `fragment_me` argument about whether a chat template can change
+  capability** is directly relevant to us. The author's claim is that the Sharp template steers
+  the model toward convergent thinking. If true, then *disabling thinking on a Sharp-template
+  model removes the mechanism its advantage rests on* — which is precisely the error our round
+  made. Their claim and our bug point at the same variable.
+- **`suprjami` notes Tiel is Ornith re-quantized with a different template, not a fine-tune.**
+  Consistent with `measurements.md`. Our own numbers are the useful evidence here: Tiel 41 % vs
+  ornith 33 %, same direction as the author's SWE-Bench-Live claim, far smaller than his "50 %
+  higher", and both at thinking parity only after the re-run.
+- **Method to copy:** 5 seeds per configuration with published confidence intervals. We use n=3
+  on the subject models and n=1 on comparators; the CI discipline is better than ours and it is
+  cheap to adopt.
+
 ## The field a candidate is measured against — fixed 2026-09-18
 
 A new contender is run against **four models and no others**: `qwen3.6:35b-a3b` (the default),

@@ -22,8 +22,13 @@ This subclass supplies the same environment contract the rest of v4 uses:
   * telemetry/autoupdater off, so a task container with internet cannot spend
     turns on a version check mid-benchmark.
 
-Thinking is controlled the way v4 measured it: `<|think_off|>` appended to the
-system prompt for the Sharp-template models (2.3x faster, no correctness loss).
+Thinking: `<|think_off|>` is a Sharp-template token, so it only takes effect on
+Tiel and CyberTiel. Asking for thinking=off in a mixed field silently disables
+reasoning for those two and leaves it on for everyone else, which is how the
+2026-09-18 round came to compare a handicapped subject against a thinking
+control. `thinking=off` is therefore refused unless every model in the run
+honours the marker; the default is `on`, which is the only setting this harness
+can guarantee is symmetric.
 
 Usage (note: --agent-import-path overrides --agent):
 
@@ -51,6 +56,26 @@ DEFAULT_HOST = os.environ.get("OLLAMA_HOST_URL", "http://192.168.100.67:11434")
 DEFAULT_MAX_CTX = "230000"
 THINK_OFF_MARKER = "<|think_off|>"
 
+# `<|think_off|>` is a SHARP-TEMPLATE convention. Appending it to a model whose
+# template does not parse it leaves it as inert text in the system prompt and the
+# model goes on reasoning normally.
+#
+# The 2026-09-18 round shipped it to every model and got exactly that: Tiel and
+# CyberTiel emitted 0 reasoning blocks across 30 trials each, while qwen3.6 (287
+# blocks), north-mini (373), ornith (95) and gemma4 (83) kept thinking. The two
+# subject models were handicapped and every comparator was not — a difference the
+# round then read as capability. Public Terminal-Bench numbers put Ornith-1.5
+# (Tiel's base) ABOVE Qwen3.6-35B; this round found the reverse, which is the
+# signature of a configuration error rather than a disagreement about models.
+#
+# So the marker is now allowed only when EVERY model in the run honours it, and
+# the check is loud.
+SHARP_TEMPLATE_MODELS = ("tiel-coder", "cyber-tiel")
+
+
+def honours_think_off(model: str) -> bool:
+    return any(k in model.split(":", 1)[0] for k in SHARP_TEMPLATE_MODELS)
+
 
 class OllamaClaudeCodeAgent(ClaudeCodeAgent):
     """ClaudeCodeAgent pointed at a local Ollama server."""
@@ -59,7 +84,7 @@ class OllamaClaudeCodeAgent(ClaudeCodeAgent):
     def name() -> str:
         return "ollama-claude-code"
 
-    def __init__(self, *args, thinking: str = "off", host: str | None = None, **kwargs):
+    def __init__(self, *args, thinking: str = "on", host: str | None = None, **kwargs):
         super().__init__(*args, **kwargs)
         self._thinking = str(thinking).lower()
         self._host = host or DEFAULT_HOST
@@ -120,6 +145,15 @@ class OllamaClaudeCodeAgent(ClaudeCodeAgent):
             f"--allowedTools {' '.join(self.ALLOWED_TOOLS)}"
         )
         if self._thinking == "off":
+            if not honours_think_off(self._model_name):
+                raise ValueError(
+                    f"thinking=off was requested for {self._model_name!r}, which does "
+                    f"not honour {THINK_OFF_MARKER} -- the marker would sit in its "
+                    "system prompt as inert text while the model kept reasoning, and "
+                    "any Sharp-template model in the same field WOULD be silenced. "
+                    "That asymmetry invalidated the 2026-09-18 round. Run the whole "
+                    "field with thinking=on, or restrict the field to "
+                    f"{SHARP_TEMPLATE_MODELS}.")
             cmd += f" --append-system-prompt {shlex.quote(THINK_OFF_MARKER)}"
         return [
             TerminalCommand(

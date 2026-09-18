@@ -352,6 +352,33 @@ arithmetic.
 
 ---
 
+## 8b. A setting that only some models honour is not a setting
+
+**Before comparing models, prove the knob moved for all of them.** A flag a model does not
+understand does not error — it is ignored, and the run looks normal.
+
+v4 lost a whole round's model comparison to this. `<|think_off|>` is a Sharp-template token; the
+adapter appended it to every model. Tiel and CyberTiel emitted **0 reasoning blocks across 30
+trials each**; qwen3.6 (287 blocks), north-mini (373), ornith (95) and gemma4 (83) reasoned
+normally. The subjects were silenced, the comparators were not, and the round read the gap as
+capability.
+
+The rule:
+
+- **Verify from the transcript, not the config.** Count what the models actually emitted. The
+  config says what was asked for; only the output says what happened.
+- **A per-family control token may not be used on a mixed field.** Either every model honours it
+  or the run uses the setting that is symmetric — which, for thinking through Claude Code, is
+  `on`.
+- **The adapter enforces it**: `thinking=off` raises unless every model in the run honours the
+  marker.
+- **Let an outside result argue with you.** What exposed this was a published Terminal-Bench
+  ranking that put Ornith-1.5 fifteen points *above* Qwen3.6-35B while our round found the
+  reverse. Public numbers are rarely comparable to ours directly, but a flipped **ordering** is a
+  cheap and powerful smoke alarm. Check the ordering against one before believing a surprise.
+
+---
+
 ## 9. When to stop benchmarking a model
 
 Re-running a settled answer is the cheapest way to waste an afternoon. **Cut a model when it has
@@ -446,6 +473,7 @@ label/value association.
 - [ ] runtime version recorded; control re-measured in the same session
 - [ ] measured against **the standing four only** (§9a) — not the whole historical field
 - [ ] `validate-subset.py` clean, or every hit answered, **before** the subset is frozen (§8a)
+- [ ] every sampler/thinking flag **verified from the transcripts** to have taken effect on every model (§8b)
 - [ ] `/api/show` read: base model, quant tier, capabilities, **the `template` field**
 - [ ] `-agentic` variant baked with `num_ctx` and `presence_penalty 0`
 - [ ] residency ladder at 100% GPU; the deployed window fits

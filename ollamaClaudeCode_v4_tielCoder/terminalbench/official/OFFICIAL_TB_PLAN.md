@@ -259,6 +259,58 @@ standing field on **speed**, which is measured and stable, not on capability.
 which was measured on the *ledger* fixture, never on hard puzzle tasks. A thinking-on arm over
 `polyglot-c-py` and `git-multibranch` is the honest next test, and it is not run yet.
 
+### The model comparison is INVALID — we disabled thinking on the subjects only
+
+Found 2026-09-18 while checking this round against published results. **It invalidates the
+model-vs-model conclusion of the whole round**, and it was our error, not the models'.
+
+`<|think_off|>` is a **Sharp-template token**. The adapter appended it to every model's system
+prompt. Only Tiel and CyberTiel parse it; for everyone else it sat there as inert text. Reasoning
+blocks actually emitted:
+
+| model | trials | trials that reasoned | blocks |
+|---|---|---|---|
+| tiel-coder | 30 | **0** | **0** |
+| cyber-tiel | 30 | **0** | **0** |
+| qwen3.6 | 30 | 27 | 287 |
+| north-mini | 30 | 30 | 373 |
+| ornith | 10 | 10 | 95 |
+| gemma4 | 10 | 9 | 83 |
+
+**The two subject models ran with reasoning disabled and every comparator ran with it enabled.**
+The adapter's own docstring said the marker was "for the Sharp-template models" — the intent was
+Tiel-only; the code applied it to all, and the effect was Tiel-only suppression. Nothing flagged
+it because a model that ignores the marker fails silently, which is the same shape as every other
+defect this round turned up.
+
+**What tipped us off was an outside result, not our own data.** Published Terminal-Bench 2.1
+numbers put Ornith-1.5 — Tiel's base — at 67.8 against Qwen3.6-35B's 52.5. This round found the
+reverse ordering. A disagreement that large against the public ranking is the signature of a
+configuration error, and it was.
+
+**What survives and what does not:**
+
+- **Void:** every model-vs-model claim. Tiel 41 % vs qwen3.6 59 % compares a silenced model to a
+  thinking one. The "contenders did not displace the incumbent" verdict is **unproven**, not
+  disproven — it may still be true, it is simply not evidence yet.
+- **Survives:** the harness findings, which do not depend on the comparison — the `nginx`
+  task defect, the `fibonacci-server` scaffold-persistence effect, the `oom` workaround-vs-
+  root-cause behaviour, the n=1 jitter measurements (those compare a model to *itself*), and
+  every per-task transcript reading.
+
+**The fix, applied:** the adapter now refuses `thinking=off` unless **every** model in the run
+honours the marker, and raises with the reason rather than running. The default is `on`, the only
+setting this harness can guarantee is symmetric, and `GO_official_tb.sh` passes
+`TB_THINKING=${TB_THINKING:-on}`.
+
+**The re-run is owed and is not done.** The field must be re-measured at thinking parity before
+any model is ranked against another. Until then the standing field's slot rationales that rest on
+Terminal-Bench capability are provisional — slot 1 (qwen3.6 "the default") most of all.
+
+This also gives v4's own "thinking off is 2.3× faster for no loss" finding a boundary: it was
+measured on the ledger fixture, on Tiel, and it does not license disabling reasoning on a mixed
+field.
+
 ### Before a subset is ever frozen again
 
 `validate-subset.py` was written out of this and is now a gate: it parses each task's tests with

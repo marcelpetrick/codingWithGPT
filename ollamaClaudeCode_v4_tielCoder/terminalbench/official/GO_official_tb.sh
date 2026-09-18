@@ -12,6 +12,11 @@
 # hit api.anthropic.com and report 0%.
 #
 # Plan (chosen 2026-09-18): "Tiel deep, n=2".
+# Thinking is ON by default and that is deliberate: <|think_off|> is a
+# Sharp-template token, so asking for "off" in a mixed field silences Tiel and
+# CyberTiel while every comparator keeps reasoning. That asymmetry invalidated the
+# 2026-09-18 round's model comparison. TB_THINKING=off is only legitimate when the
+# field is Tiel/CyberTiel alone; the adapter now refuses it otherwise.
 #   phase 1: all 4 models x the frozen 10-task subset x n=1   (~1.3 h)
 #   phase 2: the same 4 x the subset x n=2                    (~2.7 h)
 # Every model runs the IDENTICAL subset (subset.txt). One model resident at a
@@ -77,10 +82,10 @@ done
 run_one () {  # <runs> <model...>
   local runs="$1"; shift
   for m in "$@"; do
-    echo "=== $m  (n=$runs, thinking off) ==="
+    echo "=== $m  (n=$runs, thinking ${TB_THINKING:-on}) ==="
     "$TB" run -d "$DATASET" "${TARGS[@]}" \
       --agent-import-path "$AGENT" -m "$m" \
-      -k thinking=off \
+      -k thinking="${TB_THINKING:-on}" \
       --n-attempts "$runs" \
       --n-concurrent "$CONCURRENCY" \
       --output-path "$OUT" \

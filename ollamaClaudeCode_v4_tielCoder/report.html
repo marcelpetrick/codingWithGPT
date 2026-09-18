@@ -99,6 +99,7 @@ td.num.good{color:var(--good);font-weight:600}
 .pill.good{background:var(--good-soft);color:var(--good);font-weight:600}
 .pill.crit{background:var(--crit-soft);color:var(--crit);font-weight:600}
 .pill.warn{background:var(--warn-soft);color:var(--warn);font-weight:600}
+b.crit,span.crit{color:var(--crit)}
 .tablewrap{overflow-x:auto}
 table.tbo th{white-space:nowrap}
 table.tbo td{white-space:nowrap;vertical-align:middle}
@@ -165,8 +166,13 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
   <div class="verdict">
     <span class="k">Verdict</span>
     <div>
-      <p><b>The contenders did not displace the incumbent.</b> On the official Terminal-Bench
-      harness <b>qwen3.6 35b leads at 53%</b>, the best contender (Tiel · pp0) trails at 37%, and it is the steadiest of the sampled models — 1 task landing differently between runs, against 4 for the contenders.</p>
+      <p><b class="crit">The model-vs-model comparison is not yet valid.</b>
+      <code>&lt;|think_off|&gt;</code> is a Sharp-template token: it silenced reasoning on Tiel and
+      CyberTiel (0 blocks in 30 trials each) while every comparator kept thinking (qwen3.6 287
+      blocks, north-mini 373, ornith 95, gemma4 83). The subjects were handicapped and the
+      comparators were not, so the Terminal-Bench ranking below compares a silenced model to a
+      thinking one. A re-run at thinking parity is owed. On the harness as run
+      <b>qwen3.6 35b leads at 53%</b>, the best contender (Tiel · pp0) trails at 37%, and it is the steadiest of the sampled models — 1 task landing differently between runs, against 4 for the contenders. — read that as provisional.</p>
       <p><b>If you run Tiel, run the variant, never the tag as it shipped.</b> Same weights; the
       shipped tag carries <code>presence_penalty 1.5</code>, which costs 52% of
       generation speed and buys nothing measurable. Tiel still wins the things it won: it holds
@@ -276,7 +282,11 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
 <section>
   <div class="sec-head"><h2>Terminal-Bench — the official harness</h2>
     <span class="note">upstream terminal-bench 0.2.18 · terminal-bench-core 0.1.1 · frozen 10-task subset</span></div>
-  <p class="sub" style="margin:0 0 14px">The upstream harness on the upstream dataset, driven
+  <p class="sub" style="margin:0 0 14px"><b class="crit">Provisional:</b> thinking was disabled
+  for Tiel and CyberTiel only — <code>&lt;|think_off|&gt;</code> is a Sharp-template token the
+  other models ignore — so these rates compare silenced subjects against thinking comparators.
+  Per-task behaviour and the flip counts stand; the ranking does not, until the field is re-run at
+  parity. The upstream harness on the upstream dataset, driven
   through Claude Code pointed at the local server — so these are leaderboard-shaped numbers, not
   a look-alike of our own. Every model runs the identical frozen subset; change the subset and
   the comparison is void. Each cell is the verdict and the agent's median wall clock.
