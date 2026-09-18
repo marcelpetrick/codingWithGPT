@@ -127,13 +127,20 @@ def main():
     for r in read_tsv("overflow.tsv"):
         overflow[r["model"]] = r["regime"]
 
+    # v2 scoring (needles + label/value pairs - hallucination traps) if it has been
+    # run, else the v1 file. v1 asked only whether a string appeared anywhere and
+    # gave every model a perfect 25/25, so it separates nothing; v2's `score`
+    # column is the one worth reading. vision_v2 says which regime the numbers are.
     vision = defaultdict(lambda: [0, 0])
-    for r in read_tsv("vision.tsv"):
+    vision_rows = read_tsv("vision-v2.tsv")
+    vision_v2 = bool(vision_rows)
+    col = "score" if vision_v2 else "checks"
+    for r in vision_rows or read_tsv("vision-v1.tsv"):
         try:
-            g, p = r["checks"].split("/")
+            g, p = r[col].split("/")
             vision[r["model"]][0] += int(g)
             vision[r["model"]][1] += int(p)
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, AttributeError):
             pass
 
     needle = defaultdict(int)
@@ -531,6 +538,11 @@ def main():
                     '<th title="runs per task">runs</th>' + head +
                     f'</tr></thead><tbody>{rows_tbo}</tbody></table></div>{legend}')
 
+    vision_note = ("needles + label/value pairs, minus hallucination traps (v2 scoring)"
+                   if vision_v2 else
+                   "v1 scoring: substring presence only — every capable model scores 25/25, "
+                   "so this column does not separate them")
+
     stages = {"S1 Tiel": bool(gen.get(T_SHIP)), "S2 field": len(gen) > 4,
               "S3 sessions": bool(sess), "S5 CyberTiel": bool(gen.get(CT)),
               "S6 sandboxed": any(k[3] == "sandbox" for k in sess)}
@@ -844,7 +856,7 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
 
 <section>
   <div class="sec-head"><h2>The field</h2>
-    <span class="note">vision is a yes/no capability — every capable model scores 25/25</span></div>
+    <span class="note">{vision_note}</span></div>
   <div class="tablewrap"><table>
   <thead><tr><th>model</th><th>gen tok/s</th><th>cold prefill</th><th>gates</th><th>vision</th>
   <th>past its window</th></tr></thead>
