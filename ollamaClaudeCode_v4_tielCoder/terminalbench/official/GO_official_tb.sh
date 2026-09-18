@@ -60,6 +60,15 @@ for m in "${FIELD_ALL[@]}"; do
   echo "$present" | grep -q "\"$m\"" || echo "  WARN: $m not on the server -- create it first (see toTest.md Stage 1)"
 done
 
+# NOTE (2026-09-18, found mid-round): the run-id must be LOWERCASE. terminal-bench
+# derives the `docker compose -p <project>` name from it, and compose rejects any
+# project name containing uppercase:
+#   invalid project name "...q4_K_M...": must consist only of lowercase
+#   alphanumeric characters, hyphens, and underscores
+# Tags carrying a quant suffix like q4_K_M therefore failed *every* task in ~0.4s
+# with a tidy "Accuracy: 0.00%" -- qwen3.6, north-mini and gemma4 were all hit,
+# while tiel/cyber-tiel (q5) and ornith (no quant in the tag) ran fine. The model
+# tag passed to -m is untouched; only the run-id is folded to lowercase.
 run_one () {  # <runs> <model...>
   local runs="$1"; shift
   for m in "$@"; do
@@ -70,18 +79,26 @@ run_one () {  # <runs> <model...>
       --n-attempts "$runs" \
       --n-concurrent "$CONCURRENCY" \
       --output-path "$OUT" \
-      --run-id "$(echo "$m" | tr '/:' '__')-n$runs-$(date +%H%M%S)" \
+      --run-id "$(echo "$m" | tr '/:' '__' | tr 'A-Z' 'a-z')-n$runs-$(date +%H%M%S)" \
       2>&1 | tail -40
     # be a good neighbour: unload this model before the next one loads
     curl -s "$HOST/api/generate" -d "{\"model\":\"$m\",\"keep_alive\":0}" >/dev/null 2>&1 || true
   done
 }
 
-echo "=== PHASE 1: all ${#FIELD_ALL[@]} models x ${#TASKS[@]} tasks x n=1 ==="
-run_one 1 "${FIELD_ALL[@]}"
+# TB_PHASE=1 | 2 | both (default). Lets a round that was stopped mid-way resume
+# without re-running passes that are already valid.
+PHASE="${TB_PHASE:-both}"
 
-echo "=== PHASE 2: subject trio x ${#TASKS[@]} tasks x n=2 ==="
-run_one 2 "${FIELD_N2[@]}"
+if [ "$PHASE" = "1" ] || [ "$PHASE" = "both" ]; then
+  echo "=== PHASE 1: ${#FIELD_ALL[@]} models x ${#TASKS[@]} tasks x n=1 ==="
+  run_one 1 "${FIELD_ALL[@]}"
+fi
+
+if [ "$PHASE" = "2" ] || [ "$PHASE" = "both" ]; then
+  echo "=== PHASE 2: subject trio x ${#TASKS[@]} tasks x n=2 ==="
+  run_one 2 "${FIELD_N2[@]}"
+fi
 
 echo "=== results are under $OUT ; summarise with ./summarise.py ==="
 python3 "$HERE/summarise.py" "$OUT" || true

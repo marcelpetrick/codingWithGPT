@@ -31,7 +31,7 @@ The honest summary: **the objection was time, not feasibility, and the time now 
    (`{"version":"0.33.3"}`). **No socat relay is needed** for this round — the task containers
    are upstream's, and they have normal egress by design.
 
-### Two defects found and fixed on the way
+### Three defects found and fixed on the way
 
 - **`docker compose` was not installed at all** (`docker: unknown command: docker compose`;
   neither was `buildx`). The harness cannot build a single task without it. Now installed
@@ -41,11 +41,30 @@ The honest summary: **the objection was time, not feasibility, and the time now 
   `api.anthropic.com` — benchmarking the wrong thing entirely. Fixed by
   `ollama_claude_code_agent.py` (below).
 
-> Both defects share one shape, and it is the shape §0 of the harness exists for: **they do
+- **Our own `--run-id` voided every `q4_K_M` model** (found mid-round, 10:44, after two
+  passes had already completed normally). `GO_official_tb.sh` built the run-id from the model
+  tag verbatim; terminal-bench derives the `docker compose -p <project>` name from it, and
+  compose rejects uppercase:
+
+      invalid project name "fix-permissions-1-of-1-qwen3-6_35b-a3b-q4_K_M-agentic":
+      must consist only of lowercase alphanumeric characters, hyphens, and underscores
+
+  A `q4_K_M` quant suffix carries uppercase `K`/`M`, so qwen3.6 and north-mini failed **every
+  task in ~0.4 s, before a container existed** — reported as `Accuracy: 0.00 %`. gemma4 carries
+  the same suffix and was next in the queue; the round was stopped before it ran. Tiel
+  and CyberTiel (`q5`) and ornith (no quant in the tag) were unaffected, which is precisely why
+  the first two passes looked healthy and concealed the fault. Fixed by folding the run-id to
+  lowercase (the `-m` tag is untouched), proven both ways with the oracle before re-running
+  (uppercase run-id → 0.0, lowercased → 1.0), and the voided passes are kept as evidence under
+  `runs/void-compose-uppercase/`.
+
+> All three defects share one shape, and it is the shape §0 of the harness exists for: **they do
 > not announce themselves.** The compose failure surfaced as a tidy `Accuracy: 0.00 %`, which
 > reads exactly like a model that solved nothing. `summarise.py` therefore separates
 > infrastructure failures from model failures and counts the former as **VOID**, never as a
-> zero.
+> zero. The third defect is the case in point: the harness classed those trials
+> `unknown_agent_error`, which is already in the INFRA set, so they were booked as VOID rather
+> than as two models' worth of zeroes. The guard worked before anyone looked at it.
 
 ## The agent adapter
 
