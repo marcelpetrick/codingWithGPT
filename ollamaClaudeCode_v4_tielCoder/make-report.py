@@ -235,6 +235,40 @@ def main():
         (think_gain, "faster with thinking off<br>no loss of correctness", "ref"),
         (f"{halvers}", "models that silently halve<br>an over-long prompt", "crit"),
     ]
+    # Headline facts for the masthead, computed rather than written down, so the
+    # verdict cannot drift away from the table underneath it.
+    tbo_rank, tbo_flips = [], {}
+    for m in tbo:
+        live = [r for t in tbo[m] for r in tbo[m][t]
+                if r["failure_mode"] not in INFRA_MODES]
+        if not live:
+            continue
+        runs = max(len(v) for v in tbo[m].values())
+        tbo_rank.append((sum(r["resolved"] == "True" for r in live) / len(live), m, runs))
+        tbo_flips[m] = sum(1 for t, v in tbo[m].items()
+                           if 0 < sum(r["resolved"] == "True" for r in v) < len(v))
+    tbo_rank.sort(reverse=True)
+
+    if tbo_rank:
+        (br, bm, _), = tbo_rank[:1]
+        subj = [(r, m, n) for r, m, n in tbo_rank if m in SUBJECT]
+        bits = [f"<b>{esc(short(bm))} leads at {br * 100:.0f}%</b>"]
+        if subj:
+            sr, sm, _ = subj[0]
+            if sm != bm:
+                bits.append(f"the best contender ({esc(short(sm))}) trails at {sr * 100:.0f}%")
+        fl = {m: tbo_flips.get(m, 0) for _, m, n in tbo_rank if n > 1}
+        if fl:
+            steady = min(fl, key=lambda m: fl[m])
+            noisy = [m for m in fl if fl[m] > fl[steady]]
+            if noisy:
+                bits.append(f"and it is the steadiest of the sampled models — {fl[steady]} task "
+                            f"landing differently between runs, against "
+                            f"{max(fl[m] for m in noisy)} for the contenders")
+        tbo_verdict = ", ".join(bits) + "."
+    else:
+        tbo_verdict = "has not been run yet."
+
     kpi_html = "".join(
         f'<div class="kpi"><div class="n {tone}">{v}</div><div class="l">{l}</div></div>'
         for v, l, tone in kpis)
@@ -260,15 +294,16 @@ def main():
         panel("Generation speed", "tok/s at a 2,000-word prompt, thinking disabled, temperature 0. "
               "Higher is better.", bars(gen_rows, " tok/s"),
               "Tiel is the only Q5 here — 27.5 GB of weights against 18–24 GB. Its own q4 ancestor "
-              "<span class='mono'>ornith 1.0</span> runs 127, so the gap is the quant tier, not the model."),
+              "<span class='mono'>ornith 1.0</span> runs 127, so the gap is the quant tier, not the model. "
+              "The two Tiel bars are the same weights one sampler setting apart: the shipped tag's "
+              f"<span class='mono'>presence_penalty 1.5</span> costs {pp_gain.lstrip('+')}, paid per "
+              "generated token — prefill moves less than 2%."),
         panel("Time to finish the hard job", "Median of three real Claude Code sessions on the "
               "three-module fixture. Lower is better.",
               bars(hard_rows, " s", "{:.0f}", lower_better=True),
               "Tokens per second does not predict this — the fastest model on the box is last."),
-        panel("What the presence penalty costs", "Identical weights, one sampler setting apart.",
-              bars(pp_rows, " tok/s"),
-              "Prefill moves less than 2%: the penalty is paid per generated token, in the sampler."),
-        panel("What thinking costs", "Tiel on the hard fixture, median of three, with and without "
+        panel("What thinking costs, end to end", "Session wall clock, not tok/s: Tiel on the hard "
+              "fixture, median of three, with and without "
               "<span class='mono'>&lt;|think_off|&gt;</span>.",
               bars(think_rows, " s", "{:.0f}", lower_better=True),
               "Held-out scores were equal or better with thinking off, and the only session Tiel "
@@ -395,23 +430,36 @@ def main():
             return sum(r["resolved"] == "True" for r in live) / len(live)
 
         def tbo_cell(rows):
+            """One encoding for every cell, whatever the sample count.
+
+            The first cut printed "SOLVED" for a model sampled once and "3/3" for
+            a model sampled three times -- two spellings of the same outcome,
+            picked by an accident of scheduling. Now every cell carries the same
+            three things: the verdict, the tally it rests on, and the time.
+            FLIPS is its own verdict because a task that lands differently between
+            runs is the round's most important state, not a rounding detail.
+            """
             if not rows:
-                return '<td>-</td>'
+                return '<td class="tbo-na">not run</td>'
             void = [r for r in rows if r["failure_mode"] in INFRA_MODES]
             if len(void) == len(rows):
                 return ('<td><span class="pill" title="infrastructure failure, '
                         'not a model result">VOID</span></td>')
             live = [r for r in rows if r["failure_mode"] not in INFRA_MODES]
+            n = len(live)
             ok = sum(r["resolved"] == "True" for r in live)
             secs = [float(r["agent_sec"]) for r in live if r["agent_sec"]]
             med = statistics.median(secs) if secs else 0
-            cls = "good" if ok == len(live) else ("crit" if ok == 0 else "warn")
-            timed_out = any(r["failure_mode"] == "agent_timeout" for r in live)
-            if len(live) == 1:
-                label = "SOLVED" if ok else ("TIMEOUT" if timed_out else "fail")
+            if ok == n:
+                label, cls = "SOLVED", "good"
+            elif ok == 0:
+                all_to = all(r["failure_mode"] == "agent_timeout" for r in live)
+                label, cls = ("TIMEOUT" if all_to else "failed"), "crit"
             else:
-                label = f"{ok}/{len(live)}"
-            note = f'<span class="tbo-s">{med:.0f}s</span>' if med else ""
+                label, cls = "FLIPS", "warn"
+            tally = f'{ok}/{n}'
+            note = f'<span class="tbo-s">{tally} · {med:.0f}s</span>' if med else \
+                   f'<span class="tbo-s">{tally}</span>'
             return f'<td><span class="pill {cls}">{label}</span>{note}</td>'
 
         order = sorted(tbo, key=lambda m: (-(rate_of(
@@ -426,11 +474,22 @@ def main():
             vflag = f' <span class="pill crit" title="voided trials">{nvoid} void</span>' if nvoid else ""
             cells = "".join(tbo_cell(tbo[m].get(t, [])) for t in tbo_tasks)
             hl = ' class="hl"' if m in SUBJECT else ""
+            # Runs per task. A model sampled once cannot show FLIPS at all, so the
+            # column is there to stop a single sample being read as a settled result.
+            runs = max((len(v) for v in tbo[m].values()), default=0)
+            rcls = "" if runs > 1 else ' class="tbo-thin" title="single sample — no stability read"'
             rows_tbo += (f'<tr{hl}><td>{esc(short(m))}</td>'
-                         f'<td><b>{rr}</b>{vflag}</td>{cells}</tr>')
+                         f'<td><b>{rr}</b>{vflag}</td><td{rcls}>{runs}</td>{cells}</tr>')
+        legend = ('<div class="legend"><b>SOLVED</b> every run passed · '
+                  '<b>FLIPS</b> passed some runs and not others · '
+                  '<b>failed</b> no run passed · '
+                  '<b>TIMEOUT</b> no run passed, every one hit the task\'s time budget · '
+                  '<b>VOID</b> infrastructure failure, excluded from the rate. '
+                  'Each cell reads <i>passed/runs · median agent seconds</i>.</div>')
         tbo_html = ('<div class="tablewrap"><table class="tbo"><thead><tr>'
-                    '<th>model</th><th>resolved</th>' + head +
-                    f'</tr></thead><tbody>{rows_tbo}</tbody></table></div>')
+                    '<th>model</th><th>resolved</th>'
+                    '<th title="runs per task">runs</th>' + head +
+                    f'</tr></thead><tbody>{rows_tbo}</tbody></table></div>{legend}')
 
     stages = {"S1 Tiel": bool(gen.get(T_SHIP)), "S2 field": len(gen) > 4,
               "S3 sessions": bool(sess), "S5 CyberTiel": bool(gen.get(CT)),
@@ -537,6 +596,8 @@ table.tbo th{white-space:nowrap}
 table.tbo td{white-space:nowrap;vertical-align:middle}
 table.tbo tr.hl td:first-child{font-weight:700;color:var(--ink)}
 table.tbo tr.hl{background:var(--panel-2)}
+table.tbo td.tbo-na{color:var(--muted);font-style:italic;font-size:10px}
+table.tbo td.tbo-thin{color:var(--warn);font-weight:700}
 .tbo-s{display:block;font-family:ui-monospace,"DejaVu Sans Mono",monospace;
   font-size:9px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
 .empty{font-size:13px;color:var(--muted);font-style:italic}
@@ -597,8 +658,8 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tiel-Coder on the 36 GB box</title>
-<meta name="description" content="v4 benchmark: Tiel-Coder and CyberTiel against the local model field on Ollama 0.33.3.">
+<title>Benchmark 2026-09-18</title>
+<meta name="description" content="v4 benchmark: the local model field on the 36 GB box, Ollama 0.33.3 — speed, context, agentic sessions and official Terminal-Bench.">
 <style>{css}</style>
 </head>
 <body>
@@ -606,23 +667,26 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
 
 <div class="mast">
   <div class="mast-top">
-    <span class="eyebrow">Benchmark v4 · 2026-09-17</span>
+    <span class="eyebrow">Benchmark v4 · 2026-09-18</span>
     <span class="eyebrow">192.168.100.67 · Ollama 0.33.3 · 35.56 GB usable</span>
   </div>
-  <h1>Tiel-Coder on the 36&nbsp;GB box</h1>
-  <p class="sub">A re-quantized Ornith-1.5 landed on the server, and its uncensored sibling with it.
-  Both were measured against the field v3 recommended — on a runtime that has since changed the
-  rules underneath all of it.</p>
+  <h1>Benchmark&nbsp;2026-09-18</h1>
+  <p class="sub">The local model field on the 36&nbsp;GB box, measured on a runtime that has since
+  changed the rules underneath all of it. Two new contenders arrived for this round — a
+  re-quantized Ornith-1.5 (<span class="mono">Tiel</span>) and its uncensored sibling
+  (<span class="mono">CyberTiel</span>) — and they are measured against the field v3 recommended,
+  not treated as the answer.</p>
   <div class="verdict">
-    <span class="k">Deploy</span>
+    <span class="k">Verdict</span>
     <div>
-      <p><b>Use <code>tiel-coder:35b-q5-ctx256k-agentic</code> — the variant, not the tag as it
-      shipped.</b> Same weights; the shipped tag carries <code>presence_penalty 1.5</code>, which
-      costs {pp_gain.lstrip('+')} of generation speed and buys nothing measurable.</p>
-      <p>It is one of only two models that solved the <em>specification</em> rather than the visible
-      tests — all 18 held-out tests, three runs from three. It holds 262,144 tokens at 34.13 GB,
-      recalls at 254,181, and refuses an over-long prompt instead of quietly answering from half of
-      it. Append <code>&lt;|think_off|&gt;</code> and it gets {think_gain} faster for nothing.</p>
+      <p><b>The contenders did not displace the incumbent.</b> On the official Terminal-Bench
+      harness {tbo_verdict}</p>
+      <p><b>If you run Tiel, run the variant, never the tag as it shipped.</b> Same weights; the
+      shipped tag carries <code>presence_penalty 1.5</code>, which costs {pp_gain.lstrip('+')} of
+      generation speed and buys nothing measurable. Tiel still wins the things it won: it holds
+      262,144 tokens at 34.13&nbsp;GB, recalls at 254,181, refuses an over-long prompt instead of
+      quietly answering from half of it, solved the <em>specification</em> rather than the visible
+      tests, and gets {think_gain} faster with <code>&lt;|think_off|&gt;</code> for nothing.</p>
     </div>
   </div>
 </div>
