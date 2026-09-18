@@ -14,6 +14,15 @@ from urllib.parse import urlsplit
 DIRECTIVE = "/no_think\n"
 VISION_SYSTEM = "You are a precise vision and OCR assistant. Transcribe requested text exactly and describe only what is visible."
 REMINDER_TAGS = ("system-reminder", "total_tokens")
+FORWARDED_RESPONSE_HEADERS = {
+    "cache-control": "Cache-Control",
+    "content-type": "Content-Type",
+    "date": "Date",
+    "etag": "ETag",
+    "last-modified": "Last-Modified",
+    "server": "Server",
+    "x-request-id": "X-Request-ID",
+}
 
 
 def remove_reminder_blocks(text: str) -> str:
@@ -166,16 +175,13 @@ class ProxyHandler(BaseHTTPRequestHandler):
         try:
             connection.request(self.command, self.path, body=body, headers=headers)
             response = connection.getresponse()
-            reason = response.reason
-            if reason is not None and ("\r" in reason or "\n" in reason):
-                reason = None
-            self.send_response(response.status, reason)
+            self.send_response(response.status)
             for key, value in response.getheaders():
-                if key.lower() in {"content-length", "transfer-encoding", "connection", "content-encoding"}:
+                header_name = FORWARDED_RESPONSE_HEADERS.get(key.lower())
+                if header_name is None:
                     continue
-                if "\r" in key or "\n" in key or ":" in key or "\r" in value or "\n" in value:
-                    continue
-                self.send_header(key, value)
+                header_value = value.replace("\r", "").replace("\n", "")
+                self.send_header(header_name, header_value)
             self.send_header("Connection", "close")
             self.end_headers()
             while chunk := response.read(64 * 1024):
