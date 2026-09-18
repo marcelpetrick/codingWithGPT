@@ -152,6 +152,22 @@ control since v1), **`north-mini`** (the incumbent default Tiel has to beat), **
 The remaining runs are therefore **only** the sandboxed sessions for Tiel and CyberTiel, plus
 CyberTiel's two missing probes — see `s6-focused.sh`.
 
+## 4d. Stage C4b — the base-vs-abliterated discriminator (added 2026-09-17)
+
+`refusal-probe.py` (§C4) already showed neither Tiel nor CyberTiel refuses plainly benign
+defensive work, so it does not separate them. The one test that can is `dualuse-probe.py`
+(`BENCHMARK_HARNESS.md` §6a): nine legitimate-but-refusal-prone security tasks — AES from
+scratch, a PoC for a *provided* injection, a lab port scanner, a dictionary attack on a
+*self-generated* hash, malware-triage deobfuscation, a fuzzer, a local priv-esc audit, a CTF pwn
+explanation. Every one is authorized/local/CTF/defensive; nothing targets a real system, and
+genuinely harmful requests are deliberately absent. It scores DID_IT / CAUTIONED / HEDGED /
+REFUSED from the reply and does **not** execute anything.
+
+Run against both Tiel tags and CyberTiel, one model per load, identical set. Pre-registered
+outcome: if both do everything, abliteration buys nothing even in the grey zone (the expected
+result for a lightly-guarded coding base); if the base refuses where CyberTiel complies, that
+refusal boundary is the finding. Driver: `s8-dualuse.sh`, queued after the extra gates.
+
 ## 4e. Outcome, 2026-09-18 — the field is now fixed at four
 
 The round finished with the official Terminal-Bench harness (120 trials, 0 VOID —
@@ -183,22 +199,6 @@ Two things this round proved that outlive it:
    well-caveated prose — while the default cache the test reads stayed empty. See
    `terminalbench/official/analyse-task.py`.
 
-## 4d. Stage C4b — the base-vs-abliterated discriminator (added 2026-09-17)
-
-`refusal-probe.py` (§C4) already showed neither Tiel nor CyberTiel refuses plainly benign
-defensive work, so it does not separate them. The one test that can is `dualuse-probe.py`
-(`BENCHMARK_HARNESS.md` §6a): nine legitimate-but-refusal-prone security tasks — AES from
-scratch, a PoC for a *provided* injection, a lab port scanner, a dictionary attack on a
-*self-generated* hash, malware-triage deobfuscation, a fuzzer, a local priv-esc audit, a CTF pwn
-explanation. Every one is authorized/local/CTF/defensive; nothing targets a real system, and
-genuinely harmful requests are deliberately absent. It scores DID_IT / CAUTIONED / HEDGED /
-REFUSED from the reply and does **not** execute anything.
-
-Run against both Tiel tags and CyberTiel, one model per load, identical set. Pre-registered
-outcome: if both do everything, abliteration buys nothing even in the grey zone (the expected
-result for a lightly-guarded coding base); if the base refuses where CyberTiel complies, that
-refusal boundary is the finding. Driver: `s8-dualuse.sh`, queued after the extra gates.
-
 ## 5. Shared-server rules (unchanged from v2/v3)
 
 - `idle.sh` waits out anything foreign, never evicts it. v4's copy adds the Tiel tags to
@@ -213,3 +213,68 @@ refusal boundary is the finding. Driver: `s8-dualuse.sh`, queued after the extra
 Atomic, on `master` like every earlier round: plan → harness → one commit per stage of
 results → docs. Raw logs and fixture worktrees are git-ignored, same as v3. TSVs and
 transcripts are committed.
+
+## 7. Next round — picked up 2026-09-21 or later
+
+Written down 2026-09-18 at the end of the round so none of it has to be reconstructed.
+Ordered: **nothing below is worth doing before item 1**, because item 1 decides whether the
+current ranking means anything.
+
+### 1. Re-run the field at thinking parity — the blocker
+
+The round's model-vs-model comparison is void: `<|think_off|>` is a Sharp-template token, so
+Tiel and CyberTiel ran with reasoning disabled (0 blocks in 30 trials each) while qwen3.6, north-
+mini, ornith and gemma4 reasoned normally (287 / 373 / 95 / 83 blocks). See
+`terminalbench/official/OFFICIAL_TB_PLAN.md` and `BENCHMARK_HARNESS.md` §8b.
+
+    cd terminalbench/official && ./GO_official_tb.sh       # TB_THINKING defaults to on now
+
+The adapter refuses `thinking=off` on a mixed field, so the trap cannot be re-entered. ~4–6 h
+for the standing four at n=2. **Until this lands, every slot rationale that rests on
+Terminal-Bench capability is provisional — slot 1 (qwen3.6 as the default) most of all.**
+
+Worth running a `thinking=off` arm for **Tiel and CyberTiel alone** in the same round: that is a
+legitimate within-family comparison, and it puts a boundary on v4's "2.3× for free" finding,
+which was measured on the ledger fixture and never on hard puzzle tasks.
+
+### 2. Close the subset
+
+- Promote a 10th task to replace the defective `nginx-request-logging`: run
+  `./validate-subset.py <task>`, answer every UNSTATED line, confirm the oracle scores 100 %,
+  then freeze it in its own commit. Nominee: `conda-env-conflict-resolution`.
+- Keep `nginx-request-logging` running but unscored; its other 7 sub-tests are real signal.
+- Consider reporting `fibonacci-server` separately — it measures scaffold persistence
+  (`node server.js &` survives, Claude Code's `run_in_background` does not), not coding.
+
+### 3. Finish the sampling the round left short
+
+- `gemma4` and `ornith` are still at **n=1**. Nothing should be concluded about either.
+- Adopt the r/LocalLLaMA method: **5 seeds per configuration with published confidence
+  intervals** (`toTest.md` §E). Better discipline than our n=3/n=1 and cheap to do.
+
+### 4. New candidates (`toTest.md` §E)
+
+In priority order: **Qwen3.6-27B** dense (beat the 35B-A3B on tool calling — gate on tok/s
+first, dense 27B is the shape that sank Qwen3.8 here), **ManniX OmniMerge v4/v6** (claimed far
+faster at equal fix rate; author's own uncontrolled claim), and the **ByteShape quant** of the
+Qwen3.6-35B-A3B we already run. Not adding: Ornith-1.5-Heretic (abliterated and lost to its
+base — our CyberTiel result, independently reproduced), Qwen-AgentWorld (10 points below base),
+BigBang (unsourced).
+
+### 5. Instrument debt
+
+- `vision-bench.py` v2 works and separates the field (Tiel 42/42, qwen3.6 and gemma4 40/42,
+  **north-mini 0/42 — no vision capability at all**). Re-check `/api/show` capabilities for any
+  new candidate before claiming it can see.
+- Token accounting is still `n/a`: the upstream claude-code agent reports no usage to the
+  harness. If it ever matters, parse it from the Ollama side instead.
+
+### 6. The standing rule that came out of all this
+
+Three defects this round shared one shape — a compose project name that must be lowercase, a
+task whose test contradicts its instruction, a thinking flag only two models honour. **None of
+them announced itself; each looked like a model result.** The countermeasures are now in the
+harness (§0, §8a, §8b) and the instruments (`validate-subset.py`, oracle gate, VOID/DEFECT
+accounting, transcript verification of every flag). Use them before trusting a surprise — and
+when an outside ranking disagrees with ours, treat the disagreement as a bug report about us
+first.
