@@ -282,21 +282,22 @@ def main():
         ("north-mini-code-1.0:q4_K_M-ctx256k-agentic", "the challenger", "ref", [
             "Fastest generation on the box, 136.2 tok/s, and the only model that solved "
             "<span class='mono'>git-multibranch</span> — 1 of 12 trials field-wide.",
-            f"But its {_tbo_rate('north-mini-code-1.0:q4_K_M-ctx256k-agentic', tbo_rank)} "
-            "rests on a single pass, and it is the slowest to finish the hard fixture "
-            "(126 s). Re-run at n=2 before trusting the tie.",
+            f"Held on speed, not capability: the n=2 pass settled it at "
+            f"{_tbo_rate('north-mini-code-1.0:q4_K_M-ctx256k-agentic', tbo_rank)}, level "
+            "with Tiel rather than the 50% its single sample showed, with 4 flipping "
+            "tasks — the least stable measured. And it has <b>no vision at all</b>.",
         ]),
         ("gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "the shared-box option", "ref", [
             "22.34 GB at the full 262k window — by far the smallest, leaving ~13 GB free "
             "for a colleague.",
             "Best prefill in the field at 3,400 tok/s: the one to point at a large "
-            "codebase when the job is reading, not hard reasoning.",
+            "codebase when the job is reading, not hard reasoning. Has vision (40/42).",
         ]),
         ("tiel-coder:35b-q5-ctx256k-agentic", "the safe-context option", "warn", [
             "The only family that <b>refuses</b> an over-long prompt. Every other model "
             "here silently halves the context — an unlogged, unrecoverable truncation.",
-            "262,144 tokens at 34.13 GB with recall verified at 254,181; solved the "
-            "specification rather than the visible tests, 3 runs from 3.",
+            "262,144 tokens at 34.13 GB with recall verified at 254,181, the top vision "
+            "score (42/42), and it solved the specification rather than the visible tests.",
         ]),
     ]
 

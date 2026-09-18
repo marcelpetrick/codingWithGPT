@@ -1,0 +1,13 @@
+model	case	checks	pairs	traps	score	wall_s	prompt_tok	gen_tok	gen_tps	thinking_chars	done	resident_gb	pct_gpu	ctx	error
+qwen3.6:35b-a3b-q4_K_M-agentic	ocr-invoice	12/12	5/5	0	17/17	15.8	1105	128	127.6	0	stop	32.68	100	262144	
+qwen3.6:35b-a3b-q4_K_M-agentic	embedded-ui	8/8	0/2	0	8/10	3.4	623	325	126.4	0	stop	32.68	100	262144	
+qwen3.6:35b-a3b-q4_K_M-agentic	expenses-treemap	10/10	5/5	0	15/15	9.9	4108	375	129.0	0	stop	32.68	100	262144	
+north-mini-code-1.0:q4_K_M-ctx256k-agentic	ocr-invoice	0/12	0/5	0	0/17	12.7		0		0		21.41	100	262144	HTTP 400: {"error":"{\"error\":{\"code\":400,\"message\":\"Multimodal data provided, but model does not support multimod
+north-mini-code-1.0:q4_K_M-ctx256k-agentic	embedded-ui	0/8	0/2	0	0/10	0.0		0		0		21.41	100	262144	HTTP 400: {"error":"{\"error\":{\"code\":400,\"message\":\"Multimodal data provided, but model does not support multimod
+north-mini-code-1.0:q4_K_M-ctx256k-agentic	expenses-treemap	0/10	0/5	0	0/15	0.0		0		0		21.41	100	262144	HTTP 400: {"error":"{\"error\":{\"code\":400,\"message\":\"Multimodal data provided, but model does not support multimod
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	ocr-invoice	12/12	5/5	0	17/17	21.9	308	138	109.7	0	stop	22.34	100	262144	
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	embedded-ui	8/8	0/2	0	8/10	5.2	291	169	115.6	0	stop	22.34	100	262144	
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	expenses-treemap	10/10	5/5	0	15/15	5.5	304	190	116.5	0	stop	22.34	100	262144	
+tiel-coder:35b-q5-ctx256k-agentic	ocr-invoice	12/12	5/5	0	17/17	23.0	1283	128	108.2	0	stop	34.13	100	262144	
+tiel-coder:35b-q5-ctx256k-agentic	embedded-ui	8/8	2/2	0	10/10	2.6	801	195	111.7	0	stop	34.13	100	262144	
+tiel-coder:35b-q5-ctx256k-agentic	expenses-treemap	10/10	5/5	0	15/15	9.1	4286	147	109.9	0	stop	34.13	100	262144	

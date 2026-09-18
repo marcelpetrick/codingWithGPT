@@ -370,9 +370,9 @@ question, not by winning.
 | # | tag | role it holds | why it is kept |
 |---|---|---|---|
 | 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | **the default** | Top of the field on official Terminal-Bench (53%) and the most reproducible model measured — decided on 9 of 10 tasks, 1 flip in 3 samples. 131.6 tok/s, 60 s hard fixture, 32.68 GB |
-| 2 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **the speed ceiling** | Fastest generation on the box (136.2 tok/s), and it solves `git-multibranch` (2/3) which nothing else manages. Held on **speed**, not capability: the owed n=2 pass came in at **41 %**, level with Tiel, not the 50 % its single sample showed, and with 4 flipping tasks it is the least stable model measured |
-| 3 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | **the footprint floor** | 22.34 GB at the full 262k window, best prefill in the field (3,400 tok/s), and the confirmed vision model. The one to run when the box is shared |
-| 4 | `tiel-coder:35b-q5-ctx256k-agentic` | **the context-safety reference** | The only family that returns `ERROR_400` on an over-long prompt; every other model on the box silently halves the context. 262k at 34.13 GB, recall verified at 254,181 |
+| 2 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **the speed ceiling** | Fastest generation on the box (136.2 tok/s), and it solves `git-multibranch` (2/3) which nothing else manages. Held on **speed**, not capability: the owed n=2 pass came in at **41 %**, level with Tiel, not the 50 % its single sample showed, and with 4 flipping tasks it is the least stable model measured. **No vision** — the server rejects images outright |
+| 3 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | **the footprint floor** | 22.34 GB at the full 262k window and the best prefill in the field (3,400 tok/s) — the one to run when the box is shared. Has vision (40/42), though Tiel scores higher |
+| 4 | `tiel-coder:35b-q5-ctx256k-agentic` | **the context-safety reference** | The only family that returns `ERROR_400` on an over-long prompt; every other model on the box silently halves the context. 262k at 34.13 GB, recall verified at 254,181, and the top vision score (42/42) |
 
 Four, and four for a reason: each holds a **different axis** — capability, speed, footprint,
 context safety. On a 10-task subset places 2–4 sit within roughly one task of each other, so
@@ -411,12 +411,31 @@ Their numbers stay in the tables and the report, labelled. They are not re-measu
   level with the leader; n=3 settled it at **41 %**, tied with Tiel instead. Nothing about the
   model changed — only the number of times it was asked.
 
-### One benchmark that is not discriminating
+### The vision benchmark, fixed — and what it then found
 
-`vision-bench.py` returned a **perfect 25/25 for every model that ran it** (9/9 OCR, 6/6
-embedded-UI, 10/10 treemap). A test nothing ever fails is not separating these models — §0
-applies to our own instruments too. Either harden the cases or stop quoting the score. `gemma4`
-holds the vision slot on the v3 finding, not on this number.
+`vision-bench.py` v1 returned a **perfect 25/25 for every model that ran it**. A test nothing
+ever fails separates nothing, so it was hardened (§8a's reasoning applied to our own
+instruments): label/value **pairs** that must appear within 60 characters of each other, and
+**traps** — plausible misreadings that must not appear — which are penalties. Every trap was
+validated against the stored v1 responses first; one that fires on a known-good answer is a bad
+trap, not a bad model.
+
+Measured 2026-09-18 on the standing four, out of 42:
+
+| model | score | note |
+|---|---|---|
+| `tiel-coder` | **42/42** | the only model that associates the button labels with their colours |
+| `qwen3.6` | 40/42 | 0/2 on that pairing |
+| `gemma4` | 40/42 | 0/2 on that pairing |
+| `north-mini` | **0/42** | **no vision at all** — `HTTP 400: model does not support multimodal` |
+
+**north-mini cannot see.** `/api/show` confirms it: `['completion', 'tools', 'thinking']`, no
+`vision`, against Tiel's `['tools', 'thinking', 'completion', 'vision']`. v1 never caught this
+because it never ran north-mini at all. Check `/api/show` capabilities before claiming a model
+has vision; a benchmark that scores everything perfectly will not tell you.
+
+No traps fired for any model, so nothing hallucinated — the separation is purely the
+label/value association.
 
 ---
 
