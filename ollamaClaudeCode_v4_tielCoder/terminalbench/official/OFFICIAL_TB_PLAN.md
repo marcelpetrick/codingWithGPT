@@ -237,18 +237,23 @@ hits, 0 connection failures, 0 model-not-found 404s, thinking confirmed off as c
 **Effect on the standings — the ordering does not change**, because the defects cost every model
 about the same:
 
-| model | as run | −nginx (now reported) | −nginx, −fibonacci |
+| model | n | −nginx (now reported) | −nginx, −fibonacci |
 |---|---|---|---|
-| qwen3.6 | 53 % | **59 %** | 54 % |
-| north-mini | 50 % | 56 % | **62 %** |
-| Tiel | 37 % | 41 % | 46 % |
-| gemma4 | 30 % | 33 % | 38 % |
-| ornith | 30 % | 33 % | 38 % |
-| CyberTiel | 27 % | 30 % | 33 % |
+| qwen3.6 | 3 | **59 %** | **54 %** |
+| north-mini | 3 | 41 % | 46 % |
+| Tiel | 3 | 41 % | 46 % |
+| gemma4 | 1 | 33 % | 38 % |
+| ornith | 1 | 33 % | 38 % |
+| CyberTiel | 3 | 30 % | 33 % |
 
-Two things do move: absolute scores were depressed ~6 points by a broken task, and **north-mini
-overtakes qwen3.6 once the scaffold task is also removed** — qwen3.6's win there was about using
-`&`, not about capability.
+Absolute scores were depressed about 6 points by the broken task, and the ordering is unchanged.
+
+**A correction, recorded rather than quietly fixed.** On the n=1 data this table showed north-mini
+at 56 %/62 % and concluded it *overtakes qwen3.6 once the scaffold task is removed*. Its owed n=2
+pass then landed and put it at **41 %**, level with Tiel. The overtake was an artefact of a single
+lucky sample — the same trap this round documents twice elsewhere, walked into a third time while
+writing up the round. qwen3.6 leads on every cut of the data. north-mini keeps its slot in the
+standing field on **speed**, which is measured and stable, not on capability.
 
 **One confound this round cannot resolve.** Thinking was off, on v4's 2.3×-for-free finding —
 which was measured on the *ledger* fixture, never on hard puzzle tasks. A thinking-on arm over
@@ -266,11 +271,15 @@ scores 100 %, **before** the set is frozen — because afterwards the comparison
 
 ### What is not settled
 
-**north-mini is tied for the lead on a single sample.** It scored 50 % at n=1, solved
-`git-multibranch` (1/12 across the whole field), and was never scheduled for n=2 because the
-subject trio was fixed before these numbers existed. Given that Tiel flipped three tasks, a
-50 % single sample carries roughly the same ±10-point uncertainty. **Re-run north-mini at n=2
-before it is compared to the control** — that is the one measurement this round is missing.
+**~~north-mini is tied for the lead on a single sample.~~ Settled 2026-09-18.** The n=2 pass
+ran: north-mini is **41 %** (11/27 excluding the defective task), tied with Tiel, not with the
+leader — and with **4 flipping tasks** it is the least stable model in the round. Its 50 % was a
+lucky single sample. It still owns `git-multibranch` (2/3; nothing else solves it at all) and it
+is still the fastest generator on the box, which is what its slot in the standing field rests on.
+
+What is now open instead: **thinking was off for every trial**, on a v4 finding measured on the
+ledger fixture and never on hard puzzle tasks. A thinking-on arm over `polyglot-c-py` and
+`git-multibranch` is the next honest test, and gemma4 and ornith still stand at n=1.
 
 ## Why not SWE-bench Lite this window
 

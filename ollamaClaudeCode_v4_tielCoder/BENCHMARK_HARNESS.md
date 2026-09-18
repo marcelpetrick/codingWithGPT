@@ -370,7 +370,7 @@ question, not by winning.
 | # | tag | role it holds | why it is kept |
 |---|---|---|---|
 | 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | **the default** | Top of the field on official Terminal-Bench (53%) and the most reproducible model measured — decided on 9 of 10 tasks, 1 flip in 3 samples. 131.6 tok/s, 60 s hard fixture, 32.68 GB |
-| 2 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **the speed ceiling** | Fastest generation on the box (136.2 tok/s) and the only model that solved `git-multibranch`. Its 50% is a single sample — **owes an n=2 pass** |
+| 2 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **the speed ceiling** | Fastest generation on the box (136.2 tok/s), and it solves `git-multibranch` (2/3) which nothing else manages. Held on **speed**, not capability: the owed n=2 pass came in at **41 %**, level with Tiel, not the 50 % its single sample showed, and with 4 flipping tasks it is the least stable model measured |
 | 3 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | **the footprint floor** | 22.34 GB at the full 262k window, best prefill in the field (3,400 tok/s), and the confirmed vision model. The one to run when the box is shared |
 | 4 | `tiel-coder:35b-q5-ctx256k-agentic` | **the context-safety reference** | The only family that returns `ERROR_400` on an over-long prompt; every other model on the box silently halves the context. 262k at 34.13 GB, recall verified at 254,181 |
 
@@ -407,7 +407,9 @@ Their numbers stay in the tables and the report, labelled. They are not re-measu
   it must not be read as settled. v4 measured ±10 points of jitter on a 10-task subset.
 - **n ≥ 2 for any model the recommendation rests on.** v4's n=1 pass put Tiel at 40% and
   CyberTiel at 20%; n=3 put them at 37% and 27%. Both single samples were wrong, in opposite
-  directions.
+  directions. north-mini is the sharpest case: a single sample showed **50 %** and briefly put it
+  level with the leader; n=3 settled it at **41 %**, tied with Tiel instead. Nothing about the
+  model changed — only the number of times it was asked.
 
 ### One benchmark that is not discriminating
 
