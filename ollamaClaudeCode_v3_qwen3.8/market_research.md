@@ -208,7 +208,7 @@ candidates — a Claude Code driver that cannot call tools is not a driver.
 
 | model | published | verdict |
 |---|---|---|
-| `qwen3.8-flash-next` | ~11 h ago | **Excluded — does not fit, and is Apple-only.** See §6a |
+| `qwen3.8-flash-next` | ~11 h ago | **Excluded — does not fit.** See §6a, and §6b: the "Apple-only" half of this expired on 2026-08-27 |
 | `glm-5.3-flash` | ~20 h ago | **Excluded — cloud-only.** The only tag is `:cloud`; no local weights are published. 18B active, 1M context, but nothing to pull |
 | `granite4.2` | 2026-08-26 | **Candidate.** 30B tier at **16.50 GiB** q4_K_M, tools + thinking, 128K |
 | `gemma4:31b` | updated ~16 h ago | **Candidate.** 18.50 GiB q4_K_M, 256K, vision — the dense 31B sibling of the 26b-a4b that holds the vision slot |
@@ -230,6 +230,60 @@ SWE-bench Pro. A 6B-active MoE is exactly the shape this box rewards.
   measured 35.56 GB ceiling. Getting it under would need ~q2, which is below the floor.
 
 Worth re-checking if a GGUF of a smaller Flash-Next tier ever ships; the *shape* is right.
+
+### 6b. Amendment, 2026-09-18 — the GGUF shipped; the verdict stands
+
+§6a's **first** reason has expired. Its second has not, and it was always the binding one.
+
+`qwen4_exp` was merged into llama.cpp mainline on **2026-08-27** — the day after §6a was
+written — as PR #27742, and GGUFs followed within weeks. §6a's "there is no GGUF" is now
+false and should not be re-quoted. What the registry actually carries:
+
+| tag | size | format |
+|---|---|---|
+| `125b-mlx` · `125b-a6b-nvfp4` | 105 GB | MLX — Apple Silicon only |
+| **`125b-a6b-q4_K_M`** | **120 GB** | **standard GGUF** |
+| `125b-a6b-q8_0` | 189 GB | GGUF |
+| `125b-a6b-bf16` · `125b-a6b-mlx-bf16` | 355 / 360 GB | — |
+
+Third-party quants go lower than the registry does, and still do not reach this box. The
+smallest published is Unsloth **UD-IQ1_S at 72.5 GB**, whose own stated minimum is **75 GB
+RAM+VRAM** — 2.1× the measured 35.56 GB ceiling, and far below the sub-4-bit floor §5 fixes
+as a standing constraint. `UD-Q2_K_XL` is 78.9 GB, `UD-IQ3_XXS` 82 GB, `UD-Q4_K_XL` 111.3 GB.
+
+**The "one RTX 4090" report is not SSD streaming.** The widely-circulated config that appears
+to make this fit runs `--fit on --fit-target 256` with weights **fully resident in system RAM
+under mmap** — a 24 GB GPU backed by **96 GB of DDR5-5600**, on UD-IQ3_XXS. The SSD holds the
+file; RAM does the work. It reports **30 t/s decode at 6K context and 19.5 t/s at 110K**.
+Genuine expert-from-disk streaming does exist — llama.cpp discussion #27149 and PR #25294 —
+but is an **unmerged prototype**, measured at 4.7 tok/s on a 30B-A3B, and it auto-disables
+mmap by design. Unsloth's own SSD note covers only the PLE / n-gram embedding layer, not the
+expert stack.
+
+**Why none of it reaches `.67`, independently of size.** Every one of those techniques is a
+llama.cpp command line — `--fit`, `-ot`, `--n-cpu-moe`, `--cache-type-k`, or a patched build.
+`README.md` §1 records that there is **no SSH to `.67`** (`publickey,password` refused). The
+only route in is the Ollama HTTP API, and `/api/create` accepts `parameters` — `num_ctx`,
+`presence_penalty` and friends. **There is no offload knob in that API**, and no way to place
+a 72–120 GB GGUF on the box's disk. Two further unknowns are unobtainable for the same
+reason: `.67`'s system RAM (the 4090 trick needs 96 GB of it) and its free disk. The API
+exposes only per-model `size` / `size_vram`.
+
+**And the speed bar rejects it anyway.** 30 t/s is the *ceiling*, on a better-provisioned
+machine than this one. This project rejected `qwen3.8:27b-q4_K_M` twice at **30.3 tok/s** as
+the wrong shape for the box — 787 s median on the hard fixture — against a standing field
+running 131.6 (`qwen3.6`) and 136.2 tok/s (`north-mini`). A 120 GB download to land 4–7×
+slower than the incumbent is not a trade this box has ever made.
+
+**What would change the answer**, unchanged from §6a: a *smaller* Flash-Next tier shipping as
+GGUF. A 6B-active MoE is the right shape; it has to arrive near 25–30 GB, not 72.5. That is a
+registry check, not a re-benchmark.
+
+Sources: llama.cpp [disc. #27149](https://github.com/ggml-org/llama.cpp/discussions/27149) ·
+[PR #25294](https://github.com/ggml-org/llama.cpp/pull/25294) ·
+[Unsloth quant table](https://unsloth.ai/docs/models/qwen3.8-next) ·
+[the 4090 config](https://gist.github.com/ryan4yin/48617bbddacc7067f10799770b7cc33f) ·
+[Ollama tags](https://ollama.com/library/qwen3.8-flash-next/tags)
 
 ## 7. The candidates that fit, re-ranked by shape
 
