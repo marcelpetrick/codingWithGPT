@@ -43,6 +43,8 @@ SHORT = {
 }
 # Rejected twice on the same defect: kept in the tables, never in a headline.
 CUT = {"nemotron-cascade-2:30b-ctx256k-agentic", "qwen3.8:27b-q4_K_M-ctx128k-agentic"}
+TBO_VERSION = "0.2.18"          # upstream harness, pinned
+TBO_DATASET = "0.1.1"           # terminal-bench-core
 T_SHIP = "Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest"
 T_PP0 = "tiel-coder:35b-q5-ctx256k-agentic"
 CT = "cyber-tiel:35b-q5-ctx256k-agentic"
@@ -193,6 +195,30 @@ def main():
         tb[r["model"]][r["task"]].append(r["verdict"])
         if r["task"] not in tb_tasks:
             tb_tasks.append(r["task"])
+
+    # ------------- terminal-bench, OFFICIAL harness -------------
+    # summarise.py keys rows by run-id, which is lowercased and ':'-flattened so
+    # docker compose will accept it as a project name. Map back to the real tag
+    # so the table can use the same short labels as every other section.
+    tag_by_runid = {m.replace("/", "_").replace(":", "_").lower(): m for m in SHORT}
+    INFRA_MODES = {"unknown_agent_error", "agent_installation_failed", "test_timeout",
+                   "unknown_error", "fatal_llm_parse_error"}
+    tbo = defaultdict(lambda: defaultdict(list))   # model -> task -> [row]
+    tbo_tasks = []
+    for r in read_tsv("terminal-bench-official.tsv"):
+        m = tag_by_runid.get(r["model"], r["model"])
+        tbo[m][r["task"]].append(r)
+        if r["task"] not in tbo_tasks:
+            tbo_tasks.append(r["task"])
+    # Present the tasks in the order the frozen subset fixes, not the order the
+    # harness happened to schedule them -- otherwise the columns reshuffle between
+    # regenerations and two printings of "the same" table do not line up.
+    subset_file = HERE / "terminalbench" / "official" / "subset.txt"
+    if subset_file.exists():
+        frozen = [l.strip() for l in subset_file.read_text().splitlines()
+                  if l.strip() and not l.startswith("#")]
+        tbo_tasks = ([t for t in frozen if t in tbo_tasks] +
+                     [t for t in tbo_tasks if t not in frozen])
 
     # ---------------- KPIs ----------------
     pp_gain = (f"+{(gen[T_PP0] / gen[T_SHIP] - 1) * 100:.0f}%"
@@ -356,6 +382,56 @@ def main():
         tb_html = ('<div class="tablewrap"><table><thead><tr><th>model</th>' + head +
                    f'</tr></thead><tbody>{rows_tb}</tbody></table></div>')
 
+    # The per-task grid, not just a rate: two models can score the same and solve
+    # disjoint sets, and which tasks a model can actually finish is the thing that
+    # decides what you run it for. Infra failures are shown as VOID, never as a
+    # zero -- an uppercase run-id once voided three whole passes that read as 0%.
+    tbo_html = ""
+    if tbo_tasks:
+        def rate_of(rows):
+            live = [r for r in rows if r["failure_mode"] not in INFRA_MODES]
+            if not live:
+                return None
+            return sum(r["resolved"] == "True" for r in live) / len(live)
+
+        def tbo_cell(rows):
+            if not rows:
+                return '<td>-</td>'
+            void = [r for r in rows if r["failure_mode"] in INFRA_MODES]
+            if len(void) == len(rows):
+                return ('<td><span class="pill" title="infrastructure failure, '
+                        'not a model result">VOID</span></td>')
+            live = [r for r in rows if r["failure_mode"] not in INFRA_MODES]
+            ok = sum(r["resolved"] == "True" for r in live)
+            secs = [float(r["agent_sec"]) for r in live if r["agent_sec"]]
+            med = statistics.median(secs) if secs else 0
+            cls = "good" if ok == len(live) else ("crit" if ok == 0 else "warn")
+            timed_out = any(r["failure_mode"] == "agent_timeout" for r in live)
+            if len(live) == 1:
+                label = "SOLVED" if ok else ("TIMEOUT" if timed_out else "fail")
+            else:
+                label = f"{ok}/{len(live)}"
+            note = f'<span class="tbo-s">{med:.0f}s</span>' if med else ""
+            return f'<td><span class="pill {cls}">{label}</span>{note}</td>'
+
+        order = sorted(tbo, key=lambda m: (-(rate_of(
+            [r for t in tbo[m] for r in tbo[m][t]]) or 0), short(m)))
+        head = "".join(f'<th>{esc(t)}</th>' for t in tbo_tasks)
+        rows_tbo = ""
+        for m in order:
+            allrows = [r for t in tbo[m] for r in tbo[m][t]]
+            rt = rate_of(allrows)
+            nvoid = sum(1 for r in allrows if r["failure_mode"] in INFRA_MODES)
+            rr = f'{rt * 100:.0f}%' if rt is not None else "—"
+            vflag = f' <span class="pill crit" title="voided trials">{nvoid} void</span>' if nvoid else ""
+            cells = "".join(tbo_cell(tbo[m].get(t, [])) for t in tbo_tasks)
+            hl = ' class="hl"' if m in SUBJECT else ""
+            rows_tbo += (f'<tr{hl}><td>{esc(short(m))}</td>'
+                         f'<td><b>{rr}</b>{vflag}</td>{cells}</tr>')
+        tbo_html = ('<div class="tablewrap"><table class="tbo"><thead><tr>'
+                    '<th>model</th><th>resolved</th>' + head +
+                    f'</tr></thead><tbody>{rows_tbo}</tbody></table></div>')
+
     stages = {"S1 Tiel": bool(gen.get(T_SHIP)), "S2 field": len(gen) > 4,
               "S3 sessions": bool(sess), "S5 CyberTiel": bool(gen.get(CT)),
               "S6 sandboxed": any(k[3] == "sandbox" for k in sess)}
@@ -455,7 +531,14 @@ td.num.good{color:var(--good);font-weight:600}
   background:var(--panel-2);color:var(--ink-2)}
 .pill.good{background:var(--good-soft);color:var(--good);font-weight:600}
 .pill.crit{background:var(--crit-soft);color:var(--crit);font-weight:600}
+.pill.warn{background:var(--warn-soft);color:var(--warn);font-weight:600}
 .tablewrap{overflow-x:auto}
+table.tbo th{white-space:nowrap}
+table.tbo td{white-space:nowrap;vertical-align:middle}
+table.tbo tr.hl td:first-child{font-weight:700;color:var(--ink)}
+table.tbo tr.hl{background:var(--panel-2)}
+.tbo-s{display:block;font-family:ui-monospace,"DejaVu Sans Mono",monospace;
+  font-size:9px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
 .empty{font-size:13px;color:var(--muted);font-style:italic}
 code{font-family:ui-monospace,"DejaVu Sans Mono",monospace;font-size:.92em;background:var(--panel-2);
   padding:1px 5px;border-radius:3px;color:var(--ink)}
@@ -483,6 +566,22 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
 }
 """
 
+    tbo_section_html = ("" if not tbo_tasks else f"""<section>
+  <div class="sec-head"><h2>Terminal-Bench — the official harness</h2>
+    <span class="note">upstream terminal-bench {esc(TBO_VERSION)} · terminal-bench-core {esc(TBO_DATASET)} · frozen {len(tbo_tasks)}-task subset</span></div>
+  <p class="sub" style="margin:0 0 14px">The upstream harness on the upstream dataset, driven
+  through Claude Code pointed at the local server — so these are leaderboard-shaped numbers, not
+  a look-alike of our own. Every model runs the identical frozen subset; change the subset and
+  the comparison is void. Each cell is the verdict and the agent's median wall clock.
+  <b>VOID</b> marks an infrastructure failure, which is held out of the resolved rate rather
+  than counted as a zero.</p>
+  {tbo_html}
+  <p class="sub" style="margin:12px 0 0;font-size:11.5px">Two models can land on the same rate
+  and solve disjoint sets — the grid is there so that is visible. A single sample at the shipped
+  temperature can flip, so the subject models are run twice and shown as solved/attempts.</p>
+</section>
+
+""")
     tb_section_html = ("" if not tb_tasks else f"""<section>
   <div class="sec-head"><h2>Terminal-Bench-style — real build/debug loop</h2>
     <span class="note">our C/CMake tasks, local harness · not official Terminal-Bench</span></div>
@@ -611,7 +710,7 @@ footer{margin-top:42px;padding-top:16px;border-top:1px solid var(--rule);font-si
   </table></div>
 </section>
 
-{tb_section_html}<section>
+{tbo_section_html}{tb_section_html}<section>
   <div class="sec-head"><h2>Who actually fixed the code</h2>
     <span class="note">three modules · three bugs · one missing function · 18 held-out tests</span></div>
   <p class="sub" style="margin:0 0 14px">The visible tests are the ones the model can see. The

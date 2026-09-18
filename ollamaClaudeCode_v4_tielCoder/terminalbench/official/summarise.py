@@ -47,8 +47,14 @@ def main():
                 "trial": r.get("trial_name", "?"),
                 "resolved": bool(r.get("is_resolved")),
                 "failure_mode": r.get("failure_mode", "unset"),
-                "in_tok": r.get("total_input_tokens") or 0,
-                "out_tok": r.get("total_output_tokens") or 0,
+                # The upstream claude-code agent does not report token usage back
+                # to the harness (agent-logs/ comes back empty, and both counters
+                # are a literal 0 on every trial, including ones the model
+                # demonstrably solved). Writing that 0 through would read as "used
+                # no tokens" -- the exact silent-zero shape harness §0 exists to
+                # catch -- so record it as "n/a" instead of a number.
+                "in_tok": _tok(r.get("total_input_tokens")),
+                "out_tok": _tok(r.get("total_output_tokens")),
                 "agent_sec": _dur(r.get("agent_started_at"), r.get("agent_ended_at")),
             })
 
@@ -60,6 +66,14 @@ def main():
         for r in rows:
             f.write("\t".join(str(r[c]) for c in cols) + "\n")
     print(f"wrote {tsv}  ({len(rows)} trials)")
+
+    # make-report.py reads every TSV from the REPO-level results/ directory, so
+    # publish a copy there as well -- otherwise the official round is measured,
+    # written and then silently missing from the report.
+    repo_res = HERE.parent.parent / "results"
+    if repo_res.is_dir():
+        (repo_res / tsv.name).write_text(tsv.read_text())
+        print(f"published  {repo_res / tsv.name}")
 
     # per-model roll-up, with infra failures held out of the denominator
     agg = defaultdict(lambda: {"soln": 0, "n": 0, "void": 0, "sec": 0.0})
@@ -79,6 +93,11 @@ def main():
         avg = a["sec"] / a["n"] if a["n"] else 0.0
         warn = "  <-- VOID trials, investigate" if a["void"] else ""
         print(f"{m:44} {a['soln']:>4}/{a['n']:<5} {rate:>6.1f}% {a['void']:>5} {avg:>9.0f}{warn}")
+
+
+def _tok(v):
+    """0 from this agent means 'not reported', not 'none used'. Say so."""
+    return v if v else "n/a"
 
 
 def _dur(a, b):
