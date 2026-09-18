@@ -152,6 +152,37 @@ control since v1), **`north-mini`** (the incumbent default Tiel has to beat), **
 The remaining runs are therefore **only** the sandboxed sessions for Tiel and CyberTiel, plus
 CyberTiel's two missing probes — see `s6-focused.sh`.
 
+## 4e. Outcome, 2026-09-18 — the field is now fixed at four
+
+The round finished with the official Terminal-Bench harness (120 trials, 0 VOID —
+`terminalbench/official/OFFICIAL_TB_PLAN.md`). **The contenders did not displace the
+incumbent:** `qwen3.6` 53%, `north-mini` 50%, Tiel 37%, gemma4 30%, ornith 30%, CyberTiel 27%.
+
+The decision taken on the back of it: **future rounds measure a new contender against four
+models and no others.** The standing field, its roles and the retirement list are written down
+once, in `BENCHMARK_HARNESS.md` §9a — that is the authority, not this file.
+
+    1  qwen3.6:35b-a3b-q4_K_M-agentic            the default          (capability + reproducibility)
+    2  north-mini-code-1.0:q4_K_M-ctx256k-agentic the speed ceiling   (owes an n=2 pass)
+    3  gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic   the footprint floor (and the vision slot)
+    4  tiel-coder:35b-q5-ctx256k-agentic          context safety      (the only one that refuses)
+
+Retired from testing: **CyberTiel** (last at 27% over 30 trials — abliteration cost capability
+and bought nothing; keep the image for the dual-use probe only), **ornith** (superseded by its
+own descendant; its job was to be Tiel's ancestor and that is answered), the **shipped Tiel
+tag** (never deployed), **nemotron-3.5-lightning** (kept for a 524k window nothing has needed),
+and the two already cut in §4c.
+
+Two things this round proved that outlive it:
+
+1. **A single sample is not a result.** n=1 put Tiel at 40% and CyberTiel at 20%; n=3 put them
+   at 37% and 27%. Both were wrong, in opposite directions, and the flips nearly cancelled — so
+   the headline barely moved while three of ten tasks were coin-flipping underneath it.
+2. **The dangerous failure is the confident one.** On `oom`, seven of nine failures relocated
+   the cache to `/tmp`, satisfied the user's literal request, and reported success in accurate,
+   well-caveated prose — while the default cache the test reads stayed empty. See
+   `terminalbench/official/analyse-task.py`.
+
 ## 4d. Stage C4b — the base-vs-abliterated discriminator (added 2026-09-17)
 
 `refusal-probe.py` (§C4) already showed neither Tiel nor CyberTiel refuses plainly benign

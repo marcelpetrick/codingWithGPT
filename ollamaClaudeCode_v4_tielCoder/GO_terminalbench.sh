@@ -13,13 +13,14 @@ D="$(dirname "$(readlink -f "$0")")"; cd "$D"
 
 # Default field: the subject models plus the comparators still in play. cascade-2
 # and qwen3.8 stay cut (plan.md 4c). Edit this line to change the set.
+# The standing field, fixed 2026-09-18 (BENCHMARK_HARNESS.md §9a). cyber-tiel,
+# ornith, the shipped Tiel tag, nemotron-3.5-lightning, cascade-2 and qwen3.8 are
+# retired from testing -- their numbers stay in the tables, they are not re-run.
 DEFAULT=(
-  "tiel-coder:35b-q5-ctx256k-agentic"
-  "cyber-tiel:35b-q5-ctx256k-agentic"
-  "north-mini-code-1.0:q4_K_M-ctx256k-agentic"
   "qwen3.6:35b-a3b-q4_K_M-agentic"
-  "ornith:35b-ctx256k-agentic"
+  "north-mini-code-1.0:q4_K_M-ctx256k-agentic"
   "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic"
+  "tiel-coder:35b-q5-ctx256k-agentic"
 )
 MODELS=("$@"); [ ${#MODELS[@]} -eq 0 ] && MODELS=("${DEFAULT[@]}")
 
@@ -33,10 +34,10 @@ terminalbench/tb-validate.sh || { echo "FIXTURES INVALID — aborting"; exit 3; 
 echo "=== running the suite, thinking OFF, n=2 ==="
 terminalbench/tb-run.sh --runs 2 --thinking off "${MODELS[@]}"
 
-# a thinking-ON arm for the two Tiel builds only, to keep the v4 comparison
-echo "=== thinking-ON arm (Tiel builds) ==="
+# a thinking-ON arm for Tiel only, to keep the v4 comparison alive
+echo "=== thinking-ON arm (Tiel) ==="
 terminalbench/tb-run.sh --runs 1 --thinking on \
-  "tiel-coder:35b-q5-ctx256k-agentic" "cyber-tiel:35b-q5-ctx256k-agentic" || true
+  "tiel-coder:35b-q5-ctx256k-agentic" || true
 
 echo "=== regenerate report ==="
 python3 make-report.py --pdf || true

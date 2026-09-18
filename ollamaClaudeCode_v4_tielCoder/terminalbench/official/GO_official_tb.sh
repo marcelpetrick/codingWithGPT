@@ -12,8 +12,8 @@
 # hit api.anthropic.com and report 0%.
 #
 # Plan (chosen 2026-09-18): "Tiel deep, n=2".
-#   phase 1: all 6 models x the frozen 10-task subset x n=1   (~2.0 h)
-#   phase 2: Tiel + CyberTiel + control x the subset x n=2    (~1.5 h)
+#   phase 1: all 4 models x the frozen 10-task subset x n=1   (~1.3 h)
+#   phase 2: the same 4 x the subset x n=2                    (~2.7 h)
 # Every model runs the IDENTICAL subset (subset.txt). One model resident at a
 # time; the box is shared, so it yields, never evicts.
 set -uo pipefail
@@ -30,20 +30,25 @@ export PYTHONPATH="$HERE/../..:${PYTHONPATH:-}"  # so the import path resolves
 TB="$VENV/bin/tb"
 [ -x "$TB" ] || { echo "harness not installed -- run ./setup.sh first"; exit 4; }
 
-# Subject models first (they get n=2 in phase 2), then the comparators.
+# THE STANDING FIELD, fixed 2026-09-18 (BENCHMARK_HARNESS.md §9a). A new contender
+# is measured against these four and nothing else; each holds a different axis, and
+# a candidate takes a slot only by beating that slot's holder on its own axis:
+#   qwen3.6     the default          (capability + reproducibility)
+#   north-mini  the speed ceiling    (owes an n=2 pass)
+#   gemma4      the footprint floor  (and the vision slot)
+#   tiel-coder  context safety       (the only one that refuses an over-long prompt)
+# Retired, do NOT re-add: cyber-tiel, ornith, the shipped Tiel tag,
+# nemotron-3.5-lightning, nemotron-cascade-2, qwen3.8. Pass tags as arguments to
+# run a candidate; the four below stay as its comparison set.
 FIELD_ALL=(
-  "tiel-coder:35b-q5-ctx256k-agentic"
-  "cyber-tiel:35b-q5-ctx256k-agentic"
   "qwen3.6:35b-a3b-q4_K_M-agentic"
   "north-mini-code-1.0:q4_K_M-ctx256k-agentic"
-  "ornith:35b-ctx256k-agentic"
   "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic"
-)
-FIELD_N2=(
   "tiel-coder:35b-q5-ctx256k-agentic"
-  "cyber-tiel:35b-q5-ctx256k-agentic"
-  "qwen3.6:35b-a3b-q4_K_M-agentic"
 )
+# n>=2 for anything a recommendation rests on: v4's n=1 pass put Tiel at 40% and
+# CyberTiel at 20%; n=3 put them at 37% and 27%. Both single samples were wrong.
+FIELD_N2=("${FIELD_ALL[@]}")
 if [ "$#" -gt 0 ]; then FIELD_ALL=("$@"); FIELD_N2=("$@"); fi
 
 mapfile -t TASKS < <(grep -vE '^\s*#|^\s*$' subset.txt)
@@ -96,7 +101,7 @@ if [ "$PHASE" = "1" ] || [ "$PHASE" = "both" ]; then
 fi
 
 if [ "$PHASE" = "2" ] || [ "$PHASE" = "both" ]; then
-  echo "=== PHASE 2: subject trio x ${#TASKS[@]} tasks x n=2 ==="
+  echo "=== PHASE 2: the standing field x ${#TASKS[@]} tasks x n=2 ==="
   run_one 2 "${FIELD_N2[@]}"
 fi
 

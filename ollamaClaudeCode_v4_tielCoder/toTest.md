@@ -66,6 +66,20 @@ These would need multi-GPU or heavy CPU spill; the box holds one ~30 GB model at
 
 ---
 
+## The field a candidate is measured against — fixed 2026-09-18
+
+A new contender is run against **four models and no others**: `qwen3.6:35b-a3b` (the default),
+`north-mini-code-1.0` (speed ceiling), `gemma4:26b-a4b-it` (footprint floor and vision), and
+`tiel-coder:35b-q5` (context safety). Each holds a different axis, and a candidate takes a slot
+only by beating that slot's holder **on its own axis**.
+
+CyberTiel, ornith, the shipped Tiel tag, nemotron-3.5-lightning, nemotron-cascade-2 and qwen3.8
+are **retired from testing** — their numbers stay in the tables, they are not re-run. Roles,
+reasons and the retirement list: `BENCHMARK_HARNESS.md` §9a.
+
+Budget a candidate accordingly: five models total (candidate + four), **n ≥ 2** on anything the
+recommendation will rest on.
+
 ## How to run one (from `BENCHMARK_HARNESS.md`)
 
 ```shell

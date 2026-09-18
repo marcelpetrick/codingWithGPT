@@ -324,11 +324,67 @@ Do **not** cut a model that is mid-field but relevant: the incumbent default, th
 control, and the direct ancestor of the model under test all earn their slot by answering a
 question, not by winning.
 
+## 9a. The standing comparison field — fixed 2026-09-18
+
+**Every future round measures a new contender against exactly these four, and nothing else.**
+
+| # | tag | role it holds | why it is kept |
+|---|---|---|---|
+| 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | **the default** | Top of the field on official Terminal-Bench (53%) and the most reproducible model measured — decided on 9 of 10 tasks, 1 flip in 3 samples. 131.6 tok/s, 60 s hard fixture, 32.68 GB |
+| 2 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **the speed ceiling** | Fastest generation on the box (136.2 tok/s) and the only model that solved `git-multibranch`. Its 50% is a single sample — **owes an n=2 pass** |
+| 3 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | **the footprint floor** | 22.34 GB at the full 262k window, best prefill in the field (3,400 tok/s), and the confirmed vision model. The one to run when the box is shared |
+| 4 | `tiel-coder:35b-q5-ctx256k-agentic` | **the context-safety reference** | The only family that returns `ERROR_400` on an over-long prompt; every other model on the box silently halves the context. 262k at 34.13 GB, recall verified at 254,181 |
+
+Four, and four for a reason: each holds a **different axis** — capability, speed, footprint,
+context safety. On a 10-task subset places 2–4 sit within roughly one task of each other, so
+ranking them against one another reads noise; ranking them by what each is individually good at
+does not. A contender must beat one of them *on that one's own axis* to take the slot.
+
+### Retired from testing — do not run these again
+
+Their numbers stay in the tables and the report, labelled. They are not re-measured.
+
+| retired | settled by |
+|---|---|
+| `cyber-tiel:35b-q5-ctx256k-agentic` | Last in the v4 field at 27% over 30 trials. Abliteration cost capability and bought nothing this box needs. Keep the image for the dual-use probe; do not benchmark it |
+| `ornith:35b-ctx256k-agentic` | 30%, and superseded by its own descendant Tiel on every axis. Its job was to be Tiel's ancestor; that question is answered |
+| `Tiel-Coder-…-Q5_K_XL-ctx262k:latest` (shipped tag) | The shipped tag is never deployed — `presence_penalty 1.5` costs 52% of generation speed. Only the `-agentic` variant is measured |
+| `nemotron-cascade-2:30b` | Rejected twice on the same defect (§9) |
+| `qwen3.8:27b-q4_K_M` | Rejected twice on the same defect (§9) |
+| `nemotron-3.5-lightning:30b` | Kept in v4 only for its 524k window, which nothing has needed. Re-add it if and when a job actually requires >262k |
+
+### Reporting conventions fixed in the same round
+
+- **Title the report `Benchmark <YYYY-MM-DD>`**, not after whichever model is the subject. The
+  document is the round; the contenders are contenders, not the headline.
+- **The verdict is computed from the TSV at render time**, never hand-written, so it cannot
+  drift from the table underneath it.
+- **One encoding per grid cell**, whatever the sample count: `SOLVED` / `FLIPS` / `failed` /
+  `TIMEOUT` / `VOID`, over `passed/runs · median agent seconds`. Printing `SOLVED` for a model
+  sampled once and `3/3` for one sampled three times is two spellings of the same outcome.
+- **`FLIPS` is a verdict, not a rounding detail.** A task that lands differently between runs is
+  the most important state on the grid.
+- **Show the run count and flag it when it is 1.** A single sample cannot show FLIPS at all, so
+  it must not be read as settled. v4 measured ±10 points of jitter on a 10-task subset.
+- **n ≥ 2 for any model the recommendation rests on.** v4's n=1 pass put Tiel at 40% and
+  CyberTiel at 20%; n=3 put them at 37% and 27%. Both single samples were wrong, in opposite
+  directions.
+
+### One benchmark that is not discriminating
+
+`vision-bench.py` returned a **perfect 25/25 for every model that ran it** (9/9 OCR, 6/6
+embedded-UI, 10/10 treemap). A test nothing ever fails is not separating these models — §0
+applies to our own instruments too. Either harden the cases or stop quoting the score. `gemma4`
+holds the vision slot on the v3 finding, not on this number.
+
+---
+
 ---
 
 ## 10. Checklist for a new model
 
 - [ ] runtime version recorded; control re-measured in the same session
+- [ ] measured against **the standing four only** (§9a) — not the whole historical field
 - [ ] `/api/show` read: base model, quant tier, capabilities, **the `template` field**
 - [ ] `-agentic` variant baked with `num_ctx` and `presence_penalty 0`
 - [ ] residency ladder at 100% GPU; the deployed window fits
