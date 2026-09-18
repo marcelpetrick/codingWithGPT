@@ -1,0 +1,14 @@
+# Frozen Terminal-Bench-core (0.1.1) subset — coding/systems-weighted.
+# 10 tasks, 3 easy / 5 medium / 2 hard. Every model runs THIS EXACT set
+# (harness §5: change the subset and the comparison is void).
+# Chosen 2026-09-18 toward build/debug/git/systems work — the embedded use case.
+modernize-fortran-build
+csv-to-parquet
+fix-permissions
+fix-git
+polyglot-c-py
+fibonacci-server
+nginx-request-logging
+openssl-selfsigned-cert
+git-multibranch
+oom

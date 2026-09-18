@@ -1,0 +1,4 @@
+# the harness venv and raw run output are reproducible artefacts, not sources
+tb-venv/
+runs/
+results/
