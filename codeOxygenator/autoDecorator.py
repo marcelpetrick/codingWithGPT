@@ -33,7 +33,6 @@ class AutoDecorator:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}"
         }
-        print("headers: ", headers)
 
         prompt = (
             "Add Doxygen comments to a given codebase, focusing on classes, methods, and public interfaces. Provide a brief description, parameters, and return values using Doxygen syntax. The output should only include the original code augmented with these comments, ensuring all original lines, includes, imports, and defines remain unchanged. Avoid enclosing comment boxes or markdown-comment blocks and do not address issues other than documentation.")
@@ -58,8 +57,6 @@ class AutoDecorator:
             #"frequency_penalty": 0.0,
             #"presence_penalty": 0.0
         }
-        print("payload: ", payload)
-
         try:
             response = requests.post(
                 "https://api.openai.com/v1/chat/completions",
@@ -67,9 +64,6 @@ class AutoDecorator:
                 json=payload
             )
             response.raise_for_status()  # This will raise an exception for HTTP error responses
-            print("-----------------response.json()-----------------")
-            print(response.json()['choices'][0])
-            print("----------------- now parse-----------------")
             generated_text = response.json()['choices'][0]['message']['content']
             return generated_text
         except requests.exceptions.RequestException as e:

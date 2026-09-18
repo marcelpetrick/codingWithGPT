@@ -20,9 +20,6 @@ credentials = read_credentials(credentials_file)
 client_id = credentials.get('CLIENT_ID')
 client_secret = credentials.get('CLIENT_SECRET')
 
-print(f"Client ID: {client_id}")
-print(f"Client Secret: {client_secret}")
-
 #------
 
 account = Account(credentials)
