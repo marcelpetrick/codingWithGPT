@@ -63,6 +63,7 @@ import time
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from urllib.parse import urlsplit
 
 
 # --------------------------- Terminal UX helpers ---------------------------
@@ -196,8 +197,21 @@ def floatish(v: Optional[str], default: float) -> float:
 # --------------------------- Repo URL handling ---------------------------
 # We explicitly constrain to GitHub repos to reduce ambiguity and avoid surprising behavior.
 
-_GH_HOST_RE = re.compile(r"^(https://)?(www\.)?github\.com/[^/]+/[^/]+/?(\.git)?$", re.IGNORECASE)
 _SSH_GH_RE = re.compile(r"^git@github\.com:[^/]+/[^/]+(?:\.git)?$", re.IGNORECASE)
+_GH_PATH_COMPONENT_RE = re.compile(r"^[A-Za-z0-9_.-]+$")
+
+
+def _canonical_github_repo(path: str) -> str:
+    """Validate an owner/repository path and return its canonical HTTPS clone URL."""
+    parts = path.strip("/").split("/")
+    if len(parts) != 2:
+        raise ValueError(f"Malformed GitHub repository path: {path}")
+    owner, name = parts
+    if name.endswith(".git"):
+        name = name[:-4]
+    if not owner or not name or not all(_GH_PATH_COMPONENT_RE.fullmatch(part) for part in (owner, name)):
+        raise ValueError(f"Malformed GitHub repository path: {path}")
+    return f"https://github.com/{owner}/{name}.git"
 
 
 def normalize_repo_url(repo: str) -> str:
@@ -215,25 +229,24 @@ def normalize_repo_url(repo: str) -> str:
 
     # Convert SSH form to HTTPS.
     if _SSH_GH_RE.match(repo):
-        path = repo.split(":", 1)[1]
-        if not path.endswith(".git"):
-            path += ".git"
-        return f"https://github.com/{path}"
+        return _canonical_github_repo(repo.split(":", 1)[1])
 
     # If user omits scheme but starts with github.com/.
     if repo.startswith("github.com/"):
         repo = "https://" + repo
 
-    if repo.lower().startswith("https://"):
-        repo = repo.rstrip("/")
-        # Ensure .git to make cloning consistent.
-        if not repo.endswith(".git"):
-            repo += ".git"
-        # Validate host/path structure (strip .git for matching).
-        no_git = repo[:-4] if repo.endswith(".git") else repo
-        if not _GH_HOST_RE.match(no_git):
-            raise ValueError(f"Refusing non-GitHub or malformed repo URL: {repo}")
-        return repo
+    parsed = urlsplit(repo)
+    if (
+        parsed.scheme.lower() == "https"
+        and parsed.hostname is not None
+        and parsed.hostname.lower() in {"github.com", "www.github.com"}
+        and parsed.username is None
+        and parsed.password is None
+        and parsed.port is None
+        and not parsed.query
+        and not parsed.fragment
+    ):
+        return _canonical_github_repo(parsed.path)
 
     raise ValueError(f"Unsupported repo form (only GitHub is allowed): {repo}")
 
