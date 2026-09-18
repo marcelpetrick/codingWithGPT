@@ -133,6 +133,75 @@ cd terminalbench/official
 `setup.sh` refuses to hand over a working "go" unless the oracle scores 100 % on `hello-world`
 first — the cheapest possible proof that a 0 % later means the model, not the harness.
 
+## Results — 2026-09-18, round complete
+
+120 trials, **0 VOID**, box released at 15:29. Phase 1 ran all six models at n=1; phase 2 gave
+Tiel, CyberTiel and the control a further n=2, so those three are summarised over 30 trials.
+
+| model | resolved | trials | median agent |
+|---|---|---|---|
+| **qwen3.6 35b-a3b** *(control)* | **53 %** | 30 | 186 s |
+| north-mini-code-1.0 | 50 % | 10 | 152 s |
+| Tiel · pp0 | 37 % | 30 | 132 s |
+| gemma4 26b | 30 % | 10 | 134 s |
+| ornith 1.0 | 30 % | 10 | 88 s |
+| CyberTiel · pp0 | 27 % | 30 | 148 s |
+
+### The incumbent wins, and wins twice
+
+**The control was not displaced.** `qwen3.6:35b-a3b` leads on resolved rate, and the Tiel pair
+sits 16 and 26 points behind it. On this benchmark neither subject model justifies replacing it.
+
+The second win matters more than the first: **qwen3.6 is dramatically more reproducible.**
+Counting tasks that land the same way in all three samples —
+
+| model | stable solve | stable fail | **flips** |
+|---|---|---|---|
+| qwen3.6 | 5 | 4 | **1** |
+| Tiel | 2 | 5 | **3** |
+| CyberTiel | 1 | 6 | **3** |
+
+qwen3.6 is decided on 9 of 10 tasks; both Tiel builds are coin-flipping on three. A single
+sample would have reported Tiel anywhere from 30 % to 50 %. This is v4 §8's warning landing
+exactly where it was aimed, and it is why phase 2 existed.
+
+**Tiel vs CyberTiel is a wash, not the 20-point gap phase 1 showed** (37 % vs 27 %, with three
+flipping tasks each). The n=1 numbers — 40 % and 20 % — were both off in opposite directions.
+
+### Two tasks beat the entire field
+
+`polyglot-c-py` **0/12** and `nginx-request-logging` **0/12**. `nginx` is the near-miss: models
+routinely pass 7 of its 8 tests and fail on config settings. `polyglot-c-py` is the field's most
+expensive failure — it times out four different models at their full budget.
+
+### `oom`: the failure that reads like a success
+
+The finding of the round, and it is a *behavioural* one that the score alone hides. The test
+loads with `local_files_only=True`, so the model must end up in the **default** cache path.
+Three strategies appear across 12 trials (`./analyse-task.py oom`):
+
+- **remove the cause** — delete the planted 75 MB file, download in place → CyberTiel, 2 solves
+- **work around, then reconcile** — relocate to `/tmp`, then copy the files back into the
+  default snapshot directory → qwen3.6, 1 solve
+- **work around and stop** — relocate to `/tmp` and declare victory → 7 of the 9 failures
+
+> **left the default cache populated: 3/3 of the solves, 2/9 of the failures.**
+
+Relocating is not the error; leaving the default path empty is. Every one of the nine failures
+ends with a confident, technically accurate report of success — Tiel's even lists a caveat that
+`/tmp` may be wiped on reboot. Each satisfies the user's literal request while missing the
+environment's actual contract. **That is the failure mode least likely to survive a human review
+of the agent's own output**, and the reason the transcript analysis is committed alongside the
+scores rather than left as a one-off grep.
+
+### What is not settled
+
+**north-mini is tied for the lead on a single sample.** It scored 50 % at n=1, solved
+`git-multibranch` (1/12 across the whole field), and was never scheduled for n=2 because the
+subject trio was fixed before these numbers existed. Given that Tiel flipped three tasks, a
+50 % single sample carries roughly the same ±10-point uncertainty. **Re-run north-mini at n=2
+before it is compared to the control** — that is the one measurement this round is missing.
+
 ## Why not SWE-bench Lite this window
 
 It is the better *correctness* benchmark and it stays on the roadmap
