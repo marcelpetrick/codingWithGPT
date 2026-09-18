@@ -1,5 +1,3 @@
-import { Assets } from '../core/Assets.js';
-
 class Renderer {
   constructor(width, height) {
     this.width = width;

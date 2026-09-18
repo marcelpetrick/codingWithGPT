@@ -26,7 +26,7 @@ Navigate through challenging levels as you collect coins, avoid enemies, and rea
 
 ### Prerequisites
 
-- Node.js 18 or higher
+- Node.js 24.15 or higher (or Node.js 26+)
 - Modern web browser (Firefox recommended)
 
 ### Installation
@@ -63,9 +63,6 @@ npm run serve
 ```bash
 # Run unit tests
 npm run test
-
-# Run browser tests (including Firefox)
-npm run test:firefox
 
 # Lint and type checking
 npm run lint

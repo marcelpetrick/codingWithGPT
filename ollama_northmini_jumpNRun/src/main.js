@@ -1,6 +1,8 @@
 // Main game entry point
 import CoreGame from './game/CoreGame.js';
 
+let game = null;
+
 // Wait for DOM to be fully loaded before initializing the game
 window.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('gameCanvas');
@@ -10,7 +12,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   // Initialize the core game
-  const game = new CoreGame(canvas);
+  game = new CoreGame(canvas);
 
   // Start the game with start screen
   game.startGame();
@@ -23,7 +25,7 @@ window.addEventListener('error', (event) => {
 });
 
 // Handle game visibility changes (browser tab switching)
-window.addEventListener('visibilitychange', (event) => {
+window.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     // Game is paused when tab is hidden
     if (game && game.getGameState() === 'playing') {

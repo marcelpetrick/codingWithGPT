@@ -43,13 +43,8 @@ class CollisionSystem {
     const objADx = objB.x - objA.x + objB.width / 2 - objA.width / 2;
     const objADy = objB.y - objA.y + objB.height / 2 - objA.height / 2;
 
-    const objBDx = -objADx;
-    const objBDy = -objADy;
-
     if (objA.body && objB.body) {
       // Simple elastic collision
-      const totalMass = objA.body.mass + objB.body.mass;
-
       // Update positions to resolve overlap
       const overlapX = (objA.width + objB.width) / 2 - Math.abs(objADx);
       const overlapY = (objA.height + objB.height) / 2 - Math.abs(objADy);

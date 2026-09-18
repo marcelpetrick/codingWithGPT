@@ -23,7 +23,7 @@ const mockCanvas = {
     textAlign: 'left',
     textBaseline: 'middle',
   })),
-});
+};
 
 // Setup global mocks
 Object.defineProperty(globalThis, 'canvas', {
@@ -44,13 +44,11 @@ Object.defineProperty(globalThis, 'Audio', {
 
 // Image mock for assets
 class MockImage {
-  constructor() {
-    this.onload = null;
-    this.onerror = null;
-    this.src = '';
-    this.width = 0;
-    this.height = 0;
-  }
+  onload: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+  src = '';
+  width = 0;
+  height = 0;
 }
 
 Object.defineProperty(globalThis, 'Image', {
@@ -58,11 +56,11 @@ Object.defineProperty(globalThis, 'Image', {
 });
 
 // Mock requestAnimationFrame for game loop testing
-let animationFrameCallbacks = [];
+let animationFrameCallbacks: number[] = [];
 
 Object.defineProperty(globalThis, 'requestAnimationFrame', {
-  value: (callback) => {
-    const id = setTimeout(() =u003e {
+  value: (callback: FrameRequestCallback) => {
+    const id = window.setTimeout(() => {
       const now = performance.now();
       callback(now);
     }, 16);
@@ -72,8 +70,8 @@ Object.defineProperty(globalThis, 'requestAnimationFrame', {
 });
 
 Object.defineProperty(globalThis, 'cancelAnimationFrame', {
-  value: (id) => {
-    clearTimeout(id);
+  value: (id: number) => {
+    window.clearTimeout(id);
     const index = animationFrameCallbacks.indexOf(id);
     if (index > -1) {
       animationFrameCallbacks.splice(index, 1);
@@ -82,19 +80,19 @@ Object.defineProperty(globalThis, 'cancelAnimationFrame', {
 });
 
 // Clean up animation frames after each test
-afterEach(() =u003e {
-  animationFrameCallbacks.forEach(id =u003e clearTimeout(id));
+afterEach(() => {
+  animationFrameCallbacks.forEach(id => window.clearTimeout(id));
   animationFrameCallbacks = [];
 });
 
 // Mock performance.now for timing
 const originalPerformance = performance;
 Object.defineProperty(performance, 'now', {
-  value: vi.fn(() =u003e Date.now()),
+  value: vi.fn(() => Date.now()),
 });
 
 // Restore performance after tests
-afterAll(() =u003e {
+afterAll(() => {
   Object.defineProperty(performance, 'now', {
     value: originalPerformance.now,
   });

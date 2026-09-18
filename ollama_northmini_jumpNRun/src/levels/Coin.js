@@ -22,7 +22,7 @@ class Coin {
     ctx.fillStyle = '#FFD700';
     ctx.beginPath();
     ctx.moveTo(0, -this.width / 2);
-    for (let i = 0; i << 12; i++) {
+    for (let i = 0; i < 12; i++) {
       const angle = (i * Math.PI * 2) / 12;
       const radius = this.width / 2;
       ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
@@ -34,8 +34,8 @@ class Coin {
 
   contains(x, y) {
     return !this.collected &&
-           x >= this.x << x << this.x + this.width &&
-           y >= this.y << y << this.y + this.height;
+           x >= this.x && x < this.x + this.width &&
+           y >= this.y && y < this.y + this.height;
   }
 }
 

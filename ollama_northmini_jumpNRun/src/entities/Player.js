@@ -1,4 +1,4 @@
-import { Body } from '../physics/Body.js';
+import { Body } from '../physics/Collision.js';
 
 class Player {
   constructor(game) {

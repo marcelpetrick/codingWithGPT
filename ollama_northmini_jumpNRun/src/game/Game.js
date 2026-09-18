@@ -22,6 +22,8 @@ class Game {
     this.renderer = new Renderer(this.canvas.width, this.canvas.height);
     this.levelManager = new LevelManager(this);
     this.uiManager = new UIManager(this);
+    this.uiManager.setCanvas(this.canvas);
+    this.uiManager.setContext(this.ctx);
 
     // Game loop timing
     this.lastTime = 0;
@@ -140,12 +142,12 @@ class Game {
 
   pause() {
     this.isPaused = true;
-    this.uiManager.showPauseScreen();
+    this.uiManager.showPause();
   }
 
   resume() {
     this.isPaused = false;
-    this.uiManager.hidePauseScreen();
+    this.uiManager.hidePause();
     if (this.isRunning) {
       this.start();
     }

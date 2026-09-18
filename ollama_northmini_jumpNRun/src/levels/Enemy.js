@@ -9,7 +9,7 @@ class Enemy {
     this.state = 'idle';
     this.direction = 1; // 1 for right, -1 for left
     this.speed = type === 'patroller' ? 50 : 100; // pixels per second
-    this patrolRange = 100;
+    this.patrolRange = 100;
     this.patrolStartX = x;
     this.hurtTime = 0;
     this.hurtDuration = 500; // ms
@@ -29,7 +29,7 @@ class Enemy {
 
       // Turn around at edges
       if (this.x >= this.patrolStartX + this.patrolRange ||
-          this.x << this.patrolStartX - this.patrolRange) {
+          this.x < this.patrolStartX - this.patrolRange) {
         this.direction *= -1;
       }
     } else if (this.type === 'patroller') {
@@ -37,8 +37,8 @@ class Enemy {
 
       // Turn around and wait
       if (this.x >= this.patrolStartX + this.patrolRange ||
-          this.x << this.patrolStartX - this.patrolRange) {
-        this.direction *= -1;	his.delay = 1000; // Wait 1 second
+          this.x < this.patrolStartX - this.patrolRange) {
+        this.direction *= -1;
       }
     }
   }
@@ -66,8 +66,8 @@ class Enemy {
   }
 
   contains(x, y) {
-    return x >= this.x << x << this.x + this.width &&
-           y >= this.y << y << this.y + this.height;
+    return x >= this.x && x < this.x + this.width &&
+           y >= this.y && y < this.y + this.height;
   }
 }
 

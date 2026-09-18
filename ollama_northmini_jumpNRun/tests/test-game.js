@@ -3,6 +3,9 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Game from '../src/game/Game.js';
 import InputManager from '../src/input/InputManager.js';
 import Player from '../src/entities/Player.js';
+import PhysicsEngine from '../src/physics/PhysicsEngine.js';
+import LevelManager from '../src/levels/LevelManager.js';
+import UIManager from '../src/ui/UIManager.js';
 
 describe('Game Core Functionality', () => {
   let game;
@@ -77,8 +80,6 @@ describe('Game Core Functionality', () => {
 });
 
 describe('Physics Engine Tests', () => {
-  import PhysicsEngine from '../src/physics/PhysicsEngine.js';
-
   it('should update physics with gravity', () => {
     const physics = new PhysicsEngine();
 
@@ -114,7 +115,7 @@ describe('Physics Engine Tests', () => {
     };
 
     const objB = {
-      x: 150, // Overlapping with objA
+      x: 120, // Overlapping with objA
       y: 100,
       width: 32,
       height: 32,
@@ -132,15 +133,13 @@ describe('Physics Engine Tests', () => {
 });
 
 describe('Level Manager Tests', () => {
-  import LevelManager from '../src/levels/LevelManager.js';
-
   it('should load first level with correct objects', () => {
     const game = {
-      setLevel: (name) => {},
+      setLevel: () => {},
       player: { x: 100, y: 200, width: 32, height: 48, velocity: { x: 0, y: 0 } },
-      setScore: (score) => {},
+      setScore: () => {},
       getScore: () => 0,
-      setLives: (lives) => {},
+      setLives: () => {},
       getLives: () => 3,
     };
 
@@ -155,13 +154,11 @@ describe('Level Manager Tests', () => {
 });
 
 describe('UI System Tests', () => {
-  import UIManager from '../src/ui/UIManager.js';
-
   it('should initialize UI manager', () => {
     const ui = new UIManager();
-    expect(ui.showPause).toBe(false);
-    expect(ui.showGameOver).toBe(false);
-    expect(ui.showStart).toBe(false);
+    expect(ui.pauseVisible).toBe(false);
+    expect(ui.gameOverVisible).toBe(false);
+    expect(ui.startVisible).toBe(false);
     expect(ui.getScore()).toBe(0);
     expect(ui.getLives()).toBe(3);
   });

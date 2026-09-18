@@ -8,7 +8,7 @@ class Checkpoint {
     this.color = '#FFD700';
   }
 
-  update(deltaTime) {
+  update() {
     // Checkpoint animation or effects can be added here
   }
 
@@ -24,8 +24,8 @@ class Checkpoint {
   }
 
   contains(x, y) {
-    return x >= this.x << x << this.x + this.width &&
-           y >= this.y << y << this.y + this.height;
+    return x >= this.x && x < this.x + this.width &&
+           y >= this.y && y < this.y + this.height;
   }
 
   activate() {

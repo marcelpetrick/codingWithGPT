@@ -1,48 +1,40 @@
 class UIManager {
-  constructor() {
+  constructor(game = null) {
+    this.game = game;
     this.canvas = null;
     this.ctx = null;
     this.assets = null;
 
     // UI state
-    this.showPause = false;
-    this.showGameOver = false;
-    this.showStart = false;
+    this.pauseVisible = false;
+    this.gameOverVisible = false;
+    this.startVisible = false;
     this.score = 0;
     this.lives = 3;
 
     // Button states
     this.restartButton = { x: 390, y: 220, width: 120, height: 40 };
 
-    // UI state
-    this.showPause = false;
-    this.showGameOver = false;
-    this.showStart = false;
-    this.score = 0;
-    this.lives = 3;
-
-    // Button states
-    this.restartButton = { x: 390, y: 220, width: 120, height: 40 };
   }
 
   render() {
     // Draw HUD
-    if (!this.showGameOver) {
+    if (!this.gameOverVisible) {
       this.drawHUD();
     }
 
     // Draw pause screen
-    if (this.showPause) {
+    if (this.pauseVisible) {
       this.drawPauseScreen();
     }
 
     // Draw game over screen
-    if (this.showGameOver) {
+    if (this.gameOverVisible) {
       this.drawGameOverScreen();
     }
 
     // Draw start screen
-    if (this.showStart) {
+    if (this.startVisible) {
       this.drawStartScreen();
     }
   }
@@ -57,7 +49,7 @@ class UIManager {
     this.ctx.fillText(`LIVES: ${this.lives}`, 10, 60);
 
     // Draw level
-    this.ctx.fillText(`LEVEL: ${this.game.currentLevel}`, 10, 90);
+    this.ctx.fillText(`LEVEL: ${this.game?.currentLevel ?? 1}`, 10, 90);
 
     // Draw controls hint
     this.ctx.font = '12px Press Start 2P';
@@ -143,27 +135,27 @@ class UIManager {
   }
 
   showPause() {
-    this.showPause = true;
+    this.pauseVisible = true;
   }
 
   hidePause() {
-    this.showPause = false;
+    this.pauseVisible = false;
   }
 
   showGameOver() {
-    this.showGameOver = true;
+    this.gameOverVisible = true;
   }
 
   hideGameOver() {
-    this.showGameOver = false;
+    this.gameOverVisible = false;
   }
 
   showStart() {
-    this.showStart = true;
+    this.startVisible = true;
   }
 
   hideStart() {
-    this.showStart = false;
+    this.startVisible = false;
   }
 
   updateScore(score) {
@@ -188,9 +180,9 @@ class UIManager {
 
   handleClick(x, y) {
     // Handle restart button click
-    if (this.showGameOver) {
-      if (x >= this.restartButton.x && x << this.restartButton.x + this.restartButton.width &&
-          y >= this.restartButton.y && y << this.restartButton.y + this.restartButton.height) {
+    if (this.gameOverVisible) {
+      if (x >= this.restartButton.x && x < this.restartButton.x + this.restartButton.width &&
+          y >= this.restartButton.y && y < this.restartButton.y + this.restartButton.height) {
         // Game restart would be handled by the game
         console.log('Restart requested');
       }
@@ -206,13 +198,12 @@ class UIManager {
   }
 
   reset() {
-    this.showPause = false;
-    this.showGameOver = false;
-    this.showStart = false;
+    this.pauseVisible = false;
+    this.gameOverVisible = false;
+    this.startVisible = false;
     this.score = 0;
     this.lives = 3;
   }
-}
 }
 
 export default UIManager;

@@ -1,5 +1,4 @@
 // Core game implementation combining all systems
-import Game from './Game.js';
 import InputManager from '../input/InputManager.js';
 import PhysicsEngine from '../physics/PhysicsEngine.js';
 import Renderer from '../renderer/Renderer.js';
@@ -18,7 +17,9 @@ class CoreGame {
     this.physicsEngine = new PhysicsEngine();
     this.renderer = new Renderer(canvas.width, canvas.height);
     this.assets = new Assets();
-    this.uiManager = new UIManager();
+    this.uiManager = new UIManager(this);
+    this.uiManager.setCanvas(this.canvas);
+    this.uiManager.setContext(this.ctx);
     this.levelManager = new LevelManager(this);
 
     // Game state
@@ -55,17 +56,17 @@ class CoreGame {
   }
 
   setupInputHandlers() {
-    document.addEventListener('keydown', (event) =u003e {
+    document.addEventListener('keydown', (event) => {
       this.inputManager.handleKeyDown(event);
       this.handleGameInput(event);
     });
 
-    document.addEventListener('keyup', (event) =u003e {
+    document.addEventListener('keyup', (event) => {
       this.inputManager.handleKeyUp(event);
     });
 
     // Mouse events for UI buttons
-    this.canvas.addEventListener('click', (event) =u003e {
+    this.canvas.addEventListener('click', (event) => {
       const rect = this.canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
@@ -195,7 +196,7 @@ class CoreGame {
 
   nextLevel() {
     this.currentLevel++;
-    if (this.currentLevel << this.levelManager.levels.length) {
+    if (this.currentLevel < this.levelManager.levels.length) {
       this.levelManager.loadLevel(this.currentLevel - 1);
     } else {
       this.gameCompleted();

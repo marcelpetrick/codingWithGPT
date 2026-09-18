@@ -25,11 +25,11 @@ class InputManager {
     });
 
     // Mouse input
-    document.addEventListener('mousedown', (event) => {
+    document.addEventListener('mousedown', () => {
       this.mouse.pressed = true;
     });
 
-    document.addEventListener('mouseup', (event) => {
+    document.addEventListener('mouseup', () => {
       this.mouse.pressed = false;
     });
 

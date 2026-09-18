@@ -11,7 +11,7 @@ class Assets {
   loadImage(key, src) {
     return new Promise((resolve, reject) => {
       const img = new Image();
-      img.onload = () =u003e {
+      img.onload = () => {
         this.images[key] = img;
         this.loadingCount++;
         resolve(img);
@@ -24,7 +24,7 @@ class Assets {
   loadSound(key, src) {
     return new Promise((resolve, reject) => {
       const audio = new Audio();
-      audio.oncanplaythrough = () =u003e {
+      audio.oncanplaythrough = () => {
         this.sounds[key] = audio;
         this.loadingCount++;
         resolve(audio);

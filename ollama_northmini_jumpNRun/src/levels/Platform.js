@@ -8,7 +8,7 @@ class Platform {
     this.color = isCheckpoint ? '#FFD700' : '#8B4513';
   }
 
-  update(deltaTime) {
+  update() {
     // Platform movement can be added here
   }
 
@@ -23,8 +23,8 @@ class Platform {
   }
 
   contains(x, y) {
-    return x >= this.x << this.x + this.width &&
-           y >= this.y << y << this.y + this.height;
+    return x >= this.x && x < this.x + this.width &&
+           y >= this.y && y < this.y + this.height;
   }
 }
 

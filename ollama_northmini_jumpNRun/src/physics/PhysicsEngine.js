@@ -1,4 +1,4 @@
-import { AABB, Body } from './Collision.js';
+import { AABB } from './Collision.js';
 
 class PhysicsEngine {
   constructor() {
@@ -37,9 +37,6 @@ class PhysicsEngine {
       for (const obj of this.objects) {
         if (!obj.body || !obj.body.enabled) continue;
 
-        const oldX = obj.x;
-        const oldY = obj.y;
-
         obj.x += obj.body.velocity.x * deltaTime / 1000;
         obj.y += obj.body.velocity.y * deltaTime / 1000;
 
@@ -70,7 +67,7 @@ class PhysicsEngine {
 
   removeObject(obj) {
     const index = this.objects.indexOf(obj);
-    if (index >= -1) {
+    if (index >= 0) {
       this.objects.splice(index, 1);
     }
   }

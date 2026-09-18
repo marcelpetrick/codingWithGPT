@@ -1,10 +1,10 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [react()],
+  root: 'src',
   build: {
-    outDir: 'dist',
+    outDir: '../dist',
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         entryFileNames: '[name].js',
@@ -18,8 +18,10 @@ export default defineConfig({
     open: true,
   },
   test: {
+    root: '.',
     globals: true,
     environment: 'jsdom',
+    include: ['tests/**/*.js'],
     setupFiles: './tests/setup.ts',
     coverage: {
       reporter: ['text', 'html'],
