@@ -1,5 +1,14 @@
 # Terminal-Bench round — prepared 2026-09-17, ready for "go"
 
+> **SUPERSEDED, 2026-09-18 — read [`terminalbench/official/OFFICIAL_TB_PLAN.md`](terminalbench/official/OFFICIAL_TB_PLAN.md) first.**
+> The caveat below ("Terminal-Bench-*style*, not the official harness") no longer applies. The
+> official harness was installed, validated and smoke-tested against a real model on 2026-09-18,
+> so the headline round now runs **upstream terminal-bench on terminal-bench-core**. The local C
+> suite this document describes is kept as the **embedded-domain supplement**, and the "Why not
+> the official harness" section below is retained only as a record of why the call was made the
+> night before.
+
+
 Tomorrow: **`./GO_terminalbench.sh`**. Everything below is already built, validated and committed.
 This document is the reasoning and the assumptions, so the "go" is informed, not blind.
 
