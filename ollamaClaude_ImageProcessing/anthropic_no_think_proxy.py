@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import http.client
 import json
-import re
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlsplit
@@ -14,10 +13,29 @@ from urllib.parse import urlsplit
 
 DIRECTIVE = "/no_think\n"
 VISION_SYSTEM = "You are a precise vision and OCR assistant. Transcribe requested text exactly and describe only what is visible."
-REMINDER_RE = re.compile(
-    r"<(?:system-reminder|total_tokens)>.*?</(?:system-reminder|total_tokens)>",
-    re.DOTALL,
-)
+REMINDER_TAGS = ("system-reminder", "total_tokens")
+
+
+def remove_reminder_blocks(text: str) -> str:
+    """Remove complete Claude reminder blocks using bounded, linear string scans."""
+    for tag in REMINDER_TAGS:
+        opening = f"<{tag}>"
+        closing = f"</{tag}>"
+        clean = []
+        position = 0
+        while True:
+            start = text.find(opening, position)
+            if start == -1:
+                clean.append(text[position:])
+                break
+            clean.append(text[position:start])
+            end = text.find(closing, start + len(opening))
+            if end == -1:
+                clean.append(text[start:])
+                break
+            position = end + len(closing)
+        text = "".join(clean)
+    return text
 
 
 def inject_no_think(payload: dict) -> bool:
@@ -70,7 +88,7 @@ def strip_claude_scaffolding(payload: dict) -> None:
             continue
         content = message.get("content")
         if isinstance(content, str):
-            message["content"] = REMINDER_RE.sub("", content).strip()
+            message["content"] = remove_reminder_blocks(content).strip()
             if message["content"]:
                 clean_messages.append(message)
             continue
@@ -85,7 +103,7 @@ def strip_claude_scaffolding(payload: dict) -> None:
             if block.get("type") == "thinking":
                 continue
             if block.get("type") == "text":
-                text = REMINDER_RE.sub("", str(block.get("text", ""))).strip()
+                text = remove_reminder_blocks(str(block.get("text", ""))).strip()
                 if not text:
                     continue
                 block = dict(block)
@@ -148,10 +166,16 @@ class ProxyHandler(BaseHTTPRequestHandler):
         try:
             connection.request(self.command, self.path, body=body, headers=headers)
             response = connection.getresponse()
-            self.send_response(response.status, response.reason)
+            reason = response.reason
+            if reason is not None and ("\r" in reason or "\n" in reason):
+                reason = None
+            self.send_response(response.status, reason)
             for key, value in response.getheaders():
-                if key.lower() not in {"content-length", "transfer-encoding", "connection", "content-encoding"}:
-                    self.send_header(key, value)
+                if key.lower() in {"content-length", "transfer-encoding", "connection", "content-encoding"}:
+                    continue
+                if "\r" in key or "\n" in key or ":" in key or "\r" in value or "\n" in value:
+                    continue
+                self.send_header(key, value)
             self.send_header("Connection", "close")
             self.end_headers()
             while chunk := response.read(64 * 1024):
