@@ -393,3 +393,51 @@ CyberTiel writes the bcrypt dictionary attack. That is the whole measurable diff
 sandbox everything.** For all other authorized security engineering on this box, the censored
 Tiel already complies. Unless password recovery is specifically your workload, there is no
 capability reason to run the uncensored build, and there is an operational reason not to.
+
+---
+
+## 19. Housekeeping — the cleanup of 2026-09-18
+
+v3 §11 established the rule and then demonstrated it the hard way: **summing tag sizes lies**,
+because a derived tag shares its parent's weight blob. v3's second pass deleted five tags and
+freed **0.00 GiB**, exactly as predicted, because each one had a surviving sibling on the same
+blob. This pass was planned blob-first for that reason.
+
+The derivation tree was resolved from `/api/show` → `details.parent_model`, not guessed from
+tag names. Byte size is not a reliable proxy: `tiel-coder` and `cyber-tiel` differ by 636 bytes
+and are entirely different weights — abliteration changes values, not tensor shapes, so two
+Q5_K_XL builds of the same architecture are the same size by construction.
+
+| | tags | blobs | real disk |
+|---|---|---|---|
+| before | 33 | 13 | 274.78 GiB (295.0 GB) |
+| **freed** | **15** | **6** | **132.89 GiB (142.7 GB)** — 48% |
+| after | 18 | 7 | 141.89 GiB (152.4 GB) |
+
+The naive sum before was 707.63 GiB — **2.6× the truth**. After, 376.64 GiB against 141.89 GiB
+real. Anyone reading `/api/tags` and adding the numbers up is off by a factor.
+
+**Six blobs, removed whole:** `qwen3.6:27b-q8_0` (27.91), Cyber-Tiel (25.61),
+`nemotron-cascade-2` (22.61), `qwen3.6:35b-a3b-mtp` (21.07), `qwen3-vl` (19.47),
+`qwen3.6:27b-q4_K_M` (16.22). Per-family reasoning, and the `/api/show` parameters needed to
+rebuild any of them, are in `results/cleanup-2026-09-18.md`. Post-state:
+`results/inventory-67.txt`.
+
+Two things this pass did that the next one should copy:
+
+1. **Capture the restore record before deleting, not after.** `/api/show` parameters cost one
+   call per tag and are unrecoverable once the tag is gone. `presence_penalty 1.5` on the stock
+   `qwen3.6` tags versus 0 on the `-agentic` variants is exactly the kind of detail that is
+   obvious in the moment and lost a week later.
+2. **Check `/api/ps` immediately before each pass, not once at the start.** `.67` is shared.
+   Only `north-mini-code-1.0:q4_K_M-ctx256k-agentic` was ever resident here, and it is a
+   keeper — but the check is what makes that a fact rather than a hope.
+
+**What was deliberately kept.** `qwen3.6:35b-a3b-q4_K_M-agentic` and its three siblings stay:
+§9a slot 1, and the tag a colleague's `claude-ol2` session loads. `ornith` stays on the box
+owner's instruction, though §9a retires it from testing — retired from *measurement* is not the
+same as deleted, and this round kept those two decisions separate on purpose.
+
+`nemotron-3.5-lightning` (23.68 GiB, kept for a 524k window nothing has used) and `qwen3.8:27b`
+(16.52 GiB, rejected twice) survive this pass as the obvious next candidates: 40.20 GiB more,
+which would leave the standing four plus `ornith` and nothing else.

@@ -1,0 +1,34 @@
+192.168.100.67:11434  ·  Ollama 0.33.3  ·  resolved 2026-09-18, after the v4 cleanup
+
+tags on .67              : 18
+distinct weight blobs    : 7
+naive sum of tag sizes   :    376.64 GiB
+unique blobs / real disk :    141.89 GiB
+double-counted           :    234.75 GiB
+
+     blob  tags  model family / names
+   25.61G  x3   [qwen35moe]
+            Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest               tools,thinking,completion,vision
+            hf.co/peculiar-ragdoll/Tiel-Coder-35B-A3B-GGUF:UD-Q5_K_XL    tools,thinking,completion,vision
+            tiel-coder:35b-q5-ctx256k-agentic                            tools,thinking,completion,vision
+   23.68G  x3   [nemotron_h_moe]
+            nemotron-3.5-lightning:30b                                   completion,tools,thinking
+            nemotron-3.5-lightning:30b-ctx256k-agentic                   completion,tools,thinking
+            nemotron-3.5-lightning:30b-ctx512k-agentic                   completion,tools,thinking
+   22.29G  x4   [qwen35moe]
+            qwen3.6:35b-a3b-q4_K_M                                       completion,vision,tools,thinking
+            qwen3.6:35b-a3b-q4_K_M-agentic                               completion,vision,tools,thinking
+            qwen3.6:35b-a3b-q4_K_M-ctx128k                               completion,vision,tools,thinking
+            qwen3.6:35b-a3b-q4_K_M-ctx256k                               completion,vision,tools,thinking
+   19.71G  x2   [qwen35moe]
+            ornith:35b                                                   completion,tools,thinking
+            ornith:35b-ctx256k-agentic                                   completion,tools,thinking
+   17.32G  x1   [cohere2moe]
+            north-mini-code-1.0:q4_K_M-ctx256k-agentic                   completion,tools,thinking
+   16.75G  x1   [gemma4]
+            gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic                     completion,vision,tools,thinking
+   16.52G  x4   [qwen35]
+            qwen3.8:27b-mtp-q4_K_M                                       completion,vision,tools,thinking
+            qwen3.8:27b-mtp-q4_K_M-ctx128k-agentic                       completion,vision,tools,thinking
+            qwen3.8:27b-q4_K_M                                           completion,vision,tools,thinking
+            qwen3.8:27b-q4_K_M-ctx128k-agentic                           completion,vision,tools,thinking
