@@ -2,6 +2,7 @@ from flask import Flask, request
 import os
 from PIL import Image
 import numpy as np
+from werkzeug.utils import secure_filename
 
 def process_image(image_path):
     print(f"process_image: {image_path}")
@@ -32,8 +33,11 @@ def upload_file():
         return 'No selected file', 400
 
     if file:
-        # todo make sure the temp-dir exists - else create it. Else the process_image runs on a non-existing file because saving failed.
-        newName = os.path.join('temp/', file.filename)
+        filename = secure_filename(file.filename)
+        if not filename:
+            return 'Invalid filename', 400
+        os.makedirs('temp', exist_ok=True)
+        newName = os.path.join('temp', filename)
         file.save(newName)
         # TODO: process the image and get the result
         # This might take up to 30 seconds
