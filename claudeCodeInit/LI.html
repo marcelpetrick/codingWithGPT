@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Does /init actually help?</title>
+<style>
+  :root{
+    --bg:#F1F6EC;
+    --bg2:#E7F0DE;
+    --surface:#FFFFFF;
+    --ink:#13291C;
+    --ink2:#4A6152;
+    --ink3:#7B8F83;
+    --green900:#1E4A2E;
+    --green700:#2F6B41;
+    --green500:#54A06A;
+    --mint:#8CC63F;
+    --rule:#D5E6C6;
+  }
+  @page{ size:1080px 1080px; margin:0; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ background:var(--bg); }
+  body{ font-family:"Noto Sans","DejaVu Sans",sans-serif; color:var(--ink);
+        -webkit-font-smoothing:antialiased; }
+
+  .slide{
+    width:1080px; height:1080px; position:relative; overflow:hidden;
+    background:var(--bg); padding:86px 88px 76px 88px;
+    display:flex; flex-direction:column;
+    page-break-after:always; break-after:page;
+  }
+  .slide:last-child{ page-break-after:auto; break-after:auto; }
+
+  /* decorative */
+  .blob{ position:absolute; border-radius:50%; opacity:.5; }
+  .b1{ width:520px; height:520px; right:-170px; top:-190px;
+       background:radial-gradient(circle at 30% 30%, #DCEECA 0%, rgba(220,238,202,0) 70%); }
+  .b2{ width:420px; height:420px; left:-160px; bottom:-170px;
+       background:radial-gradient(circle at 60% 40%, #E3F1D6 0%, rgba(227,241,214,0) 72%); }
+  .corner{ position:absolute; right:0; top:0; width:0; height:0;
+           border-top:120px solid var(--mint); border-left:120px solid transparent; opacity:.20; }
+
+  .eyebrow{ font-size:20px; letter-spacing:.20em; text-transform:uppercase;
+            color:var(--green700); font-weight:700; }
+  .rule{ width:96px; height:7px; background:var(--mint); border-radius:4px; margin:26px 0 0; }
+
+  h1{ font-family:"DejaVu Serif",Georgia,serif; font-weight:700; color:var(--green900);
+      font-size:92px; line-height:1.03; letter-spacing:-.018em; }
+  h2{ font-family:"DejaVu Serif",Georgia,serif; font-weight:700; color:var(--green900);
+      font-size:66px; line-height:1.08; letter-spacing:-.012em; margin-top:30px; max-width:19ch; }
+  .sub{ font-size:31px; line-height:1.46; color:var(--ink2); margin-top:34px; max-width:30ch; }
+
+  .bullets{ margin-top:auto; display:flex; flex-direction:column; gap:28px; }
+  .card{ background:var(--surface); border-radius:22px; padding:38px 42px 38px 40px;
+         border-left:12px solid var(--green500);
+         box-shadow:0 10px 30px rgba(31,74,46,.09); }
+  .card .k{ font-family:"DejaVu Serif",Georgia,serif; font-size:56px; font-weight:700;
+            color:var(--green700); line-height:1; }
+  .card .t{ font-size:31px; line-height:1.45; color:var(--ink); margin-top:14px; }
+  .card .t b{ color:var(--green900); }
+  .card.alt{ border-left-color:var(--mint); }
+
+  .foot{ position:absolute; left:88px; right:88px; bottom:44px;
+         display:flex; justify-content:space-between; align-items:center;
+         font-size:19px; color:var(--ink3); border-top:2px solid var(--rule); padding-top:18px; }
+  .foot .src{ max-width:74%; }
+  .num{ font-weight:700; color:var(--green700); }
+
+  /* cover */
+  .cover{ background:linear-gradient(160deg,#F5F9F1 0%, #E4EFD8 100%); justify-content:center; }
+  .cover h1{ font-size:104px; }
+  .stat{ display:flex; gap:58px; margin-top:56px; }
+  .stat div .n{ font-family:"DejaVu Serif",Georgia,serif; font-size:62px; font-weight:700; color:var(--green700); line-height:1; }
+  .stat div .l{ font-size:21px; color:var(--ink2); margin-top:10px; letter-spacing:.02em; }
+
+  .verdict{ margin-top:36px; background:var(--green900); color:#EAF4E0; border-radius:22px;
+            padding:38px 44px; font-size:34px; line-height:1.4; }
+  .verdict b{ color:var(--mint); }
+  .note{ margin-top:22px; background:#EAF3E0; border:2px solid var(--rule);
+         border-radius:16px; padding:20px 26px; font-size:21px; line-height:1.4;
+         color:var(--ink2); }
+  .slide.has-note{ padding-bottom:112px; }
+  .slide.has-verdict{ padding-bottom:118px; }
+  .slide.has-verdict h2{ font-size:58px; max-width:17ch; margin-top:24px; }
+  .slide.has-verdict .card{ padding:30px 34px 30px 32px; }
+  .slide.has-verdict .card .k{ font-size:44px; }
+  .slide.has-verdict .card .t{ font-size:27px; margin-top:11px; }
+  .slide.has-verdict .bullets{ gap:20px; }
+  .slide.has-verdict .verdict{ margin-top:24px; padding:26px 32px; font-size:29px; }
+  .slide.has-note h2{ font-size:58px; max-width:17ch; margin-top:24px; }
+  .slide.has-note .card{ padding:30px 34px 30px 32px; }
+  .slide.has-note .card .k{ font-size:44px; }
+  .slide.has-note .card .t{ font-size:27px; margin-top:11px; }
+  .slide.has-note .bullets{ gap:20px; }
+  .note b{ color:var(--green900); }
+</style>
+</head>
+<body>
+
+<!-- 1 COVER -->
+<section class="slide cover">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="eyebrow">Evidence review &middot; September 2026</div>
+  <div class="rule"></div>
+  <h1>Does <span style="color:var(--green700)">/init</span><br>actually help?</h1>
+  <div class="sub">What the research says about CLAUDE.md, AGENTS.md and every
+    other repo context file your coding agent loads.</div>
+  <div class="stat">
+    <div><div class="n">4</div><div class="l">controlled ablations</div></div>
+    <div><div class="n">15,549</div><div class="l">agentic PRs analysed</div></div>
+    <div><div class="n">247,694</div><div class="l">instruction lifetimes</div></div>
+  </div>
+  <div class="foot"><span class="src">An independent review of the published evidence</span><span class="num">1 / 5</span></div>
+</section>
+
+<!-- 2 FINDING -->
+<section class="slide has-note">
+  <div class="blob b1"></div><div class="corner"></div>
+  <div class="eyebrow">The headline</div>
+  <div class="rule"></div>
+  <h2>Your context file is two things. They have opposite signs.</h2>
+  <div class="bullets">
+    <div class="card">
+      <div class="k">Followed</div>
+      <div class="t"><b>Instructions work.</b> Name a tool in the file and the agent
+        uses it <b>1.6&times;</b> per task, versus under <b>0.01&times;</b> when unmentioned.</div>
+    </div>
+    <div class="card alt">
+      <div class="k">Ignored</div>
+      <div class="t"><b>Repository overviews do not.</b> The architecture tour
+        <b>/init</b> writes did not help agents find files any faster &mdash; and cost
+        <b>20&ndash;23%</b> more inference.</div>
+    </div>
+  </div>
+  <div class="note">Read the effect sizes with care: <b>~9% of outcomes flip between
+    byte-identical runs</b> at temperature zero. Most published effects sit inside that noise.</div>
+  <div class="foot"><span class="src">Gloaguen et al., ETH Z&uuml;rich &mdash; arXiv:2602.11988 (ICLR 2026 workshop)</span><span class="num">2 / 5</span></div>
+</section>
+
+<!-- 3 MECHANISM -->
+<section class="slide">
+  <div class="blob b2"></div><div class="corner"></div>
+  <div class="eyebrow">Why overviews fail</div>
+  <div class="rule"></div>
+  <h2>Prose about code is a lossy picture of code.</h2>
+  <div class="bullets">
+    <div class="card">
+      <div class="k">4 / 45</div>
+      <div class="t">Behavioural questions a natural-language summary of a file can
+        answer. <b>The source itself answers 27 / 45.</b></div>
+    </div>
+    <div class="card alt">
+      <div class="k">No fix</div>
+      <div class="t">A frontier model's summary scores <b>exactly as poorly</b> as a
+        3B model's. The loss is in the representation &mdash; you cannot write your way out of it.</div>
+    </div>
+  </div>
+  <div class="foot"><span class="src">Sam-Bodden &mdash; arXiv:2607.09691, oracle-localized ablation on SWE-bench Verified</span><span class="num">3 / 5</span></div>
+</section>
+
+<!-- 4 RATCHET -->
+<section class="slide">
+  <div class="blob b1"></div><div class="corner"></div>
+  <div class="eyebrow">The ratchet</div>
+  <div class="rule"></div>
+  <h2>These files only ever grow.</h2>
+  <div class="bullets">
+    <div class="card">
+      <div class="k">+226%</div>
+      <div class="t">Growth over a context file's lifetime &mdash; a net
+        <b>+4.9 instructions per commit</b>, across 1,867 repositories.</div>
+    </div>
+    <div class="card alt">
+      <div class="k">Stuck</div>
+      <div class="t">The older a line gets, the <b>less likely</b> anyone deletes it.
+        Adding is cheap; proving a deletion is safe is not. <b>Catastrophic remembering.</b></div>
+    </div>
+  </div>
+  <div class="foot"><span class="src">Chakrabarti &mdash; arXiv:2608.11095, 247,694 instruction lifetimes</span><span class="num">4 / 5</span></div>
+</section>
+
+<!-- 5 ACTION -->
+<section class="slide has-verdict">
+  <div class="blob b2"></div><div class="corner"></div>
+  <div class="eyebrow">What to do on Monday</div>
+  <div class="rule"></div>
+  <h2>Run it. Then delete most of it.</h2>
+  <div class="bullets">
+    <div class="card">
+      <div class="k">Keep</div>
+      <div class="t">Only what the repo <b>cannot tell the agent itself</b>: non-obvious
+        commands, gotchas, prohibitions, conventions that differ from the default.</div>
+    </div>
+    <div class="card alt">
+      <div class="k">Move</div>
+      <div class="t">Enforcement into <b>hooks</b>. Procedures into <b>skills</b>.
+        Module detail into <b>subdirectory files</b>. Then cut the architecture tour.</div>
+    </div>
+  </div>
+  <div class="verdict">The practice is sound. <b>The default artefact is not.</b></div>
+  <div class="foot"><span class="src">Full dossier, sources and verification log in the repository</span><span class="num">5 / 5</span></div>
+</section>
+
+</body>
+</html>
