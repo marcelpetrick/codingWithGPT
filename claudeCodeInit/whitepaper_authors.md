@@ -1,19 +1,20 @@
 # Authors to credit and tag
 
 Companion to [`whitepaper.md`](whitepaper.md) / [`paper.pdf`](paper.pdf).
-Compiled 2026-09-19.
+Compiled 2026-09-19; author lookups completed 2026-09-20.
 
 **Read the confidence column before tagging anyone.** Tagging the wrong person in
-a public post is worse than tagging nobody. Two entries below are *name matches
-only* — I could not tie the profile to the paper. Confirm those yourself, or use
-the institution instead.
+a public post is worse than tagging nobody. Two entries below are *name and
+affiliation matches only* — the profile could not be tied to the paper by a
+published link. Confirm those yourself, or use the institution instead.
 
-**Method and its limits.** The session's web-search budget was exhausted, and
-LinkedIn, DuckDuckGo and Mojeek all block automated fetching. So profiles were
-established only through *verifiable chains* — a paper's stated code repository
-leading to a GitHub account leading to a linked profile, or an official
-lab/institution page. Where no such chain exists, the entry says so rather than
-guessing a URL.
+**Method and its limits.** LinkedIn, DuckDuckGo and Mojeek all block automated
+fetching, so no profile page below was read directly. Profiles are graded HIGH
+only where a *verifiable chain* exists — a paper's stated code repository or
+author email leading to an account that itself publishes the profile link, or an
+official lab/institution page. MEDIUM means the name, the affiliation and the
+research topic all match, but no verified account links to the profile. Where no
+chain exists at all, the entry says so rather than guessing a URL.
 
 **A finding in itself:** most of these are academics, and **several have no
 LinkedIn at all.** Computer-science researchers tend to live on X, Bluesky,
@@ -45,27 +46,81 @@ Mastodon and Google Scholar. For those people the right move is to tag the
   PDF.
 - *Note: co-author, not first author, on both papers.*
 
----
-
-## Tier 2 — name match only, CONFIRM BEFORE TAGGING
-
 ### Brian Sam-Bodden — *the mechanism paper* (arXiv:2607.09691)
-- **Candidate LinkedIn:** https://www.linkedin.com/in/sambodden
+- **LinkedIn:** https://www.linkedin.com/in/sambodden
 - **GitHub:** https://github.com/bsbodden · **Site:** https://integrallis.com
-- Profile reads: *"Technologist, Author and Entrepreneur. Ex-Principal Applied AI
-  Engineer. Ex-DevRel at Redis. @Java_Champions"*, Scottsdale, Arizona.
-- **Confidence: MEDIUM — do not tag without checking.** The name is distinctive
-  and "Ex-Principal Applied AI Engineer" fits the paper's subject, **but his
-  GitHub shows no SWE-bench, coding-agent or context research, and nothing links
-  him to arXiv:2607.09691.** This may be a different person with the same name.
-  - *To confirm in 30 seconds:* open the LinkedIn profile and look for the paper,
-    "SWE-bench", or an arXiv post in his activity.
-  - This is the paper I lean on hardest (the 4/45 vs 27/45 result and the ~9%
-    noise floor), so it is the one most worth getting right.
+- **X:** https://twitter.com/bsbodden · Scottsdale, Arizona.
+- **Confidence: HIGH — upgraded from MEDIUM on 2026-09-20.** Verified chain: the
+  paper's author block gives *"Brian Sam-Bodden, Integrallis Software,
+  bsbodden@integrallis.com"* and states *"Code and data:
+  https://github.com/integrallis/act-context"*; that repository is owned by the
+  `integrallis` org and described as reproduction code for the paper; the GitHub
+  account `bsbodden` lists company `@integrallis`, is a member of that org, and
+  **publishes the LinkedIn URL above on its own profile.**
+- The earlier doubt is resolved: his *personal* GitHub shows Redis and Java work
+  because the paper's code lives under the **company** org, not his user account.
+
+### Niels Mündler-Sasahara — *second author*, the central study (arXiv:2602.11988)
+- **LinkedIn:** https://www.linkedin.com/in/niels-muendler
+- **GitHub:** https://github.com/nielstron · **X:** https://x.com/nielstron
+- **Site:** https://blog.nielstron.de · **Scholar:**
+  https://scholar.google.com/citations?user=iX8Ib9wAAAAJ
+- PhD student, SRI Lab, ETH Zürich since July 2024, advised by Martin Vechev.
+- **Confidence: HIGH.** Verified chain: his SRI Lab page
+  (https://www.sri.inf.ethz.ch/people/niels) lists no socials but uses the handle
+  `nielstron`; `github.com/nielstron` gives the full name *Niels
+  Mündler-Sasahara*, ETH Zürich, *"Working on Code LLM security"*, and links
+  http://blog.nielstron.de; that site names him as *"PhD Student at ETH Zurich
+  under Martin Vechev"* and **publishes the LinkedIn URL above.**
+- *Note: second author of five (Gloaguen, Mündler, Müller, Raychev, Vechev) —
+  credit the team, not him alone.* Unlike Gloaguen, he **does** have a LinkedIn.
 
 ---
 
-## Tier 3 — identity confirmed, but no LinkedIn exists / none found
+## Tier 2 — name and affiliation match only, CONFIRM BEFORE TAGGING
+
+Both were checked on 2026-09-20. In each case the name is distinctive, the
+LinkedIn headline states the same institution the paper states, and the profile's
+research record matches — but no verified account of theirs publishes the URL, so
+the last link of the chain is missing.
+
+### Jai Lal Lulla — *first author*, efficiency study (arXiv:2601.20404)
+- **Candidate LinkedIn:** https://www.linkedin.com/in/jai-lulla-764457206/
+  (headline: *"Jai Lulla — Singapore Management University"*)
+- **Scholar:** https://scholar.google.com/citations?user=U6GH2EMAAAAJ
+- **Confidence: MEDIUM.** The paper's author block gives *"Jai Lal Lulla,
+  Singapore Management University, jailal.l.2025@phdcs.smu.edu.sg"*; the Scholar
+  profile carries a verified `smu.edu.sg` address, lists this paper, and states
+  interests *"Software Engineering, AI4SE, Agentic AI Coding Tools"*. The LinkedIn
+  headline matches the institution — **but nothing he controls publishes that
+  URL**, so it stays MEDIUM.
+- *To confirm in 30 seconds:* open the profile and look for SMU, the AGENTS.md
+  paper, or "Loop Engineering" (his other 2026 paper) in the activity feed.
+- The paper's online appendix is Zenodo DOI `10.5281/zenodo.18348507`; it carries
+  no personal links, so that route is closed.
+
+### Ali Arabat — *first author*, Instructions-as-Code (MSR 2026, arXiv:2606.13449)
+- **Candidate LinkedIn:** https://ca.linkedin.com/in/ali-arabat-206906170
+  (headline: *"ALI ARABAT — Software Engineering Researcher — École de
+  technologie supérieure"*)
+- **Confidence: MEDIUM.** The paper gives *"Ali Arabat, Mohammed Sayagh, École de
+  Technologie Supérieure, Montréal, ali.arabat.1@ens.etsmtl.ca"*. The profile
+  states the same institution and surfaces alongside his known record — the
+  Empirical Software Engineering work with Sayagh on cross-component dependent
+  changes in OpenStack. **But his supervisor's site (msayagh.github.io) names no
+  students, and no personal page or GitHub of his could be found**, so there is
+  no published link to close the chain.
+- *(The earlier guess `aliarabat.github.io` is a 404 — that route stays closed.)*
+- **Safe alternative:** tag **ÉTS Montréal**, and name his supervisor
+  **Mohammed Sayagh** in the text — his faculty page
+  (https://www.etsmtl.ca/etudier-a-lets/corps-enseignant/msayagh) and personal
+  site (https://msayagh.github.io) are verified. A LinkedIn for Sayagh also turns
+  up (`/in/mohammed-sayagh-24bab978/`) but it is a **search-result match only**,
+  same caveat as above.
+
+---
+
+## Tier 3 — no taggable profile (no LinkedIn, or no identifiable person)
 
 ### Thibaud Gloaguen — *the central study* (arXiv:2602.11988)
 - **No LinkedIn found.** His official SRI Lab page lists only an institutional
@@ -77,6 +132,9 @@ Mastodon and Google Scholar. For those people the right move is to tag the
   **@the_sri_lab** on X. Name him in the post text.
 - Senior author **Martin Vechev** leads the SRI Lab — a more publicly visible
   figure if you want a second name, though he is last author, not main.
+- **His second author does have a LinkedIn:** Niels Mündler-Sasahara, Tier 1
+  above. Tagging him reaches the same paper — but credit the team, not him as
+  first author.
 
 ### Christoph Treude — *co-author*, staleness study (arXiv:2606.09090)
 - **No LinkedIn listed on his own site.**
@@ -85,6 +143,20 @@ Mastodon and Google Scholar. For those people the right move is to tag the
   **ORCID:** https://orcid.org/0000-0002-6919-2149
 - Associate Professor, School of Computing and Information Systems, Singapore
   Management University. Verified from https://ctreude.ca
+
+### Damon McMillan — *the factorial adherence study* (arXiv:2605.10039)
+- **No profile can be tied to the paper. Do not tag anyone.**
+- The paper's entire author block is two lines: *"Damon McMillan / HxAI
+  Australia"*. No email, no ORCID, no repository, no data-availability statement
+  anywhere in the 18 pages.
+- **HxAI publishes no names.** https://h-x.ai describes *"an independent research
+  organisation"*, attributes its output to the collective *"HxAi Research Team"*,
+  and gives one contact: **research@h-x.ai**, Melbourne, Australia.
+- LinkedIn has several Australians of that name — one at Deloitte Digital who
+  posts about production agents, one an engineer at Blue Trail Engineering.
+  **Neither is connected to HxAI by any published evidence**, and the topical
+  plausibility of the first is exactly the trap this file exists to avoid.
+- **Reach him at research@h-x.ai instead**, or cite *"HxAI (Melbourne)"*.
 
 ### Kushal Chakrabarti — *the +226% growth study* (arXiv:2608.11095)
 - **No LinkedIn found; no affiliation published.**
@@ -96,20 +168,23 @@ Mastodon and Google Scholar. For those people the right move is to tag the
 
 ---
 
-## Tier 4 — not looked up (search budget exhausted)
+## Tier 4 — closed
 
-Paste these into LinkedIn search to finish the list. Each name is taken from the
-paper itself, so the name is right even though the profile is unconfirmed.
+The four outstanding lookups were completed on 2026-09-20, and the one open
+identity question was settled. Outcomes:
 
-| Author | Paper | Stated affiliation | Search string |
-|---|---|---|---|
-| **Jai Lal Lulla** (first author) | Efficiency study, arXiv:2601.20404 | group spanning SMU / Heidelberg / Bamberg / KCL | `"Jai Lal Lulla"` |
-| **Damon McMillan** | Factorial adherence study, arXiv:2605.10039 | HxAI, Australia | `"Damon McMillan" HxAI` |
-| **Ali Arabat** (first author) | Instructions-as-Code, MSR 2026, arXiv:2606.13449 | with Mohammed Sayagh (ÉTS Montréal) | `"Ali Arabat" ETS` |
-| **Niels Mündler-Sasahara** | co-author, arXiv:2602.11988 | SRI Lab, ETH Zürich | `"Niels Mündler"` |
+| Author | Outcome |
+|---|---|
+| **Brian Sam-Bodden** | **MEDIUM → HIGH.** Chain closed via `bsbodden@integrallis.com` and the `integrallis/act-context` repo → Tier 1 |
+| **Niels Mündler-Sasahara** | **HIGH.** Chain closed via `nielstron` → blog.nielstron.de → Tier 1 |
+| **Jai Lal Lulla** | **MEDIUM.** Affiliation and field match; no published link → Tier 2 |
+| **Ali Arabat** | **MEDIUM.** Affiliation and record match; no published link → Tier 2 |
+| **Damon McMillan** | **No profile tied.** HxAI publishes no names → Tier 3, email route only |
 
-*(A personal site guess for Ali Arabat, `aliarabat.github.io`, returned 404 — so
-that route is closed.)*
+Of the ten people now checked, **four have a verified profile, two are affiliation
+matches, three have no LinkedIn at all, and one cannot be identified.** That
+distribution is itself the point: this is an academic literature, and half of it
+is not reachable on LinkedIn.
 
 ---
 
@@ -118,24 +193,29 @@ that route is closed.)*
 Safer than an individual if you are unsure. Search LinkedIn for the official page
 and confirm the verified badge before tagging:
 
-- **ETH Zürich** — Gloaguen et al., the central study
-- **Singapore Management University** — Treude
+- **ETH Zürich** — Gloaguen, Mündler-Sasahara et al., the central study
+- **Singapore Management University** — Lulla and Treude
 - **Heidelberg University** — Baltes
 - **IIT Roorkee** — Khatri
+- **ÉTS Montréal (École de technologie supérieure)** — Arabat and Sayagh
+- **HxAI**, Melbourne — McMillan; no individual is identifiable, so the
+  organisation is the only safe credit
 
 ---
 
 ## Ready-to-paste credit line
 
-> This review rests on work by Thibaud Gloaguen and colleagues at the SRI Lab,
-> ETH Zürich; Prakhar Khatri; Brian Sam-Bodden; Kushal Chakrabarti; and Jai Lal
-> Lulla, Sebastian Baltes, Christoph Treude and co-authors. All of it is
+> This review rests on work by Thibaud Gloaguen, Niels Mündler-Sasahara and
+> colleagues at the SRI Lab, ETH Zürich; Prakhar Khatri; Brian Sam-Bodden;
+> Kushal Chakrabarti; Ali Arabat and Mohammed Sayagh; Damon McMillan at HxAI; and
+> Jai Lal Lulla, Sebastian Baltes, Christoph Treude and co-authors. All of it is
 > open-access on arXiv, and the ETH harness is public under MIT. Any errors in
 > the synthesis are mine, not theirs.
 
 **Suggested tagging order for a post** (highest verified confidence first):
-Prakhar Khatri → Sebastian Baltes → ETH Zürich → *(Brian Sam-Bodden only once
-confirmed)*.
+Brian Sam-Bodden → Prakhar Khatri → Niels Mündler-Sasahara → Sebastian Baltes →
+ETH Zürich → *(Jai Lal Lulla and Ali Arabat only once you have eyeballed the
+profiles; never Damon McMillan)*.
 
 ---
 
@@ -153,7 +233,8 @@ nuance most commentary drops.
 ## Copy-paste connection notes
 
 LinkedIn caps an invitation note at **300 characters** (and free accounts get a
-limited number of noted invites per month). All three below are under the cap.
+limited number of noted invites per month). All six below are under the cap;
+the count is given after each.
 
 ### Prakhar Khatri — confidence HIGH
 https://www.linkedin.com/in/prakhar-khatri-323200225/
@@ -172,14 +253,45 @@ https://www.linkedin.com/in/sebastianbaltes
 *(226 chars. He is a co-author on both, not first author — the wording credits
 the work without implying he led it.)*
 
-### Brian Sam-Bodden — confidence MEDIUM, identity unconfirmed
+### Brian Sam-Bodden — confidence HIGH
 https://www.linkedin.com/in/sambodden
 
-> Hi Brian - if you're the author of "What Context Does a Coding Agent Actually Need to Act?", that paper reframed a review I've been doing on repo context files: the 4/45 vs 27/45 result and the temperature-0 noise floor especially. Would be glad to connect.
+> Hi Brian - "What Context Does a Coding Agent Actually Need to Act?" reframed a review I've been doing on repository context files: the 4/45 vs 27/45 result, and the temperature-0 noise floor under every small effect here. Thanks for pre-registering it. Would be glad to connect.
 
-*(257 chars. The conditional opening is deliberate: it is honest about the
-unverified identity, and it doubles as the verification — if it is the wrong
-Brian, the phrasing costs nothing and no false claim was made.)*
+*(278 chars. The earlier draft opened with "if you're the author of" because the
+identity was unconfirmed; that hedge is no longer needed — the chain closed on
+2026-09-20. The note thanks him for the pre-registration because his registered
+hypothesis **failed** and he published it anyway, which is the rarer thing.)*
+
+### Niels Mündler-Sasahara — confidence HIGH
+https://www.linkedin.com/in/niels-muendler
+
+> Hi Niels - I've been compiling the evidence on whether repository context files help coding agents, and your AGENTS.md evaluation is the backbone of the review. The distinction it draws - instructions followed, repository overviews not - is the part most commentary drops. Would be glad to connect.
+
+*(298 chars — close to the cap; check it pastes whole. He is second of five
+authors, so the note credits "your evaluation" as the team's paper and makes no
+claim about who led it. This is the same paper Gloaguen first-authored, so do not
+send both notes as if they were separate results.)*
+
+### Jai Lal Lulla — confidence MEDIUM, eyeball the profile first
+https://www.linkedin.com/in/jai-lulla-764457206/
+
+> Hi Jai - I've been reviewing the evidence on repository context files for coding agents. Your AGENTS.md efficiency study measures the operational side - runtime and tokens rather than success rate - and keeping those two apart mattered for the review. Would be glad to connect.
+
+*(277 chars. Accurate and deliberately narrow: his paper reports −28.64% runtime
+and −16.58% output tokens but claims only "comparable task completion behavior",
+so the note credits the efficiency finding and does not imply a correctness
+result the paper never measured.)*
+
+### Ali Arabat — confidence MEDIUM, eyeball the profile first
+https://ca.linkedin.com/in/ali-arabat-206906170
+
+> Hi Ali - I've been compiling the evidence on whether instruction files help coding agents. Your MSR 2026 study is the largest sample I found, and the finding that about as many projects got worse as better shaped the conclusions. Would be glad to connect.
+
+*(255 chars. His headline result is close to a coin flip — 27.7% of projects up
+at least 20 points, 26.35% down — so the note states that plainly rather than
+dressing it up as a positive finding. "Largest sample I found" is true: 15,549
+PRs across 148 projects.)*
 
 ---
 
@@ -206,3 +318,18 @@ https://scholar.google.com/citations?user=-ie8QFEAAAAJ
 
 ### Kushal Chakrabarti
 No LinkedIn and no published affiliation. Only https://orcid.org/0009-0007-9464-1608
+
+### Damon McMillan
+No identifiable profile. HxAI names nobody publicly and gives one address, which
+is the only safe channel: `research@h-x.ai` (Melbourne, Australia).
+
+> Subject: Your factorial study of CLAUDE.md file structure
+>
+> Hello,
+>
+> I've been putting together a review of whether repository context files help coding agents, and arXiv:2605.10039 is the study I cite for the structural variables — the affirmative-null Bayes factors on file size and conflicting instructions, and the within-session compliance decay, which is the only effect in that design that survived.
+>
+> I could not find an individual profile to credit, so the review credits HxAI. If Damon McMillan would prefer to be named or tagged directly, I'm happy to correct that.
+>
+> Best regards,
+> Marcel Petrick

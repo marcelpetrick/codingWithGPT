@@ -146,3 +146,23 @@ Verbatim from the abstract:
 
 - A blog attributes Gloaguen's numbers to a **"Kocetkov et al."** paper. **No such paper exists.** AI-generated secondary-source hallucination.
 - **"Context rot" is now two unrelated things.** Chroma (2025) coined it for performance degradation as context *length* grows. Treude & Baltes ([arXiv:2606.09090](https://arxiv.org/abs/2606.09090)) reuse the label for documentation-vs-code *staleness*. Different phenomena, same name — a citation-search hazard.
+
+## Round 4 (2026-09-20): author identity verification
+
+The four outstanding author lookups from `whitepaper_authors.md` Tier 4, plus the
+one open identity question. Same standard as the rest of this file: a profile is
+HIGH only if something the person controls publishes the link.
+
+| Person | Route attempted | Outcome |
+|---|---|---|
+| **Brian Sam-Bodden** (arXiv:2607.09691) | paper HTML → author block → GitHub | **MEDIUM → HIGH.** Author block: *"Brian Sam-Bodden, Integrallis Software, bsbodden@integrallis.com"*, footnote *"Code and data: https://github.com/integrallis/act-context"*. That repo is owned by the `integrallis` org; `github.com/bsbodden` lists company `@integrallis`, is a member of the org, and publishes `linkedin.com/in/sambodden` itself. The round-3 doubt ("his GitHub shows no coding-agent work") was a false negative: the paper's code lives under the company org, not his user account. |
+| **Niels Mündler-Sasahara** (arXiv:2602.11988, 2nd of 5) | SRI Lab page → handle → personal site | **HIGH.** SRI page lists no socials but uses the handle `nielstron`; `github.com/nielstron` gives the full name, ETH Zürich, and links `blog.nielstron.de`; that site names him *"PhD Student at ETH Zurich under Martin Vechev"* and publishes `linkedin.com/in/niels-muendler`. Authorship re-checked against the arXiv abstract page: Gloaguen, Mündler, Müller, Raychev, Vechev. |
+| **Jai Lal Lulla** (arXiv:2601.20404, 1st author) | paper PDF → Scholar → LinkedIn search | **MEDIUM.** Paper PDF (`assets.empirical-software.engineering`, extracted with `pdftotext`): *"Jai Lal Lulla, Singapore Management University, jailal.l.2025@phdcs.smu.edu.sg"*. Scholar `U6GH2EMAAAAJ` has a verified `smu.edu.sg` address and lists the paper. A LinkedIn profile with the matching institution exists (`/in/jai-lulla-764457206/`) but **no account of his publishes it**. The paper's appendix (Zenodo `10.5281/zenodo.18348507`) carries no personal links; the SMU PhD-student directory page returned no readable content. |
+| **Ali Arabat** (arXiv:2606.13449, 1st author) | paper HTML → supervisor site → LinkedIn search | **MEDIUM.** Paper: *"Ali Arabat, Mohammed Sayagh, École de Technologie Supérieure, ali.arabat.1@ens.etsmtl.ca"*, replication package Figshare `10.6084/m9.figshare.30951143`. Candidate `ca.linkedin.com/in/ali-arabat-206906170` states the same institution and matches his known record (EMSE work with Sayagh on OpenStack cross-component changes). His supervisor's site `msayagh.github.io` **names no students**, and no personal site or GitHub was found, so the chain has no final link. `aliarabat.github.io` remains 404. |
+| **Damon McMillan** (arXiv:2605.10039) | paper PDF → HxAI site | **No identification possible — recorded as a result, not a gap.** The paper's author block is two lines, *"Damon McMillan / HxAI Australia"*; a full-text grep of the PDF found no email, ORCID, repository or data-availability statement. `h-x.ai` calls itself an independent research organisation, attributes work to the collective *"HxAi Research Team"*, names no individual, and gives one address: `research@h-x.ai`, Melbourne. Several Australians of that name exist on LinkedIn, one of them topically plausible (Deloitte Digital, posts about production agents) — **plausibility is not evidence, and no link was recorded.** |
+
+**Method note.** LinkedIn still blocks automated fetching, so every profile URL
+above came from search-result metadata, not from reading the page. That is why
+an affiliation match caps at MEDIUM: the grade reflects the *chain*, not the
+plausibility. Two PDFs that `WebFetch` could not decode were extracted locally
+with `pdftotext` — that is the reliable route for arXiv PDFs.

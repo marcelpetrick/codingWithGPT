@@ -1,5 +1,17 @@
 # Handoff — finish the author lookups
 
+> **STATUS: DONE (2026-09-20).** All four lookups and the open Sam-Bodden
+> identity question were completed; results are in `whitepaper_authors.md` and
+> `evidence/verification-log.md` ("Round 4"). Summary: Sam-Bodden **confirmed,
+> MEDIUM → HIGH**; Mündler-Sasahara **HIGH**; Lulla and Arabat **MEDIUM**
+> (affiliation matches, no published link); McMillan **not identifiable** — HxAI
+> publishes no names, so `research@h-x.ai` is the only channel.
+>
+> Also corrected: the "state of the repository" section below is stale — as of
+> 2026-09-20 the remote `master` is at `c9a9ca3`, so `03c8616` and this file are
+> **already public**. The rest of the file is kept as the record of how the task
+> was specified.
+
 **Written 2026-09-19 by the session that produced this study.** Read this first
 if you are a new or resumed session picking the work up.
 
