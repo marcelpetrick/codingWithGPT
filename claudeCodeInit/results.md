@@ -96,7 +96,7 @@ Throughout, sources are graded:
 mechanism in exhaustive detail and publishes no ablation. Anthropic, OpenAI,
 GitHub, Cursor, Windsurf, Cline, Amp, Cognition, JetBrains — not one has published
 a controlled with/without measurement of its own instruction-file feature. The
-entire evidentiary base is four academic papers and one foundation blog post.
+entire evidentiary base is five academic papers and one foundation blog post.
 
 ---
 
@@ -207,9 +207,12 @@ concession — it cuts against the commercial interest in "add more context".
 
 ## 4. The direct causal evidence
 
-Four controlled ablations exist. This is the entire grade-A base for the question.
+Five controlled ablations exist. This is the entire grade-A base for the question.
+**S5 was added in round 5 (2026-09-20)** — three earlier rounds of search missed
+it, and it is the only one of the five reporting a significant positive effect on
+task success.
 
-### 4.1 The four studies
+### 4.1 The five studies
 
 | # | Study | Design | N | Measured | Result |
 |---|---|---|---|---|---|
@@ -217,6 +220,27 @@ Four controlled ablations exist. This is the entire grade-A base for the questio
 | **S2** | **Khatri** — *Do Context Files Help Coding Agents? A Two-Agent Ablation Study on Real Repositories* [arXiv:2607.27250](https://arxiv.org/abs/2607.27250), 2026-07-28 | Claude Code + Codex, context-injection strategies ablated, gold-test evaluation, **equivalence testing** rather than only null-hypothesis testing | 17 tasks, 3 repos, **288 evaluated runs (3 repeats/task — the only repeated-run correctness design)** | correctness, latency | **No measurable effect, bounded to ≤10–15pp.** *But its own power analysis gives a minimum detectable effect ≈**30pp***, needing ~120–200 tasks for 80% power at 10pp. Failure triage: agents fail on *implementation skill* — design, pattern selection, wiring — not missing repo knowledge. Manipulation probe: the real AGENTS.md **never converts a near-miss into a pass**. |
 | **S3** | **Lulla, Mohsenimofidi, Galster, Zhang, Baltes, Treude** — *On the Impact of AGENTS.md Files on the Efficiency of AI Coding Agents* [arXiv:2601.20404](https://arxiv.org/abs/2601.20404). JAWs @ ICSE 2026. | paired within-task: same task run with and without AGENTS.md, isolated containers, small PRs (≤100 LOC, ≤5 files) | 10 repos, **124 PRs** | runtime, tokens — **correctness only spot-checked on 50 of 124** | **Median runtime −28.64%** (98.6s→70.3s), **output tokens −16.58%**, input −9.73%. Completion behaviour "comparable" — correctness was *not* a measured primary metric. |
 | **S4** | **McMillan** — *Instruction Adherence in Coding Agent Configuration Files: A Factorial Study of Four File-Structure Variables* [arXiv:2605.10039](https://arxiv.org/abs/2605.10039), 2026-05-11 | factorial over file size × instruction position × file architecture × cross-file contradictions | **1,650 Claude Code sessions**, 16,050 function-level observations, 2 TS codebases, 3 models | instruction adherence, via a **synthetic `// @tracked` marker** (not task success) | **Most statistically rigorous of the four** (GLMMs, FDR correction, Bayesian companion). **None of the four structural variables had a detectable effect**, with *affirmative* Bayesian nulls for size (BF₁₀=0.096) and contradiction (BF₁₀=0.053) after multiple-testing correction. What did matter: **session length — ~5.6% lower odds of compliance per additional generated function (OR 0.944).** |
+| **S5** | **Shepard & Albrecht** — *Probe-and-Refine Tuning of Repository Guidance for Coding Agents* [arXiv:2606.20512](https://arxiv.org/abs/2606.20512), 2026-06-18 (v2 06-19) | three conditions — unguided / static knowledge base / **probe-and-refine tuned** guidance, where synthetic bug-fix probes iteratively diagnose and patch the guidance file via single-shot LLM calls, **no agent loop during tuning**. Plus a step-budget experiment and a cross-model check on NVIDIA-Nemotron-3-Nano-30B-A3B | SWE-bench Verified, **4 independent trials**, Qwen3.5-35B-A3B at 200 steps | resolve rate, patch precision, coverage | **The only positive significance-tested success effect in the literature.** 25.5% unguided → 28.3% static KB → **33.0% tuned** (*p*<0.001 for both tuned contrasts — the paper tests **only** the two probe-and-refine contrasts, so the static-vs-unguided +2.8 pp gap is untested rather than null). **The gain is coverage, not precision:** +14.5 pp more instances yield an evaluable patch, per-patch precision flat at ≈59% (*p*=0.119) — i.e. guidance *"helps agents reach the correct file rather than improving the quality of the changes they make."* Thesis: *"how the guidance is produced is the decisive variable."* Cross-model: the tuning loop **degrades** when the model cannot emit sufficiently diagnostic output. |
+
+### 4.1a Why S5 does not overturn S1–S4
+
+It is the single most important addition since the first draft, and it must not be
+over-read in either direction.
+
+- **Different model class.** Qwen3.5-35B-A3B is an open mid-size model. S1 and S2
+  tested Claude Code and Codex. Under §11's principle, scaffolding pays where the
+  model lacks the capability natively — and S5's own cross-model check shows the
+  procedure failing on a *weaker* model still, so the window is bounded on both
+  sides.
+- **Different artefact provenance.** The **static knowledge base** — the condition
+  closest to what `/init` writes — gained **2.8 pp and did not reach
+  significance**. Only the file *tuned against observed failures* moved the
+  needle. That is a defect log, not a repository tour.
+- **It corroborates S2's failure triage.** Khatri found agents fail on
+  implementation skill, not missing repo knowledge. S5 measures exactly that split
+  and agrees: coverage moved, precision did not.
+- **It does not close the decisive gap.** S5 splits coverage from precision, not
+  *instructions* from *overview*. §11's first open experiment stands.
 
 ### 4.2 Reconciling the apparent contradiction
 
@@ -599,6 +623,7 @@ For a working developer, the evidence supports this:
 - Khatri. *Do Context Files Help Coding Agents? A Two-Agent Ablation Study on Real Repositories.* [arXiv:2607.27250](https://arxiv.org/abs/2607.27250)
 - Lulla, Mohsenimofidi, Galster, Zhang, Baltes, Treude. *On the Impact of AGENTS.md Files on the Efficiency of AI Coding Agents.* [arXiv:2601.20404](https://arxiv.org/abs/2601.20404). JAWs @ ICSE 2026
 - McMillan. *Instruction Adherence in Coding Agent Configuration Files: A Factorial Study of Four File-Structure Variables.* [arXiv:2605.10039](https://arxiv.org/abs/2605.10039)
+- Shepard & Albrecht. *Probe-and-Refine Tuning of Repository Guidance for Coding Agents.* [arXiv:2606.20512](https://arxiv.org/abs/2606.20512) — **added round 5**
 - Griffiths. *Measuring AGENTS.md: What Five Runs Show That One Doesn't.* Agentic AI Foundation, 2026-07-22
 
 ### Observational and descriptive (grades B–C)
@@ -609,6 +634,9 @@ For a working developer, the evidence supports this:
 - Mohsenimofidi, Galster, Treude, Baltes. *Context Engineering for AI Agents in Open-Source Software.* [arXiv:2510.21413](https://arxiv.org/abs/2510.21413)
 - Santos et al. *Decoding the Configuration of AI Coding Agents.* [arXiv:2511.09268](https://arxiv.org/abs/2511.09268)
 - *Harness Engineering for Agentic AI Coding Tools.* [arXiv:2602.14690](https://arxiv.org/abs/2602.14690)
+- Cai, Li, Liang, Li, Shahin. *Rule Taxonomy and Evolution in AI IDEs: A Mining and Survey Study.* [arXiv:2606.12231](https://arxiv.org/abs/2606.12231) — 83 projects, 7,310 rules, 1,540 evolution events, 99 practitioners; **compliance 49.14% → 72.13% after a rule update**. *Added round 5*
+- Vasilopoulos. *Codified Context: Infrastructure for AI Agents in a Complex Codebase.* [arXiv:2602.20478](https://arxiv.org/abs/2602.20478) — single-project case study (108k-line C#, 283 sessions), observational only. *Added round 5*
+- Lulla et al. *Loop Engineering: Building Blocks, Adoption, and Impact.* [arXiv:2608.21884](https://arxiv.org/abs/2608.21884) · Gao et al. *From Registry to Repository: How AI Agent Skills Are Written, Adapted, and Maintained.* [arXiv:2607.00911](https://arxiv.org/abs/2607.00911) · Abubakar et al. *An Exploratory Study of Agent Plans.* [arXiv:2608.04661](https://arxiv.org/abs/2608.04661) — adjacent artefacts (loops, skills, plans) by the same group; **none measures task success**, so none bears on the question. *Checked round 5*
 - Nigh. *How to write a great agents.md: Lessons from over 2,500 repositories.* GitHub Blog, 2025-11-19
 
 ### Long-context and instruction-adherence mechanism

@@ -2,7 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Read `HANDOFF.md` first — it states the current task and the repository's remote state.
+`HANDOFF.md` describes a task that is **complete** (author lookups, closed
+2026-09-20); keep it as the record, but there is no open task in it.
+
+## What this project is
+
+An evidence review of whether `/init`-generated context files help coding agents.
+`whitepaper.md` is the synthesis, `paper.pdf`/`paper.tex` the 3-page paper,
+`LI.pdf`/`LI.html` a 6-slide carousel, `results.md` the full dossier, `evidence/`
+the primary extracts and verification logs. **These five must agree with each
+other** — a claim changed in one has to be changed in all of them, including the
+figures.
 
 ## Non-obvious constraints
 
@@ -17,6 +27,13 @@ Read `HANDOFF.md` first — it states the current task and the repository's remo
 - **Grade confidence explicitly** (HIGH / MEDIUM / absent) on any claim about a
   real person's identity, and prefer an empty slot to a plausible guess.
 - **A confirmed absence of evidence is a result**, not a gap to paper over.
+- **The evidence base moves.** Round 5 (2026-09-20) found a controlled ablation
+  three earlier rounds had missed — it had been public for three months and it
+  overturned an inference in the TL;DR. Before trusting any count ("five
+  controlled ablations"), re-sweep. Assume the current version is incomplete.
+- **Quote abstracts from the raw source.** `curl` the arXiv abstract page and read
+  the `<blockquote class="abstract">`; for PDFs the fetch tool cannot decode, use
+  `pdftotext`. Do not log a quotation that passed through a summarising model.
 
 ## Rebuilding artefacts
 
@@ -26,4 +43,11 @@ pdflatex paper.tex && pdflatex paper.tex    # -> paper.pdf (must stay <= 3 pages
 chromium --headless --no-pdf-header-footer --print-to-pdf=LI.pdf LI.html
 ```
 
-`paper.tex` avoids `titlesec` and `enumitem` — neither is installed on this machine.
+`paper.tex` avoids `titlesec` and `enumitem` — neither is installed on this
+machine. Figure 1's height drives the paper's page count: growing it past
+~3.0 inches pushes the bibliography onto a fourth page.
+
+**Always look at what you rebuilt.** `pdftoppm -r 130 -png paper.pdf out` and read
+the images. Two defects in the carousel (a decorative blob painting over the
+verdict bar, a heading colliding with a card) were invisible in the source and
+obvious in the render.

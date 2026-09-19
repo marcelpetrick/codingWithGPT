@@ -3,7 +3,8 @@
 \usepackage{mathptmx}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{graphicx,booktabs,microtype,xcolor,caption,url}
+\usepackage{graphicx,booktabs,array,microtype,xcolor,caption,url}
+\newcolumntype{R}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage[hidelinks]{hyperref}
 
 \definecolor{acc}{HTML}{1F4A2E}
@@ -30,19 +31,23 @@
 \vspace{7pt}
 {\normalsize\bfseries Marcel Petrick\quad$\cdot$\quad Claude Opus 5\par}
 \vspace{2pt}
-{\small 19 September 2026\par}
+{\small 19 September 2026 $\cdot$ revised 20 September 2026\par}
 \vspace{7pt}
 \begin{minipage}{0.88\textwidth}
 \small\noindent\textbf{Abstract.} Agentic coding harnesses ship commands that
 generate a repository context file---\texttt{CLAUDE.md}, \texttt{AGENTS.md}---which
-is then loaded into every subsequent session. We synthesise the four controlled
+is then loaded into every subsequent session. We synthesise the five controlled
 ablations of this practice, the surrounding mechanism literature, and primary
-sources extracted directly from a shipped Claude Code binary. We find that the
-measured effect on task success ranges from $-2\%$ to $+4\%$ and lies entirely
-\emph{within} the $\approx$9\% of per-instance outcomes that flip between
-byte-identical runs at temperature zero; the field's point estimates therefore do
-not distinguish the practice from no practice. The one robust effect is cost,
-at $+20$--$23\%$. Decomposing the artefact resolves the apparent disagreement:
+sources extracted directly from a shipped Claude Code binary. Every measured
+effect on task success lies \emph{within} the $\approx$9\% of per-instance
+outcomes that flip between byte-identical runs at temperature zero---so the
+single-run designs, which supply most of the field's point estimates, do not
+distinguish the practice from no practice. The designs that repeat their trials
+mostly report nulls, with one exception that locates the effect precisely:
+guidance \emph{tuned against an agent's observed failures} lifts resolve rate
+$25.5\rightarrow33.0\%$ on an open 35B model ($p<0.001$), and does so by helping
+the agent reach the right file, not by improving its patches. The one robust
+effect across the frontier agents is cost, at $+20$--$23\%$. Decomposing the artefact resolves the apparent disagreement:
 \emph{instructions} are followed (a named tool is invoked $1.6\times$ per task
 versus $<\!0.01\times$ unmentioned) whereas \emph{repository overviews} are not
 helpful, because natural-language summaries of code answer $4/45$ behavioural
@@ -64,15 +69,15 @@ The practice is near-universal and the evidence is thin. Every major harness
 (Claude Code, Codex, Copilot, Cursor, Aider, Gemini CLI, Windsurf, Cline, Amp,
 Devin, Junie) ships an instruction-file mechanism; essentially none of their
 vendors has published a controlled measurement of whether it works. The entire
-causal base is four 2026 preprints, none replicated, none formally rebutted.
+causal base is five 2026 preprints, none replicated, none formally rebutted.
 
 We ask three questions. Does a context file improve task success? What does it
 cost? And if the answers are ``not measurably'' and ``20\%,'' why does the feature
 exist?
 
 \section{Method}
-Three rounds of parallel literature search (ten agents) were combined with two
-local primary-source efforts: extraction of the literal \texttt{/init} prompt,
+Five rounds of literature search (three of them ten parallel agents) were combined
+with two local primary-source efforts: extraction of the literal \texttt{/init} prompt,
 an unreleased gated successor, and the loading semantics from the shipped Claude
 Code binary v2.1.278; and measurement of 35 instruction files in a working
 repository corpus (median $\approx$1{,}590 tokens, p90 $\approx$3{,}300).
@@ -87,28 +92,31 @@ accompany this paper.
 
 \begin{table}[t]
 \centering\small
-\caption{The complete causal evidence base. All four are 2026 preprints or
+\caption{The complete causal evidence base. All five are 2026 preprints or
 workshop papers; none is replicated or formally rebutted. ``Repeats'' denotes
-multiple runs of the same condition.}
+multiple runs of the same condition---the column that decides whether a point
+estimate is a measurement.}
 \label{tab:base}
-\begin{tabular}{@{}p{1.45cm}p{1.5cm}p{1.15cm}p{2.5cm}@{}}
+\begin{tabular}{@{}R{1.32cm}R{1.78cm}R{1.02cm}R{2.62cm}@{}}
 \toprule
 \textbf{Study} & \textbf{Scale} & \textbf{Repeats} & \textbf{Outcome} \\
 \midrule
-Gloaguen \cite{gloaguen} & 438 instances, 4 agents & \textbf{No} (1 sample each) & No success gain; $+20$--$23\%$ cost \\
+Gloaguen \cite{gloaguen} & 438 instances, 4 agents & \textbf{No} ($1\times$) & No success gain; $+20$--$23\%$ cost \\
 \addlinespace[1pt]
 Khatri \cite{khatri} & 288 runs, 17 tasks & \textbf{Yes} ($3\times$) & No effect; but MDE $\approx$30\,pp \\
 \addlinespace[1pt]
 Lulla \cite{lulla} & 124 PRs, 10 repos & No (paired) & $-28.6\%$ runtime; correctness spot-checked \\
 \addlinespace[1pt]
 McMillan \cite{mcmillan} & 1{,}650 sessions & \textbf{Yes} ($50\times$) & Affirmative null on file structure \\
+\addlinespace[1pt]
+Shepard \cite{shepard} & 4 trials, Qwen3.5-35B & \textbf{Yes} ($4\times$) & $+7.5$\,pp, $p<0.001$; \emph{tuned} guidance only \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \section{Results}
 
-\subsection{The effects are smaller than the noise}
+\subsection{Most point estimates are not measurements}
 Figure~\ref{fig:forest} plots every measured effect on task success against the
 measured run-to-run noise floor. Sam-Bodden~\cite{sambodden}, under a protocol
 frozen before data collection, reports that temperature-0 inference ``flips
@@ -117,12 +125,20 @@ this is ``a noise floor under every small effect reported on this benchmark.''
 Every published point estimate falls inside it, and the study contributing
 several of them sampled each instance once, with no significance testing.
 
+The band must be read for what it is. $\approx$9\% is a \emph{per-instance flip
+rate}---what one run establishes about one instance---not a minimum detectable
+effect. Repeated trials shrink the standard error of the mean and can resolve a
+smaller difference, which is why the one positive result below survives inside the
+band. The floor disqualifies the single-run estimate, not the practice.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{fig/fig1_forest.pdf}
-\caption{Measured change in task success for every condition in the two
-ablations that report success rates, against the $\pm$9\,pp run-to-run noise
-floor~\cite{sambodden}. No effect escapes the band.}
+\caption{Every measured change in task success, grouped by whether the design
+can resolve one. The band is the $\pm$9\,pp per-instance flip
+rate~\cite{sambodden}; no effect escapes it, but that only settles the four
+single-run estimates. Of the six from designs with repeats, four are bounded
+nulls, one ($+2.8$\,pp) is never tested, and one ($+7.5$\,pp, $p<0.001$) is real.}
 \label{fig:forest}
 \end{figure}
 
@@ -181,13 +197,39 @@ benefit~\cite{gloaguen,sambodden}---appear in 68.1\% of files.}
 \label{fig:content}
 \end{figure}
 
+\subsection{The exception: tuned guidance on a weaker model}
+One design breaks the pattern, and it is the most careful of the five. Shepard and
+Albrecht~\cite{shepard} introduce \emph{probe-and-refine tuning}: synthetic
+bug-fix probes iteratively diagnose and patch a repository's guidance file through
+single-shot calls, with no agent loop during tuning. Over four independent trials
+on SWE-bench Verified with Qwen3.5-35B-A3B, resolve rate runs 25.5\% unguided,
+28.3\% with a static knowledge base, and \textbf{33.0\%} tuned ($p<0.001$ for
+both tuned contrasts). They conclude that ``how the guidance is produced is the
+decisive variable.''
+
+Three things keep this compatible with the nulls. The model is an open 35B, not a
+frontier agent---and their cross-model check finds the procedure \emph{degrades}
+on a model too weak to emit diagnostic output, so the scaffolding has a capability
+window on both sides. The static knowledge base, the condition closest to what
+\texttt{/init} writes, gained 2.8\,pp, which the paper does not
+significance-test; the demonstrated gain required tuning against observed
+failures, making the file a defect log rather than a repository tour. And the improvement is located: coverage rises 14.5\,pp while
+per-patch precision stays flat ($\approx$59\%, $p=0.119$), so guidance ``helps
+agents reach the correct file rather than improving the quality of the changes they
+make''---the nulls' conclusion, reached from the opposite side.
+
 \subsection{The artefact has no brake}
 Across 247{,}694 instruction lifetimes in 1{,}867 repositories, context files grow
 \textbf{+226\%} over their lifetime, a net $+4.9$ instructions per commit, and the
 older an instruction becomes the \emph{less} likely it is ever
 deleted~\cite{chakrabarti}. Appending is cheap; verifying a deletion is safe is
 $O(2^{|D|})$. Independently, 23.0\% of such files already contain stale code
-references~\cite{treude}. Structural file properties---size, position,
+references~\cite{treude}, and a second mining study of 1{,}540 rule-evolution
+events finds evolution dominated by expansions (29.17\%) and enrichments
+(26.59\%), with developers reporting that they fix agent errors ``by adding new
+negative constraints rather than editing existing ones''~\cite{cai}. That study
+also supplies the counterweight: after a rule update, artefact compliance rises
+from 49.14\% to 72.13\%. Structural file properties---size, position,
 architecture, internal contradiction---show \emph{affirmative} null effects on
 adherence (BF$_{10}=0.096$, $0.053$); what degrades compliance is session length,
 at $-5.6\%$ odds per generated function~\cite{mcmillan}.
@@ -227,7 +269,9 @@ derive, or enforces a constraint it cannot infer.}
 \noindent A repository overview substitutes for reading the codebase---and the
 agent can now grep. Commands, gotchas and prohibitions supply what no amount of
 reading yields. The halves have opposite fates because they are different kinds of
-thing.
+thing. The principle's sharpest test is~\S3.5: the same artefact is worth
+$+7.5$\,pp to a 35B model that cannot reliably find the right file and nothing
+measurable to agents that can.
 
 \section{Verdict}
 The practice is sound; the default artefact is not. Run \texttt{/init} as a draft,
@@ -237,14 +281,20 @@ itself. Count imperatives rather than lines, since compliance degrades with
 constraint count and session length, not file size. Move enforcement to hooks,
 procedures to skills, and module detail to path-scoped files; \texttt{@imports}
 load eagerly and save nothing. Do not shrink the file to save money---shrink it to
-protect compliance. Expect no gain in success rate: agents fail on implementation
-skill, and no document repairs that.
+protect compliance. Record what the agent got \emph{wrong} rather than what the
+repository contains---that is the one intervention with a significance-tested gain
+behind it, and the test Anthropic's own unreleased \texttt{/init} applies. Expect
+no gain in success rate on a frontier agent: they fail on implementation skill,
+which no document repairs. Weight this differently on a smaller or local model---the
+only measured gain in the literature is on an open 35B.
 
-\paragraph{Limitations.} Four unreplicated preprints, three underpowered for the
+\paragraph{Limitations.} Five unreplicated preprints, three underpowered for the
 effects they report; no experiment of our own; modelled rather than measured cost
 tables; a single binary version; and a search budget exhausted before the final
-round. The decisive experiment---ablating instructions against overviews under one
-shared success metric---remains unrun, and is cheap.
+round. A later sweep found two relevant papers the first rounds had missed, one of
+which changed a headline claim---assume the same of this version. The decisive
+experiment---ablating instructions against overviews under one shared success
+metric---remains unrun, and is cheap.
 
 
 \section{Open experiments}
@@ -263,14 +313,19 @@ floor~\cite{sambodden}, a design powered for a 5\,pp effect needs roughly
 \item \textbf{Staleness versus consequence.} Prevalence is
 known (23.0\% of files carry stale references~\cite{treude}); the performance
 cost of that staleness is not.
+\item \textbf{The capability window.} Guidance pays on a 35B
+model~\cite{shepard} and not on frontier agents, but no design spans a capability
+ladder. ``Does it help?'' is missing its qualifier: help whom? Relatedly,
+probe-and-refine has never been run on a frontier agent---the cheapest open
+experiment of real value.
 \item \textbf{Generalisation.} The evidence is overwhelmingly Python and
 TypeScript. Gloaguen et al. themselves caution that Python's weight in training
 data ``might\ldots nullify the effect of context files''~\cite{gloaguen}---the
 practice may well pay in languages the model knows less well.
 \end{enumerate}
 
-\begin{thebibliography}{9}\small
-\setlength{\itemsep}{0.5pt}
+\begin{thebibliography}{99}\footnotesize
+\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
 \bibitem{gloaguen} T.~Gloaguen, N.~M\"undler, M.~M\"uller, V.~Raychev, M.~Vechev.
 \emph{Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding
 Agents?} MemAgents @ ICLR 2026. arXiv:2602.11988.
@@ -282,6 +337,10 @@ Ablation Study on Real Repositories.} arXiv:2607.27250, 2026.
 Efficiency of AI Coding Agents.} JAWs @ ICSE 2026. arXiv:2601.20404.
 \bibitem{mcmillan} D.~McMillan. \emph{Instruction Adherence in Coding Agent
 Configuration Files.} arXiv:2605.10039, 2026.
+\bibitem{shepard} A.~Shepard, J.~Albrecht. \emph{Probe-and-Refine Tuning of
+Repository Guidance for Coding Agents.} arXiv:2606.20512, 2026.
+\bibitem{cai} G.~Cai, R.~Li, P.~Liang, Z.~Li, M.~Shahin. \emph{Rule Taxonomy and
+Evolution in AI IDEs: A Mining and Survey Study.} arXiv:2606.12231, 2026.
 \bibitem{chakrabarti} K.~Chakrabarti. \emph{Why Does CLAUDE.md Keep Growing?
 Catastrophic Remembering in Agentic Coding.} arXiv:2608.11095, 2026.
 \bibitem{treude} C.~Treude, S.~Baltes. \emph{Context Rot in AI-Assisted Software

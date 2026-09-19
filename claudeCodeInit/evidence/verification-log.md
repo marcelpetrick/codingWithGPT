@@ -166,3 +166,49 @@ above came from search-result metadata, not from reading the page. That is why
 an affiliation match caps at MEDIUM: the grade reflects the *chain*, not the
 plausibility. Two PDFs that `WebFetch` could not decode were extracted locally
 with `pdftotext` — that is the reliable route for arXiv PDFs.
+
+## Round 5 (2026-09-20): literature re-sweep with a restored search budget
+
+Round 3 ended with the search budget exhausted (200/200). With the limit raised,
+the field was swept again. **Three papers were found that the first three rounds
+missed**, one of which changes a headline claim. Every abstract below was fetched
+from `arxiv.org/abs/<id>` and extracted from the raw HTML `<blockquote
+class="abstract">` — not read through a summarising model, and not taken from a
+search snippet.
+
+| Paper | Status | Verbatim evidence |
+|---|---|---|
+| **Shepard & Albrecht**, *Probe-and-Refine Tuning of Repository Guidance for Coding Agents*, [arXiv:2606.20512](https://arxiv.org/abs/2606.20512), submitted 2026-06-18 (v2 06-19), cs.SE | **Added as the fifth controlled ablation (S5).** Changes §4 of `results.md`, the TL;DR, and figure 1. | *"On SWE-bench Verified across four independent trials with Qwen3.5-35B-A3B at 200 steps, probe-and-refine achieves 33.0% mean resolve rate vs. 28.3% for the static knowledge base used to initialize it and 25.5% for an unguided baseline (p < 0.001 for both probe-and-refine contrasts)."* · *"The improvement comes from coverage rather than precision: refined guidance produces evaluable patches for 14.5 percentage points (pp) more instances while per-patch precision remains statistically constant (~59%, p = 0.119), showing that improved guidance helps agents reach the correct file rather than improving the quality of the changes they make."* · *"we show that how the guidance is produced is the decisive variable"* · *"a cross-model experiment with NVIDIA-Nemotron-3-Nano-30B-A3B finds that the tuning loop degrades when the model cannot generate sufficiently diagnostic output"* |
+| **Cai, Li, Liang, Li, Shahin**, *Rule Taxonomy and Evolution in AI IDEs*, [arXiv:2606.12231](https://arxiv.org/abs/2606.12231), submitted 2026-06-10 | **Added as observational corroboration** of the ratchet (§7 of the whitepaper) and as a second adherence result. | *"mining 83 open-source projects and extracting 7,310 rules"* · *"our analysis of 1,540 rule evolution events revealed that rules are updated frequently… rule evolution is primarily driven by constructive context expansions (29.17%) and enrichments (26.59%)"* · *"surveyed developers reported modifying rules primarily to correct AI errors (77.78%), typically by adding new negative constraints rather than editing existing ones"* · *"an artifact compliance assessment of 160 rule evolution events revealed that updating rules significantly improves the adherence of software artifacts, with the average artifact compliance rate increasing by 22.99% (from 49.14% to 72.13%) following an update"* |
+| **Vasilopoulos**, *Codified Context*, [arXiv:2602.20478](https://arxiv.org/abs/2602.20478), submitted 2026-02-24 | **Cited as illustrative only.** Single-project case study; no controlled comparison, so it cannot bear weight. | *"a 108,000-line C# distributed system"*, *"283 development sessions"*, *"four observational case studies"*. No success or cost measurement. |
+
+### Checked and deliberately not used
+
+- [arXiv:2608.21884](https://arxiv.org/abs/2608.21884) (Loop Engineering),
+  [arXiv:2607.00911](https://arxiv.org/abs/2607.00911) (agent skills),
+  [arXiv:2608.04661](https://arxiv.org/abs/2608.04661) (agent plans) — all by the
+  Lulla/Treude/Baltes group, all **adoption studies that measure no task
+  outcome**. Listed in `results.md` §13 so the next reader does not re-check them.
+- [arXiv:2604.14228](https://arxiv.org/abs/2604.14228) (*Dive into Claude Code*) —
+  a design-space tech report, explicitly not an empirical measurement.
+
+### One claim in this review was weakened by round 5
+
+The earlier draft said every published point estimate sits inside the ±9 pp
+per-instance flip rate, and treated that as settling the question. The first half
+is still true — S5's contrasts are +2.8 and +7.5 pp. **The inference was too
+strong.** A per-instance flip rate bounds what a *single run* establishes; it is
+not a minimum detectable effect, and a mean over repeated trials has a smaller
+standard error. S5 resolves a +7.5 pp difference at *p*<0.001 from inside the
+band. The claim now reads: the floor disqualifies **single-run point estimates**,
+not the practice. Figure 1 was rebuilt to group the effects by design rather than
+by study, because that is the distinction that decides which numbers are
+measurements.
+
+### Method note
+
+Two arXiv PDFs (`2601.20404`, `2605.10039`) could not be decoded by the fetching
+tool and were extracted locally with `pdftotext`; that is the reliable route, and
+it is how the Lulla author block and the McMillan "HxAI Australia" affiliation
+were read. For abstracts, `curl` plus a regex over the raw HTML avoids putting a
+summarising model between the source and the log.

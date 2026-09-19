@@ -31,7 +31,10 @@
   }
   .slide:last-child{ page-break-after:auto; break-after:auto; }
 
-  /* decorative */
+  /* decorative -- kept strictly behind content: absolutely-positioned elements
+     otherwise paint over the static blocks that follow them */
+  .blob,.corner{ z-index:0; }
+  .slide > *:not(.blob):not(.corner):not(.foot){ position:relative; z-index:1; }
   .blob{ position:absolute; border-radius:50%; opacity:.5; }
   .b1{ width:520px; height:520px; right:-170px; top:-190px;
        background:radial-gradient(circle at 30% 30%, #DCEECA 0%, rgba(220,238,202,0) 70%); }
@@ -60,7 +63,7 @@
   .card .t b{ color:var(--green900); }
   .card.alt{ border-left-color:var(--mint); }
 
-  .foot{ position:absolute; left:88px; right:88px; bottom:44px;
+  .foot{ position:absolute; z-index:1; left:88px; right:88px; bottom:44px;
          display:flex; justify-content:space-between; align-items:center;
          font-size:19px; color:var(--ink3); border-top:2px solid var(--rule); padding-top:18px; }
   .foot .src{ max-width:74%; }
@@ -68,7 +71,7 @@
 
   /* cover */
   .cover{ background:linear-gradient(160deg,#F5F9F1 0%, #E4EFD8 100%); justify-content:center; }
-  .cover h1{ font-size:104px; }
+  .cover h1{ font-size:104px; margin-top:30px; }
   .stat{ display:flex; gap:58px; margin-top:56px; }
   .stat div .n{ font-family:"DejaVu Serif",Georgia,serif; font-size:62px; font-weight:700; color:var(--green700); line-height:1; }
   .stat div .l{ font-size:21px; color:var(--ink2); margin-top:10px; letter-spacing:.02em; }
@@ -106,11 +109,11 @@
   <div class="sub">What the research says about CLAUDE.md, AGENTS.md and every
     other repo context file your coding agent loads.</div>
   <div class="stat">
-    <div><div class="n">4</div><div class="l">controlled ablations</div></div>
+    <div><div class="n">5</div><div class="l">controlled ablations</div></div>
     <div><div class="n">15,549</div><div class="l">agentic PRs analysed</div></div>
     <div><div class="n">247,694</div><div class="l">instruction lifetimes</div></div>
   </div>
-  <div class="foot"><span class="src">An independent review of the published evidence</span><span class="num">1 / 5</span></div>
+  <div class="foot"><span class="src">An independent review of the published evidence</span><span class="num">1 / 6</span></div>
 </section>
 
 <!-- 2 FINDING -->
@@ -133,8 +136,9 @@
     </div>
   </div>
   <div class="note">Read the effect sizes with care: <b>~9% of outcomes flip between
-    byte-identical runs</b> at temperature zero. Most published effects sit inside that noise.</div>
-  <div class="foot"><span class="src">Gloaguen et al., ETH Z&uuml;rich &mdash; arXiv:2602.11988 (ICLR 2026 workshop)</span><span class="num">2 / 5</span></div>
+    byte-identical runs</b> at temperature zero &mdash; so most published numbers come from
+    designs that cannot resolve the effect they report.</div>
+  <div class="foot"><span class="src">Gloaguen et al., ETH Z&uuml;rich &mdash; arXiv:2602.11988 (ICLR 2026 workshop)</span><span class="num">2 / 6</span></div>
 </section>
 
 <!-- 3 MECHANISM -->
@@ -155,7 +159,7 @@
         3B model's. The loss is in the representation &mdash; you cannot write your way out of it.</div>
     </div>
   </div>
-  <div class="foot"><span class="src">Sam-Bodden &mdash; arXiv:2607.09691, oracle-localized ablation on SWE-bench Verified</span><span class="num">3 / 5</span></div>
+  <div class="foot"><span class="src">Sam-Bodden &mdash; arXiv:2607.09691, oracle-localized ablation on SWE-bench Verified</span><span class="num">3 / 6</span></div>
 </section>
 
 <!-- 4 RATCHET -->
@@ -176,10 +180,35 @@
         Adding is cheap; proving a deletion is safe is not. <b>Catastrophic remembering.</b></div>
     </div>
   </div>
-  <div class="foot"><span class="src">Chakrabarti &mdash; arXiv:2608.11095, 247,694 instruction lifetimes</span><span class="num">4 / 5</span></div>
+  <div class="foot"><span class="src">Chakrabarti &mdash; arXiv:2608.11095, 247,694 instruction lifetimes</span><span class="num">4 / 6</span></div>
 </section>
 
-<!-- 5 ACTION -->
+<!-- 5 THE EXCEPTION -->
+<section class="slide has-note">
+  <div class="blob b1"></div><div class="corner"></div>
+  <div class="eyebrow">When it does work</div>
+  <div class="rule"></div>
+  <h2>One thing did beat the noise.</h2>
+  <div class="bullets">
+    <div class="card">
+      <div class="k">25.5 &rarr; 33.0%</div>
+      <div class="t">Tasks resolved, after the guidance file was <b>tuned against the
+        agent&rsquo;s own failures</b> &mdash; four trials, <b>p&lt;0.001</b>. The untuned
+        starting file gained <b>2.8 pts</b>, which the paper doesn&rsquo;t test.</div>
+    </div>
+    <div class="card alt">
+      <div class="k">Coverage</div>
+      <div class="t">The gain was <b>finding the right file</b> (+14.5 pts), not writing
+        a better patch &mdash; patch quality never moved. And it was measured on an
+        <b>open 35B model</b>, not a frontier agent.</div>
+    </div>
+  </div>
+  <div class="note">So write down <b>what the agent got wrong</b>, not what your
+    repository contains. The weaker your model, the more this matters.</div>
+  <div class="foot"><span class="src">Shepard &amp; Albrecht &mdash; arXiv:2606.20512, SWE-bench Verified, 4 trials</span><span class="num">5 / 6</span></div>
+</section>
+
+<!-- 6 ACTION -->
 <section class="slide has-verdict">
   <div class="blob b2"></div><div class="corner"></div>
   <div class="eyebrow">What to do on Monday</div>
@@ -189,7 +218,7 @@
     <div class="card">
       <div class="k">Keep</div>
       <div class="t">Only what the repo <b>cannot tell the agent itself</b>: non-obvious
-        commands, gotchas, prohibitions, conventions that differ from the default.</div>
+        commands, gotchas, prohibitions, and every mistake you have had to correct twice.</div>
     </div>
     <div class="card alt">
       <div class="k">Move</div>
@@ -198,7 +227,7 @@
     </div>
   </div>
   <div class="verdict">The practice is sound. <b>The default artefact is not.</b></div>
-  <div class="foot"><span class="src">Full dossier, sources and verification log in the repository</span><span class="num">5 / 5</span></div>
+  <div class="foot"><span class="src">Full dossier, sources and verification log in the repository</span><span class="num">6 / 6</span></div>
 </section>
 
 </body>
