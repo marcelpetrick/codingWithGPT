@@ -147,3 +147,62 @@ it is worth making clear in the post that the critique is of *the practice*, not
 of *their work* — their papers are the reason the critique can be made at all,
 and Gloaguen et al.'s is an award-winning paper whose own abstract states the
 nuance most commentary drops.
+
+---
+
+## Copy-paste connection notes
+
+LinkedIn caps an invitation note at **300 characters** (and free accounts get a
+limited number of noted invites per month). All three below are under the cap.
+
+### Prakhar Khatri — confidence HIGH
+https://www.linkedin.com/in/prakhar-khatri-323200225/
+
+> Hi Prakhar - I've been compiling the evidence on whether CLAUDE.md / AGENTS.md context files actually help coding agents. Your two-agent ablation stood out for the equivalence testing and for being upfront about what it could and couldn't detect. Would be glad to connect.
+
+*(272 chars. Accurate: his result is a null, and the paper is unusually honest —
+it publishes its own power analysis showing a minimum detectable effect of
+~30 pp. Complimenting the method rather than the result is the truthful move.)*
+
+### Sebastian Baltes — confidence HIGH
+https://www.linkedin.com/in/sebastianbaltes
+
+> Hi Sebastian - I've been reviewing the evidence on repository context files for coding agents. The AGENTS.md efficiency study and your work on staleness in AI configuration artifacts both fed into it. Would be glad to connect.
+
+*(226 chars. He is a co-author on both, not first author — the wording credits
+the work without implying he led it.)*
+
+### Brian Sam-Bodden — confidence MEDIUM, identity unconfirmed
+https://www.linkedin.com/in/sambodden
+
+> Hi Brian - if you're the author of "What Context Does a Coding Agent Actually Need to Act?", that paper reframed a review I've been doing on repo context files: the 4/45 vs 27/45 result and the temperature-0 noise floor especially. Would be glad to connect.
+
+*(257 chars. The conditional opening is deliberate: it is honest about the
+unverified identity, and it doubles as the verification — if it is the wrong
+Brian, the phrasing costs nothing and no false claim was made.)*
+
+---
+
+## No LinkedIn — reach these by another channel
+
+### Thibaud Gloaguen — first author of the central study
+No LinkedIn. His SRI Lab page publishes an institutional address for exactly this
+purpose: `thibaud.gloaguen@inf.ethz.ch`. A short academic email, not a connect note:
+
+> Subject: Your AGENTS.md evaluation
+>
+> Hi Thibaud,
+>
+> I've been putting together a review of whether repository context files help coding agents, and your ICLR workshop paper is the backbone of it. The distinction your abstract draws — instructions followed, repository overviews not helpful — is the part most secondary commentary drops, and it turned out to be the finding that reconciles the rest of the literature.
+>
+> Thank you for releasing the harness under MIT.
+>
+> Best regards,
+> Marcel Petrick
+
+### Christoph Treude
+No LinkedIn on his site. Reachable via Singapore Management University, or
+https://scholar.google.com/citations?user=-ie8QFEAAAAJ
+
+### Kushal Chakrabarti
+No LinkedIn and no published affiliation. Only https://orcid.org/0009-0007-9464-1608
