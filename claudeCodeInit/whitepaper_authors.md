@@ -1,10 +1,11 @@
 # Authors to credit and tag
 
 Companion to [`whitepaper.md`](whitepaper.md) / [`paper.pdf`](paper.pdf).
-Compiled 2026-09-19; author lookups completed 2026-09-20.
+Compiled 2026-09-19; author lookups completed 2026-09-20, extended the same day
+to cover the two papers added by the round-5 literature sweep.
 
 **Read the confidence column before tagging anyone.** Tagging the wrong person in
-a public post is worse than tagging nobody. Two entries below are *name and
+a public post is worse than tagging nobody. Three entries below are *name and
 affiliation matches only* — the profile could not be tied to the paper by a
 published link. Confirm those yourself, or use the institution instead.
 
@@ -75,11 +76,26 @@ Mastodon and Google Scholar. For those people the right move is to tag the
 - *Note: second author of five (Gloaguen, Mündler, Müller, Raychev, Vechev) —
   credit the team, not him alone.* Unlike Gloaguen, he **does** have a LinkedIn.
 
+### Asa Shepard — *the exception*, probe-and-refine tuning (arXiv:2606.20512)
+- **LinkedIn:** https://www.linkedin.com/in/asa-shepard/
+- **GitHub:** https://github.com/asashepard · **Site:** https://asashepard.com
+- Williams College (CS + Philosophy + Cognitive Science); co-founder of Sediment.
+- **Confidence: HIGH.** Verified chain, the same standard as Khatri: the paper's
+  author block gives *"Asa Shepard, Williams College, as66@williams.edu"* and the
+  body states *"Code: https://github.com/asashepard/probe-and-refine-tuning"*;
+  that account owns **and pins** a repo of exactly that name, described as *"Repo
+  for the research paper 'Probe-and-Refine Tuning of Repository Guidance for
+  Coding Agents'"*; and the profile **publishes the LinkedIn URL above.**
+- **This is the most important new name in the review.** His is the only study of
+  the five with a significance-tested positive result, and §7 of the whitepaper
+  now rests on it. He is also a student, not a professor — worth crediting by
+  name rather than by institution.
+
 ---
 
 ## Tier 2 — name and affiliation match only, CONFIRM BEFORE TAGGING
 
-Both were checked on 2026-09-20. In each case the name is distinctive, the
+All three were checked on 2026-09-20. In each case the name is distinctive, the
 LinkedIn headline states the same institution the paper states, and the profile's
 research record matches — but no verified account of theirs publishes the URL, so
 the last link of the chain is missing.
@@ -118,6 +134,18 @@ the last link of the chain is missing.
   up (`/in/mohammed-sayagh-24bab978/`) but it is a **search-result match only**,
   same caveat as above.
 
+### Mojtaba Shahin — *co-author*, rule taxonomy and evolution (arXiv:2606.12231)
+- **Candidate LinkedIn:** https://au.linkedin.com/in/mojtaba-shahin-659b87b8
+  (headline: *"Senior Lecturer in Software Engineering"*, RMIT University)
+- **Scholar:** https://scholar.google.com.au/citations?user=Aml0q7sAAAAJ
+- **Confidence: MEDIUM.** The paper places him at *"School of Computing
+  Technologies, RMIT University, Melbourne"*, and the profile states the same
+  role and institution — but the URL came from search metadata, not from anything
+  he publishes. Same caveat as the two entries above.
+- *Note: fifth of five authors on a supporting, non-causal paper.* If you tag one
+  name from that study it should be the first author, **Guangzong Cai** — who has
+  no findable profile at all (Tier 3).
+
 ---
 
 ## Tier 3 — no taggable profile (no LinkedIn, or no identifiable person)
@@ -143,6 +171,26 @@ the last link of the chain is missing.
   **ORCID:** https://orcid.org/0000-0002-6919-2149
 - Associate Professor, School of Computing and Information Systems, Singapore
   Management University. Verified from https://ctreude.ca
+
+### Jeannie Albrecht — *co-author*, probe-and-refine (arXiv:2606.20512)
+- **No LinkedIn.** Her own faculty page (https://www.cs.williams.edu/~jeannie/)
+  publishes an email, a phone number, an office, a CV and a publication list —
+  and no social profile of any kind. A deliberate absence, not an oversight.
+- **Verified:** Robert G. Scott '68 Professor, Department of Computer Science,
+  Williams College. Reachable at `jeannie@cs.williams.edu`.
+- **Tag instead:** **Williams College**, and name her in the text. Her co-author
+  Asa Shepard is in Tier 1 and reaches the same paper.
+
+### Cai, Li, Liang, Li & Shahin — *rule taxonomy* (arXiv:2606.12231)
+- **First author Guangzong Cai has no findable profile.** Wuhan University,
+  School of Computer Science.
+- Senior author **Peng Liang** (Wuhan University) is a prolific and publicly
+  visible SE researcher — **Scholar:**
+  https://scholar.google.com/citations?user=76CoujsAAAAJ — but no LinkedIn
+  surfaced for him either. Co-authors: Ruiyin Li (Wuhan), Zengyang Li (Central
+  China Normal University), Mojtaba Shahin (RMIT, Tier 2).
+- **Tag instead:** **Wuhan University**. This is a supporting paper, not one of
+  the five ablations, so it does not need a tag at all.
 
 ### Damon McMillan — *the factorial adherence study* (arXiv:2605.10039)
 - **No profile can be tied to the paper. Do not tag anyone.**
@@ -181,10 +229,22 @@ identity question was settled. Outcomes:
 | **Ali Arabat** | **MEDIUM.** Affiliation and record match; no published link → Tier 2 |
 | **Damon McMillan** | **No profile tied.** HxAI publishes no names → Tier 3, email route only |
 
-Of the ten people now checked, **four have a verified profile, two are affiliation
-matches, three have no LinkedIn at all, and one cannot be identified.** That
-distribution is itself the point: this is an academic literature, and half of it
-is not reachable on LinkedIn.
+### Round 5 additions (same day)
+
+The literature sweep added two papers, so their authors were checked to the same
+standard:
+
+| Author | Paper | Outcome |
+|---|---|---|
+| **Asa Shepard** | probe-and-refine, arXiv:2606.20512 | **HIGH.** Paper → `asashepard/probe-and-refine-tuning` → profile publishes the LinkedIn → Tier 1 |
+| **Jeannie Albrecht** | same paper, co-author | **No LinkedIn.** Her faculty page publishes email and phone only → Tier 3 |
+| **Mojtaba Shahin** | rule taxonomy, arXiv:2606.12231 | **MEDIUM.** Role and institution match; no published link → Tier 2 |
+| **Guangzong Cai** + 3 co-authors | same paper | **No profiles found.** Scholar only → Tier 3 |
+
+Of the **thirteen** people now checked: **five have a verified profile, three are
+affiliation matches, four have no LinkedIn at all, and one cannot be identified.**
+That distribution is itself the point: this is an academic literature, and more
+than half of it is not reachable on LinkedIn.
 
 ---
 
@@ -198,6 +258,8 @@ and confirm the verified badge before tagging:
 - **Heidelberg University** — Baltes
 - **IIT Roorkee** — Khatri
 - **ÉTS Montréal (École de technologie supérieure)** — Arabat and Sayagh
+- **Williams College** — Shepard and Albrecht, the probe-and-refine study
+- **Wuhan University** — Cai, Liang et al.; **RMIT University** — Shahin
 - **HxAI**, Melbourne — McMillan; no individual is identifiable, so the
   organisation is the only safe credit
 
@@ -207,33 +269,43 @@ and confirm the verified badge before tagging:
 
 > This review rests on work by Thibaud Gloaguen, Niels Mündler-Sasahara and
 > colleagues at the SRI Lab, ETH Zürich; Prakhar Khatri; Brian Sam-Bodden;
-> Kushal Chakrabarti; Ali Arabat and Mohammed Sayagh; Damon McMillan at HxAI; and
-> Jai Lal Lulla, Sebastian Baltes, Christoph Treude and co-authors. All of it is
-> open-access on arXiv, and the ETH harness is public under MIT. Any errors in
-> the synthesis are mine, not theirs.
+> Asa Shepard and Jeannie Albrecht at Williams College; Kushal Chakrabarti;
+> Ali Arabat and Mohammed Sayagh; Damon McMillan at HxAI; and Jai Lal Lulla,
+> Sebastian Baltes, Christoph Treude and co-authors. All of it is open-access on
+> arXiv, and the ETH harness is public under MIT. Any errors in the synthesis are
+> mine, not theirs.
 
 **Suggested tagging order for a post** (highest verified confidence first):
-Brian Sam-Bodden → Prakhar Khatri → Niels Mündler-Sasahara → Sebastian Baltes →
-ETH Zürich → *(Jai Lal Lulla and Ali Arabat only once you have eyeballed the
-profiles; never Damon McMillan)*.
+Asa Shepard → Brian Sam-Bodden → Prakhar Khatri → Niels Mündler-Sasahara →
+Sebastian Baltes → ETH Zürich → *(Jai Lal Lulla, Ali Arabat and Mojtaba Shahin
+only once you have eyeballed the profiles; never Damon McMillan)*.
+
+Shepard leads because his paper is the one that changed the review's conclusion,
+and because a student's work is the easiest to under-credit.
 
 ---
 
 ## One courtesy note
 
 Three of these studies report **null or negative** results, and the whitepaper
-argues the field's effect sizes sit under the noise floor. If you tag the authors,
-it is worth making clear in the post that the critique is of *the practice*, not
-of *their work* — their papers are the reason the critique can be made at all,
-and Gloaguen et al.'s is an award-winning paper whose own abstract states the
-nuance most commentary drops.
+argues that most of the field's point estimates cannot be distinguished from
+noise. If you tag the authors, it is worth making clear in the post that the
+critique is of *the practice*, not of *their work* — their papers are the reason
+the critique can be made at all, and Gloaguen et al.'s is an award-winning paper
+whose own abstract states the nuance most commentary drops.
+
+**And do not flatten the one positive result into the story.** Shepard &
+Albrecht's paper reports a significant gain, and an earlier draft of this review
+would have had to be rewritten around it — which it was. A post that cites all
+five studies as if they agreed would misrepresent his, and his is the one that
+made the argument honest.
 
 ---
 
 ## Copy-paste connection notes
 
 LinkedIn caps an invitation note at **300 characters** (and free accounts get a
-limited number of noted invites per month). All six below are under the cap;
+limited number of noted invites per month). All seven below are under the cap;
 the count is given after each.
 
 ### Prakhar Khatri — confidence HIGH
@@ -263,6 +335,17 @@ identity was unconfirmed; that hedge is no longer needed — the chain closed on
 2026-09-20. The note thanks him for the pre-registration because his registered
 hypothesis **failed** and he published it anyway, which is the rarer thing.)*
 
+### Asa Shepard — confidence HIGH
+https://www.linkedin.com/in/asa-shepard/
+
+> Hi Asa - I've been compiling the evidence on whether repository context files actually help coding agents, and probe-and-refine is the only study I found with a significance-tested gain. The coverage-versus-precision split changed how I read the rest of it. Would be glad to connect.
+
+*(283 chars. Accurate and specific: his is the only one of the five ablations with
+a significant positive result, and the coverage/precision decomposition is the
+part that reconciles it with the four nulls. Note it says "the only study I found"
+— three rounds of search missed this paper for three months, so the hedge is
+honest rather than modest.)*
+
 ### Niels Mündler-Sasahara — confidence HIGH
 https://www.linkedin.com/in/niels-muendler
 
@@ -287,6 +370,10 @@ result the paper never measured.)*
 https://ca.linkedin.com/in/ali-arabat-206906170
 
 > Hi Ali - I've been compiling the evidence on whether instruction files help coding agents. Your MSR 2026 study is the largest sample I found, and the finding that about as many projects got worse as better shaped the conclusions. Would be glad to connect.
+
+*(Mojtaba Shahin has no note here: his paper is supporting evidence rather than
+one of the five ablations, and he is fifth author on it. Tag Wuhan University
+instead, or nobody.)*
 
 *(255 chars. His headline result is close to a coin flip — 27.7% of projects up
 at least 20 points, 26.35% down — so the note states that plainly rather than
@@ -318,6 +405,23 @@ https://scholar.google.com/citations?user=-ie8QFEAAAAJ
 
 ### Kushal Chakrabarti
 No LinkedIn and no published affiliation. Only https://orcid.org/0009-0007-9464-1608
+
+### Jeannie Albrecht
+No LinkedIn. Her faculty page gives an institutional address for exactly this
+purpose: `jeannie@cs.williams.edu`. Her co-author Asa Shepard is on LinkedIn, so
+the paper is reachable either way — but she is the senior author and a short
+academic email costs nothing:
+
+> Subject: Probe-and-refine tuning
+>
+> Dear Professor Albrecht,
+>
+> I've been putting together a review of whether repository context files help coding agents, and your paper with Asa Shepard is the only one of the five controlled studies I found that reports a significance-tested gain. The separation of coverage from precision is what let me reconcile it with the null results, rather than having to pick a side.
+>
+> Thank you for putting the code and the probes in the open.
+>
+> Best regards,
+> Marcel Petrick
 
 ### Damon McMillan
 No identifiable profile. HxAI names nobody publicly and gives one address, which

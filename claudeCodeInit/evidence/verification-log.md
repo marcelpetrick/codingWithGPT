@@ -212,3 +212,22 @@ tool and were extracted locally with `pdftotext`; that is the reliable route, an
 it is how the Lulla author block and the McMillan "HxAI Australia" affiliation
 were read. For abstracts, `curl` plus a regex over the raw HTML avoids putting a
 summarising model between the source and the log.
+
+## Round 6 (2026-09-20): authors of the round-5 papers
+
+Round 5 added two papers to the review, so their authors were checked to the same
+standard as the rest of `whitepaper_authors.md` — a profile is HIGH only if
+something the person controls publishes the link.
+
+| Person | Route | Outcome |
+|---|---|---|
+| **Asa Shepard** (arXiv:2606.20512, 1st author) | paper PDF → stated repo → GitHub → profile | **HIGH.** `pdftotext` on the PDF gives *"Asa Shepard / Williams College / as66@williams.edu"* and, in the body, *"Code: https://github.com/asashepard/probe-and-refine-tuning"*. That account **owns and pins** a repo of exactly that name, described as *"Repo for the research paper 'Probe-and-Refine Tuning of Repository Guidance for Coding Agents'"*, and publishes `linkedin.com/in/asa-shepard/` on its own profile. Identical in form to the Khatri chain. |
+| **Jeannie Albrecht** (same paper, senior author) | faculty page | **No LinkedIn — a result, not a gap.** `cs.williams.edu/~jeannie/` publishes an email, a phone number, an office, a CV and a publication list, and links no social profile of any kind. Title verified: *"Robert G. Scott '68 Professor"*, Department of Computer Science, Williams College. The department's own profile page (`csci.williams.edu/people/faculty/jeannie-albrecht/`) returns **HTTP 403** to automated fetching, so her personal page is the usable source. |
+| **Mojtaba Shahin** (arXiv:2606.12231, 5th of 5) | paper → search metadata | **MEDIUM.** The paper places him at *"School of Computing Technologies, RMIT University, Melbourne"*; a profile stating the same role and institution exists at `au.linkedin.com/in/mojtaba-shahin-659b87b8`, but the URL came from search metadata, not from anything he publishes. Same cap as Lulla and Arabat. |
+| **Guangzong Cai, Ruiyin Li, Peng Liang, Zengyang Li** (same paper) | search | **No profiles found.** Affiliations verified from the paper (Wuhan University; Central China Normal University). Peng Liang is publicly visible via Scholar (`user=76CoujsAAAAJ`) but no LinkedIn surfaced. Recorded as absent rather than guessed. |
+
+**Running tally across all six rounds — thirteen people checked:** five verified
+(HIGH), three affiliation matches (MEDIUM), four with no LinkedIn at all, one who
+cannot be identified from any published source. The proportion is the finding: a
+review of an academic literature cannot be credited entirely on LinkedIn, and
+pretending otherwise is how the wrong person gets tagged.
