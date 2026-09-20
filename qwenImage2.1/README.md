@@ -118,7 +118,7 @@ Still honest about the limits:
 | 1024×1024 text-to-image | expected to work — the thing to measure first |
 | RGBA / transparency | reachable; `EmptyQwenImageLayeredLatentImage` defaults to 640×640 |
 | A few reference images | plausible with the KV cache on CPU |
-| Native 2K (2048²) | **runs** — same peak VRAM as 1024², but ~6.6× the time per step |
+| Native 2K (2048²) | fits in memory, but degrades into swap on a long run — 1024² is the practical ceiling |
 | All 10 reference images | untested |
 | bf16 anything | no |
 
@@ -297,12 +297,34 @@ that four times the latent tokens would not fit. That was wrong, and the table a
 why: a 2048² generation completed with *exactly* the same peak VRAM as 1024². Memory was
 never the barrier.
 
-What 2K actually costs is time — 54 s/step against 8.2 s/step, about 6.6× for 4× the
-pixels, so the quadratic part of attention is showing but is not fatal. A 30-step 2K
-image is therefore roughly **27 minutes** rather than impossible.
+What 2K costs is time. An 8-step 2K run averaged 54 s/step against 8.2 s/step at
+1024² — about 6.6× for 4× the pixels, the quadratic part of attention showing but not
+fatal. On that figure a 30-step 2K image looked like roughly 27 minutes.
 
-One caveat that is still open: at 8 steps the 2K result came back badly undercooked —
-a near-blank hull with no lettering at all. The model config notes its scheduler shift
-is tuned at 1024² ("base 0.5 @ 256 tokens, max 0.9 @ 8192"), and a 2048² latent is
-16384 tokens, past the top of that range. So 2K may need more steps, a different shift,
-or both. **2K fits; whether 2K looks good here is not yet established.**
+**That extrapolation was wrong, and the way it was wrong is the interesting part.** A
+30-step 2K run does not hold 54 s/step. It degrades as it goes:
+
+| Step | s/step |
+|---|---|
+| 14 | 91 |
+| 15 | 127 |
+| 16 | 174 |
+| 18 | 174 |
+| 19 | 143 |
+
+Thirty-one minutes in it had managed 19 of 30 steps, was still slowing, and was
+abandoned there. Meanwhile VRAM in use had *fallen* from 7689 MiB to 6221 MiB and swap
+had grown to 5.0 GB. That combination is the tell: as host RAM tightened, ComfyUI kept
+shifting weights out of VRAM, so each step had more to stream, which made the next step
+slower still. This is the spill spiral, entered gradually rather than as one OOM.
+
+Two practical lessons. **Per-step cost at 2K is not a constant**, so measuring a short
+run and multiplying gives a number that is far too optimistic. And **a second job
+queued behind the first is enough to start it**, because the queued process holds RAM
+the running one needed.
+
+Still unestablished: at 8 steps the 2K result came back badly undercooked — a near-blank
+hull with no lettering. The model config tunes its scheduler shift at 1024² ("base 0.5 @
+256 tokens, max 0.9 @ 8192") and a 2048² latent is 16384 tokens, past the top of that
+range. **2K fits in memory; 2K at usable quality has not been reached on this machine.**
+1024² is the practical ceiling here.
