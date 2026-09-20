@@ -69,10 +69,12 @@ def main():
     ap.add_argument("--only", help="run a single prompt by name")
     ap.add_argument("--timeout", type=float, default=3600)
     ap.add_argument("--outdir", type=Path, default=HERE / "images")
+    ap.add_argument("--prompts", type=Path, default=HERE / "prompts.json",
+                    help="prompt set to run (default: prompts.json)")
     args = ap.parse_args()
 
     workflow_template = json.loads((HERE / "workflows" / "qwen_image_2.1_t2i_api.json").read_text())
-    prompts = json.loads((HERE / "prompts.json").read_text())
+    prompts = json.loads(args.prompts.read_text())
     if args.only:
         prompts = [p for p in prompts if p["name"] == args.only]
         if not prompts:

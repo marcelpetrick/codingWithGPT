@@ -1,0 +1,14 @@
+[
+  {
+    "name": "bavaria-01-daylight",
+    "why": "Candid photojournalistic frame, overcast daylight, wide enough to show the Wiesn below.",
+    "seed": 8100,
+    "prompt": "Photorealistic candid photograph. A tall, athletic man in his early forties walks down the wide stone steps beneath the colossal bronze Bavaria statue at the Theresienwiese in Munich. He is about 1.85 m, broad-shouldered and muscular, with a slight softness at the waist. Long dark hair gathered into a tidy bun at the back of his head, short dark stubble beard. He wears a plain black long-sleeved business shirt with the cuffs turned back and slim black jeans, black leather boots. One hand rests on the stone balustrade as he descends, mid-stride, looking out over the fairground. Behind and above him the green-black bronze of the Bavaria and the columns of the Ruhmeshalle. Spread out below: the Oktoberfest in full swing, rows of huge beer tents with painted facades and flag poles, a Ferris wheel and a looping rollercoaster, dense crowds in Tracht, chestnut trees. Overcast bright daylight, soft even light, faint haze over the fairground. Shot on 35mm, natural colour, sharp foreground, gentle falloff into the background."
+  },
+  {
+    "name": "bavaria-02-goldenhour",
+    "why": "Cinematic late-afternoon variant, lower camera, warmer and more contrasty.",
+    "seed": 8200,
+    "prompt": "Cinematic photorealistic portrait-distance shot from slightly below. A tall muscular man, roughly 1.85 m, early forties, descends the broad stone staircase under the giant bronze Bavaria statue at Theresienwiese, Munich. Long dark hair tied in a bun, dark stubble, a slight belly under an otherwise powerful build. Black long-sleeved business shirt, sleeves rolled to the forearms, black jeans, black boots. He is caught mid-step, weight forward, relaxed expression. Low golden late-afternoon sun rakes in from the right, rim-lighting his shoulders and the edge of the bronze statue behind him, long shadows down the steps. Below stretches the Oktoberfest: illuminated beer-tent facades beginning to glow, a lit Ferris wheel, swirling ride lights, crowds of people in dirndls and lederhosen, warm dust in the air. Deep blue shadow in the foreground against the warm light. Anamorphic 50mm look, shallow depth of field, rich contrast, film grain."
+  }
+]
