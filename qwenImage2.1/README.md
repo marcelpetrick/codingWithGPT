@@ -9,11 +9,14 @@ Released 2026-09-20 by the Qwen team ([blog](https://qwen.ai/blog?id=qwen-image-
 Find out whether Qwen-Image-2.1 is worth running on **this** machine, and if so, how.
 Concretely:
 
-1. Pick the smallest weight set that still clears the 4-bit quality floor.
-2. Get a 1024×1024 text-to-image pass through the existing ComfyUI install.
-3. Measure it — time per image, peak VRAM, whether it spills to RAM.
-4. Then decide if the transparency (RGBA) path is reachable, since that is the one
-   capability nothing else local offers.
+1. ~~Establish whether the tooling here can load it at all.~~ Answered below: ComfyUI
+   v0.37.0 supports it natively.
+2. Pick the smallest weight set that still clears the 4-bit quality floor. Answered:
+   int8 DiT + w4a8 text encoder + bf16 VAE, 14.25 GB.
+3. Pull those three files and get a 1024×1024 text-to-image pass through ComfyUI.
+4. Measure it — time per image, peak VRAM, whether it spills to RAM.
+5. Then reach for the transparency (RGBA) path, since that is the one capability
+   nothing else local offers.
 
 ## What the model can do
 
@@ -51,9 +54,10 @@ The 7B headline number is only the DiT. The full bf16 repo is **33.1 GB**.
 | | |
 |---|---|
 | GPU | RTX A2000 **8 GB** Laptop (Ampere, cc 8.6), driver 610.57.04 |
-| RAM | 31 GB total, **~13 GB free** right now, 33 GB swap |
+| RAM | 31 GB total, **~21 GB available**, 33 GB swap |
 | Disk | 97 GB free on `/home` |
-| ComfyUI | `~/repos/ComfyUI`, v0.34.0, already running Flux Klein 4B fp8 (3.8 GB) |
+| ComfyUI | `~/repos/ComfyUI`, **v0.37.0**, venv on Python 3.13.14 + torch 2.14.0+cu130 |
+| Proven on this box | Flux Klein 4B fp8 (3.8 GB), 768×768, 4 steps, ~11 s/image |
 
 ### What the model wants
 
@@ -68,46 +72,73 @@ Comfy-Org ships pre-split weights ([Comfy-Org/Qwen-Image-2.1](https://huggingfac
 Leanest usable set: **14.25 GB** on disk. No GGUF variants exist yet, and there is no
 w4a8 build of the DiT — int8 is the floor on the generator side.
 
-### Verdict: not as shipped — only through a stack of workarounds
+### Verdict: yes — quantised, but the workarounds are supported settings
 
-**As the Qwen team ships it, no.** The reference setup is bf16 through `diffusers`
-(`QwenImage21Pipeline`), which means ~32.4 GB of weights, native 2K output, and up to
-10 reference images. That wants a 48 GB card to sit resident, or a 24 GB card (3090 /
-4090) with sequential loading. This machine has 8 GB. The as-intended configuration is
-off the table by a factor of three to six.
+The first pass at this concluded "not as shipped, only through a stack of workarounds".
+Two things changed that, and both are worth writing down.
 
-**With workarounds, probably yes — for a narrow slice of it.** Every one of these is
-required, not optional:
+**ComfyUI v0.37.0 supports Qwen-Image-2.1 natively.** This is not a community port or a
+custom node. Upstream carries a dedicated DiT implementation, text encoder, latent format
+and purpose-built nodes:
 
-1. int8 DiT instead of bf16 (7.26 GB instead of 14.23 GB) — halves quality headroom.
-2. w4a8 text encoder instead of bf16 (6.31 GB instead of 17.53 GB) — sits exactly on
-   the 4-bit floor, nothing below it is acceptable.
-3. ComfyUI's sequential load, so peak VRAM is the *larger* of DiT and encoder rather
-   than their sum. This is the only reason the thing fits at all.
-4. Block-level offload streaming from RAM every step, because a 7.26 GB DiT against
-   8.19 GB of card leaves nothing for activations.
-5. Drop to 1024×1024, giving up the native-2K headline feature.
-6. One reference image at most, giving up the 10-reference headline feature.
+| Piece | Where |
+|---|---|
+| DiT | `comfy/ldm/qwen_image21/model.py`, `QwenImage21Transformer2DModel` |
+| Model config | `comfy/supported_models.py`, `class QwenImage21` |
+| Text encoder | `comfy/text_encoders/qwen_image21.py` on top of `qwen3vl.py` |
+| Latent | `latent_formats.QwenImage21` — 64 channels, 16× downscale, as the blog says |
+| Nodes | `comfy_extras/nodes_qwen.py` |
 
-And even that stack is **RAM-limited, not VRAM-limited**: 14.25 GB of offloaded weights
-against ~13 GB free means closing things first. If it touches swap the run is finished —
-spill has cost ~5.3× in past measurements here.
+The nodes cover the whole feature set: `TextEncodeQwenImage21` (t2i, plus up to 16
+reference image slots), `TextEncodeQwenImageEdit` / `…EditPlus`, `QwenImage21Cache`, and
+`EmptyQwenImageLayeredLatentImage` for the transparency path.
 
-So the honest framing: this is not "running Qwen-Image-2.1", it is running a quantised
-DiT at a quarter of the intended pixel count with one reference image. Expectation per
-capability:
+**RAM is no longer the binding constraint.** With the browser closed there is ~21 GB
+available against 14.25 GB of weights. The earlier worry — that offloaded weights would
+spill into swap and cost the 5.3× seen in past measurements — is off the table with
+roughly 7 GB to spare.
+
+**The memory pressure is a designed-for case, not an accident.** `QwenImage21Cache`
+exists precisely for this machine's shape. Its `device` option is documented upstream as
+"auto uses spare VRAM, then RAM. cpu (RAM) is prefetched behind compute and costs little
+speed", and `dtype` offers int8 ("halves the cache at about bf16 accuracy") and int4
+("quarters it but roughly doubles the per-step error"). So the KV cache that makes
+multi-reference editing expensive can be pushed to RAM deliberately, prefetched, at
+little cost.
+
+So the corrected reading: quantisation is still mandatory, because a bf16 DiT of 14.23 GB
+will never fit an 8 GB card. But int8 weights, sequential loading, `--lowvram` block
+offload and a CPU-side KV cache are all first-class options in the tool, not hacks around
+it. That is a different claim from the one made above.
+
+Still honest about the limits:
 
 | | |
 |---|---|
-| 1024×1024 text-to-image | should work, with offload — the thing to measure first |
-| RGBA / transparency | same cost as above, and the one capability nothing else local offers |
-| Native 2K (2048²) | no — 16k-token latent attention on a card already full |
-| 10 reference images | no — KV-cache reuse is a speedup on big cards, not a fit here |
+| 1024×1024 text-to-image | expected to work — the thing to measure first |
+| RGBA / transparency | reachable; `EmptyQwenImageLayeredLatentImage` defaults to 640×640 |
+| A few reference images | plausible with the KV cache on CPU |
+| Native 2K (2048²) | still unlikely — 16k-token latent attention on a card already full |
+| All 10 reference images | unlikely at any useful speed |
 | bf16 anything | no |
 
-Worth one evening to find out whether step 1 produces an image at all. If it does not,
-the fallback is the hosted API rather than a smaller quant — there is nothing below int8
-on the generator side.
+### How the pieces get loaded
+
+One wiring detail that is easy to get wrong: **`CLIPLoader` has no `qwen_image21` type.**
+You pick `qwen_image`, and ComfyUI detects the Qwen3-VL-8B weights and routes them to the
+2.1 encoder itself (`comfy/sd.py`: *"Qwen-Image 2.1: full Qwen3-VL-8B, last hidden state,
+image slots spliced by the DiT"*). Picking `qwen_image` with a 2.1 text encoder file is
+therefore correct, not a downgrade to 1.x.
+
+Files go to the usual places under `~/repos/ComfyUI/models/`:
+
+| File | Destination |
+|---|---|
+| `qwen_image_2.1_int8_convrot.safetensors` | `models/diffusion_models/` |
+| `qwen3vl_8b_w4a8.safetensors` | `models/text_encoders/` |
+| `qwen_image_2.1_vae_bf16.safetensors` | `models/vae/` |
+
+Launch stays what already works here: `venv/bin/python main.py --lowvram`.
 
 ### ⚠️ License
 
