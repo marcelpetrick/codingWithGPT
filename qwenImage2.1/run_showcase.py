@@ -48,6 +48,23 @@ def wait_for_result(prompt_id, timeout, peak):
     raise TimeoutError(f"no result within {timeout}s")
 
 
+def execution_seconds(result):
+    """Server-side execution time, excluding any wait in the queue.
+
+    The wall clock around a submit/poll cycle also counts time the prompt spent
+    queued behind another job, which is not what a render costs.
+    """
+    stamps = {}
+    for name, payload in result.get("status", {}).get("messages", []):
+        if name in ("execution_start", "execution_success", "execution_error"):
+            stamps[name] = payload.get("timestamp")
+    start = stamps.get("execution_start")
+    end = stamps.get("execution_success") or stamps.get("execution_error")
+    if start and end:
+        return (end - start) / 1000.0
+    return None
+
+
 def save_images(result, out_path):
     images = []
     for node_output in result.get("outputs", {}).values():
@@ -95,12 +112,16 @@ def main():
         started = time.monotonic()
         prompt_id = request_json(f"{SERVER}/prompt", {"prompt": wf})["prompt_id"]
         result = wait_for_result(prompt_id, args.timeout, peak)
-        elapsed = time.monotonic() - started
+        submitted_to_done = time.monotonic() - started
+        elapsed = execution_seconds(result) or submitted_to_done
+        queued = max(0.0, submitted_to_done - elapsed)
         path = save_images(result, args.outdir / f"{spec['name']}.png")
-        print(f"{elapsed:6.1f}s  peak {peak[0]} MiB  -> {path.name}")
+        queue_note = f" (+{queued:.0f}s queued)" if queued > 2 else ""
+        print(f"{elapsed:6.1f}s{queue_note}  peak {peak[0]} MiB  -> {path.name}")
         report.append({
             "name": spec["name"],
             "seconds": round(elapsed, 1),
+            "queued_seconds": round(queued, 1),
             "seconds_per_step": round(elapsed / args.steps, 2),
             "peak_vram_mib": peak[0],
             "steps": args.steps,
