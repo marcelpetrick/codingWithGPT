@@ -7,14 +7,41 @@
 
 ## TL;DR
 
-Running `/init` and keeping a `CLAUDE.md` does **not** reliably make a frontier coding agent more likely to succeed: in the controlled ablations that measured success at all, the effect runs from −5.9% to +4%, and every one of those numbers is smaller than the ~9% of per-instance outcomes that flip between *byte-identical* runs at temperature zero — which, in the designs that sampled each instance once, means they are not measurements. The one design that repeated its trials and tested significance *does* find a gain, and it is instructive: **+7.5 pp** on an open mid-size model, but only when the guidance was **tuned against the agent's own observed failures**, and the gain is in reaching the right file, not in writing a better patch. The one effect that is clearly not noise is cost — context files raise inference cost by 20–23%. The file is really two artefacts with opposite signs: **instructions**, which agents demonstrably follow (a tool named in the file is used 1.6× per task versus under 0.01× when unmentioned), and a **repository overview**, which is measurably useless because prose about code answers 4 of 45 behavioural questions where the source itself answers 27. `/init` nevertheless exists for good reasons that were never about task success — onboarding, team documentation, and migrating Cursor/Copilot rules — even as the performance case for a large always-loaded file has genuinely eroded, because Claude Code grew hooks, skills, subagents and path-scoped rules that hold the same content more cheaply. **Run `/init`, delete the architecture tour, and keep only what the repository cannot tell the agent itself.**
+**Running `/init` and keeping a `CLAUDE.md` does not reliably make a frontier
+coding agent succeed more often.** Across the controlled ablations that measured
+success, the effect runs from −5.9% to +4%. Every one of those numbers is smaller
+than the ~9% of outcomes that flip between *byte-identical* runs at temperature
+zero. Most of them come from designs that ran each task once, so they are not
+measurements at all.
+
+**One design does find a gain, and it is instructive.** It repeated its trials and
+tested significance: **+7.5 pp** on an open mid-size model. But the gain appeared
+only after the authors **tuned the guidance against the agent's own failures** —
+and it came from reaching the right file, not from writing a better patch.
+
+**Cost is the one effect clearly above the noise.** Context files raise inference
+cost by 20–23%.
+
+**The file is two artefacts with opposite signs.** Agents follow **instructions**:
+a tool named in the file gets used 1.6× per task, against under 0.01× when it goes
+unmentioned. Agents gain nothing from a **repository overview**, because prose
+about code answers 4 of 45 behavioural questions where the source answers 27.
+
+**`/init` still earns its place for reasons that were never about task success** —
+onboarding, team documentation, and migrating Cursor and Copilot rules. Meanwhile
+the performance case for a large always-loaded file has eroded, because Claude
+Code grew hooks, skills, subagents and path-scoped rules that hold the same
+content more cheaply.
+
+> **Run `/init`, delete the architecture tour, and keep only what the repository
+> cannot tell the agent itself.**
 
 ---
 
 ## 1. The question
 
 Claude Code ships a `/init` command that reads a repository and writes a
-`CLAUDE.md`. That file is then loaded into every later session, in every project,
+`CLAUDE.md`. The agent then loads that file into every later session, in every project,
 forever. Practitioners disagree sharply about whether this is leverage or
 clutter. This study asks what the evidence actually shows, and — when the answer
 turned out to be "not much" — why the feature exists at all.
@@ -36,23 +63,23 @@ relevant papers the earlier rounds had missed — including a fifth controlled
 ablation that **falsified an inference in the original TL;DR** (§4, and
 `evidence/self-review.md` entry 4).
 
-Two things were produced locally rather than searched for:
+We produced two things locally rather than searching for them:
 
-- **Binary extraction.** The shipped Claude Code executable (v2.1.278) was mined
+- **Binary extraction.** We mined the shipped Claude Code executable (v2.1.278)
   with `strings` and byte-offset reads, recovering the literal `/init` prompt, an
   unreleased second `/init` gated behind a feature flag, the CLAUDE.md audit
   doctrine, and the exact loading semantics. This is the artefact itself, not
   documentation about it, and it proved decisive.
-- **Corpus measurement.** All 35 agent instruction files under `~/repos` were
-  measured (median ≈1,590 tokens, p90 ≈3,300, max ≈6,800).
+- **Corpus measurement.** We measured all 35 agent instruction files under
+  `~/repos` (median ≈1,590 tokens, p90 ≈3,300, max ≈6,800).
 
-**Verification discipline.** Subagent output was not trusted. Every load-bearing
-paper was re-fetched from arXiv and checked against what was reported. This
+**Verification discipline.** We did not trust subagent output. We re-fetched every
+load-bearing paper from arXiv and checked it against what the pass reported. This
 caught: two passes reporting **incompatible** numbers from the same paper body;
 one pass reporting **p-values that do not exist** in the paper it cited; one pass
 **dismissing a real paper** as an untraceable mis-citation; two widely-circulated
 statistics that are **fabricated**; and one vendor figure that **cannot be found
-in its own source**. All are recorded in `evidence/verification-log.md`. A
+in its own source**. `evidence/verification-log.md` records all of them. A
 detailed self-review (`evidence/self-review.md`) corrected three overstatements in
 our own first draft.
 
@@ -121,9 +148,8 @@ equivalence testing, one is **+7.5 pp at *p*<0.001**, and one — the +2.8 pp
 static-guidance contrast — the paper simply does not test.
 
 > **Conclusion.** "Context files don't help" and "context files help" are both
-> over-readings. The honest statement is that **on frontier agents, the effect on
-> task success has not been measured with enough precision to distinguish it from
-> zero** — and that the one study which *did* measure with enough precision found
+> over-readings. The honest statement is that **nobody has yet measured the
+> effect on frontier agents precisely enough to distinguish it from zero** — and that the one study which *did* measure with enough precision found
 > a real gain, on a weaker model, from guidance produced in a way no `/init`
 > command produces it (§7).
 
@@ -152,8 +178,8 @@ single most decision-relevant gap in this field.
 
 ## 6. Finding 3 — why overviews fail, and why writing a better one won't help
 
-Sam-Bodden supplies the mechanism. Holding localisation fixed with an oracle and
-varying only how code is *represented*:
+Sam-Bodden supplies the mechanism. He holds localisation fixed with an oracle and varies only how the code is
+*presented* to the agent:
 
 > *"natural-language summaries of it answer almost none of the behavioral questions
 > that the source answers (**4/45 vs. 27/45**)… and **the gap belongs to the
@@ -174,9 +200,8 @@ recovers the loss.
 One result cuts against the rest, and it is the most methodologically careful of
 the five. Shepard & Albrecht
 ([arXiv:2606.20512](https://arxiv.org/abs/2606.20512)) introduce **probe-and-refine
-tuning**: synthetic bug-fix probes are used to *iteratively diagnose and patch a
-repository's guidance file*, through single-shot LLM calls with no agent loop
-during tuning. On SWE-bench Verified with Qwen3.5-35B-A3B, across four independent
+tuning**: synthetic bug-fix probes *iteratively diagnose and patch a repository's
+guidance file*, through single-shot LLM calls with no agent loop during tuning. On SWE-bench Verified with Qwen3.5-35B-A3B, across four independent
 trials:
 
 | Condition | Resolve rate |

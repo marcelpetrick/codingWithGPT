@@ -47,6 +47,17 @@ chromium --headless --no-pdf-header-footer --print-to-pdf=LI.pdf LI.html
 machine. Figure 1's height drives the paper's page count: growing it past
 ~3.0 inches pushes the bibliography onto a fourth page.
 
+**Every document here must pass the clear-writing check.**
+
+```bash
+python3 tools/readability.py paper.tex     # .tex or .md; exits 1 if a target slips
+```
+
+It measures sentence length, passive voice and word complexity, excluding
+quotations (rewriting a quotation would misquote it). The paper states its own
+scores in §2 -- if you change the prose, re-run the tool and update those
+numbers, or the paper misreports itself.
+
 **Always look at what you rebuilt.** `pdftoppm -r 130 -png paper.pdf out` and read
 the images. Two defects in the carousel (a decorative blob painting over the
 verdict bar, a heading colliding with a card) were invisible in the source and

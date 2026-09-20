@@ -48,7 +48,7 @@ groups = [
     ]),
 ]
 
-fig, ax = plt.subplots(figsize=(3.34, 2.96))
+fig, ax = plt.subplots(figsize=(3.34, 2.70))
 ax.axvspan(-9, 9, color=BAND, lw=0, zorder=0)
 ax.axvline(0, color=MUTED, lw=0.7, zorder=1)
 
