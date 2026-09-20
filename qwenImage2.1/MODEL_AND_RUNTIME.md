@@ -122,11 +122,13 @@ excluding queue wait.
 | 2K probe (hull) | 2048² | 8 | 433.0 s | **54.16** | 7689 MiB | warm |
 | bavaria-01-daylight | 1024² | 30 | 663.0 s | **22.10** | 7757 MiB | cold, post-spill |
 | 2K @ 30 steps | 2048² | 19/30 | *abandoned at 31:19* | 91 → 174 | 6221 MiB | spiralling |
+| mp-01-wiesn | 1024² | 30 | 237.1 s | 7.90 | 7567 MiB | warm |
 
 ### 3.1 Wall clock per image
 
 ```
 smoke  01-visor        15.3s █
+mp-01-wiesn           237.1s ████████████████
 01-visor-reflection   243.1s █████████████████
 05-nebula-scale       246.9s █████████████████
 04-mission-poster     247.2s █████████████████
