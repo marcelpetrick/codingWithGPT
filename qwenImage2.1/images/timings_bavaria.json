@@ -1,0 +1,4 @@
+[
+  {"name":"bavaria-01-daylight","seconds":663.0,"queued_seconds":1482.0,"seconds_per_step":22.1,"steps":30,"resolution":1024,"cfg":3.5,"seed":8100},
+  {"name":"bavaria-02-goldenhour","seconds":398.2,"queued_seconds":0.0,"seconds_per_step":13.27,"steps":30,"resolution":1024,"cfg":3.5,"seed":8200}
+]
