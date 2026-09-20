@@ -1,0 +1,4 @@
+[
+ {"name":"mp-03-tracht-daylight","seconds":243.0,"queued_seconds":0.0,"seconds_per_step":8.1,"steps":30,"resolution":1024,"cfg":3.5,"seed":9400},
+ {"name":"mp-04-tracht-goldenhour","seconds":251.0,"queued_seconds":0.0,"seconds_per_step":8.37,"steps":30,"resolution":1024,"cfg":3.5,"seed":9500}
+]
