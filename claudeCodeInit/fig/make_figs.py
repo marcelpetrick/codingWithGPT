@@ -103,22 +103,23 @@ llm    = [1.33, 0.57, 0.20, 0.15]
 human  = [1.30, 0.54, 0.19, 0.15]
 inc_l  = [(a-b)/b*100 for a,b in zip(llm,none)]
 inc_h  = [(a-b)/b*100 for a,b in zip(human,none)]
-fig, ax = plt.subplots(figsize=(3.34, 1.98))
-w = 0.36; xs = range(len(models))
-b1 = ax.bar([x-w/2-0.012 for x in xs], inc_l, w, color=BLUE,   label="LLM-written", zorder=3)
-b2 = ax.bar([x+w/2+0.012 for x in xs], inc_h, w, color=ORANGE, label="Developer-written", zorder=3)
+fig, ax = plt.subplots(figsize=(3.34, 1.70))
+# Values are direct-labelled, so the value axis would be a second encoding of the
+# same numbers: keep the labels, drop the axis. Bars in a pair get a real surface
+# gap rather than sharing an edge.
+w = 0.33; xs = range(len(models))
+b1 = ax.bar([x-w/2-0.035 for x in xs], inc_l, w, color=BLUE,   label="LLM-written", zorder=3)
+b2 = ax.bar([x+w/2+0.035 for x in xs], inc_h, w, color=ORANGE, label="Developer-written", zorder=3)
 for bars in (b1,b2):
     for r in bars:
         ax.annotate(f"+{r.get_height():.0f}%", (r.get_x()+r.get_width()/2, r.get_height()),
-                    textcoords="offset points", xytext=(0,2.0), ha="center",
+                    textcoords="offset points", xytext=(0,2.2), ha="center",
                     fontsize=6.1, color=INK)
 ax.axhline(0, color=MUTED, lw=0.7)
 ax.set_xticks(list(xs)); ax.set_xticklabels(models, fontsize=6.8)
 ax.set_ylabel("Increase in cost per task", fontsize=7)
-ax.yaxis.set_major_formatter(FuncFormatter(lambda v,_: f"+{v:.0f}%"))
-ax.set_ylim(0, max(inc_l)*1.26)
-ax.grid(axis="y", color=GRID, lw=0.5, zorder=0); ax.set_axisbelow(True)
-despine(ax)
+ax.set_yticks([]); ax.set_ylim(0, max(inc_l)*1.24)
+despine(ax, keep=("bottom",))
 ax.legend(fontsize=6.3, frameon=False, ncol=2, loc="upper center",
           bbox_to_anchor=(0.5,1.16), handlelength=1.1, columnspacing=1.2)
 fig.savefig("fig/fig2_cost.pdf"); plt.close(fig)
@@ -130,19 +131,22 @@ cats = ["Test procedures", "Implementation detail", "Architecture overview",
 vals = [75.9, 70.8, 68.1, 14.8, 14.5]
 hi   = [False, False, True, False, False]
 fig, ax = plt.subplots(figsize=(3.34, 1.72))
+# Same treatment as figure 2: the five values are labelled, so the value axis is
+# dropped. Orange is emphasis, but the annotation carries the meaning in words --
+# identity is never colour-alone.
 ys = range(len(cats))[::-1]
 for y,(c,v,flag) in zip(ys, zip(cats,vals,hi)):
-    ax.barh(y, v, height=.62, color=ORANGE if flag else BLUE, zorder=3)
-    ax.annotate(f"{v:.1f}%", (v,y), textcoords="offset points", xytext=(4,0),
+    ax.barh(y, v, height=.54, color=ORANGE if flag else BLUE, zorder=3)
+    ax.annotate(f"{v:.1f}%", (v,y), textcoords="offset points", xytext=(5,0),
                 va="center", fontsize=6.3, color=INK)
 ax.set_yticks(list(ys)); ax.set_yticklabels(cats, fontsize=6.7)
-ax.set_xlim(0, 100); ax.set_xlabel("Share of context files containing the category", fontsize=7)
-ax.xaxis.set_major_formatter(FuncFormatter(lambda v,_: f"{v:.0f}%"))
-ax.grid(axis="x", color=GRID, lw=0.5, zorder=0); ax.set_axisbelow(True)
-despine(ax)
-ax.annotate("measured not to help", xy=(68.1, 2), xytext=(52, 0.62),
+ax.set_xlim(0, 100); ax.set_xticks([])
+ax.set_xlabel("Share of context files containing the category", fontsize=7, loc="left")
+despine(ax, keep=("left",))
+ax.annotate("measured not to help", xy=(68.1, 2), xytext=(46, 0.55),
             fontsize=6.2, color=ORANGE, ha="left", va="center",
-            arrowprops=dict(arrowstyle="->", color=ORANGE, lw=.7, shrinkB=3,
-                            connectionstyle="angle3,angleA=10,angleB=-70"))
+            arrowprops=dict(arrowstyle="->", color=ORANGE, lw=.7, shrinkA=2,
+                            shrinkB=14,
+                            connectionstyle="angle3,angleA=8,angleB=-72"))
 fig.savefig("fig/fig3_content.pdf"); plt.close(fig)
 print("wrote fig1_forest.pdf fig2_cost.pdf fig3_content.pdf")

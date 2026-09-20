@@ -25,10 +25,19 @@ were re-fetched from the primary source by the lead session; see
 
 ## 1. The short answer
 
-**`/init` does not reliably improve task success. The best available evidence says
-the effect on correctness is somewhere between −2% and +4%, and in the two most
-careful studies it is statistically indistinguishable from zero.** Meanwhile the
-file costs 20%+ more inference in one study and *saves* 16–28% in another.
+**`/init` does not reliably improve task success on a frontier agent. The
+measured effects on correctness run from −5.9% to +4%, and in the careful studies
+of Claude Code and Codex they are statistically indistinguishable from zero.**
+Meanwhile the file costs 20%+ more inference in one study and *saves* 16–28% in
+another.
+
+**One qualification, added in round 5 and load-bearing.** S5 (Shepard & Albrecht)
+finds a real gain — 25.5% → 33.0% resolve rate, *p*<0.001 over four trials — on
+an **open 35B model**, and only when the guidance file was **tuned against the
+agent's own observed failures**. The condition closest to a `/init` draft gained
+2.8 points, which that paper does not significance-test. So the null is a finding
+about *frontier agents and generated descriptions*, not about the practice as
+such. §4.1a works this through.
 
 But the aggregate number hides the finding that actually matters, and it is
 reproduced independently by an academic paper and by Anthropic's own unreleased
@@ -577,6 +586,8 @@ Circulating widely, and wrong or untraceable. Full reasoning in
 3. **The two halves separately.** S1 found instructions help and overviews don't,
    but no study has ablated *commands-and-gotchas only* vs *overview only*. This is
    the single most decision-relevant experiment nobody has run — and it is cheap.
+   S5 splits **coverage from precision**, which is a different axis, so the gap
+   survives round 5 intact.
 4. **Staleness decay.** No measurement of how a context file's value changes as the
    repo drifts away from it.
 5. **Whether `compact` re-injection actually works**, given issue #29746 and S4's
@@ -584,6 +595,13 @@ Circulating widely, and wrong or untraceable. Full reasoning in
 6. **Anything at all for Copilot, Windsurf, Cline, Amp, Devin, Junie or OpenHands.**
 7. **Non-Python, non-TypeScript.** S1's authors note Python's heavy training
    representation may nullify context-file effects; S4 was TypeScript-only.
+8. **The capability window.** S5 pays on a 35B model and S1–S2 do not on frontier
+   agents, while S5's own cross-model check has the procedure *failing* on a
+   weaker model still. Nobody has run one design across a capability ladder, so
+   "does it help?" is missing its qualifier: **help whom?**
+9. **Probe-and-refine on a frontier agent.** The only procedure that produced a
+   significant gain has never been tried on Claude Code or Codex. Cheapest
+   high-value experiment now open.
 
 ---
 
@@ -599,20 +617,33 @@ For a working developer, the evidence supports this:
 3. **Keep only what is not derivable:** non-standard build/test commands, required
    env setup, gotchas and failure contracts, conventions that *differ* from
    defaults, repo etiquette, safety prohibitions, domain glossary.
-4. **Count your imperatives, not your lines.** §6.2 says rule count is the variable
+4. **Write down what the agent got *wrong*.** This is the one intervention with a
+   significance-tested positive result behind it (S5), and independently the one
+   that lifts rule compliance from 49.14% to 72.13% (Cai et al.). A line earns its
+   place by having prevented a specific failure — the same test Anthropic's own
+   unreleased `/init` applies. It is also the only part of this list that gets
+   *better* the longer you use the repo.
+5. **Count your imperatives, not your lines.** §6.2 says rule count is the variable
    that degrades compliance. Reference material is cheap.
-5. **Move enforcement to hooks.** A rule that keeps being ignored was never a
+6. **Move enforcement to hooks.** A rule that keeps being ignored was never a
    CLAUDE.md problem. Hooks run outside the model's context and cannot be skipped.
-6. **Move occasional procedures to skills, and module-specific guidance to
+7. **Move occasional procedures to skills, and module-specific guidance to
    subdirectory `CLAUDE.md` or `paths:`-scoped `.claude/rules/*.md`.** These are the
    only genuinely lazy loading mechanisms; `@imports` are not.
-7. **Don't shrink it to save money.** §7 — the dollars are negligible. Shrink it to
+8. **Don't shrink it to save money.** §7 — the dollars are negligible. Shrink it to
    protect compliance.
-8. **Expect no success-rate miracle.** The two studies that measured correctness
-   directly both put the effect indistinguishable from zero. The realistic wins are **latency and
-   avoided rediscovery**, not capability. S2's failure triage is blunt about why:
-   agents fail on implementation skill, and no amount of repository documentation
-   fixes that.
+9. **Expect no success-rate miracle *from a frontier agent*.** The two studies
+   that measured correctness on Claude Code and Codex both put the effect
+   indistinguishable from zero. The realistic wins there are **latency,
+   compliance and avoided rediscovery**, not capability. S2's failure triage is
+   blunt about why: agents fail on implementation skill, and no amount of
+   repository documentation fixes that — S5 measures the same split and agrees,
+   moving coverage by 14.5 pp while patch precision does not budge.
+10. **If you drive a smaller or local model, weight this list differently.** The
+    only measured success gain in the literature (S5) is on an open 35B model.
+    Everything above is advice for pruning a frontier agent's context; on a
+    weaker model a repository guidance file is load-bearing, and §4.1a explains
+    why that is the same finding rather than a contradiction.
 
 ---
 

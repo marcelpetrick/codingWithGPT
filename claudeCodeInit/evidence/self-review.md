@@ -10,7 +10,7 @@ on 2026-09-20 after new evidence falsified an inference.
 |---|---|---|
 | 1 | Claimed "**3 independent controlled studies agree**" that CLAUDE.md does not raise task success. **Only two measured success.** S1 (Gloaguen) and S2 (Khatri) measured correctness. S3 (Lulla) explicitly did *not* gate on correctness — its own abstract claims only "comparable task completion behavior". S4 (McMillan) measured *instruction adherence*, which is a different construct from task success. | Downgraded to "Medium-high — two studies measured success directly and agree; a third reports comparable completion without gating on correctness." |
 | 2 | Asserted Anthropic "**is A/B testing**" a replacement `/init`. What was actually observed is a prompt gated behind `CLAUDE_CODE_NEW_INIT` and `tengu_slate_harbor_experiment`. That a flag named "experiment" exists does not prove a live A/B test is running. | Reworded to "has built, and gated behind an experiment flag". |
-| 3 | Same overstatement repeated in the recommendation section ("Three controlled studies say…"). | Reworded to "the two studies that measured correctness directly". |
+| 3 | Same overstatement repeated in the recommendation section ("Three controlled studies say…"). | Reworded to "the two studies that measured correctness directly". *(That wording was itself superseded in round 5: a third study now measures correctness, and it does **not** report a null — see correction 4.)* |
 
 ## Correction applied (round 5, 2026-09-20)
 
