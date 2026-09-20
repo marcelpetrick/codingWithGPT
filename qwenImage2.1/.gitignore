@@ -1,0 +1,3 @@
+# Generated output is reproducible from prompts.json + the workflow; the
+# curated showcase images under images/ are committed deliberately.
+images/timings.json

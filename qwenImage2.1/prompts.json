@@ -1,0 +1,32 @@
+[
+  {
+    "name": "01-visor-reflection",
+    "why": "Curved-mirror reflection plus portrait lighting: the visor must show a coherent, distorted image of what the astronaut faces.",
+    "seed": 11,
+    "prompt": "Extreme close-up portrait of an astronaut, the gold sun-visor raised, a second helmet visor curving across the frame. Mirrored in that curved glass: the rust-orange limb of a planet and a small white service module, stretched and bent by the curvature. Low sunlight rakes across the face from the left, cool blue fill from the planet on the right. Sharp catchlights in the eyes, fine skin texture, individual eyebrow hairs, faint fog of breath on the inside of the glass. Photographic, 85mm, shallow depth of field."
+  },
+  {
+    "name": "02-hull-typography",
+    "why": "Text rendering is this model's headline strength: stencilled type must stay legible and follow the curved, weathered surface.",
+    "seed": 22,
+    "prompt": "A weathered white spacecraft hull photographed at an angle in hard sunlight. Large black stencilled lettering reads \"QWEN IMAGE 2.1\" across the panels, with a smaller line beneath reading \"MODULE 07 / EVA ACCESS\". The paint is chipped, rivets cast small shadows, a scuffed yellow caution stripe runs along the lower edge. The type wraps convincingly with the curve of the hull and stays crisp. Industrial photography, high detail."
+  },
+  {
+    "name": "03-glove-texture",
+    "why": "Fine material texture and grazing light: woven fabric, frost and metal in one frame.",
+    "seed": 33,
+    "prompt": "An EVA glove gripping a frosted aluminium handrail outside a space station. Macro detail: the woven Vectran fabric of the glove with visible thread crossings, dust caught in the weave, rime ice crystals on the rail, scratched anodising underneath. The sun grazes from a low angle, throwing long specular highlights along the rail and deep shadow into the knuckles. Black space behind, slightly out of focus. Photographic macro, extremely fine detail."
+  },
+  {
+    "name": "04-mission-poster",
+    "why": "Complex composition with several distinct text elements plus layout - infographic/poster territory from the blog.",
+    "seed": 44,
+    "prompt": "A retro-futurist mission poster, silkscreen style, limited palette of cream, deep navy, burnt orange. A stylised rocket ascends through concentric orbital rings. Bold display type at the top reads \"ORBITAL SURVEY\". Beneath the rocket a smaller banner reads \"EXPEDITION 47\", and along the bottom edge a row of three tiny labels reads \"LAUNCH\", \"TRANSFER\", \"RETURN\". Clean geometric layout, visible halftone grain, crisp legible lettering at every size."
+  },
+  {
+    "name": "05-nebula-scale",
+    "why": "Wide dynamic range and fine gradient detail - where a coarse quantisation would band or mush.",
+    "seed": 55,
+    "prompt": "A tiny silhouetted astronaut tethered at the lower right, dwarfed by an enormous nebula filling the frame. Layered clouds of magenta, teal and deep indigo with delicate filament structure, dense starfield showing stars of many magnitudes, a few bright foreground stars with subtle diffraction spikes. Smooth tonal gradients with no banding, deep blacks that still hold detail. Astrophotography aesthetic, immense sense of scale."
+  }
+]
