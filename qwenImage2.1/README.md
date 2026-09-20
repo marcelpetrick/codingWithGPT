@@ -118,8 +118,8 @@ Still honest about the limits:
 | 1024×1024 text-to-image | expected to work — the thing to measure first |
 | RGBA / transparency | reachable; `EmptyQwenImageLayeredLatentImage` defaults to 640×640 |
 | A few reference images | plausible with the KV cache on CPU |
-| Native 2K (2048²) | still unlikely — 16k-token latent attention on a card already full |
-| All 10 reference images | unlikely at any useful speed |
+| Native 2K (2048²) | **runs** — same peak VRAM as 1024², but ~6.6× the time per step |
+| All 10 reference images | untested |
 | bf16 anything | no |
 
 ### How the pieces get loaded
@@ -241,8 +241,68 @@ Picking the int8 build was not just the smallest option, it is the fast one here
 
 ### 5. Things that are simply out of reach
 
-- **Native 2K (2048×2048).** Four times the latent tokens of 1024², on a card that is
-  already full. Not happening.
 - **All 10 reference images.** The KV cache can be pushed to RAM, which helps, but the
-  sequence length still has to be attended to on the GPU.
+  sequence length still has to be attended to on the GPU. Untested.
 - **bf16 anything.** The bf16 DiT alone is 14.23 GB, nearly twice the card.
+
+## Measured results
+
+Everything below was measured on this machine, not estimated.
+
+### Five showcase images, 1024×1024, 30 steps
+
+| | |
+|---|---|
+| Total | **20.5 min** for five images |
+| Per image | **246 s** (4.1 min) |
+| Per step | **8.2 s** |
+| Peak VRAM | **7689 MiB** of 8192 (94%) |
+
+Settings: euler / simple, cfg 3.5, shift 0.69 from the model config, int8 DiT,
+w4a8 text encoder, KV cache on CPU at int8. Images are in `images/`, timings in
+`images/timings.json`, prompts in `prompts.json`.
+
+The model delivered on the claims that could be checked here:
+
+- **Typography is as good as advertised.** `QWEN IMAGE 2.1` and `MODULE 07 / EVA ACCESS`
+  came out stencilled, legible and correctly wrapped around the curve of the hull. The
+  poster placed five separate strings at three sizes without garbling any of them. This
+  is the thing most open image models get wrong, and it got it right twice.
+- **The visor test passed.** Both the planet limb and the service module appear in the
+  curved glass with plausible mirror distortion, alongside breath fog and skin texture.
+- **Fine texture holds up.** Individual thread crossings in the glove weave, distinct
+  frost crystals on the rail.
+
+### Two measurements that corrected earlier assumptions
+
+**1. int8 did not visibly cost tonal quality.** The nebula gradients show no banding.
+The concern that a coarse quantisation would mush smooth gradients did not show up in
+the one test aimed at it.
+
+**2. VRAM is spent on weights, not activations.** Peak VRAM barely moves with resolution:
+
+| Resolution | Steps | Peak VRAM | s/step |
+|---|---|---|---|
+| 512² | 8 | 7551 MiB | 1.9 |
+| 1024² | 30 | 7689 MiB | 8.2 |
+| 2048² | 8 | **7689 MiB** | **54** |
+
+ComfyUI fills the card with as much model as fits and streams the rest, so the card
+reads ~94% full no matter what is being generated. **Resolution costs time, not memory.**
+
+### Correction: native 2K runs
+
+This file said twice that 2048×2048 was "not happening" and "out of reach", reasoning
+that four times the latent tokens would not fit. That was wrong, and the table above is
+why: a 2048² generation completed with *exactly* the same peak VRAM as 1024². Memory was
+never the barrier.
+
+What 2K actually costs is time — 54 s/step against 8.2 s/step, about 6.6× for 4× the
+pixels, so the quadratic part of attention is showing but is not fatal. A 30-step 2K
+image is therefore roughly **27 minutes** rather than impossible.
+
+One caveat that is still open: at 8 steps the 2K result came back badly undercooked —
+a near-blank hull with no lettering at all. The model config notes its scheduler shift
+is tuned at 1024² ("base 0.5 @ 256 tokens, max 0.9 @ 8192"), and a 2048² latent is
+16384 tokens, past the top of that range. So 2K may need more steps, a different shift,
+or both. **2K fits; whether 2K looks good here is not yet established.**
