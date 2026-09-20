@@ -146,3 +146,103 @@ Launch stays what already works here: `venv/bin/python main.py --lowvram`.
 separate commercial licence from Hangzhou Tongyi Laboratory. This is a change from
 Qwen-Image 1.x, which was Apache-2.0. Research and evaluation here is fine; anything
 client-facing is not.
+
+## What is configured here
+
+Everything below is set up and committed. Nothing needs picking again.
+
+### Files downloaded (14.25 GB, into the ComfyUI checkout)
+
+| File | Size | Landed in |
+|---|---|---|
+| `qwen_image_2.1_int8_convrot.safetensors` | 7.26 GB | `~/repos/ComfyUI/models/diffusion_models/` |
+| `qwen3vl_8b_w4a8.safetensors` | 6.31 GB | `~/repos/ComfyUI/models/text_encoders/` |
+| `qwen_image_2.1_vae_bf16.safetensors` | 0.68 GB | `~/repos/ComfyUI/models/vae/` |
+
+All three come from [Comfy-Org/Qwen-Image-2.1](https://huggingface.co/Comfy-Org/Qwen-Image-2.1),
+which is the pre-split repack. The original `Qwen/Qwen-Image-2.1` repo is the bf16
+original at 33.1 GB and is the wrong thing to download for this machine.
+
+### Settings, and why each one
+
+| Setting | Value | Reason |
+|---|---|---|
+| ComfyUI launch | `--lowvram` | Splits the model and streams blocks; the DiT does not fit whole. |
+| `UNETLoader` weight_dtype | `default` | The quantisation is baked into the file. Forcing fp8 here would break it. |
+| `CLIPLoader` type | `qwen_image` | There is no `qwen_image21` option. ComfyUI sees Qwen3-VL-8B weights and routes to the 2.1 encoder by itself. |
+| `QwenImage21Cache` device | `cpu` | Keeps the KV cache out of VRAM. Upstream says it is prefetched behind compute, so it costs little speed. |
+| `QwenImage21Cache` dtype | `int8` | Halves the cache "at about bf16 accuracy". `int4` roughly doubles per-step error, so it stays off. |
+| Sampler / scheduler | `euler` / `simple` | Standard for a flow-matching DiT. |
+| Shift | 0.69 | Comes from the model config, not a node. Do not add a ModelSampling node. |
+| Steps / CFG | 30 / 3.5 | Starting point; the reference `diffusers` snippet uses 40 steps. |
+| Resolution | 1024 | `TextEncodeQwenImage21` emits its own 64-channel latent at `resolution/16`, so no EmptyLatent node is wired in. |
+
+### Running it
+
+```bash
+cd ~/repos/codingWithGPT/qwenImage2.1
+./serve.sh                    # starts ComfyUI if it is not already up
+./run_showcase.py             # all five prompts, writes images/ + images/timings.json
+./run_showcase.py --only 01-visor-reflection --steps 20   # one, faster
+```
+
+## What actually bites on this hardware
+
+In plain terms, these are the things that cause trouble here.
+
+### 1. `/tmp` is a RAM disk — do not download models there
+
+`/tmp` on this machine is `tmpfs`, 16 GB, held in RAM. Staging 14.25 GB of weights there
+would eat the RAM the model needs for offload, and would run out of space anyway. The
+first download attempt did exactly this and had to be killed. Weights go to `/home`,
+which is real disk with 97 GB free.
+
+### 2. The DiT very nearly fills the card by itself
+
+The int8 DiT is 7.26 GB. The card has 8.22 GB, of which ~8.07 GB is free. That leaves
+about 800 MB for activations, attention, and the VAE decode — which is not enough, so
+ComfyUI keeps part of the model in RAM and streams it in every step. That streaming is
+the main cost of running this model here. It is the difference between "works" and
+"works fast", and there is no setting that removes it on 8 GB.
+
+### 3. ComfyUI rates this model as unusually memory-hungry
+
+Each model in ComfyUI carries a `memory_usage_factor` that says how much working memory
+it needs relative to its weights. Qwen-Image-2.1 is set to **6.0**. For comparison:
+
+| Model | Factor |
+|---|---|
+| SDXL | 0.8 |
+| SD 1.5 | 1.0 |
+| Flux | 3.1 |
+| LTXV (video) | 5.5 |
+| **Qwen-Image-2.1** | **6.0** |
+
+It is rated heavier than Flux by nearly 2×, and heavier than a video model. That is a
+direct statement from the tooling that this is a demanding model to run, quite apart
+from how big the weights are.
+
+### 4. fp8 does not work on this GPU — but int8 does
+
+The A2000 is Ampere (`sm_86`). Checked directly against ComfyUI's own capability probe:
+
+```
+supports_int8_compute:  True
+supports_fp8_compute:   False
+supports_nvfp4_compute: False
+supports_mxfp8_compute: False
+disabled quant formats: float8_e4m3fn, float8_e5m2, mxfp8, nvfp4
+```
+
+This is the one genuinely good piece of news, and it is why the file choice above
+matters. Ampere has real INT8 tensor cores, so `int8_convrot` and `asym_w4a8_int8` run
+on hardware. fp8 — the format the Flux Klein setup on this machine uses — is emulated.
+Picking the int8 build was not just the smallest option, it is the fast one here.
+
+### 5. Things that are simply out of reach
+
+- **Native 2K (2048×2048).** Four times the latent tokens of 1024², on a card that is
+  already full. Not happening.
+- **All 10 reference images.** The KV cache can be pushed to RAM, which helps, but the
+  sequence length still has to be attended to on the GPU.
+- **bf16 anything.** The bf16 DiT alone is 14.23 GB, nearly twice the card.
