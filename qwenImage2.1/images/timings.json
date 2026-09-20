@@ -1,0 +1,52 @@
+[
+  {
+    "name": "01-visor-reflection",
+    "seconds": 243.1,
+    "seconds_per_step": 8.1,
+    "peak_vram_mib": 7655,
+    "steps": 30,
+    "resolution": 1024,
+    "cfg": 3.5,
+    "seed": 11
+  },
+  {
+    "name": "02-hull-typography",
+    "seconds": 247.3,
+    "seconds_per_step": 8.24,
+    "peak_vram_mib": 7367,
+    "steps": 30,
+    "resolution": 1024,
+    "cfg": 3.5,
+    "seed": 22
+  },
+  {
+    "name": "03-glove-texture",
+    "seconds": 247.4,
+    "seconds_per_step": 8.25,
+    "peak_vram_mib": 7335,
+    "steps": 30,
+    "resolution": 1024,
+    "cfg": 3.5,
+    "seed": 33
+  },
+  {
+    "name": "04-mission-poster",
+    "seconds": 247.2,
+    "seconds_per_step": 8.24,
+    "peak_vram_mib": 7657,
+    "steps": 30,
+    "resolution": 1024,
+    "cfg": 3.5,
+    "seed": 44
+  },
+  {
+    "name": "05-nebula-scale",
+    "seconds": 246.9,
+    "seconds_per_step": 8.23,
+    "peak_vram_mib": 7689,
+    "steps": 30,
+    "resolution": 1024,
+    "cfg": 3.5,
+    "seed": 55
+  }
+]
