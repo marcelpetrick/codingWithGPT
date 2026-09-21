@@ -109,6 +109,16 @@ qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed
 qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	302.525458
 qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	fibonacci-server	fibonacci-server.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	82.947891
 qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	fibonacci-server	fibonacci-server.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	66.427588
+qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	qwen3.6_35b-a3b-q4_k_m-agentic	thinkon	git-multibranch	git-multibranch.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	False	unset	n/a	n/a	334.040033
+qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	qwen3.6_35b-a3b-q4_k_m-agentic	thinkon	fibonacci-server	fibonacci-server.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	False	unset	n/a	n/a	66.464814
+qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	qwen3.6_35b-a3b-q4_k_m-agentic	thinkon	nginx-request-logging	nginx-request-logging.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	False	unset	n/a	n/a	47.310891
+qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	qwen3.6_35b-a3b-q4_k_m-agentic	thinkon	csv-to-parquet	csv-to-parquet.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	True	unset	n/a	n/a	116.2336
+qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	qwen3.6_35b-a3b-q4_k_m-agentic	thinkon	oom	oom.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	False	unset	n/a	n/a	176.376572
+qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	qwen3.6_35b-a3b-q4_k_m-agentic	thinkon	fix-permissions	fix-permissions.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	True	unset	n/a	n/a	24.491303
+qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	qwen3.6_35b-a3b-q4_k_m-agentic	thinkon	fix-git	fix-git.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	False	unset	n/a	n/a	33.698111
+qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	qwen3.6_35b-a3b-q4_k_m-agentic	thinkon	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	True	unset	n/a	n/a	68.604592
+qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	qwen3.6_35b-a3b-q4_k_m-agentic	thinkon	polyglot-c-py	polyglot-c-py.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	False	agent_timeout	n/a	n/a	660.235244
+qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	qwen3.6_35b-a3b-q4_k_m-agentic	thinkon	modernize-fortran-build	modernize-fortran-build.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-thinkon-n1-141719	True	unset	n/a	n/a	34.742515
 tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	git-multibranch	git-multibranch.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	agent_timeout	n/a	n/a	780.202156
 tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	fix-permissions	fix-permissions.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	True	unset	n/a	n/a	25.404976
 tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	agent_timeout	n/a	n/a	660.147331

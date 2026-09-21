@@ -86,9 +86,30 @@ done
 # with a tidy "Accuracy: 0.00%" -- qwen3.6, north-mini and gemma4 were all hit,
 # while tiel/cyber-tiel (q5) and ornith (no quant in the tag) ran fine. The model
 # tag passed to -m is untouched; only the run-id is folded to lowercase.
+# A round is hours long on a shared box and it WILL be interrupted -- a colleague
+# needs the GPU, a laptop runs out of memory, a cable goes. An interrupted round
+# that has to start from zero is an interrupted round that never finishes, so a
+# completed pass is never re-run: the harness writes a run-level results.json
+# only when a pass finished, which makes it the completion marker. Passes that
+# were cut mid-way have no such file; move their directory aside (we keep them
+# under runs/void-killed-*) and the model is simply re-run clean.
+done_already () {  # <model> <runs> -> 0 if a COMPLETE pass exists for this arm
+  local slug arm d
+  slug="$(echo "$1" | tr '/:' '__' | tr 'A-Z' 'a-z')"
+  arm="think${TB_THINKING:-on}"
+  for d in "$OUT/$slug-$arm-n$2-"*; do
+    [ -f "$d/results.json" ] && return 0
+  done
+  return 1
+}
+
 run_one () {  # <runs> <model...>
   local runs="$1"; shift
   for m in "$@"; do
+    if done_already "$m" "$runs"; then
+      echo "=== $m  (n=$runs) -- already complete for this arm, skipping ==="
+      continue
+    fi
     echo "=== $m  (n=$runs, thinking ${TB_THINKING:-on}) ==="
     "$TB" run -d "$DATASET" "${TARGS[@]}" \
       --agent-import-path "$AGENT" -m "$m" \
