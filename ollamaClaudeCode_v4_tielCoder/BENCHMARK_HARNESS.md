@@ -372,6 +372,15 @@ The rule:
   `on`.
 - **The adapter enforces it**: `thinking=off` raises unless every model in the run honours the
   marker.
+- **The arm has to be in the data, not in the memory of whoever ran it** (added 2026-09-21).
+  An *arm* is a setting the whole field shared. The parity re-run would otherwise have written
+  its rows into the same TSV as the round it replaces, under the same model names, and the two
+  would have pooled into one rate with nothing in the output saying so. The run-id now carries
+  the arm (`-thinkon` / `-thinkoff`) because it is the only label the upstream harness writes
+  into `results.json`; `summarise.py` parses it back out into an `arm` column and rolls up per
+  arm; `make-report.py` renders exactly one arm and never mixes two. Round 1's unmarked rows
+  are labelled `r1-mixed` with the reason attached to them, so they cannot be quoted by
+  accident.
 - **Let an outside result argue with you.** What exposed this was a published Terminal-Bench
   ranking that put Ornith-1.5 fifteen points *above* Qwen3.6-35B while our round found the
   reverse. Public numbers are rarely comparable to ours directly, but a flipped **ordering** is a
@@ -396,7 +405,7 @@ question, not by winning.
 
 | # | tag | role it holds | why it is kept |
 |---|---|---|---|
-| 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | **the default** | Top of the field on official Terminal-Bench (53%) and the most reproducible model measured — decided on 9 of 10 tasks, 1 flip in 3 samples. 131.6 tok/s, 60 s hard fixture, 32.68 GB |
+| 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | **the default** — *provisional, 2026-09-21: the round this rests on is void until the parity re-run lands* | Top of the field on official Terminal-Bench (53%) and the most reproducible model measured — decided on 9 of 10 tasks, 1 flip in 3 samples. 131.6 tok/s, 60 s hard fixture, 32.68 GB |
 | 2 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **the speed ceiling** | Fastest generation on the box (136.2 tok/s), and it solves `git-multibranch` (2/3) which nothing else manages. Held on **speed**, not capability: the owed n=2 pass came in at **41 %**, level with Tiel, not the 50 % its single sample showed, and with 4 flipping tasks it is the least stable model measured. **No vision** — the server rejects images outright |
 | 3 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | **the footprint floor** | 22.34 GB at the full 262k window and the best prefill in the field (3,400 tok/s) — the one to run when the box is shared. Has vision (40/42), though Tiel scores higher |
 | 4 | `tiel-coder:35b-q5-ctx256k-agentic` | **the context-safety reference** | The only family that returns `ERROR_400` on an over-long prompt; every other model on the box silently halves the context. 262k at 34.13 GB, recall verified at 254,181, and the top vision score (42/42) |
@@ -465,6 +474,33 @@ No traps fired for any model, so nothing hallucinated — the separation is pure
 label/value association.
 
 ---
+
+### 9c. Screen a candidate before you benchmark it — added 2026-09-21
+
+A Terminal-Bench pass costs ~1.5 h per model and the box holds one model at a time, so a field
+of six plausible candidates is not a round, it is two days. `s9-candidates.sh` screens them
+first, cheapest test first, and every candidate gets a row whether it passes or not:
+
+| gate | test | pass |
+|---|---|---|
+| **G1 fit** | bake `-agentic`, load, `/api/ps` | `size_vram == size` — 100% GPU. A 12.5% spill cost 5.3× in v1 |
+| **G2 tools** | `agentic-test.sh` | ≥9/10, no reproducible failure. Gates beat speed |
+| **G3 turn economy** | `cc-session.sh --fixture hard --runs 3 --thinking on` | median ≤150 s **and** median hidden ≥16/18 |
+
+**G3 is turn economy, not tok/s, and that is deliberate.** This box has measured both ends of
+that mistake: `qwen3.8:27b` scored 18/18 held-out tests three times and still took 787 s — fine
+capability, wrong shape — while `nemotron-cascade-2` was the fastest model on the box on both
+axes and finished nothing at all. What a person waits for is turns × latency. Generation,
+prefill and residency are recorded for every candidate; they are simply not the gate.
+
+Two traps the screen encodes because they have already bitten:
+
+- **An `hf.co` quant label is not unique.** `byteshape/Qwen3.6-35B-A3B-GGUF` ships two files
+  labelled `Q4_K_S` (3.80 and 4.22 bpw). Nothing in `/api/show` says which one you got — the
+  file size does, so the expected GiB is a gate, not a note, and a mismatch is a cut.
+- **Bake `min(native, 262144)`, never a flat 262144.** A window larger than the architecture
+  supports is how you get a silent half-context, which is the same failure this repo documents
+  for `CLAUDE_CODE_MAX_CONTEXT_TOKENS`.
 
 ---
 
