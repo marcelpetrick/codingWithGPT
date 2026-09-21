@@ -15,6 +15,7 @@ non-model failure as VOID, not as a zero (harness §0).
 Usage: summarise.py [runs_dir]
 """
 import json
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -56,8 +57,26 @@ DEFECTIVE = {
 }
 
 
+def expected_trials(run_dir, n_tasks):
+    """tasks x attempts, parsed from the run-id -- the only completeness test.
+
+    The upstream harness writes run-level results.json from the FIRST finished
+    trial and appends to it, and tb.lock exists for the whole life of the run.
+    So neither file says "this pass finished": a pass cut off after 3 of 20
+    trials looks exactly like a complete one, and its rate reads as a model
+    result. Counting the trial directories against tasks x attempts is what
+    actually answers the question.
+    """
+    m = re.search(r"-n(\d+)-\d+$", run_dir.name)
+    return n_tasks * int(m.group(1)) if m else None
+
+
 def main():
     runs = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "runs"
+    subset = HERE / "subset.txt"
+    n_tasks = len([l for l in subset.read_text().splitlines()
+                   if l.strip() and not l.lstrip().startswith("#")]) if subset.exists() else 0
+    incomplete = []
     out = HERE / "results"
     out.mkdir(exist_ok=True)
     rows = []
@@ -69,6 +88,11 @@ def main():
             d = json.loads(rj.read_text())
         except ValueError:
             print(f"  ! unreadable: {rj}")
+            continue
+        want = expected_trials(rj.parent, n_tasks)
+        have = len(list(rj.parent.glob("*/*/results.json")))
+        if want and have < want:
+            incomplete.append((run_id, have, want))
             continue
         model, arm = split_arm(run_id)
         for r in d.get("results", []):
@@ -121,6 +145,10 @@ def main():
         a["n"] += 1
         a["soln"] += int(r["resolved"])
         a["sec"] += r["agent_sec"]
+    if incomplete:
+        print("\nIN FLIGHT or CUT SHORT -- not counted (a partial pass is not a rate):")
+        for run_id, have, want in incomplete:
+            print(f"  {run_id}  {have}/{want} trials")
     if not agg:
         print("no trials yet"); return
     if DEFECTIVE:

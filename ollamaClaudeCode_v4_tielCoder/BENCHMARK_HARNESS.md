@@ -502,6 +502,20 @@ Two traps the screen encodes because they have already bitten:
   supports is how you get a silent half-context, which is the same failure this repo documents
   for `CLAUDE_CODE_MAX_CONTEXT_TOKENS`.
 
+### 9c-bis. A partial pass is not a rate — added 2026-09-21
+
+The upstream harness writes the run-level `results.json` from the **first finished trial** and
+appends to it, and `tb.lock` exists for the whole life of a run. So neither file marks a pass as
+finished: a pass cut off after 3 of 20 trials carries the same two files as a complete one, and
+its `accuracy` reads as a model result. It was caught here as a "complete" qwen3.6 n=2 pass
+holding 3 trials — both of them `git-multibranch` and `polyglot-c-py`, the two hardest tasks in
+the subset, which would have reported the control at 0%.
+
+The only completeness test is **trial directories counted against tasks × attempts**, parsed
+from the run-id. `summarise.py` applies it and prints what it excluded (`IN FLIGHT or CUT
+SHORT`), and the resume check in `GO_official_tb.sh` uses the same test — a resume that trusts
+`results.json` will skip an interrupted pass and call the round finished.
+
 ### 9d. What a 9-task subset can and cannot resolve — measured 2026-09-21
 
 `summarise.py` now prints a **95% Wilson interval** beside every rate (the discipline is
