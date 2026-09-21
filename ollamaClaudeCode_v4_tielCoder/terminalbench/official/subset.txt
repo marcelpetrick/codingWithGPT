@@ -29,15 +29,18 @@ openssl-selfsigned-cert
 git-multibranch
 oom
 
-# --- candidate 10th task, NOT yet part of the scored set -------------------
-# A replacement must be validated before it is frozen, which is the whole lesson
-# of the nginx defect. Required before promoting it:
-#   1. ./validate-subset.py <task>  — and a human answers every "UNSTATED" line
-#   2. tb run -t <task> -a oracle   — the oracle must score 100%
-#   3. the promotion is its own commit, and round N+1 does not compare to round N
-#      on the changed set
-# Nominee: conda-env-conflict-resolution (medium; debugging + package management
-# + system). Its unstated literals are version numbers and a path the agent
-# discovers by reading the environment file, which is legitimate exploration
-# rather than a contradiction — but that judgement still needs the oracle.
-# NOT run, NOT scored, until both checks pass.
+# --- the 10th task: DECIDED AND DISCARDED, 2026-09-21 -----------------------
+# `conda-env-conflict-resolution` was nominated to replace the defective nginx
+# task in the scored set. It is NOT promoted, and the scored set stays at 9.
+#
+# Why not: the promotion buys one task of resolution (9 -> 10, i.e. ~11% finer
+# granularity on a rate) and costs a validation + oracle cycle, a subset change,
+# and comparability with round 1. The round's actual blocker is thinking parity;
+# changing the measured set in the same round would confound the one variable
+# the re-run exists to isolate. A subset change is worth its own round or none.
+#
+# The gate itself stands: if the set is ever changed, validate-subset.py must be
+# clean (every UNSTATED line answered) and the oracle must score 100% BEFORE the
+# freeze -- that rule came out of the nginx defect and is not weakened by this.
+#
+# Standing: 10 tasks run, 9 scored, nginx run-but-unscored (DEFECTIVE).

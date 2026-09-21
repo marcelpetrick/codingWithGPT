@@ -122,6 +122,41 @@ base model), `BigBang` (one unsourced "I kinda liked it").
   on the subject models and n=1 on comparators; the CI discipline is better than ours and it is
   cheap to adopt.
 
+## F. Verified on the wire — what actually fits, 2026-09-21
+
+Every row below was checked against the **Hugging Face tree API** (real file sizes, not card
+claims) on 2026-09-21, and against the measured residency of this box: **35.56 GB usable, one
+model resident, ~26 GiB of weights is the ceiling for a 262k window on the `qwen35moe` family**
+(`plan.md` §8.1 has the KV arithmetic). Repo names in §E were approximate; these are exact.
+
+| candidate | exact pull tag | GGUF | class | fit |
+|---|---|---|---|---|
+| ByteShape quant of our own control | `hf.co/byteshape/Qwen3.6-35B-A3B-GGUF:Q4_K_S-4.22bpw` | **17.02 GiB** | M | **yes**, 5 GB lighter than the q4_K_M we run |
+| Qwen3.6-27B dense | `hf.co/unsloth/Qwen3.6-27B-GGUF:Q5_K_M` | 18.17 GiB | D | yes on memory; **the speed gate is the question** |
+| OmniMerge v4 | `hf.co/ManniX-ITA/Qwen3.6-27B-Omnimerge-v4-GGUF:Q5_K_M` | 17.91 GiB | D | yes on memory; same gate |
+| OmniMerge v6 | `hf.co/mradermacher/Qwen3.8-27B-Omnimerge-v6-GGUF:Q5_K_M` | ~18.2 GiB | D | yes on memory; same gate. v6 is on the **Qwen3.8** base, v4 on 3.6 — they are not the same experiment |
+| KAT-Coder-V2.5-Dev | `hf.co/bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF:Q5_K_M` | 23.30 GiB | M | yes, tight (~33 GB). Q4_K_M 19.92 GiB is the fallback if `/api/ps` shows a spill |
+| occamy-1.0 | `hf.co/mradermacher/occamy-1.0-i1-GGUF:i1-Q4_K_M` | 19.71 GiB | M | yes |
+| Tiel-Coder MTP | `hf.co/peculiar-ragdoll/Tiel-Coder-35B-A3B-GGUF-MTP:UD-Q5_K_XL` | 25.13 GiB | M | yes, at Tiel's own 1.4 GB margin |
+| Nail-Qwen3.6-35B-A3B | `…/Nail-Qwen3.6-35B-A3B-GGUF:UD-Q5_K_XL` | 24.77 GiB | M | yes — the *exam* sibling, not a coder; low priority |
+| Dirk-Qwen3.8-27B | `…/Dirk-Qwen3.8-27B-GGUF:UD-Q5_K_XL` | 19.44 GiB | D | yes on memory; dense, so the same gate as the others |
+| **any Q8 27B, any Q6_K_XL 35B** | — | 26–30 GiB | — | **no.** Weights alone eat the KV budget |
+| **ByteShape 3.48 / 3.80 / 3.93 bpw rungs** | — | 14–16 GiB | — | **no.** Below the 4-bit floor, standing rule |
+| `-MLX-*` anything | — | — | — | **no.** `.67` runs Ollama/GGUF |
+
+**MTP, on 0.33.3 — no longer settled.** Ollama honours the MTP head (`draft_num_predict 4`) and
+v3 measured **+20% generation for −46% prefill**, a net loss when every turn re-read its
+context. 0.33.3 caches prefixes, so that penalty is now paid roughly **once per session instead
+of once per turn**. The `-MTP` builds are therefore a named experiment with a hypothesis, not a
+default pull — and not the tag to reach for first.
+
+**Dense 27B is the risk, and it is already quantified.** The class anchor on this box is
+`qwen3.8:27b`: **30.3 tok/s, 787 s ledger median, 18/18 hidden ×3** — capable, four times too
+slow. Qwen3.6-27B, both OmniMerges and Dirk are the same shape. They are worth the screen
+because the OmniMerge claim is about *turn economy*, not tok/s (finishing in 5–20 min what
+Ornith-27B needs 2 h 30 for), and turn economy is the axis this box actually feels — but the
+gate is pre-registered in `plan.md` §8.3 and is not relaxed afterwards.
+
 ## The field a candidate is measured against — fixed 2026-09-18
 
 A new contender is run against **four models and no others**: `qwen3.6:35b-a3b` (the default),

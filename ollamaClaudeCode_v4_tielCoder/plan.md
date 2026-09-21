@@ -278,3 +278,130 @@ harness (§0, §8a, §8b) and the instruments (`validate-subset.py`, oracle gate
 accounting, transcript verification of every flag). Use them before trusting a surprise — and
 when an outside ranking disagrees with ours, treat the disagreement as a bug report about us
 first.
+
+---
+
+## 8. The 2026-09-21 round — parity first, then the two candidate classes
+
+Written **2026-09-21**, before anything ran. It replaces the ordering in §7 with the one the
+day's brief actually asks for: **compare only what is almost comparable, spend the box on the
+winner group and on the genuinely new models, and do not re-run a round for a cosmetic change.**
+
+### 8.0 What was decided before any model was loaded
+
+| decision | reason |
+|---|---|
+| **The subset is not touched.** `conda-env-conflict-resolution` stays unpromoted; 10 tasks run, 9 scored, `nginx` run-but-unscored | it buys ~11% granularity on a rate and costs a validation cycle, a subset change and comparability with round 1 — while confounding the one variable this round exists to isolate. Recorded in `subset.txt`, discarded, not run |
+| **Thinking parity is still item 1** | the entire model-vs-model result of 2026-09-18 is void without it (§7.1, harness §8b). Nothing measured today is ranked against anything until the field is re-run at parity |
+| **Candidates are screened before they are benchmarked** | 6 plausible new tags exist; the box holds one model and the round holds four comparators. The screen is cheap and pre-registered below, so it cannot be argued with after the fact |
+| **README's verdict was corrected first** | it still named Tiel "the default" on 09-17 evidence while `BENCHMARK_HARNESS.md` §9a named qwen3.6, on evidence since voided. Two answers to "which model is the default" in one repo is a defect in its own right |
+
+### 8.1 What fits — hardware and runtime screen, verified on the wire 2026-09-21
+
+**The constraint is 35.56 GB usable VRAM and one resident model.** Measured residency on this
+box gives the working rule — the window costs what the family's KV costs, not what the weights
+suggest:
+
+| model | weights | resident @262k | KV + overhead |
+|---|---|---|---|
+| `north-mini` | 18.6 GB | 21.3 GB | +2.7 |
+| `gemma4:26b-a4b` | 18.0 GB | 22.34 GB | +4.3 |
+| `tiel-coder` Q5 | 27.5 GB | 34.13 GB | +6.6 |
+| `qwen3.6:35b-a3b` q4_K_M | 23.9 GB | 32.68 GB | +8.7 |
+
+**Working ceiling: ~26 GiB of GGUF weights** for a 262k window on the `qwen35moe` family, and
+that is already the tightest fit in the project. Sizes below are real file sizes from the HF
+tree API, not card claims.
+
+| candidate | class | tag to pull | GGUF | fits @262k? |
+|---|---|---|---|---|
+| **ByteShape Qwen3.6-35B-A3B** | M | `hf.co/byteshape/Qwen3.6-35B-A3B-GGUF:Q4_K_S-4.22bpw` | **17.02 GiB** | yes, comfortably (~26 GB) |
+| **KAT-Coder-V2.5-Dev** | M | `hf.co/bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF:Q5_K_M` | 23.30 GiB | yes (~33 GB) — tight, take Q4_K_M (19.92) if `/api/ps` spills |
+| occamy-1.0 | M | `hf.co/mradermacher/occamy-1.0-i1-GGUF:i1-Q4_K_M` | 19.71 GiB | yes |
+| Tiel-Coder **MTP** | M | `hf.co/peculiar-ragdoll/Tiel-Coder-35B-A3B-GGUF-MTP:UD-Q5_K_XL` | 25.13 GiB | yes, at Tiel's own 1.4 GB margin |
+| **Qwen3.6-27B** (dense) | D | `hf.co/unsloth/Qwen3.6-27B-GGUF:Q5_K_M` | 18.17 GiB | yes |
+| **OmniMerge v4** (Qwen3.6-27B) | D | `hf.co/ManniX-ITA/Qwen3.6-27B-Omnimerge-v4-GGUF:Q5_K_M` | 17.91 GiB | yes |
+| **OmniMerge v6** (Qwen3.8-27B) | D | `hf.co/mradermacher/Qwen3.8-27B-Omnimerge-v6-GGUF:Q5_K_M` | ~18.2 GiB | yes |
+| Nail-Qwen3.6-35B-A3B | M | `…/Nail-Qwen3.6-35B-A3B-GGUF:UD-Q5_K_XL` | 24.77 GiB | yes — but it is the *exam* sibling, not a coder |
+| Dirk-Qwen3.8-27B | D | `…/Dirk-Qwen3.8-27B-GGUF:UD-Q5_K_XL` | 19.44 GiB | yes |
+| Q8 rungs of any 27B, Q6_K_XL of any 35B | — | — | 26–30 GiB | **no** — weights alone eat the KV budget |
+
+**Two runtime facts settle the rest:**
+
+1. **Do not pull an `-MTP` build except as a deliberate experiment.** Ollama *does* honour the
+   MTP head (`draft_num_predict 4`), and v3 measured what it costs on this box: **+20%
+   generation for −46% prefill**. On 0.32.15 that was a net loss. 0.33.3 caches prefixes (§2 of
+   `measurements.md`), so the prefill penalty is now paid **once per session instead of once per
+   turn** — which makes MTP newly interesting rather than settled. It is an experiment with a
+   named hypothesis, not a default choice, and it is run last.
+2. **Below 4 bits is out of scope**, standing rule. That removes ByteShape's 3.48/3.80/3.93 bpw
+   rungs; only the 4.15–4.22 bpw files qualify.
+
+### 8.2 The two comparability classes — and what may be compared with what
+
+The brief is "compare things which are almost comparable". Written down, that means:
+
+- **Class M — 35B-A3B MoE, `qwen35moe`, 4–5 bpw.** `qwen3.6:35b-a3b` (control), `tiel-coder`,
+  ByteShape, KAT-Coder, occamy. Same architecture, same active-parameter budget, same box
+  behaviour. **Rank these against each other.**
+- **Class D — dense ~27B, 4–5 bpw.** Qwen3.6-27B, OmniMerge v4/v6, Dirk. Their class anchor is
+  already measured and is not re-run: `qwen3.8:27b` at **30.3 tok/s, 787 s ledger median,
+  18/18 hidden ×3** — capable and the wrong shape for this box. **Rank these against each other
+  and against that anchor**, never directly against a Class M tok/s number.
+- **Class S — small MoE.** `north-mini` (speed ceiling), `gemma4:26b-a4b` (footprint floor).
+  They hold axes, not ranks.
+
+Across classes, only **axis** comparisons are made: capability on the same fixture, footprint at
+the same window, context behaviour at overflow. A tok/s table spanning all three classes is a
+category error and the round does not print one.
+
+### 8.3 The screen — pre-registered, cheapest test first
+
+A candidate reaches the Terminal-Bench round only by passing **all three**, in order. Each is
+recorded whether it passes or not; a model cut at G1 still gets its row.
+
+| gate | test | pass condition | why this and not tok/s alone |
+|---|---|---|---|
+| **G1 fit** | bake `-agentic` (num_ctx 262144, `presence_penalty 0`), load, read `/api/ps` | `size_vram == size` (100% GPU) at ≥131,072 | a 12.5% spill cost 5.3× in v1 |
+| **G2 tools** | `agentic-test.sh` battery | ≥9/10, and no *reproducible* failure (≥3 of 8 re-runs) | standing rule 2: gates beat speed. It rejected laguna and cascade-2 |
+| **G3 turn economy** | `cc-session.sh --fixture hard --runs 3 --thinking on` | median wall ≤ **2.5× the best standing model** (≤150 s) **and** median hidden ≥16/18 | **tok/s alone mispredicts.** `qwen3.8:27b` scored 18/18 three times and still took 787 s; `nemotron-cascade-2` was the fastest model on the box and finished nothing. What the user waits for is turns × latency (v3 §3) |
+
+Generation tok/s, cold prefill and residency are **measured and reported for every candidate**,
+they are simply not the gate.
+
+### 8.4 The round
+
+| stage | what | field | ≈ |
+|---|---|---|---|
+| **P0** | docs corrected, subset decision recorded, this plan | — | done |
+| **P1** | pull → bake → provenance → G1/G2/G3, one model at a time, delete anything cut at G1 | the candidates of §8.1, in the order listed there | ~40 min each |
+| **P2** | **the thinking-parity Terminal-Bench re-run** — the blocker from §7.1 | the standing four, `TB_THINKING=on`, n=1 then n=2 | 7–10 h |
+| **P3** | the same subset, same settings, for every candidate that survived §8.3 | survivors only, n=2 | ~1.5 h each |
+| **P4** | a `thinking=off` arm for **Tiel alone** — the within-family boundary on v4's "2.3× for free", which was measured on the ledger fixture and never on hard puzzle tasks | `tiel-coder`, n=2 | ~1 h |
+| **P5** | summarise, regenerate the report, rewrite the verdict from the TSV | — | — |
+
+**P2 before P3.** A candidate measured against a void baseline is a wasted afternoon, and the
+standing four at parity *is* the baseline. If the box is taken or the day runs out, P2 alone is
+the round; everything after it is optional.
+
+**Budget note, corrected:** §7 estimated 4–6 h for P2. Round 1 took 09:36→15:29 wall for six
+models with thinking **off** on two of them (n=1 ≈ 25–40 min/model, n=2 ≈ 40–70 min/model).
+With reasoning **on** for all four, 7–10 h is the honest figure, and `TB_PHASE=1` / `TB_PHASE=2`
+exists to split it across two windows.
+
+### 8.5 Pre-registered outcomes — fixed now so the results cannot pick them
+
+1. **P2 is the new baseline, whatever it says.** If the parity re-run reverses the 09-18
+   ordering, the 09-18 ordering is discarded, not defended. If it confirms it, the "contenders
+   did not displace the incumbent" verdict becomes evidence instead of a claim.
+2. **A candidate takes a standing slot only by beating that slot's holder on that slot's own
+   axis** (harness §9a), measured in the same session, at n ≥ 2.
+3. **The dense 27Bs are expected to fail G3.** `qwen3.8:27b` is the class anchor at 787 s. If a
+   dense 27B passes anyway, that is the finding of the round and the OmniMerge turn-economy
+   claim is the mechanism to look at — not a reason to relax the gate afterwards.
+4. **ByteShape is a quant question, not a model question.** Same weights as the control, a
+   different quant house, 17.02 GiB against 22.29. If it matches the control within noise it
+   reclaims 5 GB of VRAM; if it loses, our quant choice is vindicated and the rung is retired.
+   Either way it is compared **only** against `qwen3.6:35b-a3b`.
+5. **Nothing is deleted from the box that this round did not pull**, and anything cut at G1 is
+   deleted the same session so a shared disk is not held hostage by a rejected candidate.

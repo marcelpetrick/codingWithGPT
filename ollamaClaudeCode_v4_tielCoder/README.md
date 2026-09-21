@@ -1,13 +1,17 @@
 # v4 — Tiel-Coder on the Ollama server, and the field re-measured on 0.33.3
 
-Measured on **`192.168.100.67`, Ollama 0.33.3**, 2026-09-17, ≈35.56 GB usable VRAM, server idle
-before every stage, one model resident at a time.
+Measured on **`192.168.100.67`, Ollama 0.33.3**, 2026-09-17/18, ≈35.56 GB usable VRAM, server
+idle before every stage, one model resident at a time. **Verdict revised 2026-09-21** — see
+below for what the round proved and what it only appeared to.
 
 | | |
 |---|---|
 | **the verdict** | below |
 | every number, and how it was taken | [`measurements.md`](measurements.md) |
 | the twelve harness defects found *in this round's own tooling* | [`review.md`](review.md) |
+| how to evaluate a new model at all — rules, traps, the standing field | [`BENCHMARK_HARNESS.md`](BENCHMARK_HARNESS.md) |
+| the official Terminal-Bench round, and why its ranking is void | [`terminalbench/official/OFFICIAL_TB_PLAN.md`](terminalbench/official/OFFICIAL_TB_PLAN.md) |
+| candidates for the next round, and what fits this box | [`toTest.md`](toTest.md) |
 | what to put in `~/.zshrc` | [`shell_aliases.md`](shell_aliases.md) |
 | one-page summary, offline | [`report.html`](report.html) · [`report.pdf`](report.pdf) |
 | what was planned, before any of it ran | [`plan.md`](plan.md) |
@@ -17,21 +21,26 @@ before every stage, one model resident at a time.
 
 ## The verdict
 
-**Use `tiel-coder:35b-q5-ctx256k-agentic` — the variant, never the tag as it shipped. Append
-`<|think_off|>` for ordinary work.**
+*Revised 2026-09-21.* This round produced **two** cross-model capability results, from two
+different harnesses, and **only one of them is valid**. That is the first thing to know before
+quoting either.
 
-It displaces `north-mini-code-1.0` as the default, and it does so on correctness rather than
-speed — north-mini is 23% faster per token and 13 GB lighter.
+**For daily Claude Code work, use `tiel-coder:35b-q5-ctx256k-agentic` — the variant, never the
+tag as it shipped — and append `<|think_off|>`.**
 
-| | `north-mini` *(v3 default)* | **`tiel-coder` (pp 0)** |
-|---|---|---|
-| hard fixture, **held-out tests** | 18/18, **14/18**, 17/18 | **18/18, 18/18, 18/18** |
-| hard fixture, median | 126 s | **83 s** *(53 s with thinking off)* |
-| generation @2k | **136.2** tok/s | 111.1 |
-| deepest verified recall | 201,737 | **254,181** |
-| resident @262,144 | **21.3 GB** | 34.13 GB |
-| past its context window | **silently halves** | **refuses (HTTP 400)** |
-| vision | no | **yes** |
+That rests on the **ledger fixture**, which was run at **thinking parity**: every model reasoned,
+verified per run from `think_chars` in [`results/cc-session.tsv`](results/cc-session.tsv), not
+from the config. It is the only cross-model comparison in this round that survived review.
+
+| | `north-mini` *(v3 default)* | `qwen3.6` *(control)* | **`tiel-coder` (pp 0)** |
+|---|---|---|---|
+| ledger fixture, **held-out tests**, n=3 | 18/18, **14/18**, 17/18 | 17/18, **15/18**, 16/18 | **18/18, 18/18, 18/18** |
+| ledger fixture, median | 126 s | 60 s | **83 s** *(53 s with thinking off)* |
+| generation @2k | **136.2** tok/s | 131.6 | 111.1 |
+| deepest verified recall | 201,737 | — | **254,181** |
+| resident @262,144 | **21.3 GB** | 32.68 GB | 34.13 GB |
+| past its context window | **silently halves** | **silently halves** | **refuses (HTTP 400)** |
+| vision | **no — none at all** | 40/42 | **42/42** |
 
 Two properties decide it, and neither is a speed:
 
@@ -48,6 +57,39 @@ Two properties decide it, and neither is a speed:
 The cost is memory: **34.13 GB of a 35.56 GB box**, the tightest fit in the project. Nothing
 else can be resident beside it.
 
+### What is *not* settled — and why the Terminal-Bench numbers are not quoted as a ranking
+
+The official Terminal-Bench round (120 trials, upstream harness, upstream dataset —
+[`terminalbench/official/OFFICIAL_TB_PLAN.md`](terminalbench/official/OFFICIAL_TB_PLAN.md))
+put `qwen3.6` first at 53% and Tiel third at 37%. **That comparison is void.** `<|think_off|>`
+is a *Sharp-template* token: the adapter appended it to every model, so Tiel and CyberTiel ran
+with **0 reasoning blocks across 30 trials each** while qwen3.6 (287 blocks), north-mini (373),
+ornith (95) and gemma4 (83) reasoned normally. The subjects were handicapped and the
+comparators were not.
+
+Void is not disproven — qwen3.6 may still lead. It is simply **not evidence yet**, and the
+re-run at parity is the next thing this project does (`plan.md` §8). Until it lands, **every
+model-vs-model capability claim in this repo is provisional**, including the verdict above and
+slot 1 of the standing field below.
+
+What survives the defect, because none of it compares one model to another: the `nginx`
+task defect, the `fibonacci-server` scaffold-persistence effect, the `oom` workaround-vs-root-
+cause behaviour, and the n=1-vs-n=3 jitter measurements.
+
+### The standing comparison field — four models, four axes
+
+Fixed 2026-09-18; the authority is [`BENCHMARK_HARNESS.md`](BENCHMARK_HARNESS.md) §9a, and a new
+contender is measured against these four and nothing else:
+
+| # | tag | axis | status |
+|---|---|---|---|
+| 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | capability + reproducibility | **provisional** — rests on the void round |
+| 2 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | the speed ceiling (136.2 tok/s) | held on speed, which is measured and stable |
+| 3 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | the footprint floor (22.34 GB @262k) | settled |
+| 4 | `tiel-coder:35b-q5-ctx256k-agentic` | context safety (the only family that refuses) | settled |
+
+### CyberTiel: measured, and not recommended for daily use
+
 ### Three settings that matter more than the model choice
 
 | | |
@@ -60,7 +102,7 @@ else can be resident beside it.
 
 The abliterated sibling matches Tiel to within noise on **every** axis — generation within 1%,
 recall one token apart (254,182 vs 254,181), identical memory, identical overflow behaviour,
-both 25/25 on vision, both 18/18 on the hard fixture. On eight benign defensive-security prompts
+both perfect on the (since-retired) v1 vision check, both 18/18 on the hard fixture. On eight benign defensive-security prompts
 **neither model refused anything**, so the uncensored build buys nothing on legitimate work — and
 it has to be sandboxed to be run responsibly. Run Tiel; keep CyberTiel for a refusal that
 actually blocks you, and keep it in [`cc-session-sandboxed.sh`](cc-session-sandboxed.sh) when you
@@ -184,3 +226,4 @@ enforces that. It unloads only tags this project owns and polls read-only for an
 | `../ollamaClaudeCode_v3_qwen3.8/` | Qwen3.8 + the 2026-08 field on 0.32.15: `README.md` verdict, `measurements.md` §1–33, `shell_aliases.md` |
 | `../ollamaClaude_ImageProcessing/` | qwen3-vl OCR study; its fixtures are reused by v4's vision bench |
 | **this directory** | v4: `plan.md`, `measurements.md`, harness scripts, `results/` |
+| `terminalbench/official/` | the upstream Terminal-Bench harness, its adapter, the frozen subset and the run transcripts |
