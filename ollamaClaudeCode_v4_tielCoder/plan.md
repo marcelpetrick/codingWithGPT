@@ -389,6 +389,28 @@ models with thinking **off** on two of them (n=1 ≈ 25–40 min/model, n=2 ≈ 
 With reasoning **on** for all four, 7–10 h is the honest figure, and `TB_PHASE=1` / `TB_PHASE=2`
 exists to split it across two windows.
 
+### 8.4b The sampling defect, found mid-round 2026-09-21
+
+`/api/show` on the standing four turned up a second asymmetry underneath the thinking one: the
+control runs at **temperature 0** while north-mini and gemma4 run at 1.0 and Tiel at 0.6. Three
+of the four sit exactly on their vendor's recommendation; the control does not, and Claude Code
+sends no temperature of its own, so the baked value is what every trial has used
+(`BENCHMARK_HARNESS.md` §8c has the three experiments that establish it).
+
+**Decision, taken before the round finished and recorded here rather than folded in quietly:**
+
+1. **The round in flight is not stopped.** Its other three models are at their vendor settings,
+   and it is the first thinking-parity arm this project has. Throwing it away costs a day and
+   answers nothing.
+2. **`qwen3.6` is re-baked at its vendor setting for precise coding** — `temperature 0.6,
+   top_p 0.95, top_k 20, min_p 0, presence_penalty 0, repetition_penalty 1.0` — as a new tag,
+   and re-run on the same subset at n=3. The old tag is kept, not overwritten.
+3. **That pair is also a measurement, not just a fix**: greedy against vendor-spec, same model,
+   same subset, same arm. It puts a number on what temperature 0 was buying or costing on
+   agentic tasks, which nothing in v1–v4 has ever measured.
+4. **The cross-model table is then read at vendor spec for every model**, and the temp-0 numbers
+   become a labelled within-model side-finding.
+
 ### 8.5 Pre-registered outcomes — fixed now so the results cannot pick them
 
 1. **P2 is the new baseline, whatever it says.** If the parity re-run reverses the 09-18

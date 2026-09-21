@@ -502,6 +502,44 @@ Two traps the screen encodes because they have already bitten:
   supports is how you get a silent half-context, which is the same failure this repo documents
   for `CLAUDE_CODE_MAX_CONTEXT_TOKENS`.
 
+### 8c. The sampler is a setting too — and ours was not symmetric (2026-09-21)
+
+§8b is about a flag only some models honoured. This is the same defect one layer down, and it
+went unnoticed for four rounds: **the four standing models were running at four different
+temperatures**, baked into their tags, inherited from whoever created each tag.
+
+| tag | temperature | top_p | top_k | vendor's own recommendation |
+|---|---|---|---|---|
+| `qwen3.6:35b-a3b-q4_K_M-agentic` | **0** | 0.95 | 20 | **0.6** (thinking, precise coding) or 1.0 (their own Terminal-Bench eval) |
+| `north-mini-code-1.0:…-agentic` | 1.0 | 0.95 | — | 1.0 / 0.95 — **matches** |
+| `gemma4:26b-a4b-it-…-agentic` | 1.0 | 0.95 | 64 | 1.0 / 0.95 / 64 — **matches** |
+| `tiel-coder:35b-q5-…-agentic` | 0.6 | 0.95 | 20 | 0.6 / 0.95 / 20, no presence penalty — **matches** |
+
+Three of four are exactly at their maker's setting. **The control is the one that is not**, and
+it is running greedy.
+
+**Proven on the wire, not assumed** (`.37`, so the running round was not disturbed):
+
+1. A baked temperature applies when the client sends none — the same prompt three times on a
+   tag baked at 0 returned byte-identical text.
+2. A client-set temperature overrides it — the same tag with `temperature: 1.5` in the request
+   returned three different answers.
+3. **Claude Code sends no temperature.** Through the real CLI, a tag baked at 0 answered
+   identically three times from three; a tag baked at 1.8 answered differently three times from
+   three. So the baked value is what every session and every Terminal-Bench trial has been
+   running at.
+
+**What that costs us.** Round 1's second headline — *"qwen3.6 is dramatically more reproducible,
+1 flipping task against 3–4 for the contenders"* — is what greedy decoding does. It is a
+property of the sampler, not of the model, and slot 1 of the standing field rested on it.
+Reproducibility measured at temperature 0 against rivals at 1.0 is not a finding.
+
+**The rule:** a model is measured at **its vendor's recommended configuration for the task**,
+and the configuration is read off `/api/show` and written into the round's own record before the
+round starts — never inherited from a tag someone baked for a throughput test two rounds ago.
+Where a vendor gives a task-specific setting, the one for *precise coding / agentic work* is the
+one to use.
+
 ### 9c-bis. A partial pass is not a rate — added 2026-09-21
 
 The upstream harness writes the run-level `results.json` from the **first finished trial** and
