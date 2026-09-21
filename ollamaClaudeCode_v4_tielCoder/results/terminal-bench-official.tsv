@@ -1,141 +1,141 @@
-run_id	model	task	trial	resolved	failure_mode	in_tok	out_tok	agent_sec
-cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	git-multibranch	git-multibranch.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	agent_timeout	n/a	n/a	780.168717
-cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	fibonacci-server	fibonacci-server.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	39.398447
-cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	59.285245
-cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	oom	oom.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	240.699032
-cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	fix-permissions	fix-permissions.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	True	unset	n/a	n/a	27.715635
-cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	polyglot-c-py	polyglot-c-py.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	22.231446
-cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	nginx-request-logging	nginx-request-logging.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	50.206182
-cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	modernize-fortran-build	modernize-fortran-build.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	34.58763
-cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	fix-git	fix-git.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	39.40402
-cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	csv-to-parquet	csv-to-parquet.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	True	unset	n/a	n/a	111.094902
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	git-multibranch	git-multibranch.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	127.76706
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	git-multibranch	git-multibranch.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	256.242484
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	csv-to-parquet	csv-to-parquet.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	113.890446
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	csv-to-parquet	csv-to-parquet.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	agent_timeout	n/a	n/a	660.148812
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	nginx-request-logging	nginx-request-logging.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	44.324941
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	nginx-request-logging	nginx-request-logging.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	33.861994
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	fix-git	fix-git.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	agent_timeout	n/a	n/a	660.201301
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	fix-git	fix-git.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	53.599837
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	oom	oom.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	True	unset	n/a	n/a	75.40879
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	oom	oom.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	True	unset	n/a	n/a	54.749982
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	fibonacci-server	fibonacci-server.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	39.168211
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	fibonacci-server	fibonacci-server.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	36.052653
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	fix-permissions	fix-permissions.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	True	unset	n/a	n/a	26.514788
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	fix-permissions	fix-permissions.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	True	unset	n/a	n/a	20.311572
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	modernize-fortran-build	modernize-fortran-build.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	35.597757
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	modernize-fortran-build	modernize-fortran-build.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	26.950547
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	polyglot-c-py	polyglot-c-py.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	22.671972
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	polyglot-c-py	polyglot-c-py.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	agent_timeout	n/a	n/a	660.197316
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	True	unset	n/a	n/a	36.979037
-cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	True	unset	n/a	n/a	36.950063
-gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	git-multibranch	git-multibranch.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	unset	n/a	n/a	135.950856
-gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	polyglot-c-py	polyglot-c-py.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	agent_timeout	n/a	n/a	660.199318
-gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	fibonacci-server	fibonacci-server.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	unset	n/a	n/a	59.628119
-gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	nginx-request-logging	nginx-request-logging.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	unset	n/a	n/a	85.983772
-gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	fix-git	fix-git.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	unset	n/a	n/a	74.312711
-gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	True	unset	n/a	n/a	58.813239
-gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	modernize-fortran-build	modernize-fortran-build.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	True	unset	n/a	n/a	77.040274
-gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	fix-permissions	fix-permissions.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	True	unset	n/a	n/a	36.797849
-gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	oom	oom.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	unset	n/a	n/a	58.087373
-gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	csv-to-parquet	csv-to-parquet.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	unset	n/a	n/a	93.002875
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	git-multibranch	git-multibranch.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	True	unset	n/a	n/a	284.11487
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	polyglot-c-py	polyglot-c-py.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	False	agent_timeout	n/a	n/a	437.338841
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	fix-permissions	fix-permissions.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	True	unset	n/a	n/a	32.936219
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	oom	oom.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	False	unset	n/a	n/a	156.09035
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	nginx-request-logging	nginx-request-logging.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	False	unset	n/a	n/a	120.965804
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	False	unset	n/a	n/a	150.615576
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	csv-to-parquet	csv-to-parquet.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	True	unset	n/a	n/a	107.547064
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	modernize-fortran-build	modernize-fortran-build.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	True	unset	n/a	n/a	68.608665
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	fix-git	fix-git.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	True	unset	n/a	n/a	66.155292
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	fibonacci-server	fibonacci-server.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	False	unset	n/a	n/a	99.682067
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	git-multibranch	git-multibranch.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	414.569646
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	git-multibranch	git-multibranch.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	252.036365
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	polyglot-c-py	polyglot-c-py.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	agent_timeout	n/a	n/a	660.17023
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	polyglot-c-py	polyglot-c-py.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	agent_timeout	n/a	n/a	660.194151
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	fibonacci-server	fibonacci-server.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	52.626721
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	fibonacci-server	fibonacci-server.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	49.030056
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	csv-to-parquet	csv-to-parquet.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	83.351293
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	csv-to-parquet	csv-to-parquet.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	99.580521
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	oom	oom.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	119.297146
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	oom	oom.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	89.957354
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	nginx-request-logging	nginx-request-logging.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	74.756665
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	nginx-request-logging	nginx-request-logging.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	102.100807
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	170.972165
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	96.525979
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	fix-permissions	fix-permissions.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	32.234129
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	fix-permissions	fix-permissions.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	31.254996
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	modernize-fortran-build	modernize-fortran-build.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	49.742861
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	modernize-fortran-build	modernize-fortran-build.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	46.888863
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	fix-git	fix-git.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	140.520447
-north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	fix-git	fix-git.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	72.545402
-ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	git-multibranch	git-multibranch.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	79.358783
-ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	nginx-request-logging	nginx-request-logging.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	43.87402
-ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	polyglot-c-py	polyglot-c-py.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	agent_timeout	n/a	n/a	409.999827
-ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	50.559401
-ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	oom	oom.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	77.072008
-ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	modernize-fortran-build	modernize-fortran-build.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	True	unset	n/a	n/a	43.678562
-ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	fibonacci-server	fibonacci-server.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	49.684267
-ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	fix-permissions	fix-permissions.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	True	unset	n/a	n/a	29.548984
-ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	csv-to-parquet	csv-to-parquet.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	True	unset	n/a	n/a	62.382804
-ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	fix-git	fix-git.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	32.717879
-qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	git-multibranch	git-multibranch.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	False	unset	n/a	n/a	142.808115
-qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	oom	oom.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	False	unset	n/a	n/a	110.857848
-qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	csv-to-parquet	csv-to-parquet.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	True	unset	n/a	n/a	320.685181
-qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	modernize-fortran-build	modernize-fortran-build.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	True	unset	n/a	n/a	48.57681
-qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	fibonacci-server	fibonacci-server.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	True	unset	n/a	n/a	64.018117
-qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	fix-git	fix-git.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	False	unset	n/a	n/a	46.487726
-qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	nginx-request-logging	nginx-request-logging.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	False	unset	n/a	n/a	304.546443
-qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	fix-permissions	fix-permissions.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	True	unset	n/a	n/a	40.041133
-qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	polyglot-c-py	polyglot-c-py.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	False	agent_timeout	n/a	n/a	660.05697
-qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	True	unset	n/a	n/a	68.717404
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	git-multibranch	git-multibranch.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	224.500102
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	git-multibranch	git-multibranch.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	183.743185
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	csv-to-parquet	csv-to-parquet.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	322.523187
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	csv-to-parquet	csv-to-parquet.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	318.374434
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	fix-permissions	fix-permissions.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	43.199064
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	fix-permissions	fix-permissions.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	36.967648
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	fix-git	fix-git.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	48.004104
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	fix-git	fix-git.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	42.886111
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	oom	oom.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	163.90939
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	oom	oom.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	82.458778
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	98.404405
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	48.103958
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	polyglot-c-py	polyglot-c-py.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	agent_timeout	n/a	n/a	660.218874
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	polyglot-c-py	polyglot-c-py.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	agent_timeout	n/a	n/a	660.208023
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	modernize-fortran-build	modernize-fortran-build.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	47.60402
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	modernize-fortran-build	modernize-fortran-build.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	41.667277
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	nginx-request-logging	nginx-request-logging.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	306.036038
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	nginx-request-logging	nginx-request-logging.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	302.525458
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	fibonacci-server	fibonacci-server.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	82.947891
-qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	fibonacci-server	fibonacci-server.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	66.427588
-tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	git-multibranch	git-multibranch.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	agent_timeout	n/a	n/a	780.202156
-tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	fix-permissions	fix-permissions.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	True	unset	n/a	n/a	25.404976
-tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	csv-to-parquet	csv-to-parquet.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	agent_timeout	n/a	n/a	660.147331
-tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	nginx-request-logging	nginx-request-logging.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	unset	n/a	n/a	48.360394
-tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	True	unset	n/a	n/a	56.571244
-tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	modernize-fortran-build	modernize-fortran-build.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	True	unset	n/a	n/a	40.744771
-tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	polyglot-c-py	polyglot-c-py.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	unset	n/a	n/a	87.098444
-tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	fibonacci-server	fibonacci-server.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	unset	n/a	n/a	41.957373
-tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	oom	oom.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	unset	n/a	n/a	133.035939
-tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	fix-git	fix-git.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	True	unset	n/a	n/a	45.29858
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	git-multibranch	git-multibranch.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	178.752392
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	git-multibranch	git-multibranch.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	414.501966
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	fix-git	fix-git.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	41.024358
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	fix-git	fix-git.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	29.81642
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	modernize-fortran-build	modernize-fortran-build.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	35.623144
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	modernize-fortran-build	modernize-fortran-build.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	27.099568
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	36.466277
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	openssl-selfsigned-cert	openssl-selfsigned-cert.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	33.404572
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	csv-to-parquet	csv-to-parquet.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	93.714851
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	csv-to-parquet	csv-to-parquet.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	290.562104
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	fibonacci-server	fibonacci-server.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	40.889596
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	fibonacci-server	fibonacci-server.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	34.176051
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	nginx-request-logging	nginx-request-logging.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	71.250899
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	nginx-request-logging	nginx-request-logging.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	42.033139
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	oom	oom.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	131.830818
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	oom	oom.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	70.258014
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	polyglot-c-py	polyglot-c-py.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	agent_timeout	n/a	n/a	360.597388
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	polyglot-c-py	polyglot-c-py.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	57.570716
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	fix-permissions	fix-permissions.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	26.29182
-tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	fix-permissions	fix-permissions.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	21.196985
+run_id	model	arm	task	trial	resolved	failure_mode	in_tok	out_tok	agent_sec
+cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	git-multibranch	git-multibranch.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	agent_timeout	n/a	n/a	780.168717
+cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	fibonacci-server	fibonacci-server.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	39.398447
+cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	59.285245
+cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	oom	oom.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	240.699032
+cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	fix-permissions	fix-permissions.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	True	unset	n/a	n/a	27.715635
+cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	22.231446
+cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	50.206182
+cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	34.58763
+cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	fix-git	fix-git.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	False	unset	n/a	n/a	39.40402
+cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.1-of-1.cyber-tiel_35b-q5-ctx256k-agentic-n1-101651	True	unset	n/a	n/a	111.094902
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	git-multibranch	git-multibranch.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	127.76706
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	git-multibranch	git-multibranch.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	256.242484
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	113.890446
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	agent_timeout	n/a	n/a	660.148812
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	44.324941
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	33.861994
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	fix-git	fix-git.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	agent_timeout	n/a	n/a	660.201301
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	fix-git	fix-git.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	53.599837
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	oom	oom.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	True	unset	n/a	n/a	75.40879
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	oom	oom.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	True	unset	n/a	n/a	54.749982
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	fibonacci-server	fibonacci-server.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	39.168211
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	fibonacci-server	fibonacci-server.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	36.052653
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	fix-permissions	fix-permissions.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	True	unset	n/a	n/a	26.514788
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	fix-permissions	fix-permissions.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	True	unset	n/a	n/a	20.311572
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	35.597757
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	26.950547
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	unset	n/a	n/a	22.671972
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	False	agent_timeout	n/a	n/a	660.197316
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	True	unset	n/a	n/a	36.979037
+cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	cyber-tiel_35b-q5-ctx256k-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.2-of-2.cyber-tiel_35b-q5-ctx256k-agentic-n2-131851	True	unset	n/a	n/a	36.950063
+gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	r1-mixed	git-multibranch	git-multibranch.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	unset	n/a	n/a	135.950856
+gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	agent_timeout	n/a	n/a	660.199318
+gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	r1-mixed	fibonacci-server	fibonacci-server.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	unset	n/a	n/a	59.628119
+gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	unset	n/a	n/a	85.983772
+gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	r1-mixed	fix-git	fix-git.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	unset	n/a	n/a	74.312711
+gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	True	unset	n/a	n/a	58.813239
+gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	True	unset	n/a	n/a	77.040274
+gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	r1-mixed	fix-permissions	fix-permissions.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	True	unset	n/a	n/a	36.797849
+gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	r1-mixed	oom	oom.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	unset	n/a	n/a	58.087373
+gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.1-of-1.gemma4_26b-a4b-it-q4_k_m-ctx256k-agentic-n1-121026	False	unset	n/a	n/a	93.002875
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	git-multibranch	git-multibranch.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	True	unset	n/a	n/a	284.11487
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	False	agent_timeout	n/a	n/a	437.338841
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	fix-permissions	fix-permissions.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	True	unset	n/a	n/a	32.936219
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	oom	oom.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	False	unset	n/a	n/a	156.09035
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	False	unset	n/a	n/a	120.965804
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	False	unset	n/a	n/a	150.615576
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	True	unset	n/a	n/a	107.547064
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	True	unset	n/a	n/a	68.608665
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	fix-git	fix-git.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	True	unset	n/a	n/a	66.155292
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	fibonacci-server	fibonacci-server.1-of-1.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n1-112216	False	unset	n/a	n/a	99.682067
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	git-multibranch	git-multibranch.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	414.569646
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	git-multibranch	git-multibranch.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	252.036365
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	agent_timeout	n/a	n/a	660.17023
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	agent_timeout	n/a	n/a	660.194151
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	fibonacci-server	fibonacci-server.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	52.626721
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	fibonacci-server	fibonacci-server.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	49.030056
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	83.351293
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	99.580521
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	oom	oom.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	119.297146
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	oom	oom.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	89.957354
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	74.756665
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	102.100807
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	170.972165
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	96.525979
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	fix-permissions	fix-permissions.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	32.234129
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	fix-permissions	fix-permissions.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	True	unset	n/a	n/a	31.254996
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	49.742861
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	46.888863
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	fix-git	fix-git.1-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	140.520447
+north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	north-mini-code-1.0_q4_k_m-ctx256k-agentic	r1-mixed	fix-git	fix-git.2-of-2.north-mini-code-1.0_q4_k_m-ctx256k-agentic-n2-155627	False	unset	n/a	n/a	72.545402
+ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	r1-mixed	git-multibranch	git-multibranch.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	79.358783
+ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	43.87402
+ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	agent_timeout	n/a	n/a	409.999827
+ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	50.559401
+ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	r1-mixed	oom	oom.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	77.072008
+ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	True	unset	n/a	n/a	43.678562
+ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	r1-mixed	fibonacci-server	fibonacci-server.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	49.684267
+ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	r1-mixed	fix-permissions	fix-permissions.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	True	unset	n/a	n/a	29.548984
+ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	True	unset	n/a	n/a	62.382804
+ornith_35b-ctx256k-agentic-n1-115144	ornith_35b-ctx256k-agentic	r1-mixed	fix-git	fix-git.1-of-1.ornith_35b-ctx256k-agentic-n1-115144	False	unset	n/a	n/a	32.717879
+qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	git-multibranch	git-multibranch.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	False	unset	n/a	n/a	142.808115
+qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	oom	oom.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	False	unset	n/a	n/a	110.857848
+qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	True	unset	n/a	n/a	320.685181
+qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	True	unset	n/a	n/a	48.57681
+qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	fibonacci-server	fibonacci-server.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	True	unset	n/a	n/a	64.018117
+qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	fix-git	fix-git.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	False	unset	n/a	n/a	46.487726
+qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	False	unset	n/a	n/a	304.546443
+qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	fix-permissions	fix-permissions.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	True	unset	n/a	n/a	40.041133
+qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	False	agent_timeout	n/a	n/a	660.05697
+qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.qwen3.6_35b-a3b-q4_k_m-agentic-n1-104805	True	unset	n/a	n/a	68.717404
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	git-multibranch	git-multibranch.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	224.500102
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	git-multibranch	git-multibranch.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	183.743185
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	322.523187
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	318.374434
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	fix-permissions	fix-permissions.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	43.199064
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	fix-permissions	fix-permissions.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	36.967648
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	fix-git	fix-git.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	48.004104
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	fix-git	fix-git.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	42.886111
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	oom	oom.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	163.90939
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	oom	oom.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	82.458778
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	98.404405
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	48.103958
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	agent_timeout	n/a	n/a	660.218874
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	agent_timeout	n/a	n/a	660.208023
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	47.60402
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	41.667277
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	306.036038
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	False	unset	n/a	n/a	302.525458
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	fibonacci-server	fibonacci-server.1-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	82.947891
+qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	qwen3.6_35b-a3b-q4_k_m-agentic	r1-mixed	fibonacci-server	fibonacci-server.2-of-2.qwen3.6_35b-a3b-q4_k_m-agentic-n2-141739	True	unset	n/a	n/a	66.427588
+tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	git-multibranch	git-multibranch.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	agent_timeout	n/a	n/a	780.202156
+tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	fix-permissions	fix-permissions.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	True	unset	n/a	n/a	25.404976
+tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	agent_timeout	n/a	n/a	660.147331
+tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	unset	n/a	n/a	48.360394
+tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	True	unset	n/a	n/a	56.571244
+tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	True	unset	n/a	n/a	40.744771
+tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	unset	n/a	n/a	87.098444
+tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	fibonacci-server	fibonacci-server.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	unset	n/a	n/a	41.957373
+tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	oom	oom.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	False	unset	n/a	n/a	133.035939
+tiel-coder_35b-q5-ctx256k-agentic-n1-093632	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	fix-git	fix-git.1-of-1.tiel-coder_35b-q5-ctx256k-agentic-n1-093632	True	unset	n/a	n/a	45.29858
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	git-multibranch	git-multibranch.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	178.752392
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	git-multibranch	git-multibranch.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	414.501966
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	fix-git	fix-git.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	41.024358
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	fix-git	fix-git.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	29.81642
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	35.623144
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	modernize-fortran-build	modernize-fortran-build.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	27.099568
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	36.466277
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	openssl-selfsigned-cert	openssl-selfsigned-cert.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	33.404572
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	93.714851
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	csv-to-parquet	csv-to-parquet.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	290.562104
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	fibonacci-server	fibonacci-server.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	40.889596
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	fibonacci-server	fibonacci-server.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	34.176051
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	71.250899
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	nginx-request-logging	nginx-request-logging.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	42.033139
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	oom	oom.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	131.830818
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	oom	oom.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	70.258014
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	agent_timeout	n/a	n/a	360.597388
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	polyglot-c-py	polyglot-c-py.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	False	unset	n/a	n/a	57.570716
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	fix-permissions	fix-permissions.1-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	26.29182
+tiel-coder_35b-q5-ctx256k-agentic-n2-123652	tiel-coder_35b-q5-ctx256k-agentic	r1-mixed	fix-permissions	fix-permissions.2-of-2.tiel-coder_35b-q5-ctx256k-agentic-n2-123652	True	unset	n/a	n/a	21.196985

@@ -70,6 +70,13 @@ for m in "${FIELD_ALL[@]}"; do
   echo "$present" | grep -q "\"$m\"" || echo "  WARN: $m not on the server -- create it first (see toTest.md Stage 1)"
 done
 
+# The run-id also carries the THINKING ARM (-thinkon / -thinkoff), because the
+# run-id is the only label the upstream harness writes into results.json, and
+# summarise.py parses the arm back out of it. Round 1's rows carry no marker and
+# are reported as "r1-mixed": reasoning was off on the Sharp-template models and
+# on for every comparator, so pooling them with a parity run would re-commit the
+# exact error that voided them (harness §8b).
+#
 # NOTE (2026-09-18, found mid-round): the run-id must be LOWERCASE. terminal-bench
 # derives the `docker compose -p <project>` name from it, and compose rejects any
 # project name containing uppercase:
@@ -89,7 +96,7 @@ run_one () {  # <runs> <model...>
       --n-attempts "$runs" \
       --n-concurrent "$CONCURRENCY" \
       --output-path "$OUT" \
-      --run-id "$(echo "$m" | tr '/:' '__' | tr 'A-Z' 'a-z')-n$runs-$(date +%H%M%S)" \
+      --run-id "$(echo "$m" | tr '/:' '__' | tr 'A-Z' 'a-z')-think${TB_THINKING:-on}-n$runs-$(date +%H%M%S)" \
       2>&1 | tail -40
     # be a good neighbour: unload this model before the next one loads
     curl -s "$HOST/api/generate" -d "{\"model\":\"$m\",\"keep_alive\":0}" >/dev/null 2>&1 || true

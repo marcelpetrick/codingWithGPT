@@ -28,6 +28,25 @@ INFRA = {"unknown_agent_error", "agent_installation_failed", "test_timeout",
 # problem, not the model's, and counting them is counting our defect as their
 # failure -- the same reasoning that makes an infra failure VOID rather than a
 # zero. Still run and still shown; simply not in the denominator.
+# An "arm" is a configuration the whole field shared. It is parsed from the
+# run-id because the run-id is the only thing the upstream harness carries into
+# results.json, and because two arms merged into one rate is precisely the defect
+# that voided round 1 (harness §8b): round 1 ran the subjects with reasoning off
+# and the comparators with it on, and nothing in the output said so. Rows from
+# round 1 are therefore labelled r1-mixed and are NEVER pooled with parity rows.
+ARM_MARKERS = ("thinkon", "thinkoff")
+LEGACY_ARM = "r1-mixed"
+
+
+def split_arm(run_id):
+    """run-id -> (model, arm). Unmarked ids are the 2026-09-18 mixed round."""
+    base = run_id.rsplit("-n", 1)[0]
+    for mark in ARM_MARKERS:
+        if base.endswith("-" + mark):
+            return base[: -(len(mark) + 1)], mark
+    return base, LEGACY_ARM
+
+
 DEFECTIVE = {
     "nginx-request-logging":
         "instruction says to configure /etc/nginx/conf.d/benchmark-site.conf; the "
@@ -51,10 +70,12 @@ def main():
         except ValueError:
             print(f"  ! unreadable: {rj}")
             continue
+        model, arm = split_arm(run_id)
         for r in d.get("results", []):
             rows.append({
                 "run_id": run_id,
-                "model": run_id.rsplit("-n", 1)[0],
+                "model": model,
+                "arm": arm,
                 "task": r.get("task_id", "?"),
                 "trial": r.get("trial_name", "?"),
                 "resolved": bool(r.get("is_resolved")),
@@ -71,7 +92,7 @@ def main():
             })
 
     tsv = out / "terminal-bench-official.tsv"
-    cols = ["run_id", "model", "task", "trial", "resolved", "failure_mode",
+    cols = ["run_id", "model", "arm", "task", "trial", "resolved", "failure_mode",
             "in_tok", "out_tok", "agent_sec"]
     with tsv.open("w") as f:
         f.write("\t".join(cols) + "\n")
@@ -90,7 +111,7 @@ def main():
     # per-model roll-up, with infra failures held out of the denominator
     agg = defaultdict(lambda: {"soln": 0, "n": 0, "void": 0, "defect": 0, "sec": 0.0})
     for r in rows:
-        a = agg[r["model"]]
+        a = agg[(r["arm"], r["model"])]
         if r["failure_mode"] in INFRA:
             a["void"] += 1
             continue
@@ -106,13 +127,25 @@ def main():
         print("\nheld out of the rate as DEFECTIVE (the task cannot be passed as written):")
         for t, why in DEFECTIVE.items():
             print(f"  {t} — {why}")
-    print(f"\n{'model':44} {'solved':>10} {'rate':>7} {'void':>5} {'defect':>7} {'median_s':>9}")
-    for m, a in sorted(agg.items(), key=lambda kv: -(kv[1]["soln"] / max(kv[1]["n"], 1))):
-        rate = a["soln"] / a["n"] * 100 if a["n"] else 0.0
-        avg = a["sec"] / a["n"] if a["n"] else 0.0
-        warn = "  <-- VOID trials, investigate" if a["void"] else ""
-        print(f"{m:44} {a['soln']:>4}/{a['n']:<5} {rate:>6.1f}% {a['void']:>5} "
-              f"{a['defect']:>7} {avg:>9.0f}{warn}")
+    ARM_NOTE = {
+        LEGACY_ARM: "2026-09-18: thinking OFF on the Sharp-template models and ON for "
+                    "every comparator. Model-vs-model VOID (harness §8b); kept for the "
+                    "per-task and jitter findings, which compare a model to itself",
+        "thinkon":  "thinking ON for every model -- the only symmetric setting this "
+                    "harness can guarantee. This is the arm a ranking may be read from",
+        "thinkoff": "thinking OFF, single-family arm only (Sharp template). Never a "
+                    "cross-family comparison",
+    }
+    for arm in sorted({k[0] for k in agg}):
+        print(f"\n== arm: {arm} ==\n   {ARM_NOTE.get(arm, '?')}")
+        print(f"\n{'model':44} {'solved':>10} {'rate':>7} {'void':>5} {'defect':>7} {'median_s':>9}")
+        sub = {k[1]: v for k, v in agg.items() if k[0] == arm}
+        for m, a in sorted(sub.items(), key=lambda kv: -(kv[1]["soln"] / max(kv[1]["n"], 1))):
+            rate = a["soln"] / a["n"] * 100 if a["n"] else 0.0
+            avg = a["sec"] / a["n"] if a["n"] else 0.0
+            warn = "  <-- VOID trials, investigate" if a["void"] else ""
+            print(f"{m:44} {a['soln']:>4}/{a['n']:<5} {rate:>6.1f}% {a['void']:>5} "
+                  f"{a['defect']:>7} {avg:>9.0f}{warn}")
 
 
 def _tok(v):

@@ -224,7 +224,17 @@ def main():
     DEFECTIVE_TASKS = {"nginx-request-logging"}
     tbo = defaultdict(lambda: defaultdict(list))   # model -> task -> [row]
     tbo_tasks = []
-    for r in read_tsv("terminal-bench-official.tsv"):
+    # ONE arm per grid. An arm is a setting the whole field shared; round 1 ran
+    # the Sharp-template models with reasoning off and everyone else with it on,
+    # and pooling those rows is the defect that voided it (harness §8b). Prefer
+    # the parity arm when it exists, and never mix two.
+    tbo_all = read_tsv("terminal-bench-official.tsv")
+    arms = {r.get("arm", "r1-mixed") for r in tbo_all}
+    TB_ARM = os.environ.get("TB_ARM") or ("thinkon" if "thinkon" in arms else
+                                          sorted(arms)[0])
+    for r in tbo_all:
+        if r.get("arm", "r1-mixed") != TB_ARM:
+            continue
         m = tag_by_runid.get(r["model"], r["model"])
         tbo[m][r["task"]].append(r)
         if r["task"] not in tbo_tasks:
