@@ -48,12 +48,22 @@ mkdir -p "$HERE/results"
 # its quant label, and byteshape ships TWO files labelled Q4_K_S (3.80 and 4.22
 # bpw). Pulling the wrong one would silently put us below the 4-bit floor, and
 # nothing in /api/show says "this is the 3.8 bpw rung". The size does.
+# Order is the pull order, and it is a judgement recorded in plan.md §8.1c:
+# the 27B-A3B coders come first because they are the only class that is both
+# coder-post-trained AND cheap enough to leave the box shareable, and because one
+# of them is Tiel's own lineage. The dense 27Bs come last -- same parameter
+# budget, a quarter of the active parameters, and this box's one measured dense
+# 27B (qwen3.8) was four times too slow.
 CANDIDATES=(
+  "ornith15-27b-coder|hf.co/mradermacher/Ornith-1.5-27B-A3B-Coder-GGUF:Q5_K_M|17.44|M|ornith1.5-27b-coder:q5km-ctx256k-agentic"
+  "qwen36-27b-coder|hf.co/mradermacher/Qwen3.6-27B-A3B-Coder-GGUF:Q5_K_M|17.44|M|qwen3.6-27b-coder:q5km-ctx256k-agentic"
+  "kat-ornith-35b|hf.co/mradermacher/KAT-Ornith-Coder-35B-A3B-GGUF:Q4_K_M|19.71|M|kat-ornith-coder:q4km-ctx256k-agentic"
   "byteshape|hf.co/byteshape/Qwen3.6-35B-A3B-GGUF:Q4_K_S-4.22bpw|17.02|M|byteshape-qwen3.6-35b:q4ks-ctx256k-agentic"
-  "qwen3.6-27b|hf.co/unsloth/Qwen3.6-27B-GGUF:Q5_K_M|18.17|D|qwen3.6-27b:q5km-ctx256k-agentic"
+  "signoffour-35b|hf.co/pragmaticcs/Qwen-35B-A3B-SignOfFour-Coder-GGUF:Q4_K_M|20.00|M|signoffour-coder:q4km-ctx256k-agentic"
+  "kat-coder|hf.co/bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF:Q5_K_M|23.30|M|kat-coder-v2.5:q5km-ctx256k-agentic"
+  "qwen3.6-27b-dense|hf.co/unsloth/Qwen3.6-27B-GGUF:Q5_K_M|18.17|D|qwen3.6-27b-dense:q5km-ctx256k-agentic"
   "omnimerge-v4|hf.co/ManniX-ITA/Qwen3.6-27B-Omnimerge-v4-GGUF:Q5_K_M|17.91|D|omnimerge-v4:q5km-ctx256k-agentic"
   "omnimerge-v6|hf.co/mradermacher/Qwen3.8-27B-Omnimerge-v6-GGUF:Q5_K_M|18.19|D|omnimerge-v6:q5km-ctx256k-agentic"
-  "kat-coder|hf.co/bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF:Q5_K_M|23.30|M|kat-coder-v2.5:q5km-ctx256k-agentic"
   "occamy|hf.co/mradermacher/occamy-1.0-i1-GGUF:i1-Q4_K_M|19.71|M|occamy-1.0:q4km-ctx256k-agentic"
 )
 

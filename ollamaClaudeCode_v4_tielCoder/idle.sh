@@ -109,7 +109,7 @@ fi
 # passed as --mine.
 # 2026-09-21: the candidates of plan.md §8 are ours too. Without this the
 # screen waits out its own model for 600 s and calls a shared box busy.
-OURS='^(Tiel-Coder-|hf\.co/peculiar-ragdoll/|hf\.co/byteshape/|hf\.co/unsloth/|hf\.co/ManniX-ITA/|hf\.co/mradermacher/|hf\.co/bartowski/|tiel-coder:|cyber-tiel:|ornith:|muse-glimmer:|nemotron-3\.5-lightning:|nemotron-cascade-2:|granite4\.2:|kvprobe-|tune-|qwen3\.8:|laguna-xs-|north-mini-code-|gemma4:|byteshape-|qwen3\.6-27b:|omnimerge-|kat-coder|occamy-)'
+OURS='^(Tiel-Coder-|hf\.co/peculiar-ragdoll/|hf\.co/byteshape/|hf\.co/unsloth/|hf\.co/ManniX-ITA/|hf\.co/mradermacher/|hf\.co/bartowski/|tiel-coder:|cyber-tiel:|ornith:|muse-glimmer:|nemotron-3\.5-lightning:|nemotron-cascade-2:|granite4\.2:|kvprobe-|tune-|qwen3\.8:|laguna-xs-|north-mini-code-|gemma4:|byteshape-|qwen3\.6-27b|omnimerge-|kat-coder|kat-ornith|ornith1\.5-27b|signoffour-|occamy-)'
 foreign() {
   printf '%s\n' $R | grep -Ev "$OURS" | while read -r t; do
     case " ${MINE:-} " in *" $t "*) ;; *) printf '%s\n' "$t" ;; esac

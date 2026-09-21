@@ -337,6 +337,35 @@ tree API, not card claims.
 2. **Below 4 bits is out of scope**, standing rule. That removes ByteShape's 3.48/3.80/3.93 bpw
    rungs; only the 4.15–4.22 bpw files qualify.
 
+### 8.1c The test group, decided 2026-09-21 — ten candidates, screened not benchmarked
+
+The owner asked for the newly-found models to go into the test group. They do, and the order is
+a judgement worth recording, because the sweep changed which class is interesting:
+
+| # | candidate | why it is in, at this position |
+|---|---|---|
+| 1 | **Ornith-1.5-27B-A3B-Coder** | **Tiel's own lineage, coder-post-trained, at 17.44 GiB.** If it holds Tiel's context behaviour at two-thirds the weights, it takes slot 4 on that slot's own axis and leaves ~9 GiB of the box free |
+| 2 | **Qwen3.6-27B-A3B-Coder** | the control's base with coder post-training, MoE rather than dense — the honest version of §E's "Qwen3.6-27B" pick |
+| 3 | KAT-Ornith-Coder-35B-A3B | a merge of the two strongest external lines we know of |
+| 4 | ByteShape Q4_K_S 4.22bpw | not a model question but a **quant** question about the model we already run: 17.02 GiB against 22.29 for the same weights |
+| 5 | Qwen-35B-A3B-SignOfFour-Coder | another 35B-A3B coder on the familiar base |
+| 6 | KAT-Coder-V2.5-Dev | §A2's top pick; 23.30 GiB is the tightest fit of the group |
+| 7–9 | Qwen3.6-27B **dense**, OmniMerge v4, OmniMerge v6 | demoted. Same parameter budget as #1–2, a quarter of the active parameters, and this box's one measured dense 27B was four times too slow. Kept because OmniMerge's claim is about turn economy, which tok/s does not predict |
+| 10 | occamy-1.0 | long-horizon co-work claim, vendor-reported |
+
+**This does not widen the comparison field, and §9a still holds.** The ten are *screened*
+(fit → tool gates → turn economy, §8.3); only what survives is measured on Terminal-Bench
+against the standing four. A screen is cheap and a benchmark pass is 1.5 h — that asymmetry is
+the whole reason the screen exists.
+
+### 8.1d Scope: `.67` only
+
+`192.168.100.37` is out of scope for this project by the owner's instruction. It was used
+exactly once on 2026-09-21, for the API-semantics probe behind §8c — that test needed a server
+the running round was *not* using, it never touched a benchmark number, and its two `kvprobe-*`
+tags were deleted the same session. Everything measured, pulled or baked for this round lives on
+`.67`.
+
 ### 8.2 The two comparability classes — and what may be compared with what
 
 The brief is "compare things which are almost comparable". Written down, that means:

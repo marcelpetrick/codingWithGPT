@@ -40,6 +40,11 @@ Ranked by what has decided the recommendation across four rounds. **Speed is not
 
 ## 2. Non-negotiable rules
 
+**0. One box: `192.168.100.67`.** The 12 GB `.37` is not part of this project's measurements —
+different VRAM, different runtime version, and a number taken there is not comparable to one
+taken here. Use it only for something that must *not* run where the benchmark is running (an API
+semantics probe, a template check), never for a result, and clean up after.
+
 **Shared server.** `.67` belongs to a colleague. `idle.sh` waits out anything foreign and never
 evicts it. Only tags this project created are in its `OURS` list. Check `/api/ps` before you
 start. Never run a benchmark into a busy box — a 12.5% spill is a 5.3× error.
