@@ -157,6 +157,35 @@ because the OmniMerge claim is about *turn economy*, not tok/s (finishing in 5�
 Ornith-27B needs 2 h 30 for), and turn economy is the axis this box actually feels — but the
 gate is pre-registered in `plan.md` §8.3 and is not relaxed afterwards.
 
+## F2. A wider sweep, 2026-09-21 — the class §E missed
+
+§E's candidate list came from one reddit thread, and its top two picks were **dense 27B**, the
+shape this box has already rejected once (`qwen3.8:27b`, 30.3 tok/s, 787 s ledger median). A
+sweep of everything GGUF-quantized and coder-tagged since 2026-08 turned up a class the thread
+did not mention and that fits far better: **27B-A3B MoE coders** — three billion active
+parameters, coder post-training, and half the weights of our 35B field.
+
+| candidate | tag | GGUF (Q5_K_M) | what it is |
+|---|---|---|---|
+| **Ornith-1.5-27B-A3B-Coder** / **-CoderX** | `hf.co/mradermacher/Ornith-1.5-27B-A3B-Coder-GGUF:Q5_K_M` | **17.44 GiB** | **Tiel's own base family, coder-tuned, at 27B.** The most interesting single candidate on this page: same lineage as the model holding slot 4, two-thirds the size |
+| **Qwen3.6-27B-A3B-Coder** / **-CoderX** | `hf.co/mradermacher/Qwen3.6-27B-A3B-Coder-GGUF:Q5_K_M` | 17.44 GiB | coder post-training on the control's own base, MoE rather than dense — the honest version of §E's "Qwen3.6-27B" pick |
+| KAT-Ornith-Coder-35B-A3B | `hf.co/mradermacher/KAT-Ornith-Coder-35B-A3B-GGUF:Q4_K_M` | 19.71 GiB (Q4_K_M) | a merge of the two strongest external lines we know of — KAT-Coder and Ornith |
+| Qwen-35B-A3B-SignOfFour-Coder | `hf.co/pragmaticcs/Qwen-35B-A3B-SignOfFour-Coder-GGUF:Q4_K_M` | 20.00 GiB (Q4_K_M) | another 35B-A3B coder on the familiar base |
+| LFM2.5-8B-A1B-Hermes-Agentic-Coder | — | ~5 GiB | 8B/A1B, abliterated. Far below the capability tier this box can host; noted only so it is not rediscovered |
+
+**All of them fit comfortably** — 17–20 GiB of weights against a ~26 GiB ceiling, leaving room
+for the full 262k window. The 27B-A3B pair fits with ~9 GiB to spare, which is the first
+candidate class that could share the box with anything else.
+
+**This re-orders §E.** The dense 27Bs (`Qwen3.6-27B`, `OmniMerge v4/v6`, `Dirk`) drop below the
+A3B coders: same parameter budget, a quarter of the active parameters, and this box's one
+measured data point on dense 27B is that it is four times too slow. They stay on the list —
+OmniMerge's claim is about turn economy, not tok/s — but they are no longer the first pull.
+
+**Revised pull order:** `Ornith-1.5-27B-A3B-Coder` (Tiel's family, small), then
+`Qwen3.6-27B-A3B-Coder` (the control's family, small), then `KAT-Ornith-Coder-35B-A3B`, then
+ByteShape (a quant question about a model we already run), then the dense 27Bs.
+
 ## The field a candidate is measured against — fixed 2026-09-18
 
 A new contender is run against **four models and no others**: `qwen3.6:35b-a3b` (the default),
