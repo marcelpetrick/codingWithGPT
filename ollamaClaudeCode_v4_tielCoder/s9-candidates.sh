@@ -89,6 +89,15 @@ for spec in "${CANDIDATES[@]}"; do
   say "=== $NAME  ($CLASS)  $SRC"
   if [ "$DRY" = 1 ]; then note "dry run: would pull, bake as $TAG, expect ${EXP} GiB"; continue; fi
 
+  # Idempotent: a candidate already carrying a verdict is not screened again.
+  # This is what makes the whole chain re-runnable -- if the link to .67 drops
+  # or the laptop sleeps, running run-all.sh again resumes instead of repeating
+  # hours of pulls and sessions.
+  if grep -q "	$TAG	" "$TSV" 2>/dev/null; then
+    note "already screened ($(grep "	$TAG	" "$TSV" | tail -1 | cut -f17)) -- skipping"
+    continue
+  fi
+
   # be a good neighbour before touching the box at all
   ./idle.sh --host "$HOST" --port "$PORT" --mine "$TAG" >/dev/null 2>&1
 

@@ -545,6 +545,35 @@ round starts — never inherited from a tag someone baked for a throughput test 
 Where a vendor gives a task-specific setting, the one for *precise coding / agentic work* is the
 one to use.
 
+### 9c-ter. What a long round actually depends on — and what it survives
+
+A full round is 8–12 h of wall clock on a laptop that drives a server over a USB ethernet
+adapter. Worth knowing exactly what can end it, because three of the four are avoidable:
+
+| it survives | it does not survive |
+|---|---|
+| the Claude Code session ending | the laptop **suspending** — every process freezes and the link drops |
+| the terminal closing | the **USB ethernet** being unplugged or the laptop leaving `192.168.100.0/24` |
+| a background-shell reap (the round is `setsid`-detached) | a reboot |
+| a colleague loading a model — `idle.sh` waits, never evicts | the disk on `.67` filling during a pull |
+
+The harness drives Claude Code in **local Docker containers** and only the model calls cross the
+network, so a dropped link does not corrupt a finished trial — it fails the one in flight. Those
+surface as `unknown_agent_error`, which `summarise.py` already books as **VOID** rather than as a
+model scoring zero.
+
+**What makes "start it and collect in two days" actually true is idempotence**, and it is now
+end to end:
+
+- `GO_official_tb.sh` skips any pass whose trial count already equals tasks × attempts.
+- `summarise.py` excludes a pass that falls short, so a half-finished pass never becomes a rate.
+- `s9-candidates.sh` skips a candidate that already carries a verdict in its TSV.
+- `run-all.sh` can therefore simply be run again: it resumes at the first thing that is not done,
+  instead of repeating hours of pulls and sessions.
+
+The one thing that has to be arranged rather than coded is power: hold sleep off for the
+duration (`systemd-inhibit --what=sleep:idle:handle-lid-switch`) and leave the adapter in.
+
 ### 9c-bis. A partial pass is not a rate — added 2026-09-21
 
 The upstream harness writes the run-level `results.json` from the **first finished trial** and
