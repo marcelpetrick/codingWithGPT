@@ -350,8 +350,9 @@ a judgement worth recording, because the sweep changed which class is interestin
 | 4 | ByteShape Q4_K_S 4.22bpw | not a model question but a **quant** question about the model we already run: 17.02 GiB against 22.29 for the same weights |
 | 5 | Qwen-35B-A3B-SignOfFour-Coder | another 35B-A3B coder on the familiar base |
 | 6 | KAT-Coder-V2.5-Dev | §A2's top pick; 23.30 GiB is the tightest fit of the group |
-| 7–9 | Qwen3.6-27B **dense**, OmniMerge v4, OmniMerge v6 | demoted. Same parameter budget as #1–2, a quarter of the active parameters, and this box's one measured dense 27B was four times too slow. Kept because OmniMerge's claim is about turn economy, which tok/s does not predict |
-| 10 | occamy-1.0 | long-horizon co-work claim, vendor-reported |
+| 7 | occamy-1.0 | long-horizon co-work claim, vendor-reported |
+| 8–9 | OmniMerge v4, OmniMerge v6 | **last.** Dense 27B, the shape this box has already measured at 4× too slow. Kept only for the turn-economy claim, which tok/s does not predict |
+| ~~—~~ | ~~Qwen3.6-27B **dense**~~ | **Removed 2026-09-21, owner's call.** The dense shape does not earn a slot on this box, and candidate #2 — the A3B coder on the same base — answers the same question about that family without the handicap. Not pulled, not screened, and the reason is here rather than as a silent deletion |
 
 **This does not widen the comparison field, and §9a still holds.** The ten are *screened*
 (fit → tool gates → turn economy, §8.3); only what survives is measured on Terminal-Bench

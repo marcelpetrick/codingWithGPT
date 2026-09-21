@@ -54,6 +54,12 @@ mkdir -p "$HERE/results"
 # of them is Tiel's own lineage. The dense 27Bs come last -- same parameter
 # budget, a quarter of the active parameters, and this box's one measured dense
 # 27B (qwen3.8) was four times too slow.
+#
+# Qwen3.6-27B dense was REMOVED from the group on 2026-09-21 by the owner's call
+# -- the dense shape is not worth a slot on this box, and the A3B coder of the
+# same family (#2) answers the same question about that base without the
+# handicap. The two OmniMerges are the same dense shape and sit last: they are
+# kept only for their turn-economy claim, which tok/s does not predict.
 CANDIDATES=(
   "ornith15-27b-coder|hf.co/mradermacher/Ornith-1.5-27B-A3B-Coder-GGUF:Q5_K_M|17.44|M|ornith1.5-27b-coder:q5km-ctx256k-agentic"
   "qwen36-27b-coder|hf.co/mradermacher/Qwen3.6-27B-A3B-Coder-GGUF:Q5_K_M|17.44|M|qwen3.6-27b-coder:q5km-ctx256k-agentic"
@@ -61,10 +67,9 @@ CANDIDATES=(
   "byteshape|hf.co/byteshape/Qwen3.6-35B-A3B-GGUF:Q4_K_S-4.22bpw|17.02|M|byteshape-qwen3.6-35b:q4ks-ctx256k-agentic"
   "signoffour-35b|hf.co/pragmaticcs/Qwen-35B-A3B-SignOfFour-Coder-GGUF:Q4_K_M|20.00|M|signoffour-coder:q4km-ctx256k-agentic"
   "kat-coder|hf.co/bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF:Q5_K_M|23.30|M|kat-coder-v2.5:q5km-ctx256k-agentic"
-  "qwen3.6-27b-dense|hf.co/unsloth/Qwen3.6-27B-GGUF:Q5_K_M|18.17|D|qwen3.6-27b-dense:q5km-ctx256k-agentic"
+  "occamy|hf.co/mradermacher/occamy-1.0-i1-GGUF:i1-Q4_K_M|19.71|M|occamy-1.0:q4km-ctx256k-agentic"
   "omnimerge-v4|hf.co/ManniX-ITA/Qwen3.6-27B-Omnimerge-v4-GGUF:Q5_K_M|17.91|D|omnimerge-v4:q5km-ctx256k-agentic"
   "omnimerge-v6|hf.co/mradermacher/Qwen3.8-27B-Omnimerge-v6-GGUF:Q5_K_M|18.19|D|omnimerge-v6:q5km-ctx256k-agentic"
-  "occamy|hf.co/mradermacher/occamy-1.0-i1-GGUF:i1-Q4_K_M|19.71|M|occamy-1.0:q4km-ctx256k-agentic"
 )
 
 say () { printf '\n\033[1m%s\033[0m\n' "$*" | tee -a "$LOG"; }
