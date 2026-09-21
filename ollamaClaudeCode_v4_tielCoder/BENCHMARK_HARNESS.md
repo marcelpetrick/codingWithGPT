@@ -502,6 +502,39 @@ Two traps the screen encodes because they have already bitten:
   supports is how you get a silent half-context, which is the same failure this repo documents
   for `CLAUDE_CODE_MAX_CONTEXT_TOKENS`.
 
+### 9d. What a 9-task subset can and cannot resolve — measured 2026-09-21
+
+`summarise.py` now prints a **95% Wilson interval** beside every rate (the discipline is
+borrowed from the r/LocalLLaMA tool-eval run, which published intervals over 5 seeds while we
+were reporting bare n=1 numbers). Running it over the existing data says something the bare
+rates hid:
+
+| model | rate | 95% CI |
+|---|---|---|
+| qwen3.6 | 59.3% | **[41, 75]** |
+| north-mini | 40.7% | [25, 59] |
+| tiel-coder | 40.7% | [25, 59] |
+| cyber-tiel | 29.6% | [16, 48] |
+
+**Those intervals overlap.** 27 trials on a 9-task scored subset give a half-width of roughly
+±18 points at p≈0.5, so this instrument cannot rank two models that sit within ~20 points of
+each other — it never could, and the round reported an ordering as though it could. The
+arithmetic, so nobody has to re-derive it:
+
+    n =  27 trials   ±19 points      (9 tasks x n=3 -- what we run)
+    n = 120 trials   ±9  points      (40 tasks x n=3, ~6 h per model)
+    n = 400 trials   ±5  points      (80 tasks x n=5, days)
+
+**What this subset is good for, and it is not nothing:** detecting a *large* gap (cascade-2
+finishing nothing, qwen3.8 at 4× the wall-clock), the **per-task grid** — which tasks a model
+can finish at all, which is a capability statement and not a rate — and **flips**, a model
+disagreeing with itself between seeds, which needs no cross-model comparison to be meaningful.
+
+**The rule:** when two models' intervals overlap, the round reports *"not separated"* and says
+what separating them would cost. It does not break the tie on the point estimate, and it does
+not move a standing slot. A slot changes hands on a **non-overlapping** interval, or on an axis
+that is measured rather than sampled — speed, footprint, context behaviour, vision.
+
 ---
 
 ## 10. Checklist for a new model

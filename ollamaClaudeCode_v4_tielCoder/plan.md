@@ -403,5 +403,11 @@ exists to split it across two windows.
    different quant house, 17.02 GiB against 22.29. If it matches the control within noise it
    reclaims 5 GB of VRAM; if it loses, our quant choice is vindicated and the rung is retired.
    Either way it is compared **only** against `qwen3.6:35b-a3b`.
-5. **Nothing is deleted from the box that this round did not pull**, and anything cut at G1 is
+5. **If the top two intervals overlap, the round reports "not separated" and slot 1 does not
+   move.** Added 2026-09-21, before the results, after computing the intervals on the existing
+   data: 9 scored tasks × n=3 is ±19 points at p≈0.5, and the 09-18 ordering (qwen3.6 [41,75]
+   vs Tiel [25,59]) was never statistically separated in the first place. The point estimate
+   does not break a tie. Separating a 15-point difference needs ~40 tasks × n=3 (±9), which is
+   a different round and is costed in `BENCHMARK_HARNESS.md` §9d.
+6. **Nothing is deleted from the box that this round did not pull**, and anything cut at G1 is
    deleted the same session so a shared disk is not held hostage by a rejected candidate.

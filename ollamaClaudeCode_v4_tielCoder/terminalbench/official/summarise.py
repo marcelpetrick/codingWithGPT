@@ -138,14 +138,45 @@ def main():
     }
     for arm in sorted({k[0] for k in agg}):
         print(f"\n== arm: {arm} ==\n   {ARM_NOTE.get(arm, '?')}")
-        print(f"\n{'model':44} {'solved':>10} {'rate':>7} {'void':>5} {'defect':>7} {'median_s':>9}")
+        print(f"\n{'model':44} {'solved':>10} {'rate':>7} {'95% CI':>15} "
+              f"{'void':>5} {'defect':>7} {'median_s':>9}")
         sub = {k[1]: v for k, v in agg.items() if k[0] == arm}
         for m, a in sorted(sub.items(), key=lambda kv: -(kv[1]["soln"] / max(kv[1]["n"], 1))):
             rate = a["soln"] / a["n"] * 100 if a["n"] else 0.0
             avg = a["sec"] / a["n"] if a["n"] else 0.0
+            lo, hi = wilson(a["soln"], a["n"])
+            ci = f"[{lo:.0f}, {hi:.0f}]"
             warn = "  <-- VOID trials, investigate" if a["void"] else ""
-            print(f"{m:44} {a['soln']:>4}/{a['n']:<5} {rate:>6.1f}% {a['void']:>5} "
-                  f"{a['defect']:>7} {avg:>9.0f}{warn}")
+            print(f"{m:44} {a['soln']:>4}/{a['n']:<5} {rate:>6.1f}% {ci:>15} "
+                  f"{a['void']:>5} {a['defect']:>7} {avg:>9.0f}{warn}")
+        print("\n   The interval is 95% Wilson. Two models whose intervals overlap "
+              "are not ranked by\n   this round -- on a 9-task scored subset that "
+              "is most of the field, which is the\n   point: the subset sizes the "
+              "question it can answer.")
+
+
+def wilson(k, n, z=1.96):
+    """95% Wilson score interval for a resolved rate, in percentage points.
+
+    Adopted 2026-09-21 from the r/LocalLLaMA tool-eval method (toTest.md §E),
+    which published confidence intervals over 5 seeds where we were running n=1
+    and n=3. The interval is the honest form of this round's most expensive
+    lesson: on a 10-task subset, n=1 put Tiel at 40% and CyberTiel at 20% while
+    n=3 put them at 37% and 27%. A rate printed without its width invites exactly
+    the reading that a single lucky sample deserves -- north-mini's 50% read as a
+    tie for the lead and settled at 41% once it was asked twice more.
+
+    Wilson rather than normal-approximation because n here is 9-30 trials and the
+    rates sit near 0.3-0.6, where the normal interval runs off the end of the
+    scale and reports impossible bounds.
+    """
+    if not n:
+        return (0.0, 0.0)
+    p = k / n
+    d = 1 + z * z / n
+    centre = (p + z * z / (2 * n)) / d
+    half = z * ((p * (1 - p) / n + z * z / (4 * n * n)) ** 0.5) / d
+    return (max(0.0, (centre - half)) * 100, min(1.0, (centre + half)) * 100)
 
 
 def _tok(v):
