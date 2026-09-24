@@ -158,8 +158,19 @@ for spec in "${CANDIDATES[@]}"; do
   GATES="-"
   if [ "$STAGE" = "all" ] || [ "$STAGE" = "gates" ]; then
     ./agentic-test.sh "$HOST" "$TAG" 2>&1 | tail -12 | tee -a "$LOG"
-    GATES=$(grep -oE '[0-9]+/10' "$LOG" | tail -1)
-    note "G2 gates: ${GATES:-unknown}"
+    # Count from the gate TSV itself: agentic-test.sh prints no "x/10" summary,
+    # and grepping the shared log for one read "unknown" (occamy, 2026-09-24).
+    GT="$HERE/results/agentic/$(echo "$TAG" | tr '/:' '__').tsv"
+    GP=$(awk -F'\t' 'NR>1 && $2=="PASS"' "$GT" 2>/dev/null | wc -l)
+    GN=$(awk -F'\t' 'NR>1' "$GT" 2>/dev/null | wc -l)
+    GATES="$GP/$GN"
+    note "G2 gates: $GATES"
+    # G2 is a GATE (>= 9/10); the screen used to record it and carry on.
+    if [ "$GN" -eq 0 ] || [ "$GP" -lt 9 ]; then
+      note "G2 FAIL -- not taken to the ledger session"
+      row "$NAME" "$CLASS" "$SRC" "$TAG" "$EXP" "$GOT" "$CTX" "$RES" "$VRAM" "PASS" "$GATES" "$GEN" "-" "-" "-" "CUT-G2" "$CAPS"
+      continue
+    fi
   fi
   [ "$STAGE" = "gates" ] && { row "$NAME" "$CLASS" "$SRC" "$TAG" "$EXP" "$GOT" "$CTX" "$RES" "$VRAM" "PASS" "$GATES" "$GEN" "-" "-" "-" "G2-only" "$CAPS"; continue; }
 

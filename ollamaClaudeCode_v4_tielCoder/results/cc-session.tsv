@@ -59,3 +59,5 @@ date	ollama	model	fixture	thinking	run	verdict	hidden	wall_s	warm_s	calls	turns	
 2026-09-17	0.33.3	nemotron-cascade-2:30b-ctx256k-agentic	hard	on	3	FAIL	3/18	467	1.7	54	54	101989	52888	190245	468.0	8.4	73.6	Bashx24,Readx21,Writex6,bashx1	0	-	tests still red (rc=0)
 2026-09-17	0.33.3	qwen3.8:27b-q4_K_M-ctx128k-agentic	easy	on	3	PASS	-	73	15.8	6	9	30558	1248	934	79.5	26.1	26.0	Bashx4,Readx3,Editx1	0	-	
 2026-09-17	0.33.3	qwen3.8:27b-q4_K_M-ctx128k-agentic	hard	on	3	PASS	18/18	787	3.3	12	17	164169	17642	37749	805.1	40.2	354.2	Bashx7,Readx6,Writex3	0	-	
+2026-09-24	0.33.3	occamy-1.0:q5km-ctx256k-agentic	hard	on	1	FAIL	3/18	178	14.3	1	1	-	-	0	0.0	0.0	175.0	-	0	-	tests still red (rc=1)
+2026-09-24	0.33.3	occamy-1.0:q5km-ctx256k-agentic	hard	on	2	FAIL	3/18	183	1.8	1	1	-	-	0	0.0	0.0	180.8	-	0	-	tests still red (rc=1)
