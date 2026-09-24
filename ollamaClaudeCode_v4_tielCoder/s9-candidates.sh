@@ -68,6 +68,13 @@ CANDIDATES=(
   "signoffour-35b|hf.co/pragmaticcs/Qwen-35B-A3B-SignOfFour-Coder-GGUF:Q4_K_M|20.00|M|signoffour-coder:q4km-ctx256k-agentic"
   "kat-coder|hf.co/bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF:Q5_K_M|23.30|M|kat-coder-v2.5:q5km-ctx256k-agentic"
   "occamy|hf.co/mradermacher/occamy-1.0-i1-GGUF:i1-Q4_K_M|19.71|M|occamy-1.0:q4km-ctx256k-agentic"
+  # Added 2026-09-24 from the web/reddit sweep: other vendors' A3B coders from
+  # toTest.md §B that were listed but never screened, plus Laguna XS 2.1 as a
+  # RE-test -- v3 cut it at 8/10 gates on 0.32.9, before thinking parity, so
+  # that verdict does not carry over to 0.33.3. Sizes from the registry manifest.
+  "glm47-flash|glm-4.7-flash:q4_K_M|17.71|M|glm-4.7-flash:q4km-ctx198k-agentic"
+  "qwen3-coder-30b|qwen3-coder:30b-a3b-q4_K_M|17.28|M|qwen3-coder:30b-q4km-ctx256k-agentic"
+  "laguna-xs21|laguna-xs-2.1:q4_K_M|18.88|M|laguna-xs-2.1:q4km-ctx256k-agentic"
   "omnimerge-v4|hf.co/ManniX-ITA/Qwen3.6-27B-Omnimerge-v4-GGUF:Q5_K_M|17.91|D|omnimerge-v4:q5km-ctx256k-agentic"
   "omnimerge-v6|hf.co/mradermacher/Qwen3.8-27B-Omnimerge-v6-GGUF:Q5_K_M|18.19|D|omnimerge-v6:q5km-ctx256k-agentic"
 )
