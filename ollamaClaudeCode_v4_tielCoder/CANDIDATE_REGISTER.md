@@ -54,13 +54,15 @@ has already been decided, and needs new evidence (not a new headline) to come ba
 | glm-4.7-flash (Z.ai 30B-A3B) | yes | January 2026. Behind qwen3.6 on Artificial Analysis (index 15 vs 18–19, 78 vs 120 tok/s). A long run of Ollama tool-call bugs | 2026-09-24 |
 | qwen3-coder:30b | yes | July 2025, no thinking mode, ~50 SWE-V. Superseded by qwen3.6 | 2026-09-24 |
 | Qwen3.6-27B dense | yes, dense | owner's call: the dense shape does not earn a slot | 2026-09-21 |
-| qwen3.8:27b (official) | yes, dense | **measured**: 18/18 but 787 s ledger median, 4× the field. Could reopen on Ollama 0.34.4, which adds Qwen3.8 prefill acceleration | v4 |
+| **"Qwen3.8-35B-A3B"** (suggested 2026-09-24 as "best speed-oriented Qwen3.8 MoE") | yes | **there is no official one**: no Qwen repo, no Ollama tag. What exists is `empero-ai/Qwen3.8-35B-A3B-Distill` (Sep 16, 133k GGUF downloads), a **community distill onto Qwen3.6-35B-A3B** claiming "internal Qwen3.8 teacher traces", which a third party cannot have. It reports MMLU/ARC only and no agentic numbers. Trained on **8,192-token examples**, and its own card says long context may be degraded, which is fatal at 256k agentic. Its HF tab: flagged as spam (6 upvotes), and "core reasoning is still heavily qwen3.6". Mirrors are abliterated/APEX variants of the same | 2026-09-24 |
+| qwen3.8:27b (official, dense), suggested 2026-09-24 as "best quality, Q5_K_M" | yes, dense | **measured**: 18/18 but 787 s ledger median, 4× the field. The suggestion's Terminal-Bench 2.1 73.0 is Qwen's own number on a "corrected" task set. A Q5_K_M quant makes a dense model **slower**, not faster, since decode is bandwidth-bound. Reopens only after the Ollama 0.34.4 upgrade (Qwen3.8 prefill acceleration), with one ledger run to check speed | v4, re-checked 2026-09-24 |
+| Qwen3.8-Flash-Next (125B-A6B), suggested 2026-09-24 | **no** | ~120 GB at Q4. Active parameters are small, but all the weights must be resident | 2026-09-24 |
 | nemotron-cascade-2:30b | yes | **measured**: fastest on the box, but drops one of two parallel tool calls 50% of the time, and ledger 0/3 | v3/v4 |
 | nemotron-3.5-lightning:30b | yes | **measured**: 13–14/18 held-out | v4 |
 | ornith:35b (1.0) | yes | **measured**: fast (47 s) but 16–18/18. Its 1.5 successor carries the tool-call reports above | v4 |
 | cyber-tiel:35b | yes | **measured**: abliterated Tiel, worse on Terminal-Bench (30%), sandbox required. Not for daily use | v4 |
 | muse-glimmer:30b, qwen3.6:27b-q8_0, granite4.2:30b, gemma4:31b-it | yes, dense | **measured**: 19–29 tok/s, the dense shape | v2/v3 |
 | Devstral Small 2 (24B dense) | yes, dense | dense. Four dense models here all ran 19–31 tok/s | v3 |
-| Kimi K2.x, GLM-5.x, Laguna S 2.1, Qwen3.8-Flash-Next, DeepSeek V4, Qwen3-Coder-480B | **no** | 118B–1T total. Does not fit 35.5 GB | v3/v4 |
+| Kimi K2.x, GLM-5.x, Laguna S 2.1, DeepSeek V4, Qwen3-Coder-480B | **no** | 118B–1T total. Does not fit 35.5 GB | v3/v4 |
 
 Sources for the 2026-09-24 decisions are listed in `ROUND_2026-09-24.md` § Sources.
