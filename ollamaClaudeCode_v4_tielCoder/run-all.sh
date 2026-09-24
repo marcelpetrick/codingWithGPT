@@ -6,8 +6,7 @@
 #   2. apply the deferred resume fix to GO_official_tb.sh  (unsafe while it runs)
 #   3. summarise + compare the two arms
 #   4. qwen3.6 at its VENDOR sampling setting, same subset  (plan.md §8.4b)
-#   5. screen the candidates                                (plan.md §8.3)
-#   6. Terminal-Bench for whatever the screen let through
+#   5-6. candidates: ranked, then one at a time via s10-one.sh (not here)
 #   7. summarise again
 #
 # One box, one model at a time, .67 only. `.37` is out of scope for this project
@@ -44,26 +43,15 @@ curl -s -m60 "$BASE/api/show" -d "{\"model\":\"$T06\"}" | python3 -c "import sys
 ( cd "$TBO" && TB_THINKING=on TB_PHASE=1 ./GO_official_tb.sh "$T06" ) 2>&1 | tail -20 | tee -a "$LOG"
 ( cd "$TBO" && TB_THINKING=on TB_PHASE=2 ./GO_official_tb.sh "$T06" ) 2>&1 | tail -20 | tee -a "$LOG"
 
-say "5/7 screening the candidates (pull -> fit -> gates -> turn economy)"
-./s9-candidates.sh --host "$HOST" 2>&1 | tail -40 | tee -a "$LOG"
-
-say "6/7 Terminal-Bench for whatever was screened in"
-SURVIVORS=$(python3 - <<'PY'
-import csv, pathlib
-p = pathlib.Path("results/candidates-2026-09-21.tsv")
-if p.exists():
-    with p.open() as f:
-        print(" ".join(r["baked_tag"] for r in csv.DictReader(f, delimiter="\t")
-                       if r.get("verdict") == "SCREENED-IN"))
-PY
-)
-if [ -n "${SURVIVORS// }" ]; then
-  say "    survivors: $SURVIVORS"
-  ( cd "$TBO" && TB_THINKING=on TB_PHASE=1 ./GO_official_tb.sh $SURVIVORS ) 2>&1 | tail -20 | tee -a "$LOG"
-  ( cd "$TBO" && TB_THINKING=on TB_PHASE=2 ./GO_official_tb.sh $SURVIVORS ) 2>&1 | tail -20 | tee -a "$LOG"
-else
-  say "    nothing was screened in -- no Terminal-Bench passes to run"
-fi
+# ---------------------------------------------------------------------------
+# 5-6. Candidates are NOT screened as a batch any more (changed 2026-09-24).
+# They are web-vetted and ranked first, then run ONE AT A TIME with
+# ./s10-one.sh <name>, best first, and the round document is updated and
+# committed after each -- so a result lands in the docs before the next model
+# is even pulled, and a candidate the evidence already rules out is never run.
+# ---------------------------------------------------------------------------
+say "5/7 candidates are driven one at a time by s10-one.sh (ranked order, ROUND_2026-09-24.md)"
+say "6/7 (see 5/7)"
 
 say "7/7 final summary"
 ( cd "$TBO" && ./summarise.py && ./compare-arms.py ) 2>&1 | tee -a "$LOG"
