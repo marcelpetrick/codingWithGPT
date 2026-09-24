@@ -43,7 +43,9 @@ say "4/7 baking $T06 and running it on the frozen subset"
 curl -s -m120 "$BASE/api/create" -d "{\"model\":\"$T06\",\"from\":\"qwen3.6:35b-a3b-q4_K_M-agentic\",\"parameters\":{\"num_ctx\":262144,\"temperature\":0.6,\"top_p\":0.95,\"top_k\":20,\"min_p\":0,\"presence_penalty\":0,\"repeat_penalty\":1.0},\"stream\":false}" >/dev/null
 curl -s -m60 "$BASE/api/show" -d "{\"model\":\"$T06\"}" | python3 -c "import sys,json;print('   baked:', (json.load(sys.stdin).get('parameters') or '?').replace(chr(10),' | '))" | tee -a "$LOG"
 ( cd "$TBO" && TB_THINKING=on TB_PHASE=1 ./GO_official_tb.sh "$T06" ) 2>&1 | tail -20 | tee -a "$LOG"
+python3 ./make-dashboard.py >/dev/null 2>&1
 ( cd "$TBO" && TB_THINKING=on TB_PHASE=2 ./GO_official_tb.sh "$T06" ) 2>&1 | tail -20 | tee -a "$LOG"
+python3 ./make-dashboard.py >/dev/null 2>&1
 
 # ---------------------------------------------------------------------------
 # 5-6. Candidates are NOT screened as a batch any more (changed 2026-09-24).

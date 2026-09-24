@@ -34,10 +34,12 @@ say "screen: $NAME"
 VERDICT=$(awk -F'\t' -v n="$NAME" '$2==n {v=$17; t=$5} END {print v"|"t}' "$TSV")
 TAG="${VERDICT#*|}"; VERDICT="${VERDICT%%|*}"
 say "verdict: ${VERDICT:-none}  tag: ${TAG:--}"
+python3 ./make-dashboard.py >/dev/null 2>&1   # dashboard follows every result
 
 if [ "$VERDICT" = "SCREENED-IN" ]; then
   say "Terminal-Bench n=1 then n=2 for $TAG"
   ( cd "$TBO" && TB_THINKING=on TB_PHASE=1 ./GO_official_tb.sh "$TAG" ) 2>&1 | tail -20 | tee -a "$LOG"
+  python3 ./make-dashboard.py >/dev/null 2>&1   # dashboard follows every result
   ( cd "$TBO" && TB_THINKING=on TB_PHASE=2 ./GO_official_tb.sh "$TAG" ) 2>&1 | tail -20 | tee -a "$LOG"
   ( cd "$TBO" && ./summarise.py ) 2>&1 | tee -a "$LOG"
 fi
