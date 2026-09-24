@@ -129,7 +129,16 @@ for spec in "${CANDIDATES[@]}"; do
   NATIVE=$(./s9-parse.py native "$BASE" "$SRC")
   CTX=$(./s9-parse.py clamp_ctx "$NATIVE")
   note "native window ${NATIVE} -> baking num_ctx ${CTX}, presence_penalty 0"
-  curl -s -m 600 "$BASE/api/create" -d "{\"model\":\"$TAG\",\"from\":\"$SRC\",\"parameters\":{\"num_ctx\":$CTX,\"presence_penalty\":0${SAMP:+,$SAMP}},\"stream\":false}" >/dev/null
+  # A hf.co GGUF brings its own Jinja chat template, and Ollama renders with it.
+  # occamy's raises "System message must be at the beginning" on the mid-
+  # conversation system content Claude Code sends -- every session died on a
+  # 500 before one token (2026-09-24). The qwen35moe family gets Ollama's own
+  # renderer and parser instead, exactly as our qwen3.6 control runs.
+  FAM=$(./s9-parse.py family "$BASE" "$SRC")
+  RP=""
+  [ "$FAM" = "qwen35moe" ] && RP='"renderer":"qwen3.5","parser":"qwen3.5",'
+  note "family ${FAM:-?} -> ${RP:+renderer/parser qwen3.5}${RP:-GGUF template}"
+  curl -s -m 600 "$BASE/api/create" -d "{\"model\":\"$TAG\",\"from\":\"$SRC\",\"parameters\":{\"num_ctx\":$CTX,\"presence_penalty\":0${SAMP:+,$SAMP}},${RP}\"stream\":false}" >/dev/null
 
   # ---- capabilities, before any claim about vision or tools ------------------
   CAPS=$(./s9-parse.py caps "$BASE" "$TAG")
@@ -178,6 +187,10 @@ for spec in "${CANDIDATES[@]}"; do
   ./cc-session.sh --host "$HOST" --port "$PORT" --fixture hard --runs 3 --thinking on "$TAG" 2>&1 | tail -15 | tee -a "$LOG"
   read -r MED HID <<< "$(./s9-parse.py ledger "$TAG")"
   VERDICT=$(./s9-parse.py verdict "$MED" "$HID")
+  SL="$(echo "$TAG" | tr '/:' '__')"
+  if [ "$(./s9-parse.py apierr "$HERE"/results/cc/"$SL"-hard-thinkon-r*.jsonl)" = "yes" ]; then
+    VERDICT="VOID-harness"; note "a session ended on an API error -- VOID, not a model result"
+  fi
   note "G3 ledger: median ${MED} s, hidden ${HID}/18 -> $VERDICT"
   row "$NAME" "$CLASS" "$SRC" "$TAG" "$EXP" "$GOT" "$CTX" "$RES" "$VRAM" "PASS" "$GATES" "$GEN" "-" "$MED" "$HID" "$VERDICT" "$CAPS"
 

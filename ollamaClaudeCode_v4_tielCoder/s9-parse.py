@@ -49,6 +49,30 @@ def native(base, tag):
     return "262144"
 
 
+def family(base, tag):
+    return _api(base, "/api/show", {"model": tag}).get("details", {}).get("family", "")
+
+
+def apierr(*paths):
+    """'yes' if any Claude Code session transcript ended on an API error.
+    Such a session never reached the model: it is VOID, not a FAIL -- occamy
+    scored '3/18' three times on 2026-09-24 without generating one token."""
+    import json
+    for path in paths:
+        try:
+            for line in open(path):
+                try:
+                    d = json.loads(line)
+                except ValueError:
+                    continue
+                if d.get("type") == "result" and d.get("is_error") \
+                        and "API Error" in str(d.get("result", "")):
+                    return "yes"
+        except OSError:
+            pass
+    return "no"
+
+
 def caps(base, tag):
     return ",".join(_api(base, "/api/show", {"model": tag}).get("capabilities", [])) or "none"
 
@@ -131,4 +155,5 @@ if __name__ == "__main__":
     cmd, args = sys.argv[1], sys.argv[2:]
     print({"gen": gen, "ledger": ledger, "verdict": verdict, "size": size,
            "native": native, "caps": caps, "ps": ps, "fit": fit,
-           "sizematch": sizematch, "clamp_ctx": clamp_ctx}[cmd](*args))
+           "sizematch": sizematch, "clamp_ctx": clamp_ctx,
+           "family": family, "apierr": apierr}[cmd](*args))
