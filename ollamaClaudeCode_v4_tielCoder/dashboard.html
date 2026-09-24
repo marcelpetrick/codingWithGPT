@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agentic Model Dashboard</title>
+<style>
+:root{--paper:#F6F7F9;--panel:#FFF;--ink:#131822;--muted:#5C6675;--rule:#DCE1E8;
+--good:#0F8A6B;--good-soft:#E2F1EC;--warn:#A57C0C;--warn-soft:#F5EEDC;--crit:#C6304F;--crit-soft:#FAE4E9;
+--ref:#3D5FC4;--ref-soft:#E5EAFA}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0E1218;--panel:#161B24;--ink:#E9EDF3;
+--muted:#8F99A8;--rule:#28303C;--good:#3FC79F;--good-soft:#123229;--warn:#E0B544;--warn-soft:#2E2812;
+--crit:#F06A86;--crit-soft:#361820;--ref:#7F9BF0;--ref-soft:#1B2340}}
+:root[data-theme="dark"]{--paper:#0E1218;--panel:#161B24;--ink:#E9EDF3;--muted:#8F99A8;--rule:#28303C;
+--good:#3FC79F;--good-soft:#123229;--warn:#E0B544;--warn-soft:#2E2812;--crit:#F06A86;--crit-soft:#361820;
+--ref:#7F9BF0;--ref-soft:#1B2340}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:1080px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:22px;margin:0 0 4px} h2{font-size:16px;margin:28px 0 8px}
+.muted{color:var(--muted)} .small{font-size:12px}
+.verdict{background:var(--good-soft);border-left:4px solid var(--good);padding:14px 16px;border-radius:8px;margin:16px 0}
+.verdict b{font-size:17px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:10px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:720px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip{display:inline-block;padding:1px 7px;border-radius:99px;font-size:12px;font-weight:600;margin:1px 0}
+.chip.good{background:var(--good-soft);color:var(--good)} .chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.crit{background:var(--crit-soft);color:var(--crit)}
+.cicell{min-width:160px}
+.ci{position:relative;height:14px;margin-top:5px;border-radius:7px;background:var(--rule)}
+.ci-range{position:absolute;top:0;bottom:0;background:var(--ref-soft);border:1px solid var(--ref);border-radius:7px}
+.ci-dot{position:absolute;top:1px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--ref)}
+ul{margin:6px 0;padding-left:20px}
+</style></head><body><main>
+<h1>Which model for agentic coding</h1>
+<div class="muted small">Ollama 0.33.3 on .67 &middot; Claude Code &middot; generated 2026-09-24 14:06 from results/ &middot; round document: ROUND_2026-09-24.md</div>
+
+<div class="verdict"><b>Use `tiel-coder:35b-q5-ctx256k-agentic` for agentic coding. qwen3.6 can be replaced.</b><div class="muted small">14:05, parity round complete. Holds until a candidate beats it.</div></div>
+
+<h2>The field on three axes</h2>
+<div class="panel"><table>
+<tr><th>model</th><th>speed<br>tok/s</th><th>speed<br>session</th><th>correctness<br>Terminal-Bench</th>
+<th>95% interval (0&ndash;100%)</th><th>quality<br>held-out tests per run</th></tr>
+<tr><td><b>Tiel-Coder 35B-A3B</b><div class='muted small'>context overflow is a visible error</div></td><td class='num'>107</td><td class='num'>83 s</td><td class='num'>37%<div class='muted small'>10/27 &middot; [22, 56]</div></td><td class='cicell'><div class="ci"><div class="ci-range" style="left:21.5%;width:34.2%"></div><div class="ci-dot" style="left:37.0%"></div></div></td><td><span class="chip good">18/18</span> <span class="chip good">18/18</span> <span class="chip good">18/18</span></td></tr><tr><td><b>Qwen3.6 35B-A3B</b><div class='muted small'>the incumbent; ran greedy (temp 0)</div></td><td class='num'>124</td><td class='num'>60 s</td><td class='num'>44%<div class='muted small'>12/27 &middot; [28, 63]</div></td><td class='cicell'><div class="ci"><div class="ci-range" style="left:27.6%;width:35.1%"></div><div class="ci-dot" style="left:44.4%"></div></div></td><td><span class="chip warn">17/18</span> <span class="chip warn">15/18</span> <span class="chip warn">16/18</span></td></tr><tr><td><b>Gemma4 26B-A4B</b><div class='muted small'>vision; smallest footprint</div></td><td class='num'>109</td><td class='num'>92 s</td><td class='num'>44%<div class='muted small'>12/27 &middot; [28, 63]</div></td><td class='cicell'><div class="ci"><div class="ci-range" style="left:27.6%;width:35.1%"></div><div class="ci-dot" style="left:44.4%"></div></div></td><td><span class="chip good">18/18</span> <span class="chip good">18/18</span> <span class="chip good">18/18</span></td></tr><tr><td><b>North-Mini-Code 1.0</b><div class='muted small'>fastest generation</div></td><td class='num'>136</td><td class='num'>126 s</td><td class='num'>33%<div class='muted small'>9/27 &middot; [19, 52]</div></td><td class='cicell'><div class="ci"><div class="ci-range" style="left:18.6%;width:33.5%"></div><div class="ci-dot" style="left:33.3%"></div></div></td><td><span class="chip good">18/18</span> <span class="chip warn">14/18</span> <span class="chip warn">17/18</span></td></tr>
+</table></div>
+<ul class="small muted">
+<li><b>speed</b>: generation tok/s (think off, temp 0), and median wall time of the ledger coding session (thinking on). Lower session time is better.</li>
+<li><b>correctness</b>: Terminal-Bench, 9 scored tasks (<i>nginx-request-logging</i> is defective and excluded), thinking on for every model, complete passes only. <b>Overlapping intervals are not a ranking.</b></li>
+<li><b>quality</b>: 18 held-out tests the model never sees. 18/18 means it implemented the spec, not just the visible tests.</li>
+</ul>
+
+<h2>Candidates: screened one at a time, best first</h2>
+<div class="panel"><table>
+<tr><th>candidate</th><th>verdict</th><th>GiB</th><th>VRAM GB</th><th>gates</th><th>tok/s</th><th>ledger s</th><th>hidden</th><th>note</th></tr>
+<tr><td colspan="9" class="muted">none finished yet</td></tr>
+</table></div>
+<p class="small muted">Still queued: occamy, kat-coder, byteshape, laguna-xs21. Ruled out on web evidence and never pulled: Ornith-27B-Coder, Qwen3.6-27B-A3B-Coder, KAT-Ornith, SignOfFour, both OmniMerges, glm-4.7-flash, qwen3-coder:30b (reasons in the round document).</p>
+</main></body></html>

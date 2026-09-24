@@ -41,4 +41,5 @@ if [ "$VERDICT" = "SCREENED-IN" ]; then
   ( cd "$TBO" && TB_THINKING=on TB_PHASE=2 ./GO_official_tb.sh "$TAG" ) 2>&1 | tail -20 | tee -a "$LOG"
   ( cd "$TBO" && ./summarise.py ) 2>&1 | tee -a "$LOG"
 fi
+python3 ./make-dashboard.py 2>&1 | tee -a "$LOG"
 say "S10-DONE $NAME $VERDICT"
