@@ -93,12 +93,15 @@ done
 # only when a pass finished, which makes it the completion marker. Passes that
 # were cut mid-way have no such file; move their directory aside (we keep them
 # under runs/void-killed-*) and the model is simply re-run clean.
-done_already () {  # <model> <runs> -> 0 if a COMPLETE pass exists for this arm
-  local slug arm d
+done_already () {  # <model> <runs> -> 0 only if the pass is genuinely COMPLETE
+  local slug arm d have want
   slug="$(echo "$1" | tr '/:' '__' | tr 'A-Z' 'a-z')"
   arm="think${TB_THINKING:-on}"
+  want=$(( ${#TASKS[@]} * $2 ))
   for d in "$OUT/$slug-$arm-n$2-"*; do
-    [ -f "$d/results.json" ] && return 0
+    [ -d "$d" ] || continue
+    have=$(find "$d" -mindepth 3 -name results.json 2>/dev/null | wc -l)
+    [ "$have" -ge "$want" ] && return 0
   done
   return 1
 }
