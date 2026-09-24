@@ -74,7 +74,7 @@ CANDIDATES=(
   "occamy|hf.co/Accio-Lab/occamy-1.0-GGUF:Q5_K_M|23.87|M|occamy-1.0:q5km-ctx256k-agentic|\"temperature\":0.6,\"top_p\":0.95,\"top_k\":20"
   "kat-coder|hf.co/bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF:Q5_K_M|23.30|M|kat-coder-v2.5:q5km-ctx256k-agentic|\"temperature\":1.0,\"top_p\":0.95"
   "byteshape|hf.co/byteshape/Qwen3.6-35B-A3B-GGUF:Q4_K_S-4.22bpw|17.86|M|byteshape-qwen3.6-35b:q4ks-ctx256k-agentic|\"temperature\":0.6,\"top_p\":0.95,\"top_k\":20,\"min_p\":0"
-  "laguna-xs21|laguna-xs-2.1:q4_K_M|18.88|M|laguna-xs-2.1:q4km-ctx256k-agentic"
+  "laguna-xs21|laguna-xs-2.1:q4_K_M|18.88|M|laguna-xs-2.1:q4km-ctx256k-agentic|\"temperature\":1.0,\"top_k\":20,\"top_p\":1.0"
 )
 
 say () { printf '\n\033[1m%s\033[0m\n' "$*" | tee -a "$LOG"; }
