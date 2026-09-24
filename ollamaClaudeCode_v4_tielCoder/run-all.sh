@@ -20,7 +20,9 @@ HOST="192.168.100.67"; BASE="http://$HOST:11434"
 say () { printf '\n\033[1m[%s] %s\033[0m\n' "$(date +%H:%M)" "$*" | tee -a "$LOG"; }
 
 say "1/7 waiting for the parity round to exit"
-while pgrep -f 'GO_official_tb\.sh' >/dev/null 2>&1; do sleep 60; done
+# anchored: the launching wrapper's command line contains 'GO_official_tb.sh'
+# too, and matching it deadlocked this step for 70 min on 2026-09-24
+while pgrep -f '^bash \./GO_official_tb\.sh' >/dev/null 2>&1; do sleep 60; done
 say "    parity round has exited"
 
 say "2/7 applying the deferred resume fix"

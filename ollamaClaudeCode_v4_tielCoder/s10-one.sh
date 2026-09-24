@@ -19,8 +19,12 @@ LOG="$HERE/results/s10-$NAME.log"
 say () { printf '\n\033[1m[%s] %s\033[0m\n' "$(date +%H:%M)" "$*" | tee -a "$LOG"; }
 
 say "waiting for the box: no other Terminal-Bench pass, screen or run-all step"
-while pgrep -f 'GO_official_tb\.sh|s9-candidates\.sh' >/dev/null 2>&1 \
-   || { pgrep -f 'run-all\.sh' >/dev/null 2>&1 && ! grep -q '5/7' results/run-all.log; }; do
+# Anchored on the interpreter: an unanchored -f pattern also matched a wrapper
+# whose command line merely MENTIONED the script, and deadlocked the chain
+# for 70 min on 2026-09-24 (ROUND_2026-09-24.md).
+BUSY='^bash \./(GO_official_tb|s9-candidates)\.sh'
+while pgrep -f "$BUSY" >/dev/null 2>&1 \
+   || { pgrep -f '^bash \./run-all\.sh' >/dev/null 2>&1 && ! grep -q '5/7' results/run-all.log; }; do
   sleep 60
 done
 
