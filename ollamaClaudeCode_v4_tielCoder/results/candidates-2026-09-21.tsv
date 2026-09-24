@@ -1,1 +1,2 @@
 date	name	class	source	baked_tag	gguf_gib	got_gib	ctx	resident_gb	vram_gb	fit	gates	gen_toks	prefill_toks	ledger_median_s	ledger_hidden	verdict	note
+2026-09-24	occamy	M	hf.co/Accio-Lab/occamy-1.0-GGUF:Q5_K_M	occamy-1.0:q5km-ctx256k-agentic	23.87	23.87	262144	32.45	32.45	PASS	9/10	-	-	113	18	SCREENED-IN	completion,vision,tools,thinking
