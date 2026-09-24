@@ -145,8 +145,21 @@ for spec in "${CANDIDATES[@]}"; do
   note "capabilities: ${CAPS:-none reported}"
 
   # ---- G1: does it stay on the GPU ------------------------------------------
-  curl -s -m 900 "$BASE/api/generate" -d "{\"model\":\"$TAG\",\"prompt\":\"hi\",\"stream\":false,\"options\":{\"num_predict\":1}}" >/dev/null
-  read -r RES VRAM <<< "$(./s9-parse.py ps "$BASE" "$TAG")"
+  # A model that did not LOAD is not a model that spilled. occamy read
+  # "resident 0 GB" on 2026-09-24, was booked as a spill and deleted, and the
+  # load error was thrown away. Keep the response, retry once, never delete.
+  for TRY in 1 2; do
+    LOADR=$(curl -s -m 900 "$BASE/api/generate" -d "{\"model\":\"$TAG\",\"prompt\":\"hi\",\"stream\":false,\"options\":{\"num_predict\":1}}")
+    read -r RES VRAM <<< "$(./s9-parse.py ps "$BASE" "$TAG")"
+    [ "${RES%.*}" != "0" ] && break
+    note "load attempt $TRY: not resident -- response: $(echo "$LOADR" | head -c 300)"
+    sleep 15
+  done
+  if [ "${RES%.*}" = "0" ]; then
+    note "G1 LOAD FAILURE -- not a spill; tags kept for diagnosis"
+    row "$NAME" "$CLASS" "$SRC" "$TAG" "$EXP" "$GOT" "$CTX" "$RES" "$VRAM" "FAIL" "-" "-" "-" "-" "-" "VOID-load" "$(echo "$LOADR" | tr '\t\n' '  ' | head -c 200)"
+    continue
+  fi
   FIT=$(./s9-parse.py fit "$RES" "$VRAM")
   note "resident ${RES} GB, vram ${VRAM} GB  -> G1 $FIT"
   if [ "$FIT" != "PASS" ]; then
