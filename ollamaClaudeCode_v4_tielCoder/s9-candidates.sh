@@ -67,6 +67,8 @@ mkdir -p "$HERE/results"
 #   glm-4.7-flash       January model, behind qwen3.6 on every independent
 #                       comparison, long history of Ollama tool-call bugs
 #   qwen3-coder-30b     July 2025, superseded by qwen3.6 on every 2026 comparison
+#   laguna-xs21         failed OUR tool gate (8/10, v3); no Ollama fix since, no
+#                       positive independent report -- CANDIDATE_REGISTER.md
 # The 6th field is the VENDOR sampler, baked into the tag. Claude Code sends no
 # temperature, so the baked value is what every trial runs at (ROUND_2026-09-21
 # defect 4). Empty = the vendor gives none; the library/GGUF default stands.
@@ -74,7 +76,6 @@ CANDIDATES=(
   "occamy|hf.co/Accio-Lab/occamy-1.0-GGUF:Q5_K_M|23.87|M|occamy-1.0:q5km-ctx256k-agentic|\"temperature\":0.6,\"top_p\":0.95,\"top_k\":20"
   "kat-coder|hf.co/bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF:Q5_K_M|23.30|M|kat-coder-v2.5:q5km-ctx256k-agentic|\"temperature\":1.0,\"top_p\":0.95"
   "byteshape|hf.co/byteshape/Qwen3.6-35B-A3B-GGUF:Q4_K_S-4.22bpw|17.86|M|byteshape-qwen3.6-35b:q4ks-ctx256k-agentic|\"temperature\":0.6,\"top_p\":0.95,\"top_k\":20,\"min_p\":0"
-  "laguna-xs21|laguna-xs-2.1:q4_K_M|18.88|M|laguna-xs-2.1:q4km-ctx256k-agentic|\"temperature\":1.0,\"top_k\":20,\"top_p\":1.0"
 )
 
 say () { printf '\n\033[1m%s\033[0m\n' "$*" | tee -a "$LOG"; }
