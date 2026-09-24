@@ -43,40 +43,38 @@ TSV="$HERE/results/candidates-2026-09-21.tsv"
 LOG="$HERE/results/s9.log"
 mkdir -p "$HERE/results"
 
-# name | source tag to pull | expected GiB (HF tree API, 2026-09-21) | class | baked tag
+# name | source tag to pull | expected GiB (HF tree API / registry manifest) | class | baked tag
 # Expected size is a GATE, not a note: Ollama resolves an hf.co tag to a file by
 # its quant label, and byteshape ships TWO files labelled Q4_K_S (3.80 and 4.22
 # bpw). Pulling the wrong one would silently put us below the 4-bit floor, and
 # nothing in /api/show says "this is the 3.8 bpw rung". The size does.
-# Order is the pull order, and it is a judgement recorded in plan.md §8.1c:
-# the 27B-A3B coders come first because they are the only class that is both
-# coder-post-trained AND cheap enough to leave the box shareable, and because one
-# of them is Tiel's own lineage. The dense 27Bs come last -- same parameter
-# budget, a quarter of the active parameters, and this box's one measured dense
-# 27B (qwen3.8) was four times too slow.
+# RANKED 2026-09-24 after a web sweep of every candidate (cards, community tabs,
+# independent measurements, Ollama issues) -- ROUND_2026-09-24.md has the
+# evidence. Best first; s10-one.sh runs them one at a time in this order.
+# Expected GiB now INCLUDES the vision projector where the repo ships one:
+# Ollama pulls it as a layer and /api/tags counts it (Tiel: 25.13 file, 25.61
+# listed), so without it the +-3% gate would cut a correct pull as a wrong rung.
 #
-# Qwen3.6-27B dense was REMOVED from the group on 2026-09-21 by the owner's call
-# -- the dense shape is not worth a slot on this box, and the A3B coder of the
-# same family (#2) answers the same question about that base without the
-# handicap. The two OmniMerges are the same dense shape and sit last: they are
-# kept only for their turn-economy claim, which tok/s does not predict.
+# Not run -- ruled out on the evidence, nothing pulled:
+#   ornith15-27b-coder  expert prune of Ornith-1.5, whose own tab reports broken
+#                       basic tool calls and looping; author's evals weakest at planning
+#   qwen36-27b-coder    community prune, NOT an official Qwen release; lowest
+#                       tool-eval score in its own author's table
+#   kat-ornith-35b      quant-only, source repo deleted, no card, no numbers
+#   signoffour-35b      unevaluated 4-way merge with a custom chat template
+#   omnimerge-v4/-v6    dense 27B merges; v4 leaks unclosed think tags by its
+#                       author's account; dense 27B is already 4x too slow here
+#   glm-4.7-flash       January model, behind qwen3.6 on every independent
+#                       comparison, long history of Ollama tool-call bugs
+#   qwen3-coder-30b     July 2025, superseded by qwen3.6 on every 2026 comparison
+# The 6th field is the VENDOR sampler, baked into the tag. Claude Code sends no
+# temperature, so the baked value is what every trial runs at (ROUND_2026-09-21
+# defect 4). Empty = the vendor gives none; the library/GGUF default stands.
 CANDIDATES=(
-  "ornith15-27b-coder|hf.co/mradermacher/Ornith-1.5-27B-A3B-Coder-GGUF:Q5_K_M|17.44|M|ornith1.5-27b-coder:q5km-ctx256k-agentic"
-  "qwen36-27b-coder|hf.co/mradermacher/Qwen3.6-27B-A3B-Coder-GGUF:Q5_K_M|17.44|M|qwen3.6-27b-coder:q5km-ctx256k-agentic"
-  "kat-ornith-35b|hf.co/mradermacher/KAT-Ornith-Coder-35B-A3B-GGUF:Q4_K_M|19.71|M|kat-ornith-coder:q4km-ctx256k-agentic"
-  "byteshape|hf.co/byteshape/Qwen3.6-35B-A3B-GGUF:Q4_K_S-4.22bpw|17.02|M|byteshape-qwen3.6-35b:q4ks-ctx256k-agentic"
-  "signoffour-35b|hf.co/pragmaticcs/Qwen-35B-A3B-SignOfFour-Coder-GGUF:Q4_K_M|20.00|M|signoffour-coder:q4km-ctx256k-agentic"
-  "kat-coder|hf.co/bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF:Q5_K_M|23.30|M|kat-coder-v2.5:q5km-ctx256k-agentic"
-  "occamy|hf.co/mradermacher/occamy-1.0-i1-GGUF:i1-Q4_K_M|19.71|M|occamy-1.0:q4km-ctx256k-agentic"
-  # Added 2026-09-24 from the web/reddit sweep: other vendors' A3B coders from
-  # toTest.md §B that were listed but never screened, plus Laguna XS 2.1 as a
-  # RE-test -- v3 cut it at 8/10 gates on 0.32.9, before thinking parity, so
-  # that verdict does not carry over to 0.33.3. Sizes from the registry manifest.
-  "glm47-flash|glm-4.7-flash:q4_K_M|17.71|M|glm-4.7-flash:q4km-ctx198k-agentic"
-  "qwen3-coder-30b|qwen3-coder:30b-a3b-q4_K_M|17.28|M|qwen3-coder:30b-q4km-ctx256k-agentic"
+  "occamy|hf.co/Accio-Lab/occamy-1.0-GGUF:Q5_K_M|23.87|M|occamy-1.0:q5km-ctx256k-agentic|\"temperature\":0.6,\"top_p\":0.95,\"top_k\":20"
+  "kat-coder|hf.co/bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF:Q5_K_M|23.30|M|kat-coder-v2.5:q5km-ctx256k-agentic|\"temperature\":1.0,\"top_p\":0.95"
+  "byteshape|hf.co/byteshape/Qwen3.6-35B-A3B-GGUF:Q4_K_S-4.22bpw|17.86|M|byteshape-qwen3.6-35b:q4ks-ctx256k-agentic|\"temperature\":0.6,\"top_p\":0.95,\"top_k\":20,\"min_p\":0"
   "laguna-xs21|laguna-xs-2.1:q4_K_M|18.88|M|laguna-xs-2.1:q4km-ctx256k-agentic"
-  "omnimerge-v4|hf.co/ManniX-ITA/Qwen3.6-27B-Omnimerge-v4-GGUF:Q5_K_M|17.91|D|omnimerge-v4:q5km-ctx256k-agentic"
-  "omnimerge-v6|hf.co/mradermacher/Qwen3.8-27B-Omnimerge-v6-GGUF:Q5_K_M|18.19|D|omnimerge-v6:q5km-ctx256k-agentic"
 )
 
 say () { printf '\n\033[1m%s\033[0m\n' "$*" | tee -a "$LOG"; }
@@ -91,7 +89,7 @@ row () {  # name class source tag exp got ctx res vram fit gates gen pre med hid
 
 # ---------------------------------------------------------------- per candidate
 for spec in "${CANDIDATES[@]}"; do
-  IFS='|' read -r NAME SRC EXP CLASS TAG <<< "$spec"
+  IFS='|' read -r NAME SRC EXP CLASS TAG SAMP <<< "$spec"
   if [ -n "$ONLY" ] && ! echo " $ONLY " | grep -q " $NAME "; then continue; fi
   say "=== $NAME  ($CLASS)  $SRC"
   if [ "$DRY" = 1 ]; then note "dry run: would pull, bake as $TAG, expect ${EXP} GiB"; continue; fi
@@ -130,7 +128,7 @@ for spec in "${CANDIDATES[@]}"; do
   NATIVE=$(./s9-parse.py native "$BASE" "$SRC")
   CTX=$(./s9-parse.py clamp_ctx "$NATIVE")
   note "native window ${NATIVE} -> baking num_ctx ${CTX}, presence_penalty 0"
-  curl -s -m 600 "$BASE/api/create" -d "{\"model\":\"$TAG\",\"from\":\"$SRC\",\"parameters\":{\"num_ctx\":$CTX,\"presence_penalty\":0},\"stream\":false}" >/dev/null
+  curl -s -m 600 "$BASE/api/create" -d "{\"model\":\"$TAG\",\"from\":\"$SRC\",\"parameters\":{\"num_ctx\":$CTX,\"presence_penalty\":0${SAMP:+,$SAMP}},\"stream\":false}" >/dev/null
 
   # ---- capabilities, before any claim about vision or tools ------------------
   CAPS=$(./s9-parse.py caps "$BASE" "$TAG")
