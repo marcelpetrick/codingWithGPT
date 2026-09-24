@@ -246,6 +246,20 @@ affiliation matches, four have no LinkedIn at all, and one cannot be identified.
 That distribution is itself the point: this is an academic literature, and more
 than half of it is not reachable on LinkedIn.
 
+### Round 7 additions (2026-09-24) — NOT CHECKED, do not tag
+
+Round 7 added one controlled study and several mechanism papers. **We did no
+author lookups for them.** Credit these authors by paper only; tagging any of them
+would be a guess.
+
+| Paper | Authors (from the arXiv page) | Status |
+|---|---|---|
+| *Guardrails Beat Guidance*, arXiv:2604.11088 (**S6**, the largest study) | Xing Zhang, Guanghui Wang, Yanwei Cui, Wei Qiu, Ziyuan Li, Bing Zhu, Peiyang He | **absent** — affiliation not verified |
+| *The Working Set of a Coding Agent*, arXiv:2608.16630 | Bardia Mohammadi, Lars Klein, Aman Chadha, Akhil Arora, Laurent Bindschaedler | **absent** |
+| *Harness-IF*, arXiv:2608.11727 | Zining Huang et al. (11 authors) | **absent** |
+| *Skill Issue*, arXiv:2609.12742 | Mykhailo Kozyrev, Andrei Kozyrev, Anton Podkopaev | **absent** |
+| *On Randomness in Agentic Evals*, arXiv:2602.07150 | Bjarni Haukur Bjarnason, André Silva, Martin Monperrus | **absent** |
+
 ---
 
 ## Institutions — low risk, easy to verify
@@ -270,8 +284,9 @@ and confirm the verified badge before tagging:
 > This review rests on work by Thibaud Gloaguen, Niels Mündler-Sasahara and
 > colleagues at the SRI Lab, ETH Zürich; Prakhar Khatri; Brian Sam-Bodden;
 > Asa Shepard and Jeannie Albrecht at Williams College; Kushal Chakrabarti;
-> Ali Arabat and Mohammed Sayagh; Damon McMillan at HxAI; and Jai Lal Lulla,
-> Sebastian Baltes, Christoph Treude and co-authors. All of it is open-access on
+> Ali Arabat and Mohammed Sayagh; Damon McMillan at HxAI; Xing Zhang and
+> colleagues; Bardia Mohammadi and colleagues; and Jai Lal Lulla, Sebastian
+> Baltes, Christoph Treude and co-authors. All of it is open-access on
 > arXiv, and the ETH harness is public under MIT. Any errors in the synthesis are
 > mine, not theirs.
 
@@ -297,7 +312,7 @@ whose own abstract states the nuance most commentary drops.
 **And do not flatten the one positive result into the story.** Shepard &
 Albrecht's paper reports a significant gain, and an earlier draft of this review
 would have had to be rewritten around it — which it was. A post that cites all
-five studies as if they agreed would misrepresent his, and his is the one that
+six studies as if they agreed would misrepresent his, and his is the one that
 made the argument honest.
 
 ---
@@ -416,7 +431,7 @@ academic email costs nothing:
 >
 > Dear Professor Albrecht,
 >
-> I've been putting together a review of whether repository context files help coding agents, and your paper with Asa Shepard is the only one of the five controlled studies I found that reports a significance-tested gain. The separation of coverage from precision is what let me reconcile it with the null results, rather than having to pick a side.
+> I've been putting together a review of whether repository context files help coding agents, and your paper with Asa Shepard is the only one of the six controlled studies I found with a significant head-to-head gain. The separation of coverage from precision is what let me reconcile it with the null results, rather than having to pick a side.
 >
 > Thank you for putting the code and the probes in the open.
 >

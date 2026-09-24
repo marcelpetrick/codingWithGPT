@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 An evidence review of whether `/init`-generated context files help coding agents.
 `whitepaper.md` is the synthesis, `paper.pdf`/`paper.tex` the 3-page paper,
-`LI.pdf`/`LI.html` a 6-slide carousel, `results.md` the full dossier, `evidence/`
+`LI.pdf`/`LI.html` a 5-slide LinkedIn carousel (1080×1350), `LI-post.md` its post text, `results.md` the full dossier, `evidence/`
 the primary extracts and verification logs. **These five must agree with each
 other** — a claim changed in one has to be changed in all of them, including the
 figures.
@@ -28,9 +28,12 @@ figures.
   real person's identity, and prefer an empty slot to a plausible guess.
 - **A confirmed absence of evidence is a result**, not a gap to paper over.
 - **The evidence base moves.** Round 5 (2026-09-20) found a controlled ablation
-  three earlier rounds had missed — it had been public for three months and it
-  overturned an inference in the TL;DR. Before trusting any count ("five
+  three earlier rounds had missed — public for three months, and it overturned an
+  inference in the TL;DR. Round 7 (2026-09-24) found another, the largest of all
+  (arXiv:2604.11088), public for five months. Before trusting any count ("six
   controlled ablations"), re-sweep. Assume the current version is incomplete.
+- **Check pairings, not just numbers.** Round 7 found every number in the AAIF
+  example correct and the comparison wrong: two figures from different tasks.
 - **Quote abstracts from the raw source.** `curl` the arXiv abstract page and read
   the `<blockquote class="abstract">`; for PDFs the fetch tool cannot decode, use
   `pdftotext`. Do not log a quotation that passed through a summarising model.
@@ -40,12 +43,13 @@ figures.
 ```bash
 python3 fig/make_figs.py                    # figures -> fig/*.pdf
 pdflatex paper.tex && pdflatex paper.tex    # -> paper.pdf (must stay <= 3 pages)
-chromium --headless --no-pdf-header-footer --print-to-pdf=LI.pdf LI.html
+chromium --headless --no-pdf-header-footer --print-to-pdf=LI.pdf LI.html   # 5 pages, 1080x1350
 ```
 
 `paper.tex` avoids `titlesec` and `enumitem` — neither is installed on this
-machine. Figure 1's height drives the paper's page count: growing it past
-~3.0 inches pushes the bibliography onto a fourth page.
+machine. Figure 1's height drives the paper's page count. It is 2.86 inches, and
+at that height page 3 is exactly full: any added line of prose, or a taller
+figure, pushes the bibliography onto a fourth page.
 
 **Every document here must pass the clear-writing check.**
 
@@ -53,7 +57,8 @@ machine. Figure 1's height drives the paper's page count: growing it past
 python3 tools/readability.py paper.tex     # .tex or .md; exits 1 if a target slips
 ```
 
-It measures sentence length, passive voice and word complexity, excluding
+It reads `.tex` and `.md` only; for `LI.html`, extract the slide text to a
+scratch `.md` first. It measures sentence length, passive voice and word complexity, excluding
 quotations (rewriting a quotation would misquote it). The paper states its own
 scores in §2 -- if you change the prose, re-run the tool and update those
 numbers, or the paper misreports itself.

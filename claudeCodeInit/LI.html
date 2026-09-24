@@ -2,232 +2,208 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Does /init actually help?</title>
+<title>Does /init help?</title>
+<!--
+  LinkedIn document carousel. 1080x1350 (4:5 portrait) fills the most screen in
+  the mobile feed. Type sizes assume the slide is shown ~400px wide on a phone,
+  so body text never drops below 34px here. Links inside the PDF are not
+  reliably clickable on LinkedIn, so the repository URL is printed as text.
+  Build: chromium --headless --no-pdf-header-footer --print-to-pdf=LI.pdf LI.html
+-->
 <style>
   :root{
-    --bg:#F1F6EC;
-    --bg2:#E7F0DE;
+    --bg:#F3F7EE;
     --surface:#FFFFFF;
     --ink:#13291C;
-    --ink2:#4A6152;
-    --ink3:#7B8F83;
-    --green900:#1E4A2E;
-    --green700:#2F6B41;
-    --green500:#54A06A;
+    --ink2:#3F5647;
+    --ink3:#6E8276;
+    --deep:#173D26;
+    --green:#2F6B41;
+    --mid:#54A06A;
     --mint:#8CC63F;
-    --rule:#D5E6C6;
+    --rule:#D3E3C4;
+    --warn:#B5541C;
   }
-  @page{ size:1080px 1080px; margin:0; }
+  @page{ size:1080px 1350px; margin:0; }
   *{ box-sizing:border-box; margin:0; padding:0; }
   html,body{ background:var(--bg); }
   body{ font-family:"Noto Sans","DejaVu Sans",sans-serif; color:var(--ink);
         -webkit-font-smoothing:antialiased; }
 
-  .slide{
-    width:1080px; height:1080px; position:relative; overflow:hidden;
-    background:var(--bg); padding:86px 88px 76px 88px;
-    display:flex; flex-direction:column;
-    page-break-after:always; break-after:page;
-  }
-  .slide:last-child{ page-break-after:auto; break-after:auto; }
+  .slide{ width:1080px; height:1350px; position:relative; overflow:hidden;
+          background:var(--bg); padding:92px 84px 150px;
+          display:flex; flex-direction:column;
+          break-after:page; }
+  .slide:last-child{ break-after:auto; }
+  .slide > *{ flex-shrink:0; }   /* an overfull slide must overflow visibly, not squash the bar */
 
-  /* decorative -- kept strictly behind content: absolutely-positioned elements
-     otherwise paint over the static blocks that follow them */
-  .blob,.corner{ z-index:0; }
-  .slide > *:not(.blob):not(.corner):not(.foot){ position:relative; z-index:1; }
-  .blob{ position:absolute; border-radius:50%; opacity:.5; }
-  .b1{ width:520px; height:520px; right:-170px; top:-190px;
-       background:radial-gradient(circle at 30% 30%, #DCEECA 0%, rgba(220,238,202,0) 70%); }
-  .b2{ width:420px; height:420px; left:-160px; bottom:-170px;
-       background:radial-gradient(circle at 60% 40%, #E3F1D6 0%, rgba(227,241,214,0) 72%); }
-  .corner{ position:absolute; right:0; top:0; width:0; height:0;
-           border-top:120px solid var(--mint); border-left:120px solid transparent; opacity:.20; }
+  .eyebrow{ font-size:24px; letter-spacing:.16em; text-transform:uppercase;
+            color:var(--green); font-weight:800; }
+  .bar{ width:110px; height:8px; background:var(--mint); border-radius:4px; margin-top:24px; }
 
-  .eyebrow{ font-size:20px; letter-spacing:.20em; text-transform:uppercase;
-            color:var(--green700); font-weight:700; }
-  .rule{ width:96px; height:7px; background:var(--mint); border-radius:4px; margin:26px 0 0; }
+  h1,h2{ font-weight:900; color:var(--deep); letter-spacing:-.022em; }
+  h1{ font-size:90px; line-height:1.02; margin-top:34px; }
+  h2{ font-size:74px; line-height:1.06; margin-top:30px; margin-bottom:36px; }
+  h1 .hl, h2 .hl{ color:var(--green); }
 
-  h1{ font-family:"DejaVu Serif",Georgia,serif; font-weight:700; color:var(--green900);
-      font-size:92px; line-height:1.03; letter-spacing:-.018em; }
-  h2{ font-family:"DejaVu Serif",Georgia,serif; font-weight:700; color:var(--green900);
-      font-size:66px; line-height:1.08; letter-spacing:-.012em; margin-top:30px; max-width:19ch; }
-  .sub{ font-size:31px; line-height:1.46; color:var(--ink2); margin-top:34px; max-width:30ch; }
+  .lede{ font-size:38px; line-height:1.4; color:var(--ink2); margin-top:30px; margin-bottom:28px; }
+  .lede b{ color:var(--ink); }
 
-  .bullets{ margin-top:auto; display:flex; flex-direction:column; gap:28px; }
-  .card{ background:var(--surface); border-radius:22px; padding:38px 42px 38px 40px;
-         border-left:12px solid var(--green500);
-         box-shadow:0 10px 30px rgba(31,74,46,.09); }
-  .card .k{ font-family:"DejaVu Serif",Georgia,serif; font-size:56px; font-weight:700;
-            color:var(--green700); line-height:1; }
-  .card .t{ font-size:31px; line-height:1.45; color:var(--ink); margin-top:14px; }
-  .card .t b{ color:var(--green900); }
-  .card.alt{ border-left-color:var(--mint); }
+  .stack{ display:flex; flex-direction:column; gap:26px; margin-top:auto; }
+  .card{ background:var(--surface); border-radius:24px; padding:36px 40px;
+         border-left:14px solid var(--mid); box-shadow:0 10px 30px rgba(23,61,38,.08); }
+  .card.no{ border-left-color:var(--warn); }
+  .card .k{ font-size:30px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+            color:var(--green); }
+  .card.no .k{ color:var(--warn); }
+  .card .t{ font-size:36px; line-height:1.4; margin-top:12px; }
+  .card .t b{ color:var(--deep); }
 
-  .foot{ position:absolute; z-index:1; left:88px; right:88px; bottom:44px;
-         display:flex; justify-content:space-between; align-items:center;
-         font-size:19px; color:var(--ink3); border-top:2px solid var(--rule); padding-top:18px; }
-  .foot .src{ max-width:74%; }
-  .num{ font-weight:700; color:var(--green700); }
+  .big{ font-size:150px; font-weight:900; line-height:1; color:var(--green);
+        letter-spacing:-.03em; margin-top:auto; }
+  .big small{ font-size:64px; font-weight:800; color:var(--ink3); letter-spacing:0; }
+  .bigcap{ font-size:38px; line-height:1.38; margin-top:18px; }
+  .bigcap b{ color:var(--deep); }
 
-  /* cover */
-  .cover{ background:linear-gradient(160deg,#F5F9F1 0%, #E4EFD8 100%); justify-content:center; }
-  .cover h1{ font-size:104px; margin-top:30px; }
-  .stat{ display:flex; gap:58px; margin-top:56px; }
-  .stat div .n{ font-family:"DejaVu Serif",Georgia,serif; font-size:62px; font-weight:700; color:var(--green700); line-height:1; }
-  .stat div .l{ font-size:21px; color:var(--ink2); margin-top:10px; letter-spacing:.02em; }
+  .answer{ background:var(--deep); color:#EAF4E0; border-radius:26px;
+           padding:42px 46px; margin-top:auto; }
+  .answer .q{ font-size:32px; font-weight:800; color:var(--mint); letter-spacing:.04em;
+              text-transform:uppercase; }
+  .answer .a{ font-size:58px; font-weight:900; line-height:1.1; margin-top:10px; color:#fff; }
+  .answer ul{ list-style:none; margin-top:28px; display:flex; flex-direction:column; gap:18px; }
+  .answer li{ font-size:33px; line-height:1.36; padding-left:42px; position:relative; }
+  .answer li::before{ content:""; position:absolute; left:0; top:17px; width:20px; height:20px;
+                      border-radius:50%; background:var(--mint); }
+  .answer li b{ color:var(--mint); }
 
-  .verdict{ margin-top:36px; background:var(--green900); color:#EAF4E0; border-radius:22px;
-            padding:38px 44px; font-size:34px; line-height:1.4; }
-  .verdict b{ color:var(--mint); }
-  .note{ margin-top:22px; background:#EAF3E0; border:2px solid var(--rule);
-         border-radius:16px; padding:20px 26px; font-size:21px; line-height:1.4;
-         color:var(--ink2); }
-  .slide.has-note{ padding-bottom:112px; }
-  .slide.has-verdict{ padding-bottom:118px; }
-  .slide.has-verdict h2{ font-size:58px; max-width:17ch; margin-top:24px; }
-  .slide.has-verdict .card{ padding:30px 34px 30px 32px; }
-  .slide.has-verdict .card .k{ font-size:44px; }
-  .slide.has-verdict .card .t{ font-size:27px; margin-top:11px; }
-  .slide.has-verdict .bullets{ gap:20px; }
-  .slide.has-verdict .verdict{ margin-top:24px; padding:26px 32px; font-size:29px; }
-  .slide.has-note h2{ font-size:58px; max-width:17ch; margin-top:24px; }
-  .slide.has-note .card{ padding:30px 34px 30px 32px; }
-  .slide.has-note .card .k{ font-size:44px; }
-  .slide.has-note .card .t{ font-size:27px; margin-top:11px; }
-  .slide.has-note .bullets{ gap:20px; }
-  .note b{ color:var(--green900); }
+  .note{ margin-top:26px; font-size:32px; line-height:1.4; color:var(--ink2);
+         border-top:3px solid var(--rule); padding-top:22px; }
+  .note b{ color:var(--ink); }
+
+  ol.todo{ list-style:none; counter-reset:n; margin-top:20px;
+           display:flex; flex-direction:column; gap:30px; }
+  ol.todo li{ counter-increment:n; font-size:38px; line-height:1.36; padding-left:84px;
+              position:relative; }
+  ol.todo li::before{ content:counter(n); position:absolute; left:0; top:-2px;
+                      width:58px; height:58px; border-radius:50%; background:var(--deep);
+                      color:#fff; font-weight:900; font-size:32px;
+                      display:flex; align-items:center; justify-content:center; }
+  ol.todo li b{ color:var(--deep); }
+
+  .link{ margin-top:auto; margin-bottom:0; background:var(--surface); border:3px solid var(--mint);
+         border-radius:24px; padding:30px 36px; }
+  .link .l1{ font-size:28px; color:var(--ink2); }
+  .link .l2{ font-size:33px; font-weight:800; color:var(--deep); margin-top:8px;
+             word-break:break-all; line-height:1.3; }
+
+  .foot{ position:absolute; left:84px; right:84px; bottom:52px;
+         display:flex; justify-content:space-between; align-items:flex-end; gap:40px;
+         font-size:24px; line-height:1.35; color:var(--ink3);
+         border-top:2px solid var(--rule); padding-top:20px; }
+  .foot .n{ font-weight:800; color:var(--green); white-space:nowrap; font-size:24px; }
 </style>
 </head>
 <body>
 
-<!-- 1 COVER -->
-<section class="slide cover">
-  <div class="blob b1"></div><div class="blob b2"></div>
+<!-- 1  THE ANSWER FIRST -->
+<section class="slide">
   <div class="eyebrow">Evidence review &middot; September 2026</div>
-  <div class="rule"></div>
-  <h1>Does <span style="color:var(--green700)">/init</span><br>actually help?</h1>
-  <div class="sub">What the research says about CLAUDE.md, AGENTS.md and every
-    other repo context file your coding agent loads.</div>
-  <div class="stat">
-    <div><div class="n">5</div><div class="l">controlled ablations</div></div>
-    <div><div class="n">15,549</div><div class="l">agentic PRs analysed</div></div>
-    <div><div class="n">247,694</div><div class="l">instruction lifetimes</div></div>
+  <div class="bar"></div>
+  <h1>Does <span class="hl">/init</span> make your AI coding agent better?</h1>
+  <div class="lede">What the controlled studies say about <b>CLAUDE.md</b>,
+    <b>AGENTS.md</b> and similar context files.</div>
+  <div class="answer">
+    <div class="q">Short answer</div>
+    <div class="a">Not reliably.</div>
+    <ul>
+      <li>No controlled study found a frontier agent <b>reliably solving more tasks</b> with one.</li>
+      <li>In the ETH Z&uuml;rich study it made each task <b style="white-space:nowrap">20&ndash;23% more</b> expensive.</li>
+      <li>The <b>rules</b> in the file get followed. The <b>codebase tour</b> does not help.</li>
+    </ul>
   </div>
-  <div class="foot"><span class="src">An independent review of the published evidence</span><span class="num">1 / 6</span></div>
+  <div class="foot"><span>6 controlled studies &middot; every number checked at the source</span><span class="n">1 / 5 &rarr;</span></div>
 </section>
 
-<!-- 2 FINDING -->
-<section class="slide has-note">
-  <div class="blob b1"></div><div class="corner"></div>
-  <div class="eyebrow">The headline</div>
-  <div class="rule"></div>
-  <h2>Your context file is two things. They have opposite signs.</h2>
-  <div class="bullets">
-    <div class="card">
-      <div class="k">Followed</div>
-      <div class="t"><b>Instructions work.</b> Name a tool in the file and the agent
-        uses it <b>1.6&times;</b> per task, versus under <b>0.01&times;</b> when unmentioned.</div>
-    </div>
-    <div class="card alt">
-      <div class="k">Ignored</div>
-      <div class="t"><b>Repository overviews do not.</b> The architecture tour
-        <b>/init</b> writes did not help agents find files any faster &mdash; and cost
-        <b>20&ndash;23%</b> more inference.</div>
-    </div>
-  </div>
-  <div class="note">Read the effect sizes with care: <b>~9% of outcomes flip between
-    byte-identical runs</b> at temperature zero &mdash; so most published numbers come from
-    designs that cannot resolve the effect they report.</div>
-  <div class="foot"><span class="src">Gloaguen et al., ETH Z&uuml;rich &mdash; arXiv:2602.11988 (ICLR 2026 workshop)</span><span class="num">2 / 6</span></div>
-</section>
-
-<!-- 3 MECHANISM -->
+<!-- 2  TWO FILES IN ONE -->
 <section class="slide">
-  <div class="blob b2"></div><div class="corner"></div>
-  <div class="eyebrow">Why overviews fail</div>
-  <div class="rule"></div>
-  <h2>Prose about code is a lossy picture of code.</h2>
-  <div class="bullets">
+  <div class="eyebrow">Finding 1</div>
+  <div class="bar"></div>
+  <h2>Your CLAUDE.md is really <span class="hl">two different files</span>.</h2>
+  <div class="stack">
     <div class="card">
-      <div class="k">4 / 45</div>
-      <div class="t">Behavioural questions a natural-language summary of a file can
-        answer. <b>The source itself answers 27 / 45.</b></div>
+      <div class="k">Rules &rarr; followed</div>
+      <div class="t">Name a tool in the file and the agent uses it <b>1.6&times; per task</b>.
+        Leave it out: <b>under 0.01&times;</b>.</div>
     </div>
-    <div class="card alt">
-      <div class="k">No fix</div>
-      <div class="t">A frontier model's summary scores <b>exactly as poorly</b> as a
-        3B model's. The loss is in the representation &mdash; you cannot write your way out of it.</div>
+    <div class="card no">
+      <div class="k">Codebase tour &rarr; no help</div>
+      <div class="t">Overviews did not help agents find the right file any faster.
+        A summary of code answers <b>4 of 45</b> questions about what it does.
+        The code itself answers <b>27</b>.</div>
     </div>
   </div>
-  <div class="foot"><span class="src">Sam-Bodden &mdash; arXiv:2607.09691, oracle-localized ablation on SWE-bench Verified</span><span class="num">3 / 6</span></div>
+  <div class="note">Better writing won&rsquo;t fix it: a frontier model&rsquo;s summaries
+    scored <b>as poorly as a small 3B model&rsquo;s</b>.</div>
+  <div class="foot"><span>Gloaguen et al., ETH Z&uuml;rich, arXiv:2602.11988 &middot; Sam-Bodden, arXiv:2607.09691</span><span class="n">2 / 5 &rarr;</span></div>
 </section>
 
-<!-- 4 RATCHET -->
+<!-- 3  THE SURPRISE -->
 <section class="slide">
-  <div class="blob b1"></div><div class="corner"></div>
-  <div class="eyebrow">The ratchet</div>
-  <div class="rule"></div>
-  <h2>These files only ever grow.</h2>
-  <div class="bullets">
-    <div class="card">
-      <div class="k">+226%</div>
-      <div class="t">Growth over a context file's lifetime &mdash; a net
-        <b>+4.9 instructions per commit</b>, across 1,867 repositories.</div>
-    </div>
-    <div class="card alt">
-      <div class="k">Stuck</div>
-      <div class="t">The older a line gets, the <b>less likely</b> anyone deletes it.
-        Adding is cheap; proving a deletion is safe is not. <b>Catastrophic remembering.</b></div>
+  <div class="eyebrow">Finding 2 &middot; the surprise</div>
+  <div class="bar"></div>
+  <h2>Random rules scored <span class="hl">as well as expert ones</span>.</h2>
+  <div class="big">50 &rarr; 64%</div>
+  <div class="bigcap">of borderline tasks solved by Claude Code (Opus&nbsp;4.6) &mdash;
+    with <b>curated rules</b> and with <b>random rules</b> alike.</div>
+  <div class="stack" style="margin-top:40px">
+    <div class="card no">
+      <div class="k">The fine print</div>
+      <div class="t">58 of 500 tasks, one run each, no single result significant.
+        Over the full benchmark: about <b>+1.6 points</b>. Having <i>a</i> file may
+        nudge the agent. <b>What it says didn&rsquo;t matter.</b></div>
     </div>
   </div>
-  <div class="foot"><span class="src">Chakrabarti &mdash; arXiv:2608.11095, 247,694 instruction lifetimes</span><span class="num">4 / 6</span></div>
+  <div class="note">And <b>~9% of results flip</b> between two identical runs. Most
+    published numbers can&rsquo;t tell a gain from luck.</div>
+  <div class="foot"><span>Zhang et al., arXiv:2604.11088 &middot; noise: Sam-Bodden, arXiv:2607.09691</span><span class="n">3 / 5 &rarr;</span></div>
 </section>
 
-<!-- 5 THE EXCEPTION -->
-<section class="slide has-note">
-  <div class="blob b1"></div><div class="corner"></div>
-  <div class="eyebrow">When it does work</div>
-  <div class="rule"></div>
-  <h2>One thing did beat the noise.</h2>
-  <div class="bullets">
-    <div class="card">
-      <div class="k">25.5 &rarr; 33.0%</div>
-      <div class="t">Tasks resolved, after the guidance file was <b>tuned against the
-        agent&rsquo;s own failures</b> &mdash; four trials, <b>p&lt;0.001</b>. The untuned
-        starting file gained <b>2.8 pts</b>, which the paper doesn&rsquo;t test.</div>
-    </div>
-    <div class="card alt">
-      <div class="k">Coverage</div>
-      <div class="t">The gain was <b>finding the right file</b> (+14.5 pts), not writing
-        a better patch &mdash; patch quality never moved. And it was measured on an
-        <b>open 35B model</b>, not a frontier agent.</div>
+<!-- 4  WHAT DID HELP -->
+<section class="slide">
+  <div class="eyebrow">Finding 3</div>
+  <div class="bar"></div>
+  <h2>What measurably helped: <span class="hl">writing down the agent&rsquo;s mistakes</span>.</h2>
+  <div class="big">25.5 &rarr; 33%</div>
+  <div class="bigcap">of tasks solved, after the guidance file was <b>tuned against the
+    agent&rsquo;s own failures</b>. Four repeated trials, p&nbsp;&lt;&nbsp;0.001.</div>
+  <div class="stack" style="margin-top:40px">
+    <div class="card no">
+      <div class="k">The fine print</div>
+      <div class="t">It helped the agent <b>find the right file</b>, not write better fixes.
+        And it was an <b>open 35B model</b>, not Claude or Codex &mdash; nobody has tried
+        it on a frontier agent yet.</div>
     </div>
   </div>
-  <div class="note">So write down <b>what the agent got wrong</b>, not what your
-    repository contains. The weaker your model, the more this matters.</div>
-  <div class="foot"><span class="src">Shepard &amp; Albrecht &mdash; arXiv:2606.20512, SWE-bench Verified, 4 trials</span><span class="num">5 / 6</span></div>
+  <div class="foot"><span>Shepard &amp; Albrecht, arXiv:2606.20512 &middot; SWE-bench Verified</span><span class="n">4 / 5 &rarr;</span></div>
 </section>
 
-<!-- 6 ACTION -->
-<section class="slide has-verdict">
-  <div class="blob b2"></div><div class="corner"></div>
+<!-- 5  WHAT TO DO -->
+<section class="slide">
   <div class="eyebrow">What to do on Monday</div>
-  <div class="rule"></div>
-  <h2>Run it. Then delete most of it.</h2>
-  <div class="bullets">
-    <div class="card">
-      <div class="k">Keep</div>
-      <div class="t">Only what the repo <b>cannot tell the agent itself</b>: non-obvious
-        commands, gotchas, prohibitions, and every mistake you have had to correct twice.</div>
-    </div>
-    <div class="card alt">
-      <div class="k">Move</div>
-      <div class="t">Enforcement into <b>hooks</b>. Procedures into <b>skills</b>.
-        Module detail into <b>subdirectory files</b>. Then cut the architecture tour.</div>
-    </div>
+  <div class="bar"></div>
+  <h2>Run it. Then <span class="hl">delete most of it</span>.</h2>
+  <ol class="todo">
+    <li>Run <b>/init</b> once, as a draft.</li>
+    <li><b>Delete the architecture tour.</b></li>
+    <li>Keep only what the repo <b>can&rsquo;t tell the agent</b>: commands, gotchas, &ldquo;do not&rdquo; rules.</li>
+    <li>Each time the agent repeats a mistake, <b>add one line</b>.</li>
+    <li><b>Prune.</b> A stale line is worse than none: agents follow the file over the code.</li>
+  </ol>
+  <div class="link">
+    <div class="l1">Full review, all sources and the verification log:</div>
+    <div class="l2">github.com/marcelpetrick/codingWithGPT/tree/master/claudeCodeInit</div>
   </div>
-  <div class="verdict">The practice is sound. <b>The default artefact is not.</b></div>
-  <div class="foot"><span class="src">Full dossier, sources and verification log in the repository</span><span class="num">6 / 6</span></div>
+  <div class="foot"><span>Marcel Petrick &middot; with Claude</span><span class="n">5 / 5</span></div>
 </section>
 
 </body>

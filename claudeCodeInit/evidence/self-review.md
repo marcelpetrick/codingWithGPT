@@ -2,7 +2,8 @@
 
 Critical re-reading of the review's own claims, looking for places where it
 overstates its evidence. Round 1 is the original pass; the round-5 entry was added
-on 2026-09-20 after new evidence falsified an inference.
+on 2026-09-20 after new evidence falsified an inference, and the round-7 entries on
+2026-09-24.
 
 ## Corrections applied (round 1)
 
@@ -22,6 +23,19 @@ on 2026-09-20 after new evidence falsified an inference.
 finding a paper that contradicted it. Three rounds of search had missed
 [arXiv:2606.20512](https://arxiv.org/abs/2606.20512) for three months. The
 self-review process found the round-1 errors; it did **not** find this one.*
+
+## Corrections applied (round 7, 2026-09-24)
+
+| # | Problem | Fix |
+|---|---|---|
+| 5 | The AAIF example was presented as *"same task, same setup"*: one run 44% slower / 41% more expensive, five-run median 27% faster / 24% cheaper. **Those are two different tasks.** The 44%/41% came from the author's first single-run attempt on the harder, multi-file task; 27%/24% is the five-run median on the other, ambiguous task. The same-task five-run median is *"9 to 10%"* better. | Every artefact now pairs 44%/41% with 9–10%. The point survives — one run pointed the wrong way — but the numbers we used to make it did not. Caught by re-reading the primary source, not the dossier. |
+| 6 | Finding 1 said no controlled study had found a frontier agent solving more tasks with a context file. Zhang et al. ([arXiv:2604.11088](https://arxiv.org/abs/2604.11088), public since April, missed by six rounds) report +6.9–13.8 pp on Claude Code + Opus 4.6. | Reworded to *"not reliably"*. The gain is on a 58-task borderline subset, no single contrast is significant, and it dilutes to ≈+1.6 pp over all 500 tasks (our arithmetic) — and random rules tie curated ones. The study is added as S6 and to figure 1 as its own labelled group, so it is not read against full-benchmark effects. |
+| 7 | *"Anthropic's own unreleased `/init`."* It is now documented (memory docs) as an opt-in via `CLAUDE_CODE_NEW_INIT=1`, still off by default in v2.1.282. | Reworded to "new, opt-in" everywhere. |
+| 8 | The dossier said Codex *"also reads `CLAUDE.md`"*. The current Codex docs list only `AGENTS.override.md`, `AGENTS.md` and user-configured fallback names. | Removed. |
+
+*As in round 5, the biggest change came from a paper found late, not from
+re-reading. The count "five controlled ablations" was wrong for the review's
+entire public life.*
 
 ## Verified by recomputation
 

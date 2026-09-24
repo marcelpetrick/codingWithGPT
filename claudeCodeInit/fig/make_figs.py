@@ -32,6 +32,13 @@ def despine(ax, keep=("left","bottom")):
 BAND   = "#e9e9e4"                                     # reference band: neutral, recessive
 
 groups = [
+    # Zhang et al. keep only the 58 of 500 tasks the agent solves 1-2 times in 3,
+    # so these effects are not comparable with the full-benchmark rows above:
+    # over all 500 tasks they dilute to ~+1.6 pp. Neither contrast is significant.
+    ("Borderline tasks only (58 of 500), single run", [
+        ("Random rules, Opus 4.6",        +13.8, "Zhang",   "p=0.077"),
+        ("Curated rules, Opus 4.6",       +13.8, "Zhang",   "p=0.115"),
+    ]),
     ("Single run per instance \u2014 not resolvable", [
         ("AGENTbench, LLM-written",       -2.0, "Gloaguen", ""),
         ("SWE-bench Lite, LLM-written",   -0.5, "Gloaguen", ""),
@@ -48,11 +55,11 @@ groups = [
     ]),
 ]
 
-fig, ax = plt.subplots(figsize=(3.34, 2.70))
+fig, ax = plt.subplots(figsize=(3.34, 2.86))
 ax.axvspan(-9, 9, color=BAND, lw=0, zorder=0)
 ax.axvline(0, color=MUTED, lw=0.7, zorder=1)
 
-COLOR = {"Gloaguen": BLUE, "Khatri": ORANGE, "Shepard": AQUA}
+COLOR = {"Gloaguen": BLUE, "Khatri": ORANGE, "Shepard": AQUA, "Zhang": "#eda100"}
 GAP = 0.85                              # blank row between the two design blocks
 ticks, labels, heads = [], [], []
 y = 0.0
@@ -76,7 +83,7 @@ for gi, (gname, rows) in enumerate(groups):
     y += GAP
 
 ax.set_yticks(ticks); ax.set_yticklabels(labels, fontsize=6.6)
-ax.set_xlim(-13.5, 17.0); ax.set_ylim(-0.75, y - GAP + 1.5)
+ax.set_xlim(-13.5, 23.5); ax.set_ylim(-0.75, y - GAP + 1.95)
 ax.set_xlabel("Change in task success (percentage points)", fontsize=7)
 ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:+.0f}"))
 ax.grid(axis="x", color=GRID, lw=0.5, zorder=0); ax.set_axisbelow(True)
@@ -85,14 +92,14 @@ despine(ax)
 for hy, gname in heads:
     ax.annotate(gname, xy=(-13.1, hy), ha="left", va="center",
                 fontsize=6.2, color=MUTED, style="italic")
-ax.annotate("per-instance flip rate (\u00b19 pp)", xy=(0, y - GAP + 1.05),
+ax.annotate("per-instance flip rate (\u00b19 pp)", xy=(0, y - GAP + 1.45),
             ha="center", fontsize=6.3, color="#6b6a65", style="italic")
 
 h = [plt.Line2D([], [], marker="o", ls="", color=COLOR[k], ms=5, label=v)
      for k, v in (("Gloaguen", "Gloaguen et al."), ("Khatri", "Khatri"),
-                  ("Shepard", "Shepard & Albrecht"))]
-ax.legend(handles=h, fontsize=6.2, frameon=False, loc="lower right",
-          handletextpad=.3, borderaxespad=.2)
+                  ("Shepard", "Shepard & Albrecht"), ("Zhang", "Zhang et al."))]
+ax.legend(handles=h, fontsize=6.2, frameon=False, loc="center right",
+          handletextpad=.3, borderaxespad=.2, bbox_to_anchor=(1.0, 0.42))
 fig.savefig("fig/fig1_forest.pdf"); plt.close(fig)
 
 # ---------------------------------------------------------------- Figure 2

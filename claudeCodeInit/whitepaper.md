@@ -1,462 +1,407 @@
-# Does `/init` Help? A Meta-Study of Repository Context Files for Coding Agents
+# Does `/init` Help? What the Evidence Says About CLAUDE.md and AGENTS.md
 
-**Marcel Petrick** · **Claude Opus 5**
-19 September 2026 · revised 20 September 2026
+**Marcel Petrick** · **Claude** (Opus 5; revised with Opus 5.5)
+First published 19 September 2026 · this version 24 September 2026
 
----
-
-## TL;DR
-
-**Running `/init` and keeping a `CLAUDE.md` does not reliably make a frontier
-coding agent succeed more often.** Across the controlled ablations that measured
-success, the effect runs from −5.9% to +4%. Every one of those numbers is smaller
-than the ~9% of outcomes that flip between *byte-identical* runs at temperature
-zero. Most of them come from designs that ran each task once, so they are not
-measurements at all.
-
-**One design does find a gain, and it is instructive.** It repeated its trials and
-tested significance: **+7.5 pp** on an open mid-size model. But the gain appeared
-only after the authors **tuned the guidance against the agent's own failures** —
-and it came from reaching the right file, not from writing a better patch.
-
-**Cost is the one effect clearly above the noise.** Context files raise inference
-cost by 20–23%.
-
-**The file is two artefacts with opposite signs.** Agents follow **instructions**:
-a tool named in the file gets used 1.6× per task, against under 0.01× when it goes
-unmentioned. Agents gain nothing from a **repository overview**, because prose
-about code answers 4 of 45 behavioural questions where the source answers 27.
-
-**`/init` still earns its place for reasons that were never about task success** —
-onboarding, team documentation, and migrating Cursor and Copilot rules. Meanwhile
-the performance case for a large always-loaded file has eroded, because Claude
-Code grew hooks, skills, subagents and path-scoped rules that hold the same
-content more cheaply.
-
-> **Run `/init`, delete the architecture tour, and keep only what the repository
-> cannot tell the agent itself.**
+Repository: [github.com/marcelpetrick/codingWithGPT/tree/master/claudeCodeInit](https://github.com/marcelpetrick/codingWithGPT/tree/master/claudeCodeInit)
 
 ---
 
-## 1. The question
+## The answer in five points
 
-Claude Code ships a `/init` command that reads a repository and writes a
-`CLAUDE.md`. The agent then loads that file into every later session, in every project,
-forever. Practitioners disagree sharply about whether this is leverage or
-clutter. This study asks what the evidence actually shows, and — when the answer
-turned out to be "not much" — why the feature exists at all.
+Claude Code's `/init` command reads your repository and writes a `CLAUDE.md`
+file. From then on, the agent loads that file at the start of every session.
+Codex, Copilot, Cursor and most other coding agents have the same idea under
+another name, usually `AGENTS.md`. We read every controlled study we could find
+on whether these files work. Here is what they show.
 
-## 2. Method
+1. **It does not reliably make a frontier agent solve more tasks.** No controlled
+   study has shown Claude Code, Codex or a similar agent reliably solving more
+   tasks with a context file. On full benchmarks the effects run from −5.9 to +4
+   percentage points, all within chance. The one hint of a gain is odd: random
+   rules helped exactly as much as expert-written ones. So whatever helps, it is
+   not what the file says.
 
-Three rounds of research, ten parallel agents, plus two local primary-source
-efforts. Round 1 mapped the field (academic literature, vendor documentation,
-practitioner grey literature, cross-harness comparison, context economics).
-Round 2 closed the gaps round 1 exposed: reading the **full text** of every
-controlled study rather than its abstract, hunting for work round 1 missed, and
-independently re-verifying the pricing that the cost analysis rests on. Round 3
-asked the historical question — why does `/init` exist, and has its value decayed?
+2. **It does cost more.** In the ETH Zürich study, a context file made each task
+   20–23% more expensive, because the agent took extra steps. In money this is
+   small: a large file costs about 12 cents over a long session.
 
-**Two further rounds followed first publication.** Round 4 (2026-09-20) verified
-the authorship behind every cited paper (`whitepaper_authors.md`). Round 5, the
-same day, re-swept the literature with a restored search budget and found three
-relevant papers the earlier rounds had missed — including a fifth controlled
-ablation that **falsified an inference in the original TL;DR** (§4, and
-`evidence/self-review.md` entry 4).
+3. **The file is really two files, and only one of them works.** Agents follow
+   **rules**: name a tool in the file and the agent uses it 1.6 times per task,
+   against almost never when you leave it out. Agents gain nothing from a
+   **tour of the codebase**. A written summary of code answers 4 of 45 questions
+   about what the code does; the code itself answers 27.
 
-We produced two things locally rather than searching for them:
+4. **One thing did measurably help: writing down the agent's mistakes.** When
+   researchers tuned the file against the agent's own failures, tasks solved
+   rose from 25.5% to 33.0%, in four repeated trials. But it helped the agent find
+   the right file, not write a better fix. And it was an open 35B model, not a
+   frontier agent.
 
-- **Binary extraction.** We mined the shipped Claude Code executable (v2.1.278)
-  with `strings` and byte-offset reads, recovering the literal `/init` prompt, an
-  unreleased second `/init` gated behind a feature flag, the CLAUDE.md audit
-  doctrine, and the exact loading semantics. This is the artefact itself, not
-  documentation about it, and it proved decisive.
-- **Corpus measurement.** We measured all 35 agent instruction files under
-  `~/repos` (median ≈1,590 tokens, p90 ≈3,300, max ≈6,800).
+5. **These files only grow, and a stale file is worse than none.** Across 1,867
+   repositories, context files grow by 226% over their life, and old lines are
+   almost never deleted. When the file and the code disagree, agents follow the
+   file, even when it describes the worse code.
 
-**Verification discipline.** We did not trust subagent output. We re-fetched every
-load-bearing paper from arXiv and checked it against what the pass reported. This
-caught: two passes reporting **incompatible** numbers from the same paper body;
-one pass reporting **p-values that do not exist** in the paper it cited; one pass
-**dismissing a real paper** as an untraceable mis-citation; two widely-circulated
-statistics that are **fabricated**; and one vendor figure that **cannot be found
-in its own source**. `evidence/verification-log.md` records all of them. A
-detailed self-review (`evidence/self-review.md`) corrected three overstatements in
-our own first draft.
+> **What to do:** run `/init` once as a draft. Delete the architecture tour. Keep
+> only what the repository cannot tell the agent itself, and add a line each time
+> the agent makes the same mistake twice.
 
-## 3. The evidence base
+---
 
-**Five** controlled ablations of this exact question exist. All are 2026
-preprints or workshop papers. None is journal-published. **None has been
-replicated, and none has been formally rebutted.**
+## What to do on Monday
 
-| Study | Design | Scale | Measured | Result |
-|---|---|---|---|---|
-| **Gloaguen et al.**, ETH Zürich, ICLR 2026 workshop (Oral, Runner-up Best Paper) | 4 agent/model combos × 3 conditions × 2 benchmarks. **Single run per instance; no significance testing; success reported only as bar charts.** | 300 + 138 instances | success, steps, cost | No general success gain; **+20–23% cost**. LLM-written −0.5 to −2%; developer-written ≈+4% but **not for Claude Code**. |
-| **Khatri** | 3 injection strategies × 2 agents, gold tests, **3 repeats per task**, TOST equivalence testing | 17 tasks, 3 repos, 288 runs | success, latency | **No measurable effect** (≤10–15pp). *Its own power analysis gives a minimum detectable effect ≈30pp.* |
-| **Lulla et al.**, ICSE 2026 workshop | paired with/without, isolated containers, small PRs only (≤100 LOC) | 10 repos, 124 PRs | runtime, tokens | **−28.6% median runtime, −16.6% output tokens.** Correctness **spot-checked on 50 of 124**. |
-| **McMillan** | factorial: size × position × architecture × contradiction | **1,650 sessions**, 16,050 observations | adherence, via a synthetic `// @tracked` marker | **No structural variable mattered**, with *affirmative* Bayesian nulls (size BF₁₀=0.096; contradiction BF₁₀=0.053). Session length did: **−5.6% odds of compliance per generated function**. |
-| **Shepard & Albrecht** | unguided vs static knowledge base vs *probe-and-refine* tuned guidance, **4 independent trials** | SWE-bench Verified, Qwen3.5-35B-A3B, 200 steps | resolve rate, patch precision | **The only positive, significance-tested success effect in the literature.** 25.5% → 28.3% (static) → **33.0%** (tuned), *p*<0.001 for both tuned contrasts. Gain is **coverage, not precision**: +14.5 pp more evaluable patches, per-patch precision flat at ~59% (*p*=0.119). |
+1. **Run `/init` once, and treat the result as a draft.**
+2. **Delete the architecture tour.** It is the half that was measured not to help,
+   and rewriting it will not fix it (Finding 3).
+3. **Keep only what the repository cannot tell the agent:** commands that are not
+   obvious, required setup, gotchas, conventions that differ from the defaults,
+   and things the agent must never do.
+4. **Write down what the agent got wrong, not what the repository contains.** This
+   is the only change with a tested gain behind it (Finding 4). A line earns its
+   place by having prevented a real mistake. Anthropic's own new `/init` uses the
+   same test: *"only include what Claude would get wrong without it."*
+5. **Write rules as "do not".** In the largest study (over 5,000 runs), the only rules that
+   helped on their own were prohibitions, such as *"do not refactor unrelated
+   code"*. Every rule that hurt was a positive instruction, such as *"follow code
+   style"*. This is a pattern, not yet proof.
+6. **Count rules, not lines.** Agents follow fewer rules as the rules pile up and
+   as sessions get longer. File length on its own made no measurable difference.
+7. **Move rules the agent keeps ignoring into hooks.** A hook runs outside the
+   model, so it cannot be forgotten. Move step-by-step procedures into skills, and
+   details about one module into a file in that module's folder or a
+   `paths:`-scoped rule. These load only when needed.
+8. **Prune on a schedule.** Nothing else will. A stale line is worse than a
+   missing one (Finding 5). `/doctor` will propose cuts.
+9. **Do not expect higher success rates on a frontier agent.** The realistic
+   gains are fewer repeated mistakes, rules that get followed, and less time spent
+   rediscovering the same facts.
+10. **If you use a smaller or local model, the file matters more.** The only
+   measured success gain comes from an open 35B model. The advice to prune hard is
+   advice for frontier agents.
 
-Supporting, non-causal: **Arabat & Sayagh** (MSR 2026) on 15,549 agentic PRs found
-adopting an instruction file raised merge rate ≥20 points for 27.7% of projects and
-**lowered** it for 26.35% — a coin flip. **Cai et al.**
-([arXiv:2606.12231](https://arxiv.org/abs/2606.12231)), mining 7,310 rules across 83
-projects and surveying 99 practitioners, assessed 160 rule-evolution events and
-found artefact compliance rising from 49.14% to 72.13% after a rule update — a
-**+22.99-point** improvement in adherence, which is a different outcome from task
-success and should not be read as one.
+---
 
-## 4. Finding 1 — most published effects are not measurements
+## Finding 1 — No measurable gain on frontier agents
 
-This is the finding that reframes everything else.
+### The studies
 
-Sam-Bodden ([arXiv:2607.09691](https://arxiv.org/abs/2607.09691)) reports, from a
-frozen pre-registered protocol on SWE-bench Verified:
+Six controlled studies test this question directly. All six are from 2026. All
+are preprints or workshop papers. None has been repeated by another team, and
+none has been rebutted.
+
+| Study | What they did | What they found |
+|---|---|---|
+| **Gloaguen et al.**, ETH Zürich (ICLR 2026 workshop) | 4 agent/model pairs, 438 tasks, with and without a context file. **Each task ran once**, with no significance test. | No general gain in success. Files written by an LLM: −0.5 to −2 points. Files written by developers: about +4 points, but **not for Claude Code**. Cost **+20–23%**. |
+| **Khatri** | 2 agents, 17 tasks, **each run 3 times**, with a formal test for "no effect" | No measurable effect. But the study could only have detected an effect of about 30 points or more. |
+| **Lulla et al.** (ICSE 2026 workshop) | 124 small pull requests, with and without the file | 28.6% faster and 16.6% fewer output tokens. Correctness was checked on only 50 of the 124. |
+| **McMillan** | 1,650 sessions, varying file size, position, structure and contradictions | None of these mattered to whether the agent followed the rules. Longer sessions did: **5.6% lower odds** of compliance per function written. |
+| **Shepard & Albrecht** | 4 repeated trials on an open 35B model, SWE-bench Verified | **The only significant gain in success: 25.5% → 33.0%**, but only for a file tuned against the agent's failures (Finding 4). |
+| **Zhang et al.** | Claude Code with Opus 4.6, 679 real rule files, over 5,000 runs. Success measured only on the **58 of 500** tasks the agent solves some of the time, one run each. | Every rule file beat no file, by 6.9–13.8 points. **Random rules did exactly as well as curated ones** (both 63.8% against 50.0%). No single comparison is significant. |
+
+A seventh, related study tests a slightly different kind of file. Kozyrev et al.
+([arXiv:2609.12742](https://arxiv.org/abs/2609.12742)) ran Claude Code with
+optimised repository skill documents on three Kotlin projects. The best documents
+raised the score by 4.9 points, which the authors say *"cannot be separated from
+the agent's run-to-run variance."*
+
+### Why most of these numbers settle nothing
+
+Sam-Bodden ([arXiv:2607.09691](https://arxiv.org/abs/2607.09691)) fixed his method
+before collecting any data, then ran the same setup twice:
 
 > *"temperature-0 API inference flips **~9% of per-instance outcomes between
 > byte-identical runs**. That is a noise floor under every small effect reported on
 > this benchmark, including ours."*
 
-Every point estimate in the literature — −5.9, −2.0, −1.9, −0.5, +2.3, +2.7, +2.8,
-+4.0, +7.5 — sits **inside** that band. And the study producing several of them
-sampled each instance **once**, with no significance testing.
+In plain terms: run the same agent on the same task twice, with nothing changed,
+and about one result in eleven comes out differently. Every effect measured on a
+full benchmark is smaller than that. And the ETH Zürich study ran each task only
+once. Another team ran 60,000 agent attempts and found the same thing from a
+different angle: *"reported improvements of 2–3 percentage points may reflect
+evaluation noise rather than genuine algorithmic progress"*
+([arXiv:2602.07150](https://arxiv.org/abs/2602.07150)).
 
-Independent corroboration that this field's numbers are fragile: misapplied pass@k
-inflates reported scores by 0.85–0.97 absolute, and a single run correlates only
-**ρ=0.417** with true repeated-rollout reliability ([arXiv:2608.14711](https://arxiv.org/abs/2608.14711));
-run-level pass rates overstate retry-free coverage by up to **17.8pp**
-([arXiv:2606.00920](https://arxiv.org/abs/2606.00920)); SWE-bench itself suffers
-solution leakage and weak tests ([arXiv:2609.08149](https://arxiv.org/abs/2609.08149)).
+This does not mean nothing can be measured. Run each task several times and
+average, and the random flips cancel out. That is how Shepard & Albrecht could
+show a real 7.5-point gain. The noise rules out **single-run** results, not the
+question itself.
 
-A practical demonstration: the Agentic AI Foundation ran the same comparison five
-times. One run showed AGENTS.md **44% slower and 41% more expensive**; the five-run
-median showed **27% faster and 24% cheaper**. Same task, same setup.
+A small example shows how misleading one run can be. The Agentic AI Foundation
+measured AGENTS.md on one task with a single run each. The file looked **44%
+slower and 41% more expensive**. The author then ran every condition five times.
+On that same task, the file came out **9–10% better**. One run pointed the wrong
+way. (A second task in the same post showed a larger win.)
 
-**What the noise floor does and does not disqualify.** This is worth stating
-precisely, because it is easy to over-read in the other direction. The ~9% figure
-is a **per-instance flip rate**: it bounds what a *single* run can establish about
-a *single* instance. It is **not** a minimum detectable effect. Average over
-repeated trials and the standard error of the mean shrinks, so a design with
-repeats can resolve a difference that is smaller than the flip rate — which is
-exactly what Shepard & Albrecht do, reporting *p*<0.001 for a +7.5-point gap over
-four trials.
+Other work agrees that single runs mislead. One run correlates only ρ=0.417 with
+an agent's true reliability over many runs
+([arXiv:2608.14711](https://arxiv.org/abs/2608.14711)). Single-run pass rates
+overstate retry-free success by up to 17.8 points
+([arXiv:2606.00920](https://arxiv.org/abs/2606.00920)).
 
-So the band disqualifies **single-run point estimates**, not the practice. Of the
-effects in figure 1, the four from a one-sample-per-instance design are not
-measurements. Of the six from designs with repeats: four are nulls bounded by
-equivalence testing, one is **+7.5 pp at *p*<0.001**, and one — the +2.8 pp
-static-guidance contrast — the paper simply does not test.
+### The one hint of a gain on a frontier agent
 
-> **Conclusion.** "Context files don't help" and "context files help" are both
-> over-readings. The honest statement is that **nobody has yet measured the
-> effect on frontier agents precisely enough to distinguish it from zero** — and that the one study which *did* measure with enough precision found
-> a real gain, on a weaker model, from guidance produced in a way no `/init`
-> command produces it (§7).
+Zhang et al. ([arXiv:2604.11088](https://arxiv.org/abs/2604.11088)) ran the
+largest study, on Claude Code with Opus 4.6. To save money they kept only the
+tasks where the agent without rules succeeds some of the time. On those 58
+tasks, all seven kinds of rule file beat having no file. The authors are careful:
+no single comparison is significant, and the claim rests on all seven pointing
+the same way (sign test, *p*=0.008). The other 442 tasks did not change, so over
+the whole benchmark the gain shrinks to about 1.6 points (our calculation).
 
-## 5. Finding 2 — the file is two artefacts with opposite signs
+The striking part is **what** helped. Random rules, rules for the wrong kind of
+project, and rules with their sentences shuffled all did as well as expert ones.
+The authors call this *"context priming"*: having some rules seems to nudge the
+agent, whatever they say. Adding more rules, from 0 up to 50, changed nothing.
 
-Gloaguen et al.'s abstract contains the most useful sentence in the literature:
+> **So:** "context files help" and "context files hurt" are both too strong. Nobody
+> has shown that what you write in the file makes a frontier agent solve more
+> tasks.
+
+## Finding 2 — It costs more, but not much money
+
+Cost is the one effect that is large and consistent. In Gloaguen et al., a context
+file raised the cost per task by **20% on SWE-bench and 23% on AGENTbench**, with
+2–4 extra reasoning steps. The rise appeared for every model tested. Lulla et al.
+found the opposite on small pull requests, but did not check whether the agents
+simply did less work.
+
+More tokens do not mean much more money. Claude Code caches `CLAUDE.md`, so after
+the first turn it is billed at the cheap cache-read rate. With Sonnet 5 prices
+($2 per million input tokens, $2.50 per million to write the cache, $0.20 per
+million to read it):
+
+| CLAUDE.md size | 50 turns, cached | 50 turns, not cached |
+|---|---|---|
+| 500 tokens | $0.0062 | $0.0500 |
+| 2,000 tokens | $0.0246 | $0.2000 |
+| 10,000 tokens | **$0.123** | $1.00 |
+
+Caching makes the file about 8 times cheaper, whatever its size.
+
+> **So:** do not shrink your CLAUDE.md to save money. Shrink it so the agent keeps
+> following it.
+
+## Finding 3 — The file is two files: rules work, the tour does not
+
+Gloaguen et al. put it in one sentence:
 
 > *"while **instructions** in the context files are **well followed** by coding
 > agents, **repository overviews**, although popular and recommended by model
 > providers, **are not helpful**."*
 
-The supporting evidence, read in full, is two *separately instrumented* analyses
-using different proxy metrics — not one clean content ablation:
+**Rules are followed.** When the file names the `uv` tool, the agent uses it 1.6
+times per task. When it does not, the agent uses it less than 0.01 times.
+Repository-specific tools: 2.5 times against under 0.05.
 
-- **Instructions are followed.** `uv` is invoked **1.6× per instance** when named
-  in the file versus **<0.01×** when not; repository-specific tools **2.5×** versus
-  **<0.05×**.
-- **Overviews don't pay.** 8 of 12 developer-written files and **100%** of
-  Sonnet-4.5-generated files contained a codebase overview, yet their presence
-  *"does not meaningfully reduce"* the number of steps to reach the first relevant
-  file.
+**The tour does not help.** Most files contain an overview of the codebase: 8 of
+12 files written by developers, and every file written by the LLM. Yet the
+overview *"does not meaningfully reduce"* the steps the agent needs to find the
+first relevant file.
 
-Crucially, **no study anywhere ablates the two halves against a shared success
-metric.** That experiment is cheap, obvious, and nobody has run it. It is the
-single most decision-relevant gap in this field.
-
-## 6. Finding 3 — why overviews fail, and why writing a better one won't help
-
-Sam-Bodden supplies the mechanism. He holds localisation fixed with an oracle and varies only how the code is
-*presented* to the agent:
+**And a better tour will not help either.** Sam-Bodden tested why. He gave the
+agent the right file and changed only how its code was shown:
 
 > *"natural-language summaries of it answer almost none of the behavioral questions
 > that the source answers (**4/45 vs. 27/45**)… and **the gap belongs to the
 > representation, not the summarizer — a frontier model's summaries score exactly
 > as poorly as a 3B model's**."*
 
-The paper's registered hypothesis — that structured skeletons would beat nothing —
-**failed**: rendering a file's remainder as UML skeletons and signatures *"resolves
-no more issues than deleting that remainder outright"* (N=70, McNemar p=0.75).
+A description of code throws away most of what the code says. No writer, human or
+model, can put it back. Structured outlines did no better: they solved *"no more
+issues than deleting that remainder outright."*
 
-This matters because it forecloses the obvious rebuttal. The problem with the
-architecture section `/init` writes is **not** that it is badly written. Prose
-about code is a lossy encoding of code, and no author — human or frontier model —
-recovers the loss.
+**Rules that go against habit need more care.** A new benchmark tested 12
+frontier models on 256 rules placed in project files, system prompts and other
+places the agent reads ([arXiv:2608.11727](https://arxiv.org/abs/2608.11727)).
+Agents followed 72–86% of rules. Every model did worse, by 3.6 to 7.4 points, on
+rules that ask for something the agent would not do by default. Those are exactly
+the rules worth writing down.
 
-## 7. The exception — when guidance *does* move success
+> **Nobody has yet tested the two halves separately against task success.** That
+> experiment is cheap and obvious. It is the most useful gap in this field.
 
-One result cuts against the rest, and it is the most methodologically careful of
-the five. Shepard & Albrecht
-([arXiv:2606.20512](https://arxiv.org/abs/2606.20512)) introduce **probe-and-refine
-tuning**: synthetic bug-fix probes *iteratively diagnose and patch a repository's
-guidance file*, through single-shot LLM calls with no agent loop during tuning. On SWE-bench Verified with Qwen3.5-35B-A3B, across four independent
-trials:
+## Finding 4 — What did help: writing down the agent's mistakes
 
-| Condition | Resolve rate |
+One study found a clear, significant gain in success, and it is the most careful
+of the six.
+Shepard & Albrecht ([arXiv:2606.20512](https://arxiv.org/abs/2606.20512)) did not
+use a generated description. They started from one and **tuned it**: small
+synthetic bug-fix tasks showed where the agent failed, and the file was patched
+to prevent those failures. On SWE-bench Verified, with the open model
+Qwen3.5-35B-A3B, over four independent trials:
+
+| Guidance file | Tasks solved |
 |---|---|
-| Unguided baseline | 25.5% |
-| Static knowledge base | 28.3% (not significance-tested) |
-| **Probe-and-refine tuned guidance** | **33.0%** (*p*<0.001 vs both) |
+| None | 25.5% |
+| A plain knowledge base (closest to what `/init` writes) | 28.3% (not tested for significance) |
+| **The same file, tuned against the agent's failures** | **33.0%** (*p*<0.001 against both) |
 
-Their framing is the useful part:
+The authors conclude: *"how the guidance is produced is the decisive variable."*
 
-> *"how the guidance is produced is the decisive variable"*
+Three limits matter:
 
-And the mechanism is precisely located:
+1. **It helped the agent find the right place, not write better code.** The tuned
+   file produced a usable patch for 14.5 more tasks in every 100. But the share of
+   those patches that were correct stayed at about 59%.
+2. **It was a mid-size open model.** Not Claude Code or Codex. On an even weaker
+   model the tuning failed, because that model could not describe its own
+   mistakes well enough.
+3. **The file that worked was a record of failures, not a tour of the repository.**
 
-> *"The improvement comes from coverage rather than precision: refined guidance
-> produces evaluable patches for 14.5 percentage points more instances while
-> per-patch precision remains statistically constant (~59%, p = 0.119), showing
-> that improved guidance helps agents reach the correct file rather than improving
-> the quality of the changes they make."*
+A second study points the same way. Cai et al.
+([arXiv:2606.12231](https://arxiv.org/abs/2606.12231)) looked at 160 rule updates
+in real projects. After an update, the share of code that followed the rules rose
+from 49% to 72%. That measures rule-following, not task success, but it shows that
+writing down a mistake changes what the agent does.
 
-**Does this refute §4 and §5? No — it sharpens them.** Three things separate this
-result from the null ones:
+> **So:** a description of your repository does not raise a frontier agent's
+> success rate. A file that records what the agent got wrong can raise a weaker
+> agent's, by helping it find its way.
 
-1. **Model class.** Qwen3.5-35B-A3B is an open mid-size model, not Claude Code or
-   Codex. Under the principle in §11, scaffolding pays exactly where the model
-   lacks the capability natively. Their own cross-model check supports this from
-   the other side: the tuning loop *degrades* on Nemotron-3-Nano-30B, because that
-   model "cannot generate sufficiently diagnostic output".
-2. **Provenance, not content.** The static knowledge base — the condition closest
-   to what `/init` writes — gained +2.8 points, and the paper reports *p*-values
-   only for its two probe-and-refine contrasts, so that gap is **untested rather
-   than null**. The demonstrated gain came only after the file was *tuned against
-   observed failures*. That is not a repository tour; it is a defect log.
-3. **It is a localisation aid, not a competence aid.** Precision was flat. This
-   corroborates rather than contradicts Gloaguen's finding that agents fail on
-   implementation skill: guidance got the agent to the right file and then stopped
-   helping.
+## Finding 5 — These files only grow, and stale files do harm
 
-> **Conclusion.** The honest synthesis is not "context files don't work." It is:
-> **a generated description of a repository does not move a frontier agent's
-> success rate; a file that records what the agent actually got wrong can move a
-> weaker agent's, by helping it navigate.** Which is the same finding as §5, from
-> the opposite direction.
+Chakrabarti ([arXiv:2608.11095](https://arxiv.org/abs/2608.11095)) followed
+247,694 instructions across 1,867 repositories:
 
-## 8. Finding 4 — these files only grow
+- Context files grow by **226%** over their life, a net **+4.9 instructions per
+  commit**.
+- The **older a line gets, the less likely anyone deletes it.**
 
-Chakrabarti ([arXiv:2608.11095](https://arxiv.org/abs/2608.11095)), **247,694
-instruction lifetimes across 1,867 repositories**:
+The reason is simple. Adding a line is cheap. Proving that removing one is safe is
+hard. So nobody removes anything. Cai et al. see the same pattern: developers fix
+agent mistakes *"typically by adding new negative constraints rather than editing
+existing ones."*
 
-- Context files grow **+226%** over their lifetime — a net **+4.9 instructions per commit**.
-- The **older an instruction is, the less likely it is ever deleted** (log-hazard −0.032/commit).
+Growth would matter less if old lines stayed true. They do not. 23.0% of AI
+configuration files already point to code that no longer exists
+([arXiv:2606.09090](https://arxiv.org/abs/2606.09090)). And a stale line is worse
+than no line. Mohammadi et al. ([arXiv:2608.16630](https://arxiv.org/abs/2608.16630))
+tested seven models in five agent harnesses and found:
 
-He names the mechanism **catastrophic remembering** — the inverse of catastrophic
-forgetting. Appending is cheap; proving a deletion is *safe* costs O(2^|D|). So
-nobody deletes, and the file ratchets.
+> *"where standard and code disagree, agents follow the standard even when it
+> prescribes the worse code, so a stale convention file costs more than no file."*
 
-This is the strongest empirical support for the "clutter" worry — not that any
-single file is too big today, but that **the artefact has no natural brake**.
-Separately, 23.0% of AI config files already contain **stale code references**
-([arXiv:2606.09090](https://arxiv.org/abs/2606.09090)).
+> **So:** a context file needs pruning like any other code. Nothing in the tooling
+> does it for you.
 
-Cai et al. ([arXiv:2606.12231](https://arxiv.org/abs/2606.12231)) reach the same
-shape from a different corpus — 1,540 rule-evolution events across 83 projects.
-Evolution is dominated by **constructive context expansions (29.17%) and
-enrichments (26.59%)**, and surveyed developers say they edit rules mainly **to
-correct AI errors (77.78%), "typically by adding new negative constraints rather
-than editing existing ones."** Two independent mining studies, the same ratchet:
-the file is where prohibitions accumulate, and nothing removes them.
+---
 
-That same paper supplies the counterweight, and it is the strongest argument for
-keeping the practice at all: after a rule update, artefact compliance rose from
-**49.14% to 72.13%**. Writing down what the agent got wrong *does* change what the
-agent does — an adherence result, not a success-rate result, and §7 shows the two
-are not the same thing.
+## Why `/init` exists anyway
 
-## 9. Finding 5 — cost is real, money is not
+If the file does not raise success rates, why ship the command? There are three
+honest answers.
 
-Cost is the one effect that is consistently measured and clearly outside the noise:
-**+20% (SWE-bench) to +23% (AGENTbench)**, with 2–4 extra reasoning steps.
+**It was there from the start.** `/init` and `CLAUDE.md` shipped in Claude Code's
+first public release on 24 February 2025. It was not a fix added after watching
+the agent fail.
 
-But cost in *tokens* is not cost in *dollars*. `CLAUDE.md` sits in Claude Code's
-cached **project-context** layer, between the system prompt and the conversation.
-Using Anthropic's published rates (independently re-verified against two sources;
-Sonnet 5 at $2/MTok in, $2.50 cache write, $0.20 cache read):
+**The case for a big file has shrunk, and Anthropic's own advice shows it.**
 
-| CLAUDE.md size | Cached, 50 turns | Uncached, 50 turns |
-|---|---|---|
-| 500 tokens | $0.0062 | $0.0500 |
-| 2,000 tokens | $0.0246 | $0.2000 |
-| 10,000 tokens | **$0.123** | $1.00 |
-
-The cached/uncached ratio is **exactly 50/6.15 = 8.13×**, and *N cancels* — the
-discount is independent of file size (on the 1-hour cache tier, 7.25×).
-
-> **Conclusion.** Even a 10,000-token CLAUDE.md costs about **12 cents** across a
-> 50-turn session. **Do not shrink your CLAUDE.md to save money.** Shrink it to
-> protect instruction compliance. The dollar argument is dead; the attention
-> argument is not.
-
-## 10. Why `/init` exists anyway
-
-If the performance case is this weak, why ship it? Three honest answers.
-
-**(a) It was there from day one.** `/init` and `CLAUDE.md` shipped in Claude Code's
-first public build (2025-02-24, alongside Claude 3.7 Sonnet). It was not a patch
-bolted on after watching the agent struggle, which weakens any "it was always a
-crutch" story.
-
-**(b) The performance case genuinely eroded — and Anthropic's own words track it.**
-
-| Date | Anthropic's framing of CLAUDE.md |
+| Date | What Anthropic said about CLAUDE.md |
 |---|---|
-| 2025-04 | *"an ideal place"* for commands, files, style, testing. **No size limit.** |
-| 2025-09 | the *"naively dropped into context up front"* half of a hybrid with just-in-time glob/grep |
-| 2026-09 | *"target under 200 lines… **Bloated CLAUDE.md files cause Claude to ignore your actual instructions!**"* — explicitly subtractive |
+| April 2025 | *"an ideal place"* for commands, files, style and testing. No size limit. |
+| September 2025 | one half of a mix: loaded up front, alongside searching for files when needed |
+| September 2026 | *"target under 200 lines"* and *"Bloated CLAUDE.md files cause Claude to ignore your actual instructions!"* |
 
-*(We initially read "naively" as self-criticism. Re-fetched in full, it is
-descriptive of **eager** versus **just-in-time** loading, inside a paragraph that
-presents the hybrid favourably. Corrected.)*
+The advice changed as Claude Code gained cheaper places for the same content:
+**hooks** (June 2025), **subagents** (July 2025), **skills** (October 2025),
+**path-scoped rules** (December 2025) and **auto-memory** (February 2026). Each one
+keeps something out of the file that loads every time.
 
-The retreat tracks the arrival of cheaper homes for the same content: **hooks**
-(2025-06), **subagents** (2025-07), the **Explore subagent** — justified explicitly
-*"to save context"* — and **Skills** (2025-10), **path-scoped rules** (2025-12),
-**auto-memory** (2026-02). Every one is architecturally a way to stop cramming
-things into the always-loaded file.
+Anthropic has also built a new `/init`. You can switch it on with
+`CLAUDE_CODE_NEW_INIT=1`; it is still off by default in v2.1.282. It asks whether
+to set up CLAUDE.md files, skills and hooks, and its prompt says: *"CLAUDE.md is
+loaded into every Claude Code session, so it must be concise — only include what
+Claude would get wrong without it."* Since v2.1.277 (18 September 2026) Claude
+Code also reads `AGENTS.md` directly when a project has no `CLAUDE.md`.
 
-Anthropic's own unreleased `/init`, extracted from the binary, states the thesis
-outright: *"CLAUDE.md is loaded into every Claude Code session, so it must be
-concise — only include what Claude would get wrong without it."* Its per-line test:
-*"Would removing this cause Claude to make mistakes?" If no, cut it.*
+**It has uses that were never about success rates.** `/init` imports rules from
+Cursor, Copilot and other tools. It helps new users start. And it produces a
+readable file that the team can review in git. A rough draft also beats a blank
+page. None of this goes away.
 
-**(c) It has durable reasons that were never about task success.** `/init` is a
-**migration tool** (it ingests `.cursor/rules`, `.cursorrules`,
-`.github/copilot-instructions.md`, and behind a flag AGENTS.md, Windsurf, Devin and
-Cline rules); an **onboarding** device; and a **human-readable team artefact**
-checked into git. A mediocre draft also beats a blank page. None of that decays.
+## One rule that explains all of it
 
-## 11. The unifying principle
+Other kinds of prompt scaffolding follow the same pattern. "Think step by step"
+helped older models and is now unnecessary on reasoning models: OpenAI's own
+guide says *"Avoid chain-of-thought prompts."* The pattern is this:
 
-Round 3 derived this from an unrelated literature — chain-of-thought, prefill,
-verification prompting — and then found it predicts the context-file result:
+> **Help that does a job the model can now do itself fades away. Help that gives
+> the model facts it cannot find, or rules it cannot guess, keeps its value.**
 
-> **Scaffolding decays when it substitutes for a capability the model now has
-> natively. It persists when it supplies information the model structurally cannot
-> derive, or enforces a constraint it cannot infer.**
-
-| Half of the file | Kind | Fate | Evidence |
+| Part of the file | What it does | What happens to it | Evidence |
 |---|---|---|---|
-| Repository overview | **Substitutes** for reading the codebase — the agent can grep | **Decays** | no faster file-finding; 4/45 vs 27/45 |
-| Commands, gotchas, prohibitions | **Supplies** non-derivable facts; **enforces** constraints | **Persists** | 1.6× vs <0.01× tool adoption |
+| Codebase tour | Does a job the agent can do: it can read and search the code | **Fades** | no faster file-finding; 4/45 vs 27/45 |
+| Commands, gotchas, prohibitions | Gives facts the agent cannot find, and rules it cannot guess | **Keeps its value** | 1.6× vs <0.01× tool use |
 
-The same principle explains the wider pattern: OpenAI now tells developers *"avoid
-chain-of-thought prompts… prompting them to 'think step by step' is unnecessary"*;
-Anthropic tells them to **remove** verification instructions because they *"cause
-over-verification on Claude Opus 5… reduces wasted tokens with no loss in quality.
-The same applies to legacy harness scaffolding."* Meanwhile scaffolding that
-*supplies or enforces* — memory systems, fresh-context verifier subagents,
-retrieval above the context threshold — is growing.
+The rule also explains Finding 4. The same kind of file was worth 7.5 points to a
+35B model that struggles to find the right file, and nothing measurable to
+frontier agents that do not. It even failed on a model too weak to learn from it.
+Help pays only inside a window of ability.
 
-**The principle's best test is §7**, because it varies model capability while
-holding the scaffolding fixed. Repository guidance is worth **+7.5 points** to
-Qwen3.5-35B-A3B — a model that needs help finding the right file — and is worth
-nothing measurable to Claude Code and Codex, which do not. The same file; opposite
-verdicts; predicted by what the model can already do. Shepard & Albrecht's own
-cross-model check closes the loop: the tuning procedure *fails* on a model too weak
-to produce diagnostic output, so the scaffolding has a capability window on both
-sides.
+## What nobody has measured
 
-**Counter-evidence, kept:** few-shot prompting went the *other* way at GPT-3 scale
-(the benefit **widened** with size); prompted persistence still adds *"close to
-20%"* on GPT-4.1, a non-reasoning model. Both fit the principle: they substitute
-for a capability those models genuinely lack.
+1. **The two halves separately**, against task success. Cheap, obvious, not done.
+2. **Success, cost and speed together, with repeated runs.** No study does all three.
+3. **What stale lines cost in practice.** We know how common they are (23%), and
+   that they can hurt, but not how much.
+4. **Whether rules survive when a long session is compacted.**
+5. **How often `/init` gets facts wrong** about the repository it describes.
+6. **Most other agents at all:** Copilot, Windsurf, Cline, Amp, Devin, Junie,
+   OpenHands.
+7. **Languages other than Python and TypeScript.** Gloaguen et al. warn that
+   Python's large share of training data *"might… nullify the effect of context
+   files."*
+8. **One design across weak and strong models.** Until someone does this, "does it
+   help?" is missing a key part: *help whom?*
+9. **Failure-tuned guidance on a frontier agent.** The one method that produced a
+   significant gain has never been tried on Claude Code or Codex.
 
-## 12. What nobody has measured
+---
 
-1. **The two halves separately, against a shared success metric.** Cheap, obvious,
-   still unrun. Shepard & Albrecht's coverage/precision split is the closest
-   anyone has come, and it decomposes a *different* axis.
-2. **Success, cost and latency jointly, with repeated runs.** No study does all three.
-3. **Staleness versus consequence.** Prevalence is known (23%); impact is not.
-4. **Whether instructions survive compaction** in practice.
-5. **Hallucination rate of `/init` output** against ground truth.
-6. **Anything at all** for Copilot, Windsurf, Cline, Amp, Devin, Junie, OpenHands.
-7. **Non-Python, non-TypeScript.** Gloaguen's own caveat: Python's training
-   representation *"might… nullify the effect of context files."*
-8. **The capability window.** §7 shows guidance paying on a 35B open model and
-   not on frontier agents, but nobody has run one design across a capability
-   ladder. Until someone does, "does it help?" is missing its most important
-   qualifier: *help whom?*
-9. **Probe-and-refine on a frontier agent.** The one procedure that produced a
-   significant gain has never been tried on Claude Code or Codex. It is the
-   cheapest high-value experiment now open.
+## How we did this, and how sure we are
 
-## 13. Recommendation
+**Method.** We ran seven rounds of research between 19 and 24 September 2026, most
+of them with several AI research agents working in parallel. We searched academic
+papers, vendor documentation and practitioner reports. We read the full text of
+every controlled study, not just its abstract. We also produced two sources
+ourselves: we read the prompt text inside the shipped Claude Code program, and we
+measured the 35 instruction files in our own repositories (median about 1,590
+tokens).
 
-1. **Run `/init` once, as a draft.**
-2. **Delete the architecture tour.** It is the half measured not to help, and §6
-   says you cannot fix it by rewriting it.
-3. **Write down what the agent got wrong, not what the repository contains.** This
-   is the one intervention with a significance-tested positive result behind it
-   (§7), and independently, rule updates lift compliance from 49% to 72% (§8). A
-   line earns its place by having prevented a specific failure — which is, almost
-   word for word, the test Anthropic's own unreleased `/init` applies.
-4. **Keep only what the repo cannot tell the agent**: non-obvious commands,
-   required env setup, gotchas, conventions that *differ* from defaults, repo
-   etiquette, safety prohibitions.
-5. **Count imperatives, not lines.** Compliance degrades with the number of
-   simultaneous constraints and with session length — not, per McMillan, with file
-   size.
-6. **Move enforcement to hooks.** A rule that keeps being ignored was never a
-   documentation problem. Hooks run outside the model's context.
-7. **Move procedures to skills; module detail to subdirectory files or
-   `paths:`-scoped rules.** These are the only genuinely lazy mechanisms —
-   `@imports` load at launch and save nothing.
-8. **Budget for the ratchet.** Files grow +226% and old lines never die. Schedule
-   deletion; `/doctor` will propose cuts.
-9. **Expect no success-rate miracle** *on a frontier agent*. The realistic wins are
-   latency, compliance and avoided rediscovery. Agents fail on implementation
-   skill, and no document fixes that — §7 found guidance moving *coverage* by
-   14.5 points while patch precision did not budge.
-10. **If you drive a smaller or local model, weight all of this differently.** The
-    only measured success gain in the literature is on an open 35B model. The
-    advice to prune is frontier-agent advice; on a weaker model a repository
-    guidance file is load-bearing.
+**Checking.** We did not trust the research agents. We fetched every important
+number again from the original paper. This caught real errors: two agents gave
+conflicting numbers from the same paper; one invented p-values that the paper does
+not contain; one dismissed a real paper as a fake citation; two statistics that
+circulate widely turned out to be made up. The last round caught one of our own
+mistakes: we had paired two numbers from **different** tasks in the Agentic AI
+Foundation example. `evidence/verification-log.md` records every case.
 
-## 14. Limitations of this review
+**Limits.**
 
-- **The base is five unreplicated 2026 preprints**, three of which are underpowered
-  for the effects they report. The fifth (Shepard & Albrecht) was added on
-  2026-09-20, after the first publication of this review — a reminder of how fast
-  this literature is moving, and that a sixth may already exist.
-- **We did not run an experiment.** This is a synthesis; the local corpus
-  measurement (n=35) is descriptive only.
-- **The cost tables are modelled**, with assumptions stated. The discovery-cost
-  comparison in particular is an estimate, not telemetry.
-- **The binary extraction is one version** (v2.1.278) on one machine; the gated
-  `/init` may never ship.
-- **Recency.** Claude Code shipped three versions during the week this was written.
-- **The search budget was exhausted** (200/200 queries) before round 3 finished, so
-  the scaffolding-decay round relied on targeted fetches of known sources rather
-  than open-ended search. A round-5 sweep on 2026-09-20 with a raised budget found
-  two directly relevant papers the earlier rounds had missed
-  ([arXiv:2606.20512](https://arxiv.org/abs/2606.20512),
-  [arXiv:2606.12231](https://arxiv.org/abs/2606.12231)), one of which changed a
-  headline claim. **Assume the same is true of this version.**
+- **The evidence is six unrepeated 2026 preprints.** Most are too small to detect
+  the effects they report.
+- **We ran no experiment of our own.** This is a review of other people's work.
+- **The cost tables are calculations**, not measured bills.
+- **The literature moves fast.** On 20 September a new search found a study that
+  three earlier rounds had missed, and it changed a headline claim. On 24 September
+  another search found the largest study of all, public since April and missed by
+  every earlier round. Assume this version is also incomplete.
 
-## 15. Key sources
+## Sources
 
-**Controlled ablations.** Gloaguen et al., [arXiv:2602.11988](https://arxiv.org/abs/2602.11988) ·
+**Controlled studies.** Gloaguen et al., [arXiv:2602.11988](https://arxiv.org/abs/2602.11988) ·
 Khatri, [arXiv:2607.27250](https://arxiv.org/abs/2607.27250) ·
 Lulla et al., [arXiv:2601.20404](https://arxiv.org/abs/2601.20404) ·
 McMillan, [arXiv:2605.10039](https://arxiv.org/abs/2605.10039) ·
-Shepard & Albrecht, [arXiv:2606.20512](https://arxiv.org/abs/2606.20512)
+Shepard & Albrecht, [arXiv:2606.20512](https://arxiv.org/abs/2606.20512) ·
+Zhang et al., [arXiv:2604.11088](https://arxiv.org/abs/2604.11088) ·
+related: Kozyrev et al., [arXiv:2609.12742](https://arxiv.org/abs/2609.12742)
 
-**Mechanism.** Sam-Bodden, [arXiv:2607.09691](https://arxiv.org/abs/2607.09691) ·
+**Why it works or fails.** Sam-Bodden, [arXiv:2607.09691](https://arxiv.org/abs/2607.09691) ·
+Mohammadi et al., [arXiv:2608.16630](https://arxiv.org/abs/2608.16630) ·
+Huang et al. (Harness-IF), [arXiv:2608.11727](https://arxiv.org/abs/2608.11727) ·
 Chakrabarti, [arXiv:2608.11095](https://arxiv.org/abs/2608.11095) ·
 Treude & Baltes, [arXiv:2606.09090](https://arxiv.org/abs/2606.09090)
 
@@ -464,21 +409,19 @@ Treude & Baltes, [arXiv:2606.09090](https://arxiv.org/abs/2606.09090)
 Cai et al., [arXiv:2606.12231](https://arxiv.org/abs/2606.12231) ·
 Jiang & Nam, [arXiv:2512.18925](https://arxiv.org/abs/2512.18925) ·
 Chatlatanagulchai et al., [arXiv:2511.12884](https://arxiv.org/abs/2511.12884) ·
-Vasilopoulos, [arXiv:2602.20478](https://arxiv.org/abs/2602.20478) (single-project
-case study, 283 sessions — illustrative only)
+Yang et al., [arXiv:2607.26819](https://arxiv.org/abs/2607.26819)
 
-**Reliability.** [arXiv:2608.14711](https://arxiv.org/abs/2608.14711) ·
+**Reliability of measurements.** [arXiv:2608.14711](https://arxiv.org/abs/2608.14711) ·
 [arXiv:2606.00920](https://arxiv.org/abs/2606.00920) ·
-[arXiv:2609.08149](https://arxiv.org/abs/2609.08149)
-
-**Scaffolding.** Wei et al., [arXiv:2201.11903](https://arxiv.org/abs/2201.11903) ·
-Sprague et al., [arXiv:2409.12183](https://arxiv.org/abs/2409.12183) ·
-Xia et al. (Agentless), [arXiv:2407.01489](https://arxiv.org/abs/2407.01489)
+Bjarnason et al., [arXiv:2602.07150](https://arxiv.org/abs/2602.07150) ·
+[arXiv:2609.08149](https://arxiv.org/abs/2609.08149) ·
+Griffiths (Agentic AI Foundation), [*Measuring AGENTS.md*](https://aaif.io/blog/measuring-agents-md-what-five-runs-show-that-one-doesn-t), 22 July 2026
 
 **Vendor.** [Claude Code memory](https://code.claude.com/docs/en/memory) ·
 [best practices](https://code.claude.com/docs/en/best-practices) ·
-[prompt caching](https://code.claude.com/docs/en/prompt-caching) ·
-[Effective context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) (2025-09-29)
+[changelog](https://code.claude.com/docs/en/changelog) ·
+[pricing](https://platform.claude.com/docs/en/about-claude/pricing) ·
+[Effective context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) (29 September 2025)
 
-**This repository.** `results.md` (full dossier) · `evidence/` (binary extracts,
-verification log, self-review, round-3 notes)
+**This repository.** `results.md` (full dossier) · `paper.pdf` (3-page paper) ·
+`evidence/` (binary extracts, verification log, self-review)

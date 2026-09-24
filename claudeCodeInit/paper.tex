@@ -29,22 +29,24 @@
 \vspace{2pt}
 {\large A Meta-Study of Repository Context Files for Coding Agents\par}
 \vspace{7pt}
-{\normalsize\bfseries Marcel Petrick\quad$\cdot$\quad Claude Opus 5\par}
+{\normalsize\bfseries Marcel Petrick\quad$\cdot$\quad Claude (Opus 5, revised with Opus 5.5)\par}
 \vspace{2pt}
-{\small 19 September 2026 $\cdot$ revised 20 September 2026\par}
+{\small 19 September 2026 $\cdot$ revised 24 September 2026\par}
 \vspace{7pt}
 \begin{minipage}{0.88\textwidth}
 \small\noindent\textbf{Abstract.} Coding agents ship a command that writes a
 repository context file---\texttt{CLAUDE.md} or \texttt{AGENTS.md}. The agent then
-loads that file into every later session. Does it help? We read the five
+loads that file into every later session. Does it help? We read the six
 controlled studies, the mechanism literature around them, and the prompt we
 extracted from a shipped Claude Code binary.
 
 \smallskip\noindent
-Every measured effect on task success is smaller than the noise. At temperature
+Every full-benchmark effect on task success is smaller than the noise. At temperature
 zero, $\approx$9\% of outcomes flip between byte-identical runs. Most published
 estimates come from designs that ran each task once, so those numbers settle
-nothing. Designs that repeat their trials mostly report nulls. One does not:
+nothing. The largest study, on Claude Code, finds random rules scoring exactly as
+well as curated ones. Designs that repeat their trials mostly report nulls. One
+does not:
 guidance \emph{tuned against an agent's own failures} raised resolve rate from
 $25.5$ to $33.0\%$ on an open 35B model ($p<0.001$). It helped the agent reach the
 right file. It did not improve the patches.
@@ -72,17 +74,17 @@ The practice is near-universal and the evidence is thin. Eleven major harnesses
 ship an instruction-file mechanism: Claude Code, Codex, Copilot, Cursor, Aider,
 Gemini CLI, Windsurf, Cline, Amp, Devin and Junie. Almost none of their vendors
 has published a controlled measurement of whether it works. The whole causal base
-is five 2026 preprints. None has been replicated, and none has been rebutted.
+is six 2026 preprints. None has been replicated, and none has been rebutted.
 
 We ask three questions. Does a context file improve task success? What does it
 cost? And if the answers are ``not measurably'' and ``20\%,'' why does the feature
 exist?
 
 \section{Method}
-We ran five rounds of literature search, three of them across ten parallel
+We ran seven rounds of literature search, most of them across parallel
 agents. We also produced two primary sources ourselves. First, we mined the
 shipped Claude Code binary v2.1.278 and recovered the literal \texttt{/init}
-prompt, an unreleased successor behind a feature flag, and the exact loading
+prompt, an opt-in successor that is off by default, and the exact loading
 semantics. Second, we measured 35 instruction files in a working repository
 corpus (median $\approx$1{,}590 tokens, p90 $\approx$3{,}300).
 
@@ -91,16 +93,14 @@ primary source, and that caught five errors. Two passes reported incompatible
 figures from one paper. One cited $p$-values the paper never reports. Two
 statistics in wide circulation turned out to be fabricated, and one vendor figure
 is missing from its own source. A verification log and a self-review of our first
-draft accompany this paper. We also hold the paper itself to measured
-clear-writing targets rather than to taste---median sentence 13 words, 5.5\% over
-30, 6.4 passives per 100 sentences, Flesch 47 where academic prose lands near
-20---which \texttt{tools/readability.py} recomputes, failing if one slips. No
-formula proves comprehension; these only show the mechanics are not in the way.
+draft accompany this paper. Our prose meets measured clear-writing targets---median sentence
+13 words, 4.8\% over 30, 6.7 passives per 100 sentences, Flesch
+47---which \texttt{tools/readability.py} recomputes.
 
 
 \begin{table}[t]
 \centering\small
-\caption{The complete causal evidence base. All five are 2026 preprints or
+\caption{The complete causal evidence base. All six are 2026 preprints or
 workshop papers; none is replicated or formally rebutted. ``Repeats'' denotes
 multiple runs of the same condition---the column that decides whether a point
 estimate is a measurement.}
@@ -118,6 +118,8 @@ Lulla \cite{lulla} & 124 PRs, 10 repos & No (paired) & $-28.6\%$ runtime; correc
 McMillan \cite{mcmillan} & 1{,}650 sessions & \textbf{Yes} ($50\times$) & Affirmative null on file structure \\
 \addlinespace[1pt]
 Shepard \cite{shepard} & 4 trials, Qwen3.5-35B & \textbf{Yes} ($4\times$) & $+7.5$\,pp, $p<0.001$; \emph{tuned} guidance only \\
+\addlinespace[1pt]
+Zhang \cite{zhang} & 58 of 500 tasks, Opus 4.6 & No ($1\times$) & $+7$--$14$\,pp, none significant; random rules = curated \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -130,7 +132,7 @@ measured run-to-run noise floor. Sam-Bodden~\cite{sambodden} froze his protocol
 before collecting data. He reports that temperature-0 inference ``flips
 $\approx$9\% of per-instance outcomes between byte-identical runs,'' and calls this
 ``a noise floor under every small effect reported on this benchmark.'' Every
-published point estimate falls inside it. The study contributing several of them
+full-benchmark estimate falls inside it. The study contributing several of them
 sampled each instance once, with no significance testing.
 
 Read the band for what it is. $\approx$9\% is a \emph{per-instance flip
@@ -144,25 +146,25 @@ the band. The floor disqualifies the single-run estimate, not the practice.
 \includegraphics[width=\columnwidth]{fig/fig1_forest.pdf}
 \caption{Every measured change in task success, grouped by whether the design
 can resolve one. The band is the $\pm$9\,pp per-instance flip
-rate~\cite{sambodden}; no effect escapes it, but that only settles the four
-single-run estimates. Of the six from designs with repeats, four are bounded
-nulls, one ($+2.8$\,pp) is never tested, and one ($+7.5$\,pp, $p<0.001$) is real.}
+rate~\cite{sambodden}. Of the six from designs with repeats, four are bounded
+nulls, one ($+2.8$\,pp) is never tested, and one ($+7.5$\,pp, $p<0.001$) is real.
+The bottom pair covers only tasks the agent solves some of the time; over all 500
+it shrinks to $\approx$+1.6\,pp (our arithmetic).}
 \label{fig:forest}
 \end{figure}
 
-Two further results corroborate this. Single runs correlate only $\rho=0.417$ with
+Single runs correlate only $\rho=0.417$ with
 true repeated-rollout reliability~\cite{beyondpassk}, and run-level pass rates
-overstate retry-free coverage by up to 17.8\,pp~\cite{repeatedrun}. A five-run
-replication of one comparison found a single run showing 44\% \emph{slower} where
-the five-run median showed 27\% \emph{faster}.
+overstate retry-free coverage by up to 17.8\,pp~\cite{repeatedrun}. In one
+practitioner test, a single run showed AGENTS.md 44\% \emph{slower} on a task
+where the five-run median showed it 9--10\% \emph{faster}.
 
 \subsection{Cost is the one robust effect}
 Gloaguen et al.~\cite{gloaguen} find inference cost rises 20\% (SWE-bench Lite)
 to 23\% (AGENTbench), with 2--4 additional reasoning steps, across every model
 tested (Figure~\ref{fig:cost}). Lulla et al.~\cite{lulla} report the opposite
-sign---median runtime $-28.6\%$, output tokens $-16.6\%$---but on PRs restricted
-to $\leq$100 LOC, with correctness spot-checked on only 50 of 124 cases, leaving
-``did less work'' unexcluded.
+sign ($-28.6\%$ runtime) on small PRs, with correctness spot-checked on only 50
+of 124.
 
 \begin{figure}[t]
 \centering
@@ -196,6 +198,13 @@ A registered hypothesis that structured skeletons would help \emph{failed}
 ($N{=}70$, McNemar $p{=}0.75$). Figure~\ref{fig:content} shows that the category
 measured not to help is present in roughly two-thirds of real files.
 
+The largest study, over 5{,}000 Claude Code runs on Opus 4.6~\cite{zhang}, adds
+a twist. On the 58 tasks the agent solves only sometimes, all seven rule files
+beat no file by 6.9--13.8\,pp, yet random rules tie curated ones at 63.8\%, and
+no single contrast is significant. The authors read this as context priming:
+presence nudges, content does not decide. The only rules that helped alone were
+prohibitions such as ``do not refactor unrelated code.''
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{fig/fig3_content.pdf}
@@ -205,8 +214,8 @@ benefit~\cite{gloaguen,sambodden}---appear in 68.1\% of files.}
 \label{fig:content}
 \end{figure}
 
-\subsection{The exception: tuned guidance on a weaker model}
-One design breaks the pattern, and it is the most careful of the five. Shepard and
+\subsection{The exception: tuned guidance on a weaker model}\label{sec:exception}
+One design breaks the pattern, and it is the most careful of the six. Shepard and
 Albrecht~\cite{shepard} introduce \emph{probe-and-refine tuning}: synthetic
 bug-fix probes iteratively diagnose and patch a repository's guidance file through
 single-shot calls, with no agent loop during tuning. Over four independent trials
@@ -233,7 +242,9 @@ Across 247{,}694 instruction lifetimes in 1{,}867 repositories, context files gr
 older an instruction becomes the \emph{less} likely it is ever
 deleted~\cite{chakrabarti}. Appending is cheap; verifying a deletion is safe is
 $O(2^{|D|})$. Independently, 23.0\% of such files already contain stale code
-references~\cite{treude}. A second study of 1{,}540 rule-evolution events finds
+references~\cite{treude}, and stale lines do harm: agents follow the file over the
+code, ``so a stale convention file costs more than no file''~\cite{mohammadi}. A
+second study of 1{,}540 rule-evolution events finds
 the same ratchet. Expansions (29.17\%) and enrichments (26.59\%) dominate, and
 developers say they fix agent errors ``by adding new negative constraints rather
 than editing existing ones''~\cite{cai}. That study also supplies the
@@ -251,12 +262,11 @@ subagents (2025-07), Skills and a context-saving Explore subagent (2025-10),
 path-scoped rules (2025-12) and auto-memory (2026-02).
 
 Vendor framing tracks that shift exactly. In 2025-04 the file was ``an ideal
-place'' for documentation, with no size limit. By 2025-09 it was the ``naively
-dropped into context up front'' half of a hybrid with just-in-time retrieval. By
+place'' for documentation, with no size limit. By
 2026-09 it carries a hard 200-line target and a warning: ``bloated
-\texttt{CLAUDE.md} files cause Claude to ignore your actual instructions.'' An
-unreleased successor to \texttt{/init}, recovered from the binary, states the
-thesis outright: ``\texttt{CLAUDE.md} is loaded into every Claude Code session, so
+\texttt{CLAUDE.md} files cause Claude to ignore your actual instructions.'' A
+successor to \texttt{/init}, opt-in and still off by default in v2.1.282, states
+the thesis outright: ``\texttt{CLAUDE.md} is loaded into every Claude Code session, so
 it must be concise---only include what Claude would get wrong without it.''
 
 Three rationales cannot decay, and none is about task success. \texttt{/init}
@@ -279,8 +289,7 @@ derive, or enforces a constraint it cannot infer.}
 
 \noindent A repository overview substitutes for reading the codebase---and the
 agent can now grep. Commands, gotchas and prohibitions supply what no amount of
-reading yields. The halves have opposite fates because they are different kinds of
-thing. The principle's sharpest test is~\S3.5: the same artefact is worth
+reading yields. The principle's sharpest test is~\S\ref{sec:exception}: the same artefact is worth
 $+7.5$\,pp to a 35B model that cannot reliably find the right file and nothing
 measurable to agents that can.
 
@@ -293,15 +302,15 @@ protect compliance, not to save money.
 
 Above all, record what the agent got \emph{wrong} rather than what the repository
 contains. That is the one intervention with a significance-tested gain behind it,
-and the test Anthropic's own unreleased \texttt{/init} applies. On a frontier
+and the test Anthropic's own new \texttt{/init} applies. On a frontier
 agent, expect no gain in success rate---they fail on implementation skill, which
 no document repairs. On a smaller model, weight all of this differently.
 
-\paragraph{Limitations.} We rest on five unreplicated preprints, three of them
+\paragraph{Limitations.} We rest on six unreplicated preprints, most of them
 underpowered for the effects they report. We ran no experiment of our own. Our
 cost tables are modelled rather than measured, and we read one binary version on
-one machine. A later sweep found two relevant papers the first rounds had missed,
-and one of them changed a headline claim. Assume the same of this version. The
+one machine. Two later sweeps each found a study the earlier rounds had missed; the
+second, public since April, is the largest of all. Assume the same of this version. The
 decisive experiment---ablating instructions against overviews under one shared
 success metric---remains unrun, and it is cheap.
 
@@ -318,19 +327,16 @@ it a week of compute. This is the decisive experiment, and nobody has run it.
 latency together with repeats. Against a $\approx$9\,pp noise
 floor~\cite{sambodden}, a design powered for 5\,pp needs 120--200
 tasks~\cite{khatri}---large, but not exotic.
-\item \textbf{Staleness versus consequence.} We know the prevalence: 23.0\% of
-files carry stale references~\cite{treude}. We do not know what it costs.
 \item \textbf{The capability window.} Guidance pays on a 35B
 model~\cite{shepard} and not on frontier agents, but no design spans a capability
 ladder. ``Does it help?'' is missing its qualifier: help whom? Nobody has run
 probe-and-refine on a frontier agent either---the cheapest experiment still open.
 \item \textbf{Generalisation.} The evidence is overwhelmingly Python and
-TypeScript. Gloaguen et al. caution that Python's weight in training data
-``might\ldots nullify the effect of context files''~\cite{gloaguen}. The practice
-may well pay in languages the model knows less well.
+TypeScript; the practice may pay in languages the model knows less
+well~\cite{gloaguen}.
 \end{enumerate}
 
-\vspace{-14pt}
+\vspace{-17pt}
 \begin{thebibliography}{99}\footnotesize
 \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
 \bibitem{gloaguen} T.~Gloaguen, N.~M\"undler, M.~M\"uller, V.~Raychev, M.~Vechev.
@@ -344,6 +350,10 @@ Ablation Study on Real Repositories.} arXiv:2607.27250.
 Efficiency of AI Coding Agents.} JAWs @ ICSE 2026. arXiv:2601.20404.
 \bibitem{mcmillan} D.~McMillan. \emph{Instruction Adherence in Coding Agent
 Configuration Files.} arXiv:2605.10039.
+\bibitem{zhang} X.~Zhang et al. \emph{Guardrails Beat Guidance: A Large-Scale Study
+of Rules, Skills, and Persistent Configuration for Coding Agents.} arXiv:2604.11088.
+\bibitem{mohammadi} B.~Mohammadi et al. \emph{The Working Set of a Coding Agent:
+Coherence Debt in Repository-Scale Tasks.} arXiv:2608.16630.
 \bibitem{shepard} A.~Shepard, J.~Albrecht. \emph{Probe-and-Refine Tuning of
 Repository Guidance for Coding Agents.} arXiv:2606.20512.
 \bibitem{cai} G.~Cai, R.~Li, P.~Liang, Z.~Li, M.~Shahin. \emph{Rule Taxonomy and
@@ -352,8 +362,6 @@ Evolution in AI IDEs: A Mining and Survey Study.} arXiv:2606.12231.
 Catastrophic Remembering in Agentic Coding.} arXiv:2608.11095.
 \bibitem{treude} C.~Treude, S.~Baltes. \emph{Context Rot in AI-Assisted Software
 Development.} arXiv:2606.09090.
-\bibitem{arabat} A.~Arabat, M.~Sayagh. \emph{Toward Instructions-as-Code.}
-MSR 2026. arXiv:2606.13449.
 \bibitem{agentreadmes} P.~Chatlatanagulchai et al. \emph{Agent READMEs: An
 Empirical Study of Context Files for Agentic Coding.} arXiv:2511.12884.
 \bibitem{beyondpassk} Y.~Jiang et al. \emph{Beyond Pass@k.} arXiv:2608.14711.

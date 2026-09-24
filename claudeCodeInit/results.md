@@ -5,6 +5,11 @@
 > [`whitepaper.md`](whitepaper.md). For the 3-page paper, see
 > [`paper.pdf`](paper.pdf).
 >
+> **Round 7 (2026-09-24)** added a sixth controlled study (S6, Zhang et al.,
+> the largest yet), five mechanism papers, and three corrections: the AAIF
+> example paired numbers from two different tasks (§4.3); Codex does not read
+> `CLAUDE.md` (§5); and the second `/init` is now documented as opt-in (§3.2).
+>
 > Rounds 2 and 3 revised several claims below. Where this file and the
 > whitepaper differ, the whitepaper is current; every change is logged in
 > [`evidence/verification-log.md`](evidence/verification-log.md).
@@ -39,9 +44,18 @@ agent's own observed failures**. The condition closest to a `/init` draft gained
 about *frontier agents and generated descriptions*, not about the practice as
 such. §4.1a works this through.
 
+**A second qualification, added in round 7.** S6 (Zhang et al., 5,000+ Claude
+Code runs on Opus 4.6) finds every rule file beating no file by 6.9–13.8 pp — but
+only on the 58 of 500 SWE-bench Verified tasks the agent solves 1–2 times in 3, no
+single contrast significant (random vs none *p*=0.077; the headline rests on a
+sign test across seven conditions, *p*=0.008), and **random rules tie curated ones
+at 63.8%**. The other 442 tasks did not move, so over the full benchmark the gain
+is ≈+1.6 pp (our arithmetic: 13.8 × 58/500). Presence may prime; content does not
+decide. §4.1b.
+
 But the aggregate number hides the finding that actually matters, and it is
-reproduced independently by an academic paper and by Anthropic's own unreleased
-code:
+reproduced independently by an academic paper and by Anthropic's own new,
+opt-in `/init`:
 
 > **A CLAUDE.md is two different things glued together, and they have opposite
 > signs. The *instructions* (non-standard commands, gotchas, prohibitions,
@@ -56,7 +70,7 @@ ETH Zürich, arXiv:2602.11988, abstract, verbatim:
 > **repository overviews, although popular and recommended by model providers, are
 > not helpful**."*
 
-Anthropic's unreleased `/init`, extracted from the shipped binary, independently:
+Anthropic's new, opt-in `/init`, extracted from the shipped binary, independently:
 
 > *"CLAUDE.md is loaded into every Claude Code session, so it must be concise —
 > only include what Claude would get wrong without it."*
@@ -82,6 +96,7 @@ delete most of what it wrote.
 | Is it faster? | Probably yes: −27 to −28% wall-clock in two independent measurements | Medium |
 | Does file size hurt adherence? | **Not detected** in the one factorial study of this exact question | Medium — surprising, contradicts folk wisdom |
 | What *does* hurt adherence? | Session length: ~5.6% lower odds of compliance per generated function | Medium |
+| Does *what the file says* matter for success? | **Apparently not, on a frontier agent:** random rules tie curated ones (S6) | Low-medium — one study, borderline-task subset, no single contrast significant |
 | Is `/init`'s repo-overview section worth it? | **No.** Converging evidence from academia and from Anthropic's own code | **High** |
 
 ---
@@ -135,9 +150,17 @@ not a complaint about what `/init` *asks for*. It is the model under-complying
 with a prompt that explicitly forbids that. And note item 2: `/init` asks for the
 architecture overview that arXiv:2602.11988 found to be the unhelpful half.
 
-### 3.2 There is a second `/init` that Anthropic has not shipped yet
+### 3.2 There is a second `/init`: documented, opt-in, still off by default
 
 Gated behind `CLAUDE_CODE_NEW_INIT` or the `tengu_slate_harbor_experiment` flag.
+*Round 7 update:* the [memory docs](https://code.claude.com/docs/en/memory) now
+describe it — *"For an interactive multi-phase flow instead, set the
+`CLAUDE_CODE_NEW_INIT` environment variable to `1` before you run `/init`… it asks
+which artifacts to set up: CLAUDE.md files, skills, and hooks."* In binary
+v2.1.282 the gate still reads `CLAUDE_CODE_NEW_INIT||x("tengu_slate_harbor_experiment",!1)`,
+so it remains off by default, and the "only include what Claude would get wrong
+without it" prompt is unchanged. Separately, since v2.1.277 (2026-09-18) Claude
+Code reads `AGENTS.md` directly when a project has no `CLAUDE.md`.
 Its design premise is the sceptics' argument. It is an eight-phase interactive
 flow whose acceptance test for every line is:
 
@@ -216,12 +239,14 @@ concession — it cuts against the commercial interest in "add more context".
 
 ## 4. The direct causal evidence
 
-Five controlled ablations exist. This is the entire grade-A base for the question.
+Six controlled ablations exist. This is the entire grade-A base for the question.
+**S6 was added in round 7 (2026-09-24)** — public since April and missed by six
+earlier rounds; it is the largest of the six.
 **S5 was added in round 5 (2026-09-20)** — three earlier rounds of search missed
-it, and it is the only one of the five reporting a significant positive effect on
+it, and it is the only one of the six reporting a significant positive effect on
 task success.
 
-### 4.1 The five studies
+### 4.1 The six studies
 
 | # | Study | Design | N | Measured | Result |
 |---|---|---|---|---|---|
@@ -230,6 +255,7 @@ task success.
 | **S3** | **Lulla, Mohsenimofidi, Galster, Zhang, Baltes, Treude** — *On the Impact of AGENTS.md Files on the Efficiency of AI Coding Agents* [arXiv:2601.20404](https://arxiv.org/abs/2601.20404). JAWs @ ICSE 2026. | paired within-task: same task run with and without AGENTS.md, isolated containers, small PRs (≤100 LOC, ≤5 files) | 10 repos, **124 PRs** | runtime, tokens — **correctness only spot-checked on 50 of 124** | **Median runtime −28.64%** (98.6s→70.3s), **output tokens −16.58%**, input −9.73%. Completion behaviour "comparable" — correctness was *not* a measured primary metric. |
 | **S4** | **McMillan** — *Instruction Adherence in Coding Agent Configuration Files: A Factorial Study of Four File-Structure Variables* [arXiv:2605.10039](https://arxiv.org/abs/2605.10039), 2026-05-11 | factorial over file size × instruction position × file architecture × cross-file contradictions | **1,650 Claude Code sessions**, 16,050 function-level observations, 2 TS codebases, 3 models | instruction adherence, via a **synthetic `// @tracked` marker** (not task success) | **Most statistically rigorous of the four** (GLMMs, FDR correction, Bayesian companion). **None of the four structural variables had a detectable effect**, with *affirmative* Bayesian nulls for size (BF₁₀=0.096) and contradiction (BF₁₀=0.053) after multiple-testing correction. What did matter: **session length — ~5.6% lower odds of compliance per additional generated function (OR 0.944).** |
 | **S5** | **Shepard & Albrecht** — *Probe-and-Refine Tuning of Repository Guidance for Coding Agents* [arXiv:2606.20512](https://arxiv.org/abs/2606.20512), 2026-06-18 (v2 06-19) | three conditions — unguided / static knowledge base / **probe-and-refine tuned** guidance, where synthetic bug-fix probes iteratively diagnose and patch the guidance file via single-shot LLM calls, **no agent loop during tuning**. Plus a step-budget experiment and a cross-model check on NVIDIA-Nemotron-3-Nano-30B-A3B | SWE-bench Verified, **4 independent trials**, Qwen3.5-35B-A3B at 200 steps | resolve rate, patch precision, coverage | **The only positive significance-tested success effect in the literature.** 25.5% unguided → 28.3% static KB → **33.0% tuned** (*p*<0.001 for both tuned contrasts — the paper tests **only** the two probe-and-refine contrasts, so the static-vs-unguided +2.8 pp gap is untested rather than null). **The gain is coverage, not precision:** +14.5 pp more instances yield an evaluable patch, per-patch precision flat at ≈59% (*p*=0.119) — i.e. guidance *"helps agents reach the correct file rather than improving the quality of the changes they make."* Thesis: *"how the guidance is produced is the decisive variable."* Cross-model: the tuning loop **degrades** when the model cannot emit sufficiently diagnostic output. |
+| **S6** | **Zhang, Wang, Cui, Qiu, Li, Zhu, He** — *Guardrails Beat Guidance: A Large-Scale Study of Rules, Skills, and Persistent Configuration for Coding Agents* [arXiv:2604.11088](https://arxiv.org/abs/2604.11088), 2026-04-13 (v2 05-28) | 679 scraped rule files (25,532 rules); no-rule baseline vs seven rule conditions (curated, popular, random, matched, mismatched, shuffled, native-only); per-rule ablation; rule counts 0–50. **Task selection:** all 500 SWE-bench Verified tasks screened ×3, keeping the **58** solved 1–2 of 3 times (*"47% of tasks are always solved and 27% never solved regardless of rules"*). Experiment 1 is **one trajectory per task**; McNemar and Cochran's Q | >5,000 runs of **Claude Code + Opus 4.6** | resolve rate on the discriminative subset | Every rule condition beats the 50.0% baseline by **6.9–13.8 pp**; *"no condition is significantly different from any other (Cochran's Q = 4.70, p = 0.697)"*; random vs baseline McNemar *p*=0.077; headline rests on a sign test over seven directions, *p*=0.008. **Random = curated = 63.8%** → *"context priming"*. Per-rule (n=35): every helpful rule is a negative constraint, every harmful one a positive directive; only one rule individually significant (*p*=0.016, not surviving correction). Pass rate flat for 0–50 rules. Baseline itself moved 50.0% → 60.3% between experiments (single vs three-seed). |
 
 ### 4.1a Why S5 does not overturn S1–S4
 
@@ -250,6 +276,22 @@ over-read in either direction.
   and agrees: coverage moved, precision did not.
 - **It does not close the decisive gap.** S5 splits coverage from precision, not
   *instructions* from *overview*. §11's first open experiment stands.
+
+### 4.1b What S6 adds, and what it does not
+
+- **It is the only controlled study of a frontier agent with a positive
+  direction on success** — but on an enriched subset, with no single contrast
+  significant. Diluted over all 500 tasks it is ≈+1.6 pp, inside every noise
+  estimate in §4.3.
+- **Its most robust result is about content, not presence:** random, shuffled and
+  wrong-domain rules match curated ones. That is independent support for §5's
+  reading of S1 — whatever a file does for success, it is not the repository
+  description.
+- **Its polarity result supports the "prohibitions" advice** (§12) and matches Cai
+  et al.'s observation that developers add negative constraints — but it is
+  suggestive (one individually significant rule), not established.
+- **Its count result agrees with S4:** 0 to 50 rules, flat pass rate, as McMillan
+  found no effect of file size on adherence.
 
 ### 4.2 Reconciling the apparent contradiction
 
@@ -282,11 +324,15 @@ literature as of September 2026.**
 ### 4.3 Repeated runs are not optional
 
 The Agentic AI Foundation ran GitHub Copilot CLI five times per condition
-(*"Measuring AGENTS.md: What Five Runs Show That One Doesn't"*, 2026-07-22). One
-individual run showed AGENTS.md **44% slower and 41% more expensive**; the 5-run
-median showed **27% less wall-time, 24% fewer credits, 26% smaller diffs**.
+(*"Measuring AGENTS.md: What Five Runs Show That One Doesn't"*, 2026-07-22) on two
+tasks. The author's first, single-run attempt on the harder, multi-file task
+showed AGENTS.md *"44% slower and 41% more expensive for identical output."* The
+five-run median on **that same task** showed AGENTS.md winning by *"9 to 10%"*.
+(The often-quoted *"27% … 24% … 26% smaller"* figures are the **other**,
+ambiguous task. Earlier versions of this dossier paired them with the 44% run —
+corrected in round 7.)
 
-Same setup, same task. The noise exceeds the effect. **Every single-run before/after
+The direction flipped between one run and five. The noise exceeds the effect. **Every single-run before/after
 blog demo in this space — in either direction — is uninformative.** Treat AAIF as
 vendor-adjacent (it now stewards AGENTS.md), but the methodological point stands
 independent of the numbers.
@@ -318,7 +364,7 @@ none of their vendors has measured whether it works.**
 
 | Harness | Mechanism | Published effectiveness evidence |
 |---|---|---|
-| **OpenAI Codex** | `AGENTS.md`, root-to-cwd walk, 32 KiB cap (`project_doc_max_bytes`); also reads `CLAUDE.md` | **None.** OpenAI's own framing is notably defensive: *"codex-1 shows strong performance even without AGENTS.md files or custom scaffolding."* |
+| **OpenAI Codex** | `AGENTS.md` (and `AGENTS.override.md`), root-to-cwd walk, 32 KiB cap (`project_doc_max_bytes`); other names only via `project_doc_fallback_filenames` — the current docs never mention `CLAUDE.md` (corrected round 7) | **None.** OpenAI's own framing is notably defensive: *"codex-1 shows strong performance even without AGENTS.md files or custom scaffolding."* |
 | **GitHub Copilot** | `.github/copilot-instructions.md`, path-scoped `.github/instructions/*.instructions.md` with `applyTo` globs; also reads AGENTS.md/CLAUDE.md/GEMINI.md | **None quantitative.** GitHub analysed 2,500+ AGENTS.md files qualitatively (grade C). |
 | **Cursor** | `.cursor/rules/*.mdc` with four application modes; legacy `.cursorrules`; AGENTS.md | **Deliberately none.** Jiang & Nam, [arXiv:2512.18925](https://arxiv.org/abs/2512.18925), MSR '26, 401 repos / 1,876 files: *"the rules we observed are primarily based on developer intuition; their actual impact on LLM performance remains an open question."* 28.70% of rule lines are duplicated across repos; avg 462.67 lines/file. |
 | **Aider** | `CONVENTIONS.md` via `--read` | **None for the conventions file.** Only a qualitative before/after demo. |
@@ -519,7 +565,7 @@ reliably does is exactly the kind of thing no published study has measured.
   citing S1 accurately.
 
 **The offload consensus.** Anthropic's docs, Builder.io, and several independent
-posts converge on the same routing, which is exactly what the unreleased `/init`
+posts converge on the same routing, which is exactly what the new, opt-in `/init`
 implements:
 
 - **CLAUDE.md** — facts true in ~80%+ of sessions.
@@ -616,12 +662,15 @@ For a working developer, the evidence supports this:
    manifest and `--help`?* If yes, cut it.
 3. **Keep only what is not derivable:** non-standard build/test commands, required
    env setup, gotchas and failure contracts, conventions that *differ* from
-   defaults, repo etiquette, safety prohibitions, domain glossary.
+   defaults, repo etiquette, safety prohibitions, domain glossary. Phrase rules as
+   prohibitions where you can: in S6 every individually helpful rule was a "do
+   not" and every harmful one a "do" (suggestive, not established). And keep them
+   current — a stale convention *"costs more than no file"* (Mohammadi et al.).
 4. **Write down what the agent got *wrong*.** This is the one intervention with a
    significance-tested positive result behind it (S5), and independently the one
    that lifts rule compliance from 49.14% to 72.13% (Cai et al.). A line earns its
    place by having prevented a specific failure — the same test Anthropic's own
-   unreleased `/init` applies. It is also the only part of this list that gets
+   new, opt-in `/init` applies. It is also the only part of this list that gets
    *better* the longer you use the repo.
 5. **Count your imperatives, not your lines.** §6.2 says rule count is the variable
    that degrades compliance. Reference material is cheap.
@@ -655,7 +704,17 @@ For a working developer, the evidence supports this:
 - Lulla, Mohsenimofidi, Galster, Zhang, Baltes, Treude. *On the Impact of AGENTS.md Files on the Efficiency of AI Coding Agents.* [arXiv:2601.20404](https://arxiv.org/abs/2601.20404). JAWs @ ICSE 2026
 - McMillan. *Instruction Adherence in Coding Agent Configuration Files: A Factorial Study of Four File-Structure Variables.* [arXiv:2605.10039](https://arxiv.org/abs/2605.10039)
 - Shepard & Albrecht. *Probe-and-Refine Tuning of Repository Guidance for Coding Agents.* [arXiv:2606.20512](https://arxiv.org/abs/2606.20512) — **added round 5**
-- Griffiths. *Measuring AGENTS.md: What Five Runs Show That One Doesn't.* Agentic AI Foundation, 2026-07-22
+- Zhang, Wang, Cui, Qiu, Li, Zhu, He. *Guardrails Beat Guidance: A Large-Scale Study of Rules, Skills, and Persistent Configuration for Coding Agents.* [arXiv:2604.11088](https://arxiv.org/abs/2604.11088) — **added round 7**
+- Griffiths. *Measuring AGENTS.md: What Five Runs Show That One Doesn't.* Agentic AI Foundation, 2026-07-22, [aaif.io](https://aaif.io/blog/measuring-agents-md-what-five-runs-show-that-one-doesn-t)
+
+### Added in round 7 (mechanism and adjacent)
+- Mohammadi, Klein, Chadha, Arora, Bindschaedler. *The Working Set of a Coding Agent: Coherence Debt in Repository-Scale Tasks.* [arXiv:2608.16630](https://arxiv.org/abs/2608.16630) — 7 models × 5 harnesses; *"where standard and code disagree, agents follow the standard even when it prescribes the worse code, so a stale convention file costs more than no file."*
+- Huang et al. *Harness-IF: Evaluating Instruction Following Across Instruction Surfaces in Coding Agents.* [arXiv:2608.11727](https://arxiv.org/abs/2608.11727) — 12 frontier models, 256 rules; accuracy 72.1–85.9%, *"every model is worse on against-prior rules, by 3.6 to 7.4 points (mean 5.81)"*
+- Kozyrev, Kozyrev, Podkopaev. *Skill Issue: Lessons from Optimizing Repository SKILLs for Coding Agents.* [arXiv:2609.12742](https://arxiv.org/abs/2609.12742) — Claude Code, 3 Kotlin repos; optimised documents +4.9 pp, which *"cannot be separated from the agent's run-to-run variance"*
+- Bjarnason, Silva, Monperrus. *On Randomness in Agentic Evals.* [arXiv:2602.07150](https://arxiv.org/abs/2602.07150) — 60,000 trajectories; *"single-run pass@1 estimates vary by 2.2 to 6.0 percentage points"*
+- Yang & Ding. *Signal or Noise? A Benchmark Study of Agent Skills in Web Development.* [arXiv:2608.23067](https://arxiv.org/abs/2608.23067) — injecting a matched skill *"reduces mean Pass@2 by 1.3% to 4.2%"* and raises token cost 72–394%: skills are not free when injected eagerly
+- Wen et al. *MTAC-IFBench.* [arXiv:2609.14992](https://arxiv.org/abs/2609.14992) — instruction-following *"degrading rapidly as the interaction session grows longer"* (supports S4's session-length result; no effect size in the abstract)
+- Yang, He, Zhou. *A First Look at Coding Agents' Compliance with AI Contribution Rules.* [arXiv:2607.26819](https://arxiv.org/abs/2607.26819) — agents *"almost never proactively retrieve the contribution rules"*
 
 ### Observational and descriptive (grades B–C)
 - Arabat & Sayagh. *Toward Instructions-as-Code.* [arXiv:2606.13449](https://arxiv.org/abs/2606.13449). MSR 2026
@@ -709,5 +768,5 @@ For a working developer, the evidence supports this:
 - [OpenHands repo microagents](https://docs.openhands.dev/modules/usage/prompting/microagents-repo)
 
 ### This repository's own primary extraction
-- [`evidence/primary-binary-extracts.md`](evidence/primary-binary-extracts.md) — `/init` prompt, unreleased `/init`, audit doctrine, load semantics, extracted from Claude Code v2.1.278
+- [`evidence/primary-binary-extracts.md`](evidence/primary-binary-extracts.md) — `/init` prompt, the opt-in second `/init`, audit doctrine, load semantics, extracted from Claude Code v2.1.278
 - [`evidence/verification-log.md`](evidence/verification-log.md) — what was re-verified, what conflicted, what was rejected

@@ -231,3 +231,39 @@ something the person controls publishes the link.
 cannot be identified from any published source. The proportion is the finding: a
 review of an academic literature cannot be credited entirely on LinkedIn, and
 pretending otherwise is how the wrong person gets tagged.
+
+## Round 7 (2026-09-24): re-sweep, vendor re-check, and a plain-language rewrite
+
+Three parallel research passes (controlled studies; mechanism; vendor docs and
+practice), then every candidate re-verified by the lead session: abstracts via
+`curl https://arxiv.org/abs/<id>` and a regex over the raw `<blockquote
+class="abstract">`, full text via `pdftotext` where a number was load-bearing.
+
+### Added
+
+| Paper | Role | Verbatim evidence (raw abstract unless stated) |
+|---|---|---|
+| **Zhang, Wang, Cui, Qiu, Li, Zhu, He**, *Guardrails Beat Guidance*, [arXiv:2604.11088](https://arxiv.org/abs/2604.11088), 2026-04-13, v2 2026-05-28 | **Sixth controlled ablation (S6).** The largest; the only one on a frontier agent with a positive direction. | *"Random rules improve a coding agent's task performance as much as expert-curated ones (both $+13.8$pp on a discriminative subset of SWE-bench Verified)"* · *"over 5{,}000 agent runs of Claude Code with Claude Opus 4.6"* · *"pass rates remain stable across rule counts from 0 to 50"*. **Full text (pdftotext):** *"retain 58 discriminative tasks (those solved 1 or 2 out of 3 times, i.e., 30–70% baseline pass rate)"*; *"no condition is significantly different from any other (Cochran's Q = 4.70, p = 0.697). The closest pairwise contrast is random vs. baseline (McNemar p = 0.077"*; *"a binomial sign test on the seven directions gives p = 0.008"*; Table 2: baseline 50.0, random 63.8 (*p*=.077), curated 63.8 (*p*=.115); *"always-pass and always-fail tasks behave identically across conditions"*. The ≈+1.6 pp full-benchmark figure is **our arithmetic** (13.8 × 58/500), not the paper's. |
+| **Mohammadi, Klein, Chadha, Arora, Bindschaedler**, *The Working Set of a Coding Agent*, [arXiv:2608.16630](https://arxiv.org/abs/2608.16630), 2026-08-17 | Mechanism: stale files hurt | *"where standard and code disagree, agents follow the standard even when it prescribes the worse code, so a stale convention file costs more than no file"* · *"seven models and five harnesses"* |
+| **Huang et al.**, *Harness-IF*, [arXiv:2608.11727](https://arxiv.org/abs/2608.11727), 2026-08-12 | Mechanism: adherence | *"Across 12 frontier models, accuracy spans 72.1-85.9% and AP-Acc 66.1-78.6%; every model is worse on against-prior rules, by 3.6 to 7.4 points (mean 5.81)"* |
+| **Kozyrev, Kozyrev, Podkopaev**, *Skill Issue*, [arXiv:2609.12742](https://arxiv.org/abs/2609.12742), 2026-09-11 | Related controlled study (SKILL.md, not a context file) | *"the documents GEPA finds raise this score by $4.9$pp on average"* · *"it cannot be separated from the agent's run-to-run variance"* |
+| **Bjarnason, Silva, Monperrus**, *On Randomness in Agentic Evals*, [arXiv:2602.07150](https://arxiv.org/abs/2602.07150), v3 2026-03-25 | Noise | *"single-run pass@1 estimates vary by 2.2 to 6.0 percentage points"* · *"reported improvements of 2--3 percentage points may reflect evaluation noise"* |
+| **Yang & Ding**, *Signal or Noise?*, [arXiv:2608.23067](https://arxiv.org/abs/2608.23067); **Wen et al.**, *MTAC-IFBench*, [arXiv:2609.14992](https://arxiv.org/abs/2609.14992); **Yang, He, Zhou**, [arXiv:2607.26819](https://arxiv.org/abs/2607.26819) | Dossier only (adjacent) | see `results.md` §13 |
+
+### Corrected (see `self-review.md` entries 5–8)
+
+- **AAIF pairing.** Primary source re-fetched (`aaif.io/blog/measuring-agents-md-what-five-runs-show-that-one-doesn-t`): *"On the harder task, the AGENTS.md run looked 44% slower and 41% more expensive for identical output"* (a first single-run attempt); *"On the ambiguous task, it cut wall time 27%, credits 24%"*; *"On the multi-file task, the median win was smaller, 9 to 10%"*. The review had paired numbers from different tasks.
+- **Second `/init`.** Memory docs: *"For an interactive multi-phase flow instead, set the `CLAUDE_CODE_NEW_INIT` environment variable to `1` before you run `/init`"*. Binary v2.1.282: `CLAUDE_CODE_NEW_INIT||x("tengu_slate_harbor_experiment",!1)` — still off by default; the "only include what Claude would get wrong without it" prompt unchanged.
+- **AGENTS.md in Claude Code.** Changelog 2.1.277, 2026-09-18: *"Added AGENTS.md support: in a project with no CLAUDE.md, Claude Code reads AGENTS.md instead"*.
+- **Codex and `CLAUDE.md`.** `developers.openai.com/codex/guides/agents-md` does not contain the string "CLAUDE.md"; lookup order is `AGENTS.override.md`, `AGENTS.md`, then `project_doc_fallback_filenames`.
+
+### Re-checked and unchanged
+
+- **Gloaguen v2** (2026-06-23). Abstract now reads *"does not generally improve task success rates, while increasing inference cost by over 20% on average"*; the quoted *"instructions … well followed … repository overviews … are not helpful"* sentence is unchanged. No artefact quoted the v1 "reduce" wording.
+- **Agent READMEs v2** (2026-08-09): *"test procedures (75.9%), implementation details (70.8%), and architecture (68.1%)"*, *"security (14.8%) and performance (14.5%)"* — matches figure 3.
+- **Pricing** (Sonnet 5: $2 in, $2.50 cache write, $0.20 cache read); **"target under 200 lines"**; **"Bloated CLAUDE.md files cause Claude to ignore your actual instructions!"**; OpenAI *"Avoid chain-of-thought prompts"* — all still verbatim at source.
+
+### Rejected
+
+- A compliance-decay curve (*"95%+ … 60-80% … 20-60%"*) attributed in a search summary to a practitioner: **no primary source found**. Not used.
+- Checked, not used (observational without an outcome, off-topic, or N=1): 2606.15828, 2608.23550, 2609.07360, 2608.10622, 2608.13867, 2609.05510, 2608.13662, 2607.11111, 2602.05892, 2607.10569, 2608.11386, 2606.25257 (study protocol, no results yet).
