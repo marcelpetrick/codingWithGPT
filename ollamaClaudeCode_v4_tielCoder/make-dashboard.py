@@ -179,7 +179,7 @@ def main():
             f"<td>{E(c.get('gates') or '-')}</td><td class='num'>{E(c.get('gen_toks') or '-')}</td>"
             f"<td class='num'>{E(c.get('ledger_median_s') or '-')}</td><td>{E(c.get('ledger_hidden') or '-')}</td>"
             f"<td class='small'>{E(c.get('note') or '')}</td></tr>")
-    queue = ["occamy", "kat-coder", "byteshape", "laguna-xs21"]
+    queue = ["occamy", "kat-coder", "byteshape"]
     done = {c["name"] for c in cands}
     pending = [q for q in queue if q not in done]
 
@@ -240,7 +240,7 @@ ul{{margin:6px 0;padding-left:20px}}
 <tr><th>candidate</th><th>verdict</th><th>GiB</th><th>VRAM GB</th><th>gates</th><th>tok/s</th><th>ledger s</th><th>hidden</th><th>note</th></tr>
 {''.join(crs) or '<tr><td colspan="9" class="muted">none finished yet</td></tr>'}
 </table></div>
-<p class="small muted">Still queued: {E(', '.join(pending)) or 'none'}. Ruled out on web evidence and never pulled: Ornith-27B-Coder, Qwen3.6-27B-A3B-Coder, KAT-Ornith, SignOfFour, both OmniMerges, glm-4.7-flash, qwen3-coder:30b (reasons in the round document).</p>
+<p class="small muted">Still queued: {E(', '.join(pending)) or 'none'}. Ruled out on web evidence and never pulled: Ornith-27B-Coder, Qwen3.6-27B-A3B-Coder, KAT-Ornith, SignOfFour, both OmniMerges, glm-4.7-flash, qwen3-coder:30b, Laguna XS 2.1 (reasons in CANDIDATE_REGISTER.md).</p>
 </main></body></html>
 """
     out = HERE / "dashboard.html"
