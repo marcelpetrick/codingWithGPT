@@ -33,6 +33,11 @@ say "waiting for the box"
 while pgrep -f '^bash \./(GO_official_tb|s9-candidates|s10-one|run-all|refine-ab)\.sh' >/dev/null 2>&1; do sleep 60; done
 curl -s -m 10 "$BASE/api/version" >/dev/null || { say "server unreachable -- stopping"; exit 3; }
 
+# T5 x8 for any model of the pair that s12 did not re-gate (qwen3.6 was not in its list)
+for M in "${PAIR[@]}"; do
+  grep -q "^$M	T5	" results/gate-rerun.tsv 2>/dev/null || python3 ./gate-rerun.py --host "$BASE" --n 8 --gate T5 "$M" 2>&1 | tail -2 | tee -a "$LOG"
+done
+
 cd "$TBO"
 if [ ! -s subset-ext-scored.txt ]; then
   say "1/3 oracle on the 30 extended tasks"

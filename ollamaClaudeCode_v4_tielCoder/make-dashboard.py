@@ -418,7 +418,7 @@ def main():
             f"<td class='num' data-v='{cv('ledger_median_s')}'>{E(c.get('ledger_median_s') or '-')}</td>"
             f"<td data-v='{cv('ledger_hidden')}'>{E(c.get('ledger_hidden') or '-')}</td>"
             f"<td class='small' data-v='{E(c.get('note') or '')}'>{E(c.get('note') or '')}</td></tr>")
-    queue = ["occamy", "kat-coder", "ornith15-35b", "byteshape"]
+    queue = ["occamy", "kat-coder", "ornith15-35b", "byteshape", "laguna-xs21"]
     done = {c["name"] for c in cands}
     pending = [q for q in queue if q not in done]
 
