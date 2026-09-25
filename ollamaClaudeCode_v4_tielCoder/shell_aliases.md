@@ -106,8 +106,20 @@ no measurable effect on short sessions (R1), but it is the documented workaround
    **done** 2026-09-25 (backup `~/.zshrc.bak-abandon-*`), and with them the dangling `claude-ol-vision`
    reference (it lived in claude-ol-north's comment)
 6. optional: raise `claude-ol-tiel`'s cap to 230000
-7. on `.67`, the tags only the removed aliases used can be deleted to free disk (nemotron-3.5-lightning ×3,
-   north-mini, ornith ×2): an outward change, the owner's call
+7. ~~on `.67`, delete the tags only the removed aliases used~~ **done** 2026-09-25, on the owner's instruction
+   ("keep qwen3.6 and ornith, used by another workflow"). Deleted: `nemotron-3.5-lightning:30b`,
+   `:30b-ctx256k-agentic`, `:30b-ctx512k-agentic`, `north-mini-code-1.0:q4_K_M-ctx256k-agentic`. All
+   `qwen3.6:*` and `ornith*` tags kept. Measured with `/api/tags` + `/api/show` (blobs deduplicated by their
+   `FROM` digests):
+
+   | | tags | sum of tag sizes | unique weights on disk |
+   |---|---|---|---|
+   | before | 29 | 615.66 GiB | 250.25 GiB (12 distinct) |
+   | after | 25 | 527.29 GiB | **209.25 GiB** (10 distinct) |
+   | **freed** | 4 | 88.37 GiB | **41.00 GiB** |
+
+   Note: `north-mini-code-1.0` was one of the four standing-field comparators (BENCHMARK_HARNESS §9a).
+   Its measurements stay in `results/`, but a future parity run must re-pull it or drop it from the field.
 
 ## `claude-ol-byte` (added 2026-09-25)
 
