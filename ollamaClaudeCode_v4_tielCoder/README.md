@@ -1,12 +1,13 @@
 # v4 — Tiel-Coder on the Ollama server, and the field re-measured on 0.33.3
 
 Measured on **`192.168.100.67`, Ollama 0.33.3**, 2026-09-17/18, ≈35.56 GB usable VRAM, server
-idle before every stage, one model resident at a time. **Verdict revised 2026-09-21** — see
-below for what the round proved and what it only appeared to.
+idle before every stage, one model resident at a time. **Verdict revised 2026-09-25**: the
+parity round and four candidates are in. The 2026-09-21 verdict is kept below it as history.
 
 | | |
 |---|---|
-| **the verdict** | below |
+| **the verdict** | below. The round that produced it: [`ROUND_2026-09-24.md`](ROUND_2026-09-24.md) · dashboard: [`dashboard.html`](dashboard.html) |
+| every model found, and what was decided about it | [`CANDIDATE_REGISTER.md`](CANDIDATE_REGISTER.md) |
 | every number, and how it was taken | [`measurements.md`](measurements.md) |
 | the twelve harness defects found *in this round's own tooling* | [`review.md`](review.md) |
 | how to evaluate a new model at all — rules, traps, the standing field | [`BENCHMARK_HARNESS.md`](BENCHMARK_HARNESS.md) |
@@ -19,7 +20,41 @@ below for what the round proved and what it only appeared to.
 
 ---
 
-## The verdict
+## The verdict (2026-09-25)
+
+**For agentic coding with Claude Code, use `kat-coder-v2.5:q5km-ctx256k-agentic`**
+(Kwaipilot KAT-Coder-V2.5-Dev, bartowski Q5_K_M, t 1.0 / top_p 0.95). **qwen3.6 can be replaced.**
+
+Every model reasoned (thinking parity, verified per trial), each ran at its vendor sampler, and the
+rule for taking the pick was fixed before the results: 18/18 held-out, and either a separated
+Terminal-Bench interval or a tie there plus a clearly faster session.
+
+| model | ledger session, median | held-out tests, 3 runs | Terminal-Bench, 9 tasks × 3 | tool gates |
+|---|---|---|---|---|
+| **KAT-Coder-V2.5-Dev** | **46 s** | **18/18 ×3** | 33% [19, 52] *(44% graded semantically: openssl grader artifact)* | 10/10 |
+| Tiel-Coder 35B-A3B | 83 s | 18/18 ×3 | 37% [22, 56] | 10/10 |
+| ByteShape Qwen3.6 Q4_K_S | **35 s** | 15–18/18 | **52% [34, 69]** | 10/10 |
+| Qwen3.6 35B-A3B (greedy) | 60 s | 15–17/18 | 44% [28, 63] | |
+| gemma4 26B-A4B | 92 s | 18/18 ×3 | 44% [28, 63] | |
+| occamy-1.0 | 113 s | 18/18 ×3 | 41% [25, 59] | 9/10 |
+| Ornith-1.5 35B-A3B | 119 s | 18/18 ×3 | 41% [25, 59] | 9/10 |
+| North-Mini-Code 1.0 | 126 s | 14–18/18 | 33% [19, 52] | |
+
+- **Terminal-Bench separates nobody.** Every interval overlaps. A 40-task round (±9 points) would be
+  needed to rank on correctness.
+- **Quality separates**: KAT, Tiel, gemma4, occamy and Ornith implement the specification 3/3. The
+  qwen3.6 family (including ByteShape) leaves held-out tests failing.
+- **Among the 18/18 models, KAT is by far the fastest**, both in sessions and in Terminal-Bench median.
+- **Use Tiel instead** when context-overflow safety matters most (it refuses with HTTP 400; most models
+  silently halve). **Use gemma4** for vision. **ByteShape** is the choice for raw Terminal-Bench score
+  and speed with 4 GB less VRAM, if spec-completeness matters less.
+
+Details, per-task results, the defects found on the way, and the refinements still to test are in
+[`ROUND_2026-09-24.md`](ROUND_2026-09-24.md).
+
+---
+
+## The verdict as of 2026-09-21 (history)
 
 *Revised 2026-09-21.* This round produced **two** cross-model capability results, from two
 different harnesses, and **only one of them is valid**. That is the first thing to know before
