@@ -160,26 +160,38 @@ def main():
 
     trs = []
     for r in table:
+        def dv(v):  # sort key for a cell; missing values sort last either way
+            return "" if v is None else f"{v:.3f}"
+        hid = statistics.mean(r["hidden"]) if r["hidden"] else None
         trs.append(
-            f"<tr><td><b>{E(r['name'])}</b><div class='muted small'>{E(r['note'])}</div></td>"
-            f"<td class='num'>{num(r['tps'], '{:.0f}')}</td>"
-            f"<td class='num'>{num(r['wall'], '{:.0f} s')}</td>"
-            f"<td class='num'>{num(r['rate'], '{:.0f}%')}<div class='muted small'>{r['k']}/{r['n']}"
+            f"<tr><td data-v='{E(r['name'])}'><b>{E(r['name'])}</b><div class='muted small'>{E(r['note'])}</div></td>"
+            f"<td class='num' data-v='{dv(r['tps'])}'>{num(r['tps'], '{:.0f}')}</td>"
+            f"<td class='num' data-v='{dv(r['wall'])}'>{num(r['wall'], '{:.0f} s')}</td>"
+            f"<td class='num' data-v='{dv(r['rate'])}'>{num(r['rate'], '{:.0f}%')}<div class='muted small'>{r['k']}/{r['n']}"
             f"{'' if r['rate'] is None else f' &middot; [{r['lo']:.0f}, {r['hi']:.0f}]'}</div></td>"
-            f"<td class='cicell'>{ci_bar(r)}</td>"
-            f"<td>{hidden_chips(r['hidden'])}</td></tr>")
+            f"<td class='cicell' data-v='{dv(r['lo'] if r['rate'] is not None else None)}'>{ci_bar(r)}</td>"
+            f"<td data-v='{dv(hid)}'>{hidden_chips(r['hidden'])}</td></tr>")
 
     crs = []
     for c in cands:
         v = c.get("verdict", "")
         tone = "good" if v == "SCREENED-IN" else "crit"
+        def cv(k):
+            x = (c.get(k) or "").split("/")[0]
+            try:
+                return f"{float(x):.3f}"
+            except ValueError:
+                return ""
         crs.append(
-            f"<tr><td><b>{E(c['name'])}</b><div class='muted small'>{E(c['source'])}</div></td>"
-            f"<td><span class='chip {tone}'>{E(v)}</span></td>"
-            f"<td class='num'>{E(c.get('got_gib') or '-')}</td><td class='num'>{E(c.get('vram_gb') or '-')}</td>"
-            f"<td>{E(c.get('gates') or '-')}</td><td class='num'>{E(c.get('gen_toks') or '-')}</td>"
-            f"<td class='num'>{E(c.get('ledger_median_s') or '-')}</td><td>{E(c.get('ledger_hidden') or '-')}</td>"
-            f"<td class='small'>{E(c.get('note') or '')}</td></tr>")
+            f"<tr><td data-v='{E(c['name'])}'><b>{E(c['name'])}</b><div class='muted small'>{E(c['source'])}</div></td>"
+            f"<td data-v='{E(v)}'><span class='chip {tone}'>{E(v)}</span></td>"
+            f"<td class='num' data-v='{cv('got_gib')}'>{E(c.get('got_gib') or '-')}</td>"
+            f"<td class='num' data-v='{cv('vram_gb')}'>{E(c.get('vram_gb') or '-')}</td>"
+            f"<td data-v='{cv('gates')}'>{E(c.get('gates') or '-')}</td>"
+            f"<td class='num' data-v='{cv('gen_toks')}'>{E(c.get('gen_toks') or '-')}</td>"
+            f"<td class='num' data-v='{cv('ledger_median_s')}'>{E(c.get('ledger_median_s') or '-')}</td>"
+            f"<td data-v='{cv('ledger_hidden')}'>{E(c.get('ledger_hidden') or '-')}</td>"
+            f"<td class='small' data-v='{E(c.get('note') or '')}'>{E(c.get('note') or '')}</td></tr>")
     queue = ["occamy", "kat-coder", "ornith15-35b", "byteshape"]
     done = {c["name"] for c in cands}
     pending = [q for q in queue if q not in done]
@@ -218,6 +230,9 @@ td.num{{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}}
 .ci-range{{position:absolute;top:0;bottom:0;background:var(--ref-soft);border:1px solid var(--ref);border-radius:7px}}
 .ci-dot{{position:absolute;top:1px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--ref)}}
 ul{{margin:6px 0;padding-left:20px}}
+th.sortable{{cursor:pointer;user-select:none}} th.sortable:hover{{color:var(--ink)}}
+th.sortable::after{{content:" \\2195";opacity:.35}} th[aria-sort=ascending]::after{{content:" \\2191";opacity:1}}
+th[aria-sort=descending]::after{{content:" \\2193";opacity:1}}
 </style></head><body><main>
 <h1>Which model for agentic coding</h1>
 <div class="muted small">Ollama 0.33.3 on .67 &middot; Claude Code &middot; generated {datetime.now():%Y-%m-%d %H:%M} from results/ &middot; round document: ROUND_2026-09-24.md</div>
@@ -242,7 +257,35 @@ ul{{margin:6px 0;padding-left:20px}}
 {''.join(crs) or '<tr><td colspan="9" class="muted">none finished yet</td></tr>'}
 </table></div>
 <p class="small muted">Still queued: {E(', '.join(pending)) or 'none'}. Ruled out on web evidence and never pulled: Ornith-27B-Coder, Qwen3.6-27B-A3B-Coder, KAT-Ornith, SignOfFour, both OmniMerges, glm-4.7-flash, qwen3-coder:30b, Laguna XS 2.1 (reasons in CANDIDATE_REGISTER.md).</p>
-</main></body></html>
+<p class="small muted">Click a column header to sort; click again to reverse. Empty cells always sort last.</p>
+</main>
+<script>
+document.querySelectorAll("table").forEach(function (tbl) {{
+  var head = tbl.rows[0];
+  Array.prototype.forEach.call(head.cells, function (th, col) {{
+    th.classList.add("sortable");
+    th.addEventListener("click", function () {{
+      var asc = th.getAttribute("aria-sort") !== "ascending";
+      Array.prototype.forEach.call(head.cells, function (h) {{ h.removeAttribute("aria-sort"); }});
+      th.setAttribute("aria-sort", asc ? "ascending" : "descending");
+      var rows = Array.prototype.slice.call(tbl.rows, 1).filter(function (r) {{ return r.cells.length > 1; }});
+      rows.sort(function (a, b) {{
+        var x = a.cells[col] ? a.cells[col].getAttribute("data-v") || "" : "";
+        var y = b.cells[col] ? b.cells[col].getAttribute("data-v") || "" : "";
+        if (x === "" && y === "") return 0;
+        if (x === "") return 1;
+        if (y === "") return -1;
+        var nx = parseFloat(x), ny = parseFloat(y);
+        var d = (!isNaN(nx) && !isNaN(ny)) ? nx - ny : x.localeCompare(y);
+        return asc ? d : -d;
+      }});
+      var parent = tbl.rows[1] ? tbl.rows[1].parentNode : tbl;
+      rows.forEach(function (r) {{ parent.appendChild(r); }});
+    }});
+  }});
+}});
+</script>
+</body></html>
 """
     out = HERE / "dashboard.html"
     out.write_text(page)
