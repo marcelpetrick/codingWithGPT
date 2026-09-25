@@ -180,7 +180,7 @@ def main():
             f"<td>{E(c.get('gates') or '-')}</td><td class='num'>{E(c.get('gen_toks') or '-')}</td>"
             f"<td class='num'>{E(c.get('ledger_median_s') or '-')}</td><td>{E(c.get('ledger_hidden') or '-')}</td>"
             f"<td class='small'>{E(c.get('note') or '')}</td></tr>")
-    queue = ["occamy", "kat-coder", "byteshape"]
+    queue = ["occamy", "kat-coder", "ornith15-35b", "byteshape"]
     done = {c["name"] for c in cands}
     pending = [q for q in queue if q not in done]
 
