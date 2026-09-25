@@ -1,0 +1,6 @@
+test	result	detail
+T1_single_tool	PASS	correct_args
+T2_tool_selection	PASS	chose_search_code
+T3_multiturn	PASS	used_tool_result
+T4_parallel_calls	PASS	2_parallel_calls
+T5_complex_schema	PASS	nested_schema_exact_2_edits

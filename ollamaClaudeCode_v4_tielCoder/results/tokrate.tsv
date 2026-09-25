@@ -41,3 +41,6 @@ ollama	model	prompt_words	prompt_tok	gen_tok	prefill_tps	gen_tps	load_s	total_s
 0.33.3	ornith-1.5-35b:q5km-ctx256k-agentic	0	25	256	118.4	118.94	0.0	2.5
 0.33.3	ornith-1.5-35b:q5km-ctx256k-agentic	2000	3180	199	2828.0	123.68	0.0	2.9
 0.33.3	ornith-1.5-35b:q5km-ctx256k-agentic	20000	35102	256	3510.7	107.26	0.0	12.8
+0.33.3	byteshape-qwen3.6-35b:q4ks-ctx256k-agentic	0	25	107	1.3	125.51	0.0	20.2
+0.33.3	byteshape-qwen3.6-35b:q4ks-ctx256k-agentic	2000	3180	114	3079.6	131.21	0.0	2.0
+0.33.3	byteshape-qwen3.6-35b:q4ks-ctx256k-agentic	20000	35102	126	4340.4	113.63	0.0	9.6
