@@ -1,1 +1,4 @@
 date	ollama	model	fixture	thinking	run	verdict	hidden	wall_s	warm_s	calls	turns	in_tok	out_tok	think_chars	api_s	ttft_s	max_gap_s	tools	reloads	foreign	note
+2026-09-25	0.33.3	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	1	PASS	18/18	48	2.2	6	17	31336	3545	1535	46.6	7.7	7.7	Bashx6,Readx5,Editx5	0	-	
+2026-09-25	0.33.3	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	2	PASS	17/18	59	1.6	9	26	33929	4459	2318	58.3	8.2	8.1	Bashx12,Editx7,Readx6	0	-	
+2026-09-25	0.33.3	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	3	PASS	18/18	58	1.8	7	19	34655	4283	3619	55.7	7.9	12.3	Bashx7,Readx6,Editx5	0	-	

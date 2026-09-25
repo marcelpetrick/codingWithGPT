@@ -1,0 +1,25 @@
+# Scored extended subset: the tasks of subset-ext.txt whose ORACLE (reference
+# solution) passed, run runs/selfcheck-oracle-ext-150845. Dropped as defective (7): build-linux-kernel-qemu, cron-broken-network, eval-mteb, polyglot-rust-c, run-pdp11-code, solana-data, swe-bench-astropy-1
+blind-maze-explorer-5x5
+cartpole-rl-training
+create-bucket
+decommissioning-service-with-sensitive-data
+extract-safely
+gpt2-codegolf
+incompatible-python-fasttext
+intrusion-detection
+new-encrypt-command
+path-tracing
+path-tracing-reverse
+play-zork
+pytorch-model-cli
+raman-fitting
+reshard-c4-data
+simple-web-scraper
+sqlite-db-truncate
+swe-bench-astropy-2
+swe-bench-fsspec
+tmux-advanced-workflow
+train-fasttext
+vim-terminal-task
+write-compressor

@@ -5,3 +5,4 @@ tiel-coder:35b-q5-ctx256k-agentic	T5	6/8	flaky
 occamy-1.0:q5km-ctx256k-agentic	T5	2/8	systematic
 ornith-1.5-35b:q5km-ctx256k-agentic	T5	5/8	flaky
 byteshape-qwen3.6-35b:q4ks-ctx256k-agentic	T5	8/8	clean
+qwen3.6:35b-a3b-q4_K_M-agentic	T5	8/8	clean
