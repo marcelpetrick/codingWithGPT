@@ -73,10 +73,10 @@ case "$THINKING" in on|off) ;; *) echo "--thinking on|off" >&2; exit 2 ;; esac
 D="$(dirname "$(readlink -f "$0")")"
 API="http://${HOST}:${PORT}"
 OUT="$D/results/cc"; mkdir -p "$OUT"
-# A/B arms (CC_ARM) get their own TSV: every reader of cc-session.tsv (the screen,
+# A/B arms (CC_ARM) get their own TSV each: every reader of cc-session.tsv (the screen,
 # the dashboard) pools all rows of a tag, so arm rows there would silently mix
 # into its session time and held-out scores (review_20260925.md).
-TSV="$D/results/cc-session${CC_ARM:+-ab}.tsv"
+TSV="$D/results/cc-session${CC_ARM:+-$CC_ARM}.tsv"   # one file per arm
 WORKROOT="${CC_WORKROOT:-/tmp/ollama-v4-cc}"; mkdir -p "$WORKROOT"
 [ -s "$TSV" ] || printf 'date\tollama\tmodel\tfixture\tthinking\trun\tverdict\thidden\twall_s\twarm_s\tcalls\tturns\tin_tok\tout_tok\tthink_chars\tapi_s\tttft_s\tmax_gap_s\ttools\treloads\tforeign\tnote\n' > "$TSV"
 
