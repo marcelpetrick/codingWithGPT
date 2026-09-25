@@ -14,6 +14,7 @@ records only the delta.
 | command | before (after v3) | after v4 |
 |---|---|---|
 | `claude-ol-north` — default | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **superseded** — keep it, stop reaching for it first |
+| *(new 09-25)* **`claude-ol-byte`** | — | **added to ~/.zshrc**: `byteshape-qwen3.6-35b:q4ks-ctx256k-agentic`, the fastest and top-scoring (see *Alias review*) |
 | *(new 09-25)* **`claude-ol-kat`** | — | **the equal alternative** to qwen3.6 (README verdict 2026-09-25, same-version re-baseline): `kat-coder-v2.5:q5km-ctx256k-agentic` @ 262144 |
 | *(new)* `claude-ol-tiel` | — | the 09-21 default, now the pick **when overflow safety matters**: `tiel-coder:35b-q5-ctx256k-agentic` @ 262144 |
 | *(new)* `claude-ol-tiel-fast` | — | the same tag with `<\|think_off\|>` appended — **2.3× faster**, see below |
@@ -64,6 +65,48 @@ curl -s http://192.168.100.67:11434/api/create -d '{
   "parameters": {"presence_penalty": 0},
   "stream": false}'
 ```
+
+## Alias review, 2026-09-25: every `claude-ol*` in `~/.zshrc`
+
+Checked against the live servers (the tag must exist where the alias points) and this round's
+measurements. The same-version re-baseline decides the ranking.
+
+| alias | backend and tag | configured correctly? | problems found | recommendation |
+|---|---|---|---|---|
+| **`claude-ol2`** | .67 `qwen3.6:35b-a3b-q4_K_M-agentic` (greedy) | **yes**: pre-warm, all four slots, 200k cap, reminder off | only its comment is stale ("dual-GPU", figures from 08-06) | **KEEP: the default** (48 s, 18,18,18,17,17, TB 50%, T5 8/8) |
+| **`claude-ol-byte`** *(new)* | .67 `byteshape-qwen3.6-35b:q4ks-ctx256k-agentic` | **yes**, same pattern as claude-ol2 | trade-off: held-out median 17 | **KEEP: fastest and top score** (41 s, TB 58%, 4 GB less VRAM) |
+| `claude-ol-kat` *(missing)* | .67 `kat-coder-v2.5:q5km-ctx256k-agentic` | tag exists, **no alias in ~/.zshrc** | | **ADD**: the equal alternative (45 s, 18,18,17,18,17, T5 8/8). The recipe is in the next section |
+| `claude-ol-tiel` | .67 `tiel-coder:35b-q5-ctx256k-agentic` | **yes** | the cap could be 230k (it refuses rather than halving). T5 6/8 | **KEEP for overflow safety** (the only model that errors instead of truncating) and vision |
+| `claude-ol-north` | .67 `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | yes | its comment still says **"THE DEFAULT since 2026-08-27"**. 126 s sessions, held-out 14–18, TB 38%, no vision, silently halves | **ABANDON**: superseded by claude-ol2 / claude-ol-byte on every axis except raw tok/s |
+| `claude-ol-ornith` | .67 `ornith:35b-ctx256k-agentic` (Ornith 1.0) | mostly | its cap of **220k** sits just under where the overflow probe saw it truncate (224,357 evaluated of ~275k sent). Held-out 16–18. Its successor 1.5 fails T5 | **ABANDON** |
+| `claude-ol-nemo` | .67 `nemotron-3.5-lightning:30b-ctx256k-agentic` | **no** | its purpose is "the deep-context option", but it points at the **256k** tag, not the 512k one. Held-out 13–14/18, 44.9 tok/s | **ABANDON** |
+| `claude-ol` | .37 `qwen3.5:9b-ctx80k` | **no** | **no `CLAUDE_CODE_MAX_CONTEXT_TOKENS`**: Claude Code assumes 200k against an 80k window and silently truncates. A 9B model is far below the field | **ABANDON** (or, as a .37 fallback only, add `CLAUDE_CODE_MAX_CONTEXT_TOKENS=60000`) |
+| `claude-ol-mistral` | .37 `mistral-nemo:12b-ctx20k` | **no** | a **20k** window cannot even hold Claude Code's system prompt plus tool schemas. No cap | **ABANDON** |
+| `claude-ol-local` | localhost `qwen3.5:4b-ctx32k` | **broken** | **tag does not exist** on localhost (only `qwen3.5:4b`) | **ABANDON** |
+| `claude-locallama` | localhost `qwen3.5:4b-ctx54k` | **broken** | **tag does not exist** on localhost. Outside the `claude-ol*` naming | **ABANDON** |
+| `claude-ol-vision` | — | **does not exist** | referenced by claude-ol-north's comment only. Vision lives in `claude-vision` (the OCR shell) and in claude-ol-tiel (42/42) | remove the dangling reference |
+| `claude-nvidia` | NVIDIA NIM via local proxy, qwen3-coder-480b | out of scope (cloud, not local) | sets no context cap | keep, unaffected |
+
+**All `.67` functions share correct slot handling:** all four model slots on the resident tag, so no
+eviction, pre-warm with `keep_alive 2h`, and `CLAUDE_CODE_TOTAL_TOKENS_REMINDER=off`. That last one showed
+no measurable effect on short sessions (R1), but it is the documented workaround for long ones
+(ollama#18431). Keep it.
+
+**Plan (not applied: `~/.zshrc` is the owner's; backups are `~/.zshrc.bak-*`):**
+1. ~~add `claude-ol-byte`~~ **done** 2026-09-25 (backup `~/.zshrc.bak-byteshape-*`)
+2. add `claude-ol-kat`
+3. remove `claude-ol`, `claude-ol-mistral`, `claude-ol-local`, `claude-locallama`, `claude-ol-nemo`,
+   `claude-ol-north`, `claude-ol-ornith`, and the stale comments that name them or `claude-ol-vision`
+4. refresh `claude-ol2`'s comment to the 09-25 figures. Optionally raise `claude-ol-tiel`'s cap to 230000
+5. on `.67`, the tags only these aliases used can be deleted to free disk (nemotron-3.5-lightning ×3,
+   north-mini, ornith ×2): an outward change, the owner's call
+
+## `claude-ol-byte` (added 2026-09-25)
+
+In `~/.zshrc`, identical in shape to `claude-ol2`. The tag carries everything: ByteShape Q4_K_S 4.22 bpw,
+num_ctx 262144, presence_penalty 0, t 0.6 / top_p 0.95 / top_k 20 / min_p 0, and `RENDERER/PARSER qwen3.5`,
+verified with `/api/show`. The client side sets `CLAUDE_CODE_MAX_CONTEXT_TOKENS=200000`, because Qwen3.6 builds
+silently halve past num_ctx.
 
 ## `claude-ol-kat` (ties the qwen3.6 default, 2026-09-25)
 
