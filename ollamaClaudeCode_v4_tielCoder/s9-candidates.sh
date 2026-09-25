@@ -110,7 +110,17 @@ for spec in "${CANDIDATES[@]}"; do
   # ---- pull ------------------------------------------------------------------
   note "pulling (this is the slow part; no GPU is touched)"
   curl -s -m 7200 "$BASE/api/pull" -d "{\"model\":\"$SRC\",\"stream\":false}" | tee -a "$LOG" | tail -1
+  # An unreachable server is not a result. On 2026-09-24 the link to .67
+  # dropped at 16:51; the size read came back EMPTY, the gate called it a
+  # wrong rung and tried to delete both KAT and ByteShape. Stop instead.
+  if ! curl -s -m 10 "$BASE/api/version" >/dev/null; then
+    note "SERVER UNREACHABLE -- screen stopped, nothing recorded, nothing deleted"
+    exit 3
+  fi
   GOT=$(./s9-parse.py size "$BASE" "$SRC")
+  if [ -z "$GOT" ]; then
+    note "size read failed -- not recorded"; exit 3
+  fi
   if [ "$GOT" = "0" ]; then
     note "PULL FAILED -- not on the box"; row "$NAME" "$CLASS" "$SRC" "$TAG" "$EXP" "-" "-" "-" "-" "CUT" "-" "-" "-" "-" "-" "CUT-pull" "pull failed"; continue
   fi
