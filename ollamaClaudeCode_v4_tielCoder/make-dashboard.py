@@ -194,7 +194,7 @@ def rerun_section(E):
         w = [float(r["wall_s"]) for r in rs if r["wall_s"].replace(".", "", 1).isdigit()]
         h = [int(r["hidden"].split("/")[0]) for r in rs if "/" in r.get("hidden", "")]
         ok = bool(h) and statistics.median(h) == 18 and min(h) >= 16
-        body.append(f"<tr><td data-v='{E(m)}'><b>{E(m)}</b></td><td class='num' data-v='{len(rs)}'>{len(rs)}</td>"
+        body.append(f"<tr><td data-v='{E(m)}'><b>{E(m)}</b>{minfo(m)}</td><td class='num' data-v='{len(rs)}'>{len(rs)}</td>"
                     f"<td class='num' data-v='{statistics.median(w) if w else ''}'>{f'{statistics.median(w):.0f} s' if w else '&mdash;'}</td>"
                     f"<td class='num' data-v='{min(w) if w else ''}'>{f'{min(w):.0f}&ndash;{max(w):.0f}' if w else '&mdash;'}</td>"
                     f"<td data-v='{statistics.mean(h) if h else ''}'>" + (" ".join(
@@ -218,7 +218,7 @@ def rerun_section(E):
     wanted = ["kat-coder-v2.5:q5km-ctx256k-agentic", "tiel-coder:35b-q5-ctx256k-agentic",
               "occamy-1.0:q5km-ctx256k-agentic", "ornith-1.5-35b:q5km-ctx256k-agentic",
               "byteshape-qwen3.6-35b:q4ks-ctx256k-agentic"]
-    gb = "".join(f"<tr><td data-v='{E(m)}'>{E(m)}</td><td data-v='{g[m][0] if m in g else ''}'>"
+    gb = "".join(f"<tr><td data-v='{E(m)}'>{E(m)}{minfo(m)}</td><td data-v='{g[m][0] if m in g else ''}'>"
                  f"{E(g[m][0]) + ' ' + E(g[m][1]) if m in g else '<span class=muted>pending</span>'}</td></tr>" for m in wanted)
     parts.append("<h3>B. Tool-gate consistency: T5 nested schema &times;8</h3><div class='panel'><table><tr>"
                  + th("model", "rb_model") + th("T5 passes of 8", "t5") + "</tr>" + gb + "</table></div>")
@@ -260,7 +260,7 @@ def rerun_section(E):
         if r.get("arm") == "thinkon-ext" and r["task"] not in DEFECTIVE and r["failure_mode"] not in INFRA:
             ext[r["model"]][1] += 1
             ext[r["model"]][0] += r["resolved"] == "True"
-    eb = "".join(f"<tr><td data-v='{E(m)}'>{E(m)}</td><td class='num' data-v='{100 * k / n if n else 0}'>{k}/{n} = "
+    eb = "".join(f"<tr><td data-v='{E(m)}'>{E(m)}{minfo(m)}</td><td class='num' data-v='{100 * k / n if n else 0}'>{k}/{n} = "
                  f"{100 * k / n:.0f}% [{wilson(k, n)[0]:.0f}, {wilson(k, n)[1]:.0f}]</td></tr>" for m, (k, n) in ext.items() if n)
     parts.append("<h3>D. Extended Terminal-Bench: 30 seeded, oracle-checked tasks, n=2</h3><div class='panel'><table><tr>"
                  + th("model", "rb_model") + th("solved (extended tasks only)", "ext") + "</tr>"
@@ -270,6 +270,70 @@ def rerun_section(E):
             "Rule fixed before these results: quality = median 18/18 and no run below 16; clearly faster = median "
             "&ge; 25% lower and non-overlapping 5-run ranges; correctness = non-overlapping pooled intervals, else a "
             "paired sign test p &lt; 0.05.</p>" + "".join(parts))
+
+
+# Model fact cards for the (i) next to each model name. Sources: the model cards and
+# registry manifests checked in ROUND_2026-09-24.md / CANDIDATE_REGISTER.md, and this
+# box's own measurements (resident GB at the baked 262,144 window, from /api/ps).
+MODEL_FACTS = {
+    "kat-coder-v2.5:q5km-ctx256k-agentic": (
+        "KAT-Coder-V2.5-Dev -- Kwaipilot (Kuaishou). Fine-tune of Qwen3.6-35B-A3B: 127k SFT examples, then RL, "
+        "trained with Claude Code as the harness. MoE: 35B total, ~3B active per token. Quant Q5_K_M (bartowski), "
+        "23.3 GiB; 32.48 GB resident here at 262k, 100% GPU. Native context 262,144. Released July 2026, "
+        "Apache-2.0, text only (vision tower removed). Vendor sampler t 1.0 / top_p 0.95."),
+    "tiel-coder:35b-q5-ctx256k-agentic": (
+        "Tiel-Coder-35B-A3B -- peculiar-ragdoll. Coder fine-tune on the Qwen3.6-35B-A3B architecture, 'Sharp' chat "
+        "template (v22.5.0 since the 2026-09-10 re-upload). MoE: 35B total, ~3B active. Quant UD-Q5_K_XL, 24.77 GiB "
+        "+ 0.84 GiB vision projector; 34.13 GB resident at 262k, the tightest fit on the box. Native context 262,144, "
+        "recall verified to 254,181 tokens, and it refuses (HTTP 400) rather than truncating past its window. Vision: 42/42."),
+    "qwen3.6:35b-a3b-q4_K_M-agentic": (
+        "Qwen3.6-35B-A3B -- Alibaba Qwen, official. MoE: 35B total, ~3B active. Quant Q4_K_M (Ollama library), "
+        "22.29 GiB; 32.68 GB resident at 262k. Native context 262,144 (extensible to ~1M per the card). Released "
+        "April 2026, Apache-2.0, with vision. Run here GREEDY (temperature 0) as the long-running control; "
+        "silently halves an over-long prompt."),
+    "qwen3.6:35b-a3b-q4_K_M-agentic-t06": (
+        "The same Qwen3.6-35B-A3B Q4_K_M weights as the control, baked at Qwen's own recommended sampler for "
+        "thinking-mode coding: temperature 0.6, top_p 0.95, top_k 20, min_p 0. Exists only to separate the sampler "
+        "effect from the model (09-21 defect 4: the control had run greedy for four rounds)."),
+    "gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic": (
+        "Gemma4-26B-A4B-it -- Google, official. MoE: 26B total, ~4B active. Quant Q4_K_M; 22.34 GB resident at "
+        "262k, the smallest footprint in the field, and the fastest prefill measured here. Has vision. Known Ollama "
+        "handicaps: its renderer drops tool parameters named 'description' (PR #18503), and its tool calling "
+        "degrades under a quantized KV cache."),
+    "north-mini-code-1.0:q4_K_M-ctx256k-agentic": (
+        "North-Mini-Code-1.0 -- Cohere. MoE: 30B total, ~3B active. Quant Q4_K_M; ~21.3 GB resident at 262k. "
+        "Native context 256k. Released June 2026, Apache-2.0. The fastest generation on the box (136 tok/s) but "
+        "slow sessions; no vision at all; silently halves an over-long prompt."),
+    "occamy-1.0:q5km-ctx256k-agentic": (
+        "occamy-1.0 -- Accio-Lab (reported as Alibaba-linked). Qwen3.6-35B-A3B further trained for long-horizon "
+        "agentic work: SFT on ~15k trajectories, then RL, an expert merge and a final RL stage. MoE: 35B total, "
+        "~3B active. Official GGUF Q5_K_M, 23.03 GiB + 0.84 GiB projector; 32.45 GB resident at 262k. Native "
+        "context 262,144. Released mid-September 2026, Apache-2.0. Community reports: reasoning loops."),
+    "ornith-1.5-35b:q5km-ctx256k-agentic": (
+        "Ornith-1.5-35B-A3B -- ornith-ai. MoE: 35B total, ~3B active, on Qwen3.5/Gemma4 foundations with continued "
+        "pretraining and RL. Official GGUF Q5_K_M, 23.61 GiB + 0.84 GiB projector; 32.45 GB resident at 262k. "
+        "Native context 256k. Released 2026-08-18, MIT. 3.9M GGUF downloads; its repo tab reports broken tool "
+        "calls and looping, and T5 failed here."),
+    "byteshape-qwen3.6-35b:q4ks-ctx256k-agentic": (
+        "ByteShape Qwen3.6-35B-A3B -- the SAME Qwen3.6 weights, re-quantized by ByteShape's ShapeLearn (a learned "
+        "data type per tensor). Q4_K_S at 4.22 bits per weight: 17.02 GiB + 0.84 GiB projector; 28.53 GB resident "
+        "at 262k, ~4 GB less than the Q4_K_M. Native context 262,144. Quant published May 2026, Apache-2.0. Run at "
+        "Qwen's vendor sampler (t 0.6)."),
+}
+# candidate names used by the screen TSV
+for _n, _t in (("occamy", "occamy-1.0:q5km-ctx256k-agentic"), ("kat-coder", "kat-coder-v2.5:q5km-ctx256k-agentic"),
+               ("ornith15-35b", "ornith-1.5-35b:q5km-ctx256k-agentic"),
+               ("byteshape", "byteshape-qwen3.6-35b:q4ks-ctx256k-agentic")):
+    MODEL_FACTS[_n] = MODEL_FACTS[_t]
+
+
+def minfo(key):
+    """(i) with the model's fact card; accepts a tag, a Terminal-Bench slug or a screen name."""
+    f = MODEL_FACTS.get(key) or next((v for k, v in MODEL_FACTS.items() if slug(k) == key), None)
+    if not f:
+        return ""
+    return (f'<span class="info" tabindex="0" role="button" aria-label="About this model" '
+            f'data-tip="{html.escape(f, quote=True)}">i</span>')
 
 
 def th(label, key):
@@ -293,7 +357,7 @@ def main():
         lo, hi = wilson(t["k"], t["n"]) if t["n"] else (0, 0)
         L = led.get(s, {"walls": [], "hidden": []})
         table.append({
-            "name": name, "note": note,
+            "name": name, "note": note, "tag": tag,
             "rate": 100 * t["k"] / t["n"] if t["n"] else None, "k": t["k"], "n": t["n"],
             "lo": lo, "hi": hi,
             "tb_med": statistics.median(t["secs"]) if t["secs"] else None,
@@ -326,7 +390,7 @@ def main():
             return "" if v is None else f"{v:.3f}"
         hid = statistics.mean(r["hidden"]) if r["hidden"] else None
         trs.append(
-            f"<tr><td data-v='{E(r['name'])}'><b>{E(r['name'])}</b><div class='muted small'>{E(r['note'])}</div></td>"
+            f"<tr><td data-v='{E(r['name'])}'><b>{E(r['name'])}</b>{minfo(r['tag'])}<div class='muted small'>{E(r['note'])}</div></td>"
             f"<td class='num' data-v='{dv(r['tps'])}'>{num(r['tps'], '{:.0f}')}</td>"
             f"<td class='num' data-v='{dv(r['wall'])}'>{num(r['wall'], '{:.0f} s')}</td>"
             f"<td class='num' data-v='{dv(r['rate'])}'>{num(r['rate'], '{:.0f}%')}<div class='muted small'>{r['k']}/{r['n']}"
@@ -345,7 +409,7 @@ def main():
             except ValueError:
                 return ""
         crs.append(
-            f"<tr><td data-v='{E(c['name'])}'><b>{E(c['name'])}</b><div class='muted small'>{E(c['source'])}</div></td>"
+            f"<tr><td data-v='{E(c['name'])}'><b>{E(c['name'])}</b>{minfo(c['name'])}<div class='muted small'>{E(c['source'])}</div></td>"
             f"<td data-v='{E(v)}'><span class='chip {tone}'>{E(v)}</span></td>"
             f"<td class='num' data-v='{cv('got_gib')}'>{E(c.get('got_gib') or '-')}</td>"
             f"<td class='num' data-v='{cv('vram_gb')}'>{E(c.get('vram_gb') or '-')}</td>"
@@ -396,7 +460,7 @@ ul{{margin:6px 0;padding-left:20px}}
 border:1px solid var(--muted);font:600 10px/1 Georgia,serif;font-style:italic;text-transform:none;letter-spacing:0;
 color:var(--muted);cursor:help;vertical-align:1px}}
 .info:hover,.info:focus{{color:var(--ref);border-color:var(--ref);outline:none}}
-#tip{{position:fixed;z-index:10;max-width:340px;padding:10px 12px;border-radius:8px;background:var(--ink);color:var(--paper);
+#tip{{position:fixed;z-index:10;max-width:380px;padding:10px 12px;border-radius:8px;background:var(--ink);color:var(--paper);
 font-size:13px;line-height:1.45;font-weight:400;text-transform:none;letter-spacing:0;box-shadow:0 6px 20px rgba(0,0,0,.25);
 pointer-events:none;display:none}}
 th.sortable{{cursor:pointer;user-select:none}} th.sortable:hover{{color:var(--ink)}}
