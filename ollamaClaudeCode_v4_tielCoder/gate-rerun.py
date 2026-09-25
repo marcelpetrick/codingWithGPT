@@ -69,9 +69,15 @@ def judge(gate, d):
     if gate == "T5":
         if not tu:
             return "FAIL", "no_tool_call"
+        # name the failure precisely (review_20260925): occamy and ornith were booked
+        # "edits_not_an_array" but actually called a tool that was never offered
+        if tu[0].get("name") != "apply_patch":
+            return "FAIL", f"wrong_tool:{tu[0].get('name')}"
         i = tu[0].get("input", {})
         ed = i.get("edits")
-        if not isinstance(ed, list) or not ed or not isinstance(ed[0], dict):
+        if isinstance(ed, list) and not ed:
+            return "FAIL", "empty_edits"
+        if not isinstance(ed, list) or not isinstance(ed[0], dict):
             return "FAIL", f"edits_not_an_array({type(ed).__name__})"
         drift = [",".join(sorted({"path", "mode"} - set(e.keys()))) for e in ed if {"path", "mode"} - set(e.keys())]
         if drift:

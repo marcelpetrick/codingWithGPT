@@ -154,10 +154,14 @@ except Exception: print('V=FAIL; D=unparseable'); raise SystemExit
 if d.get('error'): print('V=FAIL; D=api_error'); raise SystemExit
 tu=[b for b in d.get('content',[]) if b.get('type')=='tool_use']
 if not tu: print('V=FAIL; D=no_tool_call'); raise SystemExit
+# name the failure precisely (review_20260925): a call to a tool that was never
+# offered was booked as edits_not_an_array for occamy and ornith
+if tu[0].get('name')!='apply_patch': print('V=FAIL; D=wrong_tool:'+str(tu[0].get('name'))); raise SystemExit
 i=tu[0].get('input',{})
 ed=i.get('edits')
 ok_strategy = i.get('strategy')=='squash'
-if not isinstance(ed,list) or not ed or not isinstance(ed[0],dict):
+if isinstance(ed,list) and not ed: print('V=FAIL; D=empty_edits'); raise SystemExit
+if not isinstance(ed,list) or not isinstance(ed[0],dict):
     print('V=FAIL; D=edits_not_an_array'); raise SystemExit
 # Distinguish 'wrong shape' from 'right idea, invented field names' -- the
 # latter still breaks a strict tool runtime but is a different defect.

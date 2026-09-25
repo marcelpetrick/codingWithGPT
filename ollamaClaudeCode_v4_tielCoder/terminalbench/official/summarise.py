@@ -23,7 +23,11 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 # Failure modes that mean "the harness broke", not "the model failed the task".
 INFRA = {"unknown_agent_error", "agent_installation_failed", "test_timeout",
-         "unknown_error", "fatal_llm_parse_error"}
+         "unknown_error", "fatal_llm_parse_error",
+         # 2026-09-25: the one parse_error trial is occamy csv-to-parquet n2 #2 --
+         # "API Error: No internet route (ENETUNREACH)", then "uv: command not
+         # found" in the tests. A network fault, not the model (review_20260925).
+         "parse_error"}
 
 # Tasks that CANNOT be passed by following their own instruction. These are our
 # problem, not the model's, and counting them is counting our defect as their
@@ -56,6 +60,12 @@ DEFECTIVE = {
         "tests read /etc/nginx/nginx.conf and require a log format named literally "
         "'detailed'. 0/12 in round 1, all on the same assertion, all with a correct "
         "config in the file the task named. 7 of 8 sub-tests passed every time.",
+    "polyglot-c-py":
+        "instruction asks for /app/main.c.py (run as `gcc main.c.py`); the tests "
+        "and the reference solution use /app/main.py.c. All 27 parity trials "
+        "failed with \"python3: can't open file '/app/main.py.c'\", and following "
+        "the instruction literally cannot work (gcc hands a .py file to the linker: "
+        "'file format not recognized'). Found 2026-09-25 (review_20260925).",
 }
 
 
