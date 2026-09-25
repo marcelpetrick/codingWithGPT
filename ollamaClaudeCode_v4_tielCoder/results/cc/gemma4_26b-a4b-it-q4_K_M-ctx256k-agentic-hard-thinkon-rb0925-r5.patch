@@ -1,0 +1,138 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..64394cb 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -14,4 +14,21 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    text = text.strip()
++    if not text:
++        raise ValueError("Empty amount")
++
++    # Handle accounting negatives in parentheses
++    if text.startswith('(') and text.endswith(')'):
++        text = '-' + text[1:-1]
++
++    # Handle thousands separators
++    text = text.replace(',', '')
++
++    try:
++        amount = Decimal(text)
++    except Exception:
++        raise ValueError(f"Invalid amount: {text}")
++
++    # Ensure exactly two decimal places
++    return amount.quantize(Decimal("0.00"))
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..b2b454b 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,8 +26,31 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
+-    day, category, amount, currency = line.split(";")
+-    return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
++    stripped_line = line.strip()
++    if not stripped_line or stripped_line.startswith('#'):
++        return None
++
++    parts = [p.strip() for p in stripped_line.split(';')]
++    if len(parts) != 4:
++        raise ValueError(f"Expected 4 fields, got {len(parts)}")
++
++    day_str, category, amount_str, currency_str = parts
++
++    # DATE is ISO 8601, YYYY-MM-DD
++    day = date.fromisoformat(day_str)
++
++    # CATEGORY is stripped and lower-cased
++    category = category.lower()
++
++    # AMOUNT is parsed with parse_amount
++    amount = parse_amount(amount_str)
++
++    # CURRENCY is stripped and upper-cased, and must be exactly three letters
++    currency = currency_str.upper()
++    if len(currency) != 3:
++        raise ValueError(f"Invalid currency length: {len(currency)}")
++
++    return Entry(day, category, amount, currency)
+ 
+ 
+ def parse_ledger(text):
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..bc2c2bf 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,4 +1,5 @@
+ """Reports over parsed entries."""
++from decimal import Decimal
+ 
+ 
+ def monthly_totals(entries):
+@@ -6,15 +7,25 @@ def monthly_totals(entries):
+ 
+     Returns a dict mapping "YYYY-MM" to the Decimal total, with its keys in
+     chronological order. All entries must share one currency, otherwise
+-    ValueError is raised. An empty input returns an empty dict.
++    ValueError is an raised. An empty input returns an empty dict.
+     """
+-    totals = {}
++    if not entries:
++        return {}
++
++    currency = entries[0].currency
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
++        if entry.currency != currency:
++            raise ValueError("All entries must share the same currency")
++
++    totals = {}
++    # Sort entries by date to ensure chronological order in the dict
++    for entry in sorted(entries, key=lambda e: e.day):
++        key = f"{entry.day.year}-{entry.day.month:02d}"
+         totals[key] = totals.get(key, 0) + entry.amount
+     return totals
+ 
+ 
++
+ def category_breakdown(entries, month):
+     """Totals per category for one month, given as "YYYY-MM".
+ 
+@@ -23,4 +34,32 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    # Filter entries by month and check currency
++    filtered = []
++    currency = None
++    for entry in entries:
++        entry_month = f"{entry.day.year}-{entry.day.month:02d}"
++        if entry_month == month:
++            if currency is None:
++                currency = entry.currency
++            elif entry.currency != currency:
++                raise ValueError("All entries must share the same currency")
++            filtered.append(entry)
++
++    if not filtered:
++        return []
++
++    # Sum amounts per category
++    totals_per_cat = {}
++    for entry in filtered:
++        totals_per_cat[entry.category] = totals_per_cat.get(entry.category, Decimal("0.00")) + entry.amount
++
++    # Remove zero totals and sort
++    result = []
++    for category, total in totals_per_cat.items():
++        if total != Decimal("0.00"):
++            result.append((category, total))
++
++    # Sort by total ascending, then by category name
++    result.sort(key=lambda x: (x[1], x[0]))
++    return result

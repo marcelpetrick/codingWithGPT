@@ -33,13 +33,17 @@ the owner pastes.*
 
 | model | role | decided |
 |---|---|---|
-| `kat-coder-v2.5:q5km-ctx256k-agentic` | **the provisional pick** (2026-09-25, pending the same-version re-baseline): 46 s sessions, 18/18 held-out ×3, 10/10 gates | ROUND_2026-09-24.md |
-| `tiel-coder:35b-q5-ctx256k-agentic` | runner-up, and the pick when overflow safety matters: 18/18 ×3, visible overflow error | ROUND_2026-09-24.md |
-| `qwen3.6:35b-a3b-q4_K_M-agentic` | the long-running control: 60 s sessions (09-17 client), 15–17/18 held-out, Terminal-Bench 44% greedy | ROUND_2026-09-24.md |
+| `kat-coder-v2.5:q5km-ctx256k-agentic` | **ties the default** (same-version re-baseline 09-25): 45 s, quality PASS, T5 8/8. The equal alternative | ROUND_2026-09-24.md |
+| `tiel-coder:35b-q5-ctx256k-agentic` | the pick when overflow safety matters: 18/18 ×5, visible overflow error. 79 s, T5 6/8 | ROUND_2026-09-24.md |
+| `qwen3.6:35b-a3b-q4_K_M-agentic` | **the default, confirmed 09-25** on one client version: 48 s, 18,18,18,17,17 (quality PASS), Terminal-Bench 50% | ROUND_2026-09-24.md |
 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | vision, smallest footprint, 18/18 ×3 | ROUND_2026-09-24.md |
 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | fastest generation (136 tok/s) | README §field |
 
 ## Testable: queued, best first
+
+*09-25: Laguna XS 2.1 moved back here: re-gated under the current setup at Poolside's sampler, 9/10
+(T4 partial). The earlier cut rested on v3 data at the GGUF-default sampler (review #10). Screen
+queued after the extended round.*
 
 | # | model | fits? | why testable | state |
 |---|---|---|---|---|
@@ -52,7 +56,6 @@ the owner pastes.*
 
 | model | fits? | decision and evidence | decided |
 |---|---|---|---|
-| **Laguna XS 2.1** (Poolside 33B-A3B) | yes, 18.9 GiB | **failed our tool gate**: 8/10 in v3, the same defect class that disqualified nemotron-cascade-2. No Laguna fix in Ollama 0.33.0–0.34.4, and every fix predates our test. No independent report found, only SEO blogs. Its claimed Terminal-Bench 2.0 of 37.5 is modest. Back only with a changelog that fixes its tool calls | 2026-09-24 |
 | **Xing4.0-29B-A4B** (China Telecom XingChen, official, HF 2026-09-16) | yes, 17.6 GiB Q4_K_M | **blocked on runtime support, not on merit.** Its architecture `xing4_0` (mHC + MLA + MTP) is new, and its own tab says "All 5 inference framework PRs are still pending". Ollama 0.33.3's llama.cpp cannot load it. On merit it would be testable: claims SWE-V 75.0 and Terminal-Bench 2.1 57.5 against Qwen3.6-35B-A3B and gemma4, is tuned for Claude Code/OpenCode, and one user reports "on par with Qwen3.6 35B in thinking mode". **Recheck when llama.cpp merges `xing4_0` and an Ollama release bundles it.** Re-checked 09-25 13:30: llama.cpp [#29012](https://github.com/ggml-org/llama.cpp/pull/29012) and cleanup [#29141](https://github.com/ggml-org/llama.cpp/pull/29141) are both still open, so **not deployable today** | 2026-09-25 |
 | K2-Horizon-MoVA-36B-A4B (IFM/MBZUAI) | Q4 20.8 GiB | **blocked on runtime**: its card says upstream llama.cpp cannot load the MoVA architecture and needs the IFM fork. Claims Terminal-Bench 2.1 58.6. Recheck when upstream support lands. Re-checked 09-25 13:30: [llama.cpp#28361](https://github.com/ggml-org/llama.cpp/issues/28361) "K2-Horizon models fail to load" is open, so **not deployable today** | 2026-09-25 |
 | Agnes-3.0-Flash (09-11) | yes, dense | 33B **dense** (72 layers, custom `agnes` architecture). Dense has been 4× too slow here, and llama.cpp support is unclear | 2026-09-25 |

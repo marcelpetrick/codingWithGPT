@@ -1,0 +1,116 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..862309c 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -14,4 +14,23 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    text = text.strip()
++
++    negative = False
++    if text.startswith("(") and text.endswith(")"):
++        negative = True
++        text = text[1:-1].strip()
++
++    # Remove thousands separators (commas)
++    text = text.replace(",", "")
++
++    try:
++        value = Decimal(text)
++    except Exception as exc:
++        raise ValueError(f"Invalid amount: {text!r}") from exc
++
++    if negative:
++        value = -value
++
++    # Normalize to exactly two decimal places
++    return value.quantize(Decimal("0.00"))
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..877e64d 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,8 +26,28 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
+-    day, category, amount, currency = line.split(";")
+-    return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
++    stripped = line.strip()
++    if stripped == "" or stripped.startswith("#"):
++        return None
++
++    parts = line.split(";")
++    if len(parts) != 4:
++        raise ValueError(f"Expected 4 fields separated by ';', got {len(parts)}")
++
++    day, category, amount, currency = (p.strip() for p in parts)
++
++    # Validate date
++    try:
++        parsed_day = date.fromisoformat(day)
++    except ValueError as exc:
++        raise ValueError(f"Invalid date: {day!r}") from exc
++
++    # Validate currency: exactly three letters
++    currency = currency.upper()
++    if len(currency) != 3 or not currency.isalpha():
++        raise ValueError(f"Invalid currency: {currency!r} (must be exactly 3 letters)")
++
++    return Entry(parsed_day, category.lower(), parse_amount(amount), currency)
+ 
+ 
+ def parse_ledger(text):
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..ebb62e0 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,4 +1,5 @@
+ """Reports over parsed entries."""
++from decimal import Decimal
+ 
+ 
+ def monthly_totals(entries):
+@@ -8,11 +9,16 @@ def monthly_totals(entries):
+     chronological order. All entries must share one currency, otherwise
+     ValueError is raised. An empty input returns an empty dict.
+     """
++    if entries:
++        currencies = {entry.currency for entry in entries}
++        if len(currencies) > 1:
++            raise ValueError("All entries must share one currency")
++
+     totals = {}
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
+-        totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++        key = f"{entry.day.year}-{entry.day.month:02d}"
++        totals[key] = totals.get(key, Decimal("0")) + entry.amount
++    return dict(sorted(totals.items()))
+ 
+ 
+ def category_breakdown(entries, month):
+@@ -23,4 +29,20 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    if entries:
++        currencies = {entry.currency for entry in entries}
++        if len(currencies) > 1:
++            raise ValueError("All entries must share one currency")
++
++    totals = {}
++    for entry in entries:
++        key = f"{entry.day.year}-{entry.day.month:02d}"
++        if key != month:
++            continue
++        totals[entry.category] = totals.get(entry.category, Decimal("0")) + entry.amount
++
++    # Filter out zero totals, then sort by total ascending (largest expense first),
++    # breaking ties by category name ascending.
++    items = [(cat, tot) for cat, tot in totals.items() if tot != 0]
++    items.sort(key=lambda item: (item[1], item[0]))
++    return items

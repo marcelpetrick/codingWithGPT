@@ -14,7 +14,7 @@ records only the delta.
 | command | before (after v3) | after v4 |
 |---|---|---|
 | `claude-ol-north` — default | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **superseded** — keep it, stop reaching for it first |
-| *(new 09-25)* **`claude-ol-kat`** | — | **the new default, provisional** (README verdict 2026-09-25): `kat-coder-v2.5:q5km-ctx256k-agentic` @ 262144 |
+| *(new 09-25)* **`claude-ol-kat`** | — | **the equal alternative** to qwen3.6 (README verdict 2026-09-25, same-version re-baseline): `kat-coder-v2.5:q5km-ctx256k-agentic` @ 262144 |
 | *(new)* `claude-ol-tiel` | — | the 09-21 default, now the pick **when overflow safety matters**: `tiel-coder:35b-q5-ctx256k-agentic` @ 262144 |
 | *(new)* `claude-ol-tiel-fast` | — | the same tag with `<\|think_off\|>` appended — **2.3× faster**, see below |
 | `claude-ol-ornith` | Ornith-1.0, deep documents | **keep**. It was the fastest finisher on 09-17 (47 s). KAT (46 s) and ByteShape (35 s) are faster on 09-25, on a newer client |
@@ -65,7 +65,7 @@ curl -s http://192.168.100.67:11434/api/create -d '{
   "stream": false}'
 ```
 
-## `claude-ol-kat` (the default since 2026-09-25)
+## `claude-ol-kat` (ties the qwen3.6 default, 2026-09-25)
 
 The tag, as the candidate screen baked it. The vendor sampler is t 1.0 / top_p 0.95, and Ollama's
 own qwen3.5 renderer is set because the GGUF's Jinja template rejects Claude Code's

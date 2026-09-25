@@ -1,0 +1,122 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..4e63ab1 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -1,6 +1,11 @@
+ """Money parsing."""
++import re
+ from decimal import Decimal
+ 
++# Integer part: either grouped thousands ("1,234") or a plain run of digits.
++# Optional fractional part with at least one digit.
++_NUMBER_RE = re.compile(r"^[+-]?(\d{1,3}(?:,\d{3})*|\d+)(?:\.\d+)?$")
++
+ 
+ def parse_amount(text):
+     """Parse a ledger amount into a Decimal.
+@@ -14,4 +19,25 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    s = text.strip()
++    if not s:
++        raise ValueError(f"empty amount: {text!r}")
++
++    negative = False
++    if s.startswith("(") and s.endswith(")"):
++        negative = True
++        s = s[1:-1].strip()
++
++    sign = ""
++    if s[:1] in "+-":
++        sign, s = s[0], s[1:]
++        if sign == "-":
++            negative = not negative
++
++    if not _NUMBER_RE.match(s):
++        raise ValueError(f"invalid amount: {text!r}")
++
++    value = Decimal(s.replace(",", ""))
++    if negative:
++        value = -value
++    return value.quantize(Decimal("0.01"))
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..43f8b7e 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,8 +26,25 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
+-    day, category, amount, currency = line.split(";")
+-    return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
++    stripped = line.strip()
++    if not stripped or stripped.startswith("#"):
++        return None
++
++    parts = line.split(";")
++    if len(parts) != 4:
++        raise ValueError(f"expected 4 fields, got {len(parts)}: {line!r}")
++
++    day, category, amount, currency = (p.strip() for p in parts)
++
++    if not currency.isalpha() or len(currency) != 3:
++        raise ValueError(f"currency must be three letters: {currency!r}")
++
++    return Entry(
++        date.fromisoformat(day),
++        category.lower(),
++        parse_amount(amount),
++        currency.upper(),
++    )
+ 
+ 
+ def parse_ledger(text):
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..19a7c8c 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,4 +1,6 @@
+ """Reports over parsed entries."""
++from collections import defaultdict
++from decimal import Decimal
+ 
+ 
+ def monthly_totals(entries):
+@@ -8,11 +10,14 @@ def monthly_totals(entries):
+     chronological order. All entries must share one currency, otherwise
+     ValueError is raised. An empty input returns an empty dict.
+     """
++    if entries and len({entry.currency for entry in entries}) > 1:
++        raise ValueError("entries must all share one currency")
++
+     totals = {}
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
+-        totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++        key = f"{entry.day.year}-{entry.day.month:02d}"
++        totals[key] = totals.get(key, Decimal("0")) + entry.amount
++    return {month: totals[month] for month in sorted(totals)}
+ 
+ 
+ def category_breakdown(entries, month):
+@@ -23,4 +28,16 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    if entries and len({entry.currency for entry in entries}) > 1:
++        raise ValueError("entries must all share one currency")
++
++    totals = defaultdict(lambda: Decimal("0"))
++    for entry in entries:
++        if f"{entry.day.year}-{entry.day.month:02d}" == month:
++            totals[entry.category] += entry.amount
++
++    return [
++        (category, total)
++        for category, total in sorted(totals.items(), key=lambda kv: (kv[1], kv[0]))
++        if total != 0
++    ]

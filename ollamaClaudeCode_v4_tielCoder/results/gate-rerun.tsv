@@ -1,2 +1,7 @@
 Tiel-Coder-35B-A3B-GGUF-Q5_K_XL-ctx262k:latest	T5	6/8	flaky
 tiel-coder:35b-q5-ctx256k-agentic	T5	8/8	clean
+kat-coder-v2.5:q5km-ctx256k-agentic	T5	8/8	clean
+tiel-coder:35b-q5-ctx256k-agentic	T5	6/8	flaky
+occamy-1.0:q5km-ctx256k-agentic	T5	2/8	systematic
+ornith-1.5-35b:q5km-ctx256k-agentic	T5	5/8	flaky
+byteshape-qwen3.6-35b:q4ks-ctx256k-agentic	T5	8/8	clean
