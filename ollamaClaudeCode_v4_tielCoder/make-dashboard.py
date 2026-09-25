@@ -90,6 +90,8 @@ def ledger():
 def tokrate():
     out = defaultdict(list)
     for r in rows("tokrate.tsv"):
+        if r.get("prompt_words") != "2000":   # one row per prompt size; the tooltip promises 2k
+            continue
         try:
             out[slug(r["model"])].append(float(r["gen_tps"]))
         except ValueError:

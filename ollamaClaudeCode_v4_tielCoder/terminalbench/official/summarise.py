@@ -174,7 +174,7 @@ def main():
     for arm in sorted({k[0] for k in agg}):
         print(f"\n== arm: {arm} ==\n   {ARM_NOTE.get(arm, '?')}")
         print(f"\n{'model':44} {'solved':>10} {'rate':>7} {'95% CI':>15} "
-              f"{'void':>5} {'defect':>7} {'median_s':>9}")
+              f"{'void':>5} {'defect':>7} {'mean_s':>9}")   # a MEAN incl. timeouts, not a median (review_20260925 #7)
         sub = {k[1]: v for k, v in agg.items() if k[0] == arm}
         for m, a in sorted(sub.items(), key=lambda kv: -(kv[1]["soln"] / max(kv[1]["n"], 1))):
             rate = a["soln"] / a["n"] * 100 if a["n"] else 0.0
