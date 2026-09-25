@@ -130,7 +130,8 @@ for line in sys.stdin:
 for M in "$@"; do
  for RUN in $(seq "$FIRST" $((FIRST + RUNS - 1))); do
   SAFE=$(echo "$M" | tr ':/' '__')
-  ID="${SAFE}-${FIXTURE}-think${THINKING}-r${RUN}"
+  # CC_ARM labels an A/B arm so two arms never overwrite each other's transcripts
+  ID="${SAFE}-${FIXTURE}-think${THINKING}${CC_ARM:+-$CC_ARM}-r${RUN}"
   printf '\n\033[1m## cc-session %s  fixture=%s thinking=%s run %s/%s\033[0m\n' "$M" "$FIXTURE" "$THINKING" "$RUN" "$RUNS"
   WORK="$WORKROOT/$ID"; LOG="$OUT/$ID.jsonl"; PSLOG="$OUT/$ID.ps.tsv"
   make_fixture "$WORK"
@@ -153,6 +154,7 @@ for M in "$@"; do
       ANTHROPIC_DEFAULT_SONNET_MODEL="$M" \
       ANTHROPIC_DEFAULT_OPUS_MODEL="$M" \
       CLAUDE_CODE_MAX_CONTEXT_TOKENS=200000 \
+      ${CLAUDE_CODE_TOTAL_TOKENS_REMINDER:+CLAUDE_CODE_TOTAL_TOKENS_REMINDER=$CLAUDE_CODE_TOTAL_TOKENS_REMINDER} \
       claude -p "$PROMPT" --model "$M" "${THINK_ARGS[@]}" \
         --permission-mode bypassPermissions \
         --output-format stream-json --verbose \
