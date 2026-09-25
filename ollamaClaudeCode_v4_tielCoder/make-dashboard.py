@@ -117,6 +117,56 @@ FIELD = [  # tag, display name, note
 ]
 
 
+# Column explanations for the (i) tooltips -- up to five sentences each, written
+# for a reader who has not seen the round document.
+TIPS = {
+    "model": "The model and its Ollama tag, as run on the .67 server (Ollama 0.33.3, one model resident at a time). "
+             "The grey line says what the model is kept for. Screened-in candidates from this round appear as '(candidate)'.",
+    "tps": "Generation speed in tokens per second, at a 2,000-word prompt, thinking off, temperature 0, median of three runs, "
+           "with the server idle. Higher is better. It measures raw decoding only: a model can generate fast and still finish "
+           "a coding session slowly, if it needs many turns.",
+    "session": "Median wall-clock time of the 'ledger' coding session, three runs, thinking on, driven through the real Claude Code CLI. "
+               "The model has to read the repository, fix three bugs across three modules, implement one missing function and get the "
+               "tests green. Lower is better. This is the number you actually wait for, since it includes every turn and tool call.",
+    "tb": "Terminal-Bench (upstream harness, dataset terminal-bench-core 0.1.1): real terminal tasks in Docker containers, graded by "
+          "the tasks' own tests. A frozen subset of 10 tasks, run 3 times each; 9 are scored because nginx-request-logging cannot "
+          "be passed as written. Thinking is on for every model, only complete passes count, and infrastructure failures are void, "
+          "not zero. The small line shows solved/trials and the 95% interval.",
+    "ci": "The 95% Wilson confidence interval of the Terminal-Bench rate, drawn on a 0-100% axis: the band is the interval, the dot "
+          "the measured rate. With only 27 trials per model the band is about 35 points wide. Two models whose bands overlap are "
+          "NOT ranked by this benchmark -- that rule was fixed before any results. Today every band overlaps.",
+    "hidden": "Held-out tests, one chip per run: after the ledger session ends, 18 extra tests the model never saw are run "
+              "against its code. They check what the docstrings specify, not what the visible tests happen to assert. 18/18 "
+              "means the model implemented the specification; fewer means it made the visible tests green and left parts of "
+              "the spec undone. Green is 18/18, amber anything less.",
+    "cand": "A candidate model found this round and pre-evaluated on the web before it was pulled; the grey line is the exact "
+            "GGUF source. Models ruled out on the evidence never appear here -- they are listed with reasons in CANDIDATE_REGISTER.md.",
+    "verdict": "The screen's result. SCREENED-IN: passed all three gates and went on to Terminal-Bench. CUT-G1: did not fit "
+               "fully in GPU memory; CUT-G2 failed the tool-call gates; CUT-G3 had a coding session too slow or too many "
+               "held-out failures. VOID means our harness failed, not the model.",
+    "gib": "Size of the downloaded model in GiB, including the vision projector where the repository ships one. It is checked "
+           "to within 3% of the expected file, because a Hugging Face quant label can resolve to a different file (a wrong, "
+           "smaller quant would silently lower quality).",
+    "vram": "GPU memory the model occupies once loaded with its full 262,144-token context window. It must be 100% on the "
+            "GPU: a spill into system RAM cost 5x the speed in earlier rounds. The box keeps about 35.56 GB resident.",
+    "gates": "Ten tool-call gates, passed out of ten; 9 are required. They test: one correct tool call, choosing the right tool, "
+             "using a tool's result, two parallel calls, a nested schema (an 'edits' array -- what Claude Code's edit tools "
+             "send), finding a hidden fact at 4k/16k/60k/120k tokens of context, and calling tools correctly at ~53k tokens.",
+    "gtps": "Generation tokens per second recorded during the screen. Reported, never a gate.",
+    "ledger": "Median wall-clock of the three ledger coding sessions (see the field table). Gate G3 requires 150 s or less, "
+              "because a model that needs many slow turns is the wrong shape even if it is capable.",
+    "chidden": "Median held-out tests passed out of 18 across the three ledger sessions (see the field table). Gate G3 requires "
+               "at least 16.",
+    "note": "The model's reported capabilities (tools, thinking, vision), or the reason it was cut.",
+}
+
+
+def th(label, key):
+    """A sortable header with an (i) tooltip."""
+    return (f'<th>{label}<span class="info" tabindex="0" role="button" '
+            f'aria-label="About this column" data-tip="{html.escape(TIPS[key], quote=True)}">i</span></th>')
+
+
 def main():
     tb, led, tps = terminal_bench(), ledger(), tokrate()
     cands = [r for r in rows("candidates-2026-09-21.tsv")]
@@ -231,6 +281,13 @@ td.num{{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}}
 .ci-range{{position:absolute;top:0;bottom:0;background:var(--ref-soft);border:1px solid var(--ref);border-radius:7px}}
 .ci-dot{{position:absolute;top:1px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--ref)}}
 ul{{margin:6px 0;padding-left:20px}}
+.info{{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;margin-left:5px;border-radius:50%;
+border:1px solid var(--muted);font:600 10px/1 Georgia,serif;font-style:italic;text-transform:none;letter-spacing:0;
+color:var(--muted);cursor:help;vertical-align:1px}}
+.info:hover,.info:focus{{color:var(--ref);border-color:var(--ref);outline:none}}
+#tip{{position:fixed;z-index:10;max-width:340px;padding:10px 12px;border-radius:8px;background:var(--ink);color:var(--paper);
+font-size:13px;line-height:1.45;font-weight:400;text-transform:none;letter-spacing:0;box-shadow:0 6px 20px rgba(0,0,0,.25);
+pointer-events:none;display:none}}
 th.sortable{{cursor:pointer;user-select:none}} th.sortable:hover{{color:var(--ink)}}
 th.sortable::after{{content:" \\2195";opacity:.35}} th[aria-sort=ascending]::after{{content:" \\2191";opacity:1}}
 th[aria-sort=descending]::after{{content:" \\2193";opacity:1}}
@@ -242,8 +299,8 @@ th[aria-sort=descending]::after{{content:" \\2193";opacity:1}}
 
 <h2>The field on three axes</h2>
 <div class="panel"><table>
-<tr><th>model</th><th>speed<br>tok/s</th><th>speed<br>session</th><th>correctness<br>Terminal-Bench</th>
-<th>95% interval (0&ndash;100%)</th><th>quality<br>held-out tests per run</th></tr>
+<tr>{th("model","model")}{th("speed<br>tok/s","tps")}{th("speed<br>session","session")}{th("correctness<br>Terminal-Bench","tb")}
+{th("95% interval (0&ndash;100%)","ci")}{th("quality<br>held-out tests per run","hidden")}</tr>
 {''.join(trs)}
 </table></div>
 <ul class="small muted">
@@ -254,13 +311,34 @@ th[aria-sort=descending]::after{{content:" \\2193";opacity:1}}
 
 <h2>Candidates: screened one at a time, best first</h2>
 <div class="panel"><table>
-<tr><th>candidate</th><th>verdict</th><th>GiB</th><th>VRAM GB</th><th>gates</th><th>tok/s</th><th>ledger s</th><th>hidden</th><th>note</th></tr>
+<tr>{th("candidate","cand")}{th("verdict","verdict")}{th("GiB","gib")}{th("VRAM GB","vram")}{th("gates","gates")}{th("tok/s","gtps")}{th("ledger s","ledger")}{th("hidden","chidden")}{th("note","note")}</tr>
 {''.join(crs) or '<tr><td colspan="9" class="muted">none finished yet</td></tr>'}
 </table></div>
 <p class="small muted">Still queued: {E(', '.join(pending)) or 'none'}. Ruled out on web evidence and never pulled: Ornith-27B-Coder, Qwen3.6-27B-A3B-Coder, KAT-Ornith, SignOfFour, both OmniMerges, glm-4.7-flash, qwen3-coder:30b, Laguna XS 2.1 (reasons in CANDIDATE_REGISTER.md).</p>
 <p class="small muted">Click a column header to sort; click again to reverse. Empty cells always sort last.</p>
 </main>
+<div id="tip" role="tooltip"></div>
 <script>
+(function () {{
+  var tip = document.getElementById("tip"), open = null;
+  function show(el) {{
+    tip.textContent = el.getAttribute("data-tip"); tip.style.display = "block"; open = el;
+    var r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    var x = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), window.innerWidth - w - 8);
+    var y = r.bottom + 8; if (y + h > window.innerHeight - 8) y = r.top - h - 8;
+    tip.style.left = x + "px"; tip.style.top = Math.max(8, y) + "px";
+  }}
+  function hide() {{ tip.style.display = "none"; open = null; }}
+  document.querySelectorAll(".info").forEach(function (el) {{
+    el.addEventListener("mouseenter", function () {{ show(el); }});
+    el.addEventListener("mouseleave", hide);
+    el.addEventListener("focus", function () {{ show(el); }});
+    el.addEventListener("blur", hide);
+    el.addEventListener("click", function (e) {{ e.stopPropagation(); open === el ? hide() : show(el); }});
+    el.addEventListener("keydown", function (e) {{ if (e.key === "Escape") {{ hide(); el.blur(); }} }});
+  }});
+  window.addEventListener("scroll", hide, true);
+}})();
 document.querySelectorAll("table").forEach(function (tbl) {{
   var head = tbl.rows[0];
   Array.prototype.forEach.call(head.cells, function (th, col) {{
