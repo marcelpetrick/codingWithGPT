@@ -144,6 +144,11 @@ Then it spends four of its eight usage notes trying to stop the model padding:
 > - Do not make up information such as "Common Development Tasks", "Tips for Development", "Support and Documentation" unless this is expressly included in other files that you read.
 > - …do not include obvious instructions like "Provide helpful error messages to users"…
 
+*Since v2.1.282, one extra line is added when the remote flag `tengu_import` is on:
+if the model finds a Codex or Gemini CLI config, it should offer `/import`. The
+flag is on for this machine's account. See
+[`evidence/primary-binary-extracts.md`](evidence/primary-binary-extracts.md) §1a.*
+
 **This matters for how you read the criticism.** The common complaint — "`/init`
 generates a bloated file full of stuff I could have read off `package.json`" — is
 not a complaint about what `/init` *asks for*. It is the model under-complying

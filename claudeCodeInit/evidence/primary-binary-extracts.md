@@ -2,6 +2,8 @@
 
 Extracted 2026-09-19 from `/home/mpetrick/.local/share/claude/versions/2.1.278`
 (ELF, 224 MiB, not stripped) with `strings -n 20` and byte-offset `dd` reads.
+Re-checked 2026-09-25 against v2.1.282: the default prompt in §1 has not changed, but
+the prompt now carries one flag-dependent line (§1a).
 
 This matters because it is **not** documentation about the product, and not a blog
 post. It is the shipped artefact: the literal prompt text the tool sends to the
@@ -47,10 +49,39 @@ are expensive to rediscover". Most complaints about `/init` output being bloated
 are complaints about the model under-complying with this prompt, not about the
 prompt asking for bloat.
 
-## 2. The unreleased second `/init` (gated)
+## 1a. A flag-dependent line (v2.1.282)
+
+`strings` output cuts this line off mid-sentence, because the prompt is a template
+literal and the program splices in the rest of the line at run time. The source reads:
+
+```
+- If there is a README.md, make sure to include the important parts.${cpe()?`
+- If you find an OpenAI Codex config (~/.codex/config.toml or ./.codex/) or a Gemini CLI config (~/.gemini/settings.json or ./.gemini/ or a GEMINI.md), ${EDe}`:""}
+```
+
+`cpe()` is `x("tengu_import",!1)`: a remote feature flag, default `false`. `EDe`
+expands to:
+
+> offer to import it now — tell the user to reply `/import` to scan and list what's importable (MCP servers, slash commands, subagents, skills, instructions), then `/import --yes=<digest>` (the scan output names the digest) to apply the user-level items. Do NOT read the foreign-agent config files or write Claude Code config yourself — the deterministic import (triggered by `--yes`) applies the same safe-name and path-traversal guards as the terminal picker. If `/import` isn't available on this surface, tell the user to run `claude import` from a terminal instead.
+
+The same flag enables the `/import [codex|gemini|cursor] [--dry-run] [--yes]`
+command. The [commands page](https://code.claude.com/docs/en/commands) documents
+it. On this machine
+`~/.claude.json` → `cachedGrowthBookFeatures` has `tengu_import: true`, so this
+account gets the extra line. With the flag off, the prompt is exactly §1.
+
+**Reading:** the prompt a user receives depends on the program version *and* on
+per-account flags. `/init` is growing into a migration tool. That fits the
+whitepaper's point that its durable uses are not about task success. It changes
+no finding.
+
+## 2. The second `/init` (documented opt-in, off by default)
 
 Gate: `CLAUDE_CODE_NEW_INIT` env var, or the `tengu_slate_harbor_experiment`
-feature flag. Both must be off by default, since neither is set on this machine.
+feature flag, both off by default. No doc mentioned it at extraction. Since then,
+the [memory docs](https://code.claude.com/docs/en/memory) name
+`CLAUDE_CODE_NEW_INIT=1` as the switch for an *"interactive multi-phase flow"*. On
+this machine the flag is `false` (checked 2026-09-25).
 
 Its opening sentence states the entire thesis of the sceptical camp:
 
@@ -80,8 +111,10 @@ And it routes content **out** of the always-loaded file by artefact type:
 > - **Skill** — on-demand multi-step workflow (`/verify`, `/deploy-staging`, session reports).
 > - **CLAUDE.md note** — guidance that shapes behavior but isn't enforced (conventions, communication style).
 
-**Reading:** Anthropic is actively A/B testing a replacement for `/init` whose
-whole design premise is that the old one produces files that are too big. That is
+**Reading:** Anthropic has built, and gated behind an experiment flag, a
+replacement for `/init` whose whole design premise is that the old one produces
+files that are too big. (An earlier draft said "is actively A/B testing". A flag
+named "experiment" does not prove a live test; see `self-review.md` entry 2.) That is
 the strongest available evidence on the "clutter" question, and it comes from the
 vendor's own build rather than from a critic.
 

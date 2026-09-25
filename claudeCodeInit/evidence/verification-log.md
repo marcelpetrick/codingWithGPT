@@ -267,3 +267,15 @@ class="abstract">`, full text via `pdftotext` where a number was load-bearing.
 
 - A compliance-decay curve (*"95%+ … 60-80% … 20-60%"*) attributed in a search summary to a practitioner: **no primary source found**. Not used.
 - Checked, not used (observational without an outcome, off-topic, or N=1): 2606.15828, 2608.23550, 2609.07360, 2608.10622, 2608.13867, 2609.05510, 2608.13662, 2607.11111, 2602.05892, 2607.10569, 2608.11386, 2606.25257 (study protocol, no results yet).
+
+## Round 8 (2026-09-25): the `/init` prompt depends on a flag
+
+Re-read v2.1.282 in raw bytes, not just in `strings` output. The default `/init`
+prompt is unchanged. One line is gated on the remote flag `tengu_import`
+(`function cpe(){return x("tengu_import",!1)}`). When on, the line tells the model
+to offer `/import` if it finds a Codex or Gemini CLI config. The flag is `true` in
+this machine's `~/.claude.json` (`cachedGrowthBookFeatures`), and
+`tengu_slate_harbor_experiment` is `false`. `/import` is documented on
+`code.claude.com/docs/en/commands`. Recorded in `primary-binary-extracts.md` §1a.
+The same pass removed a leftover "actively A/B testing" claim from that file,
+which `self-review.md` entry 2 had already retracted everywhere else.
