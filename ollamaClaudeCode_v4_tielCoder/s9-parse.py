@@ -125,7 +125,7 @@ def gen(tag):
     rows = [r for r in _rows("tokrate.tsv") if r.get("model") == tag]
     if not rows:
         return "-"
-    for key in ("gen_toks_s", "gen_tok_s", "generation", "gen"):
+    for key in ("gen_tps", "gen_toks_s", "gen_tok_s", "generation", "gen"):  # tokrate.tsv says gen_tps
         if key in rows[-1]:
             return rows[-1][key]
     return "-"

@@ -162,6 +162,11 @@ for spec in "${CANDIDATES[@]}"; do
   for TRY in 1 2; do
     LOADR=$(curl -s -m 900 "$BASE/api/generate" -d "{\"model\":\"$TAG\",\"prompt\":\"hi\",\"stream\":false,\"options\":{\"num_predict\":1}}")
     read -r RES VRAM <<< "$(./s9-parse.py ps "$BASE" "$TAG")"
+    # an EMPTY read (ps timed out, link dropped) is neither loaded nor spilled:
+    # stop, record nothing, delete nothing -- the 09-24 16:51 failure one step later
+    if ! [[ "${RES:-}" =~ ^[0-9.]+$ && "${VRAM:-}" =~ ^[0-9.]+$ ]]; then
+      note "residency read failed (RES='${RES:-}' VRAM='${VRAM:-}') -- screen stopped, nothing recorded or deleted"; exit 3
+    fi
     [ "${RES%.*}" != "0" ] && break
     note "load attempt $TRY: not resident -- response: $(echo "$LOADR" | head -c 300)"
     sleep 15
@@ -212,7 +217,7 @@ for spec in "${CANDIDATES[@]}"; do
   read -r MED HID <<< "$(./s9-parse.py ledger "$TAG")"
   VERDICT=$(./s9-parse.py verdict "$MED" "$HID")
   SL="$(echo "$TAG" | tr '/:' '__')"
-  if [ "$(./s9-parse.py apierr "$HERE"/results/cc/"$SL"-hard-thinkon-r*.jsonl)" = "yes" ]; then
+  if [ "$(./s9-parse.py apierr "$HERE"/results/cc/"$SL"-hard-thinkon-r[0-9]*.jsonl)  # r[0-9]: never an A/B arm's -remindon- files" = "yes" ]; then
     VERDICT="VOID-harness"; note "a session ended on an API error -- VOID, not a model result"
   fi
   note "G3 ledger: median ${MED} s, hidden ${HID}/18 -> $VERDICT"
