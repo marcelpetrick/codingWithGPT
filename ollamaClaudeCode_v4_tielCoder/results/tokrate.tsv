@@ -35,3 +35,6 @@ ollama	model	prompt_words	prompt_tok	gen_tok	prefill_tps	gen_tps	load_s	total_s
 0.33.3	occamy-1.0:q5km-ctx256k-agentic	0	25	129	118.2	119.26	0.0	1.4
 0.33.3	occamy-1.0:q5km-ctx256k-agentic	2000	3180	147	2827.8	124.13	0.0	2.5
 0.33.3	occamy-1.0:q5km-ctx256k-agentic	20000	35102	115	3446.4	107.57	0.0	11.6
+0.33.3	kat-coder-v2.5:q5km-ctx256k-agentic	0	25	117	100.5	113.54	0.0	1.4
+0.33.3	kat-coder-v2.5:q5km-ctx256k-agentic	2000	3180	130	2901.0	117.86	0.0	2.3
+0.33.3	kat-coder-v2.5:q5km-ctx256k-agentic	20000	35102	74	3606.5	101.99	0.0	10.9
