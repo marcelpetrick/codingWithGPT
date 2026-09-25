@@ -22,29 +22,36 @@ parity round and four candidates are in. The 2026-09-21 verdict is kept below it
 
 ## The verdict (2026-09-25)
 
-**For agentic coding with Claude Code, use `kat-coder-v2.5:q5km-ctx256k-agentic`**
-(Kwaipilot KAT-Coder-V2.5-Dev, bartowski Q5_K_M, t 1.0 / top_p 0.95). **qwen3.6 can be replaced.**
+**Provisional: for agentic coding with Claude Code, use `kat-coder-v2.5:q5km-ctx256k-agentic`**
+(Kwaipilot KAT-Coder-V2.5-Dev, bartowski Q5_K_M, t 1.0 / top_p 0.95). **Provisional** because
+[`review_20260925.md`](review_20260925.md) found the speed axis confounded with the Claude Code version
+(references on 2.1.274, candidates on 2.1.282). A same-version re-baseline and an extended
+Terminal-Bench round (KAT vs Tiel) are queued, and this section is rewritten from them.
 
-Every model reasoned (thinking parity, verified per trial), each ran at its vendor sampler, and the
-rule for taking the pick was fixed before the results: 18/18 held-out, and either a separated
-Terminal-Bench interval or a tie there plus a clearly faster session.
+Every model reasoned (thinking parity: no model with zero reasoning blocks in a pass). The
+candidates ran at their vendor samplers, **but the qwen3.6 reference ran greedy (t 0)**, so "qwen3.6 can
+be replaced" waits for its vendor-sampler runs. The 09-24 rule (18/18 held-out, and a separated
+Terminal-Bench interval or a tie plus a clearly faster session) was fixed before the candidates ran,
+but "clearly faster" had no number. It now has one: median ≥ 25% lower and non-overlapping 5-run
+ranges.
 
 | model | ledger session, median | held-out tests, 3 runs | Terminal-Bench, 9 tasks × 3 | tool gates |
 |---|---|---|---|---|
-| **KAT-Coder-V2.5-Dev** | **46 s** | **18/18 ×3** | 33% [19, 52] *(44% graded semantically: openssl grader artifact)* | 10/10 |
+| **KAT-Coder-V2.5-Dev** | **46 s** *(newer client)* | **18/18 ×3** | 33% [19, 52] *(openssl 0/3 is a grader artifact, see the round)* | 10/10 |
 | Tiel-Coder 35B-A3B | 83 s | 18/18 ×3 | 37% [22, 56] | 10/10 |
-| ByteShape Qwen3.6 Q4_K_S | **35 s** | 15–18/18 | **52% [34, 69]** | 10/10 |
+| ByteShape Qwen3.6 Q4_K_S | **35 s** *(newer client)* | 16, 18, 15 | **52% [34, 69]** | 10/10 |
 | Qwen3.6 35B-A3B (greedy) | 60 s | 15–17/18 | 44% [28, 63] | |
 | gemma4 26B-A4B | 92 s | 18/18 ×3 | 44% [28, 63] | |
-| occamy-1.0 | 113 s | 18/18 ×3 | 41% [25, 59] | 9/10 |
-| Ornith-1.5 35B-A3B | 119 s | 18/18 ×3 | 41% [25, 59] | 9/10 |
+| occamy-1.0 | 113 s *(newer client)* | 18/18 ×3 | 41% [25, 59] | 9/10 |
+| Ornith-1.5 35B-A3B | 119 s *(newer client)* | 18/18 ×3 | 41% [25, 59] | 9/10 |
 | North-Mini-Code 1.0 | 126 s | 14–18/18 | 33% [19, 52] | |
 
 - **Terminal-Bench separates nobody.** Every interval overlaps. A 40-task round (±9 points) would be
   needed to rank on correctness.
 - **Quality separates**: KAT, Tiel, gemma4, occamy and Ornith implement the specification 3/3. The
   qwen3.6 family (including ByteShape) leaves held-out tests failing.
-- **Among the 18/18 models, KAT is by far the fastest**, both in sessions and in Terminal-Bench median.
+- **Among the 18/18 models, KAT is the fastest** in sessions (on the newer client) and has the lowest
+  Terminal-Bench seconds (mean 126 s, median 55 s; Tiel 162 s / 65 s).
 - **Use Tiel instead** when context-overflow safety matters most (it refuses with HTTP 400; most models
   silently halve). **Use gemma4** for vision. **ByteShape** is the choice for raw Terminal-Bench score
   and speed with 4 GB less VRAM, if spec-completeness matters less.
@@ -118,7 +125,7 @@ contender is measured against these four and nothing else:
 
 | # | tag | axis | status |
 |---|---|---|---|
-| 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | capability + reproducibility | **provisional** — rests on the void round |
+| 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | capability + reproducibility | **superseded 2026-09-25**: see the verdict above. The parity re-run landed (44% [28, 63]) |
 | 2 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | the speed ceiling (136.2 tok/s) | held on speed, which is measured and stable |
 | 3 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | the footprint floor (22.34 GB @262k) | settled |
 | 4 | `tiel-coder:35b-q5-ctx256k-agentic` | context safety (the only family that refuses) | settled |

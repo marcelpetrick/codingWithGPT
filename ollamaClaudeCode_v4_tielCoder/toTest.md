@@ -131,7 +131,7 @@ model resident, ~26 GiB of weights is the ceiling for a 262k window on the `qwen
 
 | candidate | exact pull tag | GGUF | class | fit |
 |---|---|---|---|---|
-| ByteShape quant of our own control | `hf.co/byteshape/Qwen3.6-35B-A3B-GGUF:Q4_K_S-4.22bpw` | **17.02 GiB** | M | **yes**, 5 GB lighter than the q4_K_M we run |
+| ByteShape quant of our own control | `hf.co/byteshape/Qwen3.6-35B-A3B-GGUF:Q4_K_S-4.22bpw` | **17.02 GiB** file, 17.86 GiB pulled with the projector | M | **yes**, measured 2026-09-25: 28.53 GB resident against 32.68 GB, so ~4 GB lighter |
 | Qwen3.6-27B dense | `hf.co/unsloth/Qwen3.6-27B-GGUF:Q5_K_M` | 18.17 GiB | D | yes on memory; **the speed gate is the question** |
 | OmniMerge v4 | `hf.co/ManniX-ITA/Qwen3.6-27B-Omnimerge-v4-GGUF:Q5_K_M` | 17.91 GiB | D | yes on memory; same gate |
 | OmniMerge v6 | `hf.co/mradermacher/Qwen3.8-27B-Omnimerge-v6-GGUF:Q5_K_M` | ~18.2 GiB | D | yes on memory; same gate. v6 is on the **Qwen3.8** base, v4 on 3.6 — they are not the same experiment |
@@ -188,7 +188,8 @@ ByteShape (a quant question about a model we already run), then the dense 27Bs.
 
 ## The field a candidate is measured against — fixed 2026-09-18
 
-A new contender is run against **four models and no others**: `qwen3.6:35b-a3b` (the default),
+A new contender is run against **four models and no others**: `qwen3.6:35b-a3b` (the control; the
+2026-09-25 verdict in README.md names KAT-Coder, provisionally),
 `north-mini-code-1.0` (speed ceiling), `gemma4:26b-a4b-it` (footprint floor and vision), and
 `tiel-coder:35b-q5` (context safety). Each holds a different axis, and a candidate takes a slot
 only by beating that slot's holder **on its own axis**.

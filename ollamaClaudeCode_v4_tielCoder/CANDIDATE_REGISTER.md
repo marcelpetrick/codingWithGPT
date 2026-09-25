@@ -33,9 +33,9 @@ the owner pastes.*
 
 | model | role | decided |
 |---|---|---|
-| `kat-coder-v2.5:q5km-ctx256k-agentic` | **the pick** (2026-09-25): 46 s sessions, 18/18 held-out ×3, 10/10 gates | ROUND_2026-09-24.md |
+| `kat-coder-v2.5:q5km-ctx256k-agentic` | **the provisional pick** (2026-09-25, pending the same-version re-baseline): 46 s sessions, 18/18 held-out ×3, 10/10 gates | ROUND_2026-09-24.md |
 | `tiel-coder:35b-q5-ctx256k-agentic` | runner-up, and the pick when overflow safety matters: 18/18 ×3, visible overflow error | ROUND_2026-09-24.md |
-| `qwen3.6:35b-a3b-q4_K_M-agentic` | incumbent: fastest session (60 s), but 15–17/18 held-out | ROUND_2026-09-24.md |
+| `qwen3.6:35b-a3b-q4_K_M-agentic` | the long-running control: 60 s sessions (09-17 client), 15–17/18 held-out, Terminal-Bench 44% greedy | ROUND_2026-09-24.md |
 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | vision, smallest footprint, 18/18 ×3 | ROUND_2026-09-24.md |
 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | fastest generation (136 tok/s) | README §field |
 

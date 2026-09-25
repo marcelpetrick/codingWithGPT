@@ -14,13 +14,13 @@ records only the delta.
 | command | before (after v3) | after v4 |
 |---|---|---|
 | `claude-ol-north` — default | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **superseded** — keep it, stop reaching for it first |
-| *(new 09-25)* **`claude-ol-kat`** | — | **the new default** (README verdict 2026-09-25): `kat-coder-v2.5:q5km-ctx256k-agentic` @ 262144 |
+| *(new 09-25)* **`claude-ol-kat`** | — | **the new default, provisional** (README verdict 2026-09-25): `kat-coder-v2.5:q5km-ctx256k-agentic` @ 262144 |
 | *(new)* `claude-ol-tiel` | — | the 09-21 default, now the pick **when overflow safety matters**: `tiel-coder:35b-q5-ctx256k-agentic` @ 262144 |
 | *(new)* `claude-ol-tiel-fast` | — | the same tag with `<\|think_off\|>` appended — **2.3× faster**, see below |
-| `claude-ol-ornith` | Ornith-1.0, deep documents | **keep**, and it is now also the fastest finisher measured |
+| `claude-ol-ornith` | Ornith-1.0, deep documents | **keep**. It was the fastest finisher on 09-17 (47 s). KAT (46 s) and ByteShape (35 s) are faster on 09-25, on a newer client |
 | `claude-ol2`, `claude-ol-nemo`, `claude-ol-vision` | unchanged | unchanged |
 
-## Why the default moves to Tiel
+## Why the default moved to Tiel on 09-17 (history: superseded by `claude-ol-kat`, provisionally, on 09-25)
 
 Measured on 0.33.3, same harness, server idle before each, n=3 for the sessions:
 
@@ -191,7 +191,8 @@ you need it, run it through that harness.
 ## What did not change
 
 - `claude-ol-ornith` stays, and v4 improves its standing: on 0.33.3 it finished the hard fixture
-  **fastest of anything measured** (47 s median). v3's 308 s figure was measured before the
+  fastest of anything measured **on 09-17** (47 s median). KAT (46 s) and ByteShape (35 s) are faster
+  on 09-25, on a newer Claude Code. v3's 308 s figure was measured before the
   runtime cached prompt prefixes; that penalty is gone.
 - `claude-ol-nemo` stays for the 524,288-token window, the only thing that needs it.
 - `claude-ol-vision` stays. gemma4 is still an excellent vision model — and Tiel now also reads
