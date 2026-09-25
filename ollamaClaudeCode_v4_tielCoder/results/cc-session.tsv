@@ -65,3 +65,6 @@ date	ollama	model	fixture	thinking	run	verdict	hidden	wall_s	warm_s	calls	turns	
 2026-09-25	0.33.3	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	1	PASS	18/18	46	15.0	6	16	31011	3386	1970	44.7	7.8	7.7	Bashx6,Readx5,Editx4	0	-	
 2026-09-25	0.33.3	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	2	PASS	18/18	48	1.4	7	19	31414	3588	1726	47.3	8.1	8.0	Readx7,Bashx6,Editx5	0	-	
 2026-09-25	0.33.3	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	3	PASS	18/18	40	2.9	5	14	29900	2786	2030	38.4	8.1	8.0	Readx6,Bashx4,Writex3	0	-	
+2026-09-25	0.33.3	ornith-1.5-35b:q5km-ctx256k-agentic	hard	on	1	PASS	18/18	119	13.9	13	21	27538	11265	23998	117.4	7.1	57.0	Readx10,Bashx6,Writex3,Editx1	0	-	
+2026-09-25	0.33.3	ornith-1.5-35b:q5km-ctx256k-agentic	hard	on	2	PASS	18/18	196	1.5	19	25	37340	18548	35968	193.8	7.4	78.7	Bashx11,Readx8,Writex3,Editx2	0	-	
+2026-09-25	0.33.3	ornith-1.5-35b:q5km-ctx256k-agentic	hard	on	3	PASS	18/18	110	1.6	15	18	27382	10131	18492	108.6	7.4	38.2	Bashx9,Readx4,Editx3,Writex1	0	-	
