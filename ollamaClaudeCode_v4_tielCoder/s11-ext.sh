@@ -22,8 +22,11 @@ HERE="$(dirname "$(readlink -f "$0")")"; cd "$HERE"
 TBO="$HERE/terminalbench/official"
 LOG="$HERE/results/s11-ext.log"
 BASE="http://192.168.100.67:11434"
-KAT="kat-coder-v2.5:q5km-ctx256k-agentic"
-TIEL="tiel-coder:35b-q5-ctx256k-agentic"
+# The two models compared. Default KAT vs Tiel; if the s12 re-baseline changes who the
+# two most promising are, write them (two tags, one per line, best first) to
+# results/ext-models.txt BEFORE this runs -- the comparison and its rule are unchanged.
+if [ -s results/ext-models.txt ]; then mapfile -t PAIR < <(grep -vE '^\s*#|^\s*$' results/ext-models.txt | head -2)
+else PAIR=(kat-coder-v2.5:q5km-ctx256k-agentic tiel-coder:35b-q5-ctx256k-agentic); fi
 say () { printf '\n\033[1m[%s] %s\033[0m\n' "$(date +%H:%M)" "$*" | tee -a "$LOG"; }
 
 say "waiting for the box"
@@ -58,7 +61,7 @@ PY
 fi
 cd "$HERE"
 
-for M in "$KAT" "$TIEL"; do
+for M in "${PAIR[@]}"; do
   say "2/3 extended round: $M, n=2"
   ( cd "$TBO" && TB_SUBSET=subset-ext-scored.txt TB_ARM_SUFFIX=-ext TB_THINKING=on TB_PHASE=2 \
       ./GO_official_tb.sh "$M" ) 2>&1 | tail -12 | tee -a "$LOG"
@@ -66,5 +69,5 @@ for M in "$KAT" "$TIEL"; do
 done
 
 say "3/3 comparison"
-( cd "$TBO" && python3 summarise.py >/dev/null && python3 ext-compare.py ) 2>&1 | tee -a "$LOG"
+( cd "$TBO" && python3 summarise.py >/dev/null && python3 ext-compare.py "${PAIR[@]}" ) 2>&1 | tee -a "$LOG"
 say "S11-EXT-DONE"

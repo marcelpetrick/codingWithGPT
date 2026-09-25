@@ -17,8 +17,10 @@ from pathlib import Path
 from summarise import DEFECTIVE, INFRA, wilson
 
 HERE = Path(__file__).resolve().parent
-MODELS = {"kat-coder-v2.5_q5km-ctx256k-agentic": "KAT-Coder",
-          "tiel-coder_35b-q5-ctx256k-agentic": "Tiel-Coder"}
+import sys
+# the pair, as Ollama tags on the command line (s11-ext.sh passes them); default KAT vs Tiel
+_TAGS = sys.argv[1:3] or ["kat-coder-v2.5:q5km-ctx256k-agentic", "tiel-coder:35b-q5-ctx256k-agentic"]
+MODELS = {t.replace(":", "_").replace("/", "_").lower(): t.split(":")[0] for t in _TAGS}
 ARMS = ("thinkon", "thinkon-ext")
 
 
@@ -66,7 +68,7 @@ def main():
         w = MODELS[a] if wins_a > wins_b else MODELS[b]
         print(f"VERDICT: {w} wins on correctness -- paired sign test p = {p:.3f}")
     else:
-        print("VERDICT: tie on correctness -- the 09-24 rule stands, speed decides (KAT-Coder)")
+        print("VERDICT: tie on correctness -- the rule falls back to quality and speed (s12)")
 
 
 if __name__ == "__main__":
