@@ -134,11 +134,11 @@ TIPS = {
                "The model has to read the repository, fix three bugs across three modules, implement one missing function and get the "
                "tests green. Lower is better. This is the number you actually wait for, since it includes every turn and tool call.",
     "tb": "Terminal-Bench (upstream harness, dataset terminal-bench-core 0.1.1): real terminal tasks in Docker containers, graded by "
-          "the tasks' own tests. A frozen subset of 10 tasks, run 3 times each; 9 are scored because nginx-request-logging cannot "
-          "be passed as written. Thinking is on for every model, only complete passes count, and infrastructure failures are void, "
+          "the tasks' own tests. A frozen subset of 10 tasks, run 3 times each; 8 are scored because nginx-request-logging and "
+          "polyglot-c-py contradict their own tests. Thinking is on for every model, only complete passes count, and infrastructure failures are void, "
           "not zero. The small line shows solved/trials and the 95% interval.",
     "ci": "The 95% Wilson confidence interval of the Terminal-Bench rate, drawn on a 0-100% axis: the band is the interval, the dot "
-          "the measured rate. With only 27 trials per model the band is about 35 points wide. Two models whose bands overlap are "
+          "the measured rate. With only 24 trials per model the band is about 35 points wide. Two models whose bands overlap are "
           "NOT ranked by this benchmark -- that rule was fixed before any results. Today every band overlaps.",
     "hidden": "Held-out tests, one chip per run: after the ledger session ends, 18 extra tests the model never saw are run "
               "against its code. They check what the docstrings specify, not what the visible tests happen to assert. 18/18 "

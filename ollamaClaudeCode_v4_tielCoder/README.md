@@ -35,18 +35,19 @@ Terminal-Bench interval or a tie plus a clearly faster session) was fixed before
 but "clearly faster" had no number. It now has one: median ≥ 25% lower and non-overlapping 5-run
 ranges.
 
-| model | ledger session, median | held-out tests, 3 runs | Terminal-Bench, 9 tasks × 3 | tool gates |
+| model | ledger session, median | held-out tests, 3 runs | Terminal-Bench, 8 tasks × 3 | tool gates |
 |---|---|---|---|---|
-| **KAT-Coder-V2.5-Dev** | **46 s** *(newer client)* | **18/18 ×3** | 33% [19, 52] *(openssl 0/3 is a grader artifact, see the round)* | 10/10 |
-| Tiel-Coder 35B-A3B | 83 s | 18/18 ×3 | 37% [22, 56] | 10/10 |
-| ByteShape Qwen3.6 Q4_K_S | **35 s** *(newer client)* | 16, 18, 15 | **52% [34, 69]** | 10/10 |
-| Qwen3.6 35B-A3B (greedy) | 60 s | 15–17/18 | 44% [28, 63] | |
-| gemma4 26B-A4B | 92 s | 18/18 ×3 | 44% [28, 63] | |
-| occamy-1.0 | 113 s *(newer client)* | 18/18 ×3 | 41% [25, 59] | 9/10 |
-| Ornith-1.5 35B-A3B | 119 s *(newer client)* | 18/18 ×3 | 41% [25, 59] | 9/10 |
-| North-Mini-Code 1.0 | 126 s | 14–18/18 | 33% [19, 52] | |
+| **KAT-Coder-V2.5-Dev** | **46 s** *(newer client)* | **18/18 ×3** | 38% [21, 57] *(openssl 0/3 is a grader artifact, see the round)* | 10/10 |
+| Tiel-Coder 35B-A3B | 83 s | 18/18 ×3 | 42% [24, 61] | 10/10 |
+| ByteShape Qwen3.6 Q4_K_S | **35 s** *(newer client)* | 16, 18, 15 | **58% [39, 76]** | 10/10 |
+| Qwen3.6 35B-A3B (greedy) | 60 s | 15–17/18 | 50% [31, 69] | |
+| gemma4 26B-A4B | 92 s | 18/18 ×3 | 50% [31, 69] | |
+| occamy-1.0 | 113 s *(newer client)* | 18/18 ×3 | 48% [29, 67] | 9/10 |
+| Ornith-1.5 35B-A3B | 119 s *(newer client)* | 18/18 ×3 | 46% [28, 65] | 9/10 |
+| North-Mini-Code 1.0 | 126 s | 14–18/18 | 38% [21, 57] | |
 
-- **Terminal-Bench separates nobody.** Every interval overlaps. A 40-task round (±9 points) would be
+- **Terminal-Bench separates nobody.** Every interval overlaps (8 scored tasks since 09-25: polyglot-c-py
+  contradicts its own tests and joins nginx as defective). A 40-task round (±9 points) would be
   needed to rank on correctness.
 - **Quality separates**: KAT, Tiel, gemma4, occamy and Ornith implement the specification 3/3. The
   qwen3.6 family (including ByteShape) leaves held-out tests failing.
