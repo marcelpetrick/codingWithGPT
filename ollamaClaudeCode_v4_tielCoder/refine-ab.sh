@@ -18,7 +18,7 @@
 set -uo pipefail
 HERE="$(dirname "$(readlink -f "$0")")"; cd "$HERE"
 HOST="192.168.100.67"; BASE="http://$HOST:11434"
-TAG="tiel-coder:35b-q5-ctx256k-agentic"
+TAG="kat-coder-v2.5:q5km-ctx256k-agentic"   # the pick since 2026-09-25
 LOG="$HERE/results/refine-ab.log"
 WHAT="${1:-all}"
 say () { printf '\n\033[1m[%s] %s\033[0m\n' "$(date +%H:%M)" "$*" | tee -a "$LOG"; }
@@ -31,7 +31,7 @@ uncached () {  # <arm> -> per-run "fresh_in cache_read share% wall" from the tra
   python3 - "$1" <<'PY'
 import glob, json, sys
 arm = sys.argv[1]
-pat = f"results/cc/tiel-coder_35b-q5-ctx256k-agentic-hard-thinkon-{arm}-r*.jsonl"
+pat = f"results/cc/kat-coder-v2.5_q5km-ctx256k-agentic-hard-thinkon-{arm}-r*.jsonl"
 for f in sorted(glob.glob(pat)):
     for line in open(f):
         i = line.find("{")
@@ -61,7 +61,7 @@ fi
 
 if [ "$WHAT" = r3 ] || [ "$WHAT" = all ]; then
   say "R3 presence_penalty: 0 (the pick) vs 1.5, same weights, tokrate"
-  PP="tiel-coder:35b-q5-ctx256k-agentic-pp15"
+  PP="kat-coder-v2.5:q5km-ctx256k-agentic-pp15"
   curl -s -m 120 "$BASE/api/create" -d "{\"model\":\"$PP\",\"from\":\"$TAG\",\"parameters\":{\"presence_penalty\":1.5},\"stream\":false}" >/dev/null
   ./tokrate.sh --host "$HOST" "$TAG" 2>&1 | tail -3 | tee -a "$LOG"
   ./tokrate.sh --host "$HOST" "$PP" 2>&1 | tail -3 | tee -a "$LOG"
@@ -69,6 +69,6 @@ if [ "$WHAT" = r3 ] || [ "$WHAT" = all ]; then
 fi
 if [ "$WHAT" = r5 ] || [ "$WHAT" = all ]; then
   say "R5 overflow behaviour of the pick"
-  python3 ./overflow-probe.py --host "$BASE" kat-coder-v2.5:q5km-ctx256k-agentic 2>&1 | tail -8 | tee -a "$LOG"
+  python3 ./overflow-probe.py --host "$BASE" "$TAG" 2>&1 | tail -8 | tee -a "$LOG"
 fi
 say "REFINE-AB-DONE"
