@@ -104,7 +104,8 @@ def verdict_line():
     if not p.exists():
         return "", ""
     s = p.read_text()
-    m = re.search(r"## Verdict so far\s+\*\*(.+?)\*\*\s*\n\*\((.+?)\)\*", s, re.S)
+    # the bold verdict, then its dated italic note -- on the same line or the next
+    m = re.search(r"## Verdict so far\s+\*\*(.+?)\*\*\s*\*\((.+?)\)\*", s, re.S)
     return (m.group(1), m.group(2)) if m else ("", "")
 
 
