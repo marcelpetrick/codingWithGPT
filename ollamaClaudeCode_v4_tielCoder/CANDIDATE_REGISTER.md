@@ -33,7 +33,8 @@ the owner pastes.*
 
 | model | role | decided |
 |---|---|---|
-| `tiel-coder:35b-q5-ctx256k-agentic` | **the pick** (2026-09-24): 18/18 held-out ×3, visible overflow error | ROUND_2026-09-24.md |
+| `kat-coder-v2.5:q5km-ctx256k-agentic` | **the pick** (2026-09-25): 46 s sessions, 18/18 held-out ×3, 10/10 gates | ROUND_2026-09-24.md |
+| `tiel-coder:35b-q5-ctx256k-agentic` | runner-up, and the pick when overflow safety matters: 18/18 ×3, visible overflow error | ROUND_2026-09-24.md |
 | `qwen3.6:35b-a3b-q4_K_M-agentic` | incumbent: fastest session (60 s), but 15–17/18 held-out | ROUND_2026-09-24.md |
 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | vision, smallest footprint, 18/18 ×3 | ROUND_2026-09-24.md |
 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | fastest generation (136 tok/s) | README §field |
@@ -43,7 +44,7 @@ the owner pastes.*
 | # | model | fits? | why testable | state |
 |---|---|---|---|---|
 | 1 | **occamy-1.0** (Accio-Lab), official GGUF Q5_K_M | 23.9 GiB with projector | trained for agentic work with RL on 15k trajectories. Claims Terminal-Bench 2.1 59.0 vs 49.5 for its base | **done**: 41% [25, 59], 18/18 ×3, 113 s. Does not take the pick |
-| 2 | **KAT-Coder-V2.5-Dev** (Kwaipilot), bartowski Q5_K_M | 23.3 GiB | trained with Claude Code as the harness. Claims Terminal-Bench 2.1 41.0 vs 32.0 for its base | screened in 09-25 08:42, Terminal-Bench running |
+| 2 | **KAT-Coder-V2.5-Dev** (Kwaipilot), bartowski Q5_K_M | 23.3 GiB | trained with Claude Code as the harness. Claims Terminal-Bench 2.1 41.0 vs 32.0 for its base | **done: the new pick** (09-25). 46 s, 18/18 ×3, 10/10, Terminal-Bench 33% [19, 52] |
 | 3 | **Ornith-1.5-35B-A3B** (ornith-ai, official GGUF Q5_K_M), added 2026-09-25 | 24.5 GiB with projector | the full model, not the 27B prunes ruled out below. 3.9M GGUF downloads. One **independent** agent eval (Pi Coding Agent, 3 tasks, 1 run each, CPU-only): faster than Qwen3.6-MTP on all three (125 vs 193 s, 32 vs 104 s) and passed a 16k-context log task that Qwen failed. Vendor claims Terminal-Bench 2.1 67.8 (implausible for A3B). **Against it:** the original repo's tab reports broken basic tool calls and looping (#8, #18), and it self-identifies as Claude (#18). Our G2 settles the tool-call question in 10 min. Sampler t 0.6 / top_p 0.95 / top_k 20 | queued after KAT, before ByteShape |
 | 4 | **ByteShape Qwen3.6-35B-A3B** Q4_K_S-4.22bpw | 17.9 GiB with projector | control: the incumbent's weights 4 GB lighter. Tests whether VRAM can be freed at no cost | queued |
 

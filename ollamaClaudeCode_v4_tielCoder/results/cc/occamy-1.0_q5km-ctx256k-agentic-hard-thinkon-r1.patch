@@ -1,0 +1,108 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..b45265a 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -1,5 +1,7 @@
+ """Money parsing."""
+-from decimal import Decimal
++from decimal import Decimal, InvalidOperation
++
++_TWOPLACES = Decimal("0.01")
+ 
+ 
+ def parse_amount(text):
+@@ -14,4 +16,18 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    s = text.strip()
++    if not s:
++        raise ValueError(f"invalid amount: {text!r}")
++    negative = False
++    if s.startswith("(") and s.endswith(")"):
++        negative = True
++        s = s[1:-1].strip()
++    s = s.replace(",", "")
++    try:
++        value = Decimal(s)
++    except InvalidOperation:
++        raise ValueError(f"invalid amount: {text!r}")
++    if negative:
++        value = -value
++    return value.quantize(_TWOPLACES)
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..0962197 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,8 +26,20 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
+-    day, category, amount, currency = line.split(";")
+-    return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
++    stripped = line.strip()
++    if not stripped or stripped.startswith("#"):
++        return None
++    parts = line.split(";")
++    if len(parts) != 4:
++        raise ValueError(f"malformed line: {line!r}")
++    day_str, category, amount, currency = parts
++    day = date.fromisoformat(day_str.strip())
++    category = category.strip().lower()
++    amount = parse_amount(amount.strip())
++    currency = currency.strip().upper()
++    if not currency.isalpha() or len(currency) != 3:
++        raise ValueError(f"invalid currency: {currency!r}")
++    return Entry(day, category, amount, currency)
+ 
+ 
+ def parse_ledger(text):
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..0334c42 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,4 +1,5 @@
+ """Reports over parsed entries."""
++from decimal import Decimal
+ 
+ 
+ def monthly_totals(entries):
+@@ -9,10 +10,14 @@ def monthly_totals(entries):
+     ValueError is raised. An empty input returns an empty dict.
+     """
+     totals = {}
++    currencies = set()
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
+-        totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++        key = f"{entry.day.year}-{entry.day.month:02d}"
++        totals[key] = totals.get(key, Decimal(0)) + entry.amount
++        currencies.add(entry.currency)
++    if len(currencies) > 1:
++        raise ValueError("all entries must share one currency")
++    return dict(sorted(totals.items()))
+ 
+ 
+ def category_breakdown(entries, month):
+@@ -23,4 +28,18 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    year_str, mon_str = month.split("-")
++    year = int(year_str)
++    mon = int(mon_str)
++    totals = {}
++    currencies = set()
++    for entry in entries:
++        if entry.day.year != year or entry.day.month != mon:
++            continue
++        currencies.add(entry.currency)
++        totals[entry.category] = totals.get(entry.category, Decimal(0)) + entry.amount
++    if len(currencies) > 1:
++        raise ValueError("all entries must share one currency")
++    items = [(cat, total) for cat, total in totals.items() if total != Decimal(0)]
++    items.sort(key=lambda item: (item[1], item[0]))
++    return items

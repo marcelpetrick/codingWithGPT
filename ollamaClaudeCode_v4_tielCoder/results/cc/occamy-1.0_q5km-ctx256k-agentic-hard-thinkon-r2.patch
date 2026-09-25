@@ -1,0 +1,137 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..dac0606 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -1,6 +1,17 @@
+ """Money parsing."""
++import re
+ from decimal import Decimal
+ 
++# Matches: optional sign, then either (a) plain digits or (b) a leading group
++# of 1-3 digits followed by one or more exactly-3-digit comma groups, then an
++# optional fractional part ".ddd".
++_AMOUNT_RE = re.compile(
++    r'^[+-]?'
++    r'(\d{1,3}(?:,\d{3})+|\d+)'
++    r'(?:\.\d+)?'
++    r'$'
++)
++
+ 
+ def parse_amount(text):
+     """Parse a ledger amount into a Decimal.
+@@ -14,4 +25,16 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    text = text.strip()
++    if not text:
++        raise ValueError(f"empty amount")
++    negated = False
++    if text[0] == '(' and text[-1] == ')':
++        negated = True
++        text = text[1:-1].strip()
++    if not _AMOUNT_RE.match(text):
++        raise ValueError(f"invalid amount: {text!r}")
++    value = Decimal(text.replace(',', ''))
++    if negated:
++        value = -value
++    return value.quantize(Decimal('0.00'))
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..883c7f5 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -1,10 +1,14 @@
+ """Parse ledger text into entries."""
++import re
+ from dataclasses import dataclass
+ from datetime import date
+ from decimal import Decimal
+ 
+ from .money import parse_amount
+ 
++# Exactly three ASCII letters, upper- or lower-case.
++_CURRENCY_RE = re.compile(r'^[A-Za-z]{3}$')
++
+ 
+ @dataclass(frozen=True)
+ class Entry:
+@@ -26,8 +30,20 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
+-    day, category, amount, currency = line.split(";")
+-    return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
++    stripped = line.strip()
++    if not stripped or stripped[0] == '#':
++        return None
++    parts = stripped.split(';')
++    if len(parts) != 4:
++        raise ValueError(f"invalid entry: {line!r}")
++    day_str, category, amount_str, currency = parts
++    day = date.fromisoformat(day_str.strip())
++    category = category.strip().lower()
++    amount = parse_amount(amount_str)
++    currency = currency.strip().upper()
++    if not _CURRENCY_RE.match(currency):
++        raise ValueError(f"invalid currency: {currency!r}")
++    return Entry(day, category, amount, currency)
+ 
+ 
+ def parse_ledger(text):
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..2873bf1 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,4 +1,8 @@
+ """Reports over parsed entries."""
++from collections import defaultdict
++from decimal import Decimal
++
++from .parser import Entry
+ 
+ 
+ def monthly_totals(entries):
+@@ -8,11 +12,18 @@ def monthly_totals(entries):
+     chronological order. All entries must share one currency, otherwise
+     ValueError is raised. An empty input returns an empty dict.
+     """
++    if not entries:
++        return {}
++    currency = entries[0].currency
+     totals = {}
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
+-        totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++        if entry.currency != currency:
++            raise ValueError(
++                f"inconsistent currencies: {currency!r} and {entry.currency!r}"
++            )
++        key = f"{entry.day.year}-{entry.day.month:02d}"
++        totals[key] = totals.get(key, Decimal('0')) + entry.amount
++    return dict(sorted(totals.items()))
+ 
+ 
+ def category_breakdown(entries, month):
+@@ -23,4 +34,18 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    if not entries:
++        return []
++    currency = entries[0].currency
++    cat_totals = defaultdict(lambda: Decimal('0'))
++    for entry in entries:
++        if entry.currency != currency:
++            raise ValueError(
++                f"inconsistent currencies: {currency!r} and {entry.currency!r}"
++            )
++        key = f"{entry.day.year}-{entry.day.month:02d}"
++        if key == month:
++            cat_totals[entry.category] += entry.amount
++    result = [(cat, total) for cat, total in cat_totals.items() if total != 0]
++    result.sort(key=lambda pair: (pair[1], pair[0]))
++    return result
