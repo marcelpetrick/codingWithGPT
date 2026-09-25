@@ -29,7 +29,9 @@ sys.path.insert(0, str(HERE / "terminalbench" / "official"))
 from summarise import DEFECTIVE, INFRA, split_arm, wilson  # noqa: E402
 
 ARM = "thinkon"
-N_TASKS = 10
+# task count of the parity arm, read from the frozen subset rather than hard-coded
+N_TASKS = len([l for l in (HERE / "terminalbench" / "official" / "subset.txt").read_text().splitlines()
+               if l.strip() and not l.lstrip().startswith("#")])
 
 
 def slug(tag):

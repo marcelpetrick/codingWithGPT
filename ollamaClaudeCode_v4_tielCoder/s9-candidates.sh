@@ -100,8 +100,11 @@ for spec in "${CANDIDATES[@]}"; do
   # This is what makes the whole chain re-runnable -- if the link to .67 drops
   # or the laptop sleeps, running run-all.sh again resumes instead of repeating
   # hours of pulls and sessions.
-  if grep -q "	$TAG	" "$TSV" 2>/dev/null; then
-    note "already screened ($(grep "	$TAG	" "$TSV" | tail -1 | cut -f17)) -- skipping"
+  # only a FINAL verdict skips (SCREENED-IN / CUT-*); a VOID or partial-stage row must
+  # not block a re-screen forever (review_20260925 #11)
+  FINAL=$(awk -F'\t' -v t="$TAG" '$5==t && $17 ~ /^(SCREENED-IN|CUT-)/ {v=$17} END {print v}' "$TSV" 2>/dev/null)
+  if [ -n "$FINAL" ]; then
+    note "already screened ($FINAL) -- skipping"
     continue
   fi
 

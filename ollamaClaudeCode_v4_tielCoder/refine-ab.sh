@@ -53,8 +53,9 @@ PY
 
 if [ "$WHAT" = r1 ] || [ "$WHAT" = all ]; then
   say "R1 caching: reminder default vs off, ledger x3 each"
-  CC_ARM=remindon ./cc-session.sh --host "$HOST" --fixture hard --runs 3 --thinking on "$TAG" 2>&1 | grep -E 'PASS|FAIL' | tee -a "$LOG"
-  CC_ARM=remindoff CLAUDE_CODE_TOTAL_TOKENS_REMINDER=off \
+  arm_done () { [ "$(grep -l '"type":"result"' results/cc/kat-coder-v2.5_q5km-ctx256k-agentic-hard-thinkon-"$1"-r[0-9]*.jsonl 2>/dev/null | wc -l)" -ge 3 ]; }
+  arm_done remindon || CC_ARM=remindon env -u CLAUDE_CODE_TOTAL_TOKENS_REMINDER ./cc-session.sh --host "$HOST" --fixture hard --runs 3 --thinking on "$TAG" 2>&1 | grep -E 'PASS|FAIL' | tee -a "$LOG"
+  arm_done remindoff || CC_ARM=remindoff CLAUDE_CODE_TOTAL_TOKENS_REMINDER=off \
     ./cc-session.sh --host "$HOST" --fixture hard --runs 3 --thinking on "$TAG" 2>&1 | grep -E 'PASS|FAIL' | tee -a "$LOG"
   { echo "  -- reminder default"; uncached remindon; echo "  -- reminder off"; uncached remindoff; } | tee -a "$LOG"
 fi
