@@ -108,7 +108,8 @@ def verdict_line():
 
 # ---------------------------------------------------------------- the field
 FIELD = [  # tag, display name, note
-    ("tiel-coder:35b-q5-ctx256k-agentic", "Tiel-Coder 35B-A3B", "context overflow is a visible error"),
+    ("kat-coder-v2.5:q5km-ctx256k-agentic", "KAT-Coder-V2.5-Dev (the pick)", "18/18 at the fastest session; the default since 2026-09-25"),
+    ("tiel-coder:35b-q5-ctx256k-agentic", "Tiel-Coder 35B-A3B", "the pick when overflow safety matters: it refuses, not truncates"),
     ("qwen3.6:35b-a3b-q4_K_M-agentic", "Qwen3.6 35B-A3B", "the incumbent; ran greedy (temp 0)"),
     ("qwen3.6:35b-a3b-q4_K_M-agentic-t06", "Qwen3.6 35B-A3B at vendor sampling", "t 0.6 / top_p 0.95 / top_k 20: the greedy-vs-spec control"),
     ("gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "Gemma4 26B-A4B", "vision; smallest footprint"),
@@ -121,7 +122,7 @@ def main():
     cands = [r for r in rows("candidates-2026-09-21.tsv")]
     field = [(t, n, note) for t, n, note in FIELD]
     for c in cands:  # a screened-in candidate joins the field table
-        if c.get("verdict") == "SCREENED-IN":
+        if c.get("verdict") == "SCREENED-IN" and c["baked_tag"] not in {t for t, _, _ in FIELD}:
             field.append((c["baked_tag"], c["name"] + " (candidate)", "screened in " + c["date"]))
 
     table = []
