@@ -6,13 +6,15 @@
 #                ledger x3 per arm; the number is the UNCACHED share of input
 #   R3 penalty   presence_penalty 0 vs 1.5 on the same weights (ollama#14493 says
 #                the Go engine ignores it; v4 measured -41..52% generation)
+#   R5 overflow  the new pick (KAT) past its window: refuses or silently halves?
+#                decides whether claude-ol-kat's 200k cap can move up
 #
 # R2 (Tiel re-upload) was settled by digest: our blob IS the 09-10 v22.5.0 file.
 # R4 (KV cache q8_0) needs OLLAMA_KV_CACHE_TYPE on the server -- no API sets it,
 #    and there is no SSH to .67 -- so it is the owner's step, not this script's.
 #
 # Waits for the box like s10-one.sh does. Idempotent per arm via cc-session's
-# own transcripts. Usage: ./refine-ab.sh [r1|r3|all]
+# own transcripts. Usage: ./refine-ab.sh [r1|r3|r5|all]
 set -uo pipefail
 HERE="$(dirname "$(readlink -f "$0")")"; cd "$HERE"
 HOST="192.168.100.67"; BASE="http://$HOST:11434"
@@ -64,5 +66,9 @@ if [ "$WHAT" = r3 ] || [ "$WHAT" = all ]; then
   ./tokrate.sh --host "$HOST" "$TAG" 2>&1 | tail -3 | tee -a "$LOG"
   ./tokrate.sh --host "$HOST" "$PP" 2>&1 | tail -3 | tee -a "$LOG"
   curl -s -X DELETE "$BASE/api/delete" -d "{\"model\":\"$PP\"}" >/dev/null
+fi
+if [ "$WHAT" = r5 ] || [ "$WHAT" = all ]; then
+  say "R5 overflow behaviour of the pick"
+  python3 ./overflow-probe.py --host "$BASE" kat-coder-v2.5:q5km-ctx256k-agentic 2>&1 | tail -8 | tee -a "$LOG"
 fi
 say "REFINE-AB-DONE"
