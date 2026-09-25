@@ -14,7 +14,8 @@ records only the delta.
 | command | before (after v3) | after v4 |
 |---|---|---|
 | `claude-ol-north` — default | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **superseded** — keep it, stop reaching for it first |
-| *(new)* **`claude-ol-tiel`** | — | **the new default**: `tiel-coder:35b-q5-ctx256k-agentic` @ 262144 |
+| *(new 09-25)* **`claude-ol-kat`** | — | **the new default** (README verdict 2026-09-25): `kat-coder-v2.5:q5km-ctx256k-agentic` @ 262144 |
+| *(new)* `claude-ol-tiel` | — | the 09-21 default, now the pick **when overflow safety matters**: `tiel-coder:35b-q5-ctx256k-agentic` @ 262144 |
 | *(new)* `claude-ol-tiel-fast` | — | the same tag with `<\|think_off\|>` appended — **2.3× faster**, see below |
 | `claude-ol-ornith` | Ornith-1.0, deep documents | **keep**, and it is now also the fastest finisher measured |
 | `claude-ol2`, `claude-ol-nemo`, `claude-ol-vision` | unchanged | unchanged |
@@ -63,6 +64,48 @@ curl -s http://192.168.100.67:11434/api/create -d '{
   "parameters": {"presence_penalty": 0},
   "stream": false}'
 ```
+
+## `claude-ol-kat` (the default since 2026-09-25)
+
+The tag, as the candidate screen baked it. The vendor sampler is t 1.0 / top_p 0.95, and Ollama's
+own qwen3.5 renderer is set because the GGUF's Jinja template rejects Claude Code's
+mid-conversation system messages (ROUND_2026-09-24.md, `2cb75e0`):
+
+```shell
+curl -s http://192.168.100.67:11434/api/create -d '{
+  "model": "kat-coder-v2.5:q5km-ctx256k-agentic",
+  "from":  "hf.co/bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF:Q5_K_M",
+  "parameters": {"num_ctx": 262144, "presence_penalty": 0, "temperature": 1.0, "top_p": 0.95},
+  "renderer": "qwen3.5", "parser": "qwen3.5",
+  "stream": false}'
+```
+
+```shell
+claude-ol-kat() {
+  local H=http://192.168.100.67:11434
+  local M=kat-coder-v2.5:q5km-ctx256k-agentic
+  printf 'claude-ol-kat: warming %s ...' "${H#http://}" >&2
+  if curl -sf --max-time 900 "$H/api/generate" -H 'Content-Type: application/json' \
+       -d "{\"model\":\"$M\",\"prompt\":\"hi\",\"keep_alive\":\"2h\",\"stream\":false}" >/dev/null 2>&1
+  then printf ' resident (2h)\n' >&2
+  else printf ' FAILED\n' >&2
+       echo "  - the servers are reachable only via the USB ethernet adapter, not wifi" >&2
+       return 1
+  fi
+  ANTHROPIC_AUTH_TOKEN=ollama \
+  ANTHROPIC_BASE_URL="$H" \
+  ANTHROPIC_API_KEY="" \
+  ANTHROPIC_DEFAULT_HAIKU_MODEL="$M" \
+  ANTHROPIC_DEFAULT_SONNET_MODEL="$M" \
+  ANTHROPIC_DEFAULT_OPUS_MODEL="$M" \
+  CLAUDE_CODE_MAX_CONTEXT_TOKENS=200000 \
+    claude --model "$M" "$@"
+}
+```
+
+**200,000, not Tiel's 230,000.** KAT's overflow behaviour has not been probed. It is a Qwen3.6
+derivative, and Qwen3.6 **silently halves** an over-long prompt, so the cap keeps a wide margin under
+the baked 262,144 until `overflow-probe.py` has been run on it. Everything else is as for Tiel below.
 
 ## `claude-ol-tiel`
 
