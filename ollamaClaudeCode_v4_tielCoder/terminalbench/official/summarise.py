@@ -35,7 +35,9 @@ INFRA = {"unknown_agent_error", "agent_installation_failed", "test_timeout",
 # that voided round 1 (harness §8b): round 1 ran the subjects with reasoning off
 # and the comparators with it on, and nothing in the output said so. Rows from
 # round 1 are therefore labelled r1-mixed and are NEVER pooled with parity rows.
-ARM_MARKERS = ("thinkon", "thinkoff")
+# "thinkon-ext" (the 09-25 extended subset) must come first: it also ends in
+# neither marker otherwise, and would be misread as the legacy mixed arm.
+ARM_MARKERS = ("thinkon-ext", "thinkon", "thinkoff")
 LEGACY_ARM = "r1-mixed"
 
 
@@ -73,9 +75,14 @@ def expected_trials(run_dir, n_tasks):
 
 def main():
     runs = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "runs"
-    subset = HERE / "subset.txt"
-    n_tasks = len([l for l in subset.read_text().splitlines()
-                   if l.strip() and not l.lstrip().startswith("#")]) if subset.exists() else 0
+    def count(name):
+        f = HERE / name
+        return len([l for l in f.read_text().splitlines()
+                    if l.strip() and not l.lstrip().startswith("#")]) if f.exists() else 0
+    # each arm has its own frozen task file, and a pass is complete only
+    # against THAT file's task count
+    n_tasks = count("subset.txt")
+    n_tasks_ext = count("subset-ext-scored.txt")
     incomplete = []
     out = HERE / "results"
     out.mkdir(exist_ok=True)
@@ -89,7 +96,7 @@ def main():
         except ValueError:
             print(f"  ! unreadable: {rj}")
             continue
-        want = expected_trials(rj.parent, n_tasks)
+        want = expected_trials(rj.parent, n_tasks_ext if "-thinkon-ext-" in run_id else n_tasks)
         have = len(list(rj.parent.glob("*/*/results.json")))
         if want and have < want:
             incomplete.append((run_id, have, want))

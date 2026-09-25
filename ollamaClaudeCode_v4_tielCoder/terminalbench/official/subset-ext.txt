@@ -1,0 +1,43 @@
+# Extended Terminal-Bench-core (0.1.1) subset -- 30 tasks, drawn 2026-09-25
+# BEFORE any extended result existed, to settle KAT-Coder vs Tiel-Coder on
+# correctness (ROUND_2026-09-24.md, owner's question 09-25).
+#
+# Draw: random.Random(20260925).sample(pool, 30), sorted, where pool = the
+# 80 dataset tasks minus the 10 in subset.txt, hello-world and
+# conda-env-conflict-resolution (68 tasks). Reproducible from this header.
+#
+# Rule fixed before running: every task is first run with the ORACLE agent (the
+# task's own reference solution). A task the oracle cannot pass is defective --
+# the nginx lesson -- and is dropped from the SCORED set before any model runs.
+# The combined rate is then the 9 scored tasks of subset.txt plus the
+# oracle-passing ones here, n=3 per task, for exactly the two models compared.
+blind-maze-explorer-5x5
+build-linux-kernel-qemu
+cartpole-rl-training
+create-bucket
+cron-broken-network
+decommissioning-service-with-sensitive-data
+eval-mteb
+extract-safely
+gpt2-codegolf
+incompatible-python-fasttext
+intrusion-detection
+new-encrypt-command
+path-tracing
+path-tracing-reverse
+play-zork
+polyglot-rust-c
+pytorch-model-cli
+raman-fitting
+reshard-c4-data
+run-pdp11-code
+simple-web-scraper
+solana-data
+sqlite-db-truncate
+swe-bench-astropy-1
+swe-bench-astropy-2
+swe-bench-fsspec
+tmux-advanced-workflow
+train-fasttext
+vim-terminal-task
+write-compressor

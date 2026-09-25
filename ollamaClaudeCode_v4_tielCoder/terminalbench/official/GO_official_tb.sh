@@ -56,7 +56,10 @@ FIELD_ALL=(
 FIELD_N2=("${FIELD_ALL[@]}")
 if [ "$#" -gt 0 ]; then FIELD_ALL=("$@"); FIELD_N2=("$@"); fi
 
-mapfile -t TASKS < <(grep -vE '^\s*#|^\s*$' subset.txt)
+# TB_SUBSET picks another frozen task file (the 09-25 extended round uses
+# subset-ext-scored.txt); TB_ARM_SUFFIX labels its runs (-ext) so they form their
+# OWN arm and never pool with the 9-task parity arm by accident.
+mapfile -t TASKS < <(grep -vE '^\s*#|^\s*$' "${TB_SUBSET:-subset.txt}")
 TARGS=(); for t in "${TASKS[@]}"; do TARGS+=(-t "$t"); done
 echo "subset (${#TASKS[@]} tasks): ${TASKS[*]}"
 
@@ -96,7 +99,7 @@ done
 done_already () {  # <model> <runs> -> 0 only if the pass is genuinely COMPLETE
   local slug arm d have want
   slug="$(echo "$1" | tr '/:' '__' | tr 'A-Z' 'a-z')"
-  arm="think${TB_THINKING:-on}"
+  arm="think${TB_THINKING:-on}${TB_ARM_SUFFIX:-}"
   want=$(( ${#TASKS[@]} * $2 ))
   for d in "$OUT/$slug-$arm-n$2-"*; do
     [ -d "$d" ] || continue
@@ -120,7 +123,7 @@ run_one () {  # <runs> <model...>
       --n-attempts "$runs" \
       --n-concurrent "$CONCURRENCY" \
       --output-path "$OUT" \
-      --run-id "$(echo "$m" | tr '/:' '__' | tr 'A-Z' 'a-z')-think${TB_THINKING:-on}-n$runs-$(date +%H%M%S)" \
+      --run-id "$(echo "$m" | tr '/:' '__' | tr 'A-Z' 'a-z')-think${TB_THINKING:-on}${TB_ARM_SUFFIX:-}-n$runs-$(date +%H%M%S)" \
       2>&1 | tail -40
     # be a good neighbour: unload this model before the next one loads
     curl -s "$HOST/api/generate" -d "{\"model\":\"$m\",\"keep_alive\":0}" >/dev/null 2>&1 || true
