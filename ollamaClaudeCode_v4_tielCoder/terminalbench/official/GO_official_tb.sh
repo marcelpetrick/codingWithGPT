@@ -120,6 +120,7 @@ run_one () {  # <runs> <model...>
     "$TB" run -d "$DATASET" "${TARGS[@]}" \
       --agent-import-path "$AGENT" -m "$m" \
       -k thinking="${TB_THINKING:-on}" \
+      ${TB_CC_VERSION:+-k version="$TB_CC_VERSION"} \
       --n-attempts "$runs" \
       --n-concurrent "$CONCURRENCY" \
       --output-path "$OUT" \

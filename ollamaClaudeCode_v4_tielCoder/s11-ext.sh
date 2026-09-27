@@ -29,7 +29,13 @@ if [ -s results/ext-models.txt ]; then mapfile -t PAIR < <(grep -vE '^\s*#|^\s*$
 else PAIR=(kat-coder-v2.5:q5km-ctx256k-agentic tiel-coder:35b-q5-ctx256k-agentic); fi
 say () { printf '\n\033[1m[%s] %s\033[0m\n' "$(date +%H:%M)" "$*" | tee -a "$LOG"; }
 
+# Pin the Claude Code version installed inside every task container. Unpinned, the
+# upstream template installs "latest", so passes days apart ran different clients
+# (2.1.278 references vs 2.1.281-282 candidates, found 2026-09-27). Both models of the
+# pair get exactly this version.
+export TB_CC_VERSION="${TB_CC_VERSION:-$(claude --version 2>/dev/null | awk '{print $1}')}"
 say "waiting for the box"
+say "Claude Code pinned in the containers: ${TB_CC_VERSION:-UNPINNED}"
 while pgrep -f '^bash \./(GO_official_tb|s9-candidates|s10-one|run-all|refine-ab)\.sh' >/dev/null 2>&1; do sleep 60; done
 curl -s -m 10 "$BASE/api/version" >/dev/null || { say "server unreachable -- stopping"; exit 3; }
 
@@ -74,5 +80,5 @@ for M in "${PAIR[@]}"; do
 done
 
 say "3/3 comparison"
-( cd "$TBO" && python3 summarise.py >/dev/null && python3 ext-compare.py "${PAIR[@]}" ) 2>&1 | tee -a "$LOG"
+( cd "$TBO" && python3 summarise.py >/dev/null && EXT_ONLY=1 python3 ext-compare.py "${PAIR[@]}" && echo "-- pooled with the 8 parity tasks (information only: mixed client versions)" && python3 ext-compare.py "${PAIR[@]}" | grep -v VERDICT ) 2>&1 | tee -a "$LOG"
 say "S11-EXT-DONE"

@@ -21,7 +21,13 @@ import sys
 # the pair, as Ollama tags on the command line (s11-ext.sh passes them); default KAT vs Tiel
 _TAGS = sys.argv[1:3] or ["kat-coder-v2.5:q5km-ctx256k-agentic", "tiel-coder:35b-q5-ctx256k-agentic"]
 MODELS = {t.replace(":", "_").replace("/", "_").lower(): t.split(":")[0] for t in _TAGS}
-ARMS = ("thinkon", "thinkon-ext")
+import os
+# EXT_ONLY=1: the decision set -- the extended tasks only, where both models ran one
+# pinned Claude Code version. Amended 2026-09-27 BEFORE any extended result existed:
+# the parity rows mix client versions (2.1.278 vs 2.1.282), so pooling them in would
+# carry the confound into the verdict. Without EXT_ONLY the pooled figure is printed
+# for information.
+ARMS = ("thinkon-ext",) if os.environ.get("EXT_ONLY") else ("thinkon", "thinkon-ext")
 
 
 def main():
