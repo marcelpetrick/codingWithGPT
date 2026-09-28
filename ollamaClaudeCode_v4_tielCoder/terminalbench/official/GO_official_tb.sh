@@ -67,22 +67,6 @@ echo "=== preflight ==="
 curl -fsS -m10 "$HOST/api/version" >/dev/null || { echo "server not answering -- check USB ethernet"; exit 2; }
 docker compose version >/dev/null 2>&1 || { echo "docker compose plugin missing"; exit 5; }
 
-# The preceding screen/gate may have left the model for this pass resident.
-# Any other resident tag belongs to a separate session and must be left alone.
-resident=$(curl -fsS -m10 "$HOST/api/ps" | python3 -c '
-import json, sys
-print("\n".join(m["name"] for m in json.load(sys.stdin)["models"]))') || {
-  echo "cannot read resident models -- stopping" >&2; exit 2;
-}
-while IFS= read -r tag; do
-  [ -z "$tag" ] && continue
-  found=0
-  for m in "${FIELD_ALL[@]}"; do
-    [ "$tag" = "$m" ] && found=1
-  done
-  [ "$found" = 1 ] || { echo "box occupied by $tag -- stopping without unloading it" >&2; exit 2; }
-done <<< "$resident"
-
 # A missing tag would produce 404s inside every trial, so stop before scoring.
 present="$(curl -fsS -m10 "$HOST/api/tags")"
 for m in "${FIELD_ALL[@]}"; do
@@ -90,6 +74,24 @@ for m in "${FIELD_ALL[@]}"; do
     echo "model missing on server: $m" >&2; exit 2;
   }
 done
+
+assert_box_available_for () {
+  local wanted="$1" resident tag
+  # Check again before every model: a session can start while a prior pass runs.
+  # The screen may leave this exact tag loaded; every other tag is left alone.
+  resident=$(curl -fsS -m10 "$HOST/api/ps" | python3 -c '
+import json, sys
+print("\n".join(m["name"] for m in json.load(sys.stdin)["models"]))') || {
+    echo "cannot read resident models -- stopping" >&2; return 2;
+  }
+  while IFS= read -r tag; do
+    [ -z "$tag" ] && continue
+    [ "$tag" = "$wanted" ] || {
+      echo "box occupied by $tag before $wanted -- stopping without unloading it" >&2
+      return 2
+    }
+  done <<< "$resident"
+}
 
 # The run-id also carries the THINKING ARM (-thinkon / -thinkoff), because the
 # run-id is the only label the upstream harness writes into results.json, and
@@ -134,6 +136,7 @@ run_one () {  # <runs> <model...>
       echo "=== $m  (n=$runs) -- already complete for this arm, skipping ==="
       continue
     fi
+    assert_box_available_for "$m" || return $?
     echo "=== $m  (n=$runs, thinking ${TB_THINKING:-on}) ==="
     "$TB" run -d "$DATASET" "${TARGS[@]}" \
       --agent-import-path "$AGENT" -m "$m" \
