@@ -9,7 +9,7 @@
 # Waits for anything else on the box to finish first (one model at a time),
 # and is idempotent through the two scripts it calls: a screened candidate is
 # not screened again, a complete Terminal-Bench pass is not re-run.
-set -uo pipefail
+set -euo pipefail
 HERE="$(dirname "$(readlink -f "$0")")"; cd "$HERE"
 NAME="${1:?usage: s10-one.sh <candidate name>}"
 HOST="192.168.100.67"

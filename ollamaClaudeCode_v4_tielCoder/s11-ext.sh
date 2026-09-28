@@ -17,7 +17,7 @@
 #
 # Idempotent: the oracle list is reused if present, and complete passes are
 # skipped by GO_official_tb.sh. Waits for the box like the other drivers.
-set -uo pipefail
+set -euo pipefail
 HERE="$(dirname "$(readlink -f "$0")")"; cd "$HERE"
 TBO="$HERE/terminalbench/official"
 LOG="$HERE/results/s11-ext.log"
@@ -37,11 +37,28 @@ export TB_CC_VERSION="${TB_CC_VERSION:-$(claude --version 2>/dev/null | awk '{pr
 say "waiting for the box"
 say "Claude Code pinned in the containers: ${TB_CC_VERSION:-UNPINNED}"
 while pgrep -f '^bash \./(GO_official_tb|s9-candidates|s10-one|run-all|refine-ab)\.sh' >/dev/null 2>&1; do sleep 60; done
-curl -s -m 10 "$BASE/api/version" >/dev/null || { say "server unreachable -- stopping"; exit 3; }
+curl -fsS -m 10 "$BASE/api/version" >/dev/null || { say "server unreachable -- stopping"; exit 3; }
+# This is a shared box. A tag from this project may still belong to someone
+# else's session, so only observe /api/ps here; never unload it to make room.
+RESIDENT=$(curl -fsS -m 10 "$BASE/api/ps" | python3 -c '
+import json, sys
+print(" ".join(m["name"] for m in json.load(sys.stdin)["models"]))') || {
+  say "cannot read resident models -- stopping"; exit 3;
+}
+if [ -n "$RESIDENT" ]; then
+  say "box occupied by $RESIDENT -- stopping without unloading it"
+  exit 3
+fi
 
 # T5 x8 for any model of the pair that s12 did not re-gate (qwen3.6 was not in its list)
 for M in "${PAIR[@]}"; do
-  grep -q "^$M	T5	" results/gate-rerun.tsv 2>/dev/null || python3 ./gate-rerun.py --host "$BASE" --n 8 --gate T5 "$M" 2>&1 | tail -2 | tee -a "$LOG"
+  if ! awk -F '\t' -v m="$M" '$1 == m && $2 == "T5" { found=1 } END { exit !found }' \
+      results/gate-rerun.tsv 2>/dev/null; then
+    python3 ./gate-rerun.py --host "$BASE" --n 8 --gate T5 "$M" 2>&1 | tail -2 | tee -a "$LOG"
+    # The gate loaded this exact tag; release it before the first model's pass.
+    curl -fsS -m 30 "$BASE/api/generate" \
+      -d "{\"model\":\"$M\",\"keep_alive\":0}" >/dev/null
+  fi
 done
 
 cd "$TBO"

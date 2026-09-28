@@ -21,7 +21,7 @@
 #   phase 2: the same 4 x the subset x n=2                    (~2.7 h)
 # Every model runs the IDENTICAL subset (subset.txt). One model resident at a
 # time; the box is shared, so it yields, never evicts.
-set -uo pipefail
+set -euo pipefail
 HERE="$(dirname "$(readlink -f "$0")")"; cd "$HERE"
 
 HOST="${OLLAMA_HOST_URL:-http://192.168.100.67:11434}"
@@ -64,13 +64,31 @@ TARGS=(); for t in "${TASKS[@]}"; do TARGS+=(-t "$t"); done
 echo "subset (${#TASKS[@]} tasks): ${TASKS[*]}"
 
 echo "=== preflight ==="
-curl -s -m10 "$HOST/api/version" >/dev/null || { echo "server not answering -- check USB ethernet"; exit 2; }
+curl -fsS -m10 "$HOST/api/version" >/dev/null || { echo "server not answering -- check USB ethernet"; exit 2; }
 docker compose version >/dev/null 2>&1 || { echo "docker compose plugin missing"; exit 5; }
 
-# Warn (do not fail) if any tag is absent from the box -- a 404 would corrupt turns.
-present="$(curl -s "$HOST/api/tags")"
+# The preceding screen/gate may have left the model for this pass resident.
+# Any other resident tag belongs to a separate session and must be left alone.
+resident=$(curl -fsS -m10 "$HOST/api/ps" | python3 -c '
+import json, sys
+print("\n".join(m["name"] for m in json.load(sys.stdin)["models"]))') || {
+  echo "cannot read resident models -- stopping" >&2; exit 2;
+}
+while IFS= read -r tag; do
+  [ -z "$tag" ] && continue
+  found=0
+  for m in "${FIELD_ALL[@]}"; do
+    [ "$tag" = "$m" ] && found=1
+  done
+  [ "$found" = 1 ] || { echo "box occupied by $tag -- stopping without unloading it" >&2; exit 2; }
+done <<< "$resident"
+
+# A missing tag would produce 404s inside every trial, so stop before scoring.
+present="$(curl -fsS -m10 "$HOST/api/tags")"
 for m in "${FIELD_ALL[@]}"; do
-  echo "$present" | grep -q "\"$m\"" || echo "  WARN: $m not on the server -- create it first (see toTest.md Stage 1)"
+  echo "$present" | grep -Fq "\"$m\"" || {
+    echo "model missing on server: $m" >&2; exit 2;
+  }
 done
 
 # The run-id also carries the THINKING ARM (-thinkon / -thinkoff), because the

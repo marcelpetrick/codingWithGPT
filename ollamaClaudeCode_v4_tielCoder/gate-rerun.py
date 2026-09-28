@@ -118,6 +118,8 @@ def main():
                 f.write(json.dumps({"model": model, "gate": a.gate, "run": i + 1,
                                     "verdict": v, "why": why, "response": d}) + "\n")
             print(f"  {model[:44]:44} {a.gate} run{i + 1}: {v:8} {why}")
+            if v == "ERROR":
+                raise SystemExit(f"gate transport error for {model}: {why}; stopping without a summary")
         n_pass = results.count("PASS")
         # v3 §25a's threshold: <= half the runs failing is 'systematic' and
         # disqualifying; a single failure in eight is sampling noise at the tag's
