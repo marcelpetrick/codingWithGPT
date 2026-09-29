@@ -1,0 +1,65 @@
+-rwxr-xr-x root/root  28299856 2026-09-24 05:54 bin/ollama
+-rw-r--r-- root/root      1075 2026-09-24 01:59 lib/ollama/CPP_HTTPLIB_LICENSE
+-rw-r--r-- root/root     11345 2026-09-24 01:59 lib/ollama/DLPACK_LICENSE
+-rw-r--r-- root/root      1431 2026-09-24 01:59 lib/ollama/FMT_LICENSE
+-rw-r--r-- root/root    119434 2026-09-24 05:55 lib/ollama/GO_LICENSE
+-rw-r--r-- root/root      1078 2026-09-24 01:59 lib/ollama/LLAMA_CPP_LICENSE
+-rw-r--r-- root/root      7257 2026-09-24 01:59 lib/ollama/LLAMA_CPP_VENDORS_LICENSE
+-rw-r--r-- root/root      1067 2026-09-24 01:58 lib/ollama/MLX_C_LICENSE
+-rw-r--r-- root/root      1066 2026-09-24 01:59 lib/ollama/MLX_LICENSE
+-rw-r--r-- root/root      1414 2026-09-24 01:59 lib/ollama/PICOJSON_LICENSE
+-rw-r--r-- root/root     11357 2026-09-24 01:59 lib/ollama/XGRAMMAR_LICENSE
+-rw-r--r-- root/root        54 2026-09-24 01:59 lib/ollama/XGRAMMAR_NOTICE
+drwxr-xr-x root/root         0 2026-09-24 02:09 lib/ollama/cuda_v12/
+lrwxrwxrwx root/root         0 2026-09-24 02:09 lib/ollama/cuda_v12/libcublasLt.so.12 -> libcublasLt.so.12.8.5.5
+-rwxr-xr-x root/root 416260576 2026-09-24 02:09 lib/ollama/cuda_v12/libggml-cuda.so
+-rwxr-xr-x root/root 116388640 2015-07-08 02:00 lib/ollama/cuda_v12/libcublas.so.12.8.5.5
+lrwxrwxrwx root/root         0 2026-09-24 02:09 lib/ollama/cuda_v12/libcudart.so.12 -> libcudart.so.12.8.90
+lrwxrwxrwx root/root         0 2026-09-24 02:09 lib/ollama/cuda_v12/libcublas.so.12 -> libcublas.so.12.8.5.5
+-rwxr-xr-x root/root 751775824 2015-07-08 02:00 lib/ollama/cuda_v12/libcublasLt.so.12.8.5.5
+-rwxr-xr-x root/root    728800 2015-07-08 02:00 lib/ollama/cuda_v12/libcudart.so.12.8.90
+drwxr-xr-x root/root         0 2026-09-24 02:07 lib/ollama/cuda_v13/
+-rwxr-xr-x root/root 541607888 2015-07-08 02:00 lib/ollama/cuda_v13/libcublasLt.so.13.1.1.3
+-rwxr-xr-x root/root  54177976 2015-07-08 02:00 lib/ollama/cuda_v13/libcublas.so.13.1.1.3
+lrwxrwxrwx root/root         0 2026-09-24 02:07 lib/ollama/cuda_v13/libcublasLt.so.13 -> libcublasLt.so.13.1.1.3
+-rwxr-xr-x root/root 254366080 2026-09-24 02:07 lib/ollama/cuda_v13/libggml-cuda.so
+-rwxr-xr-x root/root    704288 2015-07-08 02:00 lib/ollama/cuda_v13/libcudart.so.13.0.96
+lrwxrwxrwx root/root         0 2026-09-24 02:07 lib/ollama/cuda_v13/libcudart.so.13 -> libcudart.so.13.0.96
+lrwxrwxrwx root/root         0 2026-09-24 02:07 lib/ollama/cuda_v13/libcublas.so.13 -> libcublas.so.13.1.1.3
+lrwxrwxrwx root/root         0 2026-09-24 01:59 lib/ollama/libggml-base.so -> libggml-base.so.0
+lrwxrwxrwx root/root         0 2026-09-24 01:59 lib/ollama/libggml-base.so.0 -> libggml-base.so.0.24.0
+-rwxr-xr-x root/root    830112 2026-09-24 01:59 lib/ollama/libggml-base.so.0.24.0
+-rw-r--r-- root/root   1132728 2026-09-24 01:59 lib/ollama/libggml-cpu-alderlake.so
+-rw-r--r-- root/root   1366200 2026-09-24 01:59 lib/ollama/libggml-cpu-cannonlake.so
+-rw-r--r-- root/root   1362104 2026-09-24 01:59 lib/ollama/libggml-cpu-cascadelake.so
+-rw-r--r-- root/root   1362104 2026-09-24 01:59 lib/ollama/libggml-cpu-cooperlake.so
+-rw-r--r-- root/root   1136824 2026-09-24 01:59 lib/ollama/libggml-cpu-haswell.so
+-rw-r--r-- root/root   1362104 2026-09-24 01:59 lib/ollama/libggml-cpu-icelake.so
+-rw-r--r-- root/root   1075480 2026-09-24 01:59 lib/ollama/libggml-cpu-ivybridge.so
+-rw-r--r-- root/root   1071384 2026-09-24 01:59 lib/ollama/libggml-cpu-piledriver.so
+-rw-r--r-- root/root   1067288 2026-09-24 01:59 lib/ollama/libggml-cpu-sandybridge.so
+-rw-r--r-- root/root   1608176 2026-09-24 01:59 lib/ollama/libggml-cpu-sapphirerapids.so
+-rw-r--r-- root/root   1366200 2026-09-24 01:59 lib/ollama/libggml-cpu-skylakex.so
+-rw-r--r-- root/root    903576 2026-09-24 01:59 lib/ollama/libggml-cpu-sse42.so
+-rw-r--r-- root/root    899512 2026-09-24 01:59 lib/ollama/libggml-cpu-x64.so
+-rw-r--r-- root/root   1362104 2026-09-24 01:59 lib/ollama/libggml-cpu-zen4.so
+lrwxrwxrwx root/root         0 2026-09-24 01:59 lib/ollama/libggml.so -> libggml.so.0
+lrwxrwxrwx root/root         0 2026-09-24 01:59 lib/ollama/libggml.so.0 -> libggml.so.0.24.0
+-rwxr-xr-x root/root    220840 2026-09-24 01:59 lib/ollama/libggml.so.0.24.0
+lrwxrwxrwx root/root         0 2025-08-26 11:45 lib/ollama/libgomp.so.1 -> libgomp.so.1.0.0
+-rwxr-xr-x root/root    235072 2025-08-26 11:47 lib/ollama/libgomp.so.1.0.0
+lrwxrwxrwx root/root         0 2026-09-24 01:59 lib/ollama/libllama-common.so -> libllama-common.so.0
+lrwxrwxrwx root/root         0 2026-09-24 01:59 lib/ollama/libllama-common.so.0 -> libllama-common.so.0.4.1
+-rwxr-xr-x root/root   4466160 2026-09-24 01:59 lib/ollama/libllama-common.so.0.4.1
+-rwxr-xr-x root/root     72560 2026-09-24 02:00 lib/ollama/libllama-quantize-impl.so
+-rwxr-xr-x root/root   2791056 2026-09-24 02:00 lib/ollama/libllama-server-impl.so
+lrwxrwxrwx root/root         0 2026-09-24 01:59 lib/ollama/libllama.so -> libllama.so.0
+lrwxrwxrwx root/root         0 2026-09-24 01:59 lib/ollama/libllama.so.0 -> libllama.so.0.4.1
+-rwxr-xr-x root/root   4009008 2026-09-24 01:59 lib/ollama/libllama.so.0.4.1
+lrwxrwxrwx root/root         0 2026-09-24 01:59 lib/ollama/libmtmd.so -> libmtmd.so.0
+lrwxrwxrwx root/root         0 2026-09-24 01:59 lib/ollama/libmtmd.so.0 -> libmtmd.so.0.4.1
+-rwxr-xr-x root/root   1691472 2026-09-24 01:59 lib/ollama/libmtmd.so.0.4.1
+-rwxr-xr-x root/root     15096 2026-09-24 01:59 lib/ollama/llama-quantize
+-rwxr-xr-x root/root     15096 2026-09-24 01:59 lib/ollama/llama-server
+drwxr-xr-x root/root         0 2026-09-24 02:00 lib/ollama/vulkan/
+-rwxr-xr-x root/root  42658152 2026-09-24 02:00 lib/ollama/vulkan/libggml-vulkan.so
