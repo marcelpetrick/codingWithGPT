@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ollama Install Script</title>
+<meta name="description" content="A line-by-line reading of curl -fsSL https://ollama.com/install.sh | sh: what it changes on your machine, which parts need sudo, and what to watch out for.">
+<style>
+:root {
+  --bg: #fbfaf8; --surface: #ffffff; --surface-2: #f3f1ed; --text: #1d1c1a; --muted: #5f5b54;
+  --border: #e2ded6; --accent: #2f5fd0; --code-bg: #f5f3ef;
+  --root: #b3261e; --root-bg: #fbe9e7; --user: #1f7a3f; --user-bg: #e6f4ea; --warn: #8a5a00; --warn-bg: #fff4d6;
+  --hl-root: rgba(179, 38, 30, .09);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151514; --surface: #1d1d1b; --surface-2: #252523; --text: #ebe8e2; --muted: #a39e95;
+    --border: #34332f; --accent: #8fb0ff; --code-bg: #1a1a18;
+    --root: #ff8a80; --root-bg: #3a1c1a; --user: #7fd49a; --user-bg: #173222; --warn: #f0c060; --warn-bg: #352a10;
+    --hl-root: rgba(255, 138, 128, .10);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151514; --surface: #1d1d1b; --surface-2: #252523; --text: #ebe8e2; --muted: #a39e95;
+  --border: #34332f; --accent: #8fb0ff; --code-bg: #1a1a18;
+  --root: #ff8a80; --root-bg: #3a1c1a; --user: #7fd49a; --user-bg: #173222; --warn: #f0c060; --warn-bg: #352a10;
+  --hl-root: rgba(255, 138, 128, .10);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 32px 16px 80px; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; }
+nav.toc { position: sticky; top: 24px; align-self: start; font-size: 14px; }
+nav.toc b { display: block; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+nav.toc a { display: block; color: var(--muted); text-decoration: none; padding: 3px 0; }
+nav.toc a:hover { color: var(--accent); }
+main { min-width: 0; }
+@media (max-width: 900px) { .wrap { grid-template-columns: 1fr; gap: 0; } nav.toc { display: none; } }
+h1 { font-size: 34px; line-height: 1.2; margin: 0 0 8px; letter-spacing: -.01em; }
+h2 { font-size: 23px; margin: 56px 0 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+h3 { font-size: 17px; margin: 28px 0 8px; }
+p, li { max-width: 72ch; }
+a { color: var(--accent); }
+.lede { color: var(--muted); font-size: 18px; margin: 0 0 24px; }
+code, pre { font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace; font-size: 13.5px; }
+:not(pre) > code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; overflow-wrap: anywhere; }
+pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; margin: 12px 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+.meta code { font-size: 12px; }
+.badge { display: inline-block; font-size: 11.5px; font-weight: 650; letter-spacing: .03em; padding: 1px 7px; border-radius: 999px; vertical-align: 2px; white-space: nowrap; }
+.b-root { color: var(--root); background: var(--root-bg); }
+.b-user { color: var(--user); background: var(--user-bg); }
+.b-warn { color: var(--warn); background: var(--warn-bg); }
+.b-opt { color: var(--muted); background: var(--surface-2); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin: 16px 0; }
+.tldr ol { margin: 8px 0 0; padding-left: 22px; }
+.tldr li { margin: 4px 0; }
+.callout { border-left: 3px solid var(--warn); background: var(--warn-bg); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+.callout p { margin: 4px 0; }
+.table-wrap { overflow-x: auto; margin: 12px 0; border: 1px solid var(--border); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--surface); }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.ln { white-space: nowrap; font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+td.ln a { color: inherit; }
+
+/* flow */
+.flow { display: grid; gap: 10px; margin: 16px 0; }
+.step { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: start; }
+.step .n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; background: var(--surface-2); border: 1px solid var(--border); }
+.step .body { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+.step .body b { display: block; }
+.step .body span { color: var(--muted); font-size: 14px; }
+.step.root .n { background: var(--root-bg); color: var(--root); border-color: transparent; }
+.branches { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-top: 8px; }
+.branches div { background: var(--surface-2); border-radius: 6px; padding: 8px 10px; font-size: 13.5px; }
+.branches div b { font-size: 13.5px; }
+
+/* annotated listing */
+.listing { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.55; padding: 8px 0; }
+.listing .l { display: grid; grid-template-columns: 48px max-content; white-space: pre; }
+.listing .l .no { color: var(--muted); text-align: right; padding-right: 14px; user-select: none; }
+.listing .l .no a { color: inherit; text-decoration: none; }
+.listing .l.r { background: var(--hl-root); }
+.listing .l.r .no { color: var(--root); font-weight: 700; }
+.listing .l.c .tx { color: var(--muted); }
+.listing .l:target { outline: 2px solid var(--accent); outline-offset: -2px; }
+details summary { cursor: pointer; font-weight: 600; margin: 8px 0; }
+.legend { font-size: 13px; color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0; }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; background: var(--hl-root); border: 1px solid var(--root); }
+footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <b>Contents</b>
+  <a href="#tldr">In short</a>
+  <a href="#pipe">How <code>curl | sh</code> works</a>
+  <a href="#flow">The flow</a>
+  <a href="#walk">Walkthrough</a>
+  <a href="#sudo">What needs sudo</a>
+  <a href="#footprint">What changes on disk</a>
+  <a href="#archive">What's in the download</a>
+  <a href="#quirks">Quirks and edge cases</a>
+  <a href="#knobs">Knobs</a>
+  <a href="#safer">Running it more carefully</a>
+  <a href="#uninstall">Undoing it</a>
+  <a href="#listing">Annotated script</a>
+</nav>
+<main>
+<h1>What does the Ollama install script actually do?</h1>
+<p class="lede">A reading of <code>curl -fsSL https://ollama.com/install.sh | sh</code>, written for someone who writes software and wants to know what they're about to run as root.</p>
+<div class="meta">
+  <span>Script fetched <b>{{FETCHED}}</b></span>
+  <span>{{LINES}} lines, POSIX <code>sh</code></span>
+  <span>sha256 <code>{{SHA256}}</code></span>
+  <span>Local copy: <a href="install.sh"><code>install.sh</code></a></span>
+</div>
+<p>The script changes over time. Everything below describes the copy with the hash above, and line numbers (<code>L123</code>) point into it. Other versions may differ.</p>
+
+<section id="tldr">
+<div class="card tldr">
+<b>In short: on Linux it does eight things</b>
+<ol>
+  <li>Works out your CPU architecture (<code>amd64</code> or <code>arm64</code>) and whether you're on WSL2.</li>
+  <li>Downloads a <b>~1.4 GB</b> archive and unpacks it as root into <code>/usr/local</code>. The archive holds the <code>ollama</code> binary plus its GPU runtime libraries.</li>
+  <li>Creates a system user and group called <code>ollama</code>, with its home (and model store) at <code>/usr/share/ollama</code>.</li>
+  <li>Adds <b>you</b> to the <code>ollama</code> group, and adds the <code>ollama</code> user to <code>render</code>/<code>video</code> so it can use the GPU.</li>
+  <li>Writes <code>/etc/systemd/system/ollama.service</code>, enables it at boot, and (re)starts it as the script exits. The API then listens on <code>127.0.0.1:11434</code>.</li>
+  <li>If it finds an <b>AMD</b> GPU, it downloads another ~1 GB of ROCm libraries.</li>
+  <li>If it finds an <b>NVIDIA</b> GPU with no working driver, it adds NVIDIA's package repository and signing key to your package manager (on Debian, Ubuntu, RHEL, Rocky, Fedora and Amazon Linux only), installs <code>cuda-drivers</code> and kernel headers, builds the DKMS module and loads it.</li>
+  <li>On macOS it's much simpler: it replaces <code>/Applications/Ollama.app</code> and symlinks the CLI into <code>/usr/local/bin</code>.</li>
+</ol>
+<p style="margin:12px 0 0">It asks for <b>sudo</b> for everything that writes outside your home directory. The downloads themselves run as you: <code>curl</code> is unprivileged, and only the <code>tar</code> at the end of the pipe runs as root. <a href="#sudo">Full list below.</a></p>
+</div>
+</section>
+
+<section id="pipe">
+<h2>How <code>curl | sh</code> works</h2>
+<p><code>curl</code> writes the script to stdout, and <code>sh</code> reads its program from stdin. Nothing is saved to disk, so there's no file to look at afterwards. The flags matter:</p>
+<div class="table-wrap"><table>
+<tr><th>Flag</th><th>Meaning</th><th>Why it's here</th></tr>
+<tr><td><code>-f</code></td><td>fail on HTTP ≥ 400</td><td>Without it, a 404 or 500 error page would be piped into <code>sh</code> and run as a shell script.</td></tr>
+<tr><td><code>-s</code></td><td>silent</td><td>No progress meter mixed into the output.</td></tr>
+<tr><td><code>-S</code></td><td>show errors anyway</td><td>Undoes the part of <code>-s</code> that would hide errors.</td></tr>
+<tr><td><code>-L</code></td><td>follow redirects</td><td>Needed: <code>ollama.com/install.sh</code> redirects to a <b>GitHub release asset</b> (<code>release-assets.githubusercontent.com</code>), which is what we observed when fetching it.</td></tr>
+</table></div>
+
+<h3>The <code>main()</code> wrapper protects against truncated downloads</h3>
+<p>A shell running a script from a pipe executes each command as soon as it has read it. If the connection dropped halfway through, a plain script would run its first half and stop at an arbitrary point, for example after deleting the old install but before unpacking the new one. So the whole script is one function body (<code>main() { … }</code>, L7–L453), and the only top-level command is the final <code>main</code> on L455. The shell can't run anything until it has read the closing brace, and if the download is cut short, the call never arrives and nothing runs.</p>
+
+<h3>How can <code>sudo</code> ask for a password when stdin is the script?</h3>
+<p><code>sudo</code> doesn't read the password from stdin. It opens the controlling terminal (<code>/dev/tty</code>) directly, so the prompt still works while stdin is the pipe from <code>curl</code>. The script never escalates in one go. It sets <code>SUDO=sudo</code> when you're not root (L110–L118) and puts <code>$SUDO</code> in front of each privileged command. After you enter the password once, sudo's credential cache (15 minutes by default) covers the rest.</p>
+
+<h3>What's not there: integrity checks</h3>
+<p>Nothing in the script checks a checksum or signature. The only integrity guarantee is TLS to <code>ollama.com</code> and GitHub. That's the same trust you'd place in the release page, but it's worth knowing that nothing further is checked. Also, a pipeline's exit status is the status of its <em>last</em> command. For <code>curl | zstd -d | sudo tar -x</code> (L146–L148), <code>set -e</code> only sees <code>tar</code>. A truncated stream usually still fails, because <code>zstd</code> and <code>tar</code> both detect the unexpected end of file, but that's a side effect rather than a design.</p>
+</section>
+
+<section id="flow">
+<h2>The flow</h2>
+<div class="flow">
+  <div class="step"><div class="n">1</div><div class="body"><b>Preamble <span class="badge b-user">user</span></b><span><code>set -eu</code>, colours, a temp dir with a cleanup trap, helpers. Detect the OS and architecture (L9–L42).</span></div></div>
+  <div class="step"><div class="n">2</div><div class="body"><b>macOS branch <span class="badge b-root">sudo only if needed</span></b><span>Kill the running app, replace <code>/Applications/Ollama.app</code>, symlink the CLI, launch it. Then <code>exit</code> (L48–L93).</span></div></div>
+  <div class="step"><div class="n">3</div><div class="body"><b>Linux preflight <span class="badge b-user">user</span></b><span>Refuse WSL1, decide whether <code>$SUDO</code> is needed, check for <code>curl awk grep sed tee xargs</code> (L99–L127).</span></div></div>
+  <div class="step root"><div class="n">4</div><div class="body"><b>Install the binary and libraries <span class="badge b-root">sudo</span></b><span>Pick <code>BINDIR</code> from <code>$PATH</code>, delete the old <code>lib/ollama</code>, stream the archive into <code>/usr/local</code>. Jetson gets an extra bundle (L159–L187).</span></div></div>
+  <div class="step"><div class="n">·</div><div class="body"><b>The point of no return</b><span>L193 replaces the exit trap with a success message. The comment on L195 reads “Everything from this point onwards is optional.” Ollama already works from the command line at this point.</span></div></div>
+  <div class="step root"><div class="n">5</div><div class="body"><b>systemd service <span class="badge b-root">sudo</span></b><span>Only if <code>systemctl</code> exists: create the user and groups, write the unit, <code>daemon-reload</code>, <code>enable</code>, and schedule <code>restart</code> for when the script exits (L197–L252).</span></div></div>
+  <div class="step"><div class="n">6</div><div class="body"><b>Early exits</b><span>WSL2 exits here (it uses the Windows driver), as does Jetson. So does a machine with neither <code>lspci</code> nor <code>lshw</code>, or one where <code>nvidia-smi</code> already exists (L256–L297).</span></div></div>
+  <div class="step root"><div class="n">7</div><div class="body"><b>GPU dependencies <span class="badge b-root">sudo</span></b><span>Detection uses PCI vendor IDs (<code>10de</code> NVIDIA, <code>1002</code> AMD).</span>
+    <div class="branches">
+      <div><b>No GPU</b><br>Warns “CPU-only mode” and exits.</div>
+      <div><b>AMD</b><br>Downloads the ROCm library bundle (~1 GB). Doesn't touch kernel drivers.</div>
+      <div><b>NVIDIA, no driver</b><br>Adds NVIDIA's repo, installs <code>cuda-drivers</code> and headers, runs DKMS and <code>modprobe</code>.</div>
+      <div><b>Other distro</b><br>(Arch, Manjaro, openSUSE…) Exits silently. See <a href="#q-pm">quirks</a>.</div>
+    </div></div></div>
+  <div class="step root"><div class="n">8</div><div class="body"><b>EXIT trap <span class="badge b-root">sudo</span></b><span><code>systemctl restart ollama</code> runs <em>last</em>, after any driver install, so the server starts against the new driver. On an upgrade, this restarts a server that's already running.</span></div></div>
+</div>
+</section>
+
+<section id="walk">
+<h2>Walkthrough</h2>
+
+<h3>Preamble (L9–L42) <span class="badge b-user">user</span></h3>
+<ul>
+  <li><code>set -eu</code>: exit on the first failing command, and treat unset variables as errors. That's why optional variables are written <code>${OLLAMA_VERSION:+…}</code> and <code>${OLLAMA_NO_START:-}</code>.</li>
+  <li><code>tput … 2&gt;&amp;-</code> gets the terminal's colour codes and closes stderr, so a missing <code>tput</code> or a dumb terminal stays silent.</li>
+  <li><code>mktemp -d</code> plus <code>trap cleanup EXIT</code> is the standard temp-dir pattern. But <a href="#q-trap">the trap gets overwritten later</a>.</li>
+  <li><code>require</code> returns the <em>names</em> of missing tools as a string, so the script can list them all at once instead of failing on the first.</li>
+  <li><code>uname -m</code> is mapped to Go-style architecture names (<code>x86_64→amd64</code>, <code>aarch64|arm64→arm64</code>). Anything else is rejected, including 32-bit ARM and x86.</li>
+  <li><code>OLLAMA_VERSION=0.x.y</code> becomes a query string <code>?version=0.x.y</code> appended to every download URL (L42).</li>
+</ul>
+
+<h3>macOS (L48–L93)</h3>
+<p>This branch never touches system services or users. It <code>pkill</code>s a running <code>Ollama</code>, <code>rm -rf</code>s <code>/Applications/Ollama.app</code>, unzips the new app into place, and symlinks <code>/usr/local/bin/ollama</code> to the binary inside the bundle. It tries each write without sudo first and falls back to <code>sudo</code> only when that fails (<code>cmd 2&gt;/dev/null || sudo cmd</code>, L81–L83). On most Macs <code>/Applications</code> is writable by admin users, so often the only password prompt, if there is one, is for <code>/usr/local/bin</code>. Finally <code>open -a Ollama --args hidden</code> launches the menu-bar app, unless <code>OLLAMA_NO_START</code> is set.</p>
+
+<h3>Linux preflight (L99–L127) <span class="badge b-user">user</span></h3>
+<p>The script tells WSL1 from WSL2 by the kernel release string (<code>…microsoft-standard-WSL2</code>). WSL1 has no real Linux kernel, so it's refused. <code>id -u</code> decides whether <code>$SUDO</code> is empty (you're root) or <code>sudo</code>. The comment on L112 says “Running as root” inside the branch that runs when you are <em>not</em> root, so it's the wrong way round. The code itself is correct.</p>
+
+<h3>Choosing where to install (L159–L162)</h3>
+<pre>for BINDIR in /usr/local/bin /usr/bin /bin; do
+    echo $PATH | grep -q $BINDIR &amp;&amp; break || continue
+done
+OLLAMA_INSTALL_DIR=$(dirname ${BINDIR})</pre>
+<p>The script takes the first of three candidates that appears in your <code>$PATH</code>, and the install <em>prefix</em> is its parent directory. On almost every system that means <code>BINDIR=/usr/local/bin</code> and prefix <code>/usr/local</code>. The archive's contents land in <code>/usr/local/bin/ollama</code> and <code>/usr/local/lib/ollama/…</code>. The binary finds its libraries relative to its own location, which is why the prefix layout matters.</p>
+
+<h3>Installing (L164–L176) <span class="badge b-root">sudo</span></h3>
+<ul>
+  <li>An existing <code>lib/ollama</code> is removed completely first (<code>rm -rf</code>). Its versioned GPU libraries would otherwise mix with the new ones. The old binary is simply overwritten by <code>tar</code>.</li>
+  <li><code>install -o0 -g0 -m755 -d</code> creates <code>bin/</code> and <code>lib/ollama/</code> as <code>root:root 0755</code> if they don't exist.</li>
+  <li><code>download_and_extract</code> first sends a <code>HEAD</code> request for the <code>.tar.zst</code> file. If it exists, the script needs <code>zstd</code> and fails with install hints if you don't have it. Otherwise it falls back to <code>.tgz</code> (for old versions; the current <code>.tgz</code> URL returns 404). The data flows <code>curl</code> (you) → <code>zstd -d</code> (you) → <code>sudo tar -xf - -C /usr/local</code> (root).</li>
+  <li><b>Jetson</b> (<code>/etc/nv_tegra_release</code> exists): an extra bundle for JetPack 5 (R35) or 6 (R36) is unpacked over the base install.</li>
+</ul>
+
+<h3>The systemd service (L197–L252) <span class="badge b-root">sudo</span></h3>
+<p>This runs only if <code>systemctl</code> is installed at all. It sets up:</p>
+<ul>
+  <li><code>useradd -r -s /bin/false -U -m -d /usr/share/ollama ollama</code>: a system account (low UID, no aging) with no login shell, a matching group, and a home directory. The home matters because the server stores models in <code>~/.ollama/models</code>, so the model store ends up at <b><code>/usr/share/ollama/.ollama/models</code></b>. On many systems <code>/usr</code> sits on the root partition, so tens of gigabytes of weights can fill <code>/</code>.</li>
+  <li><code>ollama</code> is added to <code>render</code> and <code>video</code> if those groups exist. Those groups own <code>/dev/dri/*</code> and, on AMD, <code>/dev/kfd</code>, the GPU device nodes.</li>
+  <li><b>You</b> are added to the <code>ollama</code> group (<code>$(whoami)</code>, the unprivileged caller). This only takes effect at your next login. You don't need it to use the CLI, which talks to the server over HTTP.</li>
+</ul>
+<p>The unit it writes:</p>
+<pre>[Unit]
+Description=Ollama Service
+After=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/ollama serve
+User=ollama
+Group=ollama
+Restart=always
+RestartSec=3
+Environment="PATH=<i>…your $PATH at install time…</i>"
+
+[Install]
+WantedBy=default.target</pre>
+<ul>
+  <li><b>Your current <code>$PATH</code> is baked into the unit.</b> The heredoc expands it at install time, so any personal directories on your PATH, such as <code>~/bin</code>, <code>~/.cargo/bin</code> or a venv, end up in a system service.</li>
+  <li><code>After=network-online.target</code> without <code>Wants=network-online.target</code> only orders the start. It doesn't pull the target in, so on many systems it has no effect.</li>
+  <li><code>Restart=always</code>: the server comes back 3 seconds after any exit, including a crash or a <code>kill</code>. To actually stop it, use <code>systemctl stop</code>.</li>
+  <li><code>WantedBy=default.target</code>: it starts at every boot.</li>
+  <li>No <code>OLLAMA_HOST</code> is set, so the server binds <b>only to loopback</b> (<code>127.0.0.1:11434</code>). Setting it (for example <code>0.0.0.0</code>) exposes an <b>unauthenticated</b> API to the network.</li>
+  <li>There's no sandboxing (<code>ProtectSystem=</code>, <code>NoNewPrivileges=</code>, …). The service runs as an ordinary unprivileged user and nothing more.</li>
+</ul>
+<p>The script decides whether systemd is actually running with <code>systemctl is-system-running</code>: <code>running</code> or <code>degraded</code> both count. In containers, or on WSL2 without systemd enabled, you get a warning and no service. If it is running, <code>daemon-reload</code> and <code>enable</code> happen immediately, but <code>restart</code> is <b>deferred to the EXIT trap</b> (L238–L239). It therefore runs after the GPU driver work, whichever way the script exits.</p>
+
+<h3>GPU detection (L271–L303)</h3>
+<p>The script checks in this order:</p>
+<ol>
+  <li>Is <code>nvidia-smi</code> installed? Then it assumes the driver works, prints “NVIDIA GPU installed.” and exits. It doesn't check that the driver is new enough.</li>
+  <li>Otherwise it looks for PCI vendor IDs: <code>lspci -d 10de:</code> (NVIDIA) or <code>1002:</code> (AMD). If <code>lspci</code> is missing it tries <code>lshw -c display -numeric</code>, which runs under <b>sudo</b> because <code>lshw</code> reports incomplete information without root.</li>
+  <li>With neither tool installed, it can't tell, so it warns and exits. Your GPU might still work, but no drivers get installed.</li>
+</ol>
+
+<h3>AMD (L305–L311) <span class="badge b-root">sudo</span></h3>
+<p>The only step is unpacking <code>ollama-linux-amd64-rocm.tar.zst</code> (~1.05 GB) into the same prefix. It adds ROCm userspace libraries under <code>lib/ollama</code>. The kernel driver (<code>amdgpu</code>) is part of the mainline kernel, so the script leaves it alone. It doesn't check whether your specific GPU is supported by ROCm either. If both an NVIDIA and an AMD GPU are present and <code>nvidia-smi</code> is missing, the AMD branch runs and the script exits without installing an NVIDIA driver.</p>
+
+<h3>NVIDIA without a driver (L313–L449) <span class="badge b-root">sudo</span></h3>
+<p>This is the invasive part, and it only runs on a machine with an NVIDIA GPU and no working <code>nvidia-smi</code>. It follows NVIDIA's own CUDA installation guide:</p>
+<ul>
+  <li><b>apt (Debian/Ubuntu):</b> downloads <code>cuda-keyring_1.1-1_all.deb</code> into the temp dir and installs it with <code>dpkg -i</code>. From then on your system <b>trusts NVIDIA's repository signing key for all future <code>apt</code> updates</b>. On Debian it also enables <code>contrib</code> by writing <code>/etc/apt/sources.list.d/contrib.list</code>, derived with <code>sed 's/main/contrib/'</code>. It then runs <code>apt-get update</code> and <code>apt-get -y install cuda-drivers</code>, with <code>DEBIAN_FRONTEND=noninteractive</code> passed through <code>sudo -E</code>. The <code>-E</code> is needed because sudo clears the environment by default.</li>
+  <li><b>dnf/yum (RHEL, CentOS, Rocky, Fedora, Amazon Linux):</b> adds NVIDIA's <code>.repo</code> file (and EPEL on RHEL), then runs <code>install cuda-drivers</code>, plus <code>nvidia-driver-latest-dkms</code> on CentOS or RHEL 7. Fedora 39 and later always get the <code>fedora39</code> repo. Amazon Linux is mapped to <code>fedora37</code>.</li>
+  <li><b>Kernel module</b> (if <code>nvidia</code> or <code>nvidia_uvm</code> isn't loaded): installs kernel headers for the <em>running</em> kernel, runs <code>dkms install</code> for any module that is only “added”, then <code>modprobe nvidia nvidia_uvm</code>. If the open-source <code>nouveau</code> driver is loaded it holds the GPU, so the script asks you to reboot and exits.</li>
+  <li><b>Persistence:</b> if <code>nvidia-persistenced</code> exists, <code>nvidia</code> and <code>nvidia-uvm</code> are added to <code>/etc/modules-load.d/nvidia.conf</code> so they load at boot. The <code>grep -qxF</code> check makes this safe to repeat.</li>
+</ul>
+<p>The architecture in NVIDIA's repo URLs is <code>uname -m</code> with <code>aarch64</code> rewritten to <code>sbsa</code>, NVIDIA's name for server ARM.</p>
+</section>
+
+<section id="sudo">
+<h2>What needs sudo, and why</h2>
+<p>Everything in this table runs as <code>$SUDO …</code>, which is <code>sudo</code> unless you started the script as root. Everything else runs as you.</p>
+<div class="table-wrap"><table>
+<tr><th>Line</th><th>Command</th><th>What it touches / why root</th><th>When</th></tr>
+<tr><td class="ln"><a href="#L166">L166</a></td><td><code>rm -rf $PREFIX/lib/ollama</code></td><td>Removes the root-owned libraries of a previous install.</td><td>Upgrades</td></tr>
+<tr><td class="ln"><a href="#L169">L169–170</a></td><td><code>install -o0 -g0 -m755 -d</code></td><td>Creates <code>/usr/local/bin</code> and <code>/usr/local/lib/ollama</code> as root.</td><td>Always</td></tr>
+<tr><td class="ln"><a href="#L148">L148</a> / <a href="#L156">156</a></td><td><code>tar -x -C /usr/local</code></td><td>Writes the binary and about 1.4 GB of libraries into the system prefix. Only the unpack is root; <code>curl</code> and <code>zstd</code> run as you. GNU <code>tar</code> running as root keeps the file owners recorded in the archive (see <a href="#archive">archive</a>).</td><td>Always; again for Jetson / ROCm</td></tr>
+<tr><td class="ln"><a href="#L175">L175</a></td><td><code>ln -sf</code></td><td>Symlinks the binary into <code>BINDIR</code>. Normally skipped (see <a href="#q-ln">quirks</a>).</td><td>Rarely</td></tr>
+<tr><td class="ln"><a href="#L200">L200</a></td><td><code>useradd -r … ollama</code></td><td>Writes <code>/etc/passwd</code>, <code>/etc/shadow</code>, <code>/etc/group</code>; creates <code>/usr/share/ollama</code>.</td><td>First install, systemd hosts</td></tr>
+<tr><td class="ln"><a href="#L204">L204</a>, <a href="#L208">208</a>, <a href="#L212">212</a></td><td><code>usermod -a -G</code></td><td>Adds <code>ollama</code> to <code>render</code>/<code>video</code>, and you to <code>ollama</code>, by editing <code>/etc/group</code>.</td><td>Every run, systemd hosts</td></tr>
+<tr><td class="ln"><a href="#L215">L215</a></td><td><code>tee /etc/systemd/system/ollama.service</code></td><td>Writes the unit file. It is <b>overwritten on every run</b>, so edits made directly to this file are lost; use <code>systemctl edit ollama</code> drop-ins instead.</td><td>Every run</td></tr>
+<tr><td class="ln"><a href="#L235">L235–238</a></td><td><code>systemctl daemon-reload / enable / restart</code></td><td>Controls system units. The <code>restart</code> happens in the EXIT trap.</td><td>Every run, if systemd is running</td></tr>
+<tr><td class="ln"><a href="#L287">L287–288</a></td><td><code>lshw -c display</code></td><td>Reads full hardware information (read-only, but needs root to be complete).</td><td>If <code>lshw</code> is installed and <code>lspci</code> didn't settle it</td></tr>
+<tr><td class="ln"><a href="#L323">L323–353</a></td><td><code>dnf/yum install</code>, <code>config-manager --add-repo</code></td><td>Adds package repositories and installs the driver.</td><td>NVIDIA without driver, RPM distros</td></tr>
+<tr><td class="ln"><a href="#L369">L369–381</a></td><td><code>tee contrib.list</code>, <code>dpkg -i cuda-keyring</code>, <code>apt-get update/install</code></td><td>Changes apt sources, installs the signing key, installs the driver.</td><td>NVIDIA without driver, Debian/Ubuntu</td></tr>
+<tr><td class="ln"><a href="#L419">L419–422</a></td><td>install kernel headers</td><td>Needed to build the DKMS module.</td><td>NVIDIA module not loaded</td></tr>
+<tr><td class="ln"><a href="#L426">L426–428</a></td><td><code>dkms status / install</code></td><td>Builds and installs the kernel module.</td><td>NVIDIA module not loaded</td></tr>
+<tr><td class="ln"><a href="#L436">L436–437</a></td><td><code>modprobe nvidia nvidia_uvm</code></td><td>Loads the modules into the running kernel.</td><td>NVIDIA module not loaded</td></tr>
+<tr><td class="ln"><a href="#L442">L442–446</a></td><td><code>touch / tee -a /etc/modules-load.d/nvidia.conf</code></td><td>Loads the modules at boot.</td><td>If <code>nvidia-persistenced</code> exists</td></tr>
+</table></div>
+<p><b>Runs as you:</b> <code>uname</code>, <code>id</code>, <code>tput</code>, <code>mktemp</code>, every <code>curl</code>, <code>zstd -d</code>, <code>lspci</code>, <code>nvidia-smi</code>, <code>lsmod</code>, <code>getent</code>, <code>systemctl is-system-running</code>, and sourcing <code>/etc/os-release</code>.</p>
+
+<div class="callout">
+<p><b>Why <code>| sudo tee file</code> and not <code>sudo … &gt; file</code>?</b></p>
+<p>Your (unprivileged) shell performs the redirection before <code>sudo</code> even starts, so <code>sudo echo x &gt; /etc/foo</code> fails with “Permission denied”. Piping into <code>sudo tee</code> makes a root process open the file. The script uses this pattern for every write under <code>/etc</code>. The reverse also holds: in <code>$SUDO sed … &lt; /etc/apt/sources.list</code> (L369) your own shell opens the <em>input</em> file, so the <code>sudo</code> in front of <code>sed</code> does nothing. That's harmless, because those files are world-readable.</p>
+</div>
+
+<h3>Running it as root instead (<code>… | sudo sh</code>)</h3>
+<p>That works too (<code>$SUDO</code> stays empty), with side effects. <code>$(whoami)</code> becomes <code>root</code>, so <em>root</em> joins the <code>ollama</code> group rather than you. <code>$PATH</code> is sudo's <code>secure_path</code>, which is arguably a cleaner value for the unit file. And every command, including the downloads, runs as root.</p>
+</section>
+
+<section id="footprint">
+<h2>What changes on your system</h2>
+<div class="table-wrap"><table>
+<tr><th>Path / object</th><th>Created by</th><th>Notes</th></tr>
+<tr><td><code>/usr/local/bin/ollama</code></td><td>tar</td><td>The single Go binary: CLI and server in one.</td></tr>
+<tr><td><code>/usr/local/lib/ollama/</code></td><td>tar</td><td>GPU runtimes and backends ({{ARCHIVE_SUMMARY}}). Deleted and replaced on every upgrade.</td></tr>
+<tr><td>user and group <code>ollama</code></td><td>useradd</td><td>System account, shell <code>/bin/false</code>.</td></tr>
+<tr><td><code>/usr/share/ollama/.ollama/models</code></td><td>the server, at first pull</td><td>Model store for the service. Your own <code>ollama serve</code> would use <code>~/.ollama/models</code> instead, so the two don't share models.</td></tr>
+<tr><td><code>/usr/share/ollama/.ollama/id_ed25519</code></td><td>the server</td><td>The server's key pair, used to identify it to ollama.com (for example when pushing models).</td></tr>
+<tr><td>group memberships</td><td>usermod</td><td>you → <code>ollama</code>; <code>ollama</code> → <code>render</code>, <code>video</code>.</td></tr>
+<tr><td><code>/etc/systemd/system/ollama.service</code></td><td>tee</td><td>Enabled via <code>…/default.target.wants/ollama.service</code>.</td></tr>
+<tr><td>TCP <code>127.0.0.1:11434</code></td><td>the service</td><td>Unauthenticated HTTP API, loopback only by default.</td></tr>
+<tr><td><code>/tmp/tmp.XXXXXXXXXX/</code></td><td>mktemp</td><td>Left behind; see <a href="#q-trap">quirks</a>.</td></tr>
+<tr><td colspan="3"><b>NVIDIA-without-driver path only</b></td></tr>
+<tr><td>NVIDIA apt keyring / <code>.repo</code> file, EPEL</td><td>dpkg / config-manager</td><td>Persistent third-party repository with system-wide trust.</td></tr>
+<tr><td><code>/etc/apt/sources.list.d/contrib.list</code> (Debian)</td><td>tee</td><td>Enables the <code>contrib</code> component.</td></tr>
+<tr><td><code>cuda-drivers</code>, kernel headers, DKMS module</td><td>package manager</td><td>Proprietary driver, rebuilt by DKMS on kernel updates.</td></tr>
+<tr><td><code>/etc/modules-load.d/nvidia.conf</code></td><td>tee -a</td><td>Loads <code>nvidia</code> and <code>nvidia-uvm</code> at boot.</td></tr>
+</table></div>
+</section>
+
+<section id="archive">
+<h2>What's in the 1.4 GB download</h2>
+{{ARCHIVE_SECTION}}
+</section>
+
+<section id="quirks">
+<h2>Quirks and edge cases</h2>
+<p>These come from reading the code, not from running it. Most are harmless, and none of them affect a typical Ubuntu or Fedora install.</p>
+
+<h3 id="q-trap">1. The cleanup trap is overwritten, so the temp dir is left behind</h3>
+<p><code>trap</code> <em>replaces</em> the handler; it doesn't add to it. L20 installs <code>cleanup</code>, L193 replaces it with <code>install_success</code>, and L239 (systemd hosts) replaces that with <code>start_service</code>. As a result, the <code>mktemp -d</code> directory is never removed once the script gets past L193. It's empty, except on the apt path where it holds <code>cuda-keyring.deb</code>. On systemd hosts the success banner also isn't printed on some paths. For example, when <code>nvidia-smi</code> exists, you only see “NVIDIA GPU installed.”</p>
+
+<h3 id="q-pm">2. The “Unknown package manager” check can never trigger</h3>
+<pre>PACKAGE_MANAGER=
+for PACKAGE_MANAGER in dnf yum apt-get; do
+    if available $PACKAGE_MANAGER; then break; fi
+done
+if [ -z "$PACKAGE_MANAGER" ]; then error "Unknown package manager…"; fi</pre>
+<p>After a shell <code>for</code> loop ends without <code>break</code>, the loop variable keeps its <em>last</em> value (<code>apt-get</code>), so it's never empty. The script then continues, reaches <code>case $OS_NAME … *) exit ;;</code> for any unlisted distribution, and <b>exits silently with status 0</b>. On Arch, Manjaro, openSUSE, Gentoo and others, an NVIDIA machine without a driver gets a working CPU install and no message saying it has no GPU support. On those distributions, use the distro packages (on Arch/Manjaro: <code>ollama</code>, <code>ollama-cuda</code>, <code>ollama-rocm</code>).</p>
+
+<h3 id="q-ln">3. The symlink step is dead code on normal systems, and harmful when <code>BINDIR=/bin</code></h3>
+<p>L173 compares <code>$PREFIX/bin/ollama</code> with <code>$BINDIR/ollama</code>. With <code>/usr/local/bin</code> or <code>/usr/bin</code> they're the same string, so the link is skipped. With <code>/bin</code>, which is also the fallback when <em>none</em> of the three candidates matches because the loop variable keeps its last value, the prefix is <code>/</code>. Then <code>"//bin/ollama" != "/bin/ollama"</code>, and L175 runs <code>ln -sf //ollama /bin/ollama</code>, replacing the freshly unpacked binary with a symlink to a nonexistent <code>/ollama</code>. The link target (<code>$PREFIX/ollama</code>, with no <code>bin/</code>) looks like a leftover from an older archive layout. This needs an unusual <code>$PATH</code> to trigger.</p>
+
+<h3>4. PATH matching is a substring <code>grep</code></h3>
+<p><code>echo $PATH | grep -q /usr/local/bin</code> also matches <code>/opt/x/usr/local/bin</code> or <code>/usr/local/bin2</code>. In practice this only changes which prefix is picked in exotic setups.</p>
+
+<h3>5. Rocky Linux 10 gets the wrong repository</h3>
+<p>For Rocky the major version is taken with <code>cut -c1</code>, the first <em>character</em> of the version (L407). For <code>10.0</code> that gives <code>1</code>, so the script looks for a <code>rhel1</code> repo, the <code>HEAD</code> check fails, and it stops with “not supported by NVIDIA”. RHEL and CentOS use <code>cut -d . -f 1</code> and are fine.</p>
+
+<h3>6. <code>nvidia-smi</code> present means “done”</h3>
+<p>If the binary exists, the script assumes the driver works. It doesn't check that the driver is recent enough for the CUDA runtime bundled in the archive, and doesn't even check that <code>nvidia-smi</code> runs successfully. An old driver shows up later as Ollama falling back to the CPU.</p>
+
+<h3>7. Re-running it restarts the server</h3>
+<p>The documented upgrade path is to run the same command again. That overwrites the unit file (losing any direct edits), deletes and replaces <code>lib/ollama</code>, and ends with <code>systemctl restart ollama</code>, which unloads models and cuts off any requests in flight. On a shared box, schedule it.</p>
+
+<h3>8. The Debian <code>contrib</code> derivation is crude</h3>
+<p><code>sed 's/main/contrib/'</code> replaces the first “main” on each line, wherever it appears, and ignores <code>sources.list</code> if it doesn't exist. On a Debian system that only has <code>debian.sources</code> (deb822 format, standard since Debian 12), the pipeline creates an <em>empty</em> <code>contrib.list</code> and a separate <code>contrib.sources</code> copy. It works, but it leaves clutter.</p>
+
+<h3>9. Not really POSIX</h3>
+<p><code>local</code> (L24, L131) isn't in POSIX. It works in <code>dash</code>, <code>bash</code>, <code>busybox ash</code> and <code>zsh</code>'s sh mode, which covers every <code>/bin/sh</code> you're likely to meet.</p>
+</section>
+
+<section id="knobs">
+<h2>Knobs</h2>
+<div class="table-wrap"><table>
+<tr><th>Variable</th><th>Effect</th></tr>
+<tr><td><code>OLLAMA_VERSION=0.x.y</code></td><td>Installs that release instead of the latest (appended as <code>?version=</code>). Put it on the <code>sh</code> side of the pipe: <code>curl -fsSL https://ollama.com/install.sh | OLLAMA_VERSION=0.x.y sh</code>.</td></tr>
+<tr><td><code>OLLAMA_NO_START=1</code></td><td><b>macOS only</b>: don't launch the app afterwards. On Linux it's ignored; the service is always enabled and restarted when systemd is running.</td></tr>
+</table></div>
+<p>The server itself is configured through environment variables on the <em>service</em>, not by the installer. Use <code>sudo systemctl edit ollama</code> and add, for example:</p>
+<pre>[Service]
+Environment="OLLAMA_HOST=127.0.0.1:11434"
+Environment="OLLAMA_MODELS=/data/ollama/models"</pre>
+<p>The directory must be writable by the <code>ollama</code> user. Drop-ins survive re-running the installer.</p>
+</section>
+
+<section id="safer">
+<h2>Running it more carefully</h2>
+<pre># 1. download, don't pipe
+curl -fsSL https://ollama.com/install.sh -o install.sh
+# 2. read it (or diff it against the copy next to this page)
+less install.sh
+sha256sum install.sh
+# 3. run it, pinned to a version you know
+OLLAMA_VERSION=0.x.y sh install.sh</pre>
+<p>Alternatives that avoid running a script as root: your distribution's package, the official Docker image (<code>ollama/ollama</code>), or unpacking the archive by hand into a prefix you own and running <code>ollama serve</code> yourself. The last option skips the user, the service and the driver steps entirely.</p>
+</section>
+
+<section id="uninstall">
+<h2>Undoing it</h2>
+<pre>sudo systemctl disable --now ollama
+sudo rm /etc/systemd/system/ollama.service
+sudo systemctl daemon-reload
+sudo rm /usr/local/bin/ollama
+sudo rm -r /usr/local/lib/ollama
+sudo rm -r /usr/share/ollama        # deletes all downloaded models
+sudo userdel ollama
+sudo groupdel ollama                # if userdel didn't already
+sudo gpasswd -d "$USER" ollama      # only if the group still exists</pre>
+<p>If the NVIDIA path ran, the driver, the DKMS module, the NVIDIA repository and its key, and <code>/etc/modules-load.d/nvidia.conf</code> all stay. Remove them with your package manager if you don't want them.</p>
+</section>
+
+<section id="listing">
+<h2>Annotated script</h2>
+<div class="legend"><span><span class="swatch"></span>line runs a command via <code>$SUDO</code> / <code>sudo</code></span><span>Click a line number to link to it.</span></div>
+<details open>
+<summary>install.sh ({{LINES}} lines)</summary>
+<div class="listing">
+{{LISTING}}
+</div>
+</details>
+</section>
+
+<footer>
+Generated by <code>build.py</code> from <code>install.sh</code> and <code>page.template.html</code> in this folder. The listing, hash and archive table come from those files; the prose was written by reading the script and wasn't tested by running it.
+</footer>
+</main>
+</div>
+</body>
+</html>

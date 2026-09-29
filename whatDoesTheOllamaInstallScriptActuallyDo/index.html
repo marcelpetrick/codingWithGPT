@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ollama Install Script</title>
+<meta name="description" content="A line-by-line reading of curl -fsSL https://ollama.com/install.sh | sh: what it changes on your machine, which parts need sudo, and what to watch out for.">
+<style>
+:root {
+  --bg: #fbfaf8; --surface: #ffffff; --surface-2: #f3f1ed; --text: #1d1c1a; --muted: #5f5b54;
+  --border: #e2ded6; --accent: #2f5fd0; --code-bg: #f5f3ef;
+  --root: #b3261e; --root-bg: #fbe9e7; --user: #1f7a3f; --user-bg: #e6f4ea; --warn: #8a5a00; --warn-bg: #fff4d6;
+  --hl-root: rgba(179, 38, 30, .09);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151514; --surface: #1d1d1b; --surface-2: #252523; --text: #ebe8e2; --muted: #a39e95;
+    --border: #34332f; --accent: #8fb0ff; --code-bg: #1a1a18;
+    --root: #ff8a80; --root-bg: #3a1c1a; --user: #7fd49a; --user-bg: #173222; --warn: #f0c060; --warn-bg: #352a10;
+    --hl-root: rgba(255, 138, 128, .10);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151514; --surface: #1d1d1b; --surface-2: #252523; --text: #ebe8e2; --muted: #a39e95;
+  --border: #34332f; --accent: #8fb0ff; --code-bg: #1a1a18;
+  --root: #ff8a80; --root-bg: #3a1c1a; --user: #7fd49a; --user-bg: #173222; --warn: #f0c060; --warn-bg: #352a10;
+  --hl-root: rgba(255, 138, 128, .10);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 32px 16px 80px; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; }
+nav.toc { position: sticky; top: 24px; align-self: start; font-size: 14px; }
+nav.toc b { display: block; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+nav.toc a { display: block; color: var(--muted); text-decoration: none; padding: 3px 0; }
+nav.toc a:hover { color: var(--accent); }
+main { min-width: 0; }
+@media (max-width: 900px) { .wrap { grid-template-columns: 1fr; gap: 0; } nav.toc { display: none; } }
+h1 { font-size: 34px; line-height: 1.2; margin: 0 0 8px; letter-spacing: -.01em; }
+h2 { font-size: 23px; margin: 56px 0 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+h3 { font-size: 17px; margin: 28px 0 8px; }
+p, li { max-width: 72ch; }
+a { color: var(--accent); }
+.lede { color: var(--muted); font-size: 18px; margin: 0 0 24px; }
+code, pre { font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace; font-size: 13.5px; }
+:not(pre) > code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; overflow-wrap: anywhere; }
+pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; margin: 12px 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+.meta code { font-size: 12px; }
+.badge { display: inline-block; font-size: 11.5px; font-weight: 650; letter-spacing: .03em; padding: 1px 7px; border-radius: 999px; vertical-align: 2px; white-space: nowrap; }
+.b-root { color: var(--root); background: var(--root-bg); }
+.b-user { color: var(--user); background: var(--user-bg); }
+.b-warn { color: var(--warn); background: var(--warn-bg); }
+.b-opt { color: var(--muted); background: var(--surface-2); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin: 16px 0; }
+.tldr ol { margin: 8px 0 0; padding-left: 22px; }
+.tldr li { margin: 4px 0; }
+.callout { border-left: 3px solid var(--warn); background: var(--warn-bg); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+.callout p { margin: 4px 0; }
+.table-wrap { overflow-x: auto; margin: 12px 0; border: 1px solid var(--border); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--surface); }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.ln { white-space: nowrap; font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+td.ln a { color: inherit; }
+
+/* flow */
+.flow { display: grid; gap: 10px; margin: 16px 0; }
+.step { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: start; }
+.step .n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; background: var(--surface-2); border: 1px solid var(--border); }
+.step .body { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+.step .body b { display: block; }
+.step .body span { color: var(--muted); font-size: 14px; }
+.step.root .n { background: var(--root-bg); color: var(--root); border-color: transparent; }
+.branches { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-top: 8px; }
+.branches div { background: var(--surface-2); border-radius: 6px; padding: 8px 10px; font-size: 13.5px; }
+.branches div b { font-size: 13.5px; }
+
+/* annotated listing */
+.listing { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.55; padding: 8px 0; }
+.listing .l { display: grid; grid-template-columns: 48px max-content; white-space: pre; }
+.listing .l .no { color: var(--muted); text-align: right; padding-right: 14px; user-select: none; }
+.listing .l .no a { color: inherit; text-decoration: none; }
+.listing .l.r { background: var(--hl-root); }
+.listing .l.r .no { color: var(--root); font-weight: 700; }
+.listing .l.c .tx { color: var(--muted); }
+.listing .l:target { outline: 2px solid var(--accent); outline-offset: -2px; }
+details summary { cursor: pointer; font-weight: 600; margin: 8px 0; }
+.legend { font-size: 13px; color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0; }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; background: var(--hl-root); border: 1px solid var(--root); }
+footer { margin-top: 64px; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <b>Contents</b>
+  <a href="#tldr">In short</a>
+  <a href="#pipe">How <code>curl | sh</code> works</a>
+  <a href="#flow">The flow</a>
+  <a href="#walk">Walkthrough</a>
+  <a href="#sudo">What needs sudo</a>
+  <a href="#footprint">What changes on disk</a>
+  <a href="#archive">What's in the download</a>
+  <a href="#quirks">Quirks and edge cases</a>
+  <a href="#knobs">Knobs</a>
+  <a href="#safer">Running it more carefully</a>
+  <a href="#uninstall">Undoing it</a>
+  <a href="#listing">Annotated script</a>
+</nav>
+<main>
+<h1>What does the Ollama install script actually do?</h1>
+<p class="lede">A reading of <code>curl -fsSL https://ollama.com/install.sh | sh</code>, written for someone who writes software and wants to know what they're about to run as root.</p>
+<div class="meta">
+  <span>Script fetched <b>2026-09-29 (release v0.34.4)</b></span>
+  <span>455 lines, POSIX <code>sh</code></span>
+  <span>sha256 <code>25f64b810b947145095956533e1bdf56eacea2673c55a7e586be4515fc882c9f</code></span>
+  <span>Local copy: <a href="install.sh"><code>install.sh</code></a></span>
+</div>
+<p>The script changes over time. Everything below describes the copy with the hash above, and line numbers (<code>L123</code>) point into it. Other versions may differ.</p>
+
+<section id="tldr">
+<div class="card tldr">
+<b>In short: on Linux it does eight things</b>
+<ol>
+  <li>Works out your CPU architecture (<code>amd64</code> or <code>arm64</code>) and whether you're on WSL2.</li>
+  <li>Downloads a <b>~1.4 GB</b> archive and unpacks it as root into <code>/usr/local</code>. The archive holds the <code>ollama</code> binary plus its GPU runtime libraries.</li>
+  <li>Creates a system user and group called <code>ollama</code>, with its home (and model store) at <code>/usr/share/ollama</code>.</li>
+  <li>Adds <b>you</b> to the <code>ollama</code> group, and adds the <code>ollama</code> user to <code>render</code>/<code>video</code> so it can use the GPU.</li>
+  <li>Writes <code>/etc/systemd/system/ollama.service</code>, enables it at boot, and (re)starts it as the script exits. The API then listens on <code>127.0.0.1:11434</code>.</li>
+  <li>If it finds an <b>AMD</b> GPU, it downloads another ~1 GB of ROCm libraries.</li>
+  <li>If it finds an <b>NVIDIA</b> GPU with no working driver, it adds NVIDIA's package repository and signing key to your package manager (on Debian, Ubuntu, RHEL, Rocky, Fedora and Amazon Linux only), installs <code>cuda-drivers</code> and kernel headers, builds the DKMS module and loads it.</li>
+  <li>On macOS it's much simpler: it replaces <code>/Applications/Ollama.app</code> and symlinks the CLI into <code>/usr/local/bin</code>.</li>
+</ol>
+<p style="margin:12px 0 0">It asks for <b>sudo</b> for everything that writes outside your home directory. The downloads themselves run as you: <code>curl</code> is unprivileged, and only the <code>tar</code> at the end of the pipe runs as root. <a href="#sudo">Full list below.</a></p>
+</div>
+</section>
+
+<section id="pipe">
+<h2>How <code>curl | sh</code> works</h2>
+<p><code>curl</code> writes the script to stdout, and <code>sh</code> reads its program from stdin. Nothing is saved to disk, so there's no file to look at afterwards. The flags matter:</p>
+<div class="table-wrap"><table>
+<tr><th>Flag</th><th>Meaning</th><th>Why it's here</th></tr>
+<tr><td><code>-f</code></td><td>fail on HTTP ≥ 400</td><td>Without it, a 404 or 500 error page would be piped into <code>sh</code> and run as a shell script.</td></tr>
+<tr><td><code>-s</code></td><td>silent</td><td>No progress meter mixed into the output.</td></tr>
+<tr><td><code>-S</code></td><td>show errors anyway</td><td>Undoes the part of <code>-s</code> that would hide errors.</td></tr>
+<tr><td><code>-L</code></td><td>follow redirects</td><td>Needed: <code>ollama.com/install.sh</code> redirects to a <b>GitHub release asset</b> (<code>release-assets.githubusercontent.com</code>), which is what we observed when fetching it.</td></tr>
+</table></div>
+
+<h3>The <code>main()</code> wrapper protects against truncated downloads</h3>
+<p>A shell running a script from a pipe executes each command as soon as it has read it. If the connection dropped halfway through, a plain script would run its first half and stop at an arbitrary point, for example after deleting the old install but before unpacking the new one. So the whole script is one function body (<code>main() { … }</code>, L7–L453), and the only top-level command is the final <code>main</code> on L455. The shell can't run anything until it has read the closing brace, and if the download is cut short, the call never arrives and nothing runs.</p>
+
+<h3>How can <code>sudo</code> ask for a password when stdin is the script?</h3>
+<p><code>sudo</code> doesn't read the password from stdin. It opens the controlling terminal (<code>/dev/tty</code>) directly, so the prompt still works while stdin is the pipe from <code>curl</code>. The script never escalates in one go. It sets <code>SUDO=sudo</code> when you're not root (L110–L118) and puts <code>$SUDO</code> in front of each privileged command. After you enter the password once, sudo's credential cache (15 minutes by default) covers the rest.</p>
+
+<h3>What's not there: integrity checks</h3>
+<p>Nothing in the script checks a checksum or signature. The only integrity guarantee is TLS to <code>ollama.com</code> and GitHub. That's the same trust you'd place in the release page, but it's worth knowing that nothing further is checked. Also, a pipeline's exit status is the status of its <em>last</em> command. For <code>curl | zstd -d | sudo tar -x</code> (L146–L148), <code>set -e</code> only sees <code>tar</code>. A truncated stream usually still fails, because <code>zstd</code> and <code>tar</code> both detect the unexpected end of file, but that's a side effect rather than a design.</p>
+</section>
+
+<section id="flow">
+<h2>The flow</h2>
+<div class="flow">
+  <div class="step"><div class="n">1</div><div class="body"><b>Preamble <span class="badge b-user">user</span></b><span><code>set -eu</code>, colours, a temp dir with a cleanup trap, helpers. Detect the OS and architecture (L9–L42).</span></div></div>
+  <div class="step"><div class="n">2</div><div class="body"><b>macOS branch <span class="badge b-root">sudo only if needed</span></b><span>Kill the running app, replace <code>/Applications/Ollama.app</code>, symlink the CLI, launch it. Then <code>exit</code> (L48–L93).</span></div></div>
+  <div class="step"><div class="n">3</div><div class="body"><b>Linux preflight <span class="badge b-user">user</span></b><span>Refuse WSL1, decide whether <code>$SUDO</code> is needed, check for <code>curl awk grep sed tee xargs</code> (L99–L127).</span></div></div>
+  <div class="step root"><div class="n">4</div><div class="body"><b>Install the binary and libraries <span class="badge b-root">sudo</span></b><span>Pick <code>BINDIR</code> from <code>$PATH</code>, delete the old <code>lib/ollama</code>, stream the archive into <code>/usr/local</code>. Jetson gets an extra bundle (L159–L187).</span></div></div>
+  <div class="step"><div class="n">·</div><div class="body"><b>The point of no return</b><span>L193 replaces the exit trap with a success message. The comment on L195 reads “Everything from this point onwards is optional.” Ollama already works from the command line at this point.</span></div></div>
+  <div class="step root"><div class="n">5</div><div class="body"><b>systemd service <span class="badge b-root">sudo</span></b><span>Only if <code>systemctl</code> exists: create the user and groups, write the unit, <code>daemon-reload</code>, <code>enable</code>, and schedule <code>restart</code> for when the script exits (L197–L252).</span></div></div>
+  <div class="step"><div class="n">6</div><div class="body"><b>Early exits</b><span>WSL2 exits here (it uses the Windows driver), as does Jetson. So does a machine with neither <code>lspci</code> nor <code>lshw</code>, or one where <code>nvidia-smi</code> already exists (L256–L297).</span></div></div>
+  <div class="step root"><div class="n">7</div><div class="body"><b>GPU dependencies <span class="badge b-root">sudo</span></b><span>Detection uses PCI vendor IDs (<code>10de</code> NVIDIA, <code>1002</code> AMD).</span>
+    <div class="branches">
+      <div><b>No GPU</b><br>Warns “CPU-only mode” and exits.</div>
+      <div><b>AMD</b><br>Downloads the ROCm library bundle (~1 GB). Doesn't touch kernel drivers.</div>
+      <div><b>NVIDIA, no driver</b><br>Adds NVIDIA's repo, installs <code>cuda-drivers</code> and headers, runs DKMS and <code>modprobe</code>.</div>
+      <div><b>Other distro</b><br>(Arch, Manjaro, openSUSE…) Exits silently. See <a href="#q-pm">quirks</a>.</div>
+    </div></div></div>
+  <div class="step root"><div class="n">8</div><div class="body"><b>EXIT trap <span class="badge b-root">sudo</span></b><span><code>systemctl restart ollama</code> runs <em>last</em>, after any driver install, so the server starts against the new driver. On an upgrade, this restarts a server that's already running.</span></div></div>
+</div>
+</section>
+
+<section id="walk">
+<h2>Walkthrough</h2>
+
+<h3>Preamble (L9–L42) <span class="badge b-user">user</span></h3>
+<ul>
+  <li><code>set -eu</code>: exit on the first failing command, and treat unset variables as errors. That's why optional variables are written <code>${OLLAMA_VERSION:+…}</code> and <code>${OLLAMA_NO_START:-}</code>.</li>
+  <li><code>tput … 2&gt;&amp;-</code> gets the terminal's colour codes and closes stderr, so a missing <code>tput</code> or a dumb terminal stays silent.</li>
+  <li><code>mktemp -d</code> plus <code>trap cleanup EXIT</code> is the standard temp-dir pattern. But <a href="#q-trap">the trap gets overwritten later</a>.</li>
+  <li><code>require</code> returns the <em>names</em> of missing tools as a string, so the script can list them all at once instead of failing on the first.</li>
+  <li><code>uname -m</code> is mapped to Go-style architecture names (<code>x86_64→amd64</code>, <code>aarch64|arm64→arm64</code>). Anything else is rejected, including 32-bit ARM and x86.</li>
+  <li><code>OLLAMA_VERSION=0.x.y</code> becomes a query string <code>?version=0.x.y</code> appended to every download URL (L42).</li>
+</ul>
+
+<h3>macOS (L48–L93)</h3>
+<p>This branch never touches system services or users. It <code>pkill</code>s a running <code>Ollama</code>, <code>rm -rf</code>s <code>/Applications/Ollama.app</code>, unzips the new app into place, and symlinks <code>/usr/local/bin/ollama</code> to the binary inside the bundle. It tries each write without sudo first and falls back to <code>sudo</code> only when that fails (<code>cmd 2&gt;/dev/null || sudo cmd</code>, L81–L83). On most Macs <code>/Applications</code> is writable by admin users, so often the only password prompt, if there is one, is for <code>/usr/local/bin</code>. Finally <code>open -a Ollama --args hidden</code> launches the menu-bar app, unless <code>OLLAMA_NO_START</code> is set.</p>
+
+<h3>Linux preflight (L99–L127) <span class="badge b-user">user</span></h3>
+<p>The script tells WSL1 from WSL2 by the kernel release string (<code>…microsoft-standard-WSL2</code>). WSL1 has no real Linux kernel, so it's refused. <code>id -u</code> decides whether <code>$SUDO</code> is empty (you're root) or <code>sudo</code>. The comment on L112 says “Running as root” inside the branch that runs when you are <em>not</em> root, so it's the wrong way round. The code itself is correct.</p>
+
+<h3>Choosing where to install (L159–L162)</h3>
+<pre>for BINDIR in /usr/local/bin /usr/bin /bin; do
+    echo $PATH | grep -q $BINDIR &amp;&amp; break || continue
+done
+OLLAMA_INSTALL_DIR=$(dirname ${BINDIR})</pre>
+<p>The script takes the first of three candidates that appears in your <code>$PATH</code>, and the install <em>prefix</em> is its parent directory. On almost every system that means <code>BINDIR=/usr/local/bin</code> and prefix <code>/usr/local</code>. The archive's contents land in <code>/usr/local/bin/ollama</code> and <code>/usr/local/lib/ollama/…</code>. The binary finds its libraries relative to its own location, which is why the prefix layout matters.</p>
+
+<h3>Installing (L164–L176) <span class="badge b-root">sudo</span></h3>
+<ul>
+  <li>An existing <code>lib/ollama</code> is removed completely first (<code>rm -rf</code>). Its versioned GPU libraries would otherwise mix with the new ones. The old binary is simply overwritten by <code>tar</code>.</li>
+  <li><code>install -o0 -g0 -m755 -d</code> creates <code>bin/</code> and <code>lib/ollama/</code> as <code>root:root 0755</code> if they don't exist.</li>
+  <li><code>download_and_extract</code> first sends a <code>HEAD</code> request for the <code>.tar.zst</code> file. If it exists, the script needs <code>zstd</code> and fails with install hints if you don't have it. Otherwise it falls back to <code>.tgz</code> (for old versions; the current <code>.tgz</code> URL returns 404). The data flows <code>curl</code> (you) → <code>zstd -d</code> (you) → <code>sudo tar -xf - -C /usr/local</code> (root).</li>
+  <li><b>Jetson</b> (<code>/etc/nv_tegra_release</code> exists): an extra bundle for JetPack 5 (R35) or 6 (R36) is unpacked over the base install.</li>
+</ul>
+
+<h3>The systemd service (L197–L252) <span class="badge b-root">sudo</span></h3>
+<p>This runs only if <code>systemctl</code> is installed at all. It sets up:</p>
+<ul>
+  <li><code>useradd -r -s /bin/false -U -m -d /usr/share/ollama ollama</code>: a system account (low UID, no aging) with no login shell, a matching group, and a home directory. The home matters because the server stores models in <code>~/.ollama/models</code>, so the model store ends up at <b><code>/usr/share/ollama/.ollama/models</code></b>. On many systems <code>/usr</code> sits on the root partition, so tens of gigabytes of weights can fill <code>/</code>.</li>
+  <li><code>ollama</code> is added to <code>render</code> and <code>video</code> if those groups exist. Those groups own <code>/dev/dri/*</code> and, on AMD, <code>/dev/kfd</code>, the GPU device nodes.</li>
+  <li><b>You</b> are added to the <code>ollama</code> group (<code>$(whoami)</code>, the unprivileged caller). This only takes effect at your next login. You don't need it to use the CLI, which talks to the server over HTTP.</li>
+</ul>
+<p>The unit it writes:</p>
+<pre>[Unit]
+Description=Ollama Service
+After=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/ollama serve
+User=ollama
+Group=ollama
+Restart=always
+RestartSec=3
+Environment="PATH=<i>…your $PATH at install time…</i>"
+
+[Install]
+WantedBy=default.target</pre>
+<ul>
+  <li><b>Your current <code>$PATH</code> is baked into the unit.</b> The heredoc expands it at install time, so any personal directories on your PATH, such as <code>~/bin</code>, <code>~/.cargo/bin</code> or a venv, end up in a system service.</li>
+  <li><code>After=network-online.target</code> without <code>Wants=network-online.target</code> only orders the start. It doesn't pull the target in, so on many systems it has no effect.</li>
+  <li><code>Restart=always</code>: the server comes back 3 seconds after any exit, including a crash or a <code>kill</code>. To actually stop it, use <code>systemctl stop</code>.</li>
+  <li><code>WantedBy=default.target</code>: it starts at every boot.</li>
+  <li>No <code>OLLAMA_HOST</code> is set, so the server binds <b>only to loopback</b> (<code>127.0.0.1:11434</code>). Setting it (for example <code>0.0.0.0</code>) exposes an <b>unauthenticated</b> API to the network.</li>
+  <li>There's no sandboxing (<code>ProtectSystem=</code>, <code>NoNewPrivileges=</code>, …). The service runs as an ordinary unprivileged user and nothing more.</li>
+</ul>
+<p>The script decides whether systemd is actually running with <code>systemctl is-system-running</code>: <code>running</code> or <code>degraded</code> both count. In containers, or on WSL2 without systemd enabled, you get a warning and no service. If it is running, <code>daemon-reload</code> and <code>enable</code> happen immediately, but <code>restart</code> is <b>deferred to the EXIT trap</b> (L238–L239). It therefore runs after the GPU driver work, whichever way the script exits.</p>
+
+<h3>GPU detection (L271–L303)</h3>
+<p>The script checks in this order:</p>
+<ol>
+  <li>Is <code>nvidia-smi</code> installed? Then it assumes the driver works, prints “NVIDIA GPU installed.” and exits. It doesn't check that the driver is new enough.</li>
+  <li>Otherwise it looks for PCI vendor IDs: <code>lspci -d 10de:</code> (NVIDIA) or <code>1002:</code> (AMD). If <code>lspci</code> is missing it tries <code>lshw -c display -numeric</code>, which runs under <b>sudo</b> because <code>lshw</code> reports incomplete information without root.</li>
+  <li>With neither tool installed, it can't tell, so it warns and exits. Your GPU might still work, but no drivers get installed.</li>
+</ol>
+
+<h3>AMD (L305–L311) <span class="badge b-root">sudo</span></h3>
+<p>The only step is unpacking <code>ollama-linux-amd64-rocm.tar.zst</code> (~1.05 GB) into the same prefix. It adds ROCm userspace libraries under <code>lib/ollama</code>. The kernel driver (<code>amdgpu</code>) is part of the mainline kernel, so the script leaves it alone. It doesn't check whether your specific GPU is supported by ROCm either. If both an NVIDIA and an AMD GPU are present and <code>nvidia-smi</code> is missing, the AMD branch runs and the script exits without installing an NVIDIA driver.</p>
+
+<h3>NVIDIA without a driver (L313–L449) <span class="badge b-root">sudo</span></h3>
+<p>This is the invasive part, and it only runs on a machine with an NVIDIA GPU and no working <code>nvidia-smi</code>. It follows NVIDIA's own CUDA installation guide:</p>
+<ul>
+  <li><b>apt (Debian/Ubuntu):</b> downloads <code>cuda-keyring_1.1-1_all.deb</code> into the temp dir and installs it with <code>dpkg -i</code>. From then on your system <b>trusts NVIDIA's repository signing key for all future <code>apt</code> updates</b>. On Debian it also enables <code>contrib</code> by writing <code>/etc/apt/sources.list.d/contrib.list</code>, derived with <code>sed 's/main/contrib/'</code>. It then runs <code>apt-get update</code> and <code>apt-get -y install cuda-drivers</code>, with <code>DEBIAN_FRONTEND=noninteractive</code> passed through <code>sudo -E</code>. The <code>-E</code> is needed because sudo clears the environment by default.</li>
+  <li><b>dnf/yum (RHEL, CentOS, Rocky, Fedora, Amazon Linux):</b> adds NVIDIA's <code>.repo</code> file (and EPEL on RHEL), then runs <code>install cuda-drivers</code>, plus <code>nvidia-driver-latest-dkms</code> on CentOS or RHEL 7. Fedora 39 and later always get the <code>fedora39</code> repo. Amazon Linux is mapped to <code>fedora37</code>.</li>
+  <li><b>Kernel module</b> (if <code>nvidia</code> or <code>nvidia_uvm</code> isn't loaded): installs kernel headers for the <em>running</em> kernel, runs <code>dkms install</code> for any module that is only “added”, then <code>modprobe nvidia nvidia_uvm</code>. If the open-source <code>nouveau</code> driver is loaded it holds the GPU, so the script asks you to reboot and exits.</li>
+  <li><b>Persistence:</b> if <code>nvidia-persistenced</code> exists, <code>nvidia</code> and <code>nvidia-uvm</code> are added to <code>/etc/modules-load.d/nvidia.conf</code> so they load at boot. The <code>grep -qxF</code> check makes this safe to repeat.</li>
+</ul>
+<p>The architecture in NVIDIA's repo URLs is <code>uname -m</code> with <code>aarch64</code> rewritten to <code>sbsa</code>, NVIDIA's name for server ARM.</p>
+</section>
+
+<section id="sudo">
+<h2>What needs sudo, and why</h2>
+<p>Everything in this table runs as <code>$SUDO …</code>, which is <code>sudo</code> unless you started the script as root. Everything else runs as you.</p>
+<div class="table-wrap"><table>
+<tr><th>Line</th><th>Command</th><th>What it touches / why root</th><th>When</th></tr>
+<tr><td class="ln"><a href="#L166">L166</a></td><td><code>rm -rf $PREFIX/lib/ollama</code></td><td>Removes the root-owned libraries of a previous install.</td><td>Upgrades</td></tr>
+<tr><td class="ln"><a href="#L169">L169–170</a></td><td><code>install -o0 -g0 -m755 -d</code></td><td>Creates <code>/usr/local/bin</code> and <code>/usr/local/lib/ollama</code> as root.</td><td>Always</td></tr>
+<tr><td class="ln"><a href="#L148">L148</a> / <a href="#L156">156</a></td><td><code>tar -x -C /usr/local</code></td><td>Writes the binary and about 1.4 GB of libraries into the system prefix. Only the unpack is root; <code>curl</code> and <code>zstd</code> run as you. GNU <code>tar</code> running as root keeps the file owners recorded in the archive (see <a href="#archive">archive</a>).</td><td>Always; again for Jetson / ROCm</td></tr>
+<tr><td class="ln"><a href="#L175">L175</a></td><td><code>ln -sf</code></td><td>Symlinks the binary into <code>BINDIR</code>. Normally skipped (see <a href="#q-ln">quirks</a>).</td><td>Rarely</td></tr>
+<tr><td class="ln"><a href="#L200">L200</a></td><td><code>useradd -r … ollama</code></td><td>Writes <code>/etc/passwd</code>, <code>/etc/shadow</code>, <code>/etc/group</code>; creates <code>/usr/share/ollama</code>.</td><td>First install, systemd hosts</td></tr>
+<tr><td class="ln"><a href="#L204">L204</a>, <a href="#L208">208</a>, <a href="#L212">212</a></td><td><code>usermod -a -G</code></td><td>Adds <code>ollama</code> to <code>render</code>/<code>video</code>, and you to <code>ollama</code>, by editing <code>/etc/group</code>.</td><td>Every run, systemd hosts</td></tr>
+<tr><td class="ln"><a href="#L215">L215</a></td><td><code>tee /etc/systemd/system/ollama.service</code></td><td>Writes the unit file. It is <b>overwritten on every run</b>, so edits made directly to this file are lost; use <code>systemctl edit ollama</code> drop-ins instead.</td><td>Every run</td></tr>
+<tr><td class="ln"><a href="#L235">L235–238</a></td><td><code>systemctl daemon-reload / enable / restart</code></td><td>Controls system units. The <code>restart</code> happens in the EXIT trap.</td><td>Every run, if systemd is running</td></tr>
+<tr><td class="ln"><a href="#L287">L287–288</a></td><td><code>lshw -c display</code></td><td>Reads full hardware information (read-only, but needs root to be complete).</td><td>If <code>lshw</code> is installed and <code>lspci</code> didn't settle it</td></tr>
+<tr><td class="ln"><a href="#L323">L323–353</a></td><td><code>dnf/yum install</code>, <code>config-manager --add-repo</code></td><td>Adds package repositories and installs the driver.</td><td>NVIDIA without driver, RPM distros</td></tr>
+<tr><td class="ln"><a href="#L369">L369–381</a></td><td><code>tee contrib.list</code>, <code>dpkg -i cuda-keyring</code>, <code>apt-get update/install</code></td><td>Changes apt sources, installs the signing key, installs the driver.</td><td>NVIDIA without driver, Debian/Ubuntu</td></tr>
+<tr><td class="ln"><a href="#L419">L419–422</a></td><td>install kernel headers</td><td>Needed to build the DKMS module.</td><td>NVIDIA module not loaded</td></tr>
+<tr><td class="ln"><a href="#L426">L426–428</a></td><td><code>dkms status / install</code></td><td>Builds and installs the kernel module.</td><td>NVIDIA module not loaded</td></tr>
+<tr><td class="ln"><a href="#L436">L436–437</a></td><td><code>modprobe nvidia nvidia_uvm</code></td><td>Loads the modules into the running kernel.</td><td>NVIDIA module not loaded</td></tr>
+<tr><td class="ln"><a href="#L442">L442–446</a></td><td><code>touch / tee -a /etc/modules-load.d/nvidia.conf</code></td><td>Loads the modules at boot.</td><td>If <code>nvidia-persistenced</code> exists</td></tr>
+</table></div>
+<p><b>Runs as you:</b> <code>uname</code>, <code>id</code>, <code>tput</code>, <code>mktemp</code>, every <code>curl</code>, <code>zstd -d</code>, <code>lspci</code>, <code>nvidia-smi</code>, <code>lsmod</code>, <code>getent</code>, <code>systemctl is-system-running</code>, and sourcing <code>/etc/os-release</code>.</p>
+
+<div class="callout">
+<p><b>Why <code>| sudo tee file</code> and not <code>sudo … &gt; file</code>?</b></p>
+<p>Your (unprivileged) shell performs the redirection before <code>sudo</code> even starts, so <code>sudo echo x &gt; /etc/foo</code> fails with “Permission denied”. Piping into <code>sudo tee</code> makes a root process open the file. The script uses this pattern for every write under <code>/etc</code>. The reverse also holds: in <code>$SUDO sed … &lt; /etc/apt/sources.list</code> (L369) your own shell opens the <em>input</em> file, so the <code>sudo</code> in front of <code>sed</code> does nothing. That's harmless, because those files are world-readable.</p>
+</div>
+
+<h3>Running it as root instead (<code>… | sudo sh</code>)</h3>
+<p>That works too (<code>$SUDO</code> stays empty), with side effects. <code>$(whoami)</code> becomes <code>root</code>, so <em>root</em> joins the <code>ollama</code> group rather than you. <code>$PATH</code> is sudo's <code>secure_path</code>, which is arguably a cleaner value for the unit file. And every command, including the downloads, runs as root.</p>
+</section>
+
+<section id="footprint">
+<h2>What changes on your system</h2>
+<div class="table-wrap"><table>
+<tr><th>Path / object</th><th>Created by</th><th>Notes</th></tr>
+<tr><td><code>/usr/local/bin/ollama</code></td><td>tar</td><td>The single Go binary: CLI and server in one.</td></tr>
+<tr><td><code>/usr/local/lib/ollama/</code></td><td>tar</td><td>GPU runtimes and backends (2.24 GB, 2.14 GB of it CUDA). Deleted and replaced on every upgrade.</td></tr>
+<tr><td>user and group <code>ollama</code></td><td>useradd</td><td>System account, shell <code>/bin/false</code>.</td></tr>
+<tr><td><code>/usr/share/ollama/.ollama/models</code></td><td>the server, at first pull</td><td>Model store for the service. Your own <code>ollama serve</code> would use <code>~/.ollama/models</code> instead, so the two don't share models.</td></tr>
+<tr><td><code>/usr/share/ollama/.ollama/id_ed25519</code></td><td>the server</td><td>The server's key pair, used to identify it to ollama.com (for example when pushing models).</td></tr>
+<tr><td>group memberships</td><td>usermod</td><td>you → <code>ollama</code>; <code>ollama</code> → <code>render</code>, <code>video</code>.</td></tr>
+<tr><td><code>/etc/systemd/system/ollama.service</code></td><td>tee</td><td>Enabled via <code>…/default.target.wants/ollama.service</code>.</td></tr>
+<tr><td>TCP <code>127.0.0.1:11434</code></td><td>the service</td><td>Unauthenticated HTTP API, loopback only by default.</td></tr>
+<tr><td><code>/tmp/tmp.XXXXXXXXXX/</code></td><td>mktemp</td><td>Left behind; see <a href="#q-trap">quirks</a>.</td></tr>
+<tr><td colspan="3"><b>NVIDIA-without-driver path only</b></td></tr>
+<tr><td>NVIDIA apt keyring / <code>.repo</code> file, EPEL</td><td>dpkg / config-manager</td><td>Persistent third-party repository with system-wide trust.</td></tr>
+<tr><td><code>/etc/apt/sources.list.d/contrib.list</code> (Debian)</td><td>tee</td><td>Enables the <code>contrib</code> component.</td></tr>
+<tr><td><code>cuda-drivers</code>, kernel headers, DKMS module</td><td>package manager</td><td>Proprietary driver, rebuilt by DKMS on kernel updates.</td></tr>
+<tr><td><code>/etc/modules-load.d/nvidia.conf</code></td><td>tee -a</td><td>Loads <code>nvidia</code> and <code>nvidia-uvm</code> at boot.</td></tr>
+</table></div>
+</section>
+
+<section id="archive">
+<h2>What's in the 1.4 GB download</h2>
+
+<p>We streamed <code>ollama-linux-amd64.tar.zst</code> through <code>tar -tv</code> without writing it to disk. The full listing is in
+<a href="ollama-linux-amd64.contents.txt"><code>ollama-linux-amd64.contents.txt</code></a>. It has 62 files and symlinks,
+<b>2.24 GB unpacked</b>, and every entry is owned by <code>root/root</code>. So although root's <code>tar</code> preserves
+the owners recorded in the archive, they end up <code>root:root</code>, which is what you want.</p>
+<div class="table-wrap"><table>
+<tr><th>Part</th><th>Files</th><th>Size</th><th>Share</th><th>What it is</th></tr>
+<tr><td><code>bin/ollama</code></td><td>1</td><td style="white-space:nowrap">28.3 MB</td><td>1%</td><td>The Go binary: CLI, HTTP server, scheduler and model store in one executable.</td></tr><tr><td><code>lib/ollama/cuda_v12/</code></td><td>7</td><td style="white-space:nowrap">1.29 GB</td><td>57%</td><td>CUDA 12 runtime, cuBLAS/cuBLASLt and the ggml CUDA backend, for older NVIDIA drivers.</td></tr><tr><td><code>lib/ollama/cuda_v13/</code></td><td>7</td><td style="white-space:nowrap">850.9 MB</td><td>38%</td><td>The same for CUDA 13, which needs a recent (580-series or newer) driver. Ollama picks one at runtime.</td></tr><tr><td><code>lib/ollama/vulkan/</code></td><td>1</td><td style="white-space:nowrap">42.7 MB</td><td>2%</td><td>Vulkan backend, a vendor-neutral GPU path (Intel, AMD, NVIDIA).</td></tr><tr><td><code>lib/ollama/libggml-cpu-*.so</code></td><td>14</td><td style="white-space:nowrap">17.1 MB</td><td>1%</td><td>One CPU backend per x86 microarchitecture (SSE4.2 to Sapphire Rapids and Zen 4). The best one your CPU supports is loaded.</td></tr><tr><td><code>llama.cpp libraries</code></td><td>19</td><td style="white-space:nowrap">14.1 MB</td><td>1%</td><td>ggml core, libllama, libmtmd (multimodal), plus llama.cpp's own <code>llama-server</code> and <code>llama-quantize</code>.</td></tr><tr><td><code>libgomp</code></td><td>2</td><td style="white-space:nowrap">235 kB</td><td>0%</td><td>GNU OpenMP runtime used by the CPU backends.</td></tr><tr><td><code>licenses</code></td><td>11</td><td style="white-space:nowrap">157 kB</td><td>0%</td><td>Third-party license texts (llama.cpp, MLX, xgrammar, Go, …).</td></tr>
+</table></div>
+<p><b>2.14 GB (95%) is NVIDIA's CUDA libraries.</b> They're installed on every amd64 machine, including CPU-only and AMD ones,
+because the archive is the same for everyone. The GPU choice only decides what is installed <em>on top</em> (ROCm for AMD, a driver for NVIDIA).
+The binary itself is small (28.3 MB). The server doesn't do the maths itself: it starts runner processes backed by these ggml/llama.cpp libraries.</p>
+</section>
+
+<section id="quirks">
+<h2>Quirks and edge cases</h2>
+<p>These come from reading the code, not from running it. Most are harmless, and none of them affect a typical Ubuntu or Fedora install.</p>
+
+<h3 id="q-trap">1. The cleanup trap is overwritten, so the temp dir is left behind</h3>
+<p><code>trap</code> <em>replaces</em> the handler; it doesn't add to it. L20 installs <code>cleanup</code>, L193 replaces it with <code>install_success</code>, and L239 (systemd hosts) replaces that with <code>start_service</code>. As a result, the <code>mktemp -d</code> directory is never removed once the script gets past L193. It's empty, except on the apt path where it holds <code>cuda-keyring.deb</code>. On systemd hosts the success banner also isn't printed on some paths. For example, when <code>nvidia-smi</code> exists, you only see “NVIDIA GPU installed.”</p>
+
+<h3 id="q-pm">2. The “Unknown package manager” check can never trigger</h3>
+<pre>PACKAGE_MANAGER=
+for PACKAGE_MANAGER in dnf yum apt-get; do
+    if available $PACKAGE_MANAGER; then break; fi
+done
+if [ -z "$PACKAGE_MANAGER" ]; then error "Unknown package manager…"; fi</pre>
+<p>After a shell <code>for</code> loop ends without <code>break</code>, the loop variable keeps its <em>last</em> value (<code>apt-get</code>), so it's never empty. The script then continues, reaches <code>case $OS_NAME … *) exit ;;</code> for any unlisted distribution, and <b>exits silently with status 0</b>. On Arch, Manjaro, openSUSE, Gentoo and others, an NVIDIA machine without a driver gets a working CPU install and no message saying it has no GPU support. On those distributions, use the distro packages (on Arch/Manjaro: <code>ollama</code>, <code>ollama-cuda</code>, <code>ollama-rocm</code>).</p>
+
+<h3 id="q-ln">3. The symlink step is dead code on normal systems, and harmful when <code>BINDIR=/bin</code></h3>
+<p>L173 compares <code>$PREFIX/bin/ollama</code> with <code>$BINDIR/ollama</code>. With <code>/usr/local/bin</code> or <code>/usr/bin</code> they're the same string, so the link is skipped. With <code>/bin</code>, which is also the fallback when <em>none</em> of the three candidates matches because the loop variable keeps its last value, the prefix is <code>/</code>. Then <code>"//bin/ollama" != "/bin/ollama"</code>, and L175 runs <code>ln -sf //ollama /bin/ollama</code>, replacing the freshly unpacked binary with a symlink to a nonexistent <code>/ollama</code>. The link target (<code>$PREFIX/ollama</code>, with no <code>bin/</code>) looks like a leftover from an older archive layout. This needs an unusual <code>$PATH</code> to trigger.</p>
+
+<h3>4. PATH matching is a substring <code>grep</code></h3>
+<p><code>echo $PATH | grep -q /usr/local/bin</code> also matches <code>/opt/x/usr/local/bin</code> or <code>/usr/local/bin2</code>. In practice this only changes which prefix is picked in exotic setups.</p>
+
+<h3>5. Rocky Linux 10 gets the wrong repository</h3>
+<p>For Rocky the major version is taken with <code>cut -c1</code>, the first <em>character</em> of the version (L407). For <code>10.0</code> that gives <code>1</code>, so the script looks for a <code>rhel1</code> repo, the <code>HEAD</code> check fails, and it stops with “not supported by NVIDIA”. RHEL and CentOS use <code>cut -d . -f 1</code> and are fine.</p>
+
+<h3>6. <code>nvidia-smi</code> present means “done”</h3>
+<p>If the binary exists, the script assumes the driver works. It doesn't check that the driver is recent enough for the CUDA runtime bundled in the archive, and doesn't even check that <code>nvidia-smi</code> runs successfully. An old driver shows up later as Ollama falling back to the CPU.</p>
+
+<h3>7. Re-running it restarts the server</h3>
+<p>The documented upgrade path is to run the same command again. That overwrites the unit file (losing any direct edits), deletes and replaces <code>lib/ollama</code>, and ends with <code>systemctl restart ollama</code>, which unloads models and cuts off any requests in flight. On a shared box, schedule it.</p>
+
+<h3>8. The Debian <code>contrib</code> derivation is crude</h3>
+<p><code>sed 's/main/contrib/'</code> replaces the first “main” on each line, wherever it appears, and ignores <code>sources.list</code> if it doesn't exist. On a Debian system that only has <code>debian.sources</code> (deb822 format, standard since Debian 12), the pipeline creates an <em>empty</em> <code>contrib.list</code> and a separate <code>contrib.sources</code> copy. It works, but it leaves clutter.</p>
+
+<h3>9. Not really POSIX</h3>
+<p><code>local</code> (L24, L131) isn't in POSIX. It works in <code>dash</code>, <code>bash</code>, <code>busybox ash</code> and <code>zsh</code>'s sh mode, which covers every <code>/bin/sh</code> you're likely to meet.</p>
+</section>
+
+<section id="knobs">
+<h2>Knobs</h2>
+<div class="table-wrap"><table>
+<tr><th>Variable</th><th>Effect</th></tr>
+<tr><td><code>OLLAMA_VERSION=0.x.y</code></td><td>Installs that release instead of the latest (appended as <code>?version=</code>). Put it on the <code>sh</code> side of the pipe: <code>curl -fsSL https://ollama.com/install.sh | OLLAMA_VERSION=0.x.y sh</code>.</td></tr>
+<tr><td><code>OLLAMA_NO_START=1</code></td><td><b>macOS only</b>: don't launch the app afterwards. On Linux it's ignored; the service is always enabled and restarted when systemd is running.</td></tr>
+</table></div>
+<p>The server itself is configured through environment variables on the <em>service</em>, not by the installer. Use <code>sudo systemctl edit ollama</code> and add, for example:</p>
+<pre>[Service]
+Environment="OLLAMA_HOST=127.0.0.1:11434"
+Environment="OLLAMA_MODELS=/data/ollama/models"</pre>
+<p>The directory must be writable by the <code>ollama</code> user. Drop-ins survive re-running the installer.</p>
+</section>
+
+<section id="safer">
+<h2>Running it more carefully</h2>
+<pre># 1. download, don't pipe
+curl -fsSL https://ollama.com/install.sh -o install.sh
+# 2. read it (or diff it against the copy next to this page)
+less install.sh
+sha256sum install.sh
+# 3. run it, pinned to a version you know
+OLLAMA_VERSION=0.x.y sh install.sh</pre>
+<p>Alternatives that avoid running a script as root: your distribution's package, the official Docker image (<code>ollama/ollama</code>), or unpacking the archive by hand into a prefix you own and running <code>ollama serve</code> yourself. The last option skips the user, the service and the driver steps entirely.</p>
+</section>
+
+<section id="uninstall">
+<h2>Undoing it</h2>
+<pre>sudo systemctl disable --now ollama
+sudo rm /etc/systemd/system/ollama.service
+sudo systemctl daemon-reload
+sudo rm /usr/local/bin/ollama
+sudo rm -r /usr/local/lib/ollama
+sudo rm -r /usr/share/ollama        # deletes all downloaded models
+sudo userdel ollama
+sudo groupdel ollama                # if userdel didn't already
+sudo gpasswd -d "$USER" ollama      # only if the group still exists</pre>
+<p>If the NVIDIA path ran, the driver, the DKMS module, the NVIDIA repository and its key, and <code>/etc/modules-load.d/nvidia.conf</code> all stay. Remove them with your package manager if you don't want them.</p>
+</section>
+
+<section id="listing">
+<h2>Annotated script</h2>
+<div class="legend"><span><span class="swatch"></span>line runs a command via <code>$SUDO</code> / <code>sudo</code></span><span>Click a line number to link to it.</span></div>
+<details open>
+<summary>install.sh (455 lines)</summary>
+<div class="listing">
+<div class="l c" id="L1"><span class="no"><a href="#L1">1</a></span><span class="tx">#!/bin/sh</span></div>
+<div class="l c" id="L2"><span class="no"><a href="#L2">2</a></span><span class="tx"># This script installs Ollama on Linux and macOS.</span></div>
+<div class="l c" id="L3"><span class="no"><a href="#L3">3</a></span><span class="tx"># It detects the current operating system architecture and installs the appropriate version of Ollama.</span></div>
+<div class="l" id="L4"><span class="no"><a href="#L4">4</a></span><span class="tx"> </span></div>
+<div class="l c" id="L5"><span class="no"><a href="#L5">5</a></span><span class="tx"># Wrap script in main function so that a truncated partial download doesn&#x27;t end</span></div>
+<div class="l c" id="L6"><span class="no"><a href="#L6">6</a></span><span class="tx"># up executing half a script.</span></div>
+<div class="l" id="L7"><span class="no"><a href="#L7">7</a></span><span class="tx">main() {</span></div>
+<div class="l" id="L8"><span class="no"><a href="#L8">8</a></span><span class="tx"> </span></div>
+<div class="l" id="L9"><span class="no"><a href="#L9">9</a></span><span class="tx">set -eu</span></div>
+<div class="l" id="L10"><span class="no"><a href="#L10">10</a></span><span class="tx"> </span></div>
+<div class="l" id="L11"><span class="no"><a href="#L11">11</a></span><span class="tx">red=&quot;$( (/usr/bin/tput bold || :; /usr/bin/tput setaf 1 || :) 2&gt;&amp;-)&quot;</span></div>
+<div class="l" id="L12"><span class="no"><a href="#L12">12</a></span><span class="tx">plain=&quot;$( (/usr/bin/tput sgr0 || :) 2&gt;&amp;-)&quot;</span></div>
+<div class="l" id="L13"><span class="no"><a href="#L13">13</a></span><span class="tx"> </span></div>
+<div class="l" id="L14"><span class="no"><a href="#L14">14</a></span><span class="tx">status() { echo &quot;&gt;&gt;&gt; $*&quot; &gt;&amp;2; }</span></div>
+<div class="l" id="L15"><span class="no"><a href="#L15">15</a></span><span class="tx">error() { echo &quot;${red}ERROR:${plain} $*&quot;; exit 1; }</span></div>
+<div class="l" id="L16"><span class="no"><a href="#L16">16</a></span><span class="tx">warning() { echo &quot;${red}WARNING:${plain} $*&quot;; }</span></div>
+<div class="l" id="L17"><span class="no"><a href="#L17">17</a></span><span class="tx"> </span></div>
+<div class="l" id="L18"><span class="no"><a href="#L18">18</a></span><span class="tx">TEMP_DIR=$(mktemp -d)</span></div>
+<div class="l" id="L19"><span class="no"><a href="#L19">19</a></span><span class="tx">cleanup() { rm -rf $TEMP_DIR; }</span></div>
+<div class="l" id="L20"><span class="no"><a href="#L20">20</a></span><span class="tx">trap cleanup EXIT</span></div>
+<div class="l" id="L21"><span class="no"><a href="#L21">21</a></span><span class="tx"> </span></div>
+<div class="l" id="L22"><span class="no"><a href="#L22">22</a></span><span class="tx">available() { command -v $1 &gt;/dev/null; }</span></div>
+<div class="l" id="L23"><span class="no"><a href="#L23">23</a></span><span class="tx">require() {</span></div>
+<div class="l" id="L24"><span class="no"><a href="#L24">24</a></span><span class="tx">    local MISSING=&#x27;&#x27;</span></div>
+<div class="l" id="L25"><span class="no"><a href="#L25">25</a></span><span class="tx">    for TOOL in $*; do</span></div>
+<div class="l" id="L26"><span class="no"><a href="#L26">26</a></span><span class="tx">        if ! available $TOOL; then</span></div>
+<div class="l" id="L27"><span class="no"><a href="#L27">27</a></span><span class="tx">            MISSING=&quot;$MISSING $TOOL&quot;</span></div>
+<div class="l" id="L28"><span class="no"><a href="#L28">28</a></span><span class="tx">        fi</span></div>
+<div class="l" id="L29"><span class="no"><a href="#L29">29</a></span><span class="tx">    done</span></div>
+<div class="l" id="L30"><span class="no"><a href="#L30">30</a></span><span class="tx"> </span></div>
+<div class="l" id="L31"><span class="no"><a href="#L31">31</a></span><span class="tx">    echo $MISSING</span></div>
+<div class="l" id="L32"><span class="no"><a href="#L32">32</a></span><span class="tx">}</span></div>
+<div class="l" id="L33"><span class="no"><a href="#L33">33</a></span><span class="tx"> </span></div>
+<div class="l" id="L34"><span class="no"><a href="#L34">34</a></span><span class="tx">OS=&quot;$(uname -s)&quot;</span></div>
+<div class="l" id="L35"><span class="no"><a href="#L35">35</a></span><span class="tx">ARCH=$(uname -m)</span></div>
+<div class="l" id="L36"><span class="no"><a href="#L36">36</a></span><span class="tx">case &quot;$ARCH&quot; in</span></div>
+<div class="l" id="L37"><span class="no"><a href="#L37">37</a></span><span class="tx">    x86_64) ARCH=&quot;amd64&quot; ;;</span></div>
+<div class="l" id="L38"><span class="no"><a href="#L38">38</a></span><span class="tx">    aarch64|arm64) ARCH=&quot;arm64&quot; ;;</span></div>
+<div class="l" id="L39"><span class="no"><a href="#L39">39</a></span><span class="tx">    *) error &quot;Unsupported architecture: $ARCH&quot; ;;</span></div>
+<div class="l" id="L40"><span class="no"><a href="#L40">40</a></span><span class="tx">esac</span></div>
+<div class="l" id="L41"><span class="no"><a href="#L41">41</a></span><span class="tx"> </span></div>
+<div class="l" id="L42"><span class="no"><a href="#L42">42</a></span><span class="tx">VER_PARAM=&quot;${OLLAMA_VERSION:+?version=$OLLAMA_VERSION}&quot;</span></div>
+<div class="l" id="L43"><span class="no"><a href="#L43">43</a></span><span class="tx"> </span></div>
+<div class="l c" id="L44"><span class="no"><a href="#L44">44</a></span><span class="tx">###########################################</span></div>
+<div class="l c" id="L45"><span class="no"><a href="#L45">45</a></span><span class="tx"># macOS</span></div>
+<div class="l c" id="L46"><span class="no"><a href="#L46">46</a></span><span class="tx">###########################################</span></div>
+<div class="l" id="L47"><span class="no"><a href="#L47">47</a></span><span class="tx"> </span></div>
+<div class="l" id="L48"><span class="no"><a href="#L48">48</a></span><span class="tx">if [ &quot;$OS&quot; = &quot;Darwin&quot; ]; then</span></div>
+<div class="l" id="L49"><span class="no"><a href="#L49">49</a></span><span class="tx">    NEEDS=$(require curl unzip)</span></div>
+<div class="l" id="L50"><span class="no"><a href="#L50">50</a></span><span class="tx">    if [ -n &quot;$NEEDS&quot; ]; then</span></div>
+<div class="l" id="L51"><span class="no"><a href="#L51">51</a></span><span class="tx">        status &quot;ERROR: The following tools are required but missing:&quot;</span></div>
+<div class="l" id="L52"><span class="no"><a href="#L52">52</a></span><span class="tx">        for NEED in $NEEDS; do</span></div>
+<div class="l" id="L53"><span class="no"><a href="#L53">53</a></span><span class="tx">            echo &quot;  - $NEED&quot;</span></div>
+<div class="l" id="L54"><span class="no"><a href="#L54">54</a></span><span class="tx">        done</span></div>
+<div class="l" id="L55"><span class="no"><a href="#L55">55</a></span><span class="tx">        exit 1</span></div>
+<div class="l" id="L56"><span class="no"><a href="#L56">56</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L57"><span class="no"><a href="#L57">57</a></span><span class="tx"> </span></div>
+<div class="l" id="L58"><span class="no"><a href="#L58">58</a></span><span class="tx">    DOWNLOAD_URL=&quot;https://ollama.com/download/Ollama-darwin.zip${VER_PARAM}&quot;</span></div>
+<div class="l" id="L59"><span class="no"><a href="#L59">59</a></span><span class="tx"> </span></div>
+<div class="l" id="L60"><span class="no"><a href="#L60">60</a></span><span class="tx">    if pgrep -x Ollama &gt;/dev/null 2&gt;&amp;1; then</span></div>
+<div class="l" id="L61"><span class="no"><a href="#L61">61</a></span><span class="tx">        status &quot;Stopping running Ollama instance...&quot;</span></div>
+<div class="l" id="L62"><span class="no"><a href="#L62">62</a></span><span class="tx">        pkill -x Ollama 2&gt;/dev/null || true</span></div>
+<div class="l" id="L63"><span class="no"><a href="#L63">63</a></span><span class="tx">        sleep 2</span></div>
+<div class="l" id="L64"><span class="no"><a href="#L64">64</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L65"><span class="no"><a href="#L65">65</a></span><span class="tx"> </span></div>
+<div class="l" id="L66"><span class="no"><a href="#L66">66</a></span><span class="tx">    if [ -d &quot;/Applications/Ollama.app&quot; ]; then</span></div>
+<div class="l" id="L67"><span class="no"><a href="#L67">67</a></span><span class="tx">        status &quot;Removing existing Ollama installation...&quot;</span></div>
+<div class="l" id="L68"><span class="no"><a href="#L68">68</a></span><span class="tx">        rm -rf &quot;/Applications/Ollama.app&quot;</span></div>
+<div class="l" id="L69"><span class="no"><a href="#L69">69</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L70"><span class="no"><a href="#L70">70</a></span><span class="tx"> </span></div>
+<div class="l" id="L71"><span class="no"><a href="#L71">71</a></span><span class="tx">    status &quot;Downloading Ollama for macOS...&quot;</span></div>
+<div class="l" id="L72"><span class="no"><a href="#L72">72</a></span><span class="tx">    curl --fail --show-error --location --progress-bar \</span></div>
+<div class="l" id="L73"><span class="no"><a href="#L73">73</a></span><span class="tx">        -o &quot;$TEMP_DIR/Ollama-darwin.zip&quot; &quot;$DOWNLOAD_URL&quot;</span></div>
+<div class="l" id="L74"><span class="no"><a href="#L74">74</a></span><span class="tx"> </span></div>
+<div class="l" id="L75"><span class="no"><a href="#L75">75</a></span><span class="tx">    status &quot;Installing Ollama to /Applications...&quot;</span></div>
+<div class="l" id="L76"><span class="no"><a href="#L76">76</a></span><span class="tx">    unzip -q &quot;$TEMP_DIR/Ollama-darwin.zip&quot; -d &quot;$TEMP_DIR&quot;</span></div>
+<div class="l" id="L77"><span class="no"><a href="#L77">77</a></span><span class="tx">    mv &quot;$TEMP_DIR/Ollama.app&quot; &quot;/Applications/&quot;</span></div>
+<div class="l" id="L78"><span class="no"><a href="#L78">78</a></span><span class="tx"> </span></div>
+<div class="l" id="L79"><span class="no"><a href="#L79">79</a></span><span class="tx">    if [ ! -L &quot;/usr/local/bin/ollama&quot; ] || [ &quot;$(readlink &quot;/usr/local/bin/ollama&quot;)&quot; != &quot;/Applications/Ollama.app/Contents/Resources/ollama&quot; ]; then</span></div>
+<div class="l" id="L80"><span class="no"><a href="#L80">80</a></span><span class="tx">        status &quot;Adding &#x27;ollama&#x27; command to PATH (may require password)...&quot;</span></div>
+<div class="l r" id="L81"><span class="no"><a href="#L81">81</a></span><span class="tx">        mkdir -p &quot;/usr/local/bin&quot; 2&gt;/dev/null || sudo mkdir -p &quot;/usr/local/bin&quot;</span></div>
+<div class="l" id="L82"><span class="no"><a href="#L82">82</a></span><span class="tx">        ln -sf &quot;/Applications/Ollama.app/Contents/Resources/ollama&quot; &quot;/usr/local/bin/ollama&quot; 2&gt;/dev/null || \</span></div>
+<div class="l r" id="L83"><span class="no"><a href="#L83">83</a></span><span class="tx">            sudo ln -sf &quot;/Applications/Ollama.app/Contents/Resources/ollama&quot; &quot;/usr/local/bin/ollama&quot;</span></div>
+<div class="l" id="L84"><span class="no"><a href="#L84">84</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L85"><span class="no"><a href="#L85">85</a></span><span class="tx"> </span></div>
+<div class="l" id="L86"><span class="no"><a href="#L86">86</a></span><span class="tx">    if [ -z &quot;${OLLAMA_NO_START:-}&quot; ]; then</span></div>
+<div class="l" id="L87"><span class="no"><a href="#L87">87</a></span><span class="tx">        status &quot;Starting Ollama...&quot;</span></div>
+<div class="l" id="L88"><span class="no"><a href="#L88">88</a></span><span class="tx">        open -a Ollama --args hidden</span></div>
+<div class="l" id="L89"><span class="no"><a href="#L89">89</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L90"><span class="no"><a href="#L90">90</a></span><span class="tx"> </span></div>
+<div class="l" id="L91"><span class="no"><a href="#L91">91</a></span><span class="tx">    status &quot;Install complete. You can now run &#x27;ollama&#x27;.&quot;</span></div>
+<div class="l" id="L92"><span class="no"><a href="#L92">92</a></span><span class="tx">    exit 0</span></div>
+<div class="l" id="L93"><span class="no"><a href="#L93">93</a></span><span class="tx">fi</span></div>
+<div class="l" id="L94"><span class="no"><a href="#L94">94</a></span><span class="tx"> </span></div>
+<div class="l c" id="L95"><span class="no"><a href="#L95">95</a></span><span class="tx">###########################################</span></div>
+<div class="l c" id="L96"><span class="no"><a href="#L96">96</a></span><span class="tx"># Linux</span></div>
+<div class="l c" id="L97"><span class="no"><a href="#L97">97</a></span><span class="tx">###########################################</span></div>
+<div class="l" id="L98"><span class="no"><a href="#L98">98</a></span><span class="tx"> </span></div>
+<div class="l" id="L99"><span class="no"><a href="#L99">99</a></span><span class="tx">[ &quot;$OS&quot; = &quot;Linux&quot; ] || error &#x27;This script is intended to run on Linux and macOS only.&#x27;</span></div>
+<div class="l" id="L100"><span class="no"><a href="#L100">100</a></span><span class="tx"> </span></div>
+<div class="l" id="L101"><span class="no"><a href="#L101">101</a></span><span class="tx">IS_WSL2=false</span></div>
+<div class="l" id="L102"><span class="no"><a href="#L102">102</a></span><span class="tx"> </span></div>
+<div class="l" id="L103"><span class="no"><a href="#L103">103</a></span><span class="tx">KERN=$(uname -r)</span></div>
+<div class="l" id="L104"><span class="no"><a href="#L104">104</a></span><span class="tx">case &quot;$KERN&quot; in</span></div>
+<div class="l" id="L105"><span class="no"><a href="#L105">105</a></span><span class="tx">    *icrosoft*WSL2 | *icrosoft*wsl2) IS_WSL2=true;;</span></div>
+<div class="l" id="L106"><span class="no"><a href="#L106">106</a></span><span class="tx">    *icrosoft) error &quot;Microsoft WSL1 is not currently supported. Please use WSL2 with &#x27;wsl --set-version &lt;distro&gt; 2&#x27;&quot; ;;</span></div>
+<div class="l" id="L107"><span class="no"><a href="#L107">107</a></span><span class="tx">    *) ;;</span></div>
+<div class="l" id="L108"><span class="no"><a href="#L108">108</a></span><span class="tx">esac</span></div>
+<div class="l" id="L109"><span class="no"><a href="#L109">109</a></span><span class="tx"> </span></div>
+<div class="l" id="L110"><span class="no"><a href="#L110">110</a></span><span class="tx">SUDO=</span></div>
+<div class="l" id="L111"><span class="no"><a href="#L111">111</a></span><span class="tx">if [ &quot;$(id -u)&quot; -ne 0 ]; then</span></div>
+<div class="l c" id="L112"><span class="no"><a href="#L112">112</a></span><span class="tx">    # Running as root, no need for sudo</span></div>
+<div class="l" id="L113"><span class="no"><a href="#L113">113</a></span><span class="tx">    if ! available sudo; then</span></div>
+<div class="l" id="L114"><span class="no"><a href="#L114">114</a></span><span class="tx">        error &quot;This script requires superuser permissions. Please re-run as root.&quot;</span></div>
+<div class="l" id="L115"><span class="no"><a href="#L115">115</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L116"><span class="no"><a href="#L116">116</a></span><span class="tx"> </span></div>
+<div class="l" id="L117"><span class="no"><a href="#L117">117</a></span><span class="tx">    SUDO=&quot;sudo&quot;</span></div>
+<div class="l" id="L118"><span class="no"><a href="#L118">118</a></span><span class="tx">fi</span></div>
+<div class="l" id="L119"><span class="no"><a href="#L119">119</a></span><span class="tx"> </span></div>
+<div class="l" id="L120"><span class="no"><a href="#L120">120</a></span><span class="tx">NEEDS=$(require curl awk grep sed tee xargs)</span></div>
+<div class="l" id="L121"><span class="no"><a href="#L121">121</a></span><span class="tx">if [ -n &quot;$NEEDS&quot; ]; then</span></div>
+<div class="l" id="L122"><span class="no"><a href="#L122">122</a></span><span class="tx">    status &quot;ERROR: The following tools are required but missing:&quot;</span></div>
+<div class="l" id="L123"><span class="no"><a href="#L123">123</a></span><span class="tx">    for NEED in $NEEDS; do</span></div>
+<div class="l" id="L124"><span class="no"><a href="#L124">124</a></span><span class="tx">        echo &quot;  - $NEED&quot;</span></div>
+<div class="l" id="L125"><span class="no"><a href="#L125">125</a></span><span class="tx">    done</span></div>
+<div class="l" id="L126"><span class="no"><a href="#L126">126</a></span><span class="tx">    exit 1</span></div>
+<div class="l" id="L127"><span class="no"><a href="#L127">127</a></span><span class="tx">fi</span></div>
+<div class="l" id="L128"><span class="no"><a href="#L128">128</a></span><span class="tx"> </span></div>
+<div class="l c" id="L129"><span class="no"><a href="#L129">129</a></span><span class="tx"># Function to download and extract with fallback from zst to tgz</span></div>
+<div class="l" id="L130"><span class="no"><a href="#L130">130</a></span><span class="tx">download_and_extract() {</span></div>
+<div class="l" id="L131"><span class="no"><a href="#L131">131</a></span><span class="tx">    local url_base=&quot;$1&quot;</span></div>
+<div class="l" id="L132"><span class="no"><a href="#L132">132</a></span><span class="tx">    local dest_dir=&quot;$2&quot;</span></div>
+<div class="l" id="L133"><span class="no"><a href="#L133">133</a></span><span class="tx">    local filename=&quot;$3&quot;</span></div>
+<div class="l" id="L134"><span class="no"><a href="#L134">134</a></span><span class="tx"> </span></div>
+<div class="l c" id="L135"><span class="no"><a href="#L135">135</a></span><span class="tx">    # Check if .tar.zst is available</span></div>
+<div class="l" id="L136"><span class="no"><a href="#L136">136</a></span><span class="tx">    if curl --fail --silent --head --location &quot;${url_base}/${filename}.tar.zst${VER_PARAM}&quot; &gt;/dev/null 2&gt;&amp;1; then</span></div>
+<div class="l c" id="L137"><span class="no"><a href="#L137">137</a></span><span class="tx">        # zst file exists - check if we have zstd tool</span></div>
+<div class="l" id="L138"><span class="no"><a href="#L138">138</a></span><span class="tx">        if ! available zstd; then</span></div>
+<div class="l" id="L139"><span class="no"><a href="#L139">139</a></span><span class="tx">            error &quot;This version requires zstd for extraction. Please install zstd and try again:</span></div>
+<div class="l" id="L140"><span class="no"><a href="#L140">140</a></span><span class="tx">  - Debian/Ubuntu: sudo apt-get install zstd</span></div>
+<div class="l" id="L141"><span class="no"><a href="#L141">141</a></span><span class="tx">  - RHEL/CentOS/Fedora: sudo dnf install zstd</span></div>
+<div class="l" id="L142"><span class="no"><a href="#L142">142</a></span><span class="tx">  - Arch: sudo pacman -S zstd&quot;</span></div>
+<div class="l" id="L143"><span class="no"><a href="#L143">143</a></span><span class="tx">        fi</span></div>
+<div class="l" id="L144"><span class="no"><a href="#L144">144</a></span><span class="tx"> </span></div>
+<div class="l" id="L145"><span class="no"><a href="#L145">145</a></span><span class="tx">        status &quot;Downloading ${filename}.tar.zst&quot;</span></div>
+<div class="l" id="L146"><span class="no"><a href="#L146">146</a></span><span class="tx">        curl --fail --show-error --location --progress-bar \</span></div>
+<div class="l" id="L147"><span class="no"><a href="#L147">147</a></span><span class="tx">            &quot;${url_base}/${filename}.tar.zst${VER_PARAM}&quot; | \</span></div>
+<div class="l r" id="L148"><span class="no"><a href="#L148">148</a></span><span class="tx">            zstd -d | $SUDO tar -xf - -C &quot;${dest_dir}&quot;</span></div>
+<div class="l" id="L149"><span class="no"><a href="#L149">149</a></span><span class="tx">        return 0</span></div>
+<div class="l" id="L150"><span class="no"><a href="#L150">150</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L151"><span class="no"><a href="#L151">151</a></span><span class="tx"> </span></div>
+<div class="l c" id="L152"><span class="no"><a href="#L152">152</a></span><span class="tx">    # Fall back to .tgz for older versions</span></div>
+<div class="l" id="L153"><span class="no"><a href="#L153">153</a></span><span class="tx">    status &quot;Downloading ${filename}.tgz&quot;</span></div>
+<div class="l" id="L154"><span class="no"><a href="#L154">154</a></span><span class="tx">    curl --fail --show-error --location --progress-bar \</span></div>
+<div class="l" id="L155"><span class="no"><a href="#L155">155</a></span><span class="tx">        &quot;${url_base}/${filename}.tgz${VER_PARAM}&quot; | \</span></div>
+<div class="l r" id="L156"><span class="no"><a href="#L156">156</a></span><span class="tx">        $SUDO tar -xzf - -C &quot;${dest_dir}&quot;</span></div>
+<div class="l" id="L157"><span class="no"><a href="#L157">157</a></span><span class="tx">}</span></div>
+<div class="l" id="L158"><span class="no"><a href="#L158">158</a></span><span class="tx"> </span></div>
+<div class="l" id="L159"><span class="no"><a href="#L159">159</a></span><span class="tx">for BINDIR in /usr/local/bin /usr/bin /bin; do</span></div>
+<div class="l" id="L160"><span class="no"><a href="#L160">160</a></span><span class="tx">    echo $PATH | grep -q $BINDIR &amp;&amp; break || continue</span></div>
+<div class="l" id="L161"><span class="no"><a href="#L161">161</a></span><span class="tx">done</span></div>
+<div class="l" id="L162"><span class="no"><a href="#L162">162</a></span><span class="tx">OLLAMA_INSTALL_DIR=$(dirname ${BINDIR})</span></div>
+<div class="l" id="L163"><span class="no"><a href="#L163">163</a></span><span class="tx"> </span></div>
+<div class="l" id="L164"><span class="no"><a href="#L164">164</a></span><span class="tx">if [ -d &quot;$OLLAMA_INSTALL_DIR/lib/ollama&quot; ] ; then</span></div>
+<div class="l" id="L165"><span class="no"><a href="#L165">165</a></span><span class="tx">    status &quot;Cleaning up old version at $OLLAMA_INSTALL_DIR/lib/ollama&quot;</span></div>
+<div class="l r" id="L166"><span class="no"><a href="#L166">166</a></span><span class="tx">    $SUDO rm -rf &quot;$OLLAMA_INSTALL_DIR/lib/ollama&quot;</span></div>
+<div class="l" id="L167"><span class="no"><a href="#L167">167</a></span><span class="tx">fi</span></div>
+<div class="l" id="L168"><span class="no"><a href="#L168">168</a></span><span class="tx">status &quot;Installing ollama to $OLLAMA_INSTALL_DIR&quot;</span></div>
+<div class="l r" id="L169"><span class="no"><a href="#L169">169</a></span><span class="tx">$SUDO install -o0 -g0 -m755 -d $BINDIR</span></div>
+<div class="l r" id="L170"><span class="no"><a href="#L170">170</a></span><span class="tx">$SUDO install -o0 -g0 -m755 -d &quot;$OLLAMA_INSTALL_DIR/lib/ollama&quot;</span></div>
+<div class="l" id="L171"><span class="no"><a href="#L171">171</a></span><span class="tx">download_and_extract &quot;https://ollama.com/download&quot; &quot;$OLLAMA_INSTALL_DIR&quot; &quot;ollama-linux-${ARCH}&quot;</span></div>
+<div class="l" id="L172"><span class="no"><a href="#L172">172</a></span><span class="tx"> </span></div>
+<div class="l" id="L173"><span class="no"><a href="#L173">173</a></span><span class="tx">if [ &quot;$OLLAMA_INSTALL_DIR/bin/ollama&quot; != &quot;$BINDIR/ollama&quot; ] ; then</span></div>
+<div class="l" id="L174"><span class="no"><a href="#L174">174</a></span><span class="tx">    status &quot;Making ollama accessible in the PATH in $BINDIR&quot;</span></div>
+<div class="l r" id="L175"><span class="no"><a href="#L175">175</a></span><span class="tx">    $SUDO ln -sf &quot;$OLLAMA_INSTALL_DIR/ollama&quot; &quot;$BINDIR/ollama&quot;</span></div>
+<div class="l" id="L176"><span class="no"><a href="#L176">176</a></span><span class="tx">fi</span></div>
+<div class="l" id="L177"><span class="no"><a href="#L177">177</a></span><span class="tx"> </span></div>
+<div class="l c" id="L178"><span class="no"><a href="#L178">178</a></span><span class="tx"># Check for NVIDIA JetPack systems with additional downloads</span></div>
+<div class="l" id="L179"><span class="no"><a href="#L179">179</a></span><span class="tx">if [ -f /etc/nv_tegra_release ] ; then</span></div>
+<div class="l" id="L180"><span class="no"><a href="#L180">180</a></span><span class="tx">    if grep R36 /etc/nv_tegra_release &gt; /dev/null ; then</span></div>
+<div class="l" id="L181"><span class="no"><a href="#L181">181</a></span><span class="tx">        download_and_extract &quot;https://ollama.com/download&quot; &quot;$OLLAMA_INSTALL_DIR&quot; &quot;ollama-linux-${ARCH}-jetpack6&quot;</span></div>
+<div class="l" id="L182"><span class="no"><a href="#L182">182</a></span><span class="tx">    elif grep R35 /etc/nv_tegra_release &gt; /dev/null ; then</span></div>
+<div class="l" id="L183"><span class="no"><a href="#L183">183</a></span><span class="tx">        download_and_extract &quot;https://ollama.com/download&quot; &quot;$OLLAMA_INSTALL_DIR&quot; &quot;ollama-linux-${ARCH}-jetpack5&quot;</span></div>
+<div class="l" id="L184"><span class="no"><a href="#L184">184</a></span><span class="tx">    else</span></div>
+<div class="l" id="L185"><span class="no"><a href="#L185">185</a></span><span class="tx">        warning &quot;Unsupported JetPack version detected.  GPU may not be supported&quot;</span></div>
+<div class="l" id="L186"><span class="no"><a href="#L186">186</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L187"><span class="no"><a href="#L187">187</a></span><span class="tx">fi</span></div>
+<div class="l" id="L188"><span class="no"><a href="#L188">188</a></span><span class="tx"> </span></div>
+<div class="l" id="L189"><span class="no"><a href="#L189">189</a></span><span class="tx">install_success() {</span></div>
+<div class="l" id="L190"><span class="no"><a href="#L190">190</a></span><span class="tx">    status &#x27;The Ollama API is now available at 127.0.0.1:11434.&#x27;</span></div>
+<div class="l" id="L191"><span class="no"><a href="#L191">191</a></span><span class="tx">    status &#x27;Install complete. Run &quot;ollama&quot; from the command line.&#x27;</span></div>
+<div class="l" id="L192"><span class="no"><a href="#L192">192</a></span><span class="tx">}</span></div>
+<div class="l" id="L193"><span class="no"><a href="#L193">193</a></span><span class="tx">trap install_success EXIT</span></div>
+<div class="l" id="L194"><span class="no"><a href="#L194">194</a></span><span class="tx"> </span></div>
+<div class="l c" id="L195"><span class="no"><a href="#L195">195</a></span><span class="tx"># Everything from this point onwards is optional.</span></div>
+<div class="l" id="L196"><span class="no"><a href="#L196">196</a></span><span class="tx"> </span></div>
+<div class="l" id="L197"><span class="no"><a href="#L197">197</a></span><span class="tx">configure_systemd() {</span></div>
+<div class="l" id="L198"><span class="no"><a href="#L198">198</a></span><span class="tx">    if ! id ollama &gt;/dev/null 2&gt;&amp;1; then</span></div>
+<div class="l" id="L199"><span class="no"><a href="#L199">199</a></span><span class="tx">        status &quot;Creating ollama user...&quot;</span></div>
+<div class="l r" id="L200"><span class="no"><a href="#L200">200</a></span><span class="tx">        $SUDO useradd -r -s /bin/false -U -m -d /usr/share/ollama ollama</span></div>
+<div class="l" id="L201"><span class="no"><a href="#L201">201</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L202"><span class="no"><a href="#L202">202</a></span><span class="tx">    if getent group render &gt;/dev/null 2&gt;&amp;1; then</span></div>
+<div class="l" id="L203"><span class="no"><a href="#L203">203</a></span><span class="tx">        status &quot;Adding ollama user to render group...&quot;</span></div>
+<div class="l r" id="L204"><span class="no"><a href="#L204">204</a></span><span class="tx">        $SUDO usermod -a -G render ollama</span></div>
+<div class="l" id="L205"><span class="no"><a href="#L205">205</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L206"><span class="no"><a href="#L206">206</a></span><span class="tx">    if getent group video &gt;/dev/null 2&gt;&amp;1; then</span></div>
+<div class="l" id="L207"><span class="no"><a href="#L207">207</a></span><span class="tx">        status &quot;Adding ollama user to video group...&quot;</span></div>
+<div class="l r" id="L208"><span class="no"><a href="#L208">208</a></span><span class="tx">        $SUDO usermod -a -G video ollama</span></div>
+<div class="l" id="L209"><span class="no"><a href="#L209">209</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L210"><span class="no"><a href="#L210">210</a></span><span class="tx"> </span></div>
+<div class="l" id="L211"><span class="no"><a href="#L211">211</a></span><span class="tx">    status &quot;Adding current user to ollama group...&quot;</span></div>
+<div class="l r" id="L212"><span class="no"><a href="#L212">212</a></span><span class="tx">    $SUDO usermod -a -G ollama $(whoami)</span></div>
+<div class="l" id="L213"><span class="no"><a href="#L213">213</a></span><span class="tx"> </span></div>
+<div class="l" id="L214"><span class="no"><a href="#L214">214</a></span><span class="tx">    status &quot;Creating ollama systemd service...&quot;</span></div>
+<div class="l r" id="L215"><span class="no"><a href="#L215">215</a></span><span class="tx">    cat &lt;&lt;EOF | $SUDO tee /etc/systemd/system/ollama.service &gt;/dev/null</span></div>
+<div class="l" id="L216"><span class="no"><a href="#L216">216</a></span><span class="tx">[Unit]</span></div>
+<div class="l" id="L217"><span class="no"><a href="#L217">217</a></span><span class="tx">Description=Ollama Service</span></div>
+<div class="l" id="L218"><span class="no"><a href="#L218">218</a></span><span class="tx">After=network-online.target</span></div>
+<div class="l" id="L219"><span class="no"><a href="#L219">219</a></span><span class="tx"> </span></div>
+<div class="l" id="L220"><span class="no"><a href="#L220">220</a></span><span class="tx">[Service]</span></div>
+<div class="l" id="L221"><span class="no"><a href="#L221">221</a></span><span class="tx">ExecStart=$BINDIR/ollama serve</span></div>
+<div class="l" id="L222"><span class="no"><a href="#L222">222</a></span><span class="tx">User=ollama</span></div>
+<div class="l" id="L223"><span class="no"><a href="#L223">223</a></span><span class="tx">Group=ollama</span></div>
+<div class="l" id="L224"><span class="no"><a href="#L224">224</a></span><span class="tx">Restart=always</span></div>
+<div class="l" id="L225"><span class="no"><a href="#L225">225</a></span><span class="tx">RestartSec=3</span></div>
+<div class="l" id="L226"><span class="no"><a href="#L226">226</a></span><span class="tx">Environment=&quot;PATH=$PATH&quot;</span></div>
+<div class="l" id="L227"><span class="no"><a href="#L227">227</a></span><span class="tx"> </span></div>
+<div class="l" id="L228"><span class="no"><a href="#L228">228</a></span><span class="tx">[Install]</span></div>
+<div class="l" id="L229"><span class="no"><a href="#L229">229</a></span><span class="tx">WantedBy=default.target</span></div>
+<div class="l" id="L230"><span class="no"><a href="#L230">230</a></span><span class="tx">EOF</span></div>
+<div class="l" id="L231"><span class="no"><a href="#L231">231</a></span><span class="tx">    SYSTEMCTL_RUNNING=&quot;$(systemctl is-system-running || true)&quot;</span></div>
+<div class="l" id="L232"><span class="no"><a href="#L232">232</a></span><span class="tx">    case $SYSTEMCTL_RUNNING in</span></div>
+<div class="l" id="L233"><span class="no"><a href="#L233">233</a></span><span class="tx">        running|degraded)</span></div>
+<div class="l" id="L234"><span class="no"><a href="#L234">234</a></span><span class="tx">            status &quot;Enabling and starting ollama service...&quot;</span></div>
+<div class="l r" id="L235"><span class="no"><a href="#L235">235</a></span><span class="tx">            $SUDO systemctl daemon-reload</span></div>
+<div class="l r" id="L236"><span class="no"><a href="#L236">236</a></span><span class="tx">            $SUDO systemctl enable ollama</span></div>
+<div class="l" id="L237"><span class="no"><a href="#L237">237</a></span><span class="tx"> </span></div>
+<div class="l r" id="L238"><span class="no"><a href="#L238">238</a></span><span class="tx">            start_service() { $SUDO systemctl restart ollama; }</span></div>
+<div class="l" id="L239"><span class="no"><a href="#L239">239</a></span><span class="tx">            trap start_service EXIT</span></div>
+<div class="l" id="L240"><span class="no"><a href="#L240">240</a></span><span class="tx">            ;;</span></div>
+<div class="l" id="L241"><span class="no"><a href="#L241">241</a></span><span class="tx">        *)</span></div>
+<div class="l" id="L242"><span class="no"><a href="#L242">242</a></span><span class="tx">            warning &quot;systemd is not running&quot;</span></div>
+<div class="l" id="L243"><span class="no"><a href="#L243">243</a></span><span class="tx">            if [ &quot;$IS_WSL2&quot; = true ]; then</span></div>
+<div class="l" id="L244"><span class="no"><a href="#L244">244</a></span><span class="tx">                warning &quot;see https://learn.microsoft.com/en-us/windows/wsl/systemd#how-to-enable-systemd to enable it&quot;</span></div>
+<div class="l" id="L245"><span class="no"><a href="#L245">245</a></span><span class="tx">            fi</span></div>
+<div class="l" id="L246"><span class="no"><a href="#L246">246</a></span><span class="tx">            ;;</span></div>
+<div class="l" id="L247"><span class="no"><a href="#L247">247</a></span><span class="tx">    esac</span></div>
+<div class="l" id="L248"><span class="no"><a href="#L248">248</a></span><span class="tx">}</span></div>
+<div class="l" id="L249"><span class="no"><a href="#L249">249</a></span><span class="tx"> </span></div>
+<div class="l" id="L250"><span class="no"><a href="#L250">250</a></span><span class="tx">if available systemctl; then</span></div>
+<div class="l" id="L251"><span class="no"><a href="#L251">251</a></span><span class="tx">    configure_systemd</span></div>
+<div class="l" id="L252"><span class="no"><a href="#L252">252</a></span><span class="tx">fi</span></div>
+<div class="l" id="L253"><span class="no"><a href="#L253">253</a></span><span class="tx"> </span></div>
+<div class="l c" id="L254"><span class="no"><a href="#L254">254</a></span><span class="tx"># WSL2 only supports GPUs via nvidia passthrough</span></div>
+<div class="l c" id="L255"><span class="no"><a href="#L255">255</a></span><span class="tx"># so check for nvidia-smi to determine if GPU is available</span></div>
+<div class="l" id="L256"><span class="no"><a href="#L256">256</a></span><span class="tx">if [ &quot;$IS_WSL2&quot; = true ]; then</span></div>
+<div class="l" id="L257"><span class="no"><a href="#L257">257</a></span><span class="tx">    if available nvidia-smi &amp;&amp; [ -n &quot;$(nvidia-smi | grep -o &quot;CUDA Version: [0-9]*\.[0-9]*&quot;)&quot; ]; then</span></div>
+<div class="l" id="L258"><span class="no"><a href="#L258">258</a></span><span class="tx">        status &quot;Nvidia GPU detected.&quot;</span></div>
+<div class="l" id="L259"><span class="no"><a href="#L259">259</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L260"><span class="no"><a href="#L260">260</a></span><span class="tx">    install_success</span></div>
+<div class="l" id="L261"><span class="no"><a href="#L261">261</a></span><span class="tx">    exit 0</span></div>
+<div class="l" id="L262"><span class="no"><a href="#L262">262</a></span><span class="tx">fi</span></div>
+<div class="l" id="L263"><span class="no"><a href="#L263">263</a></span><span class="tx"> </span></div>
+<div class="l c" id="L264"><span class="no"><a href="#L264">264</a></span><span class="tx"># Don&#x27;t attempt to install drivers on Jetson systems</span></div>
+<div class="l" id="L265"><span class="no"><a href="#L265">265</a></span><span class="tx">if [ -f /etc/nv_tegra_release ] ; then</span></div>
+<div class="l" id="L266"><span class="no"><a href="#L266">266</a></span><span class="tx">    status &quot;NVIDIA JetPack ready.&quot;</span></div>
+<div class="l" id="L267"><span class="no"><a href="#L267">267</a></span><span class="tx">    install_success</span></div>
+<div class="l" id="L268"><span class="no"><a href="#L268">268</a></span><span class="tx">    exit 0</span></div>
+<div class="l" id="L269"><span class="no"><a href="#L269">269</a></span><span class="tx">fi</span></div>
+<div class="l" id="L270"><span class="no"><a href="#L270">270</a></span><span class="tx"> </span></div>
+<div class="l c" id="L271"><span class="no"><a href="#L271">271</a></span><span class="tx"># Install GPU dependencies on Linux</span></div>
+<div class="l" id="L272"><span class="no"><a href="#L272">272</a></span><span class="tx">if ! available lspci &amp;&amp; ! available lshw; then</span></div>
+<div class="l" id="L273"><span class="no"><a href="#L273">273</a></span><span class="tx">    warning &quot;Unable to detect NVIDIA/AMD GPU. Install lspci or lshw to automatically detect and install GPU dependencies.&quot;</span></div>
+<div class="l" id="L274"><span class="no"><a href="#L274">274</a></span><span class="tx">    exit 0</span></div>
+<div class="l" id="L275"><span class="no"><a href="#L275">275</a></span><span class="tx">fi</span></div>
+<div class="l" id="L276"><span class="no"><a href="#L276">276</a></span><span class="tx"> </span></div>
+<div class="l" id="L277"><span class="no"><a href="#L277">277</a></span><span class="tx">check_gpu() {</span></div>
+<div class="l c" id="L278"><span class="no"><a href="#L278">278</a></span><span class="tx">    # Look for devices based on vendor ID for NVIDIA and AMD</span></div>
+<div class="l" id="L279"><span class="no"><a href="#L279">279</a></span><span class="tx">    case $1 in</span></div>
+<div class="l" id="L280"><span class="no"><a href="#L280">280</a></span><span class="tx">        lspci)</span></div>
+<div class="l" id="L281"><span class="no"><a href="#L281">281</a></span><span class="tx">            case $2 in</span></div>
+<div class="l" id="L282"><span class="no"><a href="#L282">282</a></span><span class="tx">                nvidia) available lspci &amp;&amp; lspci -d &#x27;10de:&#x27; | grep -q &#x27;NVIDIA&#x27; || return 1 ;;</span></div>
+<div class="l" id="L283"><span class="no"><a href="#L283">283</a></span><span class="tx">                amdgpu) available lspci &amp;&amp; lspci -d &#x27;1002:&#x27; | grep -q &#x27;AMD&#x27; || return 1 ;;</span></div>
+<div class="l" id="L284"><span class="no"><a href="#L284">284</a></span><span class="tx">            esac ;;</span></div>
+<div class="l" id="L285"><span class="no"><a href="#L285">285</a></span><span class="tx">        lshw)</span></div>
+<div class="l" id="L286"><span class="no"><a href="#L286">286</a></span><span class="tx">            case $2 in</span></div>
+<div class="l r" id="L287"><span class="no"><a href="#L287">287</a></span><span class="tx">                nvidia) available lshw &amp;&amp; $SUDO lshw -c display -numeric -disable network | grep -q &#x27;vendor: .* \[10DE\]&#x27; || return 1 ;;</span></div>
+<div class="l r" id="L288"><span class="no"><a href="#L288">288</a></span><span class="tx">                amdgpu) available lshw &amp;&amp; $SUDO lshw -c display -numeric -disable network | grep -q &#x27;vendor: .* \[1002\]&#x27; || return 1 ;;</span></div>
+<div class="l" id="L289"><span class="no"><a href="#L289">289</a></span><span class="tx">            esac ;;</span></div>
+<div class="l" id="L290"><span class="no"><a href="#L290">290</a></span><span class="tx">        nvidia-smi) available nvidia-smi || return 1 ;;</span></div>
+<div class="l" id="L291"><span class="no"><a href="#L291">291</a></span><span class="tx">    esac</span></div>
+<div class="l" id="L292"><span class="no"><a href="#L292">292</a></span><span class="tx">}</span></div>
+<div class="l" id="L293"><span class="no"><a href="#L293">293</a></span><span class="tx"> </span></div>
+<div class="l" id="L294"><span class="no"><a href="#L294">294</a></span><span class="tx">if check_gpu nvidia-smi; then</span></div>
+<div class="l" id="L295"><span class="no"><a href="#L295">295</a></span><span class="tx">    status &quot;NVIDIA GPU installed.&quot;</span></div>
+<div class="l" id="L296"><span class="no"><a href="#L296">296</a></span><span class="tx">    exit 0</span></div>
+<div class="l" id="L297"><span class="no"><a href="#L297">297</a></span><span class="tx">fi</span></div>
+<div class="l" id="L298"><span class="no"><a href="#L298">298</a></span><span class="tx"> </span></div>
+<div class="l" id="L299"><span class="no"><a href="#L299">299</a></span><span class="tx">if ! check_gpu lspci nvidia &amp;&amp; ! check_gpu lshw nvidia &amp;&amp; ! check_gpu lspci amdgpu &amp;&amp; ! check_gpu lshw amdgpu; then</span></div>
+<div class="l" id="L300"><span class="no"><a href="#L300">300</a></span><span class="tx">    install_success</span></div>
+<div class="l" id="L301"><span class="no"><a href="#L301">301</a></span><span class="tx">    warning &quot;No NVIDIA/AMD GPU detected. Ollama will run in CPU-only mode.&quot;</span></div>
+<div class="l" id="L302"><span class="no"><a href="#L302">302</a></span><span class="tx">    exit 0</span></div>
+<div class="l" id="L303"><span class="no"><a href="#L303">303</a></span><span class="tx">fi</span></div>
+<div class="l" id="L304"><span class="no"><a href="#L304">304</a></span><span class="tx"> </span></div>
+<div class="l" id="L305"><span class="no"><a href="#L305">305</a></span><span class="tx">if check_gpu lspci amdgpu || check_gpu lshw amdgpu; then</span></div>
+<div class="l" id="L306"><span class="no"><a href="#L306">306</a></span><span class="tx">    download_and_extract &quot;https://ollama.com/download&quot; &quot;$OLLAMA_INSTALL_DIR&quot; &quot;ollama-linux-${ARCH}-rocm&quot;</span></div>
+<div class="l" id="L307"><span class="no"><a href="#L307">307</a></span><span class="tx"> </span></div>
+<div class="l" id="L308"><span class="no"><a href="#L308">308</a></span><span class="tx">    install_success</span></div>
+<div class="l" id="L309"><span class="no"><a href="#L309">309</a></span><span class="tx">    status &quot;AMD GPU ready.&quot;</span></div>
+<div class="l" id="L310"><span class="no"><a href="#L310">310</a></span><span class="tx">    exit 0</span></div>
+<div class="l" id="L311"><span class="no"><a href="#L311">311</a></span><span class="tx">fi</span></div>
+<div class="l" id="L312"><span class="no"><a href="#L312">312</a></span><span class="tx"> </span></div>
+<div class="l" id="L313"><span class="no"><a href="#L313">313</a></span><span class="tx">CUDA_REPO_ERR_MSG=&quot;NVIDIA GPU detected, but your OS and Architecture are not supported by NVIDIA.  Please install the CUDA driver manually https://docs.nvidia.com/cuda/cuda-installation-guide-linux/&quot;</span></div>
+<div class="l c" id="L314"><span class="no"><a href="#L314">314</a></span><span class="tx"># ref: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#rhel-7-centos-7</span></div>
+<div class="l c" id="L315"><span class="no"><a href="#L315">315</a></span><span class="tx"># ref: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#rhel-8-rocky-8</span></div>
+<div class="l c" id="L316"><span class="no"><a href="#L316">316</a></span><span class="tx"># ref: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#rhel-9-rocky-9</span></div>
+<div class="l c" id="L317"><span class="no"><a href="#L317">317</a></span><span class="tx"># ref: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#fedora</span></div>
+<div class="l" id="L318"><span class="no"><a href="#L318">318</a></span><span class="tx">install_cuda_driver_yum() {</span></div>
+<div class="l" id="L319"><span class="no"><a href="#L319">319</a></span><span class="tx">    status &#x27;Installing NVIDIA repository...&#x27;</span></div>
+<div class="l" id="L320"><span class="no"><a href="#L320">320</a></span><span class="tx">    </span></div>
+<div class="l" id="L321"><span class="no"><a href="#L321">321</a></span><span class="tx">    case $PACKAGE_MANAGER in</span></div>
+<div class="l" id="L322"><span class="no"><a href="#L322">322</a></span><span class="tx">        yum)</span></div>
+<div class="l r" id="L323"><span class="no"><a href="#L323">323</a></span><span class="tx">            $SUDO $PACKAGE_MANAGER -y install yum-utils</span></div>
+<div class="l" id="L324"><span class="no"><a href="#L324">324</a></span><span class="tx">            if curl -I --silent --fail --location &quot;https://developer.download.nvidia.com/compute/cuda/repos/$1$2/$(uname -m | sed -e &#x27;s/aarch64/sbsa/&#x27;)/cuda-$1$2.repo&quot; &gt;/dev/null ; then</span></div>
+<div class="l r" id="L325"><span class="no"><a href="#L325">325</a></span><span class="tx">                $SUDO $PACKAGE_MANAGER-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/$1$2/$(uname -m | sed -e &#x27;s/aarch64/sbsa/&#x27;)/cuda-$1$2.repo</span></div>
+<div class="l" id="L326"><span class="no"><a href="#L326">326</a></span><span class="tx">            else</span></div>
+<div class="l" id="L327"><span class="no"><a href="#L327">327</a></span><span class="tx">                error $CUDA_REPO_ERR_MSG</span></div>
+<div class="l" id="L328"><span class="no"><a href="#L328">328</a></span><span class="tx">            fi</span></div>
+<div class="l" id="L329"><span class="no"><a href="#L329">329</a></span><span class="tx">            ;;</span></div>
+<div class="l" id="L330"><span class="no"><a href="#L330">330</a></span><span class="tx">        dnf)</span></div>
+<div class="l" id="L331"><span class="no"><a href="#L331">331</a></span><span class="tx">            if curl -I --silent --fail --location &quot;https://developer.download.nvidia.com/compute/cuda/repos/$1$2/$(uname -m | sed -e &#x27;s/aarch64/sbsa/&#x27;)/cuda-$1$2.repo&quot; &gt;/dev/null ; then</span></div>
+<div class="l r" id="L332"><span class="no"><a href="#L332">332</a></span><span class="tx">                $SUDO $PACKAGE_MANAGER config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/$1$2/$(uname -m | sed -e &#x27;s/aarch64/sbsa/&#x27;)/cuda-$1$2.repo</span></div>
+<div class="l" id="L333"><span class="no"><a href="#L333">333</a></span><span class="tx">            else</span></div>
+<div class="l" id="L334"><span class="no"><a href="#L334">334</a></span><span class="tx">                error $CUDA_REPO_ERR_MSG</span></div>
+<div class="l" id="L335"><span class="no"><a href="#L335">335</a></span><span class="tx">            fi</span></div>
+<div class="l" id="L336"><span class="no"><a href="#L336">336</a></span><span class="tx">            ;;</span></div>
+<div class="l" id="L337"><span class="no"><a href="#L337">337</a></span><span class="tx">    esac</span></div>
+<div class="l" id="L338"><span class="no"><a href="#L338">338</a></span><span class="tx"> </span></div>
+<div class="l" id="L339"><span class="no"><a href="#L339">339</a></span><span class="tx">    case $1 in</span></div>
+<div class="l" id="L340"><span class="no"><a href="#L340">340</a></span><span class="tx">        rhel)</span></div>
+<div class="l" id="L341"><span class="no"><a href="#L341">341</a></span><span class="tx">            status &#x27;Installing EPEL repository...&#x27;</span></div>
+<div class="l c" id="L342"><span class="no"><a href="#L342">342</a></span><span class="tx">            # EPEL is required for third-party dependencies such as dkms and libvdpau</span></div>
+<div class="l r" id="L343"><span class="no"><a href="#L343">343</a></span><span class="tx">            $SUDO $PACKAGE_MANAGER -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$2.noarch.rpm || true</span></div>
+<div class="l" id="L344"><span class="no"><a href="#L344">344</a></span><span class="tx">            ;;</span></div>
+<div class="l" id="L345"><span class="no"><a href="#L345">345</a></span><span class="tx">    esac</span></div>
+<div class="l" id="L346"><span class="no"><a href="#L346">346</a></span><span class="tx"> </span></div>
+<div class="l" id="L347"><span class="no"><a href="#L347">347</a></span><span class="tx">    status &#x27;Installing CUDA driver...&#x27;</span></div>
+<div class="l" id="L348"><span class="no"><a href="#L348">348</a></span><span class="tx"> </span></div>
+<div class="l" id="L349"><span class="no"><a href="#L349">349</a></span><span class="tx">    if [ &quot;$1&quot; = &#x27;centos&#x27; ] || [ &quot;$1$2&quot; = &#x27;rhel7&#x27; ]; then</span></div>
+<div class="l r" id="L350"><span class="no"><a href="#L350">350</a></span><span class="tx">        $SUDO $PACKAGE_MANAGER -y install nvidia-driver-latest-dkms</span></div>
+<div class="l" id="L351"><span class="no"><a href="#L351">351</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L352"><span class="no"><a href="#L352">352</a></span><span class="tx"> </span></div>
+<div class="l r" id="L353"><span class="no"><a href="#L353">353</a></span><span class="tx">    $SUDO $PACKAGE_MANAGER -y install cuda-drivers</span></div>
+<div class="l" id="L354"><span class="no"><a href="#L354">354</a></span><span class="tx">}</span></div>
+<div class="l" id="L355"><span class="no"><a href="#L355">355</a></span><span class="tx"> </span></div>
+<div class="l c" id="L356"><span class="no"><a href="#L356">356</a></span><span class="tx"># ref: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu</span></div>
+<div class="l c" id="L357"><span class="no"><a href="#L357">357</a></span><span class="tx"># ref: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#debian</span></div>
+<div class="l" id="L358"><span class="no"><a href="#L358">358</a></span><span class="tx">install_cuda_driver_apt() {</span></div>
+<div class="l" id="L359"><span class="no"><a href="#L359">359</a></span><span class="tx">    status &#x27;Installing NVIDIA repository...&#x27;</span></div>
+<div class="l" id="L360"><span class="no"><a href="#L360">360</a></span><span class="tx">    if curl -I --silent --fail --location &quot;https://developer.download.nvidia.com/compute/cuda/repos/$1$2/$(uname -m | sed -e &#x27;s/aarch64/sbsa/&#x27;)/cuda-keyring_1.1-1_all.deb&quot; &gt;/dev/null ; then</span></div>
+<div class="l" id="L361"><span class="no"><a href="#L361">361</a></span><span class="tx">        curl -fsSL -o $TEMP_DIR/cuda-keyring.deb https://developer.download.nvidia.com/compute/cuda/repos/$1$2/$(uname -m | sed -e &#x27;s/aarch64/sbsa/&#x27;)/cuda-keyring_1.1-1_all.deb</span></div>
+<div class="l" id="L362"><span class="no"><a href="#L362">362</a></span><span class="tx">    else</span></div>
+<div class="l" id="L363"><span class="no"><a href="#L363">363</a></span><span class="tx">        error $CUDA_REPO_ERR_MSG</span></div>
+<div class="l" id="L364"><span class="no"><a href="#L364">364</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L365"><span class="no"><a href="#L365">365</a></span><span class="tx"> </span></div>
+<div class="l" id="L366"><span class="no"><a href="#L366">366</a></span><span class="tx">    case $1 in</span></div>
+<div class="l" id="L367"><span class="no"><a href="#L367">367</a></span><span class="tx">        debian)</span></div>
+<div class="l" id="L368"><span class="no"><a href="#L368">368</a></span><span class="tx">            status &#x27;Enabling contrib sources...&#x27;</span></div>
+<div class="l r" id="L369"><span class="no"><a href="#L369">369</a></span><span class="tx">            $SUDO sed &#x27;s/main/contrib/&#x27; &lt; /etc/apt/sources.list | $SUDO tee /etc/apt/sources.list.d/contrib.list &gt; /dev/null</span></div>
+<div class="l" id="L370"><span class="no"><a href="#L370">370</a></span><span class="tx">            if [ -f &quot;/etc/apt/sources.list.d/debian.sources&quot; ]; then</span></div>
+<div class="l r" id="L371"><span class="no"><a href="#L371">371</a></span><span class="tx">                $SUDO sed &#x27;s/main/contrib/&#x27; &lt; /etc/apt/sources.list.d/debian.sources | $SUDO tee /etc/apt/sources.list.d/contrib.sources &gt; /dev/null</span></div>
+<div class="l" id="L372"><span class="no"><a href="#L372">372</a></span><span class="tx">            fi</span></div>
+<div class="l" id="L373"><span class="no"><a href="#L373">373</a></span><span class="tx">            ;;</span></div>
+<div class="l" id="L374"><span class="no"><a href="#L374">374</a></span><span class="tx">    esac</span></div>
+<div class="l" id="L375"><span class="no"><a href="#L375">375</a></span><span class="tx"> </span></div>
+<div class="l" id="L376"><span class="no"><a href="#L376">376</a></span><span class="tx">    status &#x27;Installing CUDA driver...&#x27;</span></div>
+<div class="l r" id="L377"><span class="no"><a href="#L377">377</a></span><span class="tx">    $SUDO dpkg -i $TEMP_DIR/cuda-keyring.deb</span></div>
+<div class="l r" id="L378"><span class="no"><a href="#L378">378</a></span><span class="tx">    $SUDO apt-get update</span></div>
+<div class="l" id="L379"><span class="no"><a href="#L379">379</a></span><span class="tx"> </span></div>
+<div class="l" id="L380"><span class="no"><a href="#L380">380</a></span><span class="tx">    [ -n &quot;$SUDO&quot; ] &amp;&amp; SUDO_E=&quot;$SUDO -E&quot; || SUDO_E=</span></div>
+<div class="l r" id="L381"><span class="no"><a href="#L381">381</a></span><span class="tx">    DEBIAN_FRONTEND=noninteractive $SUDO_E apt-get -y install cuda-drivers -q</span></div>
+<div class="l" id="L382"><span class="no"><a href="#L382">382</a></span><span class="tx">}</span></div>
+<div class="l" id="L383"><span class="no"><a href="#L383">383</a></span><span class="tx"> </span></div>
+<div class="l" id="L384"><span class="no"><a href="#L384">384</a></span><span class="tx">if [ ! -f &quot;/etc/os-release&quot; ]; then</span></div>
+<div class="l" id="L385"><span class="no"><a href="#L385">385</a></span><span class="tx">    error &quot;Unknown distribution. Skipping CUDA installation.&quot;</span></div>
+<div class="l" id="L386"><span class="no"><a href="#L386">386</a></span><span class="tx">fi</span></div>
+<div class="l" id="L387"><span class="no"><a href="#L387">387</a></span><span class="tx"> </span></div>
+<div class="l" id="L388"><span class="no"><a href="#L388">388</a></span><span class="tx">. /etc/os-release</span></div>
+<div class="l" id="L389"><span class="no"><a href="#L389">389</a></span><span class="tx"> </span></div>
+<div class="l" id="L390"><span class="no"><a href="#L390">390</a></span><span class="tx">OS_NAME=$ID</span></div>
+<div class="l" id="L391"><span class="no"><a href="#L391">391</a></span><span class="tx">OS_VERSION=$VERSION_ID</span></div>
+<div class="l" id="L392"><span class="no"><a href="#L392">392</a></span><span class="tx"> </span></div>
+<div class="l" id="L393"><span class="no"><a href="#L393">393</a></span><span class="tx">PACKAGE_MANAGER=</span></div>
+<div class="l" id="L394"><span class="no"><a href="#L394">394</a></span><span class="tx">for PACKAGE_MANAGER in dnf yum apt-get; do</span></div>
+<div class="l" id="L395"><span class="no"><a href="#L395">395</a></span><span class="tx">    if available $PACKAGE_MANAGER; then</span></div>
+<div class="l" id="L396"><span class="no"><a href="#L396">396</a></span><span class="tx">        break</span></div>
+<div class="l" id="L397"><span class="no"><a href="#L397">397</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L398"><span class="no"><a href="#L398">398</a></span><span class="tx">done</span></div>
+<div class="l" id="L399"><span class="no"><a href="#L399">399</a></span><span class="tx"> </span></div>
+<div class="l" id="L400"><span class="no"><a href="#L400">400</a></span><span class="tx">if [ -z &quot;$PACKAGE_MANAGER&quot; ]; then</span></div>
+<div class="l" id="L401"><span class="no"><a href="#L401">401</a></span><span class="tx">    error &quot;Unknown package manager. Skipping CUDA installation.&quot;</span></div>
+<div class="l" id="L402"><span class="no"><a href="#L402">402</a></span><span class="tx">fi</span></div>
+<div class="l" id="L403"><span class="no"><a href="#L403">403</a></span><span class="tx"> </span></div>
+<div class="l" id="L404"><span class="no"><a href="#L404">404</a></span><span class="tx">if ! check_gpu nvidia-smi || [ -z &quot;$(nvidia-smi | grep -o &quot;CUDA Version: [0-9]*\.[0-9]*&quot;)&quot; ]; then</span></div>
+<div class="l" id="L405"><span class="no"><a href="#L405">405</a></span><span class="tx">    case $OS_NAME in</span></div>
+<div class="l" id="L406"><span class="no"><a href="#L406">406</a></span><span class="tx">        centos|rhel) install_cuda_driver_yum &#x27;rhel&#x27; $(echo $OS_VERSION | cut -d &#x27;.&#x27; -f 1) ;;</span></div>
+<div class="l" id="L407"><span class="no"><a href="#L407">407</a></span><span class="tx">        rocky) install_cuda_driver_yum &#x27;rhel&#x27; $(echo $OS_VERSION | cut -c1) ;;</span></div>
+<div class="l" id="L408"><span class="no"><a href="#L408">408</a></span><span class="tx">        fedora) [ $OS_VERSION -lt &#x27;39&#x27; ] &amp;&amp; install_cuda_driver_yum $OS_NAME $OS_VERSION || install_cuda_driver_yum $OS_NAME &#x27;39&#x27;;;</span></div>
+<div class="l" id="L409"><span class="no"><a href="#L409">409</a></span><span class="tx">        amzn) install_cuda_driver_yum &#x27;fedora&#x27; &#x27;37&#x27; ;;</span></div>
+<div class="l" id="L410"><span class="no"><a href="#L410">410</a></span><span class="tx">        debian) install_cuda_driver_apt $OS_NAME $OS_VERSION ;;</span></div>
+<div class="l" id="L411"><span class="no"><a href="#L411">411</a></span><span class="tx">        ubuntu) install_cuda_driver_apt $OS_NAME $(echo $OS_VERSION | sed &#x27;s/\.//&#x27;) ;;</span></div>
+<div class="l" id="L412"><span class="no"><a href="#L412">412</a></span><span class="tx">        *) exit ;;</span></div>
+<div class="l" id="L413"><span class="no"><a href="#L413">413</a></span><span class="tx">    esac</span></div>
+<div class="l" id="L414"><span class="no"><a href="#L414">414</a></span><span class="tx">fi</span></div>
+<div class="l" id="L415"><span class="no"><a href="#L415">415</a></span><span class="tx"> </span></div>
+<div class="l" id="L416"><span class="no"><a href="#L416">416</a></span><span class="tx">if ! lsmod | grep -q nvidia || ! lsmod | grep -q nvidia_uvm; then</span></div>
+<div class="l" id="L417"><span class="no"><a href="#L417">417</a></span><span class="tx">    KERNEL_RELEASE=&quot;$(uname -r)&quot;</span></div>
+<div class="l" id="L418"><span class="no"><a href="#L418">418</a></span><span class="tx">    case $OS_NAME in</span></div>
+<div class="l r" id="L419"><span class="no"><a href="#L419">419</a></span><span class="tx">        rocky) $SUDO $PACKAGE_MANAGER -y install kernel-devel kernel-headers ;;</span></div>
+<div class="l r" id="L420"><span class="no"><a href="#L420">420</a></span><span class="tx">        centos|rhel|amzn) $SUDO $PACKAGE_MANAGER -y install kernel-devel-$KERNEL_RELEASE kernel-headers-$KERNEL_RELEASE ;;</span></div>
+<div class="l r" id="L421"><span class="no"><a href="#L421">421</a></span><span class="tx">        fedora) $SUDO $PACKAGE_MANAGER -y install kernel-devel-$KERNEL_RELEASE ;;</span></div>
+<div class="l r" id="L422"><span class="no"><a href="#L422">422</a></span><span class="tx">        debian|ubuntu) $SUDO apt-get -y install linux-headers-$KERNEL_RELEASE ;;</span></div>
+<div class="l" id="L423"><span class="no"><a href="#L423">423</a></span><span class="tx">        *) exit ;;</span></div>
+<div class="l" id="L424"><span class="no"><a href="#L424">424</a></span><span class="tx">    esac</span></div>
+<div class="l" id="L425"><span class="no"><a href="#L425">425</a></span><span class="tx"> </span></div>
+<div class="l r" id="L426"><span class="no"><a href="#L426">426</a></span><span class="tx">    NVIDIA_CUDA_VERSION=$($SUDO dkms status | awk -F: &#x27;/added/ { print $1 }&#x27;)</span></div>
+<div class="l" id="L427"><span class="no"><a href="#L427">427</a></span><span class="tx">    if [ -n &quot;$NVIDIA_CUDA_VERSION&quot; ]; then</span></div>
+<div class="l r" id="L428"><span class="no"><a href="#L428">428</a></span><span class="tx">        $SUDO dkms install $NVIDIA_CUDA_VERSION</span></div>
+<div class="l" id="L429"><span class="no"><a href="#L429">429</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L430"><span class="no"><a href="#L430">430</a></span><span class="tx"> </span></div>
+<div class="l" id="L431"><span class="no"><a href="#L431">431</a></span><span class="tx">    if lsmod | grep -q nouveau; then</span></div>
+<div class="l" id="L432"><span class="no"><a href="#L432">432</a></span><span class="tx">        status &#x27;Reboot to complete NVIDIA CUDA driver install.&#x27;</span></div>
+<div class="l" id="L433"><span class="no"><a href="#L433">433</a></span><span class="tx">        exit 0</span></div>
+<div class="l" id="L434"><span class="no"><a href="#L434">434</a></span><span class="tx">    fi</span></div>
+<div class="l" id="L435"><span class="no"><a href="#L435">435</a></span><span class="tx"> </span></div>
+<div class="l r" id="L436"><span class="no"><a href="#L436">436</a></span><span class="tx">    $SUDO modprobe nvidia</span></div>
+<div class="l r" id="L437"><span class="no"><a href="#L437">437</a></span><span class="tx">    $SUDO modprobe nvidia_uvm</span></div>
+<div class="l" id="L438"><span class="no"><a href="#L438">438</a></span><span class="tx">fi</span></div>
+<div class="l" id="L439"><span class="no"><a href="#L439">439</a></span><span class="tx"> </span></div>
+<div class="l c" id="L440"><span class="no"><a href="#L440">440</a></span><span class="tx"># make sure the NVIDIA modules are loaded on boot with nvidia-persistenced</span></div>
+<div class="l" id="L441"><span class="no"><a href="#L441">441</a></span><span class="tx">if available nvidia-persistenced; then</span></div>
+<div class="l r" id="L442"><span class="no"><a href="#L442">442</a></span><span class="tx">    $SUDO touch /etc/modules-load.d/nvidia.conf</span></div>
+<div class="l" id="L443"><span class="no"><a href="#L443">443</a></span><span class="tx">    MODULES=&quot;nvidia nvidia-uvm&quot;</span></div>
+<div class="l" id="L444"><span class="no"><a href="#L444">444</a></span><span class="tx">    for MODULE in $MODULES; do</span></div>
+<div class="l" id="L445"><span class="no"><a href="#L445">445</a></span><span class="tx">        if ! grep -qxF &quot;$MODULE&quot; /etc/modules-load.d/nvidia.conf; then</span></div>
+<div class="l r" id="L446"><span class="no"><a href="#L446">446</a></span><span class="tx">            echo &quot;$MODULE&quot; | $SUDO tee -a /etc/modules-load.d/nvidia.conf &gt; /dev/null</span></div>
+<div class="l" id="L447"><span class="no"><a href="#L447">447</a></span><span class="tx">        fi</span></div>
+<div class="l" id="L448"><span class="no"><a href="#L448">448</a></span><span class="tx">    done</span></div>
+<div class="l" id="L449"><span class="no"><a href="#L449">449</a></span><span class="tx">fi</span></div>
+<div class="l" id="L450"><span class="no"><a href="#L450">450</a></span><span class="tx"> </span></div>
+<div class="l" id="L451"><span class="no"><a href="#L451">451</a></span><span class="tx">status &quot;NVIDIA GPU ready.&quot;</span></div>
+<div class="l" id="L452"><span class="no"><a href="#L452">452</a></span><span class="tx">install_success</span></div>
+<div class="l" id="L453"><span class="no"><a href="#L453">453</a></span><span class="tx">}</span></div>
+<div class="l" id="L454"><span class="no"><a href="#L454">454</a></span><span class="tx"> </span></div>
+<div class="l" id="L455"><span class="no"><a href="#L455">455</a></span><span class="tx">main</span></div>
+</div>
+</details>
+</section>
+
+<footer>
+Generated by <code>build.py</code> from <code>install.sh</code> and <code>page.template.html</code> in this folder. The listing, hash and archive table come from those files; the prose was written by reading the script and wasn't tested by running it.
+</footer>
+</main>
+</div>
+</body>
+</html>
