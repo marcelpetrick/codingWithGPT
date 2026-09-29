@@ -10,6 +10,9 @@ BASE="http://192.168.100.67:11434"
 INTERVAL="${CHAIN_WAIT_INTERVAL:-60}"
 QUIET_POLLS="${CHAIN_QUIET_POLLS:-5}"
 MAX_POLLS="${CHAIN_MAX_POLLS:-720}"
+# Pin both Terminal-Bench stages to the version chosen before the extended
+# comparison. The host CLI may update while this detached chain waits.
+export TB_CC_VERSION="${TB_CC_VERSION:-2.1.283}"
 say () { printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S %Z')" "$*"; }
 finish () {
   local rc=$?
@@ -23,7 +26,7 @@ finish () {
 }
 trap finish EXIT
 
-say "waiting for the box to be empty for $QUIET_POLLS checks ($INTERVAL seconds apart)"
+say "waiting for the box to be empty for $QUIET_POLLS checks ($INTERVAL seconds apart); Claude Code $TB_CC_VERSION"
 quiet=0
 for (( poll=1; poll<=MAX_POLLS; poll++ )); do
   resident=$(curl --noproxy '*' -fsS -m 10 "$BASE/api/ps" | python3 -c '
