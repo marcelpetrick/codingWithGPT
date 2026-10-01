@@ -2,7 +2,7 @@
 
 ## Verdict
 
-`/home` is an ext4 filesystem of about 807 GiB. Available space varied from 54 to 70 GiB during this audit; the latest measured value was about 67 GiB. A VirtualBox snapshot merge is in progress, so space may keep changing. The measured rebuildable cleanup set below is about 48 GiB and should put available space above 100 GiB from the latest reading. No files have been deleted.
+`/home` is an ext4 filesystem of about 807 GiB. On 2026-10-01 at 05:13 UTC it had **257,884,983,296 bytes available (240.2 GiB / 257.9 GB)**. All six cleanup paths below were absent at verification. The VirtualBox snapshot operation had finished and the VM was powered off. The increase in free space includes that VM operation and other changes made between audit and cleanup; it cannot all be attributed to the cache cleanup.
 
 ## Plan and time budget
 
@@ -22,6 +22,7 @@
 | 18:58 | Inspected | VirtualBox VM is in `deletingsnapshot` state. Leave all VM files alone until it finishes. |
 | 19:00 | Inspected | Identified 48 GiB of npm download cache and ignored, generated project build files. Active npm process exists; wait for it to finish before clearing npm's cache. |
 | 19:01 | Measured | Free space moved between 54 and 70 GiB during the audit; 67 GiB at latest check. No deletions. |
+| Oct 1, 05:13 | Cleaned and verified | DividendenDackel build paths and CroLingo main tooling cache were already absent when cleanup began. Removed CroLingo `build` and `trivy-cache` by exact path after confirming they were ignored and unused. After npm processes ended, ran `npm cache clean --force`. All six listed cleanup paths are now absent. `/home` has 240.2 GiB available; VM state is `poweroff`. |
 
 ## Results
 
@@ -53,7 +54,7 @@ Preserve without a specific owner decision:
 
 The home directory uses about 638 GiB according to `du`, while `df` reports more used on the filesystem. `/home/docker` is root-owned and inaccessible without sudo. Docker's own report shows image/build-cache use; no Docker files were removed. The difference also includes filesystem overhead or other data not traversable by this user.
 
-### Suggested cleanup sequence, when active builds are idle
+### Cleanup sequence used or available for future runs
 
 Check VM and free space first:
 
@@ -75,7 +76,7 @@ The first Flutter build, scanner run, or package install afterward will take lon
 
 ## Resume here
 
-State: read-only audit complete; no deletion performed. A VirtualBox snapshot merge was still in progress at 19:01 UTC. The repository already had unrelated uncommitted work when this audit began; leave it alone.
+State: requested cleanup complete as of 2026-10-01 05:13 UTC. All six target paths are absent, `/home` has 240.2 GiB free, and VirtualBox VM state is `poweroff`. DividendenDackel and CroLingo `.tooling/cache` paths were absent before this cleanup turn; this assistant removed CroLingo `build` and `trivy-cache` and ran npm cache clean. The repository already had unrelated uncommitted work when this audit began; leave it alone. This final update remains uncommitted because the current workspace permission grants read access to `.git` but not write access.
 
 Check commands:
 
@@ -85,4 +86,4 @@ du -xhd1 /home/mpetrick 2>/dev/null | sort -h
 VBoxManage showvminfo 'P118 Kubuntu 22.04 Clone' --machinereadable | rg '^VMState='
 ```
 
-Restart commands: rerun the check commands, update the chronological status table, and use the suggested cleanup sequence only after active build/install processes have finished. Re-run `df -h /home` after each cleanup stage. Never unlink VDI or snapshot files directly.
+Restart commands: rerun the check commands to see current space. If caches regrow, review active jobs and exact target sizes before cleaning. Never unlink VDI or snapshot files directly.
