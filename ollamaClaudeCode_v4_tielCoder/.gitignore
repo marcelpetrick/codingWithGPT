@@ -6,6 +6,8 @@
 *.log.done
 results/*.log
 results/*.log.done
+# nohup/setsid launcher output (stdout of the detached drivers): same as the logs.
+results/*.out
 
 # cc-session fixture working trees. Each is its own throwaway git repository
 # rebuilt from scratch by cc-session.sh on every run, so committing them would
