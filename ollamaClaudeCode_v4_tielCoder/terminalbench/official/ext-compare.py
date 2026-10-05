@@ -38,10 +38,10 @@ def main():
         for r in csv.DictReader(f, delimiter="\t"):
             if r["model"] not in MODELS or r["arm"] not in ARMS:
                 continue
+            if r["task"] in DEFECTIVE:   # held out entirely, VOID trials included
+                continue
             if r["failure_mode"] in INFRA:
                 infra.append(f'{r["model"]}/{r["task"]}: {r["failure_mode"]}')
-                continue
-            if r["task"] in DEFECTIVE:
                 continue
             c = per[r["model"]][r["task"]]
             c[1] += 1
@@ -52,7 +52,7 @@ def main():
         expected = {
             line.strip() for line in (HERE / "subset-ext-scored.txt").read_text().splitlines()
             if line.strip() and not line.lstrip().startswith("#")
-        }
+        } - DEFECTIVE.keys()
         errors = []
         if not expected:
             errors.append("the scored extended task list is empty")

@@ -77,6 +77,13 @@ DEFECTIVE = {
         "failed with \"python3: can't open file '/app/main.py.c'\", and following "
         "the instruction literally cannot work (gcc hands a .py file to the linker: "
         "'file format not recognized'). Found 2026-09-25 (review_20260925).",
+    "extract-safely":
+        "the task mounts /root as a 100 MB tmpfs, and the Claude Code agent installs "
+        "nvm + Node into /root: 'No space left on device', then 'npm: command not "
+        "found', booked agent_installation_failed. The oracle passes because it "
+        "installs no agent. No model can be run on it with this harness. Found "
+        "2026-10-05, qwen3.6 extended pass, both trials; decided on the install log "
+        "alone, with no model result on the task.",
 }
 
 
