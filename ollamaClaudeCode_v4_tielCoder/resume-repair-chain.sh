@@ -3,7 +3,7 @@
 # starts only after that chain has exited, and then:
 #   1. re-runs, per model of the pair, the extended tasks whose every trial was
 #      an infrastructure failure (write-compressor: image build hit a stale apt
-#      layer, fixed by a --no-cache rebuild at 14:10), as a "-ext-repair" run
+#      layer, fixed by a --no-cache rebuild at 13:55), as a "-ext-repair" run
 #   2. prints the extended verdict (summarise.py applies a repair only over
 #      VOID-only tasks; ext-compare.py still refuses anything incomplete)
 #   3. runs the Laguna XS 2.1 screen the stopped chain could not reach
@@ -29,6 +29,8 @@ finish () {
   fi
 }
 trap finish EXIT
+# a signal is a stop, never a success (10-05: a kill while waiting logged DONE)
+trap 'exit 143' TERM INT HUP
 
 exec 9>/tmp/codingWithGPT-v4-ext-chain.lock
 say "waiting for the extended chain to release its lock"
@@ -40,7 +42,7 @@ repair_list () {  # <model tag> -> task names, one per line; exit 4 on a mixed t
   ( cd "$TBO" && python3 - "$1" <<'PY'
 import json, sys
 from pathlib import Path
-from summarise import INFRA
+from summarise import DEFECTIVE, INFRA
 slug = sys.argv[1].replace(":", "_").replace("/", "_").lower()
 runs = sorted(p for p in Path("runs").glob(f"{slug}-thinkon-ext-n2-*") if (p / "results.json").exists())
 if not runs:
@@ -52,6 +54,8 @@ if len(results) < want:
     sys.exit(f"{runs[-1].name}: {len(results)}/{want} trials -- the pass did not finish")
 trials = {}
 for r in results:
+    if r["task_id"] in DEFECTIVE:   # held out entirely; a re-run cannot change that
+        continue
     trials.setdefault(r["task_id"], []).append(r.get("failure_mode", "unset") in INFRA)
 mixed = [t for t, v in trials.items() if any(v) and not all(v)]
 if mixed:
