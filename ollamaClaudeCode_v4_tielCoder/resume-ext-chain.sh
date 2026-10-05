@@ -21,7 +21,7 @@ finish () {
     timeout 5 notify-send "v4 benchmark chain complete" "Extended comparison and Laguna finished." 2>/dev/null || true
   else
     say "CHAIN-STOPPED: exit $rc; inspect results/s11-ext.log and results/s10-laguna-xs21.log"
-    timeout 5 notify-send "v4 benchmark chain stopped" "Check results/chain-0928.log (exit $rc)." 2>/dev/null || true
+    timeout 5 notify-send "v4 benchmark chain stopped" "Check the chain log in results/ (exit $rc)." 2>/dev/null || true
   fi
 }
 trap finish EXIT
