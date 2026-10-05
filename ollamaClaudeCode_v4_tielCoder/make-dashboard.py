@@ -26,7 +26,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 RES = HERE / "results"
 sys.path.insert(0, str(HERE / "terminalbench" / "official"))
-from summarise import DEFECTIVE, INFRA, split_arm, wilson  # noqa: E402
+from summarise import DEFECTIVE, INFRA, MIXED_RUNTIME, split_arm, wilson  # noqa: E402
 
 ARM = "thinkon"
 # task count of the parity arm, read from the frozen subset rather than hard-coded
@@ -256,11 +256,16 @@ def rerun_section(E):
                  + th("result", "ref_res") + "</tr>" + "".join(cr) + "</table></div>")
     # D. extended Terminal-Bench (arm thinkon-ext)
     ext = defaultdict(lambda: [0, 0])
+    mixed_ext = set()   # models whose extended pass changed runtime mid-pass: labelled, never a verdict
     for r in rows("terminal-bench-official.tsv"):
+        if r.get("arm") == "thinkon-ext" and r.get("run_id") in MIXED_RUNTIME:
+            mixed_ext.add(r["model"])
         if r.get("arm") == "thinkon-ext" and r["task"] not in DEFECTIVE and r["failure_mode"] not in INFRA:
             ext[r["model"]][1] += 1
             ext[r["model"]][0] += r["resolved"] == "True"
-    eb = "".join(f"<tr><td data-v='{E(m)}'>{E(m)}{minfo(m)}</td><td class='num' data-v='{100 * k / n if n else 0}'>{k}/{n} = "
+    eb = "".join(f"<tr><td data-v='{E(m)}'>{E(m)}{minfo(m)}"
+                 + (" <span class='muted'>(MIXED RUNTIME: Ollama 0.33.3 &rarr; 0.35.1 mid-pass; information only)</span>" if m in mixed_ext else "")
+                 + f"</td><td class='num' data-v='{100 * k / n if n else 0}'>{k}/{n} = "
                  f"{100 * k / n:.0f}% [{wilson(k, n)[0]:.0f}, {wilson(k, n)[1]:.0f}]</td></tr>" for m, (k, n) in ext.items() if n)
     parts.append("<h3>D. Extended Terminal-Bench: 30 seeded, oracle-checked tasks, n=2</h3><div class='panel'><table><tr>"
                  + th("model", "rb_model") + th("solved (extended tasks only)", "ext") + "</tr>"

@@ -16,7 +16,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from summarise import DEFECTIVE, INFRA, wilson
+from summarise import DEFECTIVE, INFRA, MIXED_RUNTIME, wilson
 
 HERE = Path(__file__).resolve().parent
 # the pair, as Ollama tags on the command line (s11-ext.sh passes them); default KAT vs Tiel
@@ -28,31 +28,45 @@ MODELS = {t.replace(":", "_").replace("/", "_").lower(): t.split(":")[0] for t i
 # carry the confound into the verdict. Without EXT_ONLY the pooled figure is printed
 # for information.
 ARMS = ("thinkon-ext",) if os.environ.get("EXT_ONLY") else ("thinkon", "thinkon-ext")
+# EXT_INFO=1 (with EXT_ONLY): an INFORMATION-only comparison. Tasks with a VOID
+# trial for either model are dropped for BOTH, and no VERDICT line is printed.
+# Used when a VOID task can no longer be repaired under the same conditions.
+INFO_ONLY = bool(os.environ.get("EXT_INFO"))
 
 
 def main():
     tsv = HERE / "results" / "terminal-bench-official.tsv"
     per = defaultdict(lambda: defaultdict(lambda: [0, 0]))   # model -> task -> [solved, live]
     infra = []
+    void_tasks = set()
+    mixed = set()
     with tsv.open() as f:
         for r in csv.DictReader(f, delimiter="\t"):
             if r["model"] not in MODELS or r["arm"] not in ARMS:
                 continue
+            if r["run_id"] in MIXED_RUNTIME:
+                mixed.add(r["run_id"])
             if r["task"] in DEFECTIVE:   # held out entirely, VOID trials included
                 continue
             if r["failure_mode"] in INFRA:
                 infra.append(f'{r["model"]}/{r["task"]}: {r["failure_mode"]}')
+                void_tasks.add(r["task"])
                 continue
             c = per[r["model"]][r["task"]]
             c[1] += 1
             c[0] += r["resolved"] == "True"
 
     a, b = list(MODELS)
+    if INFO_ONLY:   # symmetric: a task VOID for one model is dropped for both
+        for m in (a, b):
+            for t in void_tasks:
+                per[m].pop(t, None)
+        infra = []
     if os.environ.get("EXT_ONLY"):
         expected = {
             line.strip() for line in (HERE / "subset-ext-scored.txt").read_text().splitlines()
             if line.strip() and not line.lstrip().startswith("#")
-        } - DEFECTIVE.keys()
+        } - DEFECTIVE.keys() - (void_tasks if INFO_ONLY else set())
         errors = []
         if not expected:
             errors.append("the scored extended task list is empty")
@@ -92,17 +106,23 @@ def main():
     print(f"  paired over tasks: {MODELS[a]} better on {wins_a}, {MODELS[b]} better on {wins_b}, "
           f"equal on {len(common) - n_dec}; sign test p = {p:.3f}")
 
+    for run_id in sorted(mixed):
+        print(f"  RUNTIME CONFOUND: {run_id}: {MIXED_RUNTIME[run_id]}")
+    if INFO_ONLY and void_tasks:
+        print(f"  dropped for both (VOID for one): {', '.join(sorted(void_tasks))}")
+    label = "VERDICT:" if not (mixed or INFO_ONLY) else "INFORMATION ONLY, not a verdict:"
+    win = "wins" if label == "VERDICT:" else "ahead"
     ka, na = sum(per[a][t][0] for t in common), sum(per[a][t][1] for t in common)
     kb, nb = sum(per[b][t][0] for t in common), sum(per[b][t][1] for t in common)
     (la, ha), (lb, hb) = wilson(ka, na), wilson(kb, nb)
     if ha < lb or hb < la:
         w = MODELS[a] if la > hb else MODELS[b]
-        print(f"VERDICT: {w} wins on correctness -- pooled intervals do not overlap")
+        print(f"{label} {w} {win} on correctness -- pooled intervals do not overlap")
     elif p < 0.05:
         w = MODELS[a] if wins_a > wins_b else MODELS[b]
-        print(f"VERDICT: {w} wins on correctness -- paired sign test p = {p:.3f}")
+        print(f"{label} {w} {win} on correctness -- paired sign test p = {p:.3f}")
     else:
-        print("VERDICT: tie on correctness -- the rule falls back to quality and speed (s12)")
+        print(f"{label} tie on correctness" + (" -- the rule falls back to quality and speed (s12)" if label == "VERDICT:" else ""))
 
 
 if __name__ == "__main__":

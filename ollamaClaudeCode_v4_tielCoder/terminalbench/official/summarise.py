@@ -87,6 +87,18 @@ DEFECTIVE = {
 }
 
 
+# Runs whose RUNTIME changed mid-pass. Their rows stay in the TSV, but no
+# comparison that includes them may print a verdict (ext-compare.py) -- the same
+# rule as for a client-version confound. Owner's decision 2026-10-05: let KAT's
+# pass finish and label it, rather than re-run both models on 0.35.1.
+MIXED_RUNTIME = {
+    "kat-coder-v2.5_q5km-ctx256k-agentic-thinkon-ext-n2-150604":
+        "Ollama 0.33.3 -> 0.35.1 during the pass (owner upgraded .67 ~16:45 on "
+        "2026-10-05); the first trials ran on 0.33.3, the later ones on 0.35.1, "
+        "switch time not recoverable from the logs",
+}
+
+
 def expected_trials(run_dir, n_tasks):
     """tasks x attempts, parsed from the run-id -- the only completeness test.
 
