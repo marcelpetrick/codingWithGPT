@@ -14,6 +14,7 @@ non-model failure as VOID, not as a zero (harness §0).
 
 Usage: summarise.py [runs_dir]
 """
+import ast
 import json
 import re
 import sys
@@ -45,9 +46,19 @@ ARM_MARKERS = ("thinkon-ext", "thinkon", "thinkoff")
 LEGACY_ARM = "r1-mixed"
 
 
+# A REPAIR run re-runs only the tasks whose every trial in the main pass was an
+# infrastructure failure (2026-10-05: write-compressor's image build hit a stale
+# apt layer, 404s, after the 09-29 build-cache prune). Its run-id carries
+# "-thinkon-ext-repair-"; it belongs to the thinkon-ext arm, is complete against
+# its own task list, and replaces the main pass's rows for those tasks only.
+REPAIR_MARK = "thinkon-ext-repair"
+
+
 def split_arm(run_id):
     """run-id -> (model, arm). Unmarked ids are the 2026-09-18 mixed round."""
     base = run_id.rsplit("-n", 1)[0]
+    if base.endswith("-" + REPAIR_MARK):
+        return base[: -(len(REPAIR_MARK) + 1)], "thinkon-ext"
     for mark in ARM_MARKERS:
         if base.endswith("-" + mark):
             return base[: -(len(mark) + 1)], mark
@@ -106,8 +117,19 @@ def main():
         except ValueError:
             print(f"  ! unreadable: {rj}")
             continue
-        want = expected_trials(rj.parent, n_tasks_ext if "-thinkon-ext-" in run_id else n_tasks)
-        have = len(list(rj.parent.glob("*/*/results.json")))
+        repair = f"-{REPAIR_MARK}-" in run_id
+        if repair:   # complete against its OWN task list, read from the harness metadata
+            meta = json.loads((rj.parent / "run_metadata.json").read_text())
+            n_run = len(ast.literal_eval(meta["task_ids"]) if isinstance(meta["task_ids"], str)
+                        else meta["task_ids"])
+        else:
+            n_run = n_tasks_ext if "-thinkon-ext-" in run_id else n_tasks
+        want = expected_trials(rj.parent, n_run)
+        # Count the trials the harness RECORDED, VOID ones included. A trial whose
+        # container never built writes no per-trial results.json (2026-10-05,
+        # write-compressor), so counting those files booked a finished pass with
+        # two VOID trials as cut short and dropped all 46 trials.
+        have = max(len(d.get("results", [])), len(list(rj.parent.glob("*/*/results.json"))))
         if want and have < want:
             incomplete.append((run_id, have, want))
             continue
@@ -130,7 +152,20 @@ def main():
                 "in_tok": _tok(r.get("total_input_tokens")),
                 "out_tok": _tok(r.get("total_output_tokens")),
                 "agent_sec": _dur(r.get("agent_started_at"), r.get("agent_ended_at")),
+                "_repair": repair,
             })
+
+    # A repair replaces a (model, arm, task) only if EVERY main-pass trial it
+    # replaces was VOID. Replacing a real result would be re-rolling a score.
+    repaired = {(r["model"], r["arm"], r["task"]) for r in rows if r["_repair"]}
+    for key in sorted(repaired):
+        main = [r for r in rows if not r["_repair"] and (r["model"], r["arm"], r["task"]) == key]
+        if any(r["failure_mode"] not in INFRA for r in main):
+            print(f"  ! repair REFUSED for {key}: the main pass has a non-VOID trial")
+            rows = [r for r in rows if not (r["_repair"] and (r["model"], r["arm"], r["task"]) == key)]
+        else:
+            print(f"  repair applied for {key}: {len(main)} VOID trial(s) replaced")
+            rows = [r for r in rows if r["_repair"] or (r["model"], r["arm"], r["task"]) != key]
 
     tsv = out / "terminal-bench-official.tsv"
     cols = ["run_id", "model", "arm", "task", "trial", "resolved", "failure_mode",
