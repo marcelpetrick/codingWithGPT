@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
-# s11-ext.sh -- the extended Terminal-Bench round, KAT-Coder vs Tiel-Coder on
-# correctness (owner's question 2026-09-25: "it has not passed all tests
-# reliably?"). The 9-task subset is +-17 points and separates nobody.
+# s11-ext.sh -- extended Terminal-Bench correctness comparison for the tied
+# top pair in results/ext-models.txt: qwen3.6 greedy vs KAT-Coder. The 9-task
+# subset's intervals overlap, so this pass uses the scored extended subset.
 #
 #   1. ORACLE on the 30 tasks of terminalbench/official/subset-ext.txt: a task
 #      whose own reference solution fails is defective and is dropped BEFORE any
 #      model runs (the nginx lesson) -> subset-ext-scored.txt
-#   2. KAT, then Tiel: every scored task x n=2, thinking on (arm thinkon-ext)
-#   3. ext-compare.py: pooled rate (9 parity tasks x3 + ext tasks x2) and a
-#      paired per-task sign test
+#   2. Each selected model: every scored task x n=2, thinking on (thinkon-ext)
+#   3. ext-compare.py: extended-only intervals and paired per-task sign test;
+#      mixed-client pooled rates are printed for information only
 #
 # Decision rule, fixed here before any extended result exists:
-#   - pooled 95% intervals do not overlap          -> the higher one wins on correctness
-#   - else paired sign test over tasks, p < 0.05   -> the task-wise winner wins on correctness
-#   - else a tie on correctness                    -> the 09-24 rule stands (speed decides: KAT)
+#   - extended-only 95% intervals do not overlap -> higher one wins on correctness
+#   - else paired sign test over tasks, p < 0.05 -> task-wise winner wins
+#   - else correctness ties -> the 09-24 quality and speed rule decides
+# The comparison refuses an empty, incomplete, duplicate, or infrastructure-
+# failed extended pass instead of reporting a tie.
 #
 # Idempotent: the oracle list is reused if present, and complete passes are
 # skipped by GO_official_tb.sh. Waits for the box like the other drivers.
