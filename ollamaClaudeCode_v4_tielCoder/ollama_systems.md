@@ -7,7 +7,7 @@ measurement, so a shared server is never upgraded mid-round (`AGENTS.md`, `ROUND
 
 | system | role | runs | latest stable | update? | when |
 |---|---|---|---|---|---|
-| `192.168.100.67:11434` | the benchmark box, ~35.5 GB VRAM | **0.35.1** since 10-05 ~16:45 (was 0.33.3) | 0.35.1 (09-29) | **yes, but after the round** | when `resume-ext-chain.sh` ends (`CHAIN-DONE` in `results/chain-1005.log`) |
+| `192.168.100.67:11434` | the benchmark box, ~35.5 GB VRAM | **0.35.1** since 10-05 ~16:45 (was 0.33.3) | 0.35.1 (09-29) | **done** (owner, 10-05) | re-baseline owed: steps 4–5 of the procedure below, after the running chain |
 | `192.168.100.37:11434` | small models only, ~12 GB | **0.32.15** | 0.35.1 | **yes, can go first** | any time; it is not part of the running round. The owner's call (shared server) |
 | laptop, Claude Code | client | host 2.1.289, containers **pinned 2.1.283** | — | keep the pin for this round | re-pin with the post-upgrade re-baseline |
 
