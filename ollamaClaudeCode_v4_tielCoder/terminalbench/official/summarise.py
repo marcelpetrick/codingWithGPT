@@ -195,11 +195,11 @@ def main():
     agg = defaultdict(lambda: {"soln": 0, "n": 0, "void": 0, "defect": 0, "sec": 0.0})
     for r in rows:
         a = agg[(r["arm"], r["model"])]
+        if r["task"] in DEFECTIVE:   # first, as in ext-compare.py: held out entirely
+            a["defect"] += 1
+            continue
         if r["failure_mode"] in INFRA:
             a["void"] += 1
-            continue
-        if r["task"] in DEFECTIVE:
-            a["defect"] += 1
             continue
         a["n"] += 1
         a["soln"] += int(r["resolved"])
@@ -222,6 +222,9 @@ def main():
                     "harness can guarantee. This is the arm a ranking may be read from",
         "thinkoff": "thinking OFF, single-family arm only (Sharp template). Never a "
                     "cross-family comparison",
+        "thinkon-ext": "thinking ON, the scored extended subset (n=2, Claude Code pinned "
+                       "2.1.283 in the containers). The decision arm for the top pair; "
+                       "never pooled with the 9-task parity arm",
     }
     for arm in sorted({k[0] for k in agg}):
         print(f"\n== arm: {arm} ==\n   {ARM_NOTE.get(arm, '?')}")
