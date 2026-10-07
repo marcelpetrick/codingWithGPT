@@ -123,7 +123,12 @@ done_already () {  # <model> <runs> -> 0 only if the pass is genuinely COMPLETE
   want=$(( ${#TASKS[@]} * $2 ))
   for d in "$OUT/$slug-$arm-n$2-"*; do
     [ -d "$d" ] || continue
-    have=$(find "$d" -mindepth 3 -name results.json 2>/dev/null | wc -l)
+    # count the trials in the run-level results.json (VOID trials included:
+    # they write no per-trial results.json, so counting those files re-ran
+    # finished passes); no run-level file means the pass was cut
+    [ -f "$d/results.json" ] || continue
+    have=$(python3 -c 'import json, sys; print(len(json.load(open(sys.argv[1]))["results"]))' \
+      "$d/results.json" 2>/dev/null) || continue
     [ "$have" -ge "$want" ] && return 0
   done
   return 1

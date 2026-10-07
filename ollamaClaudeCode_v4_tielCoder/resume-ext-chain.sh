@@ -25,6 +25,7 @@ finish () {
   fi
 }
 trap finish EXIT
+trap 'exit 143' TERM INT HUP   # a signal is a stop, never a success
 
 say "waiting for the box to be empty for $QUIET_POLLS checks ($INTERVAL seconds apart); Claude Code $TB_CC_VERSION"
 quiet=0
