@@ -29,9 +29,6 @@ sys.path.insert(0, str(HERE / "terminalbench" / "official"))
 from summarise import DEFECTIVE, INFRA, MIXED_RUNTIME, split_arm, wilson  # noqa: E402
 
 ARM = "thinkon"
-# task count of the parity arm, read from the frozen subset rather than hard-coded
-N_TASKS = len([l for l in (HERE / "terminalbench" / "official" / "subset.txt").read_text().splitlines()
-               if l.strip() and not l.lstrip().startswith("#")])
 
 
 def slug(tag):
@@ -56,9 +53,9 @@ def terminal_bench():
         model, arm = split_arm(run_id)
         if arm != ARM:
             continue
-        m = re.search(r"-n(\d+)-", run_id)
-        if not m or len(rs) < N_TASKS * int(m.group(1)):
-            continue  # a partial pass is not a rate
+        # A partial pass is not a rate, but summarise.py already keeps only complete
+        # passes in the TSV (counting VOID trials). Re-checking row counts here broke on
+        # a repair (10-08): it removes the replaced VOID rows from the main pass.
         for r in rs:
             if r["task"] in DEFECTIVE or r["failure_mode"] in INFRA:
                 continue
