@@ -1,22 +1,22 @@
-# v4 — Tiel-Coder on the Ollama server, and the field re-measured on 0.33.3
+# v4 — Tiel-Coder on the Ollama server, and the field re-measured (0.33.3, then 0.35.1)
 
-Measured on **`192.168.100.67`, Ollama 0.33.3**, 2026-09-17/18, ≈35.56 GB usable VRAM, server
-idle before every stage, one model resident at a time. **Verdict revised 2026-09-25**: the
-parity round, four candidates and a same-version re-baseline are in. The 2026-09-21 verdict is kept below it as history.
+Measured on **`192.168.100.67`**, Ollama 0.33.3 from 2026-09-17 to 10-05 and **0.35.1 since 10-05**, ≈35.56 GB
+usable VRAM, server idle before every stage, one model resident at a time. **Verdict revised 2026-10-08 (round
+closed)**; the 2026-09-25 and 2026-09-21 verdicts are kept below as history.
 
 | | |
 |---|---|
 | **the verdict** | below. The round that produced it: [`ROUND_2026-09-24.md`](ROUND_2026-09-24.md) · dashboard: [`dashboard.html`](dashboard.html) |
 | every model found, and what was decided about it | [`CANDIDATE_REGISTER.md`](CANDIDATE_REGISTER.md) |
 | every number, and how it was taken | [`measurements.md`](measurements.md) |
-| the twelve harness defects found *in this round's own tooling* | [`review.md`](review.md) |
+| the thirteen harness defects found *in this round's own tooling* | [`review.md`](review.md) |
 | how to evaluate a new model at all — rules, traps, the standing field | [`BENCHMARK_HARNESS.md`](BENCHMARK_HARNESS.md) |
 | the official Terminal-Bench round, and why its ranking is void | [`terminalbench/official/OFFICIAL_TB_PLAN.md`](terminalbench/official/OFFICIAL_TB_PLAN.md) |
 | candidates for the next round, and what fits this box | [`toTest.md`](toTest.md) |
 | what to put in `~/.zshrc` | [`shell_aliases.md`](shell_aliases.md) |
 | one-page summary, offline | [`report.html`](report.html) · [`report.pdf`](report.pdf) |
 | what was planned, before any of it ran | [`plan.md`](plan.md) |
-| exact digests, versions, sampling settings | [`results/provenance.txt`](results/provenance.txt) |
+| exact digests, versions, sampling settings (as of 2026-09-17, stage S1 only: Tiel tags, Ollama 0.33.3) | [`results/provenance.txt`](results/provenance.txt) |
 
 ---
 
@@ -25,7 +25,8 @@ parity round, four candidates and a same-version re-baseline are in. The 2026-09
 **qwen3.6 greedy stays the default; KAT-Coder-V2.5-Dev ties it; Laguna XS 2.1 ties mid-field.** The extended
 Terminal-Bench pass (21 tasks × 2) put KAT at 16/42 = 38% [25, 53] against qwen3.6's 11/42 = 26% [15, 41]:
 overlapping, sign test p = 0.22, and across two Ollama versions, so information only. Laguna XS 2.1 screened in
-(25 GB resident at 262k, 70 s sessions) and scored 9/21 = 43% [24, 63] on the parity arm: a tie, and not
+(25 GB resident at 262k, 70 s sessions) and scored 9/24 = 38% [21, 57] on the parity arm, after its three
+`fix-git` trials were re-run (the task's source repo went 404 and was restored byte-faithfully): a tie, and not
 faster. Details in [`ROUND_2026-09-24.md`](ROUND_2026-09-24.md) → *Verdict so far*.
 
 ## The verdict (2026-09-25, standing, after the same-version re-baseline)
@@ -40,7 +41,7 @@ on **one client version**, ledger ×5 each, against a rule fixed before the runs
 
 | model | session median (range) | held-out ×5 | quality | T5 gate ×8 | Terminal-Bench, 8 tasks × 3 |
 |---|---|---|---|---|---|
-| **qwen3.6 35B-A3B greedy** | **48 s** (46–49) | 18,18,18,17,17 | PASS | in the overnight round | **50% [31, 69]** |
+| **qwen3.6 35B-A3B greedy** | **48 s** (46–49) | 18,18,18,17,17 | PASS | 8/8 | **50% [31, 69]** |
 | **KAT-Coder-V2.5-Dev** | **45 s** (37–58) | 18,18,17,18,17 | PASS | 8/8 | 38% [21, 57] |
 | Tiel-Coder 35B-A3B | 79 s (51–126) | 18 ×5 | PASS | 6/8 | 42% [24, 61] |
 | gemma4 26B-A4B | 90 s (69–100) | 18 ×5 | PASS | | 50% [31, 69] |
@@ -48,9 +49,10 @@ on **one client version**, ledger ×5 each, against a rule fixed before the runs
 | ByteShape Qwen3.6 Q4_K_S (t 0.6) | 41 s | median 17 | fail | 8/8 | 58% [39, 76] |
 
 - **qwen3.6 vs KAT is a tie**: both pass quality, speed is 6% apart, Terminal-Bench overlaps. The
-  incumbent stays. The overnight extended Terminal-Bench round (≈38 tasks, qwen3.6 vs KAT) can still
-  separate them on correctness.
-- **Both are clearly faster than Tiel and gemma4.** Tiel also fails the nested-schema gate at 6/8.
+  incumbent stays. The extended round (21 tasks × 2, 10-08) did not separate them: KAT 38% vs qwen3.6
+  26%, p = 0.22, across two runtimes (see the 10-08 verdict).
+- **qwen3.6 is clearly faster than Tiel and gemma4; KAT is clearly faster than gemma4**, and ahead of Tiel on the
+  median (45 vs 79 s) but not clearly (the ranges overlap). Tiel also fails the nested-schema gate at 6/8.
 - **Run qwen3.6 greedy, not at its vendor sampler**: t 0.6 drops held-out quality to a median of 17.
 - **Use Tiel** when context-overflow safety matters most (it refuses with HTTP 400; qwen3.6 silently
   halves). **Use gemma4** for vision.
@@ -126,18 +128,16 @@ contender is measured against these four and nothing else:
 
 | # | tag | axis | status |
 |---|---|---|---|
-| 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | capability + reproducibility | **the default, confirmed 2026-09-25** on one client version (verdict above) |
-| 2 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | the speed ceiling (136.2 tok/s) | held on speed, which is measured and stable |
+| 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | capability + reproducibility | **the default, confirmed 2026-09-25** on one client version and **2026-10-08** (round closed) |
+| 2 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | the speed ceiling (136.2 tok/s) | held on speed, which is measured and stable. Tag deleted from `.67` on 09-25 (`d184c24`): re-pull before any parity run |
 | 3 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | the footprint floor (22.34 GB @262k) | settled |
 | 4 | `tiel-coder:35b-q5-ctx256k-agentic` | context safety (the only family that refuses) | settled |
-
-### CyberTiel: measured, and not recommended for daily use
 
 ### Three settings that matter more than the model choice
 
 | | |
 |---|---|
-| **`presence_penalty 0`** | the shipped tag carries `1.5`, added by whoever created it — the raw download has none and the publisher recommends none. It costs **41–52% of generation** and nothing else changes |
+| **`presence_penalty 0`** | the shipped tag carries `1.5`, added by whoever created it — the raw download has none and the publisher recommends none. It costs **29–34% of generation** (removing it is +41–52%) and nothing else changes |
 | **`<|think_off|>`** | **2.3× faster** on the hard fixture with equal or better correctness. `MAX_THINKING_TOKENS=0` does *not* work — it only omits the field, which Ollama reads as "think" |
 | **`CLAUDE_CODE_MAX_CONTEXT_TOKENS=230000`** | below the verified 254,181 retrieval ceiling, and Tiel's overflow is a visible error rather than a silent truncation |
 
@@ -171,7 +171,7 @@ Every earlier round (`../ollamaClaudeCode_v0` … `_v3_qwen3.8`) used exactly th
 
 | host | Ollama | what it is | use it for |
 |---|---|---|---|
-| **`192.168.100.67:11434`** | **0.33.3** (2026-09-17) | 35.56 GB usable VRAM, measured twice (v3 §19c). **Shared with a colleague** | everything in this repo |
+| **`192.168.100.67:11434`** | **0.35.1** (since 2026-10-05; 0.33.3 from 09-17) | 35.56 GB usable VRAM, measured twice (v3 §19c). **Shared with a colleague** | everything in this repo |
 | `192.168.100.37:11434` | 0.32.15 | ~12 GB, 1.4× slower on an identical model (v1) | small models only |
 | `localhost:11434` | — | the laptop | ≤4B toy models |
 
@@ -208,8 +208,8 @@ CLAUDE_CODE_MAX_CONTEXT_TOKENS=200000 \
   claude --model "$M"
 ```
 
-This is installed in `~/.zshrc` as the `claude-ol*` shell functions (`claude-ol2`,
-`claude-ol-north`, `claude-ol-ornith`, `claude-ol-nemo`). Each line is there because
+This is installed in `~/.zshrc` as the `claude-ol*` shell functions (`claude-ol-qwen`,
+`claude-ol-kat`, `claude-ol-byte`, `claude-ol-tiel`; see `shell_aliases.md`). Each line is there because
 something broke without it:
 
 | setting | why — measured, not assumed | where it was found |
