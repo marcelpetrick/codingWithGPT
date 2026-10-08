@@ -51,14 +51,18 @@ LEGACY_ARM = "r1-mixed"
 # apt layer, 404s, after the 09-29 build-cache prune). Its run-id carries
 # "-thinkon-ext-repair-"; it belongs to the thinkon-ext arm, is complete against
 # its own task list, and replaces the main pass's rows for those tasks only.
-REPAIR_MARK = "thinkon-ext-repair"
+# 2026-10-08: the same for the parity arm ("-thinkon-repair-"): fix-git's build
+# cloned a GitHub repo that went 404, so Laguna's three fix-git trials were VOID;
+# the task is vendored byte-faithfully (apply-fixgit-vendor.sh) and re-run.
+REPAIR_MARKS = {"thinkon-ext-repair": "thinkon-ext", "thinkon-repair": "thinkon"}
 
 
 def split_arm(run_id):
     """run-id -> (model, arm). Unmarked ids are the 2026-09-18 mixed round."""
     base = run_id.rsplit("-n", 1)[0]
-    if base.endswith("-" + REPAIR_MARK):
-        return base[: -(len(REPAIR_MARK) + 1)], "thinkon-ext"
+    for mark, arm in REPAIR_MARKS.items():
+        if base.endswith("-" + mark):
+            return base[: -(len(mark) + 1)], arm
     for mark in ARM_MARKERS:
         if base.endswith("-" + mark):
             return base[: -(len(mark) + 1)], mark
@@ -136,7 +140,7 @@ def main():
         except ValueError:
             print(f"  ! unreadable: {rj}")
             continue
-        repair = f"-{REPAIR_MARK}-" in run_id
+        repair = any(f"-{mark}-" in run_id for mark in REPAIR_MARKS)
         if repair:   # complete against its OWN task list, read from the harness metadata
             meta = json.loads((rj.parent / "run_metadata.json").read_text())
             n_run = len(ast.literal_eval(meta["task_ids"]) if isinstance(meta["task_ids"], str)
