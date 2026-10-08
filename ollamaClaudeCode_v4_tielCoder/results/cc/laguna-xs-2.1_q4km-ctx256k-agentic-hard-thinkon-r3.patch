@@ -1,0 +1,139 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..ce622c3 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -1,5 +1,5 @@
+ """Money parsing."""
+-from decimal import Decimal
++from decimal import Decimal, InvalidOperation
+ 
+ 
+ def parse_amount(text):
+@@ -14,4 +14,28 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    text = text.strip()
++
++    # Handle accounting negatives in parentheses: (12.50) means -12.50
++    is_negative = False
++    if text.startswith('(') and text.endswith(')'):
++        is_negative = True
++        text = text[1:-1]
++
++    # Remove thousands separators (commas)
++    text = text.replace(',', '')
++
++    # Parse the amount
++    try:
++        amount = Decimal(text)
++    except InvalidOperation:
++        raise ValueError(f"Invalid amount: {text}")
++
++    # Apply negative sign if needed
++    if is_negative:
++        amount = -amount
++
++    # Ensure exactly two decimal places
++    amount = amount.quantize(Decimal('0.01'))
++
++    return amount
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..a523a93 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,7 +26,27 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
+-    day, category, amount, currency = line.split(";")
++    # Skip blank lines and comments
++    stripped = line.strip()
++    if not stripped or stripped.startswith('#'):
++        return None
++
++    parts = line.split(";")
++    if len(parts) != 4:
++        raise ValueError(f"Expected 4 fields, got {len(parts)}")
++
++    day, category, amount, currency = parts
++
++    # Strip and normalize fields
++    day = day.strip()
++    category = category.strip().lower()
++    amount = amount.strip()
++    currency = currency.strip().upper()
++
++    # Validate currency is exactly 3 letters
++    if len(currency) != 3 or not currency.isalpha():
++        raise ValueError(f"Currency must be exactly 3 letters, got: {currency}")
++
+     return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
+ 
+ 
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..a4056c7 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,4 +1,5 @@
+ """Reports over parsed entries."""
++from decimal import Decimal
+ 
+ 
+ def monthly_totals(entries):
+@@ -9,10 +10,18 @@ def monthly_totals(entries):
+     ValueError is raised. An empty input returns an empty dict.
+     """
+     totals = {}
++    currencies = set()
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
+-        totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++        key = f"{entry.day.year}-{entry.day.month:02d}"
++        totals[key] = totals.get(key, Decimal('0')) + entry.amount
++        currencies.add(entry.currency)
++
++    # Check all entries share one currency
++    if len(currencies) > 1:
++        raise ValueError(f"Multiple currencies found: {currencies}")
++
++    # Return with keys in chronological order
++    return dict(sorted(totals.items()))
+ 
+ 
+ def category_breakdown(entries, month):
+@@ -23,4 +32,31 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    from collections import defaultdict
++
++    # Filter entries for the given month and aggregate by category
++    category_totals = defaultdict(Decimal)
++    currencies = set()
++
++    for entry in entries:
++        entry_month = f"{entry.day.year}-{entry.day.month:02d}"
++        if entry_month == month:
++            category_totals[entry.category] += entry.amount
++            currencies.add(entry.currency)
++
++    # Check all entries share one currency
++    if len(currencies) > 1:
++        raise ValueError(f"Multiple currencies found: {currencies}")
++
++    # Build list of (category, total) tuples, filtering out zero totals
++    result = [
++        (cat, total)
++        for cat, total in category_totals.items()
++        if total != Decimal('0')
++    ]
++
++    # Sort by total ascending (largest expense first = most negative first)
++    # Ties broken by category name
++    result.sort(key=lambda x: (x[1], x[0]))
++
++    return result

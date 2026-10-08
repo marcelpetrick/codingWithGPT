@@ -50,3 +50,6 @@ ollama	model	prompt_words	prompt_tok	gen_tok	prefill_tps	gen_tps	load_s	total_s
 0.33.3	kat-coder-v2.5:q5km-ctx256k-agentic-pp15	0	25	115	201.0	79.09	0.1	2.8
 0.33.3	kat-coder-v2.5:q5km-ctx256k-agentic-pp15	2000	3180	159	29708.0	77.25	0.0	2.4
 0.33.3	kat-coder-v2.5:q5km-ctx256k-agentic-pp15	20000	35102	93	306383.1	69.96	0.0	2.1
+0.35.1	laguna-xs-2.1:q4km-ctx256k-agentic	0	55	123	706.9	147.96	0.0	0.9
+0.35.1	laguna-xs-2.1:q4km-ctx256k-agentic	2000	3120	114	3289.8	146.27	0.0	1.8
+0.35.1	laguna-xs-2.1:q4km-ctx256k-agentic	20000	34224	125	2974.8	109.28	0.0	13.0

@@ -71,3 +71,6 @@ date	ollama	model	fixture	thinking	run	verdict	hidden	wall_s	warm_s	calls	turns	
 2026-09-25	0.33.3	byteshape-qwen3.6-35b:q4ks-ctx256k-agentic	hard	on	1	PASS	16/18	33	13.7	6	13	27484	2630	1326	32.1	6.4	6.3	Readx5,Bashx4,Writex3	0	-	
 2026-09-25	0.33.3	byteshape-qwen3.6-35b:q4ks-ctx256k-agentic	hard	on	2	PASS	18/18	42	2.5	6	13	27484	3683	4207	41.4	6.6	11.1	Readx5,Bashx4,Writex3	0	-	
 2026-09-25	0.33.3	byteshape-qwen3.6-35b:q4ks-ctx256k-agentic	hard	on	3	PASS	15/18	35	2.4	6	13	27481	2827	2873	34.1	6.6	6.5	Readx5,Bashx4,Writex3	0	-	
+2026-10-08	0.35.1	laguna-xs-2.1:q4km-ctx256k-agentic	hard	on	1	PASS	18/18	70	11.6	20	20	28282	5909	9136	68.0	7.8	10.0	Readx9,Bashx5,Editx5	0	-	
+2026-10-08	0.35.1	laguna-xs-2.1:q4km-ctx256k-agentic	hard	on	2	PASS	16/18	104	3.8	26	26	30197	9184	13500	101.4	7.6	12.8	Readx10,Bashx9,Editx6	0	-	
+2026-10-08	0.35.1	laguna-xs-2.1:q4km-ctx256k-agentic	hard	on	3	PASS	18/18	56	4.5	16	16	26577	4567	3027	53.8	7.5	7.4	Bashx7,Readx5,Editx3	0	-	
