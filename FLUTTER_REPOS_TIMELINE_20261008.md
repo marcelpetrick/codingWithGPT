@@ -13,8 +13,10 @@ track a Flutter application:
 3. **Raumfreund** — child-friendly room-noise traffic light; Android.
 
 The other 142 top-level repositories do not contain a tracked `pubspec.yaml` whose current `HEAD`
-declares `sdk: flutter`. Nested SDK checkouts, generated build trees, caches, submodules and agent
-worktrees are not counted as the owner's top-level repositories.
+declares `sdk: flutter`. A second audit of every object reachable from every local branch and tag
+also found no deleted or historical Flutter project among those 142 repositories. Nested SDK
+checkouts, generated build trees, caches, submodules and agent worktrees are not counted as the
+owner's top-level repositories.
 
 ## At a glance
 
@@ -90,6 +92,9 @@ Raumfreund uses `main`. All three clones contain full, non-shallow history.
 - **Flutter:** a `pubspec.yaml` tracked at `HEAD` contains an SDK dependency matching
   `sdk: flutter`. This avoids false positives from documentation mentions and untracked SDK/build
   output.
+- **Historical Flutter:** every `pubspec.yaml` blob reachable through `--all` local refs was also
+  inspected for `sdk: flutter`. The same three repositories matched; there was no historical-only
+  match.
 - **GitHub created:** GitHub API `createdAt`, queried with `gh repo view`. This is distinct from the
   project's first commit.
 - **First commit:** root commit reachable from the checked-out `HEAD`, using
@@ -114,6 +119,7 @@ possibly earlier local directory creation.
 | Derive creation, first Flutter, release, and latest-activity dates | Done | 6 min |
 | Cross-check local history against GitHub metadata | Done | 4 min |
 | Review definitions, counts, branches, cleanliness and shallow-clone risk | Done | 3 min |
+| Audit all reachable branches, tags and deleted file versions for historical Flutter use | Done | 2 min |
 
 ## Chronological status
 
@@ -124,6 +130,7 @@ possibly earlier local directory creation.
 | 2026-10-08 | Reconstructed root commits, Flutter bootstrap commits, versions, tags and latest commits. |
 | 2026-10-08 | Cross-checked GitHub repository creation and published release dates. |
 | 2026-10-08 | Verified all three clones are full, clean, and aligned with their local tracking refs. |
+| 2026-10-08 | Confirmed no additional current or historical Flutter repo exists in any reachable local ref. |
 
 ## Resume here
 
