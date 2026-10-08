@@ -182,14 +182,14 @@ A3B coders: same parameter budget, a quarter of the active parameters, and this 
 measured data point on dense 27B is that it is four times too slow. They stay on the list —
 OmniMerge's claim is about turn economy, not tok/s — but they are no longer the first pull.
 
-**Revised pull order:** `Ornith-1.5-27B-A3B-Coder` (Tiel's family, small), then
+**Revised pull order (history, superseded 09-24: the 27B prunes, KAT-Ornith and the dense 27Bs were ruled out, see `CANDIDATE_REGISTER.md`):** `Ornith-1.5-27B-A3B-Coder` (Tiel's family, small), then
 `Qwen3.6-27B-A3B-Coder` (the control's family, small), then `KAT-Ornith-Coder-35B-A3B`, then
 ByteShape (a quant question about a model we already run), then the dense 27Bs.
 
 ## The field a candidate is measured against — fixed 2026-09-18
 
-A new contender is run against **four models and no others**: `qwen3.6:35b-a3b` (the control; the
-2026-09-25 verdict in README.md names KAT-Coder, provisionally),
+A new contender is run against **four models and no others**: `qwen3.6:35b-a3b` (the default, confirmed
+2026-09-25 and 2026-10-08; KAT-Coder ties it),
 `north-mini-code-1.0` (speed ceiling), `gemma4:26b-a4b-it` (footprint floor and vision), and
 `tiel-coder:35b-q5` (context safety). Each holds a different axis, and a candidate takes a slot
 only by beating that slot's holder **on its own axis**.

@@ -303,7 +303,7 @@ honours the marker, and raises with the reason rather than running. The default 
 setting this harness can guarantee is symmetric, and `GO_official_tb.sh` passes
 `TB_THINKING=${TB_THINKING:-on}`.
 
-**The re-run is owed and is not done.** The field must be re-measured at thinking parity before
+**The re-run is owed and is not done.** *(Done 2026-09-24/25: results in `ROUND_2026-09-24.md`, 8 tasks × 3 at thinking parity, all intervals overlap.)* The field must be re-measured at thinking parity before
 any model is ranked against another. Until then the standing field's slot rationales that rest on
 Terminal-Bench capability are provisional — slot 1 (qwen3.6 "the default") most of all.
 
@@ -329,7 +329,7 @@ leader — and with **4 flipping tasks** it is the least stable model in the rou
 lucky single sample. It still owns `git-multibranch` (2/3; nothing else solves it at all) and it
 is still the fastest generator on the box, which is what its slot in the standing field rests on.
 
-What is now open instead: **thinking was off for every trial**, on a v4 finding measured on the
+What is now open instead: **thinking was off for Tiel and CyberTiel** (every comparator kept it on), on a v4 finding measured on the
 ledger fixture and never on hard puzzle tasks. A thinking-on arm over `polyglot-c-py` and
 `git-multibranch` is the next honest test, and gemma4 and ornith still stand at n=1.
 

@@ -5,23 +5,23 @@ What changes in `~/.zshrc` as a result of the v4 measurements, and why. v2's doc
 explains every environment variable in detail and v3's records the four-model-slot fix; this
 records only the delta.
 
-> **Nothing here is installed automatically.** v3 wrote its aliases into `~/.zshrc`; v4 leaves
-> that to you, because `claude-ol2` and friends are your shell and the change below is a
-> recommendation, not a repair.
+> **Applied 2026-09-25** (see *Alias review* below): `~/.zshrc` holds exactly four local launchers,
+> `claude-ol-qwen` (the default), `claude-ol-kat`, `claude-ol-byte` and `claude-ol-tiel`. The sections in
+> between are the history of how it got there.
 
-## The delta
+## The delta (as applied 09-25; confirmed by the 10-08 verdict)
 
 | command | before (after v3) | after v4 |
 |---|---|---|
-| `claude-ol-north` — default | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **superseded** — keep it, stop reaching for it first |
-| *(new 09-25)* **`claude-ol-byte`** | — | **added to ~/.zshrc**: `byteshape-qwen3.6-35b:q4ks-ctx256k-agentic`, the fastest and top-scoring (see *Alias review*) |
-| *(new 09-25)* **`claude-ol-kat`** | — | **the equal alternative** to qwen3.6 (README verdict 2026-09-25, same-version re-baseline): `kat-coder-v2.5:q5km-ctx256k-agentic` @ 262144 |
-| *(new)* `claude-ol-tiel` | — | the 09-21 default, now the pick **when overflow safety matters**: `tiel-coder:35b-q5-ctx256k-agentic` @ 262144 |
-| *(new)* `claude-ol-tiel-fast` | — | the same tag with `<\|think_off\|>` appended — **2.3× faster**, see below |
-| `claude-ol-ornith` | Ornith-1.0, deep documents | **keep**. It was the fastest finisher on 09-17 (47 s). KAT (46 s) and ByteShape (35 s) are faster on 09-25, on a newer client |
-| `claude-ol2`, `claude-ol-nemo`, `claude-ol-vision` | unchanged | unchanged |
+| **`claude-ol-qwen`** (was `claude-ol2`) — default | `qwen3.6:35b-a3b-q4_K_M-agentic` | **the default**, confirmed 09-25 and 10-08 |
+| *(new)* **`claude-ol-kat`** | — | **the equal alternative**: `kat-coder-v2.5:q5km-ctx256k-agentic` @ 262144 |
+| *(new)* **`claude-ol-byte`** | — | `byteshape-qwen3.6-35b:q4ks-ctx256k-agentic`: fastest session and top Terminal-Bench score, held-out median 17 |
+| *(new)* `claude-ol-tiel` | — | the pick **when overflow safety matters**, and vision: `tiel-coder:35b-q5-ctx256k-agentic` @ 262144 |
+| `claude-ol-north`, `claude-ol-ornith`, `claude-ol-nemo`, `claude-ol`, `claude-ol-mistral`, `claude-ol-local`, `claude-locallama` | various | **removed** 09-25 (reasons in *Alias review*) |
 
-## Why the default moved to Tiel on 09-17 (history: superseded by `claude-ol-kat`, provisionally, on 09-25)
+A `claude-ol-tiel-fast` variant (`<|think_off|>`, 2.3× faster) was proposed below but not installed.
+
+## Why the default moved to Tiel on 09-17 (history: superseded 09-25, qwen3.6 default and KAT the equal alternative)
 
 Measured on 0.33.3, same harness, server idle before each, n=3 for the sessions:
 

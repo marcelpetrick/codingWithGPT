@@ -1,7 +1,7 @@
 # v4 self-review — 2026-09-17, after stage S1
 
 Written after S1 finished and before S2/S3/S5 ran, because a harness flaw found late is a
-re-run of everything. Twelve findings, each with what was done about it. Four changed results
+re-run of everything. Thirteen findings (R13 was added after S2), each with what was done about it. Four changed results
 rather than tidiness: **R1/R2** (the runtime caches prompts now), **R4** (the sandbox is a
 different environment), **R6** (a single gate failure is not a gate failure) and **R11** (three
 "measurements" that measured nothing at all).

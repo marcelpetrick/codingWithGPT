@@ -121,8 +121,8 @@ That is the shipped tag, i.e. **with `presence_penalty 1.5`**. §6 is the same t
 **T1–T7, three full batteries: 10/10, 10/10, 10/10.** Including T4 (parallel calls) and T5
 (nested schema), the two that broke `nemotron-cascade-2` in v3.
 
-One honest correction to that, from §8: re-running **T5 alone eight times gives 7/8** — the
-battery's three clean sweeps were partly luck. See §8; it is flakiness, not a defect, and it is
+One honest correction to that, from the former §8 ("T5 is 13/16, not 10/10"; removed in the 09-17 rebuild `83be6e7`, text in `git show 62dd28e:ollamaClaudeCode_v4_tielCoder/measurements.md`): re-running **T5 alone eight times gives 7/8** — the
+battery's three clean sweeps were partly luck. See that former §8; it is flakiness, not a defect, and it is
 not caused by the presence penalty.
 
 `needle-v2.sh`, `--num-predict 2048`:
@@ -139,7 +139,7 @@ not caused by the presence penalty.
 
 **254,181 tokens verified — the deepest in v1–v4**, past ornith's 254,061, at **97.0% of its
 baked window**. It passed every rung on the first attempt and the ladder never found a failure,
-so this is a floor on its retrieval, not a ceiling. §9 pushes further.
+so this is a floor on its retrieval, not a ceiling. The former §9 (the overflow cliff, removed in `83be6e7`, see above) pushes further.
 
 ## 6. `presence_penalty 1.5` costs ~35% of generation, and nothing else
 
@@ -160,7 +160,7 @@ on a different model family: the penalty is paid per generated token, in the sam
 prefill path never touches it.
 
 It costs nothing in capability either — the variant scores the same 25/25 vision (§7), the same
-needle depths, and the same 7/8 on a T5 re-run (§8). Plan rule 5 fires: **the recommended tag is
+needle depths, and the same 7/8 on a T5 re-run (former §8). Plan rule 5 fires: **the recommended tag is
 the `presence_penalty 0` variant.**
 
 ## 7. Vision — a capability, not a category
@@ -232,7 +232,7 @@ and the difference shows up once, on the first turn of a session.
 | model | score | failures |
 |---|---|---|
 | `gemma4`, `nemotron-3.5-L`, `north-mini`, `ornith`, `qwen3.6` | **10/10** | — |
-| `tiel-coder` (pp 0) | 9/10 | T5 nested schema (see §8: 15/16 on re-runs) |
+| `tiel-coder` (pp 0) | 9/10 | T5 nested schema (former §8: 15/16 on re-runs) |
 | `qwen3.8:27b` | 9/10 | T6 needle at 120k — the half-window artifact |
 | **`nemotron-cascade-2`** | **8/10** | **T2 tool selection, T5 nested schema** |
 
@@ -338,7 +338,7 @@ CyberTiel matches Tiel on the real task — both solve the spec, both essentiall
 **T8, T9 and T11 pass across the whole field; T10 catches one model.** T8 (structured/JSON output
 via Ollama's `format` schema), T9 (correcting a call after an error `tool_result`) and T11 (a
 zero-parameter tool) are universal here. T10 (argument fidelity) fails only `nemotron-3.5-L`
-(§17a). T9 is worth calling out on its own. T9 is worth calling out: every model took the error hint and corrected the path rather than repeating the
+(§17a). T9 is worth calling out on its own: every model took the error hint and corrected the path rather than repeating the
 failing call — the loop-termination property that matters most for an agent, and it is universal
 here.
 
