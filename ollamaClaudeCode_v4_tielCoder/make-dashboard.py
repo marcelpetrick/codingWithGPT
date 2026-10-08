@@ -89,6 +89,24 @@ def ledger():
     return out
 
 
+def ledger_same_client():
+    """The 09-25 same-version re-baseline (one Claude Code version, x5). Where a model
+    has these runs, they replace its older runs, which were on mixed client versions."""
+    out = defaultdict(lambda: {"walls": [], "hidden": []})
+    for r in rows("cc-session-rb0925.tsv"):
+        if r.get("fixture") != "hard" or r.get("thinking") != "on":
+            continue
+        o = out[slug(r["model"])]
+        try:
+            o["walls"].append(float(r["wall_s"]))
+        except ValueError:
+            pass
+        h = re.match(r"(\d+)/18", r.get("hidden", ""))
+        if h:
+            o["hidden"].append(int(h.group(1)))
+    return out
+
+
 def tokrate():
     out = defaultdict(list)
     for r in rows("tokrate.tsv"):
@@ -106,16 +124,20 @@ def verdict_line():
     if not p.exists():
         return "", ""
     s = p.read_text()
-    # the bold verdict, then its dated italic note -- on the same line or the next
+    # since 10-08 the section opens with "### Final pick (<when>): <bold verdict>";
+    # before that, a bold verdict and its dated italic note
+    m = re.search(r"## Verdict so far\s+### Final pick \(([^)]+)\): (.+)", s)
+    if m:
+        return m.group(2).replace("**", "").strip(), m.group(1)
     m = re.search(r"## Verdict so far\s+\*\*(.+?)\*\*\s*\*\((.+?)\)\*", s, re.S)
     return (m.group(1), m.group(2)) if m else ("", "")
 
 
 # ---------------------------------------------------------------- the field
 FIELD = [  # tag, display name, note
-    ("kat-coder-v2.5:q5km-ctx256k-agentic", "KAT-Coder-V2.5-Dev (the pick)", "18/18 at the fastest session; the default since 2026-09-25"),
+    ("qwen3.6:35b-a3b-q4_K_M-agentic", "Qwen3.6 35B-A3B (the default)", "greedy (temp 0); the default, confirmed 09-25 and 10-08"),
+    ("kat-coder-v2.5:q5km-ctx256k-agentic", "KAT-Coder-V2.5-Dev", "ties the default (same-version re-baseline 09-25); the equal alternative"),
     ("tiel-coder:35b-q5-ctx256k-agentic", "Tiel-Coder 35B-A3B", "the pick when overflow safety matters: it refuses, not truncates"),
-    ("qwen3.6:35b-a3b-q4_K_M-agentic", "Qwen3.6 35B-A3B", "the incumbent; ran greedy (temp 0)"),
     ("qwen3.6:35b-a3b-q4_K_M-agentic-t06", "Qwen3.6 35B-A3B at vendor sampling", "t 0.6 / top_p 0.95 / top_k 20: the greedy-vs-spec control"),
     ("gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "Gemma4 26B-A4B", "vision; smallest footprint"),
     ("north-mini-code-1.0:q4_K_M-ctx256k-agentic", "North-Mini-Code 1.0", "fastest generation"),
@@ -125,12 +147,12 @@ FIELD = [  # tag, display name, note
 # Column explanations for the (i) tooltips -- up to five sentences each, written
 # for a reader who has not seen the round document.
 TIPS = {
-    "model": "The model and its Ollama tag, as run on the .67 server (Ollama 0.33.3, one model resident at a time). "
+    "model": "The model and its Ollama tag, as run on the .67 server (Ollama 0.33.3 until 10-05, 0.35.1 since; one model resident at a time). "
              "The grey line says what the model is kept for. Screened-in candidates from this round appear as '(candidate)'.",
     "tps": "Generation speed in tokens per second, at a 2,000-word prompt, thinking off, temperature 0, median of three runs, "
            "with the server idle. Higher is better. It measures raw decoding only: a model can generate fast and still finish "
            "a coding session slowly, if it needs many turns.",
-    "session": "Median wall-clock time of the 'ledger' coding session, three runs, thinking on, driven through the real Claude Code CLI. "
+    "session": "Median wall-clock time of the 'ledger' coding session, thinking on, driven through the real Claude Code CLI; five runs on one Claude Code version (09-25 re-baseline) where a model has them, else its three screen runs. "
                "The model has to read the repository, fix three bugs across three modules, implement one missing function and get the "
                "tests green. Lower is better. This is the number you actually wait for, since it includes every turn and tool call.",
     "tb": "Terminal-Bench (upstream harness, dataset terminal-bench-core 0.1.1): real terminal tasks in Docker containers, graded by "
@@ -169,7 +191,7 @@ TIPS = {
     "t5": "Gate T5 re-run eight times: fill a nested schema exactly (an 'edits' array of two objects), the shape Claude Code's edit tools send. At least 7 of 8 is required -- one miss in eight is sampling noise, more is a defect.",
     "ref": "A setting tested on the current pick, one variable at a time, against the same model without it.",
     "ref_res": "R1: share of input tokens NOT served from the prompt cache, lower is better. R3: generation speed with the penalty on, to see whether Ollama applies it at all. R5: what the model does when the prompt exceeds its window -- refusing is safe, silently halving is not.",
-    "ext": "Terminal-Bench on 30 extra tasks drawn with a fixed seed before any result, minus any task whose own reference solution fails. Two attempts each. The pooled comparison with the 9 original tasks and the paired sign test are in results/s11-ext.log.",
+    "ext": "Terminal-Bench on extra tasks drawn with a fixed seed before any result, minus any task whose own reference solution fails, the defective ones, and any task VOID for either model. Two attempts each, counted only over tasks both models ran. Never pooled with the parity arm. The paired sign test is in results/s11-ext.log.",
     "note": "The model's reported capabilities (tools, thinking, vision), or the reason it was cut.",
 }
 
@@ -215,7 +237,7 @@ def rerun_section(E):
             c = line.split("\t")
             if len(c) >= 4 and c[1] == "T5":
                 g[c[0]] = (c[2], c[3])
-    wanted = ["kat-coder-v2.5:q5km-ctx256k-agentic", "tiel-coder:35b-q5-ctx256k-agentic",
+    wanted = ["qwen3.6:35b-a3b-q4_K_M-agentic", "kat-coder-v2.5:q5km-ctx256k-agentic", "tiel-coder:35b-q5-ctx256k-agentic",
               "occamy-1.0:q5km-ctx256k-agentic", "ornith-1.5-35b:q5km-ctx256k-agentic",
               "byteshape-qwen3.6-35b:q4ks-ctx256k-agentic"]
     gb = "".join(f"<tr><td data-v='{E(m)}'>{E(m)}{minfo(m)}</td><td data-v='{g[m][0] if m in g else ''}'>"
@@ -255,21 +277,35 @@ def rerun_section(E):
     parts.append("<h3>C. Refinements, on the pick</h3><div class='panel'><table><tr>" + th("refinement", "ref")
                  + th("result", "ref_res") + "</tr>" + "".join(cr) + "</table></div>")
     # D. extended Terminal-Bench (arm thinkon-ext)
-    ext = defaultdict(lambda: [0, 0])
+    # The same set ext-compare.py EXT_INFO=1 uses: a task VOID for either model is
+    # dropped for both, and only tasks both models ran are counted.
+    per = defaultdict(lambda: defaultdict(lambda: [0, 0]))
+    void_tasks = set()
     mixed_ext = set()   # models whose extended pass changed runtime mid-pass: labelled, never a verdict
     for r in rows("terminal-bench-official.tsv"):
-        if r.get("arm") == "thinkon-ext" and r.get("run_id") in MIXED_RUNTIME:
+        if r.get("arm") != "thinkon-ext" or r["task"] in DEFECTIVE:
+            continue
+        if r.get("run_id") in MIXED_RUNTIME:
             mixed_ext.add(r["model"])
-        if r.get("arm") == "thinkon-ext" and r["task"] not in DEFECTIVE and r["failure_mode"] not in INFRA:
-            ext[r["model"]][1] += 1
-            ext[r["model"]][0] += r["resolved"] == "True"
+        if r["failure_mode"] in INFRA:
+            void_tasks.add(r["task"])
+            continue
+        per[r["model"]][r["task"]][1] += 1
+        per[r["model"]][r["task"]][0] += r["resolved"] == "True"
+    common = set.intersection(*(set(t) for t in per.values())) - void_tasks if per else set()
+    ext = {m: [sum(per[m][t][0] for t in common), sum(per[m][t][1] for t in common)] for m in per}
     eb = "".join(f"<tr><td data-v='{E(m)}'>{E(m)}{minfo(m)}"
                  + (" <span class='muted'>(MIXED RUNTIME: Ollama 0.33.3 &rarr; 0.35.1 mid-pass; information only)</span>" if m in mixed_ext else "")
                  + f"</td><td class='num' data-v='{100 * k / n if n else 0}'>{k}/{n} = "
                  f"{100 * k / n:.0f}% [{wilson(k, n)[0]:.0f}, {wilson(k, n)[1]:.0f}]</td></tr>" for m, (k, n) in ext.items() if n)
-    parts.append("<h3>D. Extended Terminal-Bench: 30 seeded, oracle-checked tasks, n=2</h3><div class='panel'><table><tr>"
+    parts.append(f"<h3>D. Extended Terminal-Bench: {len(common)} scored tasks &times; 2, information only</h3>"
+                 "<p class='small muted'>30 tasks drawn with a fixed seed; 7 failed their own reference solution, extract-safely "
+                 "is defective, and tasks VOID for either model are dropped for both"
+                 + (f" ({E(', '.join(sorted(void_tasks)))})" if void_tasks else "")
+                 + ". qwen3.6 ran on Ollama 0.33.3 and KAT on 0.35.1, so this is information, not a verdict "
+                 "(paired sign test in results/s11-ext.log).</p><div class='panel'><table><tr>"
                  + th("model", "rb_model") + th("solved (extended tasks only)", "ext") + "</tr>"
-                 + (eb or "<tr><td colspan='2' class='muted'>pending (s11-ext.sh, overnight)</td></tr>") + "</table></div>")
+                 + (eb or "<tr><td colspan='2' class='muted'>no complete extended pair</td></tr>") + "</table></div>")
     return ("<h2>Re-run with new settings (2026-09-25)</h2><p class='small muted'>Everything below runs because "
             "review_20260925.md found the speed axis confounded with the Claude Code version and G2 applied unevenly. "
             "Rule fixed before these results: quality = median 18/18 and no run below 16; clearly faster = median "
@@ -324,11 +360,17 @@ MODEL_FACTS = {
         "data type per tensor). Q4_K_S at 4.22 bits per weight: 17.02 GiB + 0.84 GiB projector; 28.53 GB resident "
         "at 262k, ~4 GB less than the Q4_K_M. Native context 262,144. Quant published May 2026, Apache-2.0. Run at "
         "Qwen's vendor sampler (t 0.6)."),
+    "laguna-xs-2.1:q4km-ctx256k-agentic": (
+        "Laguna XS 2.1 -- Poolside. MoE, 33.4B total. Ollama library Q4_K_M, 18.88 GiB; 25.14 GB resident at "
+        "262k, 100% GPU, ~7 GB below qwen3.6/KAT. Run with Ollama's stock poolside-v1 renderer and the Modelfile "
+        "sampler (t 1.0, top_p 1, top_k 20). Screened in 10-08 on Ollama 0.35.1; community reports say the stock "
+        "template can skip thinking."),
 }
 # candidate names used by the screen TSV
 for _n, _t in (("occamy", "occamy-1.0:q5km-ctx256k-agentic"), ("kat-coder", "kat-coder-v2.5:q5km-ctx256k-agentic"),
                ("ornith15-35b", "ornith-1.5-35b:q5km-ctx256k-agentic"),
-               ("byteshape", "byteshape-qwen3.6-35b:q4ks-ctx256k-agentic")):
+               ("byteshape", "byteshape-qwen3.6-35b:q4ks-ctx256k-agentic"),
+               ("laguna-xs21", "laguna-xs-2.1:q4km-ctx256k-agentic")):
     MODEL_FACTS[_n] = MODEL_FACTS[_t]
 
 
@@ -349,6 +391,7 @@ def th(label, key):
 
 def main():
     tb, led, tps = terminal_bench(), ledger(), tokrate()
+    led.update({k: v for k, v in ledger_same_client().items() if v["walls"]})
     cands = [r for r in rows("candidates-2026-09-21.tsv")]
     field = [(t, n, note) for t, n, note in FIELD]
     for c in cands:  # a screened-in candidate joins the field table
@@ -473,7 +516,7 @@ th.sortable::after{{content:" \\2195";opacity:.35}} th[aria-sort=ascending]::aft
 th[aria-sort=descending]::after{{content:" \\2193";opacity:1}}
 </style></head><body><main>
 <h1>Which model for agentic coding</h1>
-<div class="muted small">Ollama 0.33.3 on .67 &middot; Claude Code &middot; generated {datetime.now():%Y-%m-%d %H:%M} from results/ &middot; round document: ROUND_2026-09-24.md</div>
+<div class="muted small">Ollama 0.33.3 (to 10-05) / 0.35.1 (from 10-05) on .67 &middot; Claude Code &middot; generated {datetime.now():%Y-%m-%d %H:%M} from results/ &middot; round document: ROUND_2026-09-24.md</div>
 
 <div class="verdict"><b>{E(vline) or "verdict pending"}</b><div class="muted small">{E(vwhen)}</div></div>
 
@@ -485,7 +528,7 @@ th[aria-sort=descending]::after{{content:" \\2193";opacity:1}}
 </table></div>
 <ul class="small muted">
 <li><b>speed</b>: generation tok/s (think off, temp 0), and median wall time of the ledger coding session (thinking on). Lower session time is better.</li>
-<li><b>correctness</b>: Terminal-Bench, 9 scored tasks (<i>nginx-request-logging</i> is defective and excluded), thinking on for every model, complete passes only. <b>Overlapping intervals are not a ranking.</b></li>
+<li><b>correctness</b>: Terminal-Bench, 8 scored tasks (<i>nginx-request-logging</i> and <i>polyglot-c-py</i> are defective and excluded), thinking on for every model, complete passes only. <b>Overlapping intervals are not a ranking.</b></li>
 <li><b>quality</b>: 18 held-out tests the model never sees. 18/18 means it implemented the spec, not just the visible tests.</li>
 </ul>
 
@@ -496,7 +539,7 @@ th[aria-sort=descending]::after{{content:" \\2193";opacity:1}}
 <tr>{th("candidate","cand")}{th("verdict","verdict")}{th("GiB","gib")}{th("VRAM GB","vram")}{th("gates","gates")}{th("tok/s","gtps")}{th("ledger s","ledger")}{th("hidden","chidden")}{th("note","note")}</tr>
 {''.join(crs) or '<tr><td colspan="9" class="muted">none finished yet</td></tr>'}
 </table></div>
-<p class="small muted">Still queued: {E(', '.join(pending)) or 'none'}. Ruled out on web evidence and never pulled: Ornith-27B-Coder, Qwen3.6-27B-A3B-Coder, KAT-Ornith, SignOfFour, both OmniMerges, glm-4.7-flash, qwen3-coder:30b, Laguna XS 2.1 (reasons in CANDIDATE_REGISTER.md).</p>
+<p class="small muted">Still queued: {E(', '.join(pending)) or 'none'}. Ruled out on web evidence and never pulled: Ornith-27B-Coder, Qwen3.6-27B-A3B-Coder, KAT-Ornith, SignOfFour, both OmniMerges, glm-4.7-flash, qwen3-coder:30b (reasons in CANDIDATE_REGISTER.md).</p>
 <p class="small muted">Click a column header to sort; click again to reverse. Empty cells always sort last.</p>
 </main>
 <div id="tip" role="tooltip"></div>
