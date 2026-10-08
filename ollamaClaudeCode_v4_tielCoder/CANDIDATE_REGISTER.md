@@ -41,6 +41,7 @@ Reddit sweep 2026-10-07.*
 | `qwen3.6:35b-a3b-q4_K_M-agentic` | **the default, confirmed 09-25** on one client version: 48 s, 18,18,18,17,17 (quality PASS), Terminal-Bench 50% | ROUND_2026-09-24.md |
 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | vision, smallest footprint, 18/18 ×3 | ROUND_2026-09-24.md |
 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | fastest generation (136 tok/s) | README §field |
+| `laguna-xs-2.1:q4km-ctx256k-agentic` | **measured 10-08, ties mid-field**: screened in (G2 9/10, 70 s, 18/16/18), Terminal-Bench 9/21 = 43% [24, 63]. Smallest 262k footprint of the field (25.1 GB). No pick | ROUND_2026-09-24.md §6 |
 
 ## Testable: queued, best first
 
@@ -99,7 +100,7 @@ claims; new models were cross-checked on HF and llama.cpp.*
   library `ornith-1.5:35b` Q4_K_M, pi harness, 9-step session + 10 coding tasks): Ornith-1.5 9/9 + 10/10, **Laguna XS
   2.1 passed both**, **North Mini Code 1.0 only 4/9**. A second user: Ornith loops in thinking and overruns 262k on
   long multi-requirement tasks (matches our 119 s sessions / T5 fail).
-- **Laguna XS 2.1 (queued)** ([1wro594](https://www.reddit.com/r/LocalLLaMA/comments/1wro594/), 09-27): the stock
+- **Laguna XS 2.1 (measured 10-08, now in *Standing field*; stock `poolside-v1` renderer used)** ([1wro594](https://www.reddit.com/r/LocalLLaMA/comments/1wro594/), 09-27): the stock
   template lets XS skip thinking "right when it needs it most" and forces `preserve_thinking` on; a community
   template adds `force_thinking`/`reasoning_effort`. "Quite glitchy". **For the screen: record which template the
   GGUF carries, and keep the stock one** (template changes are an A/B arm, not the main row).

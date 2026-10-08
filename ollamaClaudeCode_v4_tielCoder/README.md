@@ -20,7 +20,15 @@ parity round, four candidates and a same-version re-baseline are in. The 2026-09
 
 ---
 
-## The verdict (2026-09-25, after the same-version re-baseline)
+## The verdict (2026-10-08, round closed): unchanged
+
+**qwen3.6 greedy stays the default; KAT-Coder-V2.5-Dev ties it; Laguna XS 2.1 ties mid-field.** The extended
+Terminal-Bench pass (21 tasks × 2) put KAT at 16/42 = 38% [25, 53] against qwen3.6's 11/42 = 26% [15, 41]:
+overlapping, sign test p = 0.22, and across two Ollama versions, so information only. Laguna XS 2.1 screened in
+(25 GB resident at 262k, 70 s sessions) and scored 9/21 = 43% [24, 63] on the parity arm: a tie, and not
+faster. Details in [`ROUND_2026-09-24.md`](ROUND_2026-09-24.md) → *Verdict so far*.
+
+## The verdict (2026-09-25, standing, after the same-version re-baseline)
 
 **Keep `qwen3.6:35b-a3b-q4_K_M-agentic` (greedy) for agentic coding with Claude Code. `kat-coder-v2.5:q5km-ctx256k-agentic`
 (Kwaipilot KAT-Coder-V2.5-Dev) ties it on every axis and is the equal alternative. qwen3.6 is not replaced.**
