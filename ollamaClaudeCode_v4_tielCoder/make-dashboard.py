@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
-"""make-dashboard.py -- dashboard.html: which model for agentic coding, on the
-three axes the owner asked for (2026-09-24): speed, correctness, quality.
+"""make-dashboard.py -- dashboard.html: the final results of the 09-24 round, one row
+per model, and two picks computed from them by rules printed on the page.
 
-Regenerated after every candidate; everything it shows is read from results/
-and from the verdict line of ROUND_2026-09-24.md, so the page cannot drift
-from the data or from the written verdict.
+Everything shown is read from results/ (and the verdict line of ROUND_2026-09-24.md),
+so the page cannot drift from the data. Regenerate after every result.
 
-  speed        tokrate.tsv   generation tok/s (think off, temp 0)
-               cc-session    ledger fixture, median session wall
-  correctness  terminal-bench-official.tsv, thinking-parity arm only,
-               complete passes only, defective tasks and infra failures out
-  quality      cc-session    ledger fixture, held-out tests per run (x/18)
-  candidates   candidates-2026-09-21.tsv (the screen)
+  Terminal-Bench   terminalbench/official/results -> results/terminal-bench-official.tsv,
+                   thinking-parity arm, complete passes, defective tasks and VOID trials out
+  held-out, session cc-session-rb0925.tsv (same Claude Code version, x5) where a model has
+                   it, else cc-session.tsv (its screen runs)
+  T5 x8            gate-rerun.tsv          tok/s  tokrate.tsv (2k-word prompt)
+  VRAM             candidates-2026-09-21.tsv, else vision-v2.tsv (resident GB at 262k)
+  extended         the thinkon-ext arm, paired as ext-compare.py EXT_INFO=1 does
 """
 import csv
 import html
-import math
 import re
 import statistics
+from math import comb
 import sys
 from collections import defaultdict
 from datetime import datetime
@@ -26,9 +26,28 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 RES = HERE / "results"
 sys.path.insert(0, str(HERE / "terminalbench" / "official"))
-from summarise import DEFECTIVE, INFRA, MIXED_RUNTIME, split_arm, wilson  # noqa: E402
+from summarise import DEFECTIVE, INFRA, split_arm, wilson  # noqa: E402
 
 ARM = "thinkon"
+GATE_RERUN_HISTORY = 2   # gate-rerun.tsv's first lines are the 09-17 re-runs, not this round
+
+# The rows of the page: tag -> display name. Screened-in candidates join from the screen TSV.
+MODELS = [
+    ("qwen3.6:35b-a3b-q4_K_M-agentic", "Qwen3.6 35B-A3B"),
+    ("kat-coder-v2.5:q5km-ctx256k-agentic", "KAT-Coder-V2.5-Dev"),
+    ("byteshape-qwen3.6-35b:q4ks-ctx256k-agentic", "ByteShape Qwen3.6 Q4_K_S"),
+    ("gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "Gemma4 26B-A4B"),
+    ("tiel-coder:35b-q5-ctx256k-agentic", "Tiel-Coder 35B-A3B"),
+    ("laguna-xs-2.1:q4km-ctx256k-agentic", "Laguna XS 2.1"),
+    ("occamy-1.0:q5km-ctx256k-agentic", "occamy-1.0"),
+    ("ornith-1.5-35b:q5km-ctx256k-agentic", "Ornith-1.5-35B-A3B"),
+    ("north-mini-code-1.0:q4_K_M-ctx256k-agentic", "North-Mini-Code 1.0"),
+    ("qwen3.6:35b-a3b-q4_K_M-agentic-t06", "Qwen3.6 at vendor sampler (t 0.6)"),
+]
+
+# The picks' rules, fixed in the round (09-25) and printed on the page.
+QUALITY = "held-out median 18/18 and no run below 16"
+T5_MIN = 7
 
 
 def slug(tag):
@@ -115,7 +134,6 @@ def tokrate():
             pass
     return {k: statistics.median(v) for k, v in out.items()}
 
-
 def verdict_line():
     p = HERE / "ROUND_2026-09-24.md"
     if not p.exists():
@@ -130,185 +148,21 @@ def verdict_line():
     return (m.group(1), m.group(2)) if m else ("", "")
 
 
-# ---------------------------------------------------------------- the field
-FIELD = [  # tag, display name, note
-    ("qwen3.6:35b-a3b-q4_K_M-agentic", "Qwen3.6 35B-A3B (the default)", "greedy (temp 0); the default, confirmed 09-25 and 10-08"),
-    ("kat-coder-v2.5:q5km-ctx256k-agentic", "KAT-Coder-V2.5-Dev", "ties the default (same-version re-baseline 09-25); the equal alternative"),
-    ("tiel-coder:35b-q5-ctx256k-agentic", "Tiel-Coder 35B-A3B", "the pick when overflow safety matters: it refuses, not truncates"),
-    ("qwen3.6:35b-a3b-q4_K_M-agentic-t06", "Qwen3.6 35B-A3B at vendor sampling", "t 0.6 / top_p 0.95 / top_k 20: the greedy-vs-spec control"),
-    ("gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic", "Gemma4 26B-A4B", "vision; smallest footprint"),
-    ("north-mini-code-1.0:q4_K_M-ctx256k-agentic", "North-Mini-Code 1.0", "fastest generation"),
-]
-
-
-# Column explanations for the (i) tooltips -- up to five sentences each, written
-# for a reader who has not seen the round document.
 TIPS = {
-    "model": "The model and its Ollama tag, as run on the .67 server (Ollama 0.33.3 until 10-05, 0.35.1 since; one model resident at a time). "
-             "The grey line says what the model is kept for. Screened-in candidates from this round appear as '(candidate)'.",
-    "tps": "Generation speed in tokens per second, at a 2,000-word prompt, thinking off, temperature 0, median of three runs, "
-           "with the server idle. Higher is better. It measures raw decoding only: a model can generate fast and still finish "
-           "a coding session slowly, if it needs many turns.",
-    "session": "Median wall-clock time of the 'ledger' coding session, thinking on, driven through the real Claude Code CLI; five runs on one Claude Code version (09-25 re-baseline) where a model has them, else its three screen runs. "
-               "The model has to read the repository, fix three bugs across three modules, implement one missing function and get the "
-               "tests green. Lower is better. This is the number you actually wait for, since it includes every turn and tool call.",
-    "tb": "Terminal-Bench (upstream harness, dataset terminal-bench-core 0.1.1): real terminal tasks in Docker containers, graded by "
-          "the tasks' own tests. A frozen subset of 10 tasks, run 3 times each; 8 are scored because nginx-request-logging and "
-          "polyglot-c-py contradict their own tests. Thinking is on for every model, only complete passes count, and infrastructure failures are void, "
-          "not zero. The small line shows solved/trials and the 95% interval.",
-    "ci": "The 95% Wilson confidence interval of the Terminal-Bench rate, drawn on a 0-100% axis: the band is the interval, the dot "
-          "the measured rate. With only 24 trials per model the band is about 35 points wide. Two models whose bands overlap are "
-          "NOT ranked by this benchmark -- that rule was fixed before any results. Today every band overlaps.",
-    "hidden": "Held-out tests, one chip per run: after the ledger session ends, 18 extra tests the model never saw are run "
-              "against its code. They check what the docstrings specify, not what the visible tests happen to assert. 18/18 "
-              "means the model implemented the specification; fewer means it made the visible tests green and left parts of "
-              "the spec undone. Green is 18/18, amber anything less.",
-    "cand": "A candidate model found this round and pre-evaluated on the web before it was pulled; the grey line is the exact "
-            "GGUF source. Models ruled out on the evidence never appear here -- they are listed with reasons in CANDIDATE_REGISTER.md.",
-    "verdict": "The screen's result. SCREENED-IN: passed all three gates and went on to Terminal-Bench. CUT-G1: did not fit "
-               "fully in GPU memory; CUT-G2 failed the tool-call gates; CUT-G3 had a coding session too slow or too many "
-               "held-out failures. VOID means our harness failed, not the model.",
-    "gib": "Size of the downloaded model in GiB, including the vision projector where the repository ships one. It is checked "
-           "to within 3% of the expected file, because a Hugging Face quant label can resolve to a different file (a wrong, "
-           "smaller quant would silently lower quality).",
-    "vram": "GPU memory the model occupies once loaded with its full 262,144-token context window. It must be 100% on the "
-            "GPU: a spill into system RAM cost 5x the speed in earlier rounds. The box keeps about 35.56 GB resident.",
-    "gates": "Ten tool-call gates, passed out of ten; 9 are required. They test: one correct tool call, choosing the right tool, "
-             "using a tool's result, two parallel calls, a nested schema (an 'edits' array -- what Claude Code's edit tools "
-             "send), finding a hidden fact at 4k/16k/60k/120k tokens of context, and calling tools correctly at ~53k tokens.",
-    "gtps": "Generation tokens per second recorded during the screen. Reported, never a gate.",
-    "ledger": "Median wall-clock of the three ledger coding sessions (see the field table). Gate G3 requires 150 s or less, "
-              "because a model that needs many slow turns is the wrong shape even if it is capable.",
-    "chidden": "Median held-out tests passed out of 18 across the three ledger sessions (see the field table). Gate G3 requires "
-               "at least 16.",
-    "rb_model": "The Ollama tag, exactly as run.",
-    "rb_n": "How many ledger sessions ran for this model in the re-baseline. Five are planned per model, all on the same Claude Code version, back to back, so the client cannot differ between models.",
-    "rb_range": "Fastest to slowest of the five sessions. 'Clearly faster' requires the ranges of two models not to overlap AND a median at least 25% lower -- a threshold fixed before these runs.",
-    "rb_rule": "The quality rule fixed before these runs: the median of the held-out scores must be 18/18 and no single run may fall below 16/18.",
-    "t5": "Gate T5 re-run eight times: fill a nested schema exactly (an 'edits' array of two objects), the shape Claude Code's edit tools send. At least 7 of 8 is required -- one miss in eight is sampling noise, more is a defect.",
-    "ref": "A setting tested on the current pick, one variable at a time, against the same model without it.",
-    "ref_res": "R1: share of input tokens NOT served from the prompt cache, lower is better. R3: generation speed with the penalty on, to see whether Ollama applies it at all. R5: what the model does when the prompt exceeds its window -- refusing is safe, silently halving is not.",
-    "ext": "Terminal-Bench on extra tasks drawn with a fixed seed before any result, minus any task whose own reference solution fails, the defective ones, and any task VOID for either model. Two attempts each, counted only over tasks both models ran. Never pooled with the parity arm. The paired sign test is in results/s11-ext.log.",
-    "note": "The model's reported capabilities (tools, thinking, vision), or the reason it was cut.",
+    "model": "The model, as run on .67 (Ollama 0.33.3 until 10-05, 0.35.1 since), one model resident at a time, 100% on the GPU. "
+             "The (i) next to a name has its facts: maker, base, quant, size, sampler.",
+    "tb": "Correctness. Terminal-Bench (terminal-bench-core 0.1.1): real terminal tasks in Docker, graded by the tasks' own tests. "
+          "8 scored tasks x 3 attempts, thinking on for every model; VOID infrastructure failures are not counted. "
+          "Bar = 95% interval on 0-100%. Overlapping bars are a tie, not a ranking.",
+    "hidden": "Few mistakes. After a real Claude Code coding session (fix three bugs, implement one function), 18 tests the model never saw are run. "
+              "Shown: median and worst run. The rule: median 18/18 and no run below 16.",
+    "t5": "Tool-call reliability. Gate T5 run 8 times: fill a nested schema exactly, the shape Claude Code's edit tools send. "
+          "At least 7/8 is required; less means broken edits in real sessions.",
+    "session": "Speed you wait for. Median wall-clock of that coding session through the real Claude Code CLI, thinking on. "
+               "Five runs on one Claude Code version where a model has them (09-25), else its three screen runs. Lower is better.",
+    "tps": "Raw generation speed, tokens per second at a 2,000-word prompt, thinking off. Higher is better; a fast decoder can still need many turns.",
+    "vram": "GPU memory with the full 262,144-token context loaded. The box has ~35.5 GB usable.",
 }
-
-
-# ------------------------------------------------ re-run with new settings (09-25)
-GATE_RERUN_HISTORY = 2
-
-
-def rerun_section(E):
-    """The runs the 09-25 review made mandatory, each read from its own data file,
-    each showing 'pending' until its data exists."""
-    import glob, json
-    parts = []
-    # A. same-version re-baseline: cc-session-rb0925.tsv, ledger x5 per model
-    rb = defaultdict(list)
-    for r in rows("cc-session-rb0925.tsv"):
-        if r.get("fixture") == "hard" and r.get("thinking") == "on":
-            rb[r["model"]].append(r)
-    body = []
-    for m, rs in rb.items():
-        rs = rs[-5:]
-        w = [float(r["wall_s"]) for r in rs if r["wall_s"].replace(".", "", 1).isdigit()]
-        h = [int(r["hidden"].split("/")[0]) for r in rs if "/" in r.get("hidden", "")]
-        ok = bool(h) and statistics.median(h) == 18 and min(h) >= 16
-        body.append(f"<tr><td data-v='{E(m)}'><b>{E(m)}</b>{minfo(m)}</td><td class='num' data-v='{len(rs)}'>{len(rs)}</td>"
-                    f"<td class='num' data-v='{statistics.median(w) if w else ''}'>{f'{statistics.median(w):.0f} s' if w else '&mdash;'}</td>"
-                    f"<td class='num' data-v='{min(w) if w else ''}'>{f'{min(w):.0f}&ndash;{max(w):.0f}' if w else '&mdash;'}</td>"
-                    f"<td data-v='{statistics.mean(h) if h else ''}'>" + (" ".join(
-                        f"<span class='chip {'good' if x == 18 else 'warn'}'>{x}/18</span>" for x in h) or "&mdash;") +
-                    f"</td><td data-v='{int(ok)}'><span class='chip {'good' if ok else 'crit'}'>{'PASS' if ok else 'fail'}</span></td></tr>")
-    parts.append("<h3>A. Same-version re-baseline: ledger &times;5 on one Claude Code version</h3>"
-                 "<div class='panel'><table><tr>" + th("model", "rb_model") + th("runs", "rb_n") + th("median", "session")
-                 + th("range", "rb_range") + th("held-out per run", "hidden") + th("quality rule", "rb_rule") + "</tr>"
-                 + ("".join(body) or "<tr><td colspan='6' class='muted'>pending (s12-rebaseline.sh)</td></tr>")
-                 + "</table></div>")
-    # B. gate consistency: T5 x8 (gate-rerun.tsv has no header: model gate pass verdict)
-    g = {}
-    f = RES / "gate-rerun.tsv"
-    if f.exists():
-        # gate-rerun.tsv carries no date; its first GATE_RERUN_HISTORY lines are the 09-17
-        # re-runs, which must not be shown as today's result (they were, for one render)
-        for line in f.read_text().splitlines()[GATE_RERUN_HISTORY:]:
-            c = line.split("\t")
-            if len(c) >= 4 and c[1] == "T5":
-                g[c[0]] = (c[2], c[3])
-    wanted = ["qwen3.6:35b-a3b-q4_K_M-agentic", "kat-coder-v2.5:q5km-ctx256k-agentic", "tiel-coder:35b-q5-ctx256k-agentic",
-              "occamy-1.0:q5km-ctx256k-agentic", "ornith-1.5-35b:q5km-ctx256k-agentic",
-              "byteshape-qwen3.6-35b:q4ks-ctx256k-agentic"]
-    gb = "".join(f"<tr><td data-v='{E(m)}'>{E(m)}{minfo(m)}</td><td data-v='{g[m][0] if m in g else ''}'>"
-                 f"{E(g[m][0]) + ' ' + E(g[m][1]) if m in g else '<span class=muted>pending</span>'}</td></tr>" for m in wanted)
-    parts.append("<h3>B. Tool-gate consistency: T5 nested schema &times;8</h3><div class='panel'><table><tr>"
-                 + th("model", "rb_model") + th("T5 passes of 8", "t5") + "</tr>" + gb + "</table></div>")
-    # C. refinements on the pick
-    def arm(a):
-        out = []
-        for fn in sorted(glob.glob(str(RES / "cc" / f"kat-coder-v2.5_q5km-ctx256k-agentic-hard-thinkon-{a}-r[0-9]*.jsonl"))):
-            for line in open(fn):
-                i = line.find("{")
-                if i < 0:
-                    continue
-                try:
-                    d = json.loads(line[i:])
-                except ValueError:
-                    continue
-                if d.get("type") == "result":
-                    u = d.get("usage") or {}
-                    tot = u.get("input_tokens", 0) + u.get("cache_read_input_tokens", 0)
-                    out.append((100 * u.get("input_tokens", 0) / tot if tot else 0, d.get("duration_ms", 0) / 1000))
-        return out
-    cr = []
-    for a, label in (("remindon", "reminder default"), ("remindoff", "CLAUDE_CODE_TOTAL_TOKENS_REMINDER=off")):
-        v = arm(a)
-        cr.append(f"<tr><td data-v='{label}'>R1 caching: {E(label)}</td><td data-v='{len(v)}'>"
-                  + (f"{len(v)} runs &middot; uncached {statistics.median([x for x, _ in v]):.1f}% &middot; "
-                     f"median {statistics.median([y for _, y in v]):.0f} s" if v else "<span class=muted>pending</span>") + "</td></tr>")
-    pp = [r for r in rows("tokrate.tsv") if r.get("model", "").endswith("-pp15") and r.get("prompt_words") == "2000"]
-    cr.append("<tr><td data-v='R3'>R3 presence_penalty 1.5 vs 0 (KAT, 2k prompt)</td><td data-v='1'>"
-              + (f"{pp[-1]['gen_tps']} tok/s with 1.5, against {tokrate().get(slug('kat-coder-v2.5:q5km-ctx256k-agentic'), 0):.0f} with 0" if pp
-                 else "<span class=muted>pending</span>") + "</td></tr>")
-    ov = [r for r in rows("overflow.tsv") if r.get("model", "").startswith("kat-coder")]
-    cr.append("<tr><td data-v='R5'>R5 overflow past the window (KAT)</td><td data-v='1'>"
-              + (f"{E(ov[-1]['regime'])} ({E(ov[-1]['detail'])})" if ov else "<span class=muted>pending</span>") + "</td></tr>")
-    parts.append("<h3>C. Refinements, on the pick</h3><div class='panel'><table><tr>" + th("refinement", "ref")
-                 + th("result", "ref_res") + "</tr>" + "".join(cr) + "</table></div>")
-    # D. extended Terminal-Bench (arm thinkon-ext)
-    # The same set ext-compare.py EXT_INFO=1 uses: a task VOID for either model is
-    # dropped for both, and only tasks both models ran are counted.
-    per = defaultdict(lambda: defaultdict(lambda: [0, 0]))
-    void_tasks = set()
-    mixed_ext = set()   # models whose extended pass changed runtime mid-pass: labelled, never a verdict
-    for r in rows("terminal-bench-official.tsv"):
-        if r.get("arm") != "thinkon-ext" or r["task"] in DEFECTIVE:
-            continue
-        if r.get("run_id") in MIXED_RUNTIME:
-            mixed_ext.add(r["model"])
-        if r["failure_mode"] in INFRA:
-            void_tasks.add(r["task"])
-            continue
-        per[r["model"]][r["task"]][1] += 1
-        per[r["model"]][r["task"]][0] += r["resolved"] == "True"
-    common = set.intersection(*(set(t) for t in per.values())) - void_tasks if per else set()
-    ext = {m: [sum(per[m][t][0] for t in common), sum(per[m][t][1] for t in common)] for m in per}
-    eb = "".join(f"<tr><td data-v='{E(m)}'>{E(m)}{minfo(m)}"
-                 + (" <span class='muted'>(MIXED RUNTIME: Ollama 0.33.3 &rarr; 0.35.1 mid-pass; information only)</span>" if m in mixed_ext else "")
-                 + f"</td><td class='num' data-v='{100 * k / n if n else 0}'>{k}/{n} = "
-                 f"{100 * k / n:.0f}% [{wilson(k, n)[0]:.0f}, {wilson(k, n)[1]:.0f}]</td></tr>" for m, (k, n) in ext.items() if n)
-    parts.append(f"<h3>D. Extended Terminal-Bench: {len(common)} scored tasks &times; 2, information only</h3>"
-                 "<p class='small muted'>30 tasks drawn with a fixed seed; 7 failed their own reference solution, extract-safely "
-                 "is defective, and tasks VOID for either model are dropped for both"
-                 + (f" ({E(', '.join(sorted(void_tasks)))})" if void_tasks else "")
-                 + ". qwen3.6 ran on Ollama 0.33.3 and KAT on 0.35.1, so this is information, not a verdict "
-                 "(paired sign test in results/s11-ext.log).</p><div class='panel'><table><tr>"
-                 + th("model", "rb_model") + th("solved (extended tasks only)", "ext") + "</tr>"
-                 + (eb or "<tr><td colspan='2' class='muted'>no complete extended pair</td></tr>") + "</table></div>")
-    return ("<h2>Re-run with new settings (2026-09-25)</h2><p class='small muted'>Everything below runs because "
-            "review_20260925.md found the speed axis confounded with the Claude Code version and G2 applied unevenly. "
-            "Rule fixed before these results: quality = median 18/18 and no run below 16; clearly faster = median "
-            "&ge; 25% lower and non-overlapping 5-run ranges; correctness = non-overlapping pooled intervals, else a "
-            "paired sign test p &lt; 0.05.</p>" + "".join(parts))
-
 
 # Model fact cards for the (i) next to each model name. Sources: the model cards and
 # registry manifests checked in ROUND_2026-09-24.md / CANDIDATE_REGISTER.md, and this
@@ -363,17 +217,10 @@ MODEL_FACTS = {
         "sampler (t 1.0, top_p 1, top_k 20). Screened in 10-08 on Ollama 0.35.1; community reports say the stock "
         "template can skip thinking."),
 }
-# candidate names used by the screen TSV
-for _n, _t in (("occamy", "occamy-1.0:q5km-ctx256k-agentic"), ("kat-coder", "kat-coder-v2.5:q5km-ctx256k-agentic"),
-               ("ornith15-35b", "ornith-1.5-35b:q5km-ctx256k-agentic"),
-               ("byteshape", "byteshape-qwen3.6-35b:q4ks-ctx256k-agentic"),
-               ("laguna-xs21", "laguna-xs-2.1:q4km-ctx256k-agentic")):
-    MODEL_FACTS[_n] = MODEL_FACTS[_t]
-
 
 def minfo(key):
-    """(i) with the model's fact card; accepts a tag, a Terminal-Bench slug or a screen name."""
-    f = MODEL_FACTS.get(key) or next((v for k, v in MODEL_FACTS.items() if slug(k) == key), None)
+    """(i) with the model's fact card."""
+    f = MODEL_FACTS.get(key)
     if not f:
         return ""
     return (f'<span class="info" tabindex="0" role="button" aria-label="About this model" '
@@ -386,91 +233,142 @@ def th(label, key):
             f'aria-label="About this column" data-tip="{html.escape(TIPS[key], quote=True)}">i</span></th>')
 
 
+def t5():
+    out = {}
+    f = RES / "gate-rerun.tsv"
+    if f.exists():
+        for line in f.read_text().splitlines()[GATE_RERUN_HISTORY:]:
+            c = line.split("\t")
+            if len(c) >= 4 and c[1] == "T5":
+                out[c[0]] = c[2]
+    return out
+
+
+def vram():
+    out = {}
+    for r in rows("vision-v2.tsv"):
+        if r.get("ctx") == "262144" and r.get("resident_gb"):
+            out[r["model"]] = float(r["resident_gb"])
+    for r in rows("candidates-2026-09-21.tsv"):
+        if r.get("resident_gb"):
+            out[r["baked_tag"]] = float(r["resident_gb"])
+    return out
+
+
+def extended():
+    """The thinkon-ext pair, counted as ext-compare.py EXT_INFO=1 does: a task VOID for
+    either model is dropped for both, and only tasks both ran are counted."""
+    per = defaultdict(lambda: defaultdict(lambda: [0, 0]))
+    void = set()
+    for r in rows("terminal-bench-official.tsv"):
+        if r.get("arm") != "thinkon-ext" or r["task"] in DEFECTIVE:
+            continue
+        if r["failure_mode"] in INFRA:
+            void.add(r["task"])
+            continue
+        per[r["model"]][r["task"]][1] += 1
+        per[r["model"]][r["task"]][0] += r["resolved"] == "True"
+    if len(per) != 2:
+        return None
+    common = set.intersection(*(set(t) for t in per.values())) - void
+    a, b = per
+    wa = sum(per[a][t][0] > per[b][t][0] for t in common)
+    wb = sum(per[b][t][0] > per[a][t][0] for t in common)
+    n = wa + wb   # two-sided exact sign test over the decided tasks
+    p = min(1.0, 2 * sum(comb(n, i) for i in range(min(wa, wb) + 1)) / 2 ** n) if n else 1.0
+    tot = {m: [sum(per[m][t][0] for t in common), sum(per[m][t][1] for t in common)] for m in per}
+    # qwen3.6's pass ran wholly on 0.33.3 and KAT's (10-08) wholly on 0.35.1: two runtimes even
+    # though neither run changed mid-pass, so the pair is information only (round, 10-07)
+    return {"tasks": len(common), "tot": tot, "p": p, "mixed": True}
+
+
 def main():
-    tb, led, tps = terminal_bench(), ledger(), tokrate()
+    E = html.escape
+    tb, led, tps, gates, mem = terminal_bench(), ledger(), tokrate(), t5(), vram()
     led.update({k: v for k, v in ledger_same_client().items() if v["walls"]})
-    cands = [r for r in rows("candidates-2026-09-21.tsv")]
-    field = [(t, n, note) for t, n, note in FIELD]
-    for c in cands:  # a screened-in candidate joins the field table
-        if c.get("verdict") == "SCREENED-IN" and c["baked_tag"] not in {t for t, _, _ in FIELD}:
-            field.append((c["baked_tag"], c["name"] + " (candidate)", "screened in " + c["date"]))
 
     table = []
-    for tag, name, note in field:
+    for tag, name in MODELS:
         s = slug(tag)
-        t = tb.get(s, {"k": 0, "n": 0, "secs": []})
-        lo, hi = wilson(t["k"], t["n"]) if t["n"] else (0, 0)
+        t = tb.get(s)
+        if not t or not t["n"]:
+            continue   # only models with a complete final Terminal-Bench pass
         L = led.get(s, {"walls": [], "hidden": []})
-        table.append({
-            "name": name, "note": note, "tag": tag,
-            "rate": 100 * t["k"] / t["n"] if t["n"] else None, "k": t["k"], "n": t["n"],
-            "lo": lo, "hi": hi,
-            "tb_med": statistics.median(t["secs"]) if t["secs"] else None,
-            "wall": statistics.median(L["walls"]) if L["walls"] else None,
-            "hidden": L["hidden"],
-            "tps": tps.get(s),
-        })
+        h = L["hidden"]
+        lo, hi = wilson(t["k"], t["n"])
+        g = gates.get(tag)
+        g_ok = bool(g) and int(g.split("/")[0]) >= T5_MIN
+        q_ok = bool(h) and statistics.median(h) == 18 and min(h) >= 16
+        table.append({"tag": tag, "name": name, "k": t["k"], "n": t["n"], "rate": 100 * t["k"] / t["n"],
+                      "lo": lo, "hi": hi, "h": h, "q_ok": q_ok, "t5": g, "t5_ok": g_ok,
+                      "wall": statistics.median(L["walls"]) if L["walls"] else None,
+                      "tps": tps.get(s), "vram": mem.get(tag)})
 
-    vline, vwhen = verdict_line()
-    E = html.escape
+    # the two picks, from the rules printed with them
+    ok = [r for r in table if r["q_ok"] and r["t5_ok"]]
+    best = max(ok, key=lambda r: (r["rate"], -(r["wall"] or 1e9))) if ok else None
+    tied = [r for r in ok if best and r["hi"] >= best["lo"] and r["lo"] <= best["hi"]]
+    fast = min((r for r in tied if r["wall"]), key=lambda r: r["wall"], default=None)
+    top_tb = max(table, key=lambda r: r["rate"]) if table else None
 
-    def num(v, fmt):
-        return fmt.format(v) if v is not None else "&mdash;"
+    def num(v, fmt):   # a sortable numeric cell; a missing value sorts last
+        return f"<td class='num' data-v='{'' if v is None else v}'>{'&mdash;' if v is None else fmt.format(v)}</td>"
 
-    # correctness chart: rate with its 95% interval on a 0-100 axis
-    def ci_bar(r):
-        if r["rate"] is None:
-            return '<span class="muted">not run</span>'
-        return (f'<div class="ci"><div class="ci-range" style="left:{r["lo"]:.1f}%;width:{r["hi"]-r["lo"]:.1f}%"></div>'
-                f'<div class="ci-dot" style="left:{r["rate"]:.1f}%"></div></div>')
-
-    def hidden_chips(h):
-        if not h:
-            return '<span class="muted">&mdash;</span>'
-        return " ".join(f'<span class="chip {"good" if x == 18 else "warn"}">{x}/18</span>' for x in h)
+    def chip(good, text):
+        return f"<span class='chip {'good' if good else 'crit'}'>{E(text)}</span>"
 
     trs = []
-    for r in table:
-        def dv(v):  # sort key for a cell; missing values sort last either way
-            return "" if v is None else f"{v:.3f}"
-        hid = statistics.mean(r["hidden"]) if r["hidden"] else None
+    for r in sorted(table, key=lambda r: (-(r["q_ok"] and r["t5_ok"]), -r["rate"])):
+        mark = " <span class='chip good'>most correct</span>" if r is best else ""
+        mark += " <span class='chip ref'>correct &amp; fastest</span>" if r is fast else ""
+        h = r["h"]
         trs.append(
-            f"<tr><td data-v='{E(r['name'])}'><b>{E(r['name'])}</b>{minfo(r['tag'])}<div class='muted small'>{E(r['note'])}</div></td>"
-            f"<td class='num' data-v='{dv(r['tps'])}'>{num(r['tps'], '{:.0f}')}</td>"
-            f"<td class='num' data-v='{dv(r['wall'])}'>{num(r['wall'], '{:.0f} s')}</td>"
-            f"<td class='num' data-v='{dv(r['rate'])}'>{num(r['rate'], '{:.0f}%')}<div class='muted small'>{r['k']}/{r['n']}"
-            f"{'' if r['rate'] is None else f' &middot; [{r['lo']:.0f}, {r['hi']:.0f}]'}</div></td>"
-            f"<td class='cicell' data-v='{dv(r['lo'] if r['rate'] is not None else None)}'>{ci_bar(r)}</td>"
-            f"<td data-v='{dv(hid)}'>{hidden_chips(r['hidden'])}</td></tr>")
+            f"<tr><td data-v='{E(r['name'])}'><b>{E(r['name'])}</b>{minfo(r['tag'])}{mark}"
+            f"<div class='muted small'>{E(r['tag'])}</div></td>"
+            f"<td class='cicell' data-v='{r['rate']:.3f}'><b>{r['rate']:.0f}%</b> "
+            f"<span class='muted small'>{r['k']}/{r['n']} [{r['lo']:.0f}, {r['hi']:.0f}]</span>"
+            f"<div class='ci'><div class='ci-range' style='left:{r['lo']:.1f}%;width:{r['hi'] - r['lo']:.1f}%'></div>"
+            f"<div class='ci-dot' style='left:{r['rate']:.1f}%'></div></div></td>"
+            f"<td data-v='{statistics.median(h) * 100 + min(h) if h else ''}'>"
+            + (chip(r["q_ok"], f"{statistics.median(h):.0f}/18, worst {min(h)}") + f" <span class='muted small'>n={len(h)}</span>" if h else "<span class='muted'>&mdash;</span>")
+            + f"</td><td data-v='{r['t5'].split('/')[0] if r['t5'] else ''}'>"
+            + (chip(r["t5_ok"], r["t5"]) if r["t5"] else "<span class='muted small'>not run</span>")
+            + "</td>" + num(r["wall"], "{:.0f} s") + num(r["tps"], "{:.0f}") + num(r["vram"], "{:.1f}") + "</tr>")
 
-    crs = []
-    for c in cands:
-        v = c.get("verdict", "")
-        tone = "good" if v == "SCREENED-IN" else "crit"
-        def cv(k):
-            x = (c.get(k) or "").split("/")[0]
-            try:
-                return f"{float(x):.3f}"
-            except ValueError:
-                return ""
-        crs.append(
-            f"<tr><td data-v='{E(c['name'])}'><b>{E(c['name'])}</b>{minfo(c['name'])}<div class='muted small'>{E(c['source'])}</div></td>"
-            f"<td data-v='{E(v)}'><span class='chip {tone}'>{E(v)}</span></td>"
-            f"<td class='num' data-v='{cv('got_gib')}'>{E(c.get('got_gib') or '-')}</td>"
-            f"<td class='num' data-v='{cv('vram_gb')}'>{E(c.get('vram_gb') or '-')}</td>"
-            f"<td data-v='{cv('gates')}'>{E(c.get('gates') or '-')}</td>"
-            f"<td class='num' data-v='{cv('gen_toks')}'>{E(c.get('gen_toks') or '-')}</td>"
-            f"<td class='num' data-v='{cv('ledger_median_s')}'>{E(c.get('ledger_median_s') or '-')}</td>"
-            f"<td data-v='{cv('ledger_hidden')}'>{E(c.get('ledger_hidden') or '-')}</td>"
-            f"<td class='small' data-v='{E(c.get('note') or '')}'>{E(c.get('note') or '')}</td></tr>")
-    queue = ["occamy", "kat-coder", "ornith15-35b", "byteshape", "laguna-xs21"]
-    done = {c["name"] for c in cands}
-    pending = [q for q in queue if q not in done]
+    picks = []
+    if best:
+        picks.append(f"<div class='pick'><div class='muted small'>MOST CORRECT</div><b>{E(best['name'])}</b>"
+                     f"<div class='small'>Terminal-Bench {best['rate']:.0f}% [{best['lo']:.0f}, {best['hi']:.0f}], "
+                     f"held-out {statistics.median(best['h']):.0f}/18, T5 {E(best['t5'])}</div>"
+                     f"<div class='muted small'>Rule: highest Terminal-Bench among models with {QUALITY} and T5 &ge; {T5_MIN}/8.</div></div>")
+    if fast:
+        same = fast is best
+        gap = (1 - fast["wall"] / best["wall"]) * 100 if best and best["wall"] else 0
+        picks.append(f"<div class='pick'><div class='muted small'>CORRECT, FEW MISTAKES, FASTEST</div><b>{E(fast['name'])}</b>"
+                     f"<div class='small'>{fast['wall']:.0f} s per session, Terminal-Bench {fast['rate']:.0f}%, held-out "
+                     f"{statistics.median(fast['h']):.0f}/18, T5 {E(fast['t5'])}"
+                     + ("" if same else f"; {gap:.0f}% faster than {E(best['name'])}"
+                        + (" (not clearly: the rule needs &ge; 25%)" if gap < 25 else "")) + "</div>"
+                     "<div class='muted small'>Rule: fastest session among the same eligible models whose Terminal-Bench "
+                     "interval overlaps the most correct one's.</div></div>")
 
+    notes = []
+    if top_tb and best and top_tb is not best:
+        why = "fails held-out quality" if not top_tb["q_ok"] else ("T5 below 7/8" if top_tb["t5"] else "T5 not run")
+        notes.append(f"Highest Terminal-Bench score: {E(top_tb['name'])} {top_tb['rate']:.0f}%, not picked: {why}.")
+    notes.append("All Terminal-Bench intervals overlap, so no model is significantly more correct than another.")
+    x = extended()
+    if x:
+        (m1, (k1, n1)), (m2, (k2, n2)) = sorted(x["tot"].items(), key=lambda kv: -kv[1][0] / kv[1][1])
+        notes.append(f"Extended Terminal-Bench, {x['tasks']} more tasks &times; 2: {E(m1.split('_')[0])} {k1}/{n1} = {100 * k1 / n1:.0f}% vs "
+                     f"{E(m2.split('_')[0])} {k2}/{n2} = {100 * k2 / n2:.0f}%, sign test p = {x['p']:.2f}: a tie"
+                     + (", and the two ran on different Ollama versions (information only)." if x["mixed"] else "."))
+
+    vline, vwhen = verdict_line()
     page = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Agentic Model Dashboard</title>
+<title>Agentic Model Results</title>
 <style>
 :root{{--paper:#F6F7F9;--panel:#FFF;--ink:#131822;--muted:#5C6675;--rule:#DCE1E8;
 --good:#0F8A6B;--good-soft:#E2F1EC;--warn:#A57C0C;--warn-soft:#F5EEDC;--crit:#C6304F;--crit-soft:#FAE4E9;
@@ -511,33 +409,18 @@ pointer-events:none;display:none}}
 th.sortable{{cursor:pointer;user-select:none}} th.sortable:hover{{color:var(--ink)}}
 th.sortable::after{{content:" \\2195";opacity:.35}} th[aria-sort=ascending]::after{{content:" \\2191";opacity:1}}
 th[aria-sort=descending]::after{{content:" \\2193";opacity:1}}
-</style></head><body><main>
-<h1>Which model for agentic coding</h1>
-<div class="muted small">Ollama 0.33.3 (to 10-05) / 0.35.1 (from 10-05) on .67 &middot; Claude Code &middot; generated {datetime.now():%Y-%m-%d %H:%M} from results/ &middot; round document: ROUND_2026-09-24.md</div>
+.pick{{background:var(--panel);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:12px 14px;flex:1 1 280px}}\n.pick b{{font-size:18px}} .picks{{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}}\n.chip.ref{{background:var(--ref-soft);color:var(--ref)}}\n</style><body><main>
+<h1>Local agentic coding on .67: final results</h1>
+<div class="muted small">Round 2026-09-24 to 10-08 &middot; Claude Code against Ollama &middot; generated {datetime.now():%Y-%m-%d %H:%M} from results/ &middot; details: ROUND_2026-09-24.md</div>
 
-<div class="verdict"><b>{E(vline) or "verdict pending"}</b><div class="muted small">{E(vwhen)}</div></div>
+<div class="picks">{''.join(picks)}</div>
 
-<h2>The field on three axes</h2>
 <div class="panel"><table>
-<tr>{th("model","model")}{th("speed<br>tok/s","tps")}{th("speed<br>session","session")}{th("correctness<br>Terminal-Bench","tb")}
-{th("95% interval (0&ndash;100%)","ci")}{th("quality<br>held-out tests per run","hidden")}</tr>
+<tr>{th("model","model")}{th("Terminal-Bench","tb")}{th("held-out tests","hidden")}{th("T5 &times;8","t5")}{th("session","session")}{th("tok/s","tps")}{th("VRAM GB","vram")}</tr>
 {''.join(trs)}
 </table></div>
-<ul class="small muted">
-<li><b>speed</b>: generation tok/s (think off, temp 0), and median wall time of the ledger coding session (thinking on). Lower session time is better.</li>
-<li><b>correctness</b>: Terminal-Bench, 8 scored tasks (<i>nginx-request-logging</i> and <i>polyglot-c-py</i> are defective and excluded), thinking on for every model, complete passes only. <b>Overlapping intervals are not a ranking.</b></li>
-<li><b>quality</b>: 18 held-out tests the model never sees. 18/18 means it implemented the spec, not just the visible tests.</li>
-</ul>
-
-{rerun_section(E)}
-
-<h2>Candidates: screened one at a time, best first</h2>
-<div class="panel"><table>
-<tr>{th("candidate","cand")}{th("verdict","verdict")}{th("GiB","gib")}{th("VRAM GB","vram")}{th("gates","gates")}{th("tok/s","gtps")}{th("ledger s","ledger")}{th("hidden","chidden")}{th("note","note")}</tr>
-{''.join(crs) or '<tr><td colspan="9" class="muted">none finished yet</td></tr>'}
-</table></div>
-<p class="small muted">Still queued: {E(', '.join(pending)) or 'none'}. Ruled out on web evidence and never pulled: Ornith-27B-Coder, Qwen3.6-27B-A3B-Coder, KAT-Ornith, SignOfFour, both OmniMerges, glm-4.7-flash, qwen3-coder:30b (reasons in CANDIDATE_REGISTER.md).</p>
-<p class="small muted">Click a column header to sort; click again to reverse. Empty cells always sort last.</p>
+<ul class="small muted">{''.join(f"<li>{n}</li>" for n in notes)}</ul>
+<p class="small muted">Verdict ({E(vwhen)}): {E(vline)}. Click a column to sort.</p>
 </main>
 <div id="tip" role="tooltip"></div>
 <script>
