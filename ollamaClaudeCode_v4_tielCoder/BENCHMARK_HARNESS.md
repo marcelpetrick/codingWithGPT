@@ -59,7 +59,7 @@ the USB ethernet adapter** (`enp0s13f0u1u4`), never wifi.
 once — tags share weight blobs, so it costs zero disk.
 
 **Bake `presence_penalty 0`.** Vendor tags inherit `1.5` from Qwen defaults. Measured cost:
-35% of generation on qwen (v1), 41–52% on Tiel (v4). It buys nothing measurable.
+~35% of generation on qwen (v1), 29–34% on Tiel (v4; removing it is +41–52%). It buys nothing measurable.
 
 **Pin the runtime version in every table.** A benchmark without an Ollama version on it is not a
 result. 0.32.9 → 0.32.15 moved generation 0% to +221% per model. 0.33.3 added prefix caching and
@@ -261,7 +261,7 @@ willingness and apparent correctness only, never run.
 |---|---|
 | bare tag caps at 16,384 tokens and tool calling stops | no error at all |
 | overflowing `num_ctx` keeps `num_ctx/2 + 2` tokens | `prompt_eval` exactly half the window |
-| `presence_penalty 1.5` costs 35–52% of generation | none — it just runs slower |
+| `presence_penalty 1.5` costs 29–35% of generation | none — it just runs slower |
 | a VRAM spill costs 5.3× | `size_vram < size` in `/api/ps` |
 | `think:false` is ignored on `/v1/messages` | thinking characters in the response |
 | Claude Code never sends `thinking:{disabled}`; `MAX_THINKING_TOKENS=0` only *omits* the field | thinking still happens |
@@ -410,8 +410,8 @@ question, not by winning.
 
 | # | tag | role it holds | why it is kept |
 |---|---|---|---|
-| 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | **the control** — *no longer the default: the parity re-run landed 2026-09-24 (44% [28, 63]), and the 2026-09-25 verdict (README) names KAT-Coder, provisionally* | Top of the field on official Terminal-Bench (53%) and the most reproducible model measured — decided on 9 of 10 tasks, 1 flip in 3 samples. 131.6 tok/s, 60 s hard fixture, 32.68 GB |
-| 2 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **the speed ceiling** | Fastest generation on the box (136.2 tok/s), and it solves `git-multibranch` (2/3) which nothing else manages. Held on **speed**, not capability: the owed n=2 pass came in at **41 %**, level with Tiel, not the 50 % its single sample showed, and with 4 flipping tasks it is the least stable model measured. **No vision** — the server rejects images outright |
+| 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | **the default**, confirmed 2026-09-25 (same-version re-baseline) and 2026-10-08 (round closed); KAT-Coder ties it | 48 s ledger (46–49), held-out 18,18,18,17,17, T5 8/8, Terminal-Bench 50% [31, 69] (8 tasks × 3, thinking parity). 131.6 tok/s, 32.68 GB. (The 53% of the first official round is void: thinking asymmetry, §8b) |
+| 2 | `north-mini-code-1.0:q4_K_M-ctx256k-agentic` | **the speed ceiling** (tag deleted from `.67` 09-25, `d184c24`: re-pull before any parity run) | Fastest generation on the box (136.2 tok/s), and it solves `git-multibranch` (2/3) which nothing else manages. Held on **speed**, not capability: the owed n=2 pass came in at **41 %**, level with Tiel, not the 50 % its single sample showed, and with 4 flipping tasks it is the least stable model measured. **No vision** — the server rejects images outright |
 | 3 | `gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic` | **the footprint floor** | 22.34 GB at the full 262k window and the best prefill in the field (3,400 tok/s) — the one to run when the box is shared. Has vision (40/42), though Tiel scores higher |
 | 4 | `tiel-coder:35b-q5-ctx256k-agentic` | **the context-safety reference** | The only family that returns `ERROR_400` on an over-long prompt; every other model on the box silently halves the context. 262k at 34.13 GB, recall verified at 254,181, and the top vision score (42/42) |
 
@@ -426,7 +426,7 @@ Their numbers stay in the tables and the report, labelled. They are not re-measu
 
 | retired | settled by |
 |---|---|
-| `cyber-tiel:35b-q5-ctx256k-agentic` | Last in the v4 field at 27% over 30 trials. Abliteration cost capability and bought nothing this box needs. Keep the image for the dual-use probe; do not benchmark it |
+| `cyber-tiel:35b-q5-ctx256k-agentic` | 8/27 = 29.6% [16, 48] at parity, a tie with Tiel's 40.7% by the rule (the earlier 27% was 8/30, before nginx was held out). Abliteration bought nothing this box needs. Keep the image for the dual-use probe; do not benchmark it |
 | `ornith:35b-ctx256k-agentic` | 30%, and superseded by its own descendant Tiel on every axis. Its job was to be Tiel's ancestor; that question is answered |
 | `Tiel-Coder-…-Q5_K_XL-ctx262k:latest` (shipped tag) | The shipped tag is never deployed — `presence_penalty 1.5` costs 52% of generation speed. Only the `-agentic` variant is measured |
 | `nemotron-cascade-2:30b` | Rejected twice on the same defect (§9) |
