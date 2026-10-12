@@ -165,7 +165,20 @@ These are outside dependency maintenance and remain unchanged.
 
 Nine Dependabot PRs across three repositories; all are mergeable and their required CI jobs pass. CodeQL is neutral where present. One unrelated workshop PR has no checks.
 
-Dependabot configuration found at `.github/dependabot.yml` in 10 of 114 repositories. Configuration presence alone does not establish whether GitHub security updates are enabled.
+Dependabot configuration found at `.github/dependabot.yml` in 10 of 114 repositories. Both `.yml` and `.yaml` paths were checked. The dedicated `GET /repos/{owner}/{repo}/automated-security-fixes` endpoint was then queried for every repository: automatic security fixes are enabled and unpaused in 11 repositories, disabled in 103. GermanDubI deliberately disables routine version PRs and keeps security updates only, as documented in its configuration.
+
+Security updates enabled:
+- marcelpetrick/myLastFmPlayer
+- marcelpetrick/AlliumAssault
+- marcelpetrick/androidCatEars
+- marcelpetrick/GermanDubI
+- marcelpetrick/codingWithGPT
+- marcelpetrick/CroLingo
+- marcelpetrick/Cullendula
+- marcelpetrick/CuteLingoExpress
+- marcelpetrick/pythonCollection
+- marcelpetrick/CalliopeCollection
+- marcelpetrick/bashCollection
 
 Configured repositories:
 - marcelpetrick/DividendenDackel
@@ -178,6 +191,9 @@ Configured repositories:
 - marcelpetrick/Raumfreund
 - marcelpetrick/CroLingo
 - marcelpetrick/GitLabTeamPulse
+
+### Security alerts
+Among the 11 repositories with automatic security fixes enabled, AlliumAssault has two open alerts: [KaTeX #3](https://github.com/marcelpetrick/AlliumAssault/security/dependabot/3) (low) and [source-map-js #2](https://github.com/marcelpetrick/AlliumAssault/security/dependabot/2) (high). Both are addressed in the updated local lockfile (KaTeX 0.19.0; source-map-js 1.2.2). They remain open on GitHub until the changes reach the default branch. The alerts endpoint was queried for all 114 repositories: 54 returned accessible results (two alerts total); 60 returned errors and cannot be counted as clean. Error details are preserved in `all-dependabot-alerts.json`.
 
 ### Dependency PR status
 | Repository / PR | Changes | CI | Local result |
@@ -203,7 +219,11 @@ DividendenDackel: applied all six Dependabot changes plus flutter_local_notifica
 
 Checks and logs are detached under `systemd-inhibit`, with `flock` preventing duplicate runs. Status files: `/tmp/github-dependency-review-2026-10-12/{mylastfm,flutter}.result` (0 means passed).
 
-AlliumAssault full verify is now running: lint and typecheck passed, coverage and build passed, Chrome E2E 77 cases in progress.
+AlliumAssault full verify is now running: lint and typecheck passed; all 313 unit tests passed. Coverage: statements 99.68%, branches 98.13%, functions 100%, lines 99.9%; thresholds passed. Production build passed; Chrome E2E 77 cases in progress.
+
+DividendenDackel dependency resolution, formatting, analysis and unit tests passed. All 10 Linux integration journey tests and the Linux release build passed; Android release build running. The log prints the full stage summary at completion.
+
+KaTeX override compatibility was also checked by rendering inline and block math through the installed `micromark-extension-math`; both render successfully without KaTeX errors.
 
 ## Resume here
 Working directory: `/home/mpetrick/repos/codingWithGPT`; branch: `master`.
