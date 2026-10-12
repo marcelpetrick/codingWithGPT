@@ -155,6 +155,14 @@ Inventory: 114 repositories, 10 open pull requests, 3 open issues. Direct GraphQ
 - [marcelpetrick/DevNotes#2: Notes on the MUC++ talk from 26.01.2024](https://github.com/marcelpetrick/DevNotes/issues/2) — kanje
 
 ## Results
+
+### Non-dependency work
+- [DarkFactory#1](https://github.com/marcelpetrick/DarkFactory/issues/1): missing architecture documentation, README badges, license, reviews and screenshots.
+- [jafed.ai#2](https://github.com/marcelpetrick/jafed.ai/issues/2): choose whether to reuse a related project for the embedded edge version.
+- [DevNotes#2](https://github.com/marcelpetrick/DevNotes/issues/2): correct notes about execution contexts and callbacks from the MUC++ talk.
+- [x-clone-starter#1](https://github.com/marcelpetrick/x-clone-starter/pull/1): workshop setup and requirements skills; no CI checks.
+These are outside dependency maintenance and remain unchanged.
+
 Nine Dependabot PRs across three repositories; all are mergeable and their required CI jobs pass. CodeQL is neutral where present. One unrelated workshop PR has no checks.
 
 Dependabot configuration found at `.github/dependabot.yml` in 10 of 114 repositories. Configuration presence alone does not establish whether GitHub security updates are enabled.
@@ -174,15 +182,28 @@ Configured repositories:
 ### Dependency PR status
 | Repository / PR | Changes | CI | Local result |
 |---|---|---|---|
-| [marcelpetrick/DividendenDackel#22](https://github.com/marcelpetrick/DividendenDackel/pull/22) | build(deps): bump actions/upload-artifact from 7.0.1 to 7.0.2 | Passing | Pending |
-| [marcelpetrick/DividendenDackel#21](https://github.com/marcelpetrick/DividendenDackel/pull/21) | build(deps): bump org.jetbrains.kotlin.android from 2.4.20 to 2.4.21 in /android | Passing | Pending |
-| [marcelpetrick/DividendenDackel#20](https://github.com/marcelpetrick/DividendenDackel/pull/20) | build(deps): bump url_launcher from 6.3.2 to 6.3.3 | Passing | Pending |
-| [marcelpetrick/DividendenDackel#19](https://github.com/marcelpetrick/DividendenDackel/pull/19) | build(deps): bump package_info_plus from 10.2.1 to 10.2.2 | Passing | Pending |
-| [marcelpetrick/DividendenDackel#18](https://github.com/marcelpetrick/DividendenDackel/pull/18) | build(deps): bump build_runner from 2.16.1 to 2.16.2 | Passing | Pending |
-| [marcelpetrick/DividendenDackel#17](https://github.com/marcelpetrick/DividendenDackel/pull/17) | build(deps): bump shared_preferences from 2.5.5 to 2.5.6 | Passing | Pending |
-| [marcelpetrick/myLastFmPlayer#8](https://github.com/marcelpetrick/myLastFmPlayer/pull/8) | chore(deps): bump pylint from 4.1.1 to 4.1.2 in the dev-dependencies group across 1 directory | Passing | Pending |
-| [marcelpetrick/AlliumAssault#5](https://github.com/marcelpetrick/AlliumAssault/pull/5) | build(deps): bump the dev-tooling group across 1 directory with 4 updates | Passing | Pending |
-| [marcelpetrick/AlliumAssault#4](https://github.com/marcelpetrick/AlliumAssault/pull/4) | build(deps): bump @babylonjs/core from 9.29.0 to 9.30.0 | Passing | Pending |
+| [marcelpetrick/DividendenDackel#22](https://github.com/marcelpetrick/DividendenDackel/pull/22) | build(deps): bump actions/upload-artifact from 7.0.1 to 7.0.2 | Passing | Local verification in progress |
+| [marcelpetrick/DividendenDackel#21](https://github.com/marcelpetrick/DividendenDackel/pull/21) | build(deps): bump org.jetbrains.kotlin.android from 2.4.20 to 2.4.21 in /android | Passing | Local verification in progress |
+| [marcelpetrick/DividendenDackel#20](https://github.com/marcelpetrick/DividendenDackel/pull/20) | build(deps): bump url_launcher from 6.3.2 to 6.3.3 | Passing | Local verification in progress |
+| [marcelpetrick/DividendenDackel#19](https://github.com/marcelpetrick/DividendenDackel/pull/19) | build(deps): bump package_info_plus from 10.2.1 to 10.2.2 | Passing | Local verification in progress |
+| [marcelpetrick/DividendenDackel#18](https://github.com/marcelpetrick/DividendenDackel/pull/18) | build(deps): bump build_runner from 2.16.1 to 2.16.2 | Passing | Local verification in progress |
+| [marcelpetrick/DividendenDackel#17](https://github.com/marcelpetrick/DividendenDackel/pull/17) | build(deps): bump shared_preferences from 2.5.5 to 2.5.6 | Passing | Local verification in progress |
+| [marcelpetrick/myLastFmPlayer#8](https://github.com/marcelpetrick/myLastFmPlayer/pull/8) | chore(deps): bump pylint from 4.1.1 to 4.1.2 in the dev-dependencies group across 1 directory | Passing | Local verification in progress |
+| [marcelpetrick/AlliumAssault#5](https://github.com/marcelpetrick/AlliumAssault/pull/5) | build(deps): bump the dev-tooling group across 1 directory with 4 updates | Passing | Local verification in progress |
+| [marcelpetrick/AlliumAssault#4](https://github.com/marcelpetrick/AlliumAssault/pull/4) | build(deps): bump @babylonjs/core from 9.29.0 to 9.30.0 | Passing | Local verification in progress |
+
+### Registry review
+Official PyPI, npm and pub.dev APIs checked for all direct, development, build and override dependencies in the three affected repositories. All existing pins are exact. Newer compatible releases will be included where verified. TypeScript 7.0.2 is blocked by typescript-eslint 8.71.1 peer requirement `<6.1.0`; retain TypeScript 6.0.3. Node types remain on 24.x to match Node 24.
+
+myLastFmPlayer: Pylint 4.1.3 and Ruff 0.17.0, version 0.0.199, committed as `b24c031`. Full `./localPipeline.sh --noRun --report-dir /tmp/github-dependency-review-2026-10-12/mylastfm-report` passed: Ruff clean, Pylint 10/10, 1080 translated strings, Sphinx warnings zero, 610 tests passed / 6 skipped, package builds and installed-wheel import. Coverage reports 98.96%; pytest-cov rounds this to meet the configured 99% gate.
+
+AlliumAssault: applied Dependabot updates and newer compatible patch releases, version 1.78.6. npm audit found tooling-only advisories; applied a KaTeX 0.19.0 override to address GHSA-238p-pmpm-9mq7. Audit improves from 12 findings (9 high / 3 low) to 8 high, all stemming from the same unpatched braces advisory. The braces advisory GHSA-vfj7-8cjw-p6xm has no patched published release (latest 3.0.3); do not apply npm audit’s suggested downgrades to obsolete linting tools. `npm audit --omit=dev` passes with zero findings.
+
+DividendenDackel: applied all six Dependabot changes plus flutter_local_notifications 22.3.2; version script bumped to 0.65.12+132. Verified upload-artifact v7.0.2 resolves to the proposed full SHA and Kotlin 2.4.21 is a stable GitHub release. Full gate running with an isolated SDK cloned at Flutter 3.47.4; shared SDK untouched.
+
+Checks and logs are detached under `systemd-inhibit`, with `flock` preventing duplicate runs. Status files: `/tmp/github-dependency-review-2026-10-12/{mylastfm,flutter}.result` (0 means passed).
+
+AlliumAssault full verify is now running: lint and typecheck passed, coverage and build passed, Chrome E2E 77 cases in progress.
 
 ## Resume here
 Working directory: `/home/mpetrick/repos/codingWithGPT`; branch: `master`.
