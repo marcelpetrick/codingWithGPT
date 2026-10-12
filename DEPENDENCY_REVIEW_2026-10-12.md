@@ -2,9 +2,9 @@
 
 ## Verdict so far
 
-Completed: all nine Dependabot PR changes are covered by three fully verified local commits. Two visible security alerts are fixed locally. Nothing was pushed, merged, closed or changed in GitHub settings. The three unrelated issues and workshop PR remain open.
+Published: all nine Dependabot updates landed on the default branches in three verified commits. All nine redundant Dependabot PRs were closed with explanations linking the published commits. A fresh direct query across all 114 repositories confirms zero open Dependabot PRs; only the unrelated x-clone-starter workshop PR remains. The three unrelated issues remain open. GitHub settings were unchanged. Local gates passed; post-push GitHub CI is running. AlliumAssault now reports zero open Dependabot security alerts.
 
-Inventory: 114 repositories, 10 open pull requests, 3 open issues. Direct GraphQL queries confirmed every repository count (including private repositories and forks). No pushes or merges authorized.
+Initial inventory: 114 repositories, 10 open pull requests, 3 open issues. Direct GraphQL queries confirmed every repository count (including private repositories and forks). The user subsequently authorized pushing and completing all compatible dependency PRs.
 
 ## Plan with estimates
 
@@ -22,8 +22,9 @@ Inventory: 114 repositories, 10 open pull requests, 3 open issues. Direct GraphQ
 | 2026-10-12T12:18 | Inspection | Confirmed 114 repository counts directly; reviewed all nine dependency diffs and three repository gates. |
 | 2026-10-12T12:29 | Verified commits | myLastFmPlayer `b24c031`; DividendenDackel `af674bc`; AlliumAssault browser gate running. |
 | 2026-10-12T12:33 | Complete | AlliumAssault `de9649b` committed after all 77 E2E tests; all three updates verified. |
+| 2026-10-12T12:40 | Published | Pushed all three dependency commits; closed all nine superseded Dependabot PRs; direct account scan confirms only the unrelated workshop PR remains. |
 
-## Repositories
+## Repositories — initial inventory
 
 | Repository | Fork | Open PRs | Open issues |
 |---|---|---:|---:|
@@ -142,7 +143,7 @@ Inventory: 114 repositories, 10 open pull requests, 3 open issues. Direct GraphQ
 | [marcelpetrick/MaX](https://github.com/marcelpetrick/MaX) | False | 0 | 0 |
 | [marcelpetrick/compareFilecontents](https://github.com/marcelpetrick/compareFilecontents) | False | 0 | 0 |
 
-## Open pull requests
+## Pull requests — initial inventory
 
 - [marcelpetrick/DividendenDackel#22: build(deps): bump actions/upload-artifact from 7.0.1 to 7.0.2](https://github.com/marcelpetrick/DividendenDackel/pull/22) — dependabot[bot]
 - [marcelpetrick/DividendenDackel#21: build(deps): bump org.jetbrains.kotlin.android from 2.4.20 to 2.4.21 in /android](https://github.com/marcelpetrick/DividendenDackel/pull/21) — dependabot[bot]
@@ -175,7 +176,7 @@ Inventory: 114 repositories, 10 open pull requests, 3 open issues. Direct GraphQ
 - [jafed.ai#2](https://github.com/marcelpetrick/jafed.ai/issues/2): choose whether to reuse a related project for the embedded edge version.
 - [DevNotes#2](https://github.com/marcelpetrick/DevNotes/issues/2): correct notes about execution contexts and callbacks from the MUC++ talk.
 - [x-clone-starter#1](https://github.com/marcelpetrick/x-clone-starter/pull/1): workshop setup and requirements skills; no CI checks.
-These are outside dependency maintenance and remain unchanged.
+These are outside dependency maintenance and remain unchanged. The workshop PR is the only remaining open PR across the account.
 
 Nine Dependabot PRs across three repositories; all are mergeable and their required CI jobs pass. CodeQL is neutral where present. One unrelated workshop PR has no checks.
 
@@ -208,21 +209,21 @@ Configured repositories:
 
 ### Security alerts
 
-Among the 11 repositories with automatic security fixes enabled, AlliumAssault has two open alerts: [KaTeX #3](https://github.com/marcelpetrick/AlliumAssault/security/dependabot/3) (low) and [source-map-js #2](https://github.com/marcelpetrick/AlliumAssault/security/dependabot/2) (high). Both are addressed in the updated local lockfile (KaTeX 0.19.0; source-map-js 1.2.2). They remain open on GitHub until the changes reach the default branch. The alerts endpoint was queried for all 114 repositories: 54 returned accessible results (two alerts total); 60 returned HTTP 403 explicitly stating Dependabot alerts are disabled, so they cannot be counted as clean. Details are preserved in `all-dependabot-alerts.json`.
+Among the 11 repositories with automatic security fixes enabled, AlliumAssault has two open alerts: [KaTeX #3](https://github.com/marcelpetrick/AlliumAssault/security/dependabot/3) (low) and [source-map-js #2](https://github.com/marcelpetrick/AlliumAssault/security/dependabot/2) (high). Both are addressed in the updated local lockfile (KaTeX 0.19.0; source-map-js 1.2.2). The fixes have now reached the default branch; GitHub alert status is checked separately after publication. The alerts endpoint was queried for all 114 repositories: 54 returned accessible results (two alerts total); 60 returned HTTP 403 explicitly stating Dependabot alerts are disabled, so they cannot be counted as clean. Details are preserved in `all-dependabot-alerts.json`.
 
 ### Dependency PR status
 
 | Repository / PR | Changes | CI | Local result |
 |---|---|---|---|
-| [marcelpetrick/DividendenDackel#22](https://github.com/marcelpetrick/DividendenDackel/pull/22) | build(deps): bump actions/upload-artifact from 7.0.1 to 7.0.2 | Passing | Passed; commit `af674bc` |
-| [marcelpetrick/DividendenDackel#21](https://github.com/marcelpetrick/DividendenDackel/pull/21) | build(deps): bump org.jetbrains.kotlin.android from 2.4.20 to 2.4.21 in /android | Passing | Passed; commit `af674bc` |
-| [marcelpetrick/DividendenDackel#20](https://github.com/marcelpetrick/DividendenDackel/pull/20) | build(deps): bump url_launcher from 6.3.2 to 6.3.3 | Passing | Passed; commit `af674bc` |
-| [marcelpetrick/DividendenDackel#19](https://github.com/marcelpetrick/DividendenDackel/pull/19) | build(deps): bump package_info_plus from 10.2.1 to 10.2.2 | Passing | Passed; commit `af674bc` |
-| [marcelpetrick/DividendenDackel#18](https://github.com/marcelpetrick/DividendenDackel/pull/18) | build(deps): bump build_runner from 2.16.1 to 2.16.2 | Passing | Passed; commit `af674bc` |
-| [marcelpetrick/DividendenDackel#17](https://github.com/marcelpetrick/DividendenDackel/pull/17) | build(deps): bump shared_preferences from 2.5.5 to 2.5.6 | Passing | Passed; commit `af674bc` |
-| [marcelpetrick/myLastFmPlayer#8](https://github.com/marcelpetrick/myLastFmPlayer/pull/8) | chore(deps): bump pylint from 4.1.1 to 4.1.2 in the dev-dependencies group across 1 directory | Passing | Passed; commit `b24c031` (Pylint 4.1.3 supersedes 4.1.2) |
-| [marcelpetrick/AlliumAssault#5](https://github.com/marcelpetrick/AlliumAssault/pull/5) | build(deps): bump the dev-tooling group across 1 directory with 4 updates | Passing | Passed; commit `de9649b` |
-| [marcelpetrick/AlliumAssault#4](https://github.com/marcelpetrick/AlliumAssault/pull/4) | build(deps): bump @babylonjs/core from 9.29.0 to 9.30.0 | Passing | Passed; commit `de9649b` |
+| [marcelpetrick/DividendenDackel#22](https://github.com/marcelpetrick/DividendenDackel/pull/22) | build(deps): bump actions/upload-artifact from 7.0.1 to 7.0.2 | Passing | Passed; commit `af674bc`  Closed as superseded. |
+| [marcelpetrick/DividendenDackel#21](https://github.com/marcelpetrick/DividendenDackel/pull/21) | build(deps): bump org.jetbrains.kotlin.android from 2.4.20 to 2.4.21 in /android | Passing | Passed; commit `af674bc`  Closed as superseded. |
+| [marcelpetrick/DividendenDackel#20](https://github.com/marcelpetrick/DividendenDackel/pull/20) | build(deps): bump url_launcher from 6.3.2 to 6.3.3 | Passing | Passed; commit `af674bc`  Closed as superseded. |
+| [marcelpetrick/DividendenDackel#19](https://github.com/marcelpetrick/DividendenDackel/pull/19) | build(deps): bump package_info_plus from 10.2.1 to 10.2.2 | Passing | Passed; commit `af674bc`  Closed as superseded. |
+| [marcelpetrick/DividendenDackel#18](https://github.com/marcelpetrick/DividendenDackel/pull/18) | build(deps): bump build_runner from 2.16.1 to 2.16.2 | Passing | Passed; commit `af674bc`  Closed as superseded. |
+| [marcelpetrick/DividendenDackel#17](https://github.com/marcelpetrick/DividendenDackel/pull/17) | build(deps): bump shared_preferences from 2.5.5 to 2.5.6 | Passing | Passed; commit `af674bc`  Closed as superseded. |
+| [marcelpetrick/myLastFmPlayer#8](https://github.com/marcelpetrick/myLastFmPlayer/pull/8) | chore(deps): bump pylint from 4.1.1 to 4.1.2 in the dev-dependencies group across 1 directory | Passing | Passed; commit `b24c031` (Pylint 4.1.3 supersedes 4.1.2)  Closed as superseded. |
+| [marcelpetrick/AlliumAssault#5](https://github.com/marcelpetrick/AlliumAssault/pull/5) | build(deps): bump the dev-tooling group across 1 directory with 4 updates | Passing | Passed; commit `de9649b`  Closed as superseded. |
+| [marcelpetrick/AlliumAssault#4](https://github.com/marcelpetrick/AlliumAssault/pull/4) | build(deps): bump @babylonjs/core from 9.29.0 to 9.30.0 | Passing | Passed; commit `de9649b`  Closed as superseded. |
 
 ### Registry review
 
@@ -254,7 +255,7 @@ Registry metadata and pub.dev retraction checks are preserved in the evidence di
 
 Durable evidence: `/home/mpetrick/.cache/github-dependency-review-2026-10-12/` (inventory, PR diffs, settings, alerts, registry lookups and completed pipeline logs).
 
-Current commits: `myLastFmPlayer` `b24c031`; `DividendenDackel` `af674bc`. AlliumAssault is committed as `de9649b`; 77 Chrome tests and REUSE lint passed. All three repository working trees are clean.
+Published commits: `myLastFmPlayer` `b24c031`; `DividendenDackel` `af674bc`. AlliumAssault is committed as `de9649b`; 77 Chrome tests and REUSE lint passed. All three repository working trees are clean.
 
 Exact restart / check commands:
 ```sh
@@ -272,4 +273,29 @@ Working directory: `/home/mpetrick/repos/codingWithGPT`; branch: `master`.
 Raw inventory: `/tmp/github-dependency-review-2026-10-12/{repos,prs,issues}.json`.
 Restart inventory: `gh repo list marcelpetrick --limit 1000 --json nameWithOwner,isArchived,isFork,url,defaultBranchRef`.
 Check changes: `git status --short`; review this document before continuing.
-Next owner action, if desired: authorize publishing the three local commits. GitHub PRs and security alerts will remain open until default branches are updated; stale PRs may need closure after publication. No publishing step has been run.
+Publication is complete. All nine Dependabot PRs were closed as superseded by the published verified commits, rather than merging duplicate dependency changes. GitHub CI runs were triggered automatically; see the publication section for their snapshot.
+
+## Publication
+
+User authorized pushing the verified changes and completing compatible dependency PRs.
+
+| Repository | Published commit | Dependabot PRs |
+|---|---|---|
+| DividendenDackel | [af674bc](https://github.com/marcelpetrick/DividendenDackel/commit/af674bc854ef224de2b76b118216faf8639b2fd2) | #17–#22 closed as superseded |
+| myLastFmPlayer | [b24c031](https://github.com/marcelpetrick/myLastFmPlayer/commit/b24c03131c33321878e27c81e40d7f38d7e56c99) | #8 closed as superseded; Pylint 4.1.3 replaces proposed 4.1.2 |
+| AlliumAssault | [de9649b](https://github.com/marcelpetrick/AlliumAssault/commit/de9649b7466f4d5f628df0b62279f5cc621657e6) | #4–#5 closed as superseded |
+
+All closures link the verified published commit and explain that its changes include or supersede
+the original PR. No branches were force-pushed or deleted. Direct GraphQL queries across every
+repository confirm exactly one open PR, the unrelated workshop PR in x-clone-starter.
+
+Post-push GitHub CI snapshot:
+
+- marcelpetrick/DividendenDackel: [CI](https://github.com/marcelpetrick/DividendenDackel/actions/runs/38237618596) — in_progress.
+- marcelpetrick/myLastFmPlayer: [Dependency Graph](https://github.com/marcelpetrick/myLastFmPlayer/actions/runs/38237628996) — success.
+- marcelpetrick/myLastFmPlayer: [Local Pipeline](https://github.com/marcelpetrick/myLastFmPlayer/actions/runs/38237622222) — in_progress.
+- marcelpetrick/myLastFmPlayer: [CodeQL](https://github.com/marcelpetrick/myLastFmPlayer/actions/runs/38237622223) — success.
+- marcelpetrick/AlliumAssault: [CodeQL](https://github.com/marcelpetrick/AlliumAssault/actions/runs/38237625652) — in_progress.
+- marcelpetrick/AlliumAssault: [CI](https://github.com/marcelpetrick/AlliumAssault/actions/runs/38237625856) — in_progress.
+
+AlliumAssault alerts API returned zero open security alerts after publication. The separate unpatched braces tooling advisory remains recorded above.
