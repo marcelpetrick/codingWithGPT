@@ -1,11 +1,13 @@
 # GitHub dependency review — 2026-10-12
 
 ## Verdict so far
-Two of three affected repositories are fully verified and committed locally; AlliumAssault Chrome E2E is the only remaining gate.
+
+Completed: all nine Dependabot PR changes are covered by three fully verified local commits. Two visible security alerts are fixed locally. Nothing was pushed, merged, closed or changed in GitHub settings. The three unrelated issues and workshop PR remain open.
 
 Inventory: 114 repositories, 10 open pull requests, 3 open issues. Direct GraphQL queries confirmed every repository count (including private repositories and forks). No pushes or merges authorized.
 
 ## Plan with estimates
+
 1. Inventory repositories, issues and PRs (5 minutes).
 2. Inspect dependency PR diffs, instructions and checks (10–20 minutes).
 3. Apply compatible dependency updates locally and run full repository gates (time depends on inventory).
@@ -13,15 +15,16 @@ Inventory: 114 repositories, 10 open pull requests, 3 open issues. Direct GraphQ
 5. Review results and deliver linked inventory (5 minutes).
 
 ## Chronological status
+
 | Time | Stage | Result |
 |---|---|---|
 | 2026-10-12T12:16 | Inventory | GitHub CLI authenticated; repository and search inventories collected. |
-
 | 2026-10-12T12:18 | Inspection | Confirmed 114 repository counts directly; reviewed all nine dependency diffs and three repository gates. |
-
 | 2026-10-12T12:29 | Verified commits | myLastFmPlayer `b24c031`; DividendenDackel `af674bc`; AlliumAssault browser gate running. |
+| 2026-10-12T12:33 | Complete | AlliumAssault `de9649b` committed after all 77 E2E tests; all three updates verified. |
 
 ## Repositories
+
 | Repository | Fork | Open PRs | Open issues |
 |---|---|---:|---:|
 | [marcelpetrick/DividendenDackel](https://github.com/marcelpetrick/DividendenDackel) | False | 6 | 0 |
@@ -160,7 +163,14 @@ Inventory: 114 repositories, 10 open pull requests, 3 open issues. Direct GraphQ
 
 ## Results
 
+| Repository | Version | Local commit | Gate |
+|---|---|---|---|
+| myLastFmPlayer | 0.0.199 | `b24c031` | Full pipeline passed; 610 tests, 6 skips |
+| DividendenDackel | 0.65.12+132 | `af674bc` | Full pipeline passed; 684 tests, 10 Linux integration tests, Linux/Android release builds |
+| AlliumAssault | 1.78.6 | `de9649b` | Full verify and REUSE passed; 313 unit tests, 77 Chrome E2E tests |
+
 ### Non-dependency work
+
 - [DarkFactory#1](https://github.com/marcelpetrick/DarkFactory/issues/1): missing architecture documentation, README badges, license, reviews and screenshots.
 - [jafed.ai#2](https://github.com/marcelpetrick/jafed.ai/issues/2): choose whether to reuse a related project for the embedded edge version.
 - [DevNotes#2](https://github.com/marcelpetrick/DevNotes/issues/2): correct notes about execution contexts and callbacks from the MUC++ talk.
@@ -197,9 +207,11 @@ Configured repositories:
 - marcelpetrick/GitLabTeamPulse
 
 ### Security alerts
+
 Among the 11 repositories with automatic security fixes enabled, AlliumAssault has two open alerts: [KaTeX #3](https://github.com/marcelpetrick/AlliumAssault/security/dependabot/3) (low) and [source-map-js #2](https://github.com/marcelpetrick/AlliumAssault/security/dependabot/2) (high). Both are addressed in the updated local lockfile (KaTeX 0.19.0; source-map-js 1.2.2). They remain open on GitHub until the changes reach the default branch. The alerts endpoint was queried for all 114 repositories: 54 returned accessible results (two alerts total); 60 returned HTTP 403 explicitly stating Dependabot alerts are disabled, so they cannot be counted as clean. Details are preserved in `all-dependabot-alerts.json`.
 
 ### Dependency PR status
+
 | Repository / PR | Changes | CI | Local result |
 |---|---|---|---|
 | [marcelpetrick/DividendenDackel#22](https://github.com/marcelpetrick/DividendenDackel/pull/22) | build(deps): bump actions/upload-artifact from 7.0.1 to 7.0.2 | Passing | Passed; commit `af674bc` |
@@ -209,30 +221,40 @@ Among the 11 repositories with automatic security fixes enabled, AlliumAssault h
 | [marcelpetrick/DividendenDackel#18](https://github.com/marcelpetrick/DividendenDackel/pull/18) | build(deps): bump build_runner from 2.16.1 to 2.16.2 | Passing | Passed; commit `af674bc` |
 | [marcelpetrick/DividendenDackel#17](https://github.com/marcelpetrick/DividendenDackel/pull/17) | build(deps): bump shared_preferences from 2.5.5 to 2.5.6 | Passing | Passed; commit `af674bc` |
 | [marcelpetrick/myLastFmPlayer#8](https://github.com/marcelpetrick/myLastFmPlayer/pull/8) | chore(deps): bump pylint from 4.1.1 to 4.1.2 in the dev-dependencies group across 1 directory | Passing | Passed; commit `b24c031` (Pylint 4.1.3 supersedes 4.1.2) |
-| [marcelpetrick/AlliumAssault#5](https://github.com/marcelpetrick/AlliumAssault/pull/5) | build(deps): bump the dev-tooling group across 1 directory with 4 updates | Passing | Local verification in progress |
-| [marcelpetrick/AlliumAssault#4](https://github.com/marcelpetrick/AlliumAssault/pull/4) | build(deps): bump @babylonjs/core from 9.29.0 to 9.30.0 | Passing | Local verification in progress |
+| [marcelpetrick/AlliumAssault#5](https://github.com/marcelpetrick/AlliumAssault/pull/5) | build(deps): bump the dev-tooling group across 1 directory with 4 updates | Passing | Passed; commit `de9649b` |
+| [marcelpetrick/AlliumAssault#4](https://github.com/marcelpetrick/AlliumAssault/pull/4) | build(deps): bump @babylonjs/core from 9.29.0 to 9.30.0 | Passing | Passed; commit `de9649b` |
 
 ### Registry review
-Official PyPI, npm and pub.dev APIs checked for all direct, development, build and override dependencies in the three affected repositories. All existing pins are exact. Newer compatible releases will be included where verified. TypeScript 7.0.2 is blocked by typescript-eslint 8.71.1 peer requirement `<6.1.0`; retain TypeScript 6.0.3. Node types remain on 24.x to match Node 24.
+
+Official PyPI, npm and pub.dev APIs checked for all direct, development, build and override dependencies in the three affected repositories. All existing pins are exact. Newer compatible releases were included after verification. TypeScript 7.0.2 is blocked by typescript-eslint 8.71.1 peer requirement `<6.1.0`; retain TypeScript 6.0.3. Node types remain on 24.x to match Node 24.
 
 myLastFmPlayer: Pylint 4.1.3 and Ruff 0.17.0, version 0.0.199, committed as `b24c031`. Full `./localPipeline.sh --noRun --report-dir /tmp/github-dependency-review-2026-10-12/mylastfm-report` passed: Ruff clean, Pylint 10/10, 1080 translated strings, Sphinx warnings zero, 610 tests passed / 6 skipped, package builds and installed-wheel import. Coverage reports 98.96%; pytest-cov rounds this to meet the configured 99% gate.
 
-AlliumAssault: applied Dependabot updates and newer compatible patch releases, version 1.78.6. npm audit found tooling-only advisories; applied a KaTeX 0.19.0 override to address GHSA-238p-pmpm-9mq7. Audit improves from 12 findings (9 high / 3 low) to 8 high, all stemming from the same unpatched braces advisory. The braces advisory GHSA-vfj7-8cjw-p6xm has no patched published release (latest 3.0.3); do not apply npm audit’s suggested downgrades to obsolete linting tools. `npm audit --omit=dev` passes with zero findings.
+AlliumAssault: applied Dependabot updates and newer compatible patch releases, version 1.78.6, committed as `de9649b` after full `CI=true npm run verify && npm run lint:reuse` passed. npm audit found tooling-only advisories; applied a KaTeX 0.19.0 override to address GHSA-238p-pmpm-9mq7. Audit improves from 12 findings (9 high / 3 low) to 8 high, all stemming from the same unpatched braces advisory. The braces advisory GHSA-vfj7-8cjw-p6xm has no patched published release (latest 3.0.3); do not apply npm audit’s suggested downgrades to obsolete linting tools. `npm audit --omit=dev` passes with zero findings.
 
 DividendenDackel: applied all six Dependabot changes plus flutter_local_notifications 22.3.2; version script bumped to 0.65.12+132. Verified upload-artifact v7.0.2 resolves to the proposed full SHA and Kotlin 2.4.21 is a stable GitHub release. Committed as `af674bc` after the full `./localPipeline.sh --noRun` gate passed with an isolated SDK at Flutter 3.47.4 and Java 21. Shared SDK untouched; format/analyze/tests, all 10 Linux integration tests, version validation, Android 10 compatibility assertion, Linux release build and Android release APK all passed.
 
-Checks and logs are detached under `systemd-inhibit`, with `flock` preventing duplicate runs. Status files: `/tmp/github-dependency-review-2026-10-12/{mylastfm,flutter}.result` (0 means passed).
+Checks ran detached under `systemd-inhibit`, with `flock` preventing duplicate runs. All finished successfully. Status files: `/home/mpetrick/.cache/github-dependency-review-2026-10-12/{mylastfm,flutter,allium}.result` (all contain 0).
 
-AlliumAssault full verify is now running: lint and typecheck passed; all 313 unit tests passed. Coverage: statements 99.68%, branches 98.13%, functions 100%, lines 99.9%; thresholds passed. Production build passed; Chrome E2E 77 cases in progress.
+AlliumAssault full verify completed: lint and typecheck passed; all 313 unit tests passed. Coverage: statements 99.68%, branches 98.13%, functions 100%, lines 99.9%; thresholds passed. Production build passed; All 77 Chrome E2E cases passed in 11.1 minutes; REUSE lint passed (149/149 files).
 
 DividendenDackel dependency resolution, formatting, analysis and unit tests passed. Full gate passed; dependency update committed as `af674bc`. Version checker also passed for `HEAD^..HEAD`. The log prints the full stage summary at completion.
 
 KaTeX override compatibility was also checked by rendering inline and block math through the installed `micromark-extension-math`; both render successfully without KaTeX errors.
 
+### Primary upstream evidence
+
+- [Pylint release notes](https://github.com/pylint-dev/pylint/releases) and [PyPI metadata](https://pypi.org/pypi/pylint/json).
+- [KaTeX advisory](https://github.com/advisories/GHSA-238p-pmpm-9mq7), [source-map-js advisory](https://github.com/advisories/GHSA-68fv-2mgg-jv7q), [braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm).
+- [npm typescript-eslint peer metadata](https://registry.npmjs.org/typescript-eslint/8.71.1).
+- [Kotlin 2.4.21](https://github.com/JetBrains/kotlin/releases/tag/v2.4.21), [upload-artifact 7.0.2](https://github.com/actions/upload-artifact/releases/tag/v7.0.2).
+Registry metadata and pub.dev retraction checks are preserved in the evidence directory.
+
 ## Resume here
+
 Durable evidence: `/home/mpetrick/.cache/github-dependency-review-2026-10-12/` (inventory, PR diffs, settings, alerts, registry lookups and completed pipeline logs).
 
-Current commits: `myLastFmPlayer` `b24c031`; `DividendenDackel` `af674bc`. AlliumAssault changes are uncommitted pending 77 Chrome tests and REUSE lint.
+Current commits: `myLastFmPlayer` `b24c031`; `DividendenDackel` `af674bc`. AlliumAssault is committed as `de9649b`; 77 Chrome tests and REUSE lint passed. All three repository working trees are clean.
 
 Exact restart / check commands:
 ```sh
@@ -250,4 +272,4 @@ Working directory: `/home/mpetrick/repos/codingWithGPT`; branch: `master`.
 Raw inventory: `/tmp/github-dependency-review-2026-10-12/{repos,prs,issues}.json`.
 Restart inventory: `gh repo list marcelpetrick --limit 1000 --json nameWithOwner,isArchived,isFork,url,defaultBranchRef`.
 Check changes: `git status --short`; review this document before continuing.
-Next: inspect each dependency PR with `gh pr view NUMBER --repo OWNER/REPO --json files,body,statusCheckRollup,headRefName,headRefOid,baseRefName,mergeable`.
+Next owner action, if desired: authorize publishing the three local commits. GitHub PRs and security alerts will remain open until default branches are updated; stale PRs may need closure after publication. No publishing step has been run.
