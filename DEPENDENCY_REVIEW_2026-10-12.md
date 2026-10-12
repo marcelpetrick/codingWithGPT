@@ -1,6 +1,8 @@
 # GitHub dependency review — 2026-10-12
 
 ## Verdict so far
+Two of three affected repositories are fully verified and committed locally; AlliumAssault Chrome E2E is the only remaining gate.
+
 Inventory: 114 repositories, 10 open pull requests, 3 open issues. Direct GraphQL queries confirmed every repository count (including private repositories and forks). No pushes or merges authorized.
 
 ## Plan with estimates
@@ -16,6 +18,8 @@ Inventory: 114 repositories, 10 open pull requests, 3 open issues. Direct GraphQ
 | 2026-10-12T12:16 | Inventory | GitHub CLI authenticated; repository and search inventories collected. |
 
 | 2026-10-12T12:18 | Inspection | Confirmed 114 repository counts directly; reviewed all nine dependency diffs and three repository gates. |
+
+| 2026-10-12T12:29 | Verified commits | myLastFmPlayer `b24c031`; DividendenDackel `af674bc`; AlliumAssault browser gate running. |
 
 ## Repositories
 | Repository | Fork | Open PRs | Open issues |
@@ -193,18 +197,18 @@ Configured repositories:
 - marcelpetrick/GitLabTeamPulse
 
 ### Security alerts
-Among the 11 repositories with automatic security fixes enabled, AlliumAssault has two open alerts: [KaTeX #3](https://github.com/marcelpetrick/AlliumAssault/security/dependabot/3) (low) and [source-map-js #2](https://github.com/marcelpetrick/AlliumAssault/security/dependabot/2) (high). Both are addressed in the updated local lockfile (KaTeX 0.19.0; source-map-js 1.2.2). They remain open on GitHub until the changes reach the default branch. The alerts endpoint was queried for all 114 repositories: 54 returned accessible results (two alerts total); 60 returned errors and cannot be counted as clean. Error details are preserved in `all-dependabot-alerts.json`.
+Among the 11 repositories with automatic security fixes enabled, AlliumAssault has two open alerts: [KaTeX #3](https://github.com/marcelpetrick/AlliumAssault/security/dependabot/3) (low) and [source-map-js #2](https://github.com/marcelpetrick/AlliumAssault/security/dependabot/2) (high). Both are addressed in the updated local lockfile (KaTeX 0.19.0; source-map-js 1.2.2). They remain open on GitHub until the changes reach the default branch. The alerts endpoint was queried for all 114 repositories: 54 returned accessible results (two alerts total); 60 returned HTTP 403 explicitly stating Dependabot alerts are disabled, so they cannot be counted as clean. Details are preserved in `all-dependabot-alerts.json`.
 
 ### Dependency PR status
 | Repository / PR | Changes | CI | Local result |
 |---|---|---|---|
-| [marcelpetrick/DividendenDackel#22](https://github.com/marcelpetrick/DividendenDackel/pull/22) | build(deps): bump actions/upload-artifact from 7.0.1 to 7.0.2 | Passing | Local verification in progress |
-| [marcelpetrick/DividendenDackel#21](https://github.com/marcelpetrick/DividendenDackel/pull/21) | build(deps): bump org.jetbrains.kotlin.android from 2.4.20 to 2.4.21 in /android | Passing | Local verification in progress |
-| [marcelpetrick/DividendenDackel#20](https://github.com/marcelpetrick/DividendenDackel/pull/20) | build(deps): bump url_launcher from 6.3.2 to 6.3.3 | Passing | Local verification in progress |
-| [marcelpetrick/DividendenDackel#19](https://github.com/marcelpetrick/DividendenDackel/pull/19) | build(deps): bump package_info_plus from 10.2.1 to 10.2.2 | Passing | Local verification in progress |
-| [marcelpetrick/DividendenDackel#18](https://github.com/marcelpetrick/DividendenDackel/pull/18) | build(deps): bump build_runner from 2.16.1 to 2.16.2 | Passing | Local verification in progress |
-| [marcelpetrick/DividendenDackel#17](https://github.com/marcelpetrick/DividendenDackel/pull/17) | build(deps): bump shared_preferences from 2.5.5 to 2.5.6 | Passing | Local verification in progress |
-| [marcelpetrick/myLastFmPlayer#8](https://github.com/marcelpetrick/myLastFmPlayer/pull/8) | chore(deps): bump pylint from 4.1.1 to 4.1.2 in the dev-dependencies group across 1 directory | Passing | Local verification in progress |
+| [marcelpetrick/DividendenDackel#22](https://github.com/marcelpetrick/DividendenDackel/pull/22) | build(deps): bump actions/upload-artifact from 7.0.1 to 7.0.2 | Passing | Passed; commit `af674bc` |
+| [marcelpetrick/DividendenDackel#21](https://github.com/marcelpetrick/DividendenDackel/pull/21) | build(deps): bump org.jetbrains.kotlin.android from 2.4.20 to 2.4.21 in /android | Passing | Passed; commit `af674bc` |
+| [marcelpetrick/DividendenDackel#20](https://github.com/marcelpetrick/DividendenDackel/pull/20) | build(deps): bump url_launcher from 6.3.2 to 6.3.3 | Passing | Passed; commit `af674bc` |
+| [marcelpetrick/DividendenDackel#19](https://github.com/marcelpetrick/DividendenDackel/pull/19) | build(deps): bump package_info_plus from 10.2.1 to 10.2.2 | Passing | Passed; commit `af674bc` |
+| [marcelpetrick/DividendenDackel#18](https://github.com/marcelpetrick/DividendenDackel/pull/18) | build(deps): bump build_runner from 2.16.1 to 2.16.2 | Passing | Passed; commit `af674bc` |
+| [marcelpetrick/DividendenDackel#17](https://github.com/marcelpetrick/DividendenDackel/pull/17) | build(deps): bump shared_preferences from 2.5.5 to 2.5.6 | Passing | Passed; commit `af674bc` |
+| [marcelpetrick/myLastFmPlayer#8](https://github.com/marcelpetrick/myLastFmPlayer/pull/8) | chore(deps): bump pylint from 4.1.1 to 4.1.2 in the dev-dependencies group across 1 directory | Passing | Passed; commit `b24c031` (Pylint 4.1.3 supersedes 4.1.2) |
 | [marcelpetrick/AlliumAssault#5](https://github.com/marcelpetrick/AlliumAssault/pull/5) | build(deps): bump the dev-tooling group across 1 directory with 4 updates | Passing | Local verification in progress |
 | [marcelpetrick/AlliumAssault#4](https://github.com/marcelpetrick/AlliumAssault/pull/4) | build(deps): bump @babylonjs/core from 9.29.0 to 9.30.0 | Passing | Local verification in progress |
 
@@ -215,17 +219,33 @@ myLastFmPlayer: Pylint 4.1.3 and Ruff 0.17.0, version 0.0.199, committed as `b24
 
 AlliumAssault: applied Dependabot updates and newer compatible patch releases, version 1.78.6. npm audit found tooling-only advisories; applied a KaTeX 0.19.0 override to address GHSA-238p-pmpm-9mq7. Audit improves from 12 findings (9 high / 3 low) to 8 high, all stemming from the same unpatched braces advisory. The braces advisory GHSA-vfj7-8cjw-p6xm has no patched published release (latest 3.0.3); do not apply npm audit’s suggested downgrades to obsolete linting tools. `npm audit --omit=dev` passes with zero findings.
 
-DividendenDackel: applied all six Dependabot changes plus flutter_local_notifications 22.3.2; version script bumped to 0.65.12+132. Verified upload-artifact v7.0.2 resolves to the proposed full SHA and Kotlin 2.4.21 is a stable GitHub release. Full gate running with an isolated SDK cloned at Flutter 3.47.4; shared SDK untouched.
+DividendenDackel: applied all six Dependabot changes plus flutter_local_notifications 22.3.2; version script bumped to 0.65.12+132. Verified upload-artifact v7.0.2 resolves to the proposed full SHA and Kotlin 2.4.21 is a stable GitHub release. Committed as `af674bc` after the full `./localPipeline.sh --noRun` gate passed with an isolated SDK at Flutter 3.47.4 and Java 21. Shared SDK untouched; format/analyze/tests, all 10 Linux integration tests, version validation, Android 10 compatibility assertion, Linux release build and Android release APK all passed.
 
 Checks and logs are detached under `systemd-inhibit`, with `flock` preventing duplicate runs. Status files: `/tmp/github-dependency-review-2026-10-12/{mylastfm,flutter}.result` (0 means passed).
 
 AlliumAssault full verify is now running: lint and typecheck passed; all 313 unit tests passed. Coverage: statements 99.68%, branches 98.13%, functions 100%, lines 99.9%; thresholds passed. Production build passed; Chrome E2E 77 cases in progress.
 
-DividendenDackel dependency resolution, formatting, analysis and unit tests passed. All 10 Linux integration journey tests and the Linux release build passed; Android release build running. The log prints the full stage summary at completion.
+DividendenDackel dependency resolution, formatting, analysis and unit tests passed. Full gate passed; dependency update committed as `af674bc`. Version checker also passed for `HEAD^..HEAD`. The log prints the full stage summary at completion.
 
 KaTeX override compatibility was also checked by rendering inline and block math through the installed `micromark-extension-math`; both render successfully without KaTeX errors.
 
 ## Resume here
+Durable evidence: `/home/mpetrick/.cache/github-dependency-review-2026-10-12/` (inventory, PR diffs, settings, alerts, registry lookups and completed pipeline logs).
+
+Current commits: `myLastFmPlayer` `b24c031`; `DividendenDackel` `af674bc`. AlliumAssault changes are uncommitted pending 77 Chrome tests and REUSE lint.
+
+Exact restart / check commands:
+```sh
+cd /home/mpetrick/repos/AlliumAssault
+CI=true npm run verify && npm run lint:reuse
+cd /home/mpetrick/repos/myLastFmPlayer
+QT_QPA_PLATFORM=offscreen MY_LASTFM_PLAYER_REPORT_BROWSER=true ./localPipeline.sh --noRun
+cd /home/mpetrick/repos/DividendenDackel
+PATH=/tmp/github-dependency-review-2026-10-12/flutter-3.47.4/bin:$PATH ./localPipeline.sh --noRun
+./tool/check-version.sh HEAD^ HEAD
+```
+If the isolated SDK no longer exists: `git clone --shared --no-checkout /home/mpetrick/develop/flutter /tmp/github-dependency-review-2026-10-12/flutter-3.47.4`, then `git -C /tmp/github-dependency-review-2026-10-12/flutter-3.47.4 checkout --detach 3.47.4`.
+
 Working directory: `/home/mpetrick/repos/codingWithGPT`; branch: `master`.
 Raw inventory: `/tmp/github-dependency-review-2026-10-12/{repos,prs,issues}.json`.
 Restart inventory: `gh repo list marcelpetrick --limit 1000 --json nameWithOwner,isArchived,isFork,url,defaultBranchRef`.
