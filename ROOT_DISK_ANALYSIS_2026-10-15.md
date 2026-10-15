@@ -2,7 +2,7 @@
 
 ## Verdict
 
-Root (`/dev/nvme0n1p1`, ext4, 98 GiB usable) is at 100%, with 0 available to ordinary users. Inodes are only 14% used. `/home` is a separate filesystem with 91 GiB available; `/tmp` is tmpfs and cannot explain root usage.
+After user-performed cleanup, root (`/dev/nvme0n1p1`, ext4, 98 GiB usable) is at 87%, with 13 GiB available. Initially it was at 100%, with 0 available. Inodes are only 14% used. `/home` is a separate filesystem with 91 GiB available; `/tmp` is tmpfs and cannot explain root usage.
 
 ## Plan and estimated times
 
@@ -27,7 +27,7 @@ Root (`/dev/nvme0n1p1`, ext4, 98 GiB usable) is at 100%, with 0 available to ord
 
 ## Resume here
 
-State: analysis complete to the limits of non-root access. No cleanup performed. Sudo requires an interactive password; privileged directory sizes and deleted open files remain unverified.
+State: user completed package-cache, journal, and coredump cleanup; root has 13 GiB available (87% used). User supplied privileged measurements confirming Ollama storage as the main hidden usage. No further cleanup or configuration changes authorized.
 
 Check commands: `df -hT`, `df -ih`, `lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS`.
 
@@ -82,3 +82,14 @@ For prevention, `paccache.timer` exists and is disabled: `sudo systemctl enable 
 - No deletions, service changes, package changes, or pushes performed.
 
 Sources for command semantics: [paccache manual](https://man.archlinux.org/man/paccache.8), [journalctl manual](https://www.freedesktop.org/software/systemd/man/255/journalctl.html). Installed `paccache --help` and dry runs were also checked.
+
+## Follow-up: user-confirmed cleanup and privileged measurements
+
+- Package cache is now 404 KiB; repeat `paccache -r -k0` found no candidates.
+- Journal vacuum reported 3.4 GiB removed; repeat vacuum freed zero.
+- User removed stored core dumps.
+- Final supplied `df`: 98 GiB total, 81 GiB used, 13 GiB available, 87% used.
+- Privileged `du`: `/usr/share/ollama` 32 GiB, comprising `.ollama` 31 GiB and `.nv` 803 MiB; `/root` 2.2 GiB; `/var/lib/containerd` only 1.8 MiB.
+- Correction to the initial available-space estimate: actual final availability is 13 GiB, higher than the estimated 7–8 GiB. The initial estimate assumed the approximately 5 GiB reserved capacity would first need replenishing; observed filesystem accounting did not follow that assumption. Prefer measured `df` availability.
+- Immediate disk exhaustion is resolved. Next optional action: remove unwanted models through `ollama rm MODEL`, or migrate the model store to `/home` with a verified copy and service maintenance. Measure blob sharing; tag sizes are not additive. Do not delete model blobs by hand.
+- Prevention remains recommended: enable weekly `paccache.timer`, bound journal disk use, and cap stored crash dumps. No such configuration changes have been made.
