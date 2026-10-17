@@ -83,7 +83,7 @@ def analyse(run_dir):
         "api_ms": res.get("duration_api_ms"), "is_error": res.get("is_error"),
         "tokens": usage, "tokens_total": sum(usage.values()), "models": list(per_model),
         "tool_calls": tool_calls, "subagents": subagents, "findings": n_findings,
-        "worktree_dirty": any(l.strip() != "?? node_modules"
+        "worktree_dirty": any(l.strip() not in ("?? node_modules", "?? .venv")
                               for l in (run_dir / "worktree_after.txt").read_text().splitlines()),
     }
 

@@ -1,0 +1,5 @@
+# hr-doccontrol is internal company code (git.data-modul.com): its transcripts and per-finding
+# details stay local; only aggregate numbers go into this public repository.
+runs/hr*/
+runs/log_hr*
+results/verification_hr.md
