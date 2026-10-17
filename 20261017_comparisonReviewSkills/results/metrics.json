@@ -1,0 +1,237 @@
+[
+ {
+  "run": "factions_CR_1",
+  "fixture": "factions",
+  "arm": "CR",
+  "rep": 1,
+  "claude": "2.1.302",
+  "wall_s": 141,
+  "turns": 17,
+  "num_turns_reported": 0,
+  "cost_usd": 0.6389338,
+  "api_ms": 0,
+  "is_error": false,
+  "tokens": {
+   "input": 34,
+   "output": 11361,
+   "cache_read": 702139,
+   "cache_write": 54230
+  },
+  "tokens_total": 767764,
+  "models": [
+   "claude-opus-5-5"
+  ],
+  "tool_calls": {
+   "Bash": 16
+  },
+  "subagents": 0,
+  "findings": 9,
+  "worktree_dirty": false
+ },
+ {
+  "run": "factions_CR_2",
+  "fixture": "factions",
+  "arm": "CR",
+  "rep": 2,
+  "claude": "2.1.302",
+  "wall_s": 123,
+  "turns": 14,
+  "num_turns_reported": 0,
+  "cost_usd": 0.6352052,
+  "api_ms": 0,
+  "is_error": false,
+  "tokens": {
+   "input": 28,
+   "output": 9300,
+   "cache_read": 616941,
+   "cache_write": 65141
+  },
+  "tokens_total": 691410,
+  "models": [
+   "claude-opus-5-5"
+  ],
+  "tool_calls": {
+   "Bash": 12,
+   "Read": 1
+  },
+  "subagents": 0,
+  "findings": 9,
+  "worktree_dirty": false
+ },
+ {
+  "run": "factions_RB_1",
+  "fixture": "factions",
+  "arm": "RB",
+  "rep": 1,
+  "claude": "2.1.302",
+  "wall_s": 166,
+  "turns": 18,
+  "num_turns_reported": 19,
+  "cost_usd": 0.8361578,
+  "api_ms": 163676,
+  "is_error": false,
+  "tokens": {
+   "input": 36,
+   "output": 9609,
+   "cache_read": 807889,
+   "cache_write": 60282
+  },
+  "tokens_total": 877816,
+  "models": [
+   "claude-opus-5-5"
+  ],
+  "tool_calls": {
+   "Bash": 18
+  },
+  "subagents": 0,
+  "findings": 2,
+  "worktree_dirty": false
+ },
+ {
+  "run": "factions_RB_2",
+  "fixture": "factions",
+  "arm": "RB",
+  "rep": 2,
+  "claude": "2.1.302",
+  "wall_s": 113,
+  "turns": 20,
+  "num_turns_reported": 20,
+  "cost_usd": 0.8135258000000001,
+  "api_ms": 111014,
+  "is_error": false,
+  "tokens": {
+   "input": 40,
+   "output": 8356,
+   "cache_read": 944869,
+   "cache_write": 57159
+  },
+  "tokens_total": 1010424,
+  "models": [
+   "claude-opus-5-5"
+  ],
+  "tool_calls": {
+   "Bash": 19
+  },
+  "subagents": 0,
+  "findings": 2,
+  "worktree_dirty": false
+ },
+ {
+  "run": "gource_CR_1",
+  "fixture": "gource",
+  "arm": "CR",
+  "rep": 1,
+  "claude": "2.1.302",
+  "wall_s": 112,
+  "turns": 9,
+  "num_turns_reported": 0,
+  "cost_usd": 0.5051557999999999,
+  "api_ms": 0,
+  "is_error": false,
+  "tokens": {
+   "input": 18,
+   "output": 10488,
+   "cache_read": 282044,
+   "cache_write": 47783
+  },
+  "tokens_total": 340333,
+  "models": [
+   "claude-opus-5-5"
+  ],
+  "tool_calls": {
+   "Bash": 8
+  },
+  "subagents": 0,
+  "findings": 10,
+  "worktree_dirty": false
+ },
+ {
+  "run": "gource_CR_2",
+  "fixture": "gource",
+  "arm": "CR",
+  "rep": 2,
+  "claude": "2.1.302",
+  "wall_s": 109,
+  "turns": 9,
+  "num_turns_reported": 0,
+  "cost_usd": 0.5027306,
+  "api_ms": 0,
+  "is_error": false,
+  "tokens": {
+   "input": 18,
+   "output": 10440,
+   "cache_read": 275293,
+   "cache_write": 47760
+  },
+  "tokens_total": 333511,
+  "models": [
+   "claude-opus-5-5"
+  ],
+  "tool_calls": {
+   "Bash": 8
+  },
+  "subagents": 0,
+  "findings": 10,
+  "worktree_dirty": false
+ },
+ {
+  "run": "gource_RB_1",
+  "fixture": "gource",
+  "arm": "RB",
+  "rep": 1,
+  "claude": "2.1.302",
+  "wall_s": 101,
+  "turns": 11,
+  "num_turns_reported": 12,
+  "cost_usd": 0.6095790000000002,
+  "api_ms": 93887,
+  "is_error": false,
+  "tokens": {
+   "input": 22,
+   "output": 8352,
+   "cache_read": 445535,
+   "cache_write": 44168
+  },
+  "tokens_total": 498077,
+  "models": [
+   "claude-opus-5-5"
+  ],
+  "tool_calls": {
+   "Bash": 10,
+   "Read": 1
+  },
+  "subagents": 0,
+  "findings": 1,
+  "worktree_dirty": false
+ },
+ {
+  "run": "gource_RB_2",
+  "fixture": "gource",
+  "arm": "RB",
+  "rep": 2,
+  "claude": "2.1.302",
+  "wall_s": 109,
+  "turns": 9,
+  "num_turns_reported": 10,
+  "cost_usd": 0.5952482000000001,
+  "api_ms": 103998,
+  "is_error": false,
+  "tokens": {
+   "input": 18,
+   "output": 8687,
+   "cache_read": 329581,
+   "cache_write": 44440
+  },
+  "tokens_total": 382726,
+  "models": [
+   "claude-opus-5-5"
+  ],
+  "tool_calls": {
+   "Bash": 7,
+   "Read": 2
+  },
+  "subagents": 0,
+  "findings": 3,
+  "worktree_dirty": false
+ }
+]

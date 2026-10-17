@@ -1,0 +1,3 @@
+fixture=factions arm=CR rep=2 base=9683621e27a109a3650f946340f3fad2ff318b12 head=99fbe2e67d752c066f259ccf10011d43028730bd
+claude=2.1.302 (Claude Code) start=2026-10-17T22:49:20+02:00
+wall_s=123 end=2026-10-17T22:51:23+02:00
