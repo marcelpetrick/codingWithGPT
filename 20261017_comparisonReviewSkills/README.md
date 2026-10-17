@@ -57,13 +57,14 @@ built from a broad HTML comparison and then condensed.
 
 | Time  | Step                                                    | State |
 |-------|---------------------------------------------------------|-------|
-| 22:50 | Plan, decision rule, fixtures defined                   | done  |
+| 22:47 | Plan, decision rule, fixtures defined                   | done  |
 | 22:49 | 8 runs launched in parallel, one clone each             | done  |
 | 22:52 | All 8 finished (101–166 s each), 0 errors               | done  |
 | 22:55 | Harness defect: extractor booked CR's findings as 0 (`num_turns`=0, prose list); fixed, re-extracted | done |
-| 23:10 | All 49 reported findings verified against the code      | done  |
-| —     | Broad HTML comparison                                   | open  |
-| —     | A4 one-pager HTML → PDF                                 | open  |
+| 23:10 | All 46 reported findings verified against the code      | done  |
+| 23:20 | Broad HTML comparison (`comparison.html`)               | done  |
+| 23:30 | A4 one-pager `onepager.html` → `onepager.pdf` (1 page, STE style) | done |
+| —     | Independent review of numbers and claims                | open  |
 
 ## Results
 

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review Skills Compared</title>
+<style>
+@page{size:A4;margin:10mm 12mm}
+:root{--bg:#fff;--fg:#16191d;--mut:#5b6470;--line:#d5dbe1;--a:#1f5fbf;--b:#b2591a;--good:#1e7a46;--bad:#b3261e;--soft:#f3f5f7}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15181c;--fg:#e6e9ed;--mut:#9aa4b0;--line:#2c333b;--a:#7fb0ff;--b:#f0a46a;--good:#5cc98a;--bad:#ff8a80;--soft:#1d2126}}
+:root[data-theme="dark"]{--bg:#15181c;--fg:#e6e9ed;--mut:#9aa4b0;--line:#2c333b;--a:#7fb0ff;--b:#f0a46a;--good:#5cc98a;--bad:#ff8a80;--soft:#1d2126}
+@media print{:root{--bg:#fff;--fg:#16191d;--mut:#5b6470;--line:#d5dbe1;--a:#1f5fbf;--b:#b2591a;--good:#1e7a46;--bad:#b3261e;--soft:#f3f5f7}}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:9.6pt/1.33 system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;margin:0;padding:16px}
+@media print{body{padding:0}}
+main{max-width:184mm;margin:0 auto}
+h1{font-size:17pt;margin:0;letter-spacing:-.2px}
+.sub{color:var(--mut);font-size:8.6pt;margin:1px 0 8px}
+h2{font-size:10.5pt;margin:9px 0 3px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut)}
+.verdict{background:var(--soft);border-left:4px solid var(--a);padding:7px 10px;border-radius:3px;font-size:10.4pt}
+.verdict b{font-size:11pt}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 2px}
+.kpi{border:1px solid var(--line);border-radius:4px;padding:5px 7px}
+.kpi .v{font-size:13pt;font-weight:700;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:8pt;color:var(--mut)}
+.rb{color:var(--a);font-weight:600}.cr{color:var(--b);font-weight:600}
+table{border-collapse:collapse;width:100%;font-size:8.9pt}
+th,td{border-bottom:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top}
+th{background:var(--soft);font-weight:600}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{border:1px solid var(--line);border-radius:4px;padding:4px 8px}
+.card h3{font-size:10pt;margin:2px 0}
+ul{margin:1px 0 2px;padding-left:15px}li{margin:0}
+.g{color:var(--good);font-weight:600}.x{color:var(--bad);font-weight:600}
+.foot{color:var(--mut);font-size:7.6pt;margin-top:6px;border-top:1px solid var(--line);padding-top:3px}
+@media(max-width:640px){.two,.kpis{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main>
+<h1>Code review skills: built-in vs own</h1>
+<p class="sub"><span class="cr">/code-review</span> (built into Claude Code 2.1.302, default level “high”) compared with <span class="rb">/reviewBranch</span> (own skill). Test: repository AlliumAssault, 2 branches, 2 runs per skill and branch, model Opus 5.5. 17 Oct 2026.</p>
+
+<div class="verdict"><b>Recommendation: keep /reviewBranch as the default. Add /code-review before an important merge.</b><br>
+/reviewBranch gives a short list that you can trust. /code-review finds more problems, but you must sort half of its list yourself. Both skills found the one important bug every time. Neither skill reported a false finding.</div>
+
+<div class="kpis">
+<div class="kpi"><div class="v"><span class="rb">88%</span> · <span class="cr">47%</span></div><div class="l">Precision: real findings ÷ reported findings</div></div>
+<div class="kpi"><div class="v"><span class="rb">5</span> · <span class="cr">11</span></div><div class="l">Different real defects found (all runs together)</div></div>
+<div class="kpi"><div class="v"><span class="rb">$0.71</span> · <span class="cr">$0.57</span></div><div class="l">Median cost per review (tie: below the 25% rule)</div></div>
+<div class="kpi"><div class="v">4 / 4 · 4 / 4</div><div class="l">Runs that found the one medium-severity bug</div></div>
+</div>
+
+<h2>Measured result</h2>
+<table>
+<tr><th>Branch</th><th>Skill</th><th class="n">Cost USD</th><th class="n">Tokens</th><th class="n">Turns</th><th class="n">Time s</th><th class="n">Reported</th><th class="n">Real</th><th class="n">Weak / old</th></tr>
+<tr><td>Media script (15 files)</td><td class="rb">reviewBranch</td><td class="n">0.60–0.61</td><td class="n">383–498 k</td><td class="n">9–11</td><td class="n">101–109</td><td class="n">1–3</td><td class="n">1–2</td><td class="n">0–1</td></tr>
+<tr><td></td><td class="cr">code-review</td><td class="n">0.50–0.51</td><td class="n">334–340 k</td><td class="n">9</td><td class="n">109–112</td><td class="n">10</td><td class="n">5–6</td><td class="n">4–5</td></tr>
+<tr><td>Game feature (21 files)</td><td class="rb">reviewBranch</td><td class="n">0.81–0.84</td><td class="n">878 k–1.0 M</td><td class="n">18–20</td><td class="n">113–166</td><td class="n">2</td><td class="n">2</td><td class="n">0</td></tr>
+<tr><td></td><td class="cr">code-review</td><td class="n">0.64</td><td class="n">691–768 k</td><td class="n">14–17</td><td class="n">123–141</td><td class="n">9</td><td class="n">3–4</td><td class="n">5–6</td></tr>
+</table>
+<p class="sub" style="margin:2px 0 0">“Real” = a confirmed defect in the new code. “Weak / old” = true, but trivial, only possible in theory, or present before the branch. We checked each of the 46 findings in the code.</p>
+
+<h2>Where they are the same</h2>
+<ul>
+<li>Both find the important bug: a team without a set faction moves to a different alliance when you remove a team.</li>
+<li>Both report no false findings. Both take about 2 minutes. Both cost less than one US dollar per review.</li>
+</ul>
+
+<h2>Where they are different</h2>
+<div class="two">
+<div class="card"><h3 class="rb">/reviewBranch — the decision</h3>
+<span class="g">Better</span><ul>
+<li>It checks each finding before it reports it.</li>
+<li>It puts the important bug at rank 1.</li>
+<li>It gives a severity and a merge verdict.</li>
+<li>It finds the correct base branch (master, main, develop).</li>
+<li>You own the text. It changes only when you change it.</li></ul>
+<span class="x">Weaker</span><ul>
+<li>It misses small defects in documents and conventions.</li>
+<li>It does not review uncommitted changes.</li>
+<li>It costs about 25% more per run.</li></ul></div>
+<div class="card"><h3 class="cr">/code-review — the search</h3>
+<span class="g">Better</span><ul>
+<li>It finds all defects that /reviewBranch finds, plus 6 more.</li>
+<li>It checks project rules, duplicate code and speed.</li>
+<li>It can fix code, comment on pull requests and run a cloud review (“ultra”).</li>
+<li>It runs in a separate agent. Your session stays clean.</li></ul>
+<span class="x">Weaker</span><ul>
+<li>At the default level, it does not verify its findings.</li>
+<li>It tries to report at least 5 findings. Half are weak or old.</li>
+<li>It has no severity and no merge verdict.</li>
+<li>Its base-branch logic can miss commits on “master” repositories.</li>
+<li>Anthropic changes its text with each release.</li></ul></div>
+</div>
+
+<h2>What to do</h2>
+<ul>
+<li><b>Every branch:</b> run <span class="rb">/reviewBranch</span>. Fix the findings it reports.</li>
+<li><b>Before a release or a large merge:</b> also run <span class="cr">/code-review</span>. Expect extra findings, and sort them before you act.</li>
+<li><b>Improve /reviewBranch:</b> add a check of project rules (AGENTS.md, CLAUDE.md) and of documents that the branch makes out of date.</li>
+</ul>
+
+<p class="foot">Limits: one repository, two branches, two runs per cell. We tested only the default level of /code-review; the levels “max” and “ultra” add verification and can change the precision result. The precision gate is narrow: one more real finding moves /code-review to 50%. Method, decision rule (fixed before the runs), raw data and transcripts: <b>codingWithGPT/20261017_comparisonReviewSkills</b> (README.md, results/, runs/). Text style: ASD-STE100 Simplified Technical English, about 80% adherence.</p>
+</main></body>
+</html>
