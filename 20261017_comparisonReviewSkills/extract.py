@@ -31,10 +31,11 @@ def analyse(run_dir):
     res = results[-1]
     meta = dict(kv.split("=", 1) for kv in (run_dir / "meta.txt").read_text().split() if "=" in kv)
 
-    tool_calls, subagents, report_findings = {}, 0, []
+    tool_calls, subagents, report_findings, msg_ids = {}, 0, [], set()
     for e in events:
         if e.get("type") != "assistant":
             continue
+        msg_ids.add(e["message"].get("id"))
         for c in e["message"].get("content", []):
             if c.get("type") != "tool_use":
                 continue
@@ -68,18 +69,22 @@ def analyse(run_dir):
         n_findings = len(report_findings)
     else:
         findings_md = text
-        n_findings = len(re.findall(r"^#\d+\s+(HIGH|MEDIUM|LOW)", text, re.M))
+        # /reviewBranch: "#1  HIGH  Code  path:line"; /code-review: "1. `path:line`: ..."
+        n_findings = (len(re.findall(r"^#\d+\s+(HIGH|MEDIUM|LOW)", text, re.M))
+                      or len(re.findall(r"^\d+\. `[^`]+`", text, re.M)))
 
     (run_dir / "findings.md").write_text(findings_md + "\n\n---\nFinal text:\n" + text + "\n")
     fixture, arm, rep = run_dir.name.split("_")
     return {
         "run": run_dir.name, "fixture": fixture, "arm": arm, "rep": int(rep),
         "claude": meta.get("claude"), "wall_s": int(meta.get("wall_s", 0)),
-        "turns": res.get("num_turns"), "cost_usd": res.get("total_cost_usd"),
+        # num_turns is 0 for /code-review (a local command), so count API messages for both arms.
+        "turns": len(msg_ids), "num_turns_reported": res.get("num_turns"), "cost_usd": res.get("total_cost_usd"),
         "api_ms": res.get("duration_api_ms"), "is_error": res.get("is_error"),
         "tokens": usage, "tokens_total": sum(usage.values()), "models": list(per_model),
         "tool_calls": tool_calls, "subagents": subagents, "findings": n_findings,
-        "worktree_dirty": bool((run_dir / "worktree_after.txt").read_text().strip()),
+        "worktree_dirty": any(l.strip() != "?? node_modules"
+                              for l in (run_dir / "worktree_after.txt").read_text().splitlines()),
     }
 
 
