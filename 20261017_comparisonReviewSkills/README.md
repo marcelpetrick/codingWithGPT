@@ -55,16 +55,21 @@ built from a broad HTML comparison and then condensed.
 
 ## Status
 
-| Time  | Step                                                    | State |
-|-------|---------------------------------------------------------|-------|
-| 22:47 | Plan, decision rule, fixtures defined                   | done  |
-| 22:49 | 8 runs launched in parallel, one clone each             | done  |
-| 22:52 | All 8 finished (101–166 s each), 0 errors               | done  |
-| 22:55 | Harness defect: extractor booked CR's findings as 0 (`num_turns`=0, prose list); fixed, re-extracted | done |
-| 23:10 | All 46 reported findings verified against the code      | done  |
-| 23:20 | Broad HTML comparison (`comparison.html`)               | done  |
-| 23:30 | A4 one-pager `onepager.html` → `onepager.pdf` (1 page, STE style) | done |
-| —     | Independent review of numbers and claims                | open  |
+Times are commit times (`git log`), CEST.
+
+| When        | Step                                                                 | State |
+|-------------|----------------------------------------------------------------------|-------|
+| 10-17 22:49 | Plan, decision rule, fixtures, runner committed                      | done  |
+| 10-17 22:49 | AlliumAssault: 8 runs in parallel, one clone each (101–166 s)        | done  |
+| 10-17 22:54 | Harness defect: extractor booked CR's findings as 0; fixed           | done  |
+| 10-17 22:54 | AlliumAssault findings verified, first verdict, HTML, one-pager      | done  |
+| 10-17 22:57 | hr-doccontrol: 2 fixtures × 2 skills × 2 runs launched               | done  |
+| 10-17 23:00 | Independent review of the AlliumAssault round: 10 findings           | done  |
+| 10-17 ~23:05| Usage limit hit: 2 hr runs (sectionx CR2, RB1) dead, quarantined     | done  |
+| 10-18 03:42 | Review fixes: turn count, equal-TTL cost, `pre` class removed (CR now 58%) | done |
+| 10-18 03:42 | Re-run of the 2 dead hr sessions, sequential                         | running |
+| —           | hr findings verified (own + separate verifier agent, owner's X23–X29 as ground truth) | running |
+| —           | Verdict over all 4 fixtures; HTML; PDF as 2 A4 pages                 | open  |
 
 ## Results
 
