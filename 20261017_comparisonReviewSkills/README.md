@@ -113,8 +113,8 @@ Totals: RB $8.23, 11 reported, 10 real (91%), 0 false. CR $7.46, 71 reported, 31
 - **Cost is a tie.** CR is cheaper on the AlliumAssault fixtures and on hrsectionx, dearer on
   hrsafety. The raw gap on AlliumAssault is mostly a pricing artefact: RB runs in the main session,
   which writes 1-hour cache ($8/M), CR runs in a fork, which writes 5-minute cache ($5/M).
-  Re-priced at the same rate ("equal-TTL"), RB is cheaper on 3 of 4 fixtures. Cache writes are
-  42–60% of the cost, cache reads about 10%. Cache reads are 83–96% of the tokens.
+  Re-priced at the same rate ("equal-TTL"), RB is cheaper on 2 of 4 fixtures. Cache writes are
+  42–60% of the cost on AlliumAssault, cache reads about 10%. Cache reads are 82–96% of the tokens.
 - **Owner-known defects on hr-doccontrol** (ground truth `ce6fdf8`): the high-severity UI
   error-visibility regression — CR 2/2 (rank 1), RB 1/2; the medium OCR path defect — CR 2/2, RB
   2/2; the safety-gate defect (a set-aside naming rule drops its missing required fields, so a
