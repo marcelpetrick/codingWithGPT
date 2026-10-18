@@ -9,7 +9,7 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15181c;--fg:#e6e9ed;--mut:#9aa4b0;--line:#2c333b;--a:#7fb0ff;--b:#f0a46a;--good:#5cc98a;--bad:#ff8a80;--soft:#1d2126}}
 :root[data-theme="dark"]{--bg:#15181c;--fg:#e6e9ed;--mut:#9aa4b0;--line:#2c333b;--a:#7fb0ff;--b:#f0a46a;--good:#5cc98a;--bad:#ff8a80;--soft:#1d2126}
 body{background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;padding:24px 16px}
-main{max-width:1040px;margin:0 auto}
+main{max-width:1060px;margin:0 auto}
 h1{font-size:26px;margin:0 0 4px}h2{font-size:19px;margin:32px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}
 .sub{color:var(--mut);margin:0 0 20px}
 .verdict{background:var(--soft);border-left:4px solid var(--a);padding:12px 16px;border-radius:4px}
@@ -19,7 +19,7 @@ th{background:var(--soft);font-weight:600}
 .wrap{overflow-x:auto}
 .cr{color:var(--b);font-weight:600}.rb{color:var(--a);font-weight:600}
 .g{color:var(--good)}.x{color:var(--bad)}
-td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 code{font-size:13px;background:var(--soft);padding:0 3px;border-radius:3px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:720px){.two{grid-template-columns:1fr}}
@@ -31,81 +31,83 @@ small{color:var(--mut)}
 </head>
 <body><main>
 <h1>Review skills compared</h1>
-<p class="sub">Built-in <span class="cr">/code-review</span> (Claude Code 2.1.302, default level = high) vs own <span class="rb">/reviewBranch</span> · tested on AlliumAssault · 8 runs · 2026-10-17</p>
+<p class="sub">Built-in <span class="cr">/code-review</span> (Claude Code 2.1.302, default level = high) vs own <span class="rb">/reviewBranch</span> · 2 repositories, 4 branches, 16 runs · 17–18 Oct 2026</p>
 
-<div class="verdict"><b>Verdict.</b> Keep <span class="rb">/reviewBranch</span> as the default. Add <span class="cr">/code-review</span> as a second pass before an important merge.
-Cost is a tie. <span class="cr">/code-review</span> found more real defects (11 vs 5 unique), but less than half of what it reports is a real defect (47% vs 88%), so it fails the precision gate that was fixed before the runs. Neither skill reported a false finding. Both found the only medium-severity bug in every run.</div>
+<div class="verdict"><b>Verdict.</b> By the rule fixed before the runs, <span class="rb">/reviewBranch</span> stays the default: cost is a tie and <span class="cr">/code-review</span> fails the 50% precision gate (44% vs 91%; 5 false findings vs 0).
+But the rule does not weigh missed bugs. Where the owner's own later fixes give a ground truth, <span class="cr">/code-review</span> found the high-severity regression in 2 of 2 runs and a safety-gate bug in 4 of 4. <span class="rb">/reviewBranch</span> found them in 1 of 2 and 0 of 4.
+<b>Use both on safety-relevant code and before a release.</b> Teach <span class="rb">/reviewBranch</span> the removed-behaviour check.</div>
 
-<h2>1 · Measured: cost and outcome</h2>
-<p><small>Model claude-opus-5-5, headless <code>claude -p</code>, fresh clone per run, n = 2 per cell. Fixture <b>gource</b>: real branch, shell script + docs + 34 MB media (15 files, +389/−8). Fixture <b>factions</b>: game-logic feature with tests (21 files, +423/−34).</small></p>
+<h2>1 · Measured: cost, effort and outcome</h2>
+<p><small>Model claude-opus-5-5, headless <code>claude -p</code>, fresh clone per run, n = 2 per cell. <b>gource</b>: shell script + docs + media (15 files). <b>factions</b>: game feature with tests (21 files). <b>hrsafety</b>: safety-core fixes in an HR document-filing tool (18 files). <b>hrsectionx</b>: 6-commit range of the same tool (61 files). hr-doccontrol is internal code; only aggregates appear here.</small></p>
 <div class="wrap"><table>
-<tr><th>Fixture</th><th>Skill</th><th class="n">USD</th><th class="n">Tokens (median)</th><th class="n">Output tok</th><th class="n">Turns</th><th class="n">Wall s</th><th class="n">Reported</th><th class="n">Real</th><th class="n">Weak</th><th class="n">Pre-existing</th><th class="n">False</th></tr>
-<tr><td>gource</td><td class="rb">reviewBranch</td><td class="n">0.61 / 0.60</td><td class="n">440 k</td><td class="n">8.4–8.7 k</td><td class="n">11 / 9</td><td class="n">101 / 109</td><td class="n">1 / 3</td><td class="n">1 / 2</td><td class="n">0 / 1</td><td class="n">0</td><td class="n">0</td></tr>
-<tr><td>gource</td><td class="cr">code-review</td><td class="n">0.51 / 0.50</td><td class="n">337 k</td><td class="n">10.4–10.5 k</td><td class="n">9 / 9</td><td class="n">112 / 109</td><td class="n">10 / 10</td><td class="n">5 / 6</td><td class="n">5 / 4</td><td class="n">0</td><td class="n">0</td></tr>
-<tr><td>factions</td><td class="rb">reviewBranch</td><td class="n">0.84 / 0.81</td><td class="n">944 k</td><td class="n">8.4–9.6 k</td><td class="n">18 / 20</td><td class="n">166 / 113</td><td class="n">2 / 2</td><td class="n">2 / 2</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
-<tr><td>factions</td><td class="cr">code-review</td><td class="n">0.64 / 0.64</td><td class="n">730 k</td><td class="n">9.3–11.4 k</td><td class="n">17 / 14</td><td class="n">141 / 123</td><td class="n">9 / 9</td><td class="n">4 / 3</td><td class="n">4 / 3</td><td class="n">1 / 3</td><td class="n">0</td></tr>
-<tr><th colspan="2">Totals</th><th class="n">2.86 vs 2.29</th><th class="n" colspan="4"><span class="rb">RB</span> $0.41 per real finding · <span class="cr">CR</span> $0.13</th><th class="n">8 vs 38</th><th class="n">7 vs 18</th><th class="n">1 vs 16</th><th class="n">0 vs 4</th><th class="n">0 vs 0</th></tr>
+<tr><th>Branch</th><th>Skill</th><th class="n">USD</th><th class="n">USD equal-TTL</th><th class="n">Tokens k</th><th class="n">Turns</th><th class="n">Wall s</th><th class="n">Reported</th><th class="n">Real</th><th class="n">Weak</th><th class="n">False</th></tr>
+<tr><td>gource</td><td class="rb">reviewBranch</td><td class="n">0.61 / 0.60</td><td class="n">0.48 / 0.46</td><td class="n">498 / 383</td><td class="n">11 / 9</td><td class="n">101 / 109</td><td class="n">1 / 3</td><td class="n">1 / 2</td><td class="n">0 / 1</td><td class="n">0</td></tr>
+<tr><td></td><td class="cr">code-review</td><td class="n">0.51 / 0.50</td><td class="n">0.51 / 0.50</td><td class="n">340 / 334</td><td class="n">8 / 8</td><td class="n">112 / 109</td><td class="n">10 / 10</td><td class="n">5 / 6</td><td class="n">5 / 4</td><td class="n">0</td></tr>
+<tr><td>factions</td><td class="rb">reviewBranch</td><td class="n">0.84 / 0.81</td><td class="n">0.66 / 0.64</td><td class="n">878 / 1010</td><td class="n">18 / 20</td><td class="n">166 / 113</td><td class="n">2 / 2</td><td class="n">2 / 2</td><td class="n">0</td><td class="n">0</td></tr>
+<tr><td></td><td class="cr">code-review</td><td class="n">0.64 / 0.64</td><td class="n">0.64 / 0.64</td><td class="n">768 / 691</td><td class="n">16 / 13</td><td class="n">141 / 123</td><td class="n">9 / 9</td><td class="n">5 / 6</td><td class="n">4 / 3</td><td class="n">0</td></tr>
+<tr><td>hrsafety</td><td class="rb">reviewBranch</td><td class="n">0.92 / 0.88</td><td class="n">0.71 / 0.68</td><td class="n">980 / 1046</td><td class="n">15 / 16</td><td class="n">143 / 129</td><td class="n">0 / 0</td><td class="n">0 / 0</td><td class="n">0</td><td class="n">0</td></tr>
+<tr><td></td><td class="cr">code-review</td><td class="n">1.32 / 1.12</td><td class="n">1.32 / 1.12</td><td class="n">2549 / 2013</td><td class="n">32 / 27</td><td class="n">196 / 174</td><td class="n">8 / 7</td><td class="n">1 / 1</td><td class="n">5 / 5</td><td class="n">2 / 1</td></tr>
+<tr><td>hrsectionx</td><td class="rb">reviewBranch</td><td class="n">1.78 / 1.79</td><td class="n">1.45 / 1.45</td><td class="n">2857 / 2889</td><td class="n">31 / 30</td><td class="n">238 / 174</td><td class="n">1 / 2</td><td class="n">1 / 2</td><td class="n">0</td><td class="n">0</td></tr>
+<tr><td></td><td class="cr">code-review</td><td class="n">1.42 / 1.32</td><td class="n">1.42 / 1.32</td><td class="n">2511 / 2231</td><td class="n">26 / 25</td><td class="n">204 / 271</td><td class="n">10 / 8</td><td class="n">3 / 4</td><td class="n">5 / 4</td><td class="n">2 / 0</td></tr>
+<tr><th colspan="2">Totals (16 runs)</th><th class="n">8.23 vs 7.46</th><th class="n" colspan="2">median $0.86 vs $0.88</th><th class="n">17 vs 20.5</th><th class="n">136 vs 158</th><th class="n">11 vs 71</th><th class="n">10 vs 31</th><th class="n">1 vs 35</th><th class="n">0 vs 5</th></tr>
 </table></div>
-<p><small><b>Real</b> = confirmed defect in what the branch adds. <b>Weak</b> = true, but trivial, latent or taste. <b>Pre-existing</b> = true, but the same before the branch. Every finding was checked by hand against the code; details in <code>results/verification.md</code>.</small></p>
+<p><small><b>Real</b> = confirmed defect. <b>Weak</b> = true, but trivial, theoretical or taste. <b>False</b> = wrong or handled elsewhere. <b>Equal-TTL</b>: /reviewBranch runs in the main session, which writes 1-hour cache ($8/M); /code-review runs in a fork, which writes 5-minute cache ($5/M). The column re-prices both at $5/M so the arms compare on work done.</small></p>
 
-<h2>2 · Decision rule (committed before the runs) applied</h2>
+<h2>2 · Ground truth: defects the owner fixed later</h2>
+<p><small>The owner reviewed the hrsectionx range afterwards and fixed seven items (X23–X29, commit ce6fdf8). That list shows what each skill missed.</small></p>
+<div class="wrap"><table>
+<tr><th>Defect (owner severity)</th><th class="n rb">reviewBranch</th><th class="n cr">code-review</th></tr>
+<tr><td>Error dialogs deleted but still referenced: after the first error, no further error is shown (high)</td><td class="n">1 / 2</td><td class="n">2 / 2, rank 1</td></tr>
+<tr><td>OCR still passes profile paths on the narrow Windows command line (medium)</td><td class="n">2 / 2</td><td class="n">2 / 2</td></tr>
+<tr><td>A set-aside naming rule drops its missing required fields, so a document can skip review (low, safety gate)</td><td class="n x">0 / 4, cleared it 3×</td><td class="n g">4 / 4</td></tr>
+<tr><td>Four other low items (packaging, exit wait, test log handler, facts refresh)</td><td class="n">0</td><td class="n">0</td></tr>
+</table></div>
+<p><small>When /reviewBranch found a defect, its severity matched the owner's exactly. Its merge verdict was wrong in 3 of 4 hr runs ("mergeable" while a known defect was present).</small></p>
+
+<h2>3 · Decision rule (committed before the runs) applied</h2>
 <div class="wrap"><table>
 <tr><th>Test</th><th>Threshold</th><th>Result</th><th>Outcome</th></tr>
-<tr><td>Cheaper</td><td>median ≥ 25% lower and ranges do not overlap</td><td>CR 16% (gource), 23% (factions) cheaper</td><td>Tie</td></tr>
-<tr><td>Better outcome</td><td>more real findings, difference &gt; 1</td><td>11 vs 5 unique real defects</td><td class="cr">CR better</td></tr>
-<tr><td>Precision gate</td><td>real / reported ≥ 50%</td><td>RB 88% · CR 47%</td><td class="x">CR fails</td></tr>
-<tr><td>Default</td><td>better outcome that passes the gate</td><td colspan="2" class="rb">reviewBranch, narrowly: 1 more real finding in the CR runs would have flipped the gate</td></tr>
+<tr><td>Cheaper</td><td>median ≥ 25% lower and ranges do not overlap</td><td>$0.86 vs $0.88; CR cheaper on 3 of 4 branches at list price, 2 of 4 at equal TTL</td><td>Tie</td></tr>
+<tr><td>Better outcome</td><td>more real findings, difference &gt; 1</td><td>31 vs 10 real findings</td><td class="cr">CR better</td></tr>
+<tr><td>Precision gate</td><td>real / reported ≥ 50%</td><td>RB 91% · CR 44% (AlliumAssault 58%, hr-doccontrol 27%)</td><td class="x">CR fails</td></tr>
+<tr><td>Default</td><td>better outcome that passes the gate</td><td colspan="2" class="rb">reviewBranch. The rule did not include recall of high-impact defects. Whether to add that is a decision for the next round.</td></tr>
 </table></div>
-
-<h2>3 · What each skill found</h2>
-<div class="two">
-<div class="card"><h3>Both, every run</h3><ul>
-<li><b>f1 · MEDIUM.</b> A team without an explicit faction falls back to its list index, so removing a team silently changes alliances. 4/4 runs. RB rated it LOW once and MEDIUM once; CR ranked it 2nd and 4th.</li>
-<li><b>g1.</b> Font path hard-coded to the Arch layout.</li>
-<li><b>f2.</b> Faction display-name rule written three times.</li></ul></div>
-<div class="card"><h3>Only <span class="cr">code-review</span> (real)</h3><ul>
-<li>Tag-team toggle shows <code>Off | on</code>: wrong i18n key (f4). The only user-visible extra.</li>
-<li>New media missing from the refresh recipe (g6); MEDIA.md format line now wrong (g12).</li>
-<li>Pacing logic duplicated (g7); git stderr swallowed (g11); tasks table out of order (g10).</li>
-<li>Plus 3 pre-existing AI/stats gaps (melee and torch ignore allies, ally kill credited).</li></ul></div>
-</div>
+<p><small>Correction during the round: a first draft put "pre-existing" defects in an extra class that was not in the rule, and so counted them as not real. All of them were /code-review findings. An independent review caught this, and they now count as real, as the rule defines.</small></p>
 
 <h2>4 · Definition compared, angle by angle</h2>
 <div class="wrap"><table>
 <tr><th style="width:17%">Angle</th><th style="width:41%" class="rb">/reviewBranch (own, 801 words)</th><th style="width:42%" class="cr">/code-review (built-in, 932 words at high)</th></tr>
-<tr><td>Goal</td><td>Precision: "Depth over speed", verify every finding, drop speculation, never pad.</td><td>Recall: "catching real bugs matters more than avoiding false positives. Err on the side of surfacing." Target ≥ 5 findings.</td></tr>
-<tr><td>Base branch</td><td class="g">Finds main/master/develop, picks the newest merge-base, three-dot diff, prints base + merge-base in the header.</td><td class="x"><code>@{upstream}</code> → <code>main</code> → <code>HEAD~1</code>. No master/develop, no merge-base logic. The model adapted here; on a long branch without upstream it can review only the last commit.</td></tr>
-<tr><td>Uncommitted work</td><td class="x">Not covered; reviews commits only.</td><td class="g">Includes the working tree when the range is empty or dirty.</td></tr>
-<tr><td>Scope</td><td>Only what the branch adds; pre-existing issues excluded.</td><td>Diff plus unchanged lines of touched functions; reports pre-existing gaps the change re-exposes.</td></tr>
-<tr><td>Categories</td><td>Code + Architecture. Security and style excluded.</td><td>3 correctness angles + reuse, simplification, efficiency, altitude (root cause), CLAUDE.md conventions. Security has its own skill.</td></tr>
-<tr><td>Conventions</td><td>Not checked explicitly.</td><td class="g">Reads CLAUDE.md files and quotes the broken rule (cited AGENTS.md here).</td></tr>
-<tr><td>Verification</td><td class="g">Mandatory per finding; in practice it pulled video frames, ran Prettier/markdownlint and listed what it ruled out.</td><td class="x">At high: "Dedup only (no verify)". One run said so itself. Higher levels add verifiers (not measured).</td></tr>
-<tr><td>Output</td><td class="g">Fixed Markdown: header, rank, HIGH/MEDIUM/LOW, Code/Architecture, verified new-file line, ≤ 2 sentences, merge <b>verdict</b>.</td><td>Numbered list with file:line, summary, failure scenario. No severity label, no merge verdict. ReportFindings UI in interactive mode.</td></tr>
-<tr><td>Ranking quality</td><td class="g">The real bug was always #1.</td><td class="x">The real bug was #2 or #4, below a pre-existing quirk and two pre-existing AI gaps.</td></tr>
-<tr><td>Modes</td><td class="x">One mode.</td><td class="g">low … max, <b>ultra</b> (cloud multi-agent), <code>--fix</code>, <code>--comment</code> on PRs, <code>--max-findings</code>, PR/branch/path targets.</td></tr>
-<tr><td>Context use</td><td class="x">Runs inline: the review fills the main session context.</td><td class="g">Runs in a forked subagent: the main session stays clean.</td></tr>
-<tr><td>Cost</td><td>$0.60–0.84 per run; more cache reads (deeper file reading).</td><td>$0.50–0.64 per run; more output tokens (longer report).</td></tr>
-<tr><td>Ownership</td><td class="g">Owned, versioned, stable; behaviour changes only when you edit it.</td><td class="x">Prompt lives in the binary and changes with each Claude Code release without notice; "no level" reuses the last level you typed.</td></tr>
-<tr><td>Maintenance</td><td class="x">You maintain it and follow model changes yourself.</td><td class="g">Anthropic maintains it; improves for free.</td></tr>
+<tr><td>Goal</td><td>Precision: "Depth over speed", verify every finding, drop speculation, never pad.</td><td>Recall: "catching real bugs matters more than avoiding false positives". Target ≥ 5 findings, "do not invent to hit the floor".</td></tr>
+<tr><td>How it searches</td><td>One free-form pass: trace data and control flow.</td><td class="g">8 named angles: line scan, <b>removed-behaviour audit</b>, cross-file callers, reuse, simplification, efficiency, altitude, conventions. The removed-behaviour angle caught the safety-gate bug.</td></tr>
+<tr><td>Base branch</td><td class="g">Finds main/master/develop, picks the newest merge-base, three-dot diff, prints base + merge-base.</td><td class="x"><code>@{upstream}</code> → <code>main</code> → <code>HEAD~1</code>. No master/develop, no merge-base. The model adapted here; on a long branch without upstream it can review only the last commit.</td></tr>
+<tr><td>Uncommitted work</td><td class="x">Not covered.</td><td class="g">Included when present.</td></tr>
+<tr><td>Scope</td><td>Only what the branch adds.</td><td>Also unchanged lines of touched functions (reported 3 older gaps).</td></tr>
+<tr><td>Verification</td><td class="g">Mandatory; ran tests, linters and frame grabs, and lists what it ruled out.</td><td class="x">At high: "Dedup only (no verify)". 5 false findings on hr-doccontrol.</td></tr>
+<tr><td>Output</td><td class="g">Header, rank, HIGH/MEDIUM/LOW, category, verified line, ≤ 2 sentences, merge verdict.</td><td>Numbered list: file:line, summary, failure scenario. No severity, no verdict.</td></tr>
+<tr><td>Ranking</td><td>When found, the main defect was #1.</td><td>Main defect at #1–#4.</td></tr>
+<tr><td>Modes</td><td class="x">One mode.</td><td class="g">low … max, ultra (cloud multi-agent), <code>--fix</code>, <code>--comment</code>, PR/branch/path targets.</td></tr>
+<tr><td>Context</td><td class="x">Inline: fills the main session.</td><td class="g">Forked subagent: the main session stays clean.</td></tr>
+<tr><td>Stability</td><td class="g">Owned and versioned; changes only when you edit it.</td><td class="x">Prompt lives in the binary and changes with each release; "no level" reuses the last level you typed.</td></tr>
 </table></div>
 
 <h2>5 · Good and bad, short</h2>
 <div class="two">
 <div class="card"><h3 class="rb">/reviewBranch</h3>
-<b class="g">Good</b><ul><li>Every finding holds up (88% real, 0 false).</li><li>Correct base branch on master/develop repos, stated up front.</li><li>Severity plus merge verdict: a decision, not a list.</li><li>Stable: you control the prompt.</li></ul>
-<b class="x">Bad</b><ul><li>Misses LOW docs/convention drift and UI slips.</li><li>Ignores uncommitted work.</li><li>About 25% more expensive per run; fills the main context.</li><li>Severity drifts between runs (f1: LOW vs MEDIUM).</li></ul></div>
+<b class="g">Good</b><ul><li>91% of its findings are real; 0 false.</li><li>Severity matches the owner's when it finds the defect.</li><li>Correct base branch, stated up front; gives a merge verdict.</li><li>Stable and owned.</li></ul>
+<b class="x">Bad</b><ul><li>Misses defects: 0/4 on the safety-gate bug, 1/2 on the high one.</li><li>Its "mergeable" verdict was wrong in 3 of 4 hr runs.</li><li>Large variance between two runs of the same branch.</li><li>Ignores uncommitted work; fills the main context.</li></ul></div>
 <div class="card"><h3 class="cr">/code-review</h3>
-<b class="g">Good</b><ul><li>Twice the unique real defects; a superset of RB's.</li><li>Checks conventions, reuse and efficiency too.</li><li>Many modes: fix, PR comments, ultra.</li><li>Cheaper per run and per real finding; isolated context.</li></ul>
-<b class="x">Bad</b><ul><li>Half the list is weak or pre-existing: triage cost moves to the human.</li><li>No verify pass at the default level; pads toward 5.</li><li>Weak base-branch logic for master repos.</li><li>No severity, no verdict; prompt can change under you.</li></ul></div>
+<b class="g">Good</b><ul><li>Found every owner-known defect that either skill found, in every run.</li><li>Systematic angles, including removed behaviour and conventions.</li><li>Fix, PR comments, ultra; isolated context.</li><li>Same cost as /reviewBranch.</li></ul>
+<b class="x">Bad</b><ul><li>56% of its list is weak or false: the triage work moves to the reader.</li><li>No verify pass at the default level; 5 false findings.</li><li>No severity, no verdict; weak base-branch logic for master repos.</li><li>Behaviour changes with Claude Code releases.</li></ul></div>
 </div>
 
 <h2>6 · Limits of this test</h2>
 <ul>
-<li>One repository, two fixtures (both already merged and reviewed once), n = 2. Two runs show the spread, not a distribution.</li>
-<li>Only the default level of /code-review (high). <code>max</code> adds verification and <code>ultra</code> is a cloud multi-agent review; both may change the precision result.</li>
-<li>Headless mode. Interactive /code-review renders through ReportFindings; the findings should be the same.</li>
-<li>"Real / weak" is one reviewer's call, but each call is written down with its evidence.</li>
+<li>Two repositories, four branches, n = 2. Two runs show the spread, not a distribution.</li>
+<li>The ground truth came from a later AI-assisted review by the owner, so it is not independent.</li>
+<li>Only the default level of /code-review (high) was measured.</li>
+<li>Two hr runs were killed by the usage limit. They were quarantined and re-run about 5 h later.</li>
+<li>Real vs weak is a judgement. Each call is written down with its evidence; on AlliumAssault, three calls move /code-review's precision by about ±5 points.</li>
 </ul>
-<p><small>Sources: <code>README.md</code>, <code>results/metrics.json</code>, <code>results/verification.md</code>, <code>runs/*/transcript.jsonl</code>, <code>skills/</code>.</small></p>
+<p><small>Sources: <code>README.md</code>, <code>results/metrics.json</code>, <code>results/verification.md</code>, <code>runs/</code>, <code>skills/</code>; hr-doccontrol details are kept locally.</small></p>
 </main></body>
 </html>
