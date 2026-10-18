@@ -71,6 +71,21 @@ then condensed.
 - Default recommendation = the better outcome; if outcome ties, the cheaper one; if both tie, the
   one with the better output form for the owner's workflow.
 
+## Round 2: `/reviewBranch` v2 candidate (rule fixed 2026-10-18, before any v2 data)
+
+The fix the verdict recommends: `/reviewBranch` plus one paragraph, a removed/bypassed-behaviour
+pass (`skills/reviewBranchV2_SKILL.md`, installed as a separate skill `reviewBranchV2`; the live
+`reviewBranch` stays untouched). The paragraph is generic: it does not name X28 or the engine.
+Arm `RB2`, fixtures `factions`, `hrsafety`, `hrsectionx`, n = 2, run one after the other (the
+parallel round hit the usage limit). Verified the same way as round 1.
+
+v2 replaces v1 only if **all** hold:
+
+- Recall: finds X28 in ≥ 3 of 4 hr runs (v1: 0/4); finds X23 in ≥ 1/2 and X24 in 2/2; finds f1
+  in 2/2 (no loss against v1).
+- Precision: real / reported ≥ 80% over the 6 runs (v1: 91%).
+- Cost: median cost over the 6 runs at most 25% above v1's median over the same 6 runs.
+
 ## Status
 
 Times are commit times (`git log`), CEST.

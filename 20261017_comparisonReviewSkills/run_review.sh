@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run one review skill on one fixture in a fresh clone of its source repo and keep the transcript.
-# Usage: run_review.sh <fixture: gource|factions|hrsafety|hrsectionx> <arm: RB|CR> <rep: 1|2>
+# Usage: run_review.sh <fixture: gource|factions|hrsafety|hrsectionx> <arm: RB|RB2|CR> <rep: 1|2>
 # Idempotent: a run whose transcript already ends in a result event is skipped.
 set -euo pipefail
 
@@ -26,6 +26,7 @@ case $FIXTURE in
 esac
 case $ARM in
   RB) PROMPT=/reviewBranch ;;
+  RB2) PROMPT=/reviewBranchV2 ;;
   CR) PROMPT=/code-review ;;
   *) echo "unknown arm $ARM" >&2; exit 2 ;;
 esac
