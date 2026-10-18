@@ -104,7 +104,7 @@ def main():
     # hr-doccontrol is internal code: its runs go to a separate, git-ignored file.
     hr = "--hr" in sys.argv
     rows = [analyse(d) for d in sorted(RUNS.iterdir())
-            if d.is_dir() and d.name.startswith("hr") == hr]
+            if d.is_dir() and d.name != "dead" and d.name.startswith("hr") == hr]
     OUT.mkdir(exist_ok=True)
     (OUT / ("metrics_hr.json" if hr else "metrics.json")).write_text(json.dumps(rows, indent=1))
     hdr = f"{'run':<16}{'turns':>6}{'subag':>6}{'tok_total':>11}{'out':>8}{'usd':>8}{'wall':>6}{'find':>5}{'usd_eqTTL':>10}{'cr%':>6}"

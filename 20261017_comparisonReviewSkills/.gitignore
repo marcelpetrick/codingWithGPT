@@ -2,6 +2,8 @@
 # details stay local; only aggregate numbers go into this public repository.
 runs/hr*/
 runs/log_hr*
-results/verification_hr.md
+results/verification_hr*.md
 results/metrics_hr.json
 runs/dead/hr*
+runs/run_hr.log
+runs/run_redo.log
