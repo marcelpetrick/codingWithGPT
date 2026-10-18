@@ -88,7 +88,7 @@ Times are commit times (`git log`), CEST.
 | 10-18 03:5x | Re-run of the 2 dead hr sessions, sequential                         | done  |
 | 10-18 04:0x | hr findings verified (own + separate verifier agent, owner's X23–X29 as ground truth) | done |
 | 10-18 04:1x | Final verdict over all 4 fixtures                                    | done  |
-| —           | HTML and PDF (2 A4 pages) rebuilt from the final data                | open  |
+| 10-18 04:3x | HTML and PDF (2 A4 pages) rebuilt from the final data (`report.pdf`) | done  |
 
 ## Results
 
@@ -142,7 +142,7 @@ logic; on master-based AlliumAssault the model adapted, on a longer branch it ma
 ## Resume here
 
 State: runs, verification and results done; deliverables `comparison.html` (broad) and
-`onepager.html` → `onepager.pdf` (A4, STE style).
+`report.html` → `report.pdf` (2 A4 pages, STE style).
 
 ```sh
 cd ~/repos/codingWithGPT/20261017_comparisonReviewSkills
@@ -150,7 +150,7 @@ cd ~/repos/codingWithGPT/20261017_comparisonReviewSkills
 python3 extract.py                # AlliumAssault -> results/metrics.json (public)
 python3 extract.py --hr           # hr-doccontrol -> results/metrics_hr.json (git-ignored)
 rm -rf runs/<run> && ./run_review.sh <gource|factions|hrsafety|hrsectionx> <RB|CR> <rep>
-chromium --headless --no-pdf-header-footer --print-to-pdf=onepager.pdf onepager.html
+chromium --headless --no-pdf-header-footer --print-to-pdf=report.pdf report.html
 ```
 
 Clones live in `/tmp/claude-1000/reviewcmp/` (RAM disk, disposable).

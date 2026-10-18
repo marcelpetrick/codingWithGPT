@@ -5,103 +5,122 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Review Skills Compared</title>
 <style>
-@page{size:A4;margin:10mm 12mm}
+@page{size:A4;margin:11mm 12mm}
 :root{--bg:#fff;--fg:#16191d;--mut:#5b6470;--line:#d5dbe1;--a:#1f5fbf;--b:#b2591a;--good:#1e7a46;--bad:#b3261e;--soft:#f3f5f7}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15181c;--fg:#e6e9ed;--mut:#9aa4b0;--line:#2c333b;--a:#7fb0ff;--b:#f0a46a;--good:#5cc98a;--bad:#ff8a80;--soft:#1d2126}}
 :root[data-theme="dark"]{--bg:#15181c;--fg:#e6e9ed;--mut:#9aa4b0;--line:#2c333b;--a:#7fb0ff;--b:#f0a46a;--good:#5cc98a;--bad:#ff8a80;--soft:#1d2126}
 @media print{:root{--bg:#fff;--fg:#16191d;--mut:#5b6470;--line:#d5dbe1;--a:#1f5fbf;--b:#b2591a;--good:#1e7a46;--bad:#b3261e;--soft:#f3f5f7}}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font:9.6pt/1.33 system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;margin:0;padding:16px}
-@media print{body{padding:0}}
-main{max-width:184mm;margin:0 auto}
-h1{font-size:17pt;margin:0;letter-spacing:-.2px}
-.sub{color:var(--mut);font-size:8.6pt;margin:1px 0 8px}
-h2{font-size:10.5pt;margin:9px 0 3px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut)}
-.verdict{background:var(--soft);border-left:4px solid var(--a);padding:7px 10px;border-radius:3px;font-size:10.4pt}
-.verdict b{font-size:11pt}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 2px}
-.kpi{border:1px solid var(--line);border-radius:4px;padding:5px 7px}
-.kpi .v{font-size:13pt;font-weight:700;font-variant-numeric:tabular-nums}
-.kpi .l{font-size:8pt;color:var(--mut)}
+body{background:var(--bg);color:var(--fg);font:10pt/1.4 system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;margin:0;padding:16px}
+@media print{body{padding:0}.page{break-after:page}.page:last-child{break-after:auto}}
+main{max-width:186mm;margin:0 auto}
+.page{padding-bottom:6px}
+@media screen{.page+.page{border-top:2px dashed var(--line);margin-top:24px;padding-top:16px}}
+h1{font-size:19pt;margin:0;letter-spacing:-.2px}
+.sub{color:var(--mut);font-size:8.8pt;margin:2px 0 10px}
+h2{font-size:10.5pt;margin:12px 0 4px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut)}
+.verdict{background:var(--soft);border-left:4px solid var(--a);padding:9px 12px;border-radius:3px;font-size:10.8pt}
+.verdict b.big{font-size:12pt;display:block;margin-bottom:3px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:10px 0 4px}
+.kpi{border:1px solid var(--line);border-radius:4px;padding:6px 8px}
+.kpi .v{font-size:14pt;font-weight:700;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:8.2pt;color:var(--mut);line-height:1.3}
 .rb{color:var(--a);font-weight:600}.cr{color:var(--b);font-weight:600}
 table{border-collapse:collapse;width:100%;font-size:8.9pt}
 th,td{border-bottom:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top}
 th{background:var(--soft);font-weight:600}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.card{border:1px solid var(--line);border-radius:4px;padding:4px 8px}
-.card h3{font-size:10pt;margin:2px 0}
-ul{margin:1px 0 2px;padding-left:15px}li{margin:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.card{border:1px solid var(--line);border-radius:4px;padding:5px 9px}
+.card h3{font-size:10.2pt;margin:2px 0 3px}
+ul,ol{margin:2px 0 3px;padding-left:17px}li{margin:1px 0}
 .g{color:var(--good);font-weight:600}.x{color:var(--bad);font-weight:600}
-.foot{color:var(--mut);font-size:7.6pt;margin-top:6px;border-top:1px solid var(--line);padding-top:3px}
+.note{color:var(--mut);font-size:8.2pt;margin:3px 0 0}
+.foot{color:var(--mut);font-size:7.8pt;margin-top:8px;border-top:1px solid var(--line);padding-top:4px}
+.decide{border:1px solid var(--line);border-left:4px solid var(--b);border-radius:3px;padding:6px 10px;margin-top:8px}
 @media(max-width:640px){.two,.kpis{grid-template-columns:1fr 1fr}}
 @media(max-width:420px){.two{grid-template-columns:1fr}}
 </style>
 </head>
 <body><main>
-<h1>Code review skills: built-in vs own</h1>
-<p class="sub"><span class="cr">/code-review</span> (built into Claude Code 2.1.302, default level “high”) compared with <span class="rb">/reviewBranch</span> (own skill). Test: repository AlliumAssault, 2 branches, 2 runs per skill and branch, model Opus 5.5. 17 Oct 2026.</p>
 
-<div class="verdict"><b>Recommendation: keep /reviewBranch as the default. Add /code-review before an important merge.</b><br>
-/reviewBranch gives a short list that you can trust. /code-review finds more problems, but you must sort half of its list yourself. Both skills found the one important bug every time. Neither skill reported a false finding.</div>
+<section class="page">
+<h1>Code review skills: built-in vs own</h1>
+<p class="sub"><span class="cr">/code-review</span> (built into Claude Code 2.1.302, default level “high”) compared with <span class="rb">/reviewBranch</span> (own skill). 2 repositories, 4 branches, 2 runs per skill and branch = 16 reviews. Model Opus 5.5. 17–18 Oct 2026.</p>
+
+<div class="verdict"><b class="big">Recommendation: use both skills. Use /reviewBranch on every branch. Add /code-review on safety-relevant code and before each release.</b>
+/reviewBranch gives a short list that you can trust, but it misses important bugs. /code-review finds the important bugs, but more than half of its list is noise. The two skills cost the same.</div>
 
 <div class="kpis">
-<div class="kpi"><div class="v"><span class="rb">88%</span> · <span class="cr">47%</span></div><div class="l">Precision: real findings ÷ reported findings</div></div>
-<div class="kpi"><div class="v"><span class="rb">5</span> · <span class="cr">11</span></div><div class="l">Different real defects found (all runs together)</div></div>
-<div class="kpi"><div class="v"><span class="rb">$0.71</span> · <span class="cr">$0.57</span></div><div class="l">Median cost per review (tie: below the 25% rule)</div></div>
-<div class="kpi"><div class="v">4 / 4 · 4 / 4</div><div class="l">Runs that found the one medium-severity bug</div></div>
+<div class="kpi"><div class="v"><span class="rb">91%</span> · <span class="cr">44%</span></div><div class="l">Precision: real findings ÷ all reported findings</div></div>
+<div class="kpi"><div class="v"><span class="rb">0 / 4</span> · <span class="cr">4 / 4</span></div><div class="l">Runs that found the safety-gate bug (a document can skip human review)</div></div>
+<div class="kpi"><div class="v"><span class="rb">1 / 2</span> · <span class="cr">2 / 2</span></div><div class="l">Runs that found the high-severity bug (errors no longer shown)</div></div>
+<div class="kpi"><div class="v"><span class="rb">$0.86</span> · <span class="cr">$0.88</span></div><div class="l">Median cost per review (a tie). About 2–3 minutes each.</div></div>
 </div>
 
-<h2>Measured result</h2>
-<table>
-<tr><th>Branch</th><th>Skill</th><th class="n">Cost USD</th><th class="n">Tokens</th><th class="n">Turns</th><th class="n">Time s</th><th class="n">Reported</th><th class="n">Real</th><th class="n">Weak / old</th></tr>
-<tr><td>Media script (15 files)</td><td class="rb">reviewBranch</td><td class="n">0.60–0.61</td><td class="n">383–498 k</td><td class="n">9–11</td><td class="n">101–109</td><td class="n">1–3</td><td class="n">1–2</td><td class="n">0–1</td></tr>
-<tr><td></td><td class="cr">code-review</td><td class="n">0.50–0.51</td><td class="n">334–340 k</td><td class="n">9</td><td class="n">109–112</td><td class="n">10</td><td class="n">5–6</td><td class="n">4–5</td></tr>
-<tr><td>Game feature (21 files)</td><td class="rb">reviewBranch</td><td class="n">0.81–0.84</td><td class="n">878 k–1.0 M</td><td class="n">18–20</td><td class="n">113–166</td><td class="n">2</td><td class="n">2</td><td class="n">0</td></tr>
-<tr><td></td><td class="cr">code-review</td><td class="n">0.64</td><td class="n">691–768 k</td><td class="n">14–17</td><td class="n">123–141</td><td class="n">9</td><td class="n">3–4</td><td class="n">5–6</td></tr>
-</table>
-<p class="sub" style="margin:2px 0 0">“Real” = a confirmed defect in the new code. “Weak / old” = true, but trivial, only possible in theory, or present before the branch. We checked each of the 46 findings in the code.</p>
-
-<h2>Where they are the same</h2>
-<ul>
-<li>Both find the important bug: a team without a set faction moves to a different alliance when you remove a team.</li>
-<li>Both report no false findings. Both take about 2 minutes. Both cost less than one US dollar per review.</li>
-</ul>
-
-<h2>Where they are different</h2>
-<div class="two">
-<div class="card"><h3 class="rb">/reviewBranch — the decision</h3>
-<span class="g">Better</span><ul>
-<li>It checks each finding before it reports it.</li>
-<li>It puts the important bug at rank 1.</li>
-<li>It gives a severity and a merge verdict.</li>
-<li>It finds the correct base branch (master, main, develop).</li>
-<li>You own the text. It changes only when you change it.</li></ul>
-<span class="x">Weaker</span><ul>
-<li>It misses small defects in documents and conventions.</li>
-<li>It does not review uncommitted changes.</li>
-<li>It costs about 25% more per run.</li></ul></div>
-<div class="card"><h3 class="cr">/code-review — the search</h3>
-<span class="g">Better</span><ul>
-<li>It finds all defects that /reviewBranch finds, plus 6 more.</li>
-<li>It checks project rules, duplicate code and speed.</li>
-<li>It can fix code, comment on pull requests and run a cloud review (“ultra”).</li>
-<li>It runs in a separate agent. Your session stays clean.</li></ul>
-<span class="x">Weaker</span><ul>
-<li>At the default level, it does not verify its findings.</li>
-<li>It tries to report at least 5 findings. Half are weak or old.</li>
-<li>It has no severity and no merge verdict.</li>
-<li>Its base-branch logic can miss commits on “master” repositories.</li>
-<li>Anthropic changes its text with each release.</li></ul></div>
-</div>
+<h2>What we found</h2>
+<ol>
+<li><b>/reviewBranch is precise.</b> 10 of its 11 findings are real. It reported no false finding. When it finds a bug, its severity is the same as the owner’s.</li>
+<li><b>/reviewBranch misses bugs.</b> It did not find the safety-gate bug in 4 of 4 runs. In 3 runs it examined that code and said it was correct. In 3 of 4 runs on the HR tool, it said “mergeable” while a known bug was present.</li>
+<li><b>/code-review finds more.</b> It found every known bug that either skill found, in every run. It reported 31 real findings. /reviewBranch reported 10.</li>
+<li><b>/code-review is noisy.</b> 35 of its 71 findings are weak, and 5 are false. At the default level, it does not check its findings. A person must sort the list.</li>
+<li><b>Cost is not a reason to choose.</b> Each review costs $0.50–$1.79. The difference between the skills is in the noise.</li>
+</ol>
 
 <h2>What to do</h2>
-<ul>
-<li><b>Every branch:</b> run <span class="rb">/reviewBranch</span>. Fix the findings it reports.</li>
-<li><b>Before a release or a large merge:</b> also run <span class="cr">/code-review</span>. Expect extra findings, and sort them before you act.</li>
-<li><b>Improve /reviewBranch:</b> add a check of project rules (AGENTS.md, CLAUDE.md) and of documents that the branch makes out of date.</li>
-</ul>
+<div class="two">
+<div class="card"><h3>Now</h3><ul>
+<li>Run <span class="rb">/reviewBranch</span> on every branch. Fix what it reports.</li>
+<li>On safety-relevant code (HR tool, file handling, approvals) and before each release, also run <span class="cr">/code-review</span>. Sort its list before you act. Expect about half to be noise.</li>
+<li>Do not trust a “mergeable” verdict alone on safety-relevant code.</li></ul></div>
+<div class="card"><h3>Next</h3><ul>
+<li>Add the <b>removed-behaviour check</b> from /code-review to /reviewBranch: for each check that the branch removes or bypasses, name what it protected and find where the new code protects it again. This check found the safety-gate bug.</li>
+<li>Measure the other levels of /code-review (“low” to “max”, and “ultra”). We do not know their noise yet.</li></ul></div>
+</div>
 
-<p class="foot">Limits: one repository, two branches, two runs per cell. We tested only the default level of /code-review; the levels “max” and “ultra” add verification and can change the precision result. The precision gate is narrow: one more real finding moves /code-review to 50%. Method, decision rule (fixed before the runs), raw data and transcripts: <b>codingWithGPT/20261017_comparisonReviewSkills</b> (README.md, results/, runs/). Text style: ASD-STE100 Simplified Technical English, about 80% adherence.</p>
+<div class="decide"><b>Decision for the owner.</b> The rule that we fixed before the test selects <span class="rb">/reviewBranch</span>, because /code-review is below the 50% precision limit. The rule does not count missed bugs. Do you want the next round to include “finds the known high-impact bugs” as a criterion?</div>
+</section>
+
+<section class="page">
+<h2 style="margin-top:0">Evidence 1 — measured result per branch</h2>
+<table>
+<tr><th>Branch</th><th>Skill</th><th class="n">Cost USD</th><th class="n">Tokens</th><th class="n">Turns</th><th class="n">Time s</th><th class="n">Reported</th><th class="n">Real</th><th class="n">Weak</th><th class="n">False</th></tr>
+<tr><td>Game: media script</td><td class="rb">reviewBranch</td><td class="n">0.60–0.61</td><td class="n">383–498 k</td><td class="n">9–11</td><td class="n">101–109</td><td class="n">1–3</td><td class="n">1–2</td><td class="n">0–1</td><td class="n">0</td></tr>
+<tr><td>15 files</td><td class="cr">code-review</td><td class="n">0.50–0.51</td><td class="n">334–340 k</td><td class="n">8</td><td class="n">109–112</td><td class="n">10</td><td class="n">5–6</td><td class="n">4–5</td><td class="n">0</td></tr>
+<tr><td>Game: factions</td><td class="rb">reviewBranch</td><td class="n">0.81–0.84</td><td class="n">878 k–1.0 M</td><td class="n">18–20</td><td class="n">113–166</td><td class="n">2</td><td class="n">2</td><td class="n">0</td><td class="n">0</td></tr>
+<tr><td>21 files</td><td class="cr">code-review</td><td class="n">0.64</td><td class="n">691–768 k</td><td class="n">13–16</td><td class="n">123–141</td><td class="n">9</td><td class="n">5–6</td><td class="n">3–4</td><td class="n">0</td></tr>
+<tr><td>HR tool: safety core</td><td class="rb">reviewBranch</td><td class="n">0.88–0.92</td><td class="n">980 k–1.0 M</td><td class="n">15–16</td><td class="n">129–143</td><td class="n">0</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+<tr><td>18 files</td><td class="cr">code-review</td><td class="n">1.12–1.32</td><td class="n">2.0–2.5 M</td><td class="n">27–32</td><td class="n">174–196</td><td class="n">7–8</td><td class="n">1</td><td class="n">5</td><td class="n">1–2</td></tr>
+<tr><td>HR tool: 6 commits</td><td class="rb">reviewBranch</td><td class="n">1.78–1.79</td><td class="n">2.9 M</td><td class="n">30–31</td><td class="n">174–238</td><td class="n">1–2</td><td class="n">1–2</td><td class="n">0</td><td class="n">0</td></tr>
+<tr><td>61 files</td><td class="cr">code-review</td><td class="n">1.32–1.42</td><td class="n">2.2–2.5 M</td><td class="n">25–26</td><td class="n">204–271</td><td class="n">8–10</td><td class="n">3–4</td><td class="n">4–5</td><td class="n">0–2</td></tr>
+<tr><th colspan="2">All 16 reviews</th><th class="n">8.23 · 7.46</th><th></th><th class="n">17 · 20.5</th><th class="n">136 · 158</th><th class="n">11 · 71</th><th class="n">10 · 31</th><th class="n">1 · 35</th><th class="n">0 · 5</th></tr>
+</table>
+<p class="note">Ranges show the two runs. The totals row shows <span class="rb">reviewBranch</span> · <span class="cr">code-review</span>: sums for cost and counts, medians for turns and time. “Real” = a confirmed defect. “Weak” = true, but trivial or only possible in theory. “False” = wrong. We checked each of the 82 findings in the code. A separate agent checked the HR findings, and we checked its decisions by sample. The cost of /reviewBranch includes a higher cache price in the main session. At equal cache prices, each skill is cheaper on 2 of the 4 branches.</p>
+
+<h2>Evidence 2 — known bugs (the owner fixed them later)</h2>
+<table>
+<tr><th>Bug in the HR tool (owner severity)</th><th class="n rb">reviewBranch</th><th class="n cr">code-review</th></tr>
+<tr><td>After the first error dialog closes, the program shows no more errors (high)</td><td class="n">1 of 2 runs</td><td class="n">2 of 2, rank 1</td></tr>
+<tr><td>The OCR step still fails for user names with special characters on Windows (medium)</td><td class="n">2 of 2</td><td class="n">2 of 2</td></tr>
+<tr><td>A naming rule drops a required field, so a document can skip human review (low, safety gate)</td><td class="n x">0 of 4</td><td class="n g">4 of 4</td></tr>
+<tr><td>Four other low items</td><td class="n">0</td><td class="n">0</td></tr>
+</table>
+<p class="note">Game repository: the only medium bug (a removed team can change the alliances) was found in all 4 runs, 2 per skill.</p>
+
+<h2>Evidence 3 — how the skills are different</h2>
+<table>
+<tr><th style="width:20%">Property</th><th style="width:40%" class="rb">/reviewBranch</th><th style="width:40%" class="cr">/code-review (level “high”)</th></tr>
+<tr><td>Aim</td><td>Precision: check every finding, report no guesses.</td><td>Recall: “err on the side of surfacing”.</td></tr>
+<tr><td>Method</td><td>One free pass. It follows the data flow.</td><td>8 fixed checks, for example removed behaviour, callers, duplicate code, project rules.</td></tr>
+<tr><td>Check of findings</td><td class="g">Yes. It runs tests and tools.</td><td class="x">No (“dedup only, no verify”).</td></tr>
+<tr><td>Result</td><td class="g">Severity, rank and a merge verdict.</td><td class="x">A list without severity or verdict.</td></tr>
+<tr><td>Base branch</td><td class="g">Finds main, master or develop.</td><td class="x">Can miss commits on “master” repositories.</td></tr>
+<tr><td>Options</td><td class="x">One mode.</td><td class="g">5 levels, cloud review, auto-fix, PR comments.</td></tr>
+<tr><td>Control</td><td class="g">You own the text.</td><td class="x">It changes with each Claude Code release.</td></tr>
+</table>
+
+<p class="foot">Limits: two repositories, four branches, two runs per cell. The known-bug list comes from a later review by the owner, which also used AI, so it is not fully independent. We tested only the default level of /code-review. The usage limit stopped two HR runs; we ran them again 5 hours later. The HR tool is internal code; only totals appear here. Method, decision rule (fixed before the test), data and transcripts: <b>codingWithGPT/20261017_comparisonReviewSkills</b>. Text style: ASD-STE100 Simplified Technical English, about 80% adherence.</p>
+</section>
+
 </main></body>
 </html>
