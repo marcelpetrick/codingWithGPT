@@ -3,3 +3,5 @@
 runs/hr*/
 runs/log_hr*
 results/verification_hr.md
+results/metrics_hr.json
+runs/dead/hr*

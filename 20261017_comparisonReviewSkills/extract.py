@@ -29,13 +29,20 @@ def analyse(run_dir):
     if not results:
         raise SystemExit(f"{run_dir.name}: no result event — dead session, not a result")
     res = results[-1]
+    if "hit your session limit" in (res.get("result") or ""):
+        raise SystemExit(f"{run_dir.name}: stopped by the usage limit — dead session, not a result")
     meta = dict(kv.split("=", 1) for kv in (run_dir / "meta.txt").read_text().split() if "=" in kv)
 
-    tool_calls, subagents, report_findings, msg_ids = {}, 0, [], set()
+    tool_calls, subagents, report_findings, msg_ids, cache_1h = {}, 0, [], set(), 0
     for e in events:
         if e.get("type") != "assistant":
             continue
-        msg_ids.add(e["message"].get("id"))
+        # The <synthetic> message is the client's own placeholder, not an API turn.
+        if e["message"].get("model") != "<synthetic>":
+            if e["message"].get("id") not in msg_ids:
+                u = e["message"].get("usage") or {}
+                cache_1h += (u.get("cache_creation") or {}).get("ephemeral_1h_input_tokens", 0)
+            msg_ids.add(e["message"].get("id"))
         for c in e["message"].get("content", []):
             if c.get("type") != "tool_use":
                 continue
@@ -81,7 +88,12 @@ def analyse(run_dir):
         # num_turns is 0 for /code-review (a local command), so count API messages for both arms.
         "turns": len(msg_ids), "num_turns_reported": res.get("num_turns"), "cost_usd": res.get("total_cost_usd"),
         "api_ms": res.get("duration_api_ms"), "is_error": res.get("is_error"),
-        "tokens": usage, "tokens_total": sum(usage.values()), "models": list(per_model),
+        "tokens": usage, "tokens_total": sum(usage.values()),
+        "cache_read_share": round(usage["cache_read"] / max(1, sum(usage.values())), 3),
+        # The main session writes 1-hour cache ($8/M), a forked subagent 5-minute cache ($5/M);
+        # this re-prices all cache writes at the 5-minute rate so the arms compare on work done.
+        "cache_write_1h": cache_1h,
+        "cost_usd_equal_ttl": round(res.get("total_cost_usd") - cache_1h * 3e-6, 4), "models": list(per_model),
         "tool_calls": tool_calls, "subagents": subagents, "findings": n_findings,
         "worktree_dirty": any(l.strip() not in ("?? node_modules", "?? .venv")
                               for l in (run_dir / "worktree_after.txt").read_text().splitlines()),
@@ -89,14 +101,17 @@ def analyse(run_dir):
 
 
 def main():
-    rows = [analyse(d) for d in sorted(RUNS.iterdir()) if d.is_dir()]
+    # hr-doccontrol is internal code: its runs go to a separate, git-ignored file.
+    hr = "--hr" in sys.argv
+    rows = [analyse(d) for d in sorted(RUNS.iterdir())
+            if d.is_dir() and d.name.startswith("hr") == hr]
     OUT.mkdir(exist_ok=True)
-    (OUT / "metrics.json").write_text(json.dumps(rows, indent=1))
-    hdr = f"{'run':<16}{'turns':>6}{'subag':>6}{'tok_total':>11}{'out':>8}{'usd':>8}{'wall':>6}{'find':>5}"
+    (OUT / ("metrics_hr.json" if hr else "metrics.json")).write_text(json.dumps(rows, indent=1))
+    hdr = f"{'run':<16}{'turns':>6}{'subag':>6}{'tok_total':>11}{'out':>8}{'usd':>8}{'wall':>6}{'find':>5}{'usd_eqTTL':>10}{'cr%':>6}"
     print(hdr)
     for r in rows:
         print(f"{r['run']:<16}{r['turns']:>6}{r['subagents']:>6}{r['tokens_total']:>11}"
-              f"{r['tokens']['output']:>8}{r['cost_usd']:>8.2f}{r['wall_s']:>6}{r['findings']:>5}")
+              f"{r['tokens']['output']:>8}{r['cost_usd']:>8.2f}{r['wall_s']:>6}{r['findings']:>5}{r['cost_usd_equal_ttl']:>10.3f}{r['cache_read_share']*100:>6.1f}")
 
 
 if __name__ == "__main__":

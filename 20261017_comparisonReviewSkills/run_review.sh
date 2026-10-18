@@ -10,7 +10,9 @@ WORK=${WORK:-/tmp/claude-1000/reviewcmp}
 OUT=$HERE/runs/${FIXTURE}_${ARM}_${REP}
 mkdir -p "$OUT" "$WORK"
 
-if [[ -s $OUT/transcript.jsonl ]] && tail -n1 "$OUT/transcript.jsonl" | grep -q '"type":"result"'; then
+# A usage-limit stop also ends in a result event; that is a dead session and must be re-run.
+if [[ -s $OUT/transcript.jsonl ]] && tail -n1 "$OUT/transcript.jsonl" | grep -q '"type":"result"' &&
+   ! tail -n1 "$OUT/transcript.jsonl" | grep -q 'hit your session limit'; then
   echo "skip $OUT (done)"; exit 0
 fi
 

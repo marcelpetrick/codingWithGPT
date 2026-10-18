@@ -6,7 +6,7 @@
   "rep": 1,
   "claude": "2.1.302",
   "wall_s": 141,
-  "turns": 17,
+  "turns": 16,
   "num_turns_reported": 0,
   "cost_usd": 0.6389338,
   "api_ms": 0,
@@ -18,6 +18,9 @@
    "cache_write": 54230
   },
   "tokens_total": 767764,
+  "cache_read_share": 0.915,
+  "cache_write_1h": 0,
+  "cost_usd_equal_ttl": 0.6389,
   "models": [
    "claude-opus-5-5"
   ],
@@ -35,7 +38,7 @@
   "rep": 2,
   "claude": "2.1.302",
   "wall_s": 123,
-  "turns": 14,
+  "turns": 13,
   "num_turns_reported": 0,
   "cost_usd": 0.6352052,
   "api_ms": 0,
@@ -47,6 +50,9 @@
    "cache_write": 65141
   },
   "tokens_total": 691410,
+  "cache_read_share": 0.892,
+  "cache_write_1h": 0,
+  "cost_usd_equal_ttl": 0.6352,
   "models": [
    "claude-opus-5-5"
   ],
@@ -77,6 +83,9 @@
    "cache_write": 60282
   },
   "tokens_total": 877816,
+  "cache_read_share": 0.92,
+  "cache_write_1h": 60282,
+  "cost_usd_equal_ttl": 0.6553,
   "models": [
    "claude-opus-5-5"
   ],
@@ -106,6 +115,9 @@
    "cache_write": 57159
   },
   "tokens_total": 1010424,
+  "cache_read_share": 0.935,
+  "cache_write_1h": 57159,
+  "cost_usd_equal_ttl": 0.642,
   "models": [
    "claude-opus-5-5"
   ],
@@ -123,7 +135,7 @@
   "rep": 1,
   "claude": "2.1.302",
   "wall_s": 112,
-  "turns": 9,
+  "turns": 8,
   "num_turns_reported": 0,
   "cost_usd": 0.5051557999999999,
   "api_ms": 0,
@@ -135,6 +147,9 @@
    "cache_write": 47783
   },
   "tokens_total": 340333,
+  "cache_read_share": 0.829,
+  "cache_write_1h": 0,
+  "cost_usd_equal_ttl": 0.5052,
   "models": [
    "claude-opus-5-5"
   ],
@@ -152,7 +167,7 @@
   "rep": 2,
   "claude": "2.1.302",
   "wall_s": 109,
-  "turns": 9,
+  "turns": 8,
   "num_turns_reported": 0,
   "cost_usd": 0.5027306,
   "api_ms": 0,
@@ -164,6 +179,9 @@
    "cache_write": 47760
   },
   "tokens_total": 333511,
+  "cache_read_share": 0.825,
+  "cache_write_1h": 0,
+  "cost_usd_equal_ttl": 0.5027,
   "models": [
    "claude-opus-5-5"
   ],
@@ -193,6 +211,9 @@
    "cache_write": 44168
   },
   "tokens_total": 498077,
+  "cache_read_share": 0.895,
+  "cache_write_1h": 44168,
+  "cost_usd_equal_ttl": 0.4771,
   "models": [
    "claude-opus-5-5"
   ],
@@ -223,6 +244,9 @@
    "cache_write": 44440
   },
   "tokens_total": 382726,
+  "cache_read_share": 0.861,
+  "cache_write_1h": 44440,
+  "cost_usd_equal_ttl": 0.4619,
   "models": [
    "claude-opus-5-5"
   ],
