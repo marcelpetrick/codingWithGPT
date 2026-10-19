@@ -211,6 +211,40 @@ eval with CIs) shows an abliterated build beating its own base outside noise.
 - **Stale leaderboards:** SWE-bench (newest result 2026-02), Aider polyglot (2025-10), BFCL (2026-03), LiveCodeBench
   (2025-07).
 
+## Sweep 2026-10-19: one new candidate, and it needs Ollama ≥ 0.40.5
+
+*Web only, 10-07 → 10-19. Sources: HF (trending, about 55 orgs, newest bartowski/unsloth), llama.cpp PRs, Ollama
+releases and issues, ollama.com (newest and popular), Reddit RSS (16 queries, 4 subs), HN Algolia (12 queries),
+NanoBench JSON API. X and LinkedIn were not tried again (unusable on 10-07). Artificial Analysis has no page for
+MiniCPM-V 4.7 or LFM2.5.*
+
+**Ollama after 0.35.1** (`LLAMA_CPP_VERSION` per tag, verified 10-19): 0.40.0–0.40.3 pin b11351; **0.40.4 pins
+b11521** (K2-Horizon loads); **0.40.5 and 0.40.6 pin b11669** (MiniCPM-V 4.7 loads). 0.40.7-rc0 is out (10-18).
+Risk for this use case: [ollama#19109](https://github.com/ollama/ollama/issues/19109), `/v1/messages` streaming
+drops thinking after a tool call, closed "not planned" on 10-18.
+
+**Testable (only on Ollama ≥ 0.40.5):**
+
+| rank | model | GGUF | fit | evidence | date |
+|---|---|---|---|---|---|
+| 1 | **MiniCPM-V-4.7-35B-A3B** (OpenBMB, public 10-07) | `hf.co/openbmb/MiniCPM-V-4.7-35B-A3B-gguf:Q5_K_M` 23.03 GiB + mmproj 1.04 GiB (verified 10-19) | yes, ~29 GiB at 256k (40 layers, 10 full attention, 2 KV heads × 256) | Vision MoE on the Qwen3.5/3.6 MoE backbone, ~3B active. Card has no SWE or Terminal-Bench numbers. NanoBench (12 tasks, n=1, 64k): 95.8 against Ornith-1.5 94.2; no qwen3.6 row. Reddit is mixed: "way worse than Qwen3.8-27B" at coding ([1x47taj](https://www.reddit.com/r/LocalLLaMA/comments/1x47taj/)), "as good as ornith" ([1x68qma](https://www.reddit.com/r/LocalLLaMA/comments/1x68qma/)). Chance to beat the field: low to moderate. Likely gain: speed | 2026-10-19 |
+
+**Known, not fitting (new):**
+
+| model | reason | date |
+|---|---|---|
+| LiquidAI LFM2.5-24B-A2B (10-12) | 131k maximum window; vendor SWE-V 51.0 against 66.2 for qwen3.6; the release template breaks tool calls ([1x68qma](https://www.reddit.com/r/LocalLLaMA/comments/1x68qma/)) | 2026-10-19 |
+| NVIDIA Nemotron-3.5-Bolt-74B-A9B 24GB GGUF (10-15) | ~2.4 bits per weight (2-bit QAT), below the 4-bit floor; the Nemotron family failed our tool gates | 2026-10-19 |
+| Llama-3.3-70B, DeepSeek-R1-Distill-Llama-70B (owner asked 10-19) | bartowski Q4_K_M 39.60 GiB, IQ4_XS 35.30 GiB: more than 35.5 GB before KV; dense; old | 2026-10-19 |
+| Kolibri-1 (moved from *blocked*) | llama.cpp [#30673](https://github.com/ggml-org/llama.cpp/pull/30673) merged 10-17, but Q4 is still 44.2 GiB | 2026-10-19 |
+| DeepSeek-V4.1-Flash-1017, Muse-Spark-Open-816B, Beam-1.0-501B, Nemotron-3.5-Super-120B, GLM-5.3-Flash-REAP144 | too big | 2026-10-19 |
+| Agens-Volundr-32B-v1, AesCode-32B, TerminalHorizon-27B, Bonsai-2-27B, Mellum2.1-12B-A2.5B, Hy-Memory-30B-A3B, granite-switch-4.1-30b | custom fork, dense, ternary, too small or not a coder | 2026-10-19 |
+
+**Blocked, rechecked:** K2-Horizon loads on ≥ 0.40.4, but only ~64k fits at f16 KV; NanoBench gives Q3_K_M 15/0.
+It stays out unless the owner accepts a 64k window. Xing4.0: [#29012](https://github.com/ggml-org/llama.cpp/pull/29012)
+still open (10-16, another rebase asked). Abliterations (`MiniCPM-V-4.7-CRACK`, LFM2.5 heretic): no independent
+evidence; the class decision stands.
+
 ## Known, not fitting: decided, not pulled
 
 | model | fits? | decision and evidence | decided |
