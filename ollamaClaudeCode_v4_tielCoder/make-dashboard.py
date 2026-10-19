@@ -7,8 +7,8 @@ so the page cannot drift from the data. Regenerate after every result.
 
   Terminal-Bench   terminalbench/official/results -> results/terminal-bench-official.tsv,
                    thinking-parity arm, complete passes, defective tasks and VOID trials out
-  held-out, session cc-session-rb0925.tsv (same Claude Code version, x5) where a model has
-                   it, else cc-session.tsv (its screen runs)
+  held-out, session cc-session-rb1019.tsv, else cc-session-rb0925.tsv (same Claude Code
+                   version, x5), else cc-session.tsv (its screen runs)
   T5 x8            gate-rerun.tsv          tok/s  tokrate.tsv (2k-word prompt)
   VRAM             candidates-2026-09-21.tsv, else vision-v2.tsv (resident GB at 262k)
   extended         the thinkon-ext arm, paired as ext-compare.py EXT_INFO=1 does
@@ -106,20 +106,29 @@ def ledger():
 
 
 def ledger_same_client():
-    """The 09-25 same-version re-baseline (one Claude Code version, x5). Where a model
-    has these runs, they replace its older runs, which were on mixed client versions."""
+    """The same-version re-baselines (one Claude Code version, x5). Where a model has
+    these runs, they replace its older runs, which were on mixed client versions. The
+    newest arm wins per model: rb1019 (0.35.1, client 2.1.303) over rb0925 (0.33.3, 2.1.282)."""
     out = defaultdict(lambda: {"walls": [], "hidden": []})
-    for r in rows("cc-session-rb0925.tsv"):
-        if r.get("fixture") != "hard" or r.get("thinking") != "on":
-            continue
-        o = out[slug(r["model"])]
-        try:
-            o["walls"].append(float(r["wall_s"]))
-        except ValueError:
-            pass
-        h = re.match(r"(\d+)/18", r.get("hidden", ""))
-        if h:
-            o["hidden"].append(int(h.group(1)))
+    newest = {}
+    for arm in ("rb0925", "rb1019"):
+        for r in rows(f"cc-session-{arm}.tsv"):
+            if r.get("fixture") == "hard" and r.get("thinking") == "on":
+                newest[slug(r["model"])] = arm
+    for arm in ("rb0925", "rb1019"):
+        for r in rows(f"cc-session-{arm}.tsv"):
+            if r.get("fixture") != "hard" or r.get("thinking") != "on":
+                continue
+            if newest.get(slug(r["model"])) != arm:
+                continue
+            o = out[slug(r["model"])]
+            try:
+                o["walls"].append(float(r["wall_s"]))
+            except ValueError:
+                pass
+            h = re.match(r"(\d+)/18", r.get("hidden", ""))
+            if h:
+                o["hidden"].append(int(h.group(1)))
     return out
 
 
