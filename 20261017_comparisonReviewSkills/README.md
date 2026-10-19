@@ -86,6 +86,35 @@ v2 replaces v1 only if **all** hold:
 - Precision: real / reported ≥ 80% over the 6 runs (v1: 91%).
 - Cost: median cost over the 6 runs at most 25% above v1's median over the same 6 runs.
 
+### Round 2 result (2026-10-19, provisional: 2 of 6 runs)
+
+**v2 does not replace v1, provided the harness check below passes. The recall gate has already
+failed, so the 4 runs still open cannot change that.** Neither `hrsafety` RB2 run reported X28
+(0/2). The gate needs X28 in ≥ 3 of 4 hr runs, so the 2 hrsectionx runs can reach at most 2/4.
+Both runs looked at the X19 naming-rule change and cleared it on *ambiguity*. X28 is about the
+*dropped required fields*, which neither run named.
+
+**Harness check open:** it is not yet confirmed that `/reviewBranchV2` loaded the v2 text. The
+stream-json transcripts never contain skill bodies (the v1 runs don't either), and the symlink
+`~/.claude-dmo/skills/reviewBranchV2` has mtime 2026-10-19 09:12, after the runs. Check that
+`~/.claude/skills/reviewBranchV2/SKILL.md` matches `skills/reviewBranchV2_SKILL.md` and contains
+"Removed and bypassed behaviour gets its own pass". If it does not, round 2 is void and must be
+re-run.
+
+| Run | USD | Turns | Wall s | Reported | Finding |
+|---|---|---|---|---:|---|
+| hrsafety_RB2_1 | 1.35 | 28 | 207 | 1 | MEDIUM: `close()` cancels a queued approved commit (CANCELLED counts as settled), SESSION_CLOSED is written, and the document drops out of the recovery report |
+| hrsafety_RB2_2 | 0.98 | 18 | 121 | 1 | same defect, same line (`controller.py:3816`) |
+
+The CANCELLED/recovery finding is new: neither arm reported it in round 1, and it is not on the
+owner's X23–X29 list. It is **not yet verified** against the code. If it is real, it is the first
+defect v2 finds that v1 did not. Cost on hrsafety went from v1 $0.92 / $0.88 to $1.35 / $0.98.
+
+The chain `run_v2.sh` died at 2026-10-18 ~21:37, during `hrsectionx_RB2_1` (only a `.part`
+transcript is left, last written ~1 min in, `stderr.txt` empty). The cause is unknown. The chain
+was not run under `systemd-inhibit`. Open: verify the CANCELLED finding in `hr-doccontrol`, and optionally finish the 4
+runs for cost and precision data (they cannot rescue the recall gate).
+
 ## Status
 
 Times are commit times (`git log`), CEST.
@@ -104,6 +133,8 @@ Times are commit times (`git log`), CEST.
 | 10-18 04:0x | hr findings verified (own + separate verifier agent, owner's X23–X29 as ground truth) | done |
 | 10-18 04:1x | Final verdict over all 4 fixtures                                    | done  |
 | 10-18 04:3x | HTML and PDF (2 A4 pages) rebuilt from the final data (`report.pdf`) | done  |
+| 10-18 21:31 | Round 2: RB2 chain started; hrsafety 1+2 done, died in hrsectionx_RB2_1 | stopped |
+| 10-19 09:2x | Round 2 read out: X28 0/2, recall gate failed, v2 rejected            | done (provisional) |
 
 ## Results
 
@@ -169,3 +200,11 @@ chromium --headless --no-pdf-header-footer --print-to-pdf=report.pdf report.html
 ```
 
 Clones live in `/tmp/claude-1000/reviewcmp/` (RAM disk, disposable).
+
+Round 2 (state 2026-10-19 09:2x: hrsafety RB2 1+2 done, hrsectionx RB2_1 dead as `.part`, 3 not started):
+
+```sh
+diff ~/.claude/skills/reviewBranchV2/SKILL.md skills/reviewBranchV2_SKILL.md && echo v2-loaded-ok   # harness check first
+rm -rf runs/hrsectionx_RB2_1
+setsid nohup systemd-inhibit ./run_v2.sh > runs/run_v2.log 2>&1 & disown   # idempotent, skips done runs
+```
