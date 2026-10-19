@@ -2,7 +2,7 @@
 """make-dashboard.py -- dashboard.html: the final results of the 09-24 round, one row
 per model, and two picks computed from them by rules printed on the page.
 
-Everything shown is read from results/ (and the verdict line of ROUND_2026-09-24.md),
+Everything shown is read from results/ (and the verdict line of the newest ROUND_*.md),
 so the page cannot drift from the data. Regenerate after every result.
 
   Terminal-Bench   terminalbench/official/results -> results/terminal-bench-official.tsv,
@@ -143,8 +143,14 @@ def tokrate():
             pass
     return {k: statistics.median(v) for k, v in out.items()}
 
+def round_doc():
+    """The newest round document: its verdict heads the page."""
+    docs = sorted(HERE.glob("ROUND_2026-*.md"))
+    return docs[-1] if docs else HERE / "ROUND_2026-09-24.md"
+
+
 def verdict_line():
-    p = HERE / "ROUND_2026-09-24.md"
+    p = round_doc()
     if not p.exists():
         return "", ""
     s = p.read_text()
@@ -419,8 +425,8 @@ th.sortable{{cursor:pointer;user-select:none}} th.sortable:hover{{color:var(--in
 th.sortable::after{{content:" \\2195";opacity:.35}} th[aria-sort=ascending]::after{{content:" \\2191";opacity:1}}
 th[aria-sort=descending]::after{{content:" \\2193";opacity:1}}
 .pick{{background:var(--panel);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:12px 14px;flex:1 1 280px}}\n.pick b{{font-size:18px}} .picks{{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}}\n.chip.ref{{background:var(--ref-soft);color:var(--ref)}}\n</style><body><main>
-<h1>Local agentic coding on .67: final results</h1>
-<div class="muted small">Round 2026-09-24 to 10-08 &middot; Claude Code against Ollama &middot; generated {datetime.now():%Y-%m-%d %H:%M} from results/ &middot; details: ROUND_2026-09-24.md</div>
+<h1>Local agentic coding on .67: results</h1>
+<div class="muted small">Rounds 2026-09-24 to {round_doc().stem[6:]} &middot; Claude Code against Ollama &middot; generated {datetime.now():%Y-%m-%d %H:%M} from results/ &middot; details: {round_doc().name}</div>
 
 <div class="picks">{''.join(picks)}</div>
 
