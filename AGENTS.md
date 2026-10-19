@@ -29,6 +29,23 @@ These rules are the owner's working style, written down from the 2026-09-24/25 b
 - **Keep the owner's shared resources intact.** Do not upgrade, reconfigure or restart shared
   servers mid-measurement. Record such changes as "after the round" items.
 
+## Writing: Simplified Technical English, "80% of the way"
+
+All output (messages, documents, commit bodies, dashboard texts) uses ASD-STE100 Simplified
+Technical English, applied about 80% of the way. This is the "flight manual" style (Karpathy, X,
+2026-10-02). The rules:
+
+- Write one instruction or one fact in each sentence.
+- Keep a procedure sentence to 20 words or fewer. Keep a description sentence to 25 words or fewer.
+- Use the active voice. Write procedures as commands: "Start the job.", not "The job should be started."
+- Use one word for one meaning. Do not change a term for variety (for example, always "the box", not
+  "the box" and then "the server").
+- Use simple, common words. Write "use", not "leverage". Write "start", not "kick off".
+- Put the result or the verdict first. Put the reason after it.
+- Write steps as numbered lists, with one action in each step.
+- Keep a paragraph to six sentences or fewer.
+- Keep code, commands, file names, tags and numbers exactly as they are. The rules apply to the prose only.
+
 ## Evaluating things (models, tools, libraries)
 
 - **Pre-evaluate on the web before spending compute.** Check the card, the community tab, independent
