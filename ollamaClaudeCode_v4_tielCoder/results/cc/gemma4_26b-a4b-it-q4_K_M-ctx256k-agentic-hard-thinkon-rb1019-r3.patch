@@ -1,0 +1,136 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..7051c3f 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -1,5 +1,5 @@
+ """Money parsing."""
+-from decimal import Decimal
++from decimal import Decimal, InvalidOperation
+ 
+ 
+ def parse_amount(text):
+@@ -14,4 +14,12 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    text = text.strip()
++    if text.startswith('(') and text.endswith(')'):
++        text = '-' + text[1:-1]
++    text = text.replace(',', '')
++    try:
++        return Decimal(text).quantize(Decimal("0.00"))
++    except (InvalidOperation, ValueError):
++        raise ValueError(f"Invalid amount: {text}")
++
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..5252596 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,8 +26,29 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
+-    day, category, amount, currency = line.split(";")
+-    return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
++    line = line.strip()
++    if not line or line.startswith('#'):
++        return None
++
++    parts = [p.strip() for p in line.split(";")]
++    if len(parts) != 4:
++        raise ValueError(f"Expected 4 fields, got {len(parts)}")
++
++    day_str, category, amount_str, currency = parts
++
++    try:
++        day = date.fromisoformat(day_str)
++    except ValueError as e:
++        raise ValueError(f"Invalid date: {day_str}") from e
++
++    category = category.lower()
++    amount = parse_amount(amount_str)
++    currency = currency.upper()
++
++    if len(currency) != 3:
++        raise ValueError(f"Currency must be 3 letters, got {currency}")
++
++    return Entry(day, category, amount, currency)
+ 
+ 
+ def parse_ledger(text):
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..9905118 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,18 +1,27 @@
+ """Reports over parsed entries."""
+-
++from decimal import Decimal
+ 
+ def monthly_totals(entries):
+     """Sum amounts per calendar month.
+ 
+     Returns a dict mapping "YYYY-MM" to the Decimal total, with its keys in
+     chronological order. All entries must share one currency, otherwise
+-    ValueError is raised. An empty input returns an empty dict.
++    ValueError is raised. An empty input returns an *empty dict*.
+     """
++    if not entries:
++        return {}
++
++    currency = entries[0].currency
++    for entry in entries:
++        if entry.currency != currency:
++            raise ValueError("All entries must share the same currency")
++
+     totals = {}
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
+-        totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++        key = f"{entry.day.year}-{entry.day.month:02d}"
++        totals[key] = totals.get(key, Decimal("0.00")) + entry.amount
++
++    return dict(sorted(totals.items()))
+ 
+ 
+ def category_breakdown(entries, month):
+@@ -23,4 +32,36 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    if not entries:
++        return []
++
++    currency = entries[0].currency
++    for entry in entries:
++        if entry.currency != currency:
++            raise ValueError("All entries must share the same currency")
++
++    totals = {}
++    for entry in entries:
++        entry_month = f"{entry.day.year}-{entry.day.month:02d}"
++        if entry_month == month:
++            totals[entry.category] = totals.get(entry.category, Decimal("0.00")) + entry.amount
++
++    result = []
++    for category, total in totals.items():
++        if total != 0:
++            result.append((category, total))
++
++    # Sorted by total ascending, so largest expense comes first?
++    # Wait, "sorted by total ascending, so the largest expense comes first"
++    # That sounds contradictory. If it's ascending, the smallest comes first.
++    # If the largest expense comes first, it should be descending.
++    # Let's check the test case.
++    # assert category_breakdown(...) == [("rent", Decimal("-1200.00")), ("groceries", Decimal("-60.70"))]
++    # -1200.00 is smaller than -60.70. So it is ascending.
++    # "the largest expense comes first" refers to the magnitude?
++    # -1200.00 is a larger expense than -60.70.
++    # So it is ascending in value, which means largest magnitude (if negative) comes first.
++    # Let's re-read: "sorted by total ascending, so the largest expense comes first, with ties broken by category name."
++    # In the test, -1200 is before -60.70. This is indeed ascending.
++    # I'll sort by (total, category).
++    return sorted(result, key=lambda x: (x[1], x[0]))

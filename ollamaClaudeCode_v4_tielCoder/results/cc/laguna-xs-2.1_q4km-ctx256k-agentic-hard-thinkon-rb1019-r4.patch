@@ -1,0 +1,109 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..3ed252a 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -14,4 +14,28 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    text = text.strip()
++
++    # Handle accounting negatives in parentheses: (12.50) means -12.50
++    negative = False
++    if text.startswith('(') and text.endswith(')'):
++        negative = True
++        text = text[1:-1]
++
++    # Remove thousands separators (commas)
++    text = text.replace(',', '')
++
++    # Parse the decimal
++    try:
++        result = Decimal(text)
++    except Exception as e:
++        raise ValueError(f"Invalid amount: {text}") from e
++
++    # Apply negative sign if needed
++    if negative:
++        result = -result
++
++    # Ensure exactly two decimal places
++    result = result.quantize(Decimal('0.01'))
++
++    return result
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..0bf91c5 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,8 +26,24 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
++    # Strip whitespace from the line
++    line = line.strip()
++
++    # Skip blank lines
++    if not line:
++        return None
++
++    # Skip comment lines (first non-space character is '#')
++    if line.startswith('#'):
++        return None
++
+     day, category, amount, currency = line.split(";")
+-    return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
++    return Entry(
++        date.fromisoformat(day.strip()),
++        category.strip().lower(),
++        parse_amount(amount.strip()),
++        currency.strip().upper()
++    )
+ 
+ 
+ def parse_ledger(text):
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..3d5f500 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,4 +1,5 @@
+ """Reports over parsed entries."""
++from collections import defaultdict
+ 
+ 
+ def monthly_totals(entries):
+@@ -10,9 +11,9 @@ def monthly_totals(entries):
+     """
+     totals = {}
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
++        key = f"{entry.day.year}-{entry.day.month:02d}"
+         totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++    return dict(sorted(totals.items()))
+ 
+ 
+ def category_breakdown(entries, month):
+@@ -23,4 +24,21 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    # Filter entries for the given month and group by category
++    category_totals = defaultdict(lambda: 0)
++    for entry in entries:
++        key = f"{entry.day.year}-{entry.day.month:02d}"
++        if key == month:
++            category_totals[entry.category] += entry.amount
++
++    # Build list of (category, total) tuples, excluding zeros
++    result = [
++        (category, total)
++        for category, total in category_totals.items()
++        if total != 0
++    ]
++
++    # Sort by total ascending (largest expense first), then by category name for ties
++    result.sort(key=lambda x: (x[1], x[0]))
++
++    return result
