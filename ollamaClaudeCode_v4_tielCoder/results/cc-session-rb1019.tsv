@@ -1,0 +1,11 @@
+date	ollama	model	fixture	thinking	run	verdict	hidden	wall_s	warm_s	calls	turns	in_tok	out_tok	think_chars	api_s	ttft_s	max_gap_s	tools	reloads	foreign	note
+2026-10-19	0.35.1	qwen3.6:35b-a3b-q4_K_M-agentic	hard	on	1	PASS	17/18	44	21.5	11	17	27742	3640	1962	42.8	6.7	6.4	Readx6,Bashx5,Editx5	0	-	
+2026-10-19	0.35.1	qwen3.6:35b-a3b-q4_K_M-agentic	hard	on	2	PASS	18/18	44	3.6	8	19	28083	3816	1736	43.5	6.6	6.5	Bashx6,Readx6,Editx6	0	-	
+2026-10-19	0.35.1	qwen3.6:35b-a3b-q4_K_M-agentic	hard	on	3	PASS	15/18	42	3.3	10	16	26436	3511	1821	41.0	5.9	5.8	Readx6,Editx5,Bashx4	0	-	
+2026-10-19	0.35.1	qwen3.6:35b-a3b-q4_K_M-agentic	hard	on	4	PASS	18/18	50	3.2	14	20	27569	4052	2307	47.9	6.4	6.4	Editx8,Readx6,Bashx5	0	-	
+2026-10-19	0.35.1	qwen3.6:35b-a3b-q4_K_M-agentic	hard	on	5	PASS	16/18	50	3.8	14	19	27463	4110	2394	48.3	6.8	6.7	Editx7,Readx6,Bashx5	0	-	
+2026-10-19	0.35.1	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	1	PASS	18/18	44	21.8	8	15	27884	2895	1685	39.6	7.7	7.2	Bashx10,Writex3,Editx1	0	-	
+2026-10-19	0.35.1	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	2	PASS	17/18	42	2.0	6	15	26203	3044	1417	39.5	7.9	7.5	Readx6,Bashx5,Editx3	0	-	
+2026-10-19	0.35.1	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	3	PASS	17/18	47	2.0	6	18	27559	3300	1695	42.6	7.9	7.5	Bashx7,Readx5,Editx5	0	-	
+2026-10-19	0.35.1	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	4	PASS	18/18	47	1.8	7	19	27328	3280	1593	42.8	7.8	7.6	Bashx14,Editx4	0	-	
+2026-10-19	0.35.1	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	5	PASS	18/18	41	2.9	5	16	26187	3000	1951	38.8	7.8	7.5	Bashx7,Readx5,Writex3	0	-	
