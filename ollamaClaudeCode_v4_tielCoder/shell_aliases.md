@@ -13,8 +13,8 @@ records only the delta.
 
 | command | before (after v3) | after v4 |
 |---|---|---|
-| **`claude-ol-qwen`** (was `claude-ol2`) — default | `qwen3.6:35b-a3b-q4_K_M-agentic` | **the default**, confirmed 09-25 and 10-08 |
-| *(new)* **`claude-ol-kat`** | — | **the equal alternative**: `kat-coder-v2.5:q5km-ctx256k-agentic` @ 262144 |
+| **`claude-ol-qwen`** (was `claude-ol2`) | `qwen3.6:35b-a3b-q4_K_M-agentic` | the default until 10-19. On 0.35.1 and client 2.1.303 it fails the quality rule (held-out 17,18,15,18,16) |
+| **`claude-ol-kat`** — **default since 10-19** | — | `kat-coder-v2.5:q5km-ctx256k-agentic` @ 262144. The fastest model that passes the quality rule on the current state (44 s, held-out 18,17,17,18,18, T5 8/8; `ROUND_2026-10-19.md`) |
 | *(new)* **`claude-ol-byte`** | — | `byteshape-qwen3.6-35b:q4ks-ctx256k-agentic`: fastest session and top Terminal-Bench score, held-out median 17 |
 | *(new)* `claude-ol-tiel` | — | the pick **when overflow safety matters**, and vision: `tiel-coder:35b-q5-ctx256k-agentic` @ 262144 |
 | `claude-ol-north`, `claude-ol-ornith`, `claude-ol-nemo`, `claude-ol`, `claude-ol-mistral`, `claude-ol-local`, `claude-locallama` | various | **removed** 09-25 (reasons in *Alias review*) |
