@@ -60,7 +60,7 @@ animation reproducible without generating new artwork.
 
 ## Rebuild
 
-Requires Python 3, FFmpeg, and FFprobe on the system path.
+Requires Python 3.11 or later, FFmpeg, and FFprobe on the system path.
 
 ```sh
 python3 -m venv .venv

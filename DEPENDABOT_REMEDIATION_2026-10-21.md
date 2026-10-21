@@ -18,9 +18,9 @@ Found 21 open alerts: 5 critical, 12 high, and 4 medium. They affect five manife
 |---|---|---|
 | Read all open alerts | Done | 2026-10-21 |
 | Inspect manifests and checks | Done | 2026-10-21 |
-| Certifi fixes | Tested and committed next | 2026-10-21 |
-| Pillow fixes | Pending | 2026-10-21 |
-| Review, push, and remote verification | Pending | 2026-10-21 |
+| Certifi fixes | Done; commit `0156cb6` | 2026-10-21 |
+| Pillow fixes | Tested; commit next | 2026-10-21 |
+| Review, push, and remote verification | Fixed locally; checks passed | 2026-10-21 |
 
 ## Alert register
 
@@ -29,24 +29,24 @@ Found 21 open alerts: 5 critical, 12 high, and 4 medium. They affect five manife
 | [#53](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/53) | critical | certifi | `CRaST/poetry.lock` | 2026.10.19 | Fixed locally; checks passed |
 | [#54](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/54) | critical | certifi | `GitLab_MR_comment_resolver/requirements.txt` | 2026.10.19 | Fixed locally; checks passed |
 | [#55](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/55) | critical | certifi | `Gitlab_JobOverview/requirements.txt` | 2026.10.19 | Fixed locally; checks passed |
-| [#56](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/56) | critical | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Pending |
-| [#65](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/65) | critical | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Pending |
-| [#57](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/57) | high | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Pending |
-| [#59](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/59) | high | pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Pending |
-| [#60](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/60) | high | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Pending |
-| [#61](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/61) | high | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Pending |
-| [#63](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/63) | high | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Pending |
-| [#64](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/64) | high | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Pending |
-| [#66](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/66) | high | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Pending |
-| [#68](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/68) | high | pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Pending |
-| [#69](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/69) | high | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Pending |
-| [#70](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/70) | high | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Pending |
-| [#72](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/72) | high | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Pending |
-| [#73](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/73) | high | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Pending |
-| [#58](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/58) | medium | pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Pending |
-| [#62](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/62) | medium | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Pending |
-| [#67](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/67) | medium | pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Pending |
-| [#71](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/71) | medium | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Pending |
+| [#56](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/56) | critical | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#65](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/65) | critical | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#57](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/57) | high | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#59](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/59) | high | pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#60](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/60) | high | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#61](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/61) | high | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#63](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/63) | high | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#64](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/64) | high | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#66](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/66) | high | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#68](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/68) | high | pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#69](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/69) | high | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#70](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/70) | high | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#72](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/72) | high | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#73](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/73) | high | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#58](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/58) | medium | pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#62](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/62) | medium | Pillow | `gitAnimationImrprovement/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#67](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/67) | medium | pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
+| [#71](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/71) | medium | Pillow | `httpRequestSenderAndReceiverTest/requirements.txt` | 13.0.0 | Fixed locally; checks passed |
 
 ## Authorization and scope
 
@@ -77,3 +77,36 @@ Inspect each project's declared checks before changing dependencies. Do not dism
 - No external GitLab API or speed-test download was needed.
 
 Sources: [certifi advisory](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2), [PyPI certifi](https://pypi.org/project/certifi/2026.10.19/).
+
+## Pillow results
+
+- Updated both Pillow pins from 12.3.0 to 13.0.0. This covers all 18 Pillow alerts.
+- PyPI confirms that 13.0.0 is stable, available, and not yanked.
+- Reviewed upstream breaking changes. These projects do not use the removed APIs.
+- Pillow 13 requires Python 3.11 or later. Both READMEs now state the needed Python version.
+- The HTTP demo keeps NumPy 1.24.3. Installed its complete requirements on Python 3.11.15.
+- Uploaded PNG, GIF, JPEG, and TIFF images through the Flask test client.
+- Each upload passed decoding, grayscale conversion, NumPy processing, and response checks.
+- Missing-file and empty-filename requests returned HTTP 400.
+- `uv pip check` passed for the HTTP environment.
+- Rebuilt the complete farm animation in an isolated copy with Pillow 13.
+- Both GIFs retain their dimensions, 55 stored frames, 3000 ms duration, infinite loop, and identical endpoint images.
+- FFprobe confirms a 600 by 600 MP4, 20 fps, 60 frames, and 3.000 seconds.
+- No generated media files changed in the repository.
+- These projects have no declared automated test gate. The checks above exercise their affected image paths.
+- The optional YOLOv5 cat detector is not covered by the declared requirements. Full model inference was not tested.
+- No complex migration was needed for the declared dependencies. No case requires a user decision.
+
+Sources: [Pillow 13 release notes](https://github.com/python-pillow/Pillow/blob/13.0.0/docs/releasenotes/13.0.0.rst), [PyPI Pillow](https://pypi.org/project/Pillow/13.0.0/).
+
+## Review before push
+
+- Checked every alert against its affected manifest and first patched version.
+- Kept unrelated runtime dependency versions unchanged.
+- Poetry regenerated only the certifi package block.
+- Confirmed the patch uses available stable versions with compatible Python environments.
+- Confirmed the Python minimum-version change appears in the affected READMEs.
+- Reviewed the diff for accidental source or generated-file changes.
+- `git diff --check` passed.
+- Reviewed outgoing history. The push also includes the earlier committed GitHub PR audit and PR #29 validation notes.
+- The push targets `master` with normal fast-forward checks. No force push is authorized or needed.
