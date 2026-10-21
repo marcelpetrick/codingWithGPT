@@ -17,7 +17,7 @@ Decision: merge PR #29 as submitted. The exact Vite 8.3.4 update passes the full
 |---|---|---|
 | PR and toolchain inspection | Done | 2026-10-21 |
 | Diff review and validation | Done | 2026-10-21 |
-| Decision and final verification | Pending | 2026-10-21 |
+| Decision and final verification | Done | 2026-10-21 |
 
 ## Evidence
 
@@ -30,7 +30,7 @@ Decision: merge PR #29 as submitted. The exact Vite 8.3.4 update passes the full
 
 ## Resume here
 
-State: review and validate PR #29 before deciding its outcome.
+State: PR #29 merged and verified. Local master includes the remote merge. No further action is required.
 
 ```sh
 gh pr view 29 --json state,headRefOid,mergeable,statusCheckRollup
@@ -55,4 +55,12 @@ Run `npm ci` and `npm run ci` in an isolated copy with the PR's exact project fi
 
 ## Publication
 
-Next: merge only the tested PR head through GitHub. Do not push the local master branch or its unrelated task documents.
+Merged the tested head through GitHub with a SHA check. No local commits were pushed. GitHub reports `MERGED`.
+
+PR: https://github.com/marcelpetrick/codingWithGPT/pull/29
+
+Merge commit: `a8ff8fb469e6b65da07683f0b01acceb56ab33f0`.
+
+Fetched remote master and merged it into local master. The local package manifest and lockfile must match the tested PR files.
+
+Final check: both local package files match the tested files byte for byte.
