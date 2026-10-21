@@ -53,7 +53,7 @@ Repeat the final two commands for each PR. Check both discussion comments and in
 1. Identify past merge authors and approvers (done; approximately 1 minute).
 2. Check current PR discussions and prepare four comments (done; approximately 2 minutes).
 3. Review each comment before posting (done; approximately 1 minute).
-4. Post each comment once and verify its text and URL (next; approximately 1 minute).
+4. Post each comment once and verify its text and URL (done; less than 1 minute).
 
 Both x-clone-starter repositories are excluded. The user explicitly authorized four public reminders with maintainer mentions.
 
@@ -113,3 +113,17 @@ Hi @CJCombrink, a friendly follow-up on the dark-style contrast fix for #77. Tha
 I checked the changes locally before opening the PR. The screenshot linked above shows the result. My aim is to improve readability while keeping the review effort small.
 
 Whenever you have time, could you let me know whether this fix fits the project? I am happy to adjust it if you prefer another approach. Thanks!
+
+- terryyin/lizard#515: https://github.com/terryyin/lizard/pull/515#issuecomment-6314512927 (posted and verified 2026-10-21T11:12:11Z).
+
+- ventoy/Ventoy#3721: https://github.com/ventoy/Ventoy/pull/3721#issuecomment-6314513792 (posted and verified 2026-10-21T11:12:14Z).
+
+- CJCombrink/SpellChecker-Plugin#197: https://github.com/CJCombrink/SpellChecker-Plugin/pull/197#issuecomment-6314514507 (posted and verified 2026-10-21T11:12:17Z).
+
+- CJCombrink/SpellChecker-Plugin#195: https://github.com/CJCombrink/SpellChecker-Plugin/pull/195#issuecomment-6314515176 (posted and verified 2026-10-21T11:12:19Z).
+
+### Final verification
+
+All four comments were posted as `marcelpetrick`. Read back each comment through its GitHub API endpoint. Each published body matches the reviewed draft exactly. Neither x-clone-starter PR received a comment. No PR code, branch, review, or merge state was changed.
+
+Resume here: reminders complete. Use the four comment URLs above to inspect replies. Do not repeat the reminders automatically.
