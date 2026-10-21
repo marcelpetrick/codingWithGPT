@@ -44,3 +44,72 @@ gh api repos/terryyin/lizard/pulls/515/comments --paginate --slurp
 ```
 
 Repeat the final two commands for each PR. Check both discussion comments and inline comments before concluding there were no replies.
+
+
+## Reminder task — 2026-10-21
+
+### Plan and status
+
+1. Identify past merge authors and approvers (done; approximately 1 minute).
+2. Check current PR discussions and prepare four comments (done; approximately 2 minutes).
+3. Review each comment before posting (done; approximately 1 minute).
+4. Post each comment once and verify its text and URL (next; approximately 1 minute).
+
+Both x-clone-starter repositories are excluded. The user explicitly authorized four public reminders with maintainer mentions.
+
+### Maintainer evidence
+
+Examined 12 merged PRs per repository, ordered by latest update. Each repository had one merge author across that sample.
+
+| Repository | Mention | Evidence |
+|---|---|---|
+| terryyin/lizard | @terryyin | Merged all 12 sampled PRs; approved [#501](https://github.com/terryyin/lizard/pull/501) and [#500](https://github.com/terryyin/lizard/pull/500) |
+| ventoy/Ventoy | @ventoy | Merged all 12 sampled PRs, including documentation change [#3725](https://github.com/ventoy/Ventoy/pull/3725) |
+| CJCombrink/SpellChecker-Plugin | @CJCombrink | Merged all 12 sampled PRs, including [#194](https://github.com/CJCombrink/SpellChecker-Plugin/pull/194); approved [#186](https://github.com/CJCombrink/SpellChecker-Plugin/pull/186) |
+
+### Review before posting
+
+- Rechecked all four PRs: each is open and has no reviews or replies from other accounts.
+- Previous follow-ups exist on Ventoy and both SpellChecker PRs. Their latest dates are August 24, 2026.
+- Lizard has an existing maintainer mention and one thumbs-up reaction. A reaction is not a written reply.
+- Lizard has a merge conflict. Its reminder acknowledges the conflict.
+- Ventoy changes many files and bundled components. Its reminder offers a smaller scope.
+- QML test details come from the existing PR description. They describe the original local check, not a new test run.
+- Other local-check statements reflect the user's account of checks before submission. No new tests were run for these reminders.
+- No comment claims that CI passed, that approval is owed, or that the change needs no review.
+- Each comment mentions only the maintainer supported by past merge activity.
+- Each comment offers help without a deadline or repeated-ping promise.
+
+### Exact reviewed comments
+
+#### terryyin/lizard#515
+
+Hi @terryyin, a friendly follow-up on this typo cleanup. Thank you for maintaining Lizard; I have found it very useful.
+
+I checked the changes locally before opening the PR. My aim is to improve the project while keeping the review effort small. GitHub currently reports a merge conflict. I am happy to update the branch if the changes are useful to you.
+
+Whenever you have time, could you let me know whether this fits the project? If you prefer a smaller scope, I am happy to adjust it. Thanks!
+
+#### ventoy/Ventoy#3721
+
+Hi @ventoy, a friendly follow-up on this typo cleanup. Thank you for maintaining Ventoy; it has been very useful to me.
+
+I checked the changes locally before opening the PR. My aim is to improve the project while keeping the review effort small. I realize the changes cover many files, including bundled components. I am happy to narrow the scope if that makes review easier.
+
+Whenever you have time, could you let me know whether these changes would be useful? I understand that maintenance time is limited. Thanks!
+
+#### CJCombrink/SpellChecker-Plugin#197
+
+Hi @CJCombrink, a friendly follow-up on the QML spell-checking support for #196. Thank you for your work on this plugin.
+
+I tested this locally with Qt Creator 19.0.2 before opening the PR. The QML parser tests passed with ctest, as noted in the description. This adds a substantial feature, so I understand that review takes time. My aim is to improve the plugin while keeping the maintenance effort manageable.
+
+Whenever you have time, could you let me know whether this approach fits the project? I am happy to revise or split the changes to make review easier. Thanks!
+
+#### CJCombrink/SpellChecker-Plugin#195
+
+Hi @CJCombrink, a friendly follow-up on the dark-style contrast fix for #77. Thank you for maintaining this plugin.
+
+I checked the changes locally before opening the PR. The screenshot linked above shows the result. My aim is to improve readability while keeping the review effort small.
+
+Whenever you have time, could you let me know whether this fix fits the project? I am happy to adjust it if you prefer another approach. Thanks!
