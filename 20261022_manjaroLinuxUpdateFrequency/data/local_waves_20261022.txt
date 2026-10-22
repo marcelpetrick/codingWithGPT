@@ -1,0 +1,40 @@
+Branch: stable
+Log starts: 2025-07-22
+
+Upgraded packages per month:
+  2025-07   170
+  2025-08   257
+  2025-09   526
+  2025-10     9
+  2025-11    18
+  2025-12  1237
+  2026-01   249
+  2026-02  1041
+  2026-03   428
+  2026-04    14
+  2026-05  1818
+  2026-06   581
+  2026-07   940
+  2026-08   821
+  2026-09   535
+  2026-10    12
+
+Waves (days with >= 200 upgrades) and gap to previous wave:
+  2025-08-12   247 pkgs  gap - d
+  2025-09-01   203 pkgs  gap 20 d
+  2025-09-29   301 pkgs  gap 28 d
+  2025-12-11   922 pkgs  gap 73 d
+  2026-02-02   624 pkgs  gap 53 d
+  2026-02-24   400 pkgs  gap 22 d
+  2026-03-24   411 pkgs  gap 28 d
+  2026-05-04   870 pkgs  gap 40 d
+  2026-05-20   621 pkgs  gap 16 d
+  2026-05-27   315 pkgs  gap 7 d
+  2026-06-26   563 pkgs  gap 30 d
+  2026-07-13   603 pkgs  gap 17 d
+  2026-07-23   315 pkgs  gap 10 d
+  2026-08-07   251 pkgs  gap 15 d
+  2026-08-24   420 pkgs  gap 17 d
+  2026-09-07   518 pkgs  gap 14 d
+
+Days since last wave (2026-09-07): 45
