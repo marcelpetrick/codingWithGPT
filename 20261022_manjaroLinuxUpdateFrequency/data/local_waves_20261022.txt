@@ -27,7 +27,7 @@ Waves (days with >= 200 upgrades) and gap to previous wave:
   2026-02-02   624 pkgs  gap 53 d
   2026-02-24   400 pkgs  gap 22 d
   2026-03-24   411 pkgs  gap 28 d
-  2026-05-04   870 pkgs  gap 40 d
+  2026-05-04   870 pkgs  gap 41 d
   2026-05-20   621 pkgs  gap 16 d
   2026-05-27   315 pkgs  gap 7 d
   2026-06-26   563 pkgs  gap 30 d

@@ -1,0 +1,16 @@
+{
+  "_note": "Forum facts that the scripts cannot measure. Check each entry by its source when you refresh.",
+  "freeze": {
+    "since": "2026-09-07",
+    "text": "GitLab → Forgejo move. No end date announced.",
+    "source": "https://forum.manjaro.org/t/189985"
+  },
+  "reasons": [
+    "Freeze until the GitLab → Forgejo move is done (topic 189985).",
+    "GitLab was slow and broke kernel builds (topic 189954).",
+    "Maintainer: \"super limited time\" (topic 189985)."
+  ],
+  "next_update": "Next update will be large: Plasma 6.8, systemd 262, kernel 7.2/7.3.",
+  "action": "<code>linux71</code> is end of life since 7.1.13 (topic 190447). Move to <code>linux72</code> or keep <code>linux618</code> (LTS).",
+  "upstream_note": "Kernel 7.3, Plasma 6.8 and GNOME 51 are out. Manjaro stable has none of them yet."
+}
