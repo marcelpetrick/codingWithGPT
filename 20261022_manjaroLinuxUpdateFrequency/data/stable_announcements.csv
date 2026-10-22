@@ -1,0 +1,37 @@
+date,title,topic_id
+2025-02-04,"Kernels, KDE, XFCE, Mesa, Cosmic, Systemd",173772
+2025-02-16,"Kernels, Firefox, Qt, KDE Gear, GNOME",174278
+2025-03-05,"Kernels, Plasma 6.3, COSMIC Alpha 6",175072
+2025-03-18,"Kernel, Systemd, Plasma 6.3.3",175737
+2025-03-24,"NVIDIA, PipeWire, Mesa",176023
+2025-03-30,"Kernels, GNOME 48, Mesa",176353
+2025-04-12,"Kernels, Plasma, Systemd, Mesa, Grub",176877
+2025-05-04,"Kernels, GNOME 48.1, NVIDIA",177571
+2025-05-14,"Kernels, Firefox, Mesa, Plasma",177938
+2025-05-19,"Firefox, KDE Gear, KDE Frameworks",178126
+2025-06-23,"Kernels, KDE, NVIDIA, Pamac, Qt6",179097
+2025-07-12,"Kernels, Systemd, GNOME, NVIDIA, Plasma",179736
+2025-07-18,"Kernels, UMU, KDE Frameworks",179972
+2025-07-20,"Kernels, Mesa, Perl, Vulkan",180038
+2025-08-11,"Kernels, Mesa, KDE Frameworks, Systemd",180648
+2025-08-29,"Kernels, Toolchain, Virtualbox, Mesa",181070
+2025-08-30,"Kernels, ROCm, Firefox, Steam",181125
+2025-09-26,"Kernels, NVIDIA, Systemd, KDE",181764
+2025-12-08,"25.1 Anh-Linh Preview",183479
+2025-12-15,"Kernels, NVIDIA, Plasma, Cosmic",183888
+2025-12-22,"Kernels, Cinnamon, KDE Frameworks, Pacman",184184
+2026-01-04,"Manjaro 26.0, Mesa, Firefox",184517
+2026-01-13,"Kernels, KDE Gear 25.12.1, Mesa",184856
+2026-02-01,"Kernels, COSMIC, Plasma, GNOME",185280
+2026-02-23,"Kernels, Mesa, Wine, COSMIC",185859
+2026-03-23,"Kernels, Mesa, Systemd, Plasma",186510
+2026-05-02,"Kernels, Plasma, GNOME",187285
+2026-05-19,"Kernels, Plasma 6, KDE Gear",187782
+2026-05-27,"Kernels, NVIDIA, Firefox, Mesa",187938
+2026-06-26,"Kernels, Systemd, PipeWire, NVIDIA",188521
+2026-07-11,"Kernels, COSMIC 1.2, Xorg",188902
+2026-07-23,"Kernels, Mesa, VirtualBox, Plasma",189137
+2026-08-06,"Kernels, Plasma, Mesa, COSMIC",189382
+2026-08-12,"Kernels, Firefox, GStreamer, Python",189517
+2026-08-23,"Kernels, KDE Frameworks, Qemu, Mesa",189720
+2026-09-07,"Kernels, KDE Gear, Mesa, LibreOffice (freeze announced)",189985
