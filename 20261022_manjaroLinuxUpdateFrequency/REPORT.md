@@ -49,6 +49,17 @@ Reasons in the forum:
 The next stable update will be large: Plasma 6.8, systemd 262 and kernel 7.2/7.3.
 With Plasma 6.8 in unstable, Manjaro's SDDM theme breaks. KDE recommends plasma-login-manager (topic 190649).
 
+## Outlook and branch advice (2026-10-22, evening)
+
+- No date is announced for the next stable update. Forgejo (code.manjaro.org) is in use since 2026-09-11.
+  No post says that the freeze has ended.
+- Signal to watch: a new testing announcement. Stable usually follows a testing snapshot within 1–2 weeks.
+  The last testing announcement is from 2026-10-07.
+- If the pause becomes as long as the 73-day record, stable comes about 2026-11-19. This is a bound from history, not a forecast.
+- Real risk: kernel security fixes. All stable kernels are builds from 2026-09-04. `linux71` is EOL.
+- Advice: stay on stable. Do not use unstable on a daily-driver laptop.
+  If stable has no update by mid-November, move to testing.
+
 ## Sources
 
 - https://forum.manjaro.org/c/announcements/stable-updates/12.json (also testing-updates/13 and unstable-updates)
