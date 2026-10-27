@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>LinkedIn Crackdown Timeline</title>
+<!--
+  Carousel v1: the timeline 2025–2026. 9 slides, 1080x1350.
+  Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>. License: GPL-3.0-or-later.
+  Facts and sources: ../research/automation_crackdown_2025_2026.md
+  Build: ../scripts/build_carousel.sh
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=IBM+Plex+Mono:wght@600;700&family=IBM+Plex+Sans:wght@400;700&display=swap">
+<link rel="stylesheet" href="carousel.css">
+</head>
+<body>
+
+<section class="slide">
+  <div class="log">2025 → 2026 · a developer's look</div>
+  <h1>Do LinkedIn influencers type <em>every reply</em> by hand?</h1>
+  <p class="lede">I wanted to automate my own inbox. So I checked what LinkedIn <b>allows</b>, and what it <b>did</b> to tools that went further.</p>
+  <div class="verdict"><p>Short answer: the API lets you <b>post</b>. Sending <b>DMs</b> is for approved partners only. Tools that do more work in a grey zone, and LinkedIn is closing it.</p></div>
+  <div class="foot"><span>Marcel Petrick · 1/9</span><span class="go">swipe →</span></div>
+</section>
+
+<section class="slide ok">
+  <div class="log"><span class="tag">allowed</span> the official rules</div>
+  <h2>What the API <em>really</em> gives you</h2>
+  <div class="rows">
+    <div class="row"><span class="k ok">yes</span><span class="v">Post, comment, react for a member (<code>w_member_social</code>)</span></div>
+    <div class="row"><span class="k no">partners</span><span class="v">Messaging API. 1st-degree only. No automated or scheduled sends.</span></div>
+    <div class="row"><span class="k no">no</span><span class="v">A delegate role for a personal profile. Only Company Pages have admins.</span></div>
+    <div class="row"><span class="k no">no</span><span class="v">Sharing your account. The User Agreement forbids it.</span></div>
+    <div class="row"><span class="k ok">EU only</span><span class="v">Read your <b>own</b> inbox through the DMA portability API. Read-only.</span></div>
+  </div>
+  <div class="foot"><span>Marcel Petrick · 2/9</span><span class="go">→</span></div>
+</section>
+
+<section class="slide court">
+  <div class="log"><span class="tag">court</span> 2025-01-24 → 2025-07-04</div>
+  <h2>LinkedIn sues Proxycurl. <em>Five months later</em> it is gone.</h2>
+  <div class="num">$10M</div>
+  <p class="numcap">The founder's own words: a "~$10M revenue business", shut down to comply with the settlement.</p>
+  <ul class="facts">
+    <li>Claim: <b>hundreds of thousands</b> of fake accounts scraped millions of profiles.</li>
+    <li>Permanent injunction: delete all the data, stop all access.</li>
+  </ul>
+  <div class="foot"><span>Marcel Petrick · 3/9</span><span class="go">→</span></div>
+</section>
+
+<section class="slide block">
+  <div class="log"><span class="tag">page removed</span> 2025-03-07</div>
+  <h2>Apollo.io and Seamless.AI lose their <em>company pages</em></h2>
+  <p class="lede">No public reason. The tools kept working. Apollo's page is back by mid-2026.</p>
+  <div class="quote">"does not disrupt Apollo's services or impact our core platform functionality"<span class="src">Apollo, March 2025</span></div>
+  <div class="verdict"><p>The lesson: LinkedIn does not only block bots. It hits the <b>brand</b> of the vendor, where reach lives.</p></div>
+  <div class="foot"><span>Marcel Petrick · 4/9</span><span class="go">→</span></div>
+</section>
+
+<section class="slide court">
+  <div class="log"><span class="tag">court</span> 2025-10</div>
+  <h2>ProAPIs: scraping as a <em>subscription</em></h2>
+  <div class="num">$15k<small>/month</small></div>
+  <p class="numcap">What customers reportedly paid for scraped LinkedIn data.</p>
+  <ul class="facts">
+    <li>Claim: <b>millions</b> of fake accounts.</li>
+    <li>"Hundreds if not thousands" of new fake accounts <b>per day</b>.</li>
+    <li>LinkedIn says it detects the scraping <b>within hours</b>, but cannot stop all of it.</li>
+  </ul>
+  <div class="foot"><span>Marcel Petrick · 5/9</span><span class="go">→</span></div>
+</section>
+
+<section class="slide signal">
+  <div class="log"><span class="tag">detection</span> July–December 2025</div>
+  <h2>Fake accounts rarely reach <em>your</em> report button</h2>
+  <div class="num">99.7%</div>
+  <p class="numcap">of fake accounts were stopped <b>before</b> any member reported them.</p>
+  <ul class="facts">
+    <li><b>97.8%</b> of them were blocked by automated defenses.</li>
+    <li><b>98.6%</b> of removed spam and scams were caught automatically.</li>
+  </ul>
+  <div class="foot"><span>Marcel Petrick · 6/9 · LinkedIn Community Report</span><span class="go">→</span></div>
+</section>
+
+<section class="slide block">
+  <div class="log"><span class="tag">page removed</span> 2026-03-25</div>
+  <h2>HeyReach: the page <em>and four executives</em></h2>
+  <ul class="facts">
+    <li>Company page removed, about <b>16,400 followers</b>.</li>
+    <li>CEO, CTO, CRO and CMO profiles restricted (HeyReach says: temporarily).</li>
+    <li>Customer campaigns kept running.</li>
+    <li>No reason published by LinkedIn.</li>
+  </ul>
+  <div class="verdict"><p>HeyReach runs LinkedIn accounts from the <b>cloud</b>. Rivals say that is why. Nobody has proof.</p></div>
+  <div class="foot"><span>Marcel Petrick · 7/9</span><span class="go">→</span></div>
+</section>
+
+<section class="slide signal">
+  <div class="log"><span class="tag">detection</span> 2026-04 · "BrowserGate"</div>
+  <h2>LinkedIn checks your browser for <em>6,000+</em> extensions</h2>
+  <div class="bars">
+    <div class="bar"><span class="y">2017</span><span class="track"><span class="fill" style="width:8px"></span><span class="val">38</span></span></div>
+    <div class="bar"><span class="y">2024</span><span class="track"><span class="fill" style="width:43px"></span><span class="val">461</span></span></div>
+    <div class="bar"><span class="y">2025</span><span class="track"><span class="fill" style="width:187px"></span><span class="val">≈2,000</span></span></div>
+    <div class="bar"><span class="y">2026</span><span class="track"><span class="fill" style="width:560px"></span><span class="val">6,000+</span></span></div>
+  </div>
+  <ul class="facts">
+    <li>A 2.7 MB script also reads CPU cores, memory, screen, timezone, battery.</li>
+    <li>LinkedIn: it looks for extensions that <b>scrape or break the terms</b>.</li>
+  </ul>
+  <div class="foot"><span>Marcel Petrick · 8/9 · extension IDs probed</span><span class="go">→</span></div>
+</section>
+
+<section class="slide">
+  <div class="log">so, the teams of influencers?</div>
+  <h2>Their options: shared logins, cloud tools, extensions. <em>All grey.</em></h2>
+  <ul class="facts">
+    <li>The "40% of automation users banned" figure traces back to <b>one</b> unverified source.</li>
+    <li>LinkedIn publishes no ban rate. Vendors on both sides call the other side unsafe.</li>
+  </ul>
+  <div class="verdict"><p>My route: a local tool <b>reads and drafts</b>. I still <b>send</b> every reply myself.</p></div>
+  <p class="sources"><b>Sources</b> · LinkedIn help a1341387 · LinkedIn Community Report H2 2025 · Bloomberg Law 2025-10-29 · The Record · Social Media Today (Proxycurl) · nubela.co "Goodbye Proxycurl" · Salesmotion (Apollo) · heyreach.io/blog/heyreach-ban · gHacks / Tom's Hardware (BrowserGate) · leadsforlinked fact-check. Full list with links in the comments.</p>
+  <div class="foot"><span>Marcel Petrick · 9/9</span><span>facts as of 2026-10-27</span></div>
+</section>
+
+</body>
+</html>
