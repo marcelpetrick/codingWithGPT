@@ -16,7 +16,8 @@ draft reply for each one. **It never sends.** You check, edit and send every rep
 
 ## Status
 
-Phase 1 of 7: skeleton and quality gate. There is no UI yet, so there is no screenshot yet.
+Phase 1 of 7 is done (skeleton and quality gate). The ruleset engine (`reply_desk/rules.py`) is done.
+There is no UI yet, so there is no screenshot yet.
 The plan, the status and "Resume here" are in [`plan.md`](plan.md).
 
 | Document | Content |

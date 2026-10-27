@@ -4,8 +4,9 @@ Living document for the build. The goal and the research are in `vision.md`. The
 
 ## Verdict so far
 
-Research is done. No code yet. The read routes are route I (passive Chrome DevTools capture) and route A
-(DMA API). The tool never sends. Next step: phase 0, the spikes.
+Research is done. Phase 1 (skeleton, pipeline, CI) is done. The ruleset engine from phase 3 is done (v0.2.0).
+The read routes are route I (passive Chrome DevTools capture) and route A (DMA API). The tool never sends.
+Next step: phase 0 spikes (need the owner), or phase 2 parsers once fixtures exist.
 
 ## Phases
 
@@ -39,11 +40,14 @@ Route I+ (active navigation) is not in the plan. It enters only if the owner dec
 | 2026-10-27 | `vision.md`, `AGENTS.md`, `plan.md` written | Committed locally, not pushed |
 | 2026-10-27 | Research: approved partners, delegation, tools of creators and teams | No partner route for personal DMs; no delegate role. Teams use shared logins or session tools (grey). `vision.md` §1.6. Design unchanged. |
 | 2026-10-27 | Research: detection and user reports per grey tool; owner asks for automation | No grey tool fits (most are outreach senders). Automation = read + draft + notify, not send. `vision.md` §1.7–1.8. |
+| 2026-10-27 | Phase 1: package `reply_desk`, `localPipeline.sh` (8 stages), CI workflow, GPLv3, README | v0.1.0–v0.1.1, pipeline green, 100% branch coverage. CI not run yet: nothing pushed. |
+| 2026-10-27 | Phase 3 (part): ruleset engine `reply_desk/rules.py`, `reply_desk/data/rules.yaml` | v0.2.0, 48 tests, golden case per rule. Prompts and LLM still open (needs D1, D3). |
 | 2026-10-27 | Side task: report + two LinkedIn carousels on automation and the crackdown 2025–2026 | `research/automation_crackdown_2025_2026.md`, `carousel/v1_timeline.pdf` (9 slides), `carousel/v2_status_codes.pdf` (7 slides), `carousel/post.md`. Build: `scripts/build_carousel.sh`. Self-review fixed 4 issues (contradiction on DM reading, slide count, unsupported "mostly", overflow on v2 slide 2). |
 
 ## Resume here
 
-- State: planning done, no code. Open owner decisions: D1, D2, D3 (`vision.md` §4).
+- State: v0.2.0. Skeleton, pipeline and ruleset engine done, all local (not pushed). Open owner decisions: D1, D2, D3 (`vision.md` §4).
+- Check: `./localPipeline.sh` (exit 0 = green).
 - Owner actions before phase 0:
   1. Export the "unsolicited decline" GPT instructions (GPT editor → Configure → Instructions) into `prompts/unsolicited_decline.md`.
   2. For 0b: create the app at developer.linkedin.com (`vision.md` §1.5, steps 1–2).
