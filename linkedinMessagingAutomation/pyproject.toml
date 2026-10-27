@@ -10,7 +10,7 @@ requires-python = ">=3.14"
 license = "GPL-3.0-or-later"
 authors = [{ name = "Marcel Petrick", email = "mail@marcelpetrick.it" }]
 dynamic = ["version"]
-dependencies = []
+dependencies = ["PyYAML==6.0.3"]
 
 [project.optional-dependencies]
 dev = [
@@ -19,6 +19,7 @@ dev = [
     "pytest==9.1.1",
     "pytest-cov==7.1.0",
     "ruff==0.17.3",
+    "types-PyYAML==6.0.12.20260906",
 ]
 
 [project.scripts]
@@ -26,6 +27,9 @@ reply-desk = "reply_desk.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["reply_desk*"]
+
+[tool.setuptools.package-data]
+reply_desk = ["data/*.yaml"]
 
 [tool.setuptools.dynamic]
 version = { attr = "reply_desk.version.__version__" }

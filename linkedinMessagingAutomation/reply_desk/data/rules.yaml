@@ -1,0 +1,37 @@
+# Default ruleset. Ordered, first match wins. The last rule must be a catch-all (when: {}).
+# Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# when:    kind (message|invitation), category, keywords, sender_title, language, has_profile
+# action:  decline | reply | draft_only | ignore
+# prompt:  prompt file under prompts/ (added in phase 3)
+# examples: list of {incoming, reply} few-shot pairs; grow them from the UI ("save as rule example")
+
+- id: decline_commercial
+  when: { category: commercial_offer }
+  action: decline
+  prompt: prompts/unsolicited_decline.md
+  tone: polite, short, no opening for a follow-up
+
+- id: friendly_connect
+  when: { kind: invitation, has_profile: true }
+  action: reply
+  prompt: prompts/friendly_connect.md
+  tone: warm, refer to one concrete point of the profile
+
+- id: connect_without_profile
+  when: { kind: invitation }
+  action: draft_only
+  prompt: prompts/friendly_connect.md
+  tone: warm; ask the owner to capture the profile for a personal hook
+
+- id: recruiter_senior_only
+  when: { category: recruiter }
+  action: reply
+  prompt: prompts/recruiter_senior_only.md
+  tone: friendly, interested; senior lead roles only
+
+- id: fallback
+  when: {}
+  action: draft_only
+  prompt: prompts/generic.md

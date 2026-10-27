@@ -6,7 +6,7 @@
 # Usage:  ./localPipeline.sh            run all stages, stop at the first failure
 # Stages: 1 venv + install (uv)   2 license headers   3 ruff lint   4 ruff format check
 #         5 mypy --strict          6 pytest + coverage >= 95%      7 build sdist + wheel
-#         8 install the wheel in a clean venv and run `reply-desk --version`
+#         8 install the wheel in a clean venv, run `reply-desk --version`, load the shipped rules
 # Later:  e2e (Playwright on the local UI) is added with phase 4. Docker: not planned yet.
 # Needs:  uv, Python 3.14. No network access to LinkedIn, ever.
 # Exit:   0 all green; 1 a stage failed (the summary names it).
@@ -58,7 +58,8 @@ wheel_smoke() {
   tmp=$(mktemp -d)
   uv venv -q -p 3.14 "$tmp/venv" &&
     VIRTUAL_ENV="$tmp/venv" uv pip install -q dist/*.whl &&
-    "$tmp/venv/bin/reply-desk" --version
+    "$tmp/venv/bin/reply-desk" --version &&
+    "$tmp/venv/bin/python" -c "from reply_desk.rules import load_default_rules as f; print(len(f()), 'rules shipped')"
   local rc=$?
   rm -rf "$tmp"
   return $rc
