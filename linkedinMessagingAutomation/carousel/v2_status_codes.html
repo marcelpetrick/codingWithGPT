@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>LinkedIn Status Codes</title>
+<!--
+  Carousel v2: the developer's view, framed as HTTP responses. 7 slides, 1080x1350.
+  Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>. License: GPL-3.0-or-later.
+  999 is real: LinkedIn's non-standard "Request Denied" code for suspected bots.
+  Facts and sources: ../research/automation_crackdown_2025_2026.md
+  Build: ../scripts/build_carousel.sh
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=IBM+Plex+Mono:wght@600;700&family=IBM+Plex+Sans:wght@400;700&display=swap">
+<link rel="stylesheet" href="carousel.css">
+<style>
+  .code{ font-family:var(--display); font-weight:800; font-size:300px; line-height:.8; letter-spacing:-.02em;
+         color:var(--k, var(--ink)); }
+  .signal .code{ color:#B57A0C; }
+  .reason{ font-family:var(--mono); font-size:44px; font-weight:700; color:var(--ink); margin-top:-6px; }
+  .req{ font-family:var(--mono); font-size:30px; line-height:1.5; background:var(--ink); color:#DCE3EA;
+        border-radius:10px; padding:30px 36px; }
+  .req .m{ color:var(--signal); font-weight:700; }
+</style>
+</head>
+<body>
+
+<section class="slide">
+  <div class="log">$ curl linkedin.com/my-inbox</div>
+  <h1>I tried to automate my LinkedIn inbox. <em>Here is what LinkedIn answers.</em></h1>
+  <p class="lede">Six responses, from the rules and from 2025–2026. Each one is a real event or a real rule.</p>
+  <div class="req"><span class="m">GET</span> /messaging/inbox<br>User-Agent: my-little-script/0.1</div>
+  <div class="foot"><span>Marcel Petrick · 1/7</span><span class="go">swipe →</span></div>
+</section>
+
+<section class="slide ok">
+  <div class="code">200</div>
+  <div class="reason">OK</div>
+  <h2>Posting works. <em>Sending DMs does not.</em></h2>
+  <ul class="facts">
+    <li>The self-serve API lets an app <b>post, comment and react</b> for you.</li>
+    <li>EU members can read their <b>own</b> inbox through the DMA portability API. Read-only.</li>
+  </ul>
+  <div class="verdict"><p>Rule of thumb: a tool that <b>sends DMs automatically</b> does not use the official API.</p></div>
+  <div class="foot"><span>Marcel Petrick · 2/7</span><span class="go">→</span></div>
+</section>
+
+<section class="slide block">
+  <div class="code">403</div>
+  <div class="reason">Forbidden: partners only</div>
+  <ul class="facts">
+    <li>Messaging API: approved partners, <b>1st-degree</b> only, no automated or scheduled sends.</li>
+    <li>Sales Navigator partner program: <b>no new partners</b>, no form, no waitlist.</li>
+    <li>No delegate role on personal profiles. Sharing your login breaks the User Agreement.</li>
+  </ul>
+  <div class="verdict"><p>So who answers for busy creators? Often assistants with a <b>shared password</b>, or tools that hold the session.</p></div>
+  <div class="foot"><span>Marcel Petrick · 3/7</span><span class="go">→</span></div>
+</section>
+
+<section class="slide signal">
+  <div class="code">999</div>
+  <div class="reason">Request Denied</div>
+  <ul class="facts">
+    <li>Not in any RFC. It is <b>LinkedIn's own code</b> for clients that look like bots.</li>
+    <li>Since April 2026 we know: a script probes <b>6,000+</b> browser extensions. In 2017 it was 38.</li>
+    <li><b>99.7%</b> of fake accounts were stopped before any member report (H2 2025).</li>
+  </ul>
+  <div class="verdict"><p>Detection runs before anybody complains. A report from another member is the <b>last</b> line, not the first.</p></div>
+  <div class="foot"><span>Marcel Petrick · 4/7</span><span class="go">→</span></div>
+</section>
+
+<section class="slide court">
+  <div class="code">451</div>
+  <div class="reason">Unavailable for legal reasons</div>
+  <div class="rows">
+    <div class="row"><span class="k">2025-01</span><span class="v">LinkedIn sues <b>Proxycurl</b>. Hundreds of thousands of fake accounts, says the claim.</span></div>
+    <div class="row"><span class="k">2025-07</span><span class="v">Proxycurl shuts down. A "~$10M revenue business", says its founder.</span></div>
+    <div class="row"><span class="k">2025-10</span><span class="v">LinkedIn sues <b>ProAPIs</b>. Customers paid up to <b>$15,000/month</b>.</span></div>
+  </div>
+  <div class="foot"><span>Marcel Petrick · 5/7</span><span class="go">→</span></div>
+</section>
+
+<section class="slide block">
+  <div class="code">410</div>
+  <div class="reason">Gone: the company page</div>
+  <div class="rows">
+    <div class="row"><span class="k">2025-03</span><span class="v"><b>Apollo.io</b> and <b>Seamless.AI</b> pages removed. No reason given. Apollo's is back by 2026.</span></div>
+    <div class="row"><span class="k">2026-03</span><span class="v"><b>HeyReach</b> page removed, ~16,400 followers. CEO, CTO, CRO, CMO profiles restricted.</span></div>
+  </div>
+  <div class="verdict"><p>The tools kept running. LinkedIn took the <b>reach</b>, not the product.</p></div>
+  <div class="foot"><span>Marcel Petrick · 6/7</span><span class="go">→</span></div>
+</section>
+
+<section class="slide ok">
+  <div class="code">202</div>
+  <div class="reason">Accepted: my approach</div>
+  <ul class="facts">
+    <li>A local tool <b>reads</b> my inbox and <b>drafts</b> each reply by my own rules.</li>
+    <li>I check, edit and <b>send every message myself</b>.</li>
+    <li>And the "40% of users banned" stat? It traces back to <b>one</b> unverified source.</li>
+  </ul>
+  <p class="sources"><b>Sources</b> · LinkedIn help a1341387 · LinkedIn Community Report H2 2025 · http.dev/999 · Bloomberg Law 2025-10-29 · Social Media Today (Proxycurl) · Salesmotion (Apollo) · heyreach.io/blog/heyreach-ban · gHacks / Tom's Hardware (BrowserGate) · leadsforlinked fact-check. Links in the comments.</p>
+  <div class="foot"><span>Marcel Petrick · 7/7</span><span>facts as of 2026-10-27</span></div>
+</section>
+
+</body>
+</html>
