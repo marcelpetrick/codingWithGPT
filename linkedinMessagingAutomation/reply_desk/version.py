@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Single source of the package version (semver; every commit bumps the patch)."""
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"

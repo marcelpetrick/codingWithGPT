@@ -1,0 +1,42 @@
+# CI for linkedinMessagingAutomation/: runs exactly ./localPipeline.sh, nothing more, nothing less.
+# Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: linkedin-reply-desk
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "linkedinMessagingAutomation/**"
+      - ".github/workflows/linkedin-reply-desk.yml"
+  pull_request:
+    paths:
+      - "linkedinMessagingAutomation/**"
+      - ".github/workflows/linkedin-reply-desk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-pipeline:
+    name: Local pipeline replica
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: linkedinMessagingAutomation
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.2
+        with:
+          python-version: "3.14"
+      - name: Run local pipeline
+        run: ./localPipeline.sh
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: coverage-html
+          path: linkedinMessagingAutomation/htmlcov
+          if-no-files-found: ignore
