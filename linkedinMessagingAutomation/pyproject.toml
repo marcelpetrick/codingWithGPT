@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools==84.2.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linkedin-reply-desk"
+description = "Local reply desk: reads LinkedIn messages, drafts replies by rules, never sends."
+readme = "README.md"
+requires-python = ">=3.14"
+license = "GPL-3.0-or-later"
+authors = [{ name = "Marcel Petrick", email = "mail@marcelpetrick.it" }]
+dynamic = ["version"]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "build==1.6.1",
+    "mypy==2.4.0",
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "ruff==0.17.3",
+]
+
+[project.scripts]
+reply-desk = "reply_desk.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["reply_desk*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "reply_desk.version.__version__" }
+
+[tool.pytest.ini_options]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+    "--cov=reply_desk",
+    "--cov-branch",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-fail-under=95",
+]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+strict = true
+python_version = "3.14"
+files = ["reply_desk", "tests"]
