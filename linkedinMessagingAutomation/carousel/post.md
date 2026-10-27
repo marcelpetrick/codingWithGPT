@@ -38,18 +38,29 @@ What I do now: a local tool reads and drafts. I send every reply myself.
 #LinkedIn #Developers #API #Automation #HTTP
 ```
 
-### Version 2, short
+### Version 2, short (in the owner's voice, from the posts in personalNotes/linkedin_posts)
 
 ```
-I tried to automate my LinkedIn inbox. LinkedIn answered in HTTP status codes 🙂
+𝗜 𝘁𝗿𝗶𝗲𝗱 𝘁𝗼 𝗮𝘂𝘁𝗼𝗺𝗮𝘁𝗲 𝗺𝘆 𝗟𝗶𝗻𝗸𝗲𝗱𝗜𝗻 𝗶𝗻𝗯𝗼𝘅. 𝗟𝗶𝗻𝗸𝗲𝗱𝗜𝗻 𝗮𝗻𝘀𝘄𝗲𝗿𝗲𝗱 𝘄𝗶𝘁𝗵 𝘀𝘁𝗮𝘁𝘂𝘀 𝗰𝗼𝗱𝗲𝘀.
 
-200 for posting. 403 for DMs. And 999 for bots, a code LinkedIn invented itself.
+As a developer I always wondered: do all those influencers and their teams really type every reply and every reaction by hand? Or is there some API magic behind it?
 
-So my tool reads and drafts, and I still send every reply myself.
+So I checked. Means: terms, APIs, lawsuits and what users report.
+
+Short version:
+* 𝟮𝟬𝟬: posting via the API works
+* 𝟰𝟬𝟯: DMs only for approved partners. No form, no waitlist.
+* 𝟵𝟵𝟵: LinkedIn's own status code for bots. Not in any RFC ;)
+
+And in 2025 and 2026 LinkedIn went to court against scrapers and removed the company pages of tool vendors. Details in the carousel.
+
+My take: a local tool reads and prepares the drafts. Sending stays my job. 😉
+
+What about you: anything automated on LinkedIn, or all handmade?
 
 Sources in the first comment.
 
-#LinkedIn #Developers #API #Automation
+#neverstoplearning #LinkedIn #Automation
 ```
 
 ## First comment (both versions)
