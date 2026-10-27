@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # build_carousel.sh: render the LinkedIn carousels (HTML) to PDF and PNG previews.
-# Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>. License: GPL-3.0-or-later.
+# Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Usage:   scripts/build_carousel.sh [name ...]     (default: all carousel/*.html)
 #          scripts/build_carousel.sh v1_timeline
