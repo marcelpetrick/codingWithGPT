@@ -39,6 +39,7 @@ Route I+ (active navigation) is not in the plan. It enters only if the owner dec
 | 2026-10-27 | `vision.md`, `AGENTS.md`, `plan.md` written | Committed locally, not pushed |
 | 2026-10-27 | Research: approved partners, delegation, tools of creators and teams | No partner route for personal DMs; no delegate role. Teams use shared logins or session tools (grey). `vision.md` §1.6. Design unchanged. |
 | 2026-10-27 | Research: detection and user reports per grey tool; owner asks for automation | No grey tool fits (most are outreach senders). Automation = read + draft + notify, not send. `vision.md` §1.7–1.8. |
+| 2026-10-27 | Side task: report + two LinkedIn carousels on automation and the crackdown 2025–2026 | `research/automation_crackdown_2025_2026.md`, `carousel/v1_timeline.pdf` (9 slides), `carousel/v2_status_codes.pdf` (7 slides), `carousel/post.md`. Build: `scripts/build_carousel.sh`. Self-review fixed 4 issues (contradiction on DM reading, slide count, unsupported "mostly", overflow on v2 slide 2). |
 
 ## Resume here
 
