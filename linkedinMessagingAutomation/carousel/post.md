@@ -38,6 +38,20 @@ What I do now: a local tool reads and drafts. I send every reply myself.
 #LinkedIn #Developers #API #Automation #HTTP
 ```
 
+### Version 2, short
+
+```
+I tried to automate my LinkedIn inbox. LinkedIn answered in HTTP status codes 🙂
+
+200 for posting. 403 for DMs. And 999 for bots, a code LinkedIn invented itself.
+
+So my tool reads and drafts, and I still send every reply myself.
+
+Sources in the first comment.
+
+#LinkedIn #Developers #API #Automation
+```
+
 ## First comment (both versions)
 
 ```
