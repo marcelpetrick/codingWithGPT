@@ -37,6 +37,7 @@ Route I+ (active navigation) is not in the plan. It enters only if the owner dec
 | 2026-10-27 | Research: API, terms, grey-zone tools | Route A found (DMA, official). D, E, F, H rejected. |
 | 2026-10-27 | Owner input: Chrome + DevTools idea, no heavy traffic | Route I (passive capture) added as primary on-demand route. Safety rules in `vision.md` §1.4. |
 | 2026-10-27 | `vision.md`, `AGENTS.md`, `plan.md` written | Committed locally, not pushed |
+| 2026-10-27 | Research: approved partners, delegation, tools of creators and teams | No partner route for personal DMs; no delegate role. Teams use shared logins or session tools (grey). `vision.md` §1.6. Design unchanged. |
 
 ## Resume here
 

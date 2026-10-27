@@ -127,6 +127,46 @@ consent (`404` before). Pages can repeat rows; `total` is not reliable. The chan
 The token lives 2–12 months, with no refresh token. Open: are new invitations in the changelog? Is
 read/unread state in the data? If not, "pending" = the last message is not from you.
 
+### 1.6 What is really known: partners, and what creators and their teams use (2026-10-27)
+
+Confidence key: **[L]** LinkedIn's own text, **[V]** vendor or affiliate blog (a claim, not a fact).
+
+Approved partners:
+
+- Messaging API: "restricted to approved partners", messages only to 1st-degree connections, no automated or scheduled sends **[L, quoted by V]**.
+- No public partner list exists. One blog names Hootsuite, Sprinklr, Oktopost, Brandwatch, Zoho Recruit, Bird CRM, but for **Company Page** inboxes, not personal DMs **[V, not verified]**.
+- SNAP (Sales Navigator Application Platform) takes no new partners. No form, no waitlist **[V, cites LinkedIn docs]**.
+- Partner approval, if open at all: 4 weeks to 4 months **[V]**.
+- Result: no partner route reads or answers a **personal** inbox for a single member. The DMA API (route A) is the only official read route.
+
+Delegation:
+
+- Personal profiles have **no delegate role**. Only Company Pages have admin roles **[V, consistent across sources]**.
+- The User Agreement forbids sharing an account **[L, via tracker, version 2026-05-05]**.
+- Official OAuth lets a team **post** for a member (`w_member_social`), not read or send DMs **[L]**.
+
+How creators and their teams really handle DMs (so the owner does not log in for everything):
+
+| Way | Examples | How it reads DMs | Risk |
+|---|---|---|---|
+| Shared password, assistant logs in | ghostwriting agencies with "DM management" packages | full session | breaks the account-sharing clause; 2FA prompts go to the owner |
+| Cloud tool holds the session (`li_at`, cloud IP or proxy) | HeyReach, Expandi, Unipile-based tools | Voyager calls from a server | §8.2; the most flagged pattern |
+| Browser extension in the owner's browser | Kondo (inbox labels, snippets, ~$35/mo), Taplio (hit by the April 2025 enforcement wave) | reads/changes the page | §8.2 names extensions; vendors claim "safe" |
+| CRM with unified inbox | Breakcold, LeadDelta | extension or session sync | grey, vendor "safe" ratings without method |
+| Content-only tools, official API | Supergrow, AuthoredUp, Kleo, Ordinal, MagicPost | do not read DMs | low; posting only |
+
+What this means for us: the market has no clean "team works the inbox" route. The pattern closest to
+safe is **"an assistant prepares, the owner sends from the owner's own session"**. That is this tool.
+The assistant is the local app, the session stays in the owner's own Chrome, and nothing leaves the machine
+except the LLM call.
+
+Sources: [Phyllo](https://www.getphyllo.com/post/linkedin-api-access-in-2026-partner-program-approval-timeline-alternatives),
+[Unipile](https://www.unipile.com/best-linkedin-api/), [linkedapi.io](https://linkedapi.io/guides/how-to-automate-linkedin-messages),
+[Kondo comparison](https://www.trykondo.com/blog/linkedin-inbox-software-reviews), [exeedin](https://www.exeedin.com/post/best-linkedin-ghostwriting-ai-tools),
+[ghostwriting-ai.com](https://www.ghostwriting-ai.com/comparisons/best-linkedin-ai-tools-for-ghostwriters),
+[MagicPost](https://magicpost.in/blog/how-to-manage-multiple-linkedin-accounts), [LigoSocial](https://ligosocial.com/blog/give-someone-access-to-linkedin-without-password),
+[ConductAtlas](https://conductatlas.com/platform/linkedin/linkedin-user-agreement/prohibition-on-account-sharing-or-transfer/).
+
 ## 2. Product
 
 ### 2.1 Flow
