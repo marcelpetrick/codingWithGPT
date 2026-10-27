@@ -167,6 +167,58 @@ Sources: [Phyllo](https://www.getphyllo.com/post/linkedin-api-access-in-2026-par
 [MagicPost](https://magicpost.in/blog/how-to-manage-multiple-linkedin-accounts), [LigoSocial](https://ligosocial.com/blog/give-someone-access-to-linkedin-without-password),
 [ConductAtlas](https://conductatlas.com/platform/linkedin/linkedin-user-agreement/prohibition-on-account-sharing-or-transfer/).
 
+### 1.7 Grey-zone tools: detection and user reports (2026-10-27)
+
+Verdict: no grey tool is a fit. Most are **outreach** bots (they send), which is the pattern LinkedIn hunts.
+The automation we need is **reading and drafting**. Route A does the reading officially and in the background.
+
+How LinkedIn detects:
+
+- **Extension scan ("BrowserGate", reported 2026-04):** a ~2.7 MB script probes the
+  `web_accessible_resources` of 6,000+ Chrome extension IDs, plus device data (CPU, memory, screen,
+  timezone). LinkedIn says it targets extensions that scrape or break the ToS
+  ([gHacks](https://www.ghacks.net/2026/04/04/linkedin-uses-hidden-javascript-to-scan-for-over-6000-chrome-extensions-on-visitors-browsers/),
+  [Tom's Hardware](https://www.tomshardware.com/software/browsers/linkedin-scans-visitors-browsers-for-over-6000-chrome-extensions-and-collects-device-data),
+  [Security Boulevard](https://securityboulevard.com/2026/01/detecting-browser-extensions-for-bot-detection-lessons-from-linkedin-and-castle/)).
+- **Behavior:** volume, speed, regular timing, cloud IPs. Voyager logins from cloud IPs get "challenge" pages.
+- No official ban statistics exist. The often-quoted "40% restricted in Q1 2026" traces to one unverified source
+  ([fact-check](https://www.leadsforlinked.com/blog/linkedin-ban-statistics-fact-check.html)).
+
+| Tool | Type | What users report | Worth it for us? |
+|---|---|---|---|
+| Kondo | Chrome extension, inbox labels, snippets, no sending | No ban reports found. All safety claims come from Kondo itself. Changes the page look (§8.2 names that). | Maybe, as a stopgap UI. Does not draft per rule. |
+| Unipile | API SaaS, holds your session on its server | Re-auth/checkpoint prompts are the recurring complaint. "Safer than browser bots, not risk-free". | No. Session leaves your machine. Built for SaaS vendors. |
+| HeyReach | Cloud outreach | LinkedIn removed HeyReach's company page and banned the founder's profile (2026, blog report). | No. Outreach, actively fought. |
+| Expandi | Cloud outreach | Mixed: a Reddit-quoted loss of a long-held account; others rank it "most trusted". | No. Outreach. |
+| Waalaxy | Extension + cloud outreach | Trustpilot: reach drops / "shadow ban" questions. | No. Outreach. |
+| Dux-Soup | Extension outreach | "Old guard, most ban complaints" (Reddit roundup). | No. |
+| Linked Helper | Desktop browser outreach | Restricted "despite the recommended daily limits" (Trustpilot). | No. |
+| Taplio | Content + extension | Hit by the April 2025 enforcement wave. | No. Posting only. |
+| `linkedin-api` (Voyager) | Python, `li_at` login | README: "Linkedin may (and will) ban your account". Challenge on login from cloud IPs. Repo reportedly 404 since 2026-07. | No. |
+
+What this means for route I (our CDP capture):
+
+- It is not an extension, so the extension scan does not see it.
+- An attached DevTools session can be detected by known page-script tricks. We do not hide it. We keep it
+  read-only, rare and short. This is the residual risk of route I, and the owner accepts it (D5).
+- Device data and IP stay your normal ones: it is your own Chrome on your own line.
+
+Sources (more): [Yalc Reddit roundup](https://www.yalc.ai/blog/linkedin-automation-tools-reddit/),
+[Kondo review](https://www.salesforge.ai/blog/kondo-review), [Unipile review](https://linkupapi.com/blog-articles/unipile-review),
+[Linked Helper Trustpilot](https://pl.trustpilot.com/review/linkedhelper.com), [Waalaxy Trustpilot](https://ca.trustpilot.com/review/waalaxy.com),
+[nsandman/linkedin-api](https://github.com/nsandman/linkedin-api), [open-linkedin-api issues](https://github.com/EseToni/open-linkedin-api/issues).
+All are vendor, affiliate or single-user claims. None is a measurement.
+
+### 1.8 Automation level (owner: "we need automation", 2026-10-27)
+
+| Step | Automated? | How |
+|---|---|---|
+| Read new messages and invitations | **yes, fully** | Route A in the background, hourly, official |
+| Read profiles of new contacts | on demand, or capped automatic (D2) | Route I capture; I+ only if D2 = yes |
+| Classify, apply rules, write drafts | **yes, fully** | LLM + ruleset, as soon as an item arrives |
+| Notify | **yes** | Desktop notification: "5 new drafts ready" |
+| Send | **never** | Owner: copy, open thread, paste, send |
+
 ## 2. Product
 
 ### 2.1 Flow
