@@ -1,0 +1,97 @@
+/*
+  LinkedIn document carousel, shared style for v1 and v2.
+  Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>. License: GPL-3.0-or-later.
+
+  Layout: one 1080x1350 page (4:5 portrait, fills the mobile feed) per slide. Shown ~400 px wide on a
+  phone, so 1 px here is ~0.37 px there: body text >= 36px, labels >= 26px.
+  Concept: an incident log. Each slide is one entry. The top stripe and the tag color encode the kind
+  of entry (allowed / court / brand page / detection), so the color carries information.
+  Single deliberate light look: the output is a PDF, not a themed page.
+*/
+:root{
+  --paper:#ECEFF3;   /* cool paper, slight blue bias */
+  --card:#FFFFFF;
+  --ink:#0E1A2B;
+  --ink2:#3B4859;
+  --ink3:#687586;
+  --rule:#CBD3DC;
+  --ok:#1D7A62;      /* allowed */
+  --court:#33449A;   /* lawsuit */
+  --block:#C3362B;   /* page removed / banned */
+  --signal:#E9A62E;  /* detection */
+
+  --display:"Barlow Condensed","Source Sans 3","DejaVu Sans Condensed",sans-serif;
+  --body:"IBM Plex Sans","Source Sans 3","Noto Sans",sans-serif;
+  --mono:"IBM Plex Mono","Noto Sans Mono","DejaVu Sans Mono",monospace;
+}
+@page{ size:1080px 1350px; margin:0; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ background:var(--paper); color:var(--ink); }
+body{ font-family:var(--body); -webkit-font-smoothing:antialiased; }
+
+.slide{ width:1080px; height:1350px; position:relative; overflow:hidden; background:var(--paper);
+        padding:96px 84px 140px; display:flex; flex-direction:column; gap:34px;
+        break-after:page; border-top:22px solid var(--k, var(--ink)); }
+.slide:last-child{ break-after:auto; }
+.slide > *{ flex-shrink:0; }
+.slide.ok{ --k:var(--ok); } .slide.court{ --k:var(--court); }
+.slide.block{ --k:var(--block); } .slide.signal{ --k:var(--signal); }
+
+/* log line: date + kind */
+.log{ font-family:var(--mono); font-size:30px; font-weight:600; letter-spacing:.02em; color:var(--ink2);
+      display:flex; gap:22px; align-items:center; flex-wrap:wrap; }
+.tag{ font-size:26px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#fff;
+      background:var(--k, var(--ink)); padding:8px 16px; border-radius:6px; }
+.signal .tag{ color:var(--ink); }
+
+h1,h2{ font-family:var(--display); font-weight:800; letter-spacing:-.005em; line-height:.98;
+       text-wrap:balance; color:var(--ink); }
+h1{ font-size:128px; }
+h2{ font-size:96px; }
+h1 em,h2 em{ font-style:normal; color:var(--k, var(--block)); }
+.signal h2 em{ color:#B57A0C; }
+
+.lede{ font-size:42px; line-height:1.36; color:var(--ink2); max-width:22em; }
+.lede b{ color:var(--ink); }
+
+.num{ font-family:var(--display); font-weight:800; font-size:250px; line-height:.85; letter-spacing:-.02em;
+      color:var(--k, var(--ink)); font-variant-numeric:tabular-nums; }
+.signal .num{ color:#B57A0C; }
+.num small{ font-size:84px; font-weight:700; color:var(--ink3); letter-spacing:0; }
+.numcap{ font-size:40px; line-height:1.34; color:var(--ink); max-width:22em; }
+
+.facts{ list-style:none; display:flex; flex-direction:column; gap:26px; }
+.facts li{ font-size:39px; line-height:1.34; padding-left:46px; position:relative; }
+.facts li::before{ content:""; position:absolute; left:0; top:16px; width:22px; height:22px;
+                   background:var(--k, var(--ink)); border-radius:3px; }
+.facts li b{ font-weight:700; }
+
+.rows{ display:flex; flex-direction:column; border-top:3px solid var(--ink); }
+.row{ display:grid; grid-template-columns:270px 1fr; gap:28px; padding:24px 0;
+      border-bottom:2px solid var(--rule); align-items:baseline; }
+.row .k{ font-family:var(--mono); font-size:30px; font-weight:700; }
+.row .k.ok{ color:var(--ok); } .row .k.no{ color:var(--block); } .row .k.grey{ color:#9A6A0A; }
+.row .v{ font-size:36px; line-height:1.32; }
+
+.quote{ background:var(--card); border-radius:10px; padding:36px 40px; font-size:38px; line-height:1.36;
+        border:2px solid var(--rule); }
+.quote .src{ display:block; margin-top:14px; font-family:var(--mono); font-size:26px; color:var(--ink3); }
+
+.verdict{ background:var(--ink); color:#F3F5F8; border-radius:12px; padding:44px 46px; margin-top:auto; }
+.verdict p{ font-size:40px; line-height:1.34; }
+.verdict b{ color:var(--signal); }
+
+.bars{ display:flex; flex-direction:column; gap:22px; }
+.bar{ display:grid; grid-template-columns:120px 1fr; align-items:center; gap:22px; }
+.bar .y{ font-family:var(--mono); font-size:32px; font-weight:700; color:var(--ink2); }
+.bar .track{ display:flex; align-items:center; gap:18px; }
+.bar .fill{ height:64px; background:var(--signal); border-radius:4px; min-width:8px; }
+.bar .val{ font-family:var(--display); font-size:56px; font-weight:800; font-variant-numeric:tabular-nums; }
+
+.sources{ font-family:var(--mono); font-size:25px; line-height:1.5; color:var(--ink2); margin-top:auto; }
+.sources b{ color:var(--ink); }
+
+.foot{ position:absolute; left:84px; right:84px; bottom:52px; display:flex; justify-content:space-between;
+       font-family:var(--mono); font-size:26px; color:var(--ink3); }
+.foot .go{ color:var(--ink); font-weight:700; }
+.spacer{ margin-top:auto; }
