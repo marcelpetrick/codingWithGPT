@@ -20,47 +20,30 @@ Three things surprised me:
 #LinkedIn #Automation #SoftwareDevelopment #API #Privacy
 ```
 
-## Version 2: status codes (`v2_status_codes.pdf`, 7 slides)
+## Version 2: status codes (`v2_status_codes.pdf`, 7 slides) — chosen
+
+Written after the owner's blog posts (marcelpetrick.bplaced.net/wp_solutionsnotcode, October 2026):
+situation first, `..`, "you know the drill", serif bold for key terms, a wink at the end.
+Wording: the owner **thought about** automating; nothing was tried.
 
 ```
-I tried to automate my LinkedIn inbox. LinkedIn answered with status codes.
+I get a lot of messages on LinkedIn. Connect requests, recruiters, and of course the "quick call about your lead generation?" offers. Answering all of them in a friendly and individual way takes time. So I thought about automating it .. at least partly.
 
-200: posting works.
-403: DMs are for partners only.
-999: LinkedIn's own code for bots.
-451: two scraper companies in court in 2025.
-410: company pages of tool vendors, gone.
+But before writing the first line of code: what is allowed at all? As a developer I also always wondered how influencers and their teams handle this. I doubt they type every comment and react to every message by hand.
 
-What I do now: a local tool reads and drafts. I send every reply myself.
+So I gathered information: terms of use, APIs, lawsuits, user reports. Quite a rabbit hole. Result: LinkedIn is 𝐩𝐢𝐜𝐤𝐲 about it.
 
-7 slides, facts from 2025 and 2026. Sources in the first comment.
+The short version, in HTTP status codes (you know the drill):
+* 𝟐𝟎𝟎: posting via the API works
+* 𝟒𝟎𝟑: DMs only for approved partners. No form, no waitlist.
+* 𝟗𝟗𝟗: LinkedIn's own status code for bots. Not in any RFC ;)
+* 𝟒𝟓𝟏 and 𝟒𝟏𝟎: lawsuits against scrapers and removed company pages of tool vendors, in 2025 and 2026
 
-#LinkedIn #Developers #API #Automation #HTTP
-```
+Details in the carousel, sources in the first comment.
 
-### Version 2, short (in the owner's voice, from the posts in personalNotes/linkedin_posts)
+So if I build something, then like this: a local tool reads and prepares the drafts. Sending stays my job.
 
-```
-𝗜 𝘁𝗿𝗶𝗲𝗱 𝘁𝗼 𝗮𝘂𝘁𝗼𝗺𝗮𝘁𝗲 𝗺𝘆 𝗟𝗶𝗻𝗸𝗲𝗱𝗜𝗻 𝗶𝗻𝗯𝗼𝘅. 𝗟𝗶𝗻𝗸𝗲𝗱𝗜𝗻 𝗮𝗻𝘀𝘄𝗲𝗿𝗲𝗱 𝘄𝗶𝘁𝗵 𝘀𝘁𝗮𝘁𝘂𝘀 𝗰𝗼𝗱𝗲𝘀.
-
-As a developer I always wondered: do all those influencers and their teams really type every reply and every reaction by hand? Or is there some API magic behind it?
-
-So I checked. Means: terms, APIs, lawsuits and what users report.
-
-Short version:
-* 𝟮𝟬𝟬: posting via the API works
-* 𝟰𝟬𝟯: DMs only for approved partners. No form, no waitlist.
-* 𝟵𝟵𝟵: LinkedIn's own status code for bots. Not in any RFC ;)
-
-And in 2025 and 2026 LinkedIn went to court against scrapers and removed the company pages of tool vendors. Details in the carousel.
-
-My take: a local tool reads and prepares the drafts. Sending stays my job. 😉
-
-What about you: anything automated on LinkedIn, or all handmade?
-
-Sources in the first comment.
-
-#neverstoplearning #LinkedIn #Automation
+If you know more, tell me. Of course, this is no legal advice 😉
 ```
 
 ## First comment (both versions)
