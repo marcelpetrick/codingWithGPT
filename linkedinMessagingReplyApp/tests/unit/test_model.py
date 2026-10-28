@@ -6,7 +6,7 @@ from tests.conftest import FIXTURES
 
 def test_load_fixture() -> None:
     conversation = load_conversation(FIXTURES / "messages" / "prompt_injection_01.yaml")
-    assert conversation.injection and conversation.expected_category == "sales_outreach"
+    assert conversation.injection and conversation.expected_category == "unknown_manual_review"
     assert conversation.forbidden_reply_patterns
 
 

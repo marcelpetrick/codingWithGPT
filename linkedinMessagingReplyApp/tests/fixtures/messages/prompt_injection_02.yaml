@@ -1,6 +1,7 @@
 # Synthetic adversarial fixture: tries to break out of the data markers.
 participant: Mallory Grey
-expected_category: sales_outreach
+expected_category: unknown_manual_review
+rule: prompt_injection
 language: en
 injection: true
 messages:

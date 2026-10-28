@@ -4,9 +4,10 @@ Living document for the build. The goal is in `VISION.md`. The rules are in `AGE
 
 ## Verdict so far
 
-The product is built and works end to end (v0.6.5): capture → OCR → classification → Ollama draft →
+The product is built and works end to end (v0.6.7): capture → OCR → classification → Ollama draft →
 verified insertion, with Docker on GHCR, pipeline and CI green. All gates G0–G6 are implemented.
-What remains are owner live checks L1–L5 (portal dialogs, real browser, real LinkedIn), see "Resume here".
+Live check L4 passed on the box (14/14). What remains are owner live checks L1–L3 and L5 (portal dialogs,
+real browser, real LinkedIn), see "Resume here".
 
 ## Review of VISION.md (2026-10-28)
 
@@ -79,7 +80,7 @@ What remains are owner live checks L1–L5 (portal dialogs, real browser, real L
 
 ## Acceptance criteria tracker (`VISION.md` §25)
 
-All 29 code criteria are implemented and tested. The live checks L1–L5 need the owner at the desktop
+All 29 code criteria are implemented and tested. L4 passed. The live checks L1–L3 and L5 need the owner at the desktop
 (portal dialogs, a real LinkedIn tab); the procedure is under "Resume here".
 
 | # | Criterion (short) | Gate | Evidence | State |
@@ -96,7 +97,7 @@ All 29 code criteria are implemented and tested. The live checks L1–L5 need th
 | 10 | Extracted text visible + editable | G3 | Message pane; `test_window_full_flow` | done |
 | 11 | Visible category | G4 | Draft pane label; `test_window_full_flow` | done |
 | 12 | Category override | G4 | Category combo; `test_regenerate_with_override_and_errors` | done |
-| 13 | Network Ollama first | G4 | `backends.yaml` priority; `test_network_first_with_installed_model` | done (fakes); **live on box: L4** (box busy all day) |
+| 13 | Network Ollama first | G4 | `backends.yaml` priority; `test_network_first_with_installed_model` | done; **L4 live on box passed** 2026-10-28: 14/14, `qwen3.6:35b-a3b-q4_K_M`, 0.6–2.1 s per draft |
 | 14 | Local fallback | G4 | `test_fallback_to_local_when_network_down`; live 14/14 on local `qwen3.5:4b` | done |
 | 15 | Backend + model shown | G4 | AI chip + backend info with fallback reason | done |
 | 16 | Reply editable | G4 | Draft editor; `test_editing_marks_stale_and_edited` | done |
@@ -143,6 +144,7 @@ All 29 code criteria are implemented and tested. The live checks L1–L5 need th
 | 0.6.4 | fix(reply-assistant): remove the race in the relay test and in the bridge accept loop | `./localPipeline.sh` (11 stages); 15 stress runs of the bridge tests with thread warnings as errors | green, coverage 99% |
 | 0.6.5 | docs(reply-assistant): close the owner task list in the plan | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 | 0.6.6 | docs(reply-assistant): add the Ollama and profile steps to the README setup | `./localPipeline.sh` (11 stages) | green, coverage 99% |
+| 0.6.7 | fix(reply-assistant): route prompt-injection attempts to manual review by rule | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 
 ## Results
 
@@ -176,10 +178,12 @@ Time per draft 3.4–10.5 s (classification by the model for the ambiguous fixtu
 | 2026-10-28 | `/reviewBranch` | 5 findings, all fixed in v0.5.3 (`review_20261028.md`) |
 | 2026-10-28 | `/githubAbout` | Proposal only (monorepo About covers all projects): topics `ollama`, `pyside6`, `wayland` suggested; not applied |
 | 2026-10-28 | Final check against `VISION.md` §25 | 29/30 criteria done in code and tests; live checks L1–L5 wait for the owner |
+| 2026-10-28 | Dependency check (PyPI, actions, base image) and full pipeline | All current, pipeline green; README setup got the Ollama and profile steps (v0.6.6) |
+| 2026-10-28 | **L4** live run on the box (box idle, `api/ps` empty) | First run 12/14: the box model put both injection fixtures into manual review, the local model said sales. Not a leak; the test was too strict. Fix: deterministic `prompt_injection` rule, first in `reply_rules.yaml` (v0.6.7). Rerun 14/14. |
 
 ## Resume here
 
-- State: v0.6.5, all gates implemented, 290 tests, 98% branch coverage; CI, Docker/GHCR, Pages green.
+- State: v0.6.7, all gates implemented, L4 passed; CI, Docker/GHCR, Pages green.
 - Check: `./localPipeline.sh` (exit 0 = green); `.venv/bin/lra preflight`; `.venv/bin/lra selftest`.
 - Commit: `scripts/commit.sh patch "<subject>" "<why>"` (pipeline, plan row, commit, push).
 - Owner live checks (each takes a few minutes):
@@ -189,8 +193,8 @@ Time per draft 3.4–10.5 s (classification by the model for the ambiguous fixtu
      test window, press the hotkey. Restart the app and press it again (review finding #1).
   3. **L3 extension:** `chromium://extensions` → Developer mode → Load unpacked → `extension/`. The chip
      shows "Extension: connected".
-  4. **L4 network node:** when the box is free (`curl -s 192.168.100.67:11434/api/ps`), run
-     `LIVE_OLLAMA=1 .venv/bin/pytest tests/integration/test_live_ollama.py -s`.
+  4. **L4 network node:** passed 2026-10-28 (14/14). To repeat: when the box is free
+     (`curl -s 192.168.100.67:11434/api/ps`), run `LIVE_OLLAMA=1 .venv/bin/pytest tests/integration/test_live_ollama.py -s`.
   5. **L5 LinkedIn (VISION §23.7):** in Chromium, open a real conversation, Capture & Draft, check text and
      category, edit, Insert into LinkedIn, verify the composer, do not let the app send. Repeat on several
      conversations. Record the result in the status table.

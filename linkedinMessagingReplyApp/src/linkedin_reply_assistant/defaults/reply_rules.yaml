@@ -20,6 +20,11 @@ categories:
 # Deterministic rules: checked in order before the model. A rule fires when any keyword matches
 # (case-insensitive, whole words) and min_hits keywords are present. Ambiguous text goes to the model.
 rules:
+  # First on purpose: an injection attempt goes to manual review on every model (VISION §12).
+  - id: prompt_injection
+    category: unknown_manual_review
+    keywords: ["ignore all previous instructions", "ignore previous instructions", "ignore the above", "system prompt", message_data, "admin mode", "developer mode"]
+    min_hits: 1
   - id: congratulations
     category: congratulations_or_support
     keywords: [congratulations, congrats, gratuliere, glückwunsch, "happy work anniversary"]
