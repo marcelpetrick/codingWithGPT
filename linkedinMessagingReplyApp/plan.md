@@ -4,7 +4,7 @@ Living document for the build. The goal is in `VISION.md`. The rules are in `AGE
 
 ## Verdict so far
 
-The product is built and works end to end (v0.6.0): capture → OCR → classification → Ollama draft →
+The product is built and works end to end (v0.6.5): capture → OCR → classification → Ollama draft →
 verified insertion, with Docker on GHCR, pipeline and CI green. All gates G0–G6 are implemented.
 What remains are owner live checks L1–L5 (portal dialogs, real browser, real LinkedIn), see "Resume here".
 
@@ -75,7 +75,7 @@ What remains are owner live checks L1–L5 (portal dialogs, real browser, real L
 | README: "How it works" as a Mermaid workflow chart, how content is grabbed and replies are prepared | Mermaid flowchart + 5 Ollama steps | done, v0.6.2 |
 | `/updateDependencies` for the current state | 16 Python pins, Docker base, 3 actions checked; only `upload-artifact` v7.0.1 → v7.0.2 | done, v0.6.3 |
 | CI failure on v0.6.3 (`test_relay_round_trip`) | Test wrote `hello` before the relay had its socket; sync on `app_status connected` like the extension. Also `_accept_loop` read `self._listener` after `stop()` (thread AttributeError) | done, v0.6.4 |
-| No open issues: pipeline, CI, Docker, Pages green, tree clean | final check | open |
+| No open issues: pipeline, CI, Docker, Pages green, tree clean | v0.6.4: all 4 workflows green on HEAD, GHCR `latest` pulls anonymously and passes `selftest` offline, tree clean | done |
 
 ## Acceptance criteria tracker (`VISION.md` §25)
 
@@ -141,6 +141,7 @@ All 29 code criteria are implemented and tested. The live checks L1–L5 need th
 | 0.6.2 | docs(reply-assistant): explain the workflow in the README with a Mermaid chart | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 | 0.6.3 | build(deps): bump actions/upload-artifact to v7.0.2 in the reply-assistant CI | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 | 0.6.4 | fix(reply-assistant): remove the race in the relay test and in the bridge accept loop | `./localPipeline.sh` (11 stages); 15 stress runs of the bridge tests with thread warnings as errors | green, coverage 99% |
+| 0.6.5 | docs(reply-assistant): close the owner task list in the plan | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 
 ## Results
 
@@ -177,7 +178,7 @@ Time per draft 3.4–10.5 s (classification by the model for the ambiguous fixtu
 
 ## Resume here
 
-- State: v0.6.0, all gates implemented, 289 tests, 98% branch coverage, CI + Docker workflow green.
+- State: v0.6.5, all gates implemented, 290 tests, 98% branch coverage; CI, Docker/GHCR, Pages green.
 - Check: `./localPipeline.sh` (exit 0 = green); `.venv/bin/lra preflight`; `.venv/bin/lra selftest`.
 - Commit: `scripts/commit.sh patch "<subject>" "<why>"` (pipeline, plan row, commit, push).
 - Owner live checks (each takes a few minutes):
