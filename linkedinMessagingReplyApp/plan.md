@@ -104,6 +104,7 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | 0.1.0 | build(reply-assistant): add package skeleton, local pipeline and CI | `./localPipeline.sh` (9 stages) | green, coverage 100% |
 | 0.1.1 | feat(reply-assistant): load and validate the YAML configuration | `./localPipeline.sh` (9 stages) | green, coverage 100% |
 | 0.1.2 | feat(reply-assistant): add Ollama client and backend manager with fallback | `./localPipeline.sh` (9 stages) | green, coverage 100% |
+| 0.2.0 | feat(reply-assistant): add preflight service and 'lra preflight' (gate 0) | `./localPipeline.sh` (9 stages); live: lra preflight on KDE/Wayland = 8 OK, tesseract FAIL (no eng data, V5) | green, coverage 100% |
 
 ## Status
 

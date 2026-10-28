@@ -10,7 +10,12 @@ requires-python = ">=3.14"
 license = "GPL-3.0-or-later"
 authors = [{ name = "Marcel Petrick", email = "mail@marcelpetrick.it" }]
 dynamic = ["version"]
-dependencies = ["httpx==0.28.1", "PyYAML==6.0.3"]
+dependencies = [
+    "dbus-fast==5.2.0",
+    "httpx==0.28.1",
+    "PyGObject==3.58.1",
+    "PyYAML==6.0.3",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -19,6 +24,7 @@ dev = [
     "pytest==9.2.0",
     "pytest-cov==7.1.0",
     "ruff==0.17.3",
+    "pygobject-stubs==2.20.0",
     "types-PyYAML==6.0.12.20260906",
 ]
 
@@ -55,6 +61,10 @@ target-version = "py314"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# dbus-fast reads D-Bus signatures from string annotations ("u", "a{sv}").
+"tests/integration/fake_portal.py" = ["UP037", "F821"]
 
 [tool.mypy]
 strict = true
