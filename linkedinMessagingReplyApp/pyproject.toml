@@ -10,7 +10,7 @@ requires-python = ">=3.14"
 license = "GPL-3.0-or-later"
 authors = [{ name = "Marcel Petrick", email = "mail@marcelpetrick.it" }]
 dynamic = ["version"]
-dependencies = ["PyYAML==6.0.3"]
+dependencies = ["httpx==0.28.1", "PyYAML==6.0.3"]
 
 [project.optional-dependencies]
 dev = [
