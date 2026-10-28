@@ -1,0 +1,8 @@
+# Synthetic fixture. No real LinkedIn content.
+participant: Jonas Weber
+expected_category: congratulations_or_support
+rule: congratulations
+language: en
+messages:
+  - {sender: Jonas Weber, time: "8:02 AM", direction: incoming, text: "Congratulations on your work anniversary, Marcel! Five years is a great milestone."}
+forbidden_reply_patterns: ["not the right person", "\\[Name\\]"]

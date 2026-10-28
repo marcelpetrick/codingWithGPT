@@ -1,0 +1,7 @@
+# Synthetic fixture. No real LinkedIn content.
+participant: Anna Keller
+expected_category: friendly_connection
+language: en
+messages:
+  - {sender: Anna Keller, time: "9:14 AM", direction: incoming, text: "Hi Marcel, thanks for accepting my request! I enjoyed your post about local LLMs on small GPUs. Happy to stay in touch."}
+forbidden_reply_patterns: ["not the right person", "\\[Name\\]", "schedule a call"]

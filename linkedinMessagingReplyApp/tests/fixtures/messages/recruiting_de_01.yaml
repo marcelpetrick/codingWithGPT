@@ -1,0 +1,8 @@
+# Synthetic fixture. No real LinkedIn content.
+participant: Julia Hartmann
+expected_category: recruiting
+rule: recruiting
+language: de
+messages:
+  - {sender: Julia Hartmann, time: "14:10", direction: incoming, text: "Hallo Marcel, für eine spannende Stelle als Embedded Entwickler bei einem Mittelständler in Augsburg suche ich Unterstützung. Hätten Sie Interesse an der Position?"}
+forbidden_reply_patterns: ["not the right person", "Best regards"]

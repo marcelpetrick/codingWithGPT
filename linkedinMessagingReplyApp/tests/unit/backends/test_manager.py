@@ -5,27 +5,7 @@ import pytest
 from linkedin_reply_assistant.backends.base import BackendError, ChatRequest, Health
 from linkedin_reply_assistant.backends.manager import BackendManager, NoBackendError
 from linkedin_reply_assistant.cancel import Cancelled, CancelToken
-from linkedin_reply_assistant.config.loader import BackendConfig
-from tests.unit.backends.conftest import make_config
-
-
-class FakeBackend:
-    def __init__(self, config: BackendConfig, health: Health, answer: str | BackendError = "ok"):
-        self.config = config
-        self._health = health
-        self.answer = answer
-        self.probes = 0
-        self.calls: list[str] = []
-
-    def health(self) -> Health:
-        self.probes += 1
-        return self._health
-
-    def chat(self, model: str, request: ChatRequest, cancel: CancelToken) -> str:
-        self.calls.append(model)
-        if isinstance(self.answer, BackendError):
-            raise self.answer
-        return self.answer
+from tests.fakes import FakeBackend, make_config
 
 
 class Clock:

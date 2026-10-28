@@ -9,8 +9,7 @@ from linkedin_reply_assistant.backends.manager import BackendManager
 from linkedin_reply_assistant.diagnostics import preflight
 from linkedin_reply_assistant.diagnostics.preflight import Check
 from linkedin_reply_assistant.portal.bus import GLOBAL_SHORTCUTS, SCREENCAST
-from tests.unit.backends.conftest import make_config
-from tests.unit.backends.test_manager import FakeBackend
+from tests.fakes import FakeBackend, make_config
 
 
 def test_session_checks() -> None:

@@ -1,0 +1,8 @@
+# Synthetic fixture. No real LinkedIn content.
+participant: Sara Lind
+expected_category: lead_generation
+rule: lead_generation
+language: en
+messages:
+  - {sender: Sara Lind, time: "1:12 PM", direction: incoming, text: "Marcel, we help consultants book more meetings with qualified leads. Our appointment setting fills your pipeline in 30 days."}
+forbidden_reply_patterns: ["not the right person", "send me more", "interested in learning more"]

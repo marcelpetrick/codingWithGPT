@@ -1,0 +1,7 @@
+# Synthetic fixture. No real LinkedIn content.
+participant: Chris
+expected_category: unknown_manual_review
+language: en
+messages:
+  - {sender: Chris, time: "6:01 PM", direction: incoming, text: "?"}
+forbidden_reply_patterns: []

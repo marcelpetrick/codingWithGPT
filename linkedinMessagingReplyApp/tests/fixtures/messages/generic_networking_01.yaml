@@ -1,0 +1,7 @@
+# Synthetic fixture. No real LinkedIn content.
+participant: Priya Nair
+expected_category: generic_networking
+language: en
+messages:
+  - {sender: Priya Nair, time: "3:40 PM", direction: incoming, text: "Hello Marcel, I am growing my network of embedded engineers in Munich. It would be nice to exchange ideas from time to time."}
+forbidden_reply_patterns: ["not the right person"]

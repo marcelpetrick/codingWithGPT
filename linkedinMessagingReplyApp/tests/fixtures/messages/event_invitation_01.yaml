@@ -1,0 +1,7 @@
+# Synthetic fixture. No real LinkedIn content.
+participant: Felix Braun
+expected_category: event_invitation
+language: en
+messages:
+  - {sender: Felix Braun, time: "2:22 PM", direction: incoming, text: "Hi Marcel, we host the Embedded AI Meetup Munich on 12 November. You are invited, it would be great to see you there!"}
+forbidden_reply_patterns: ["I will be there", "I can't make it"]

@@ -1,0 +1,8 @@
+# Synthetic fixture. No real LinkedIn content.
+participant: Mark Roth
+expected_category: recruiting
+rule: recruiting
+language: en
+messages:
+  - {sender: Mark Roth, time: "9:30 AM", direction: incoming, text: "Hello Marcel, I am a recruiter at Nordtech. We are hiring for a senior C++ developer position in Munich with a great team and flexible hours. Is this opportunity interesting for you?"}
+forbidden_reply_patterns: ["not the right person", "when can we talk"]

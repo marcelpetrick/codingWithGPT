@@ -1,0 +1,8 @@
+# Synthetic fixture. No real LinkedIn content.
+participant: Tom Brandt
+expected_category: substantive_professional
+language: en
+messages:
+  - {sender: Marcel, time: "10:01 AM", direction: outgoing, text: "Thanks for reading the article."}
+  - {sender: Tom Brandt, time: "10:20 AM", direction: incoming, text: "In your article you used Qt with QML for the dashboard. Did you see performance problems with many charts on the i.MX8, and how did you solve them?"}
+forbidden_reply_patterns: ["not the right person"]

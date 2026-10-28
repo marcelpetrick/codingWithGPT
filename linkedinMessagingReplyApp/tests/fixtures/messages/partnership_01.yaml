@@ -1,0 +1,7 @@
+# Synthetic fixture. No real LinkedIn content.
+participant: Omar Haddad
+expected_category: partnership_request
+language: en
+messages:
+  - {sender: Omar Haddad, time: "5:50 PM", direction: incoming, text: "Dear Marcel, our company builds IoT gateways. We think a partnership with you could create value for both sides. Shall we explore a cooperation?"}
+forbidden_reply_patterns: ["not the right person", "let's explore"]

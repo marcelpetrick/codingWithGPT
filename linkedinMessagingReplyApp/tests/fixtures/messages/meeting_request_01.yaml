@@ -1,0 +1,7 @@
+# Synthetic fixture. No real LinkedIn content.
+participant: Lea Fischer
+expected_category: meeting_request
+language: en
+messages:
+  - {sender: Lea Fischer, time: "4:05 PM", direction: incoming, text: "Hi Marcel, would you have time for a short meeting next week? I would like to talk with you about something."}
+forbidden_reply_patterns: ["Monday at", "Tuesday at", "I am available on"]
