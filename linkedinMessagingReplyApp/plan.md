@@ -45,7 +45,7 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | D6 | Network endpoint | `http://192.168.100.67:11434`, scheme shown in the UI (§13.6). |
 | D7 | Local Ollama policy | Use it only if it already runs. The app does not start it. |
 | D8 | Reply model | `qwen3.6:35b-a3b-q4_K_M` (owner benchmark winner family), fallback list in `backends.yaml`. |
-| D9 | Extractor | OCR (Tesseract) is the baseline. Vision extractor is optional; the default is chosen by the benchmark in gate 3. |
+| D9 | Extractor | **OCR default** (benchmark 2026-10-28, table under "Results"): OCR 0.99–1.00 similarity in 0.2–0.4 s; vision (`qwen3-vl:4b`, local) 1.00 in 23–32 s with 1 of 5 empty answers. Vision stays as the `hybrid` fallback. |
 | D10 | Reuse sibling code? | No. The sibling has no UI and a different data model. Copy ideas (ruleset, guard test), not modules. |
 | D11 | Transport | Native Messaging relay → Unix socket (V6). No localhost TCP port. |
 | D12 | Docker | Full app image on `python:3.14-slim` + Tesseract + GStreamer. Published to GHCR by a separate workflow. |
@@ -108,6 +108,22 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | 0.2.1 | feat(reply-assistant): add ScreenCast portal capture with latest-frame PipeWire grabber | `./localPipeline.sh` (9 stages) | green, coverage 99% |
 | 0.2.2 | feat(reply-assistant): add GlobalShortcuts portal client with trigger guardrails | `./localPipeline.sh` (9 stages) | green, coverage 99% |
 | 0.2.3 | feat(reply-assistant): add OCR, vision and hybrid extractors with screenshot fixtures | `./localPipeline.sh` (9 stages); OCR on 5 fixtures: similarity 0.99-1.00, confidence 0.96 | green, coverage 99% |
+| 0.2.4 | test(reply-assistant): add extractor benchmark and record the OCR default (D9) | `./localPipeline.sh` (9 stages); benchmark run, local-ollama qwen3-vl:4b | green, coverage 99% |
+
+## Results
+
+### Extractor benchmark (D9), 2026-10-28
+
+`scripts/benchmark_extractors.py --backend local-ollama`. The box (`192.168.100.67`) had another user's model loaded
+(`kat-coder-v2.5`, keep-alive refreshed), so the vision run used the local GPU, per `AGENTS.md`.
+
+| fixture | OCR similarity | OCR s | vision similarity | vision s |
+|---|---|---|---|---|
+| dark_normal | 0.993 | 0.2 | 1.000 | 32.4 |
+| dark_small_short | 1.000 | 0.3 | 1.000 | 22.7 |
+| light_hidpi_german | 1.000 | 0.3 | 1.000 | 24.9 |
+| light_normal_short | 0.992 | 0.3 | 1.000 | 22.8 |
+| light_zoom_multiline | 1.000 | 0.4 | error (empty answer) | – |
 
 ## Status
 
