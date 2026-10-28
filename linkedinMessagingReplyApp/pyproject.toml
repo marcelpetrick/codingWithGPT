@@ -23,6 +23,7 @@ dependencies = [
 dev = [
     "build==1.6.1",
     "mypy==2.4.0",
+    "playwright==1.64.1",
     "pytest==9.2.0",
     "pytest-cov==7.1.0",
     "pytest-qt==4.5.0",
@@ -33,6 +34,7 @@ dev = [
 
 [project.scripts]
 lra = "linkedin_reply_assistant.cli:main"
+lra-native-host = "linkedin_reply_assistant.browser_bridge.native_host:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -53,7 +55,7 @@ addopts = [
     "--cov-report=html:htmlcov",
     "--cov-fail-under=95",
 ]
-testpaths = ["tests"]
+testpaths = ["tests/unit", "tests/integration"]
 qt_api = "pyside6"
 markers = ["live_ollama: calls the real Ollama backends (LIVE_OLLAMA=1)"]
 

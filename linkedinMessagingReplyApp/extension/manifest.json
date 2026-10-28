@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "LinkedIn Reply Assistant Bridge",
+  "short_name": "LRA Bridge",
+  "version": "0.3.0",
+  "description": "Inserts a draft approved in the LinkedIn Reply Assistant desktop app into the LinkedIn composer. Never sends.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvTBLFpo5ykU6+LhzwendK+5H+rQy9kQji70xdwZj6geeVl80rYYSy346CYdDkRY2t6s71eSfooDyYlPCl+e8oLgZtQdqdtMSbYiUj+PSVXwjtAIBxG/KLRjfH+pLAfhOBqf5opln4HFsBlBRanYR/KfTVYQI8KYIE7RTsBT6b1JyEK/6AGDrVOSSg+wlYVITlgoPFoaLm8VnNvssKJ6MkhU4zdOyA27tkUMF59BQrpTgx7xTsZuslqM8gyx8EmqceHiISUiOaSKK5PMjLd3xQL1h7Wiu7mvUFHPEB4/tsr6bZFVDhClIuN4YrjhrDUmVZGcJcZfnq5KHAC03fkTTSwIDAQAB",
+  "permissions": ["nativeMessaging", "tabs"],
+  "host_permissions": ["https://www.linkedin.com/messaging/*"],
+  "background": { "service_worker": "background/service_worker.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://www.linkedin.com/messaging/*"],
+      "js": ["content/selectors.js", "content/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_specific_settings": { "gecko": { "id": "lra@marcelpetrick.it" } }
+}

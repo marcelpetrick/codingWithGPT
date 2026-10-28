@@ -33,7 +33,7 @@ This project bends two of them. Each bend has a fence that a guard test enforces
 | # | Sibling rule | Bend | Fence |
 |---|---|---|---|
 | B1 | Read only by the routes in the sibling `vision.md` §1.2 | New route **S, screen capture**: the portal stream of the owner's own browser window. It makes zero requests to LinkedIn. It is safer than route I (no debugger attached). | Read-only. The owner picks the window in the portal dialog. Frames stay in memory. |
-| B2 | Never type on linkedin.com from code | The extension puts the **approved** draft into the composer, like a paste. | Only after an explicit **Insert** press. Only into a composer on `/messaging/`. No click, no key event, no Send, no navigation, no read of other page data. Read-back check. **Copy Draft** is always available as the rule-clean path. |
+| B2 | Never type on linkedin.com from code | The extension puts the **approved** draft into the composer, like a paste. | Only after an explicit **Insert** press. Only into an **empty** composer on `/messaging/` of the active tab. No click, no key event, no Send, no navigation. It reads only the thread title and the URL (conversation check) and the composer (read-back). **Copy Draft** is always available as the rule-clean path. |
 
 `tests/unit/test_guard.py` scans `src/` and `extension/` and fails on: `.click(`, a Send-button selector,
 `form.submit`/`requestSubmit`, `KeyboardEvent`, `location.assign`/`location.href =`, `tabs.update` with a

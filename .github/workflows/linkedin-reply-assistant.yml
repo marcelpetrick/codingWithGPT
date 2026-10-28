@@ -33,6 +33,8 @@ jobs:
       - uses: astral-sh/setup-uv@v10.3.2
         with:
           python-version: "3.14"
+      - name: Install browser dependencies for the e2e stage
+        run: sudo "$(which uvx)" --from playwright==1.64.1 playwright install-deps chromium
       - name: Run local pipeline
         run: ./localPipeline.sh
       - name: Upload coverage report

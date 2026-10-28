@@ -1,0 +1,28 @@
+<!doctype html>
+<!-- Synthetic stand-in for a LinkedIn messaging thread. Served by a Playwright route; never fetched. -->
+<html lang="en">
+<head><meta charset="utf-8"><title>Messaging | LinkedIn</title></head>
+<body>
+  <aside><a href="#">Jobs</a> <a href="#">Ad: Premium</a></aside>
+  <main>
+    <div class="msg-thread__link-to-profile"><h2>Anna Keller</h2></div>
+    <ul class="msg-s-message-list">
+      <li>Anna Keller 9:14 AM</li>
+      <li>Hi Marcel, thanks for accepting my request!</li>
+    </ul>
+    <form class="msg-form" onsubmit="window.__submitted = true; return false;">
+      <div class="msg-form__contenteditable" contenteditable="true" role="textbox"
+           aria-label="Write a message…"></div>
+      <button type="submit" class="msg-form__send-btn" onclick="window.__sendClicks = (window.__sendClicks || 0) + 1">Send</button>
+    </form>
+  </main>
+  <script>
+    window.__sendClicks = 0;
+    window.__submitted = false;
+    window.__keyEvents = 0;
+    window.__inputEvents = 0;
+    document.addEventListener("keydown", () => window.__keyEvents++, true);
+    document.addEventListener("input", () => window.__inputEvents++, true);
+  </script>
+</body>
+</html>

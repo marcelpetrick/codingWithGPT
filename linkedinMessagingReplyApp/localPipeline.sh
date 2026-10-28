@@ -6,7 +6,7 @@
 # Usage:  ./localPipeline.sh            run all stages, stop at the first failure
 # Stages: install (uv) · license headers · ruff lint · ruff format check · mypy --strict ·
 #         guard (hard limits) · pytest + branch coverage >= 95% · build sdist + wheel ·
-#         wheel smoke in a clean venv
+#         wheel smoke in a clean venv · e2e (Chromium + extension + native host, routed fake page)
 # Needs:  uv, Python 3.14. Never contacts linkedin.com.
 # Exit:   0 all green; 1 a stage failed (the summary names it).
 set -uo pipefail
@@ -64,6 +64,11 @@ wheel_smoke() {
   return $rc
 }
 
+e2e() {
+  "$VENV/bin/playwright" install chromium >/dev/null &&
+    "$VENV/bin/pytest" -q --no-cov -p no:cacheprovider tests/e2e
+}
+
 stage "install"          install
 stage "license headers"  license_headers
 stage "ruff lint"        "$VENV/bin/ruff" check .
@@ -73,4 +78,5 @@ stage "guard"            "$VENV/bin/pytest" -q --no-cov tests/unit/test_guard.py
 stage "pytest coverage"  "$VENV/bin/pytest" -q
 stage "build"            build_dist
 stage "wheel smoke"      wheel_smoke
+stage "e2e"              e2e
 print_summary

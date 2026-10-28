@@ -111,6 +111,7 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | 0.2.4 | test(reply-assistant): add extractor benchmark and record the OCR default (D9) | `./localPipeline.sh` (9 stages); benchmark run, local-ollama qwen3-vl:4b | green, coverage 99% |
 | 0.2.5 | feat(reply-assistant): add classifier, prompt fences and reply generator | `./localPipeline.sh` (9 stages) | green, coverage 99% |
 | 0.2.6 | feat(reply-assistant): add workflow state machine and the Capture & Draft pipeline | `./localPipeline.sh` (9 stages); live: 14/14 reply fixtures on local qwen3.5:4b | green, coverage 99% |
+| 0.3.0 | feat(reply-assistant): add browser extension, native host relay and verified insertion (gate 5) | `./localPipeline.sh` (10 stages); e2e: 8/8 (insert, no Send, no key events, mismatch blocked, no composer, non-LinkedIn tab, zero LinkedIn requests) | green, coverage 99% |
 
 ## Results
 
