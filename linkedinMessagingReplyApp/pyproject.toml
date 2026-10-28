@@ -79,6 +79,11 @@ python_version = "3.14"
 files = ["src", "tests"]
 
 [[tool.mypy.overrides]]
+# mypy narrows `flow.state` across method calls that change it.
+module = ["tests.unit.state.test_workflow"]
+disable_error_code = ["comparison-overlap"]
+
+[[tool.mypy.overrides]]
 # dbus-fast reads D-Bus signatures from string annotations; mypy cannot type them.
 module = ["tests.integration.fake_portal"]
 disable_error_code = [

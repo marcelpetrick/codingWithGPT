@@ -110,6 +110,7 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | 0.2.3 | feat(reply-assistant): add OCR, vision and hybrid extractors with screenshot fixtures | `./localPipeline.sh` (9 stages); OCR on 5 fixtures: similarity 0.99-1.00, confidence 0.96 | green, coverage 99% |
 | 0.2.4 | test(reply-assistant): add extractor benchmark and record the OCR default (D9) | `./localPipeline.sh` (9 stages); benchmark run, local-ollama qwen3-vl:4b | green, coverage 99% |
 | 0.2.5 | feat(reply-assistant): add classifier, prompt fences and reply generator | `./localPipeline.sh` (9 stages) | green, coverage 99% |
+| 0.2.6 | feat(reply-assistant): add workflow state machine and the Capture & Draft pipeline | `./localPipeline.sh` (9 stages); live: 14/14 reply fixtures on local qwen3.5:4b | green, coverage 99% |
 
 ## Results
 
@@ -125,6 +126,12 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | light_hidpi_german | 1.000 | 0.3 | 1.000 | 24.9 |
 | light_normal_short | 0.992 | 0.3 | 1.000 | 22.8 |
 | light_zoom_multiline | 1.000 | 0.4 | error (empty answer) | – |
+
+### Live reply check, local backend, 2026-10-28
+
+`LIVE_OLLAMA=1 pytest tests/integration/test_live_ollama.py` with only `local-ollama` (`qwen3.5:4b`, the box was busy):
+**14 of 14 fixtures passed** (category as expected, no forbidden pattern, injection fixtures declined politely).
+Time per draft 3.4–10.5 s (classification by the model for the ambiguous fixtures plus generation).
 
 ## Status
 
