@@ -725,6 +725,36 @@ Using the extension avoids dependence on:
 
 It also works with the user's normal logged-in browser session.
 
+### 14.1a No OS-level input injection (decision, 2026-10-28)
+
+The application never produces input that looks like it comes from the user. This excludes:
+
+- `ydotool`, `uinput`, `evdev` writes, `xdotool`, `wtype`, `libei`,
+- the RemoteDesktop portal (it can inject keys and pointer events),
+- Python input libraries such as `pynput` and `pyautogui`,
+- synthetic `paste` or key events in the page (`ClipboardEvent`, `KeyboardEvent`).
+
+Reasons:
+
+1. Input that pretends to be human hides automation. That breaks hard limit 4 in `AGENTS.md`.
+2. Events made in the page are marked `isTrusted: false`. A faked paste is easier to detect than an honest insert.
+3. OS-level injection needs `uinput` access or a daemon with root rights. It can type into any window, also the wrong one.
+4. The only real paste is the user's own `Ctrl+V`. It costs one key press.
+
+A guard test (`tests/unit/test_guard.py`) fails the build on these names.
+
+### 14.1b Manual mode: the extension is optional
+
+The whole workflow works without the extension: capture, OCR, classification, draft, edit.
+The last step is the user's own action:
+
+1. Press **Copy Draft** (`Ctrl+D`).
+2. Click into the LinkedIn composer.
+3. Press `Ctrl+V`, read the text and press **Send**.
+
+In manual mode the browser has no extension, so LinkedIn sees only a normal paste by a person.
+The user then checks the thread name, because the extension's conversation check is not available.
+
 ### 14.2 Insertion behavior
 
 When the user presses **Insert into LinkedIn**:
@@ -1068,7 +1098,7 @@ Keep the capture and extracted text visible and show a retry action. Do not disc
 
 ### 21.6 Extension disconnected
 
-Generation remains usable, but **Insert into LinkedIn** is disabled. Offer **Copy Draft** as an emergency/manual fallback.
+Generation remains usable, but **Insert into LinkedIn** is disabled. Offer **Copy Draft**. It is a full, supported path (manual mode, §14.1b), not only an emergency fallback.
 
 ### 21.7 LinkedIn composer not found
 

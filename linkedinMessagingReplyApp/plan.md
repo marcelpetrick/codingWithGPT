@@ -51,6 +51,7 @@ real browser, real LinkedIn), see "Resume here".
 | D10 | Reuse sibling code? | No. The sibling has no UI and a different data model. Copy ideas (ruleset, guard test), not modules. |
 | D11 | Transport | Native Messaging relay → Unix socket (V6). No localhost TCP port. |
 | D12 | Docker | Full app image on `python:3.14-slim` + Tesseract + GStreamer. Published to GHCR by a separate workflow. |
+| D13 | No input injection, manual mode (owner, 2026-10-28) | No `ydotool`/`uinput`/fake paste: it pretends human input (limit 8, VISION §14.1a). The extension is optional; Copy Draft + the owner's `Ctrl+V` is a full path (VISION §14.1b). Guard and UI test enforce both. |
 
 ## Gates (from `VISION.md` §24) with steps
 
@@ -146,6 +147,7 @@ All 29 code criteria are implemented and tested. L4 passed. The live checks L1�
 | 0.6.6 | docs(reply-assistant): add the Ollama and profile steps to the README setup | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 | 0.6.7 | fix(reply-assistant): route prompt-injection attempts to manual review by rule | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 | 0.6.8 | docs(reply-assistant): record the live run on the local Ollama fallback | `./localPipeline.sh` (11 stages) | green, coverage 99% |
+| 0.7.0 | feat(reply-assistant): forbid input injection and make manual mode a supported path | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 
 ## Results
 
@@ -182,6 +184,7 @@ Time per draft 3.4–10.5 s (classification by the model for the ambiguous fixtu
 | 2026-10-28 | Dependency check (PyPI, actions, base image) and full pipeline | All current, pipeline green; README setup got the Ollama and profile steps (v0.6.6) |
 | 2026-10-28 | **L4** live run on the box (box idle, `api/ps` empty) | First run 12/14: the box model put both injection fixtures into manual review, the local model said sales. Not a leak; the test was too strict. Fix: deterministic `prompt_injection` rule, first in `reply_rules.yaml` (v0.6.7). Rerun 14/14. |
 | 2026-10-28 | Live run on local Ollama only (`LRA_CONFIG_DIR` with only `local-ollama`), RTX A2000 8 GB | 14/14 on `qwen3.5:4b`, 1.6–6.1 s per draft, 13.3 s for the first (model load). The local fallback is usable. |
+| 2026-10-28 | Owner asked about emulating a paste | Declined: page events are `isTrusted: false`, OS injection hides automation. Wrote limit 8 and manual mode into `AGENTS.md`, VISION §14.1a/b, README; guard patterns and a manual-mode UI test added (v0.7.0). |
 
 ## Resume here
 

@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Guard for the hard limits and the fences of the bent rules in AGENTS.md.
 
-The code never sends, clicks, types keys or navigates on LinkedIn, and never calls linkedin.com.
+The code never sends, clicks, types keys, fakes a paste or navigates on LinkedIn, never injects OS
+input, and never calls linkedin.com.
 The scan is deliberately crude. A hit is a defect, or a reason to change AGENTS.md first.
 """
 
@@ -27,6 +28,11 @@ FORBIDDEN = {
     "HTTP call to LinkedIn": re.compile(
         r"(get|post|put|patch|delete|request|fetch|urlopen)\([^)]*linkedin\.com", re.IGNORECASE
     ),
+    "OS input injection": re.compile(
+        r"\b(ydotoold?|uinput|xdotool|wtype|libei|evdev|pynput|pyautogui)\b|portal\.RemoteDesktop",
+        re.IGNORECASE,
+    ),
+    "fake paste": re.compile(r"ClipboardEvent|execCommand\(\s*[\"']paste"),
 }
 
 
@@ -66,6 +72,11 @@ def test_no_forbidden_pattern(name: str) -> None:
         ("page navigation", "window.location.href = url"),
         ("tab navigation", "chrome.tabs.update(id, {url})"),
         ("HTTP call to LinkedIn", 'httpx.get("https://www.linkedin.com/x")'),
+        ("OS input injection", 'subprocess.run(["ydotool", "key", "29:1"])'),
+        ("OS input injection", "org.freedesktop.portal.RemoteDesktop"),
+        ("OS input injection", "from pynput.keyboard import Controller"),
+        ("fake paste", "el.dispatchEvent(new ClipboardEvent('paste'))"),
+        ("fake paste", 'document.execCommand("paste")'),
     ],
 )
 def test_patterns_catch_examples(name: str, sample: str) -> None:

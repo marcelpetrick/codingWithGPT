@@ -24,6 +24,17 @@ The owner's account must never get blocked. The rule is: no extra traffic, human
 6. No autonomous work: no inbox polling, no opening of threads or profiles, no timer that starts a capture.
    Every capture starts from a button press or the owner's hotkey.
 7. Stop on an empty or unreadable capture. Never book it as a message. Show the reason in the UI.
+8. Never inject input at the OS level, and never fake a paste. No `ydotool`, `uinput`, `xdotool`, `wtype`,
+   `libei`, RemoteDesktop portal, `pynput` or `pyautogui`, and no `ClipboardEvent` or `KeyboardEvent` in the
+   page. Input that pretends to be human hides automation (limit 4), and page events are `isTrusted: false`
+   anyway. The real paste is the owner's own `Ctrl+V` (VISION §14.1a).
+
+## Manual mode (owner decision 2026-10-28)
+
+The extension is optional. Without it, the app still captures, extracts, classifies and drafts. The owner
+presses **Copy Draft**, then `Ctrl+V` in LinkedIn. This is the zero-footprint path: LinkedIn sees no
+extension and only a normal paste. Keep this path complete and tested. Never make a feature depend on the
+extension when it can work without it (VISION §14.1b).
 
 ## Bent rules (documented, owner request 2026-10-28: "bend them, do not break them")
 
@@ -37,7 +48,8 @@ This project bends two of them. Each bend has a fence that a guard test enforces
 
 `tests/unit/test_guard.py` scans `src/` and `extension/` and fails on: `.click(`, a Send-button selector,
 `form.submit`/`requestSubmit`, `KeyboardEvent`, `location.assign`/`location.href =`, `tabs.update` with a
-URL, `tabs.create`, `li_at`, `voyager`, and any HTTP client call to `linkedin.com`.
+URL, `tabs.create`, `li_at`, `voyager`, any HTTP client call to `linkedin.com`, and every input-injection
+or fake-paste tool of limit 8.
 
 ## Tests and requests
 

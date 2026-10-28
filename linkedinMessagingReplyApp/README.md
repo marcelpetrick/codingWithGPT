@@ -107,7 +107,12 @@ How the reply is prepared with Ollama:
 The tool reads your screen and writes one approved text into one composer. It makes **zero requests to
 linkedin.com**, uses no LinkedIn credentials or cookies, and never sends. The full rules, including the
 two documented "bent" rules, are in [`AGENTS.md`](AGENTS.md). `tests/unit/test_guard.py` fails the build
-if the code contains a click, a key event, a submit, a navigation or an HTTP call to LinkedIn.
+if the code contains a click, a key event, a submit, a navigation, an HTTP call to LinkedIn, a faked
+paste or an OS input-injection tool (`ydotool`, `uinput` and others).
+
+**Manual mode, without the extension.** The extension is optional. Skip setup step 3, and finish each
+draft with **Copy Draft** (`Ctrl+D`) and your own `Ctrl+V` in LinkedIn. LinkedIn then sees no extension and
+only a normal paste. You check the thread name yourself, because the extension's conversation check is off.
 
 ## Setup
 

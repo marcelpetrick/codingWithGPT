@@ -397,6 +397,21 @@ def test_window_full_flow(qtbot: QtBot, rig: Rig, window: MainWindow) -> None:
     assert not window.insert_button.isEnabled() and "not connected" in window.extension_chip.text()
 
 
+def test_manual_mode_without_extension(qtbot: QtBot, rig: Rig, window: MainWindow) -> None:
+    """VISION §14.1b: with no extension at all, the whole flow still ends in Copy Draft."""
+    rig.bridge["up"] = False
+    window.refresh_bridge()
+    qtbot.mouseClick(window.select_button, Qt.MouseButton.LeftButton)
+    qtbot.waitUntil(lambda: window.capture_button.isEnabled(), timeout=5000)
+    qtbot.mouseClick(window.capture_button, Qt.MouseButton.LeftButton)
+    qtbot.waitUntil(lambda: "Hi, thank you" in window.draft.toPlainText(), timeout=10000)
+    assert not window.insert_button.isEnabled() and window.copy_button.isEnabled()
+    window.draft.setPlainText("Edited reply")
+    qtbot.mouseClick(window.copy_button, Qt.MouseButton.LeftButton)
+    assert QGuiApplication.clipboard().text() == "Edited reply"
+    assert "Paste it in LinkedIn" in window.status.text()
+
+
 def test_window_states_and_chips(qtbot: QtBot, rig: Rig, window: MainWindow) -> None:
     rig.controller.health.emit(
         [Check("a", "ok", "x"), Check("b", "fail", "y"), Check("c", "warn", "z")]
