@@ -137,6 +137,7 @@ All 29 code criteria are implemented and tested. The live checks L1–L5 need th
 | 0.5.3 | fix(reply-assistant): fix the five findings of the branch review | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 | 0.6.0 | feat(reply-assistant): add the About dialog and explain the project in the README | `./localPipeline.sh` (11 stages); screenshots rendered on the live Wayland session at v0.6.0 | green, coverage 99% |
 | 0.6.1 | fix(reply-assistant): remove Liquid syntax from the review notes so GitHub Pages builds | `./localPipeline.sh` (11 stages) | green, coverage 99% |
+| 0.6.2 | docs(reply-assistant): explain the workflow in the README with a Mermaid chart | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 
 ## Results
 

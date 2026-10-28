@@ -43,11 +43,55 @@ screenshots or messages stored on disk.
 
 ## How it works
 
-```text
-hotkey or button → ScreenCast portal frame → crop to your region → Tesseract OCR
-  → rules + model classify → Ollama drafts (network node first, local fallback)
-  → you edit → Insert into LinkedIn (extension, empty composer only, read-back check) → you press Send
+One press of the hotkey or the **Capture & Draft** button runs one pipeline. Every step runs in a
+worker thread, checks a cancel token, and is timed. A newer capture always wins over an older one.
+
+```mermaid
+flowchart TD
+    A([You open a LinkedIn conversation<br/>in your normal browser]) --> B[[Hotkey or<br/>Capture &amp; Draft button]]
+    B --> C[Grab the newest frame<br/>ScreenCast portal + PipeWire, in memory only]
+    C --> D[Crop to your saved region<br/>normalized ROI, survives window resize]
+    D --> E[Read the text<br/>Tesseract OCR, word confidences]
+    E --> F{Text usable?}
+    F -- no --> G[/Extraction needs review:<br/>you fix the text, then Regenerate/]
+    G --> H
+    F -- yes --> H[Split into messages<br/>sender, time, incoming / outgoing, language]
+    H --> I{Keyword rule matches?<br/>reply_rules.yaml}
+    I -- yes --> K[Category from the rule]
+    I -- no --> J[Ollama classifies<br/>message fenced as untrusted data]
+    J --> K
+    K --> L[Build the prompt<br/>policy for the category, your style rules,<br/>allowed facts only, sender language]
+    L --> M{Network Ollama healthy<br/>and model installed?}
+    M -- yes --> N[Draft on the GPU box]
+    M -- no --> O[Draft on local Ollama<br/>fallback reason shown]
+    N --> P[Output guard<br/>no markers, endpoints or instructions;<br/>length check]
+    O --> P
+    P --> Q[/Draft pane: category, backend, model, timing<br/>you edit or regenerate/]
+    Q --> R{Insert into LinkedIn<br/>or Copy Draft}
+    R -- Copy --> U
+    R -- Insert --> S[Extension checks the conversation<br/>thread title vs. captured participant]
+    S -- mismatch --> T[/Blocked: recapture required/]
+    S -- match --> V[Insert into the empty composer<br/>read back and verify]
+    V --> U([You review in LinkedIn<br/>and press Send yourself])
 ```
+
+How the reply is prepared with Ollama:
+
+1. **Classify.** Keyword rules from `reply_rules.yaml` handle the clear cases (sales call, lead
+   generation, recruiter, congratulations) without a model call. The rest goes to the model with the
+   classifier prompt; the answer is a JSON object with category, confidence and reason.
+2. **Choose the policy.** Each category maps to a policy and a prompt file, for example
+   `sales_outreach → sales_decline.md` (decline politely, no opening for a follow-up) or
+   `recruiting → recruiting.md` (friendly, state your role preference).
+3. **Build the prompt.** The system prompt holds your name, the reply language (mirrors the sender:
+   English or German), the word limit, your sign-off, your style rules and the only facts the draft may
+   claim (`user_profile.yaml`). The conversation goes into the user message between data markers, so
+   text like "ignore all previous instructions" stays data.
+4. **Generate.** The backend manager tries the network node first (`192.168.100.67`), then local
+   Ollama. Health is cached, so a dead node does not stall each draft. The model answers with JSON
+   (`reply`, `category`, `language`, `needs_manual_review`); only `reply` reaches LinkedIn.
+5. **Check.** An output guard flags drafts that echo the data markers, a backend address or the
+   instructions, and drafts far above the word limit. Flagged drafts show "Review carefully".
 
 | Part | What it does |
 |---|---|
