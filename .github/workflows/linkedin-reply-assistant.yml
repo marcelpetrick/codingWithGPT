@@ -39,7 +39,7 @@ jobs:
         run: ./localPipeline.sh
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: reply-assistant-coverage-html
           path: linkedinMessagingReplyApp/htmlcov
