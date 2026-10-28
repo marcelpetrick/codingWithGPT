@@ -61,10 +61,11 @@ class BridgeServer:
         return self.status == "connected"
 
     def _accept_loop(self) -> None:
-        assert self._listener is not None
+        listener = self._listener  # stop() sets the attribute to None; keep our own reference
+        assert listener is not None
         while True:
             try:
-                client, _ = self._listener.accept()
+                client, _ = listener.accept()
             except OSError:
                 return
             with self._lock:

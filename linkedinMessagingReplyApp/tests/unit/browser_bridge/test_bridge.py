@@ -194,7 +194,9 @@ def test_relay_round_trip(server: Any, monkeypatch: pytest.MonkeyPatch) -> None:
     relay = Relay(stdin.reader, stdout, retry=0.05)  # type: ignore[arg-type]
     thread = threading.Thread(target=relay.run, daemon=True)
     thread.start()
-    wait(lambda: bridge.connected)
+    # Sync like the extension: write only after the relay announced the app connection. Between
+    # the server's accept and this message the relay has no socket yet (a race seen in CI).
+    wait(lambda: {"type": "app_status", "connected": True} in stdout.messages())
     stdin.writer.write(frame({"type": "hello", "browser": "chromium"}))
     stdin.writer.flush()
     wait(lambda: bridge.browser == "chromium")

@@ -74,6 +74,7 @@ What remains are owner live checks L1–L5 (portal dialogs, real browser, real L
 | Fix the failing GitHub Action | Pages build broke on Liquid syntax in `review_20261028.md`; reword, guard every `.md` | done, v0.6.1 |
 | README: "How it works" as a Mermaid workflow chart, how content is grabbed and replies are prepared | Mermaid flowchart + 5 Ollama steps | done, v0.6.2 |
 | `/updateDependencies` for the current state | 16 Python pins, Docker base, 3 actions checked; only `upload-artifact` v7.0.1 → v7.0.2 | done, v0.6.3 |
+| CI failure on v0.6.3 (`test_relay_round_trip`) | Test wrote `hello` before the relay had its socket; sync on `app_status connected` like the extension. Also `_accept_loop` read `self._listener` after `stop()` (thread AttributeError) | done, v0.6.4 |
 | No open issues: pipeline, CI, Docker, Pages green, tree clean | final check | open |
 
 ## Acceptance criteria tracker (`VISION.md` §25)
@@ -139,6 +140,7 @@ All 29 code criteria are implemented and tested. The live checks L1–L5 need th
 | 0.6.1 | fix(reply-assistant): remove Liquid syntax from the review notes so GitHub Pages builds | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 | 0.6.2 | docs(reply-assistant): explain the workflow in the README with a Mermaid chart | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 | 0.6.3 | build(deps): bump actions/upload-artifact to v7.0.2 in the reply-assistant CI | `./localPipeline.sh` (11 stages) | green, coverage 98% |
+| 0.6.4 | fix(reply-assistant): remove the race in the relay test and in the bridge accept loop | `./localPipeline.sh` (11 stages); 15 stress runs of the bridge tests with thread warnings as errors | green, coverage 99% |
 
 ## Results
 
