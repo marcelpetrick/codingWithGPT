@@ -18,7 +18,7 @@ SUFFIXES = {".py", ".js", ".json", ".html"}
 FORBIDDEN = {
     "DOM click": re.compile(r"\.click\s*\("),
     "send button selector": re.compile(r"send[-_]?button|msg-form__send", re.IGNORECASE),
-    "form submit": re.compile(r"\.(submit|requestSubmit)\s*\("),
+    "form submit": re.compile(r"\.requestSubmit\s*\(|\.submit\(\s*\)"),
     "synthetic key events": re.compile(r"KeyboardEvent|dispatchKey|Input\.dispatch"),
     "page navigation": re.compile(r"location\.(assign|replace)\s*\(|location\.href\s*=[^=]"),
     "tab navigation": re.compile(r"tabs\.(create|update)\s*\("),

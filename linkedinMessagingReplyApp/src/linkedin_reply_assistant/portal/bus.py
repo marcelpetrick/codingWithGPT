@@ -20,9 +20,9 @@ class PortalError(Exception):
     """A portal call failed or the user cancelled the portal dialog."""
 
 
-async def connect(address: str | None = None) -> MessageBus:
+async def connect(address: str | None = None, *, unix_fds: bool = False) -> MessageBus:
     """Connect to the session bus (or to `address`, used by tests with a private bus)."""
-    return await MessageBus(bus_address=address).connect()
+    return await MessageBus(bus_address=address, negotiate_unix_fd=unix_fds).connect()
 
 
 async def get_property(bus: MessageBus, interface: str, name: str) -> Any:

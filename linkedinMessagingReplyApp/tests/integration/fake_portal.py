@@ -6,15 +6,17 @@ The fake runs in its own thread and event loop, so the code under test talks to 
 """
 
 import asyncio
+import os
 import shutil
 import subprocess
 import threading
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 
+from dbus_fast import DBusError, Variant
 from dbus_fast.aio import MessageBus
 from dbus_fast.constants import PropertyAccess
-from dbus_fast.service import ServiceInterface, dbus_property
+from dbus_fast.service import ServiceInterface, dbus_property, method, signal
 
 from linkedin_reply_assistant.portal.bus import PORTAL_BUS, PORTAL_PATH
 
@@ -25,7 +27,7 @@ class VersionOnly(ServiceInterface):
         self._version = version
 
     @dbus_property(access=PropertyAccess.READ)
-    def version(self) -> "u":  # type: ignore[name-defined]
+    def version(self) -> "u":
         return self._version
 
 
@@ -66,7 +68,7 @@ class FakePortal:
         self.loop.run_forever()
 
     async def _start(self) -> None:
-        self.bus = await MessageBus(bus_address=self.address).connect()
+        self.bus = await MessageBus(bus_address=self.address, negotiate_unix_fd=True).connect()
         for interface in self._factory(self.bus):
             self.bus.export(PORTAL_PATH, interface)
         await self.bus.request_name(PORTAL_BUS)
@@ -81,3 +83,95 @@ class FakePortal:
             self.loop.call_soon_threadsafe(self.bus.disconnect)
         self.loop.call_soon_threadsafe(self.loop.stop)
         self._thread.join(5)
+
+
+class FakeRequest(ServiceInterface):
+    def __init__(self) -> None:
+        super().__init__("org.freedesktop.portal.Request")
+
+    @signal()
+    def Response(self, code: int, results: dict[str, Variant]) -> "ua{sv}":
+        return [code, results]
+
+
+class FakeSession(ServiceInterface):
+    def __init__(self, on_close: Callable[[], None]) -> None:
+        super().__init__("org.freedesktop.portal.Session")
+        self._on_close = on_close
+
+    @method()
+    def Close(self) -> None:
+        self._on_close()
+
+
+class PortalBase(ServiceInterface):
+    """Shared Request/Response machinery for fake portal interfaces."""
+
+    def __init__(self, name: str, bus: MessageBus, version: int) -> None:
+        super().__init__(name)
+        self.bus = bus
+        self._version = version
+        self.calls: list[tuple[str, dict[str, object]]] = []
+        self.response_code = 0
+        self.closed: list[str] = []
+        self._counter = 0
+
+    @dbus_property(access=PropertyAccess.READ)
+    def version(self) -> "u":
+        return self._version
+
+    def respond(self, member: str, options: dict[str, Variant], results: dict[str, Variant]) -> str:
+        self.calls.append((member, {k: v.value for k, v in options.items()}))
+        token = options["handle_token"].value
+        path = f"/org/freedesktop/portal/desktop/request/fake/{token}"
+        req = FakeRequest()
+        self.bus.export(path, req)
+        code = self.response_code
+        asyncio.get_running_loop().call_soon(req.Response, code, results)
+        return path
+
+    def new_session(self, options: dict[str, Variant]) -> str:
+        self._counter += 1
+        token = options.get("session_handle_token", Variant("s", f"s{self._counter}")).value
+        path = f"/org/freedesktop/portal/desktop/session/fake/{token}"
+        self.bus.export(path, FakeSession(lambda: self.closed.append(path)))
+        return path
+
+
+class FakeScreenCast(PortalBase):
+    def __init__(self, bus: MessageBus, version: int = 5, serial: bool = True) -> None:
+        super().__init__("org.freedesktop.portal.ScreenCast", bus, version)
+        self.serial = serial
+        self.restore_counter = 0
+        self.no_streams = False
+        self.no_fd = False
+
+    @method()
+    def CreateSession(self, options: "a{sv}") -> "o":
+        session = self.new_session(options)
+        return self.respond("CreateSession", options, {"session_handle": Variant("s", session)})
+
+    @method()
+    def SelectSources(self, session: "o", options: "a{sv}") -> "o":
+        return self.respond("SelectSources", options, {})
+
+    @method()
+    def Start(self, session: "o", parent: "s", options: "a{sv}") -> "o":
+        self.restore_counter += 1
+        props = {"source_type": Variant("u", 2), "size": Variant("(ii)", [640, 480])}
+        if self.serial:
+            props["pipewire-serial"] = Variant("t", 4242)
+        streams = [] if self.no_streams else [[77, props]]
+        results = {
+            "streams": Variant("a(ua{sv})", streams),
+            "restore_token": Variant("s", f"token-{self.restore_counter}"),
+        }
+        return self.respond("Start", options, results)
+
+    @method()
+    def OpenPipeWireRemote(self, session: "o", options: "a{sv}") -> "h":
+        if self.no_fd:
+            raise DBusError("org.freedesktop.portal.Error.Failed", "no remote")
+        read_end, write_end = os.pipe()
+        os.close(write_end)
+        return read_end

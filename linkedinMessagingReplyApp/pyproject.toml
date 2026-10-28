@@ -13,6 +13,7 @@ dynamic = ["version"]
 dependencies = [
     "dbus-fast==5.2.0",
     "httpx==0.28.1",
+    "Pillow==13.0.0",
     "PyGObject==3.58.1",
     "PyYAML==6.0.3",
 ]
@@ -64,9 +65,16 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 # dbus-fast reads D-Bus signatures from string annotations ("u", "a{sv}").
-"tests/integration/fake_portal.py" = ["UP037", "F821"]
+"tests/integration/fake_portal.py" = ["UP037", "F821", "F722"]
 
 [tool.mypy]
 strict = true
 python_version = "3.14"
 files = ["src", "tests"]
+
+[[tool.mypy.overrides]]
+# dbus-fast reads D-Bus signatures from string annotations; mypy cannot type them.
+module = ["tests.integration.fake_portal"]
+disable_error_code = [
+    "name-defined", "valid-type", "return-value", "arg-type", "untyped-decorator"
+]
