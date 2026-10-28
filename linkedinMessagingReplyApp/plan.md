@@ -142,6 +142,7 @@ All 29 code criteria are implemented and tested. The live checks L1–L5 need th
 | 0.6.3 | build(deps): bump actions/upload-artifact to v7.0.2 in the reply-assistant CI | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 | 0.6.4 | fix(reply-assistant): remove the race in the relay test and in the bridge accept loop | `./localPipeline.sh` (11 stages); 15 stress runs of the bridge tests with thread warnings as errors | green, coverage 99% |
 | 0.6.5 | docs(reply-assistant): close the owner task list in the plan | `./localPipeline.sh` (11 stages) | green, coverage 99% |
+| 0.6.6 | docs(reply-assistant): add the Ollama and profile steps to the README setup | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 
 ## Results
 

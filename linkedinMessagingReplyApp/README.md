@@ -131,7 +131,24 @@ Manjaro/Arch (the target system). Debian/Ubuntu: `sudo scripts/install_system_de
    select the [`extension/`](extension) directory. The extension id is fixed
    (`halpmmpcpefihaehddccolenemgembam`), so the native host manifest matches.
 
-4. Check the system:
+4. Install at least one LLM backend. The local fallback needs Ollama and one small model:
+
+   ```bash
+   sudo pacman -S --needed ollama && sudo systemctl enable --now ollama
+   ollama pull qwen3.5:4b
+   ```
+
+   The network box (`192.168.100.67`) is tried first. It needs `qwen3.6:35b-a3b-q4_K_M` or
+   `qwen3.8:27b-q4_K_M`. Change hosts and models in `backends.yaml` (see below).
+
+5. Put your own facts into the profile. A draft claims only what this file lists:
+
+   ```bash
+   mkdir -p ~/.config/linkedin-reply-assistant
+   cp src/linkedin_reply_assistant/defaults/user_profile.yaml ~/.config/linkedin-reply-assistant/
+   ```
+
+6. Check the system. Every line must show OK or WARN:
 
    ```bash
    .venv/bin/lra preflight
