@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Single source of the package version (semver). scripts/bump_version.sh edits this line."""
 
-__version__ = "0.5.3"
+__version__ = "0.6.0"

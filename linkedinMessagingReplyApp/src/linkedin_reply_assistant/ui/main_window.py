@@ -25,6 +25,7 @@ from linkedin_reply_assistant.config.loader import CATEGORIES
 from linkedin_reply_assistant.diagnostics.preflight import Check
 from linkedin_reply_assistant.shortcuts.base import ShortcutStatus
 from linkedin_reply_assistant.state.workflow import BUSY, State
+from linkedin_reply_assistant.ui.about import AboutDialog
 from linkedin_reply_assistant.ui.controller import Controller
 from linkedin_reply_assistant.ui.dialogs import ShortcutsDialog, StatusDialog
 from linkedin_reply_assistant.ui.roi_editor import PreviewWidget, RoiDialog
@@ -107,6 +108,10 @@ class MainWindow(QMainWindow):
         quit_action = QAction("Quit", self)
         quit_action.triggered.connect(self.close)
         tools.addAction(quit_action)
+        help_menu = self.menuBar().addMenu("&Help")
+        about = QAction("About LinkedIn Reply Assistant…", self)
+        about.triggered.connect(self.show_about)
+        help_menu.addAction(about)
 
     def _build_strip(self) -> QHBoxLayout:
         strip = QHBoxLayout()
@@ -269,6 +274,11 @@ class MainWindow(QMainWindow):
 
     def show_status(self) -> StatusDialog:
         dialog = StatusDialog(self.controller, self.checks, self)
+        dialog.show()
+        return dialog
+
+    def show_about(self) -> AboutDialog:
+        dialog = AboutDialog(self)
         dialog.show()
         return dialog
 

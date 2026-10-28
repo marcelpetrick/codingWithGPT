@@ -8,18 +8,38 @@
 [![PySide6 6.12.0](https://img.shields.io/badge/PySide6-6.12.0-41cd52.svg)](https://doc.qt.io/qtforpython-6/)
 [![Coverage: 98%](https://img.shields.io/badge/coverage-98%25-brightgreen.svg)](pyproject.toml)
 
-A local desktop assistant for LinkedIn replies on Linux/Wayland. Press one button or one hotkey: it
-captures the conversation from your browser window, reads the text, classifies the message, drafts a
-reply with Ollama, and, after your review, inserts it into the LinkedIn composer. **It never sends.**
-You press Send in LinkedIn yourself.
+**A local "reply desk" for LinkedIn messages: you read, it drafts, you send.**
 
 **Author: Marcel Petrick <mail@marcelpetrick.it>**
 
 **License: GPLv3 or later. See [`LICENSE`](LICENSE).**
 
-**Note: project is generated with AI.**
+**Note: project is generated with AI. It is a thought prototype: use it at your own risk.**
 
-![The main window after Capture & Draft (offline demo backend, Capture Test Window image)](docs/screenshot.png)
+## What is this project?
+
+Answering 10–20 LinkedIn messages a day is mostly the same loop: read the message, decide what kind
+it is (a friendly hello, a sales pitch, a recruiter, a meeting request), write a polite reply, paste it,
+send it. This desktop app removes the repetitive part of that loop and keeps you in charge:
+
+1. You open a conversation in your normal browser, as always.
+2. You press **one hotkey** (or the **Capture & Draft** button).
+3. The app takes a still image of your browser window through the Wayland screen-sharing portal,
+   reads the conversation with OCR, sorts the message into a category and writes a reply that follows
+   your rules, with a local LLM (Ollama on your own GPU box, local fallback).
+4. You read and edit the draft, then press **Insert into LinkedIn**: a small browser extension puts
+   the text into the reply box.
+5. **You** press Send. The app never sends, never clicks, never browses LinkedIn on its own, and
+   makes no request to linkedin.com at all.
+
+Everything runs on your machine and your network. No cloud, no LinkedIn login in the app, no
+screenshots or messages stored on disk.
+
+![The main window after Capture & Draft: capture with region, recognized text, category and draft](docs/screenshot.png)
+
+**Help → About** shows the author, the license, the disclaimer and every dependency with its version:
+
+![The About dialog with the dependency list](docs/about.png)
 
 ## How it works
 

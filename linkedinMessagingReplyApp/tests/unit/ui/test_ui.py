@@ -523,3 +523,11 @@ def test_first_start_binds_nothing(qtbot: QtBot, rig: Rig) -> None:
     qtbot.waitUntil(lambda: rig.shortcuts.on_activated is not None, timeout=5000)
     qtbot.wait(100)
     assert rig.shortcuts.bound == []
+
+
+def test_about_from_help_menu(qtbot: QtBot, window: MainWindow) -> None:
+    menus = [action.text() for action in window.menuBar().actions()]
+    assert "&Help" in menus
+    dialog = window.show_about()
+    assert dialog.windowTitle() == "About LinkedIn Reply Assistant"
+    dialog.close()

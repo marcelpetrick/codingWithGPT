@@ -49,6 +49,7 @@ def build_parser() -> argparse.ArgumentParser:
     window.add_argument("--zoom", type=float, default=1.0)
     shot = commands.add_parser("screenshot", help="render the real main window to a PNG (demo)")
     shot.add_argument("output", type=Path)
+    shot.add_argument("--about", type=Path, help="also render the About dialog to this PNG")
     return parser
 
 
@@ -119,7 +120,9 @@ def cmd_test_window(sample: str, theme: str, zoom: float) -> int:  # pragma: no 
     return int(app.exec())
 
 
-def cmd_screenshot(config: Config, config_dir: Path | None, output: Path) -> int:
+def cmd_screenshot(
+    config: Config, config_dir: Path | None, output: Path, about: Path | None = None
+) -> int:
     """Render the real main window after a demo Capture & Draft (used for the README)."""
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
     from PySide6.QtWidgets import QApplication
@@ -164,6 +167,11 @@ def cmd_screenshot(config: Config, config_dir: Path | None, output: Path) -> int
     window.refresh_bridge()
     app.processEvents()
     ok = window.grab().save(str(output), "PNG")
+    if about is not None:
+        dialog = window.show_about()
+        app.processEvents()
+        ok = dialog.grab().save(str(about), "PNG") and ok
+        dialog.close()
     window.close()
     for leftover in (output.parent / ".lra-screenshot-state.yaml",):
         leftover.unlink(missing_ok=True)
@@ -184,7 +192,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "selftest":
             return cmd_selftest(config, args.live)
         if args.command == "screenshot":
-            return cmd_screenshot(config, args.config_dir, args.output)
+            return cmd_screenshot(config, args.config_dir, args.output, args.about)
         if args.command == "test-window":  # pragma: no cover - interactive
             return cmd_test_window(args.sample, args.theme, args.zoom)
         from linkedin_reply_assistant.app import run_gui  # pragma: no cover - interactive

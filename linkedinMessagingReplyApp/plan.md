@@ -62,6 +62,15 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | G5 | MV3 extension (content script, background, native port), native host relay, bridge server in app, insertion with read-back, conversation fingerprint, Copy Draft fallback, guard test | Playwright e2e on a routed fake LinkedIn page: insert works, wrong conversation is blocked, no Send | 4 h |
 | G6 | Error texts §21, cancel, stale drafts, settings persistence, log redaction, debug captures, shortcuts page, packaging, Docker + GHCR workflow, README + screenshot, review, final check | All 30 acceptance criteria checked in the table below | 4 h |
 
+## Owner requests during the build (2026-10-28)
+
+| Request | Plan | State |
+|---|---|---|
+| Review and fix all findings | `review_20261028.md`, 5 findings | done, v0.5.3 |
+| README: say what the project is; screenshot of the current state | "What is this project?" section; `docs/screenshot.png` and `docs/about.png` rendered on the live KDE Wayland session | done, v0.6.0 |
+| About dialog (Help → About): author, mail, GPLv3, own risk, thought prototype, all dependencies with versions | `ui/about.py`; versions read at runtime (Python, Qt, PySide6, GStreamer, Tesseract, every declared Python requirement) | done, v0.6.0 |
+| `/githubAbout`, final check against `VISION.md` | after the above | open |
+
 ## Acceptance criteria tracker (`VISION.md` §25)
 
 | # | Criterion (short) | Gate | Evidence | State |
@@ -118,6 +127,7 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | 0.5.1 | docs(reply-assistant): write the README with setup, usage, pipeline, Docker and a real screenshot | `./localPipeline.sh` (11 stages); docker GUI ran on the live Wayland session (demo, 60 s, no errors) | green, coverage 98% |
 | 0.5.2 | fix(reply-assistant): keep prompt templates free of Liquid syntax so GitHub Pages builds again | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 | 0.5.3 | fix(reply-assistant): fix the five findings of the branch review | `./localPipeline.sh` (11 stages) | green, coverage 98% |
+| 0.6.0 | feat(reply-assistant): add the About dialog and explain the project in the README | `./localPipeline.sh` (11 stages); screenshots rendered on the live Wayland session at v0.6.0 | green, coverage 99% |
 
 ## Results
 
