@@ -1,0 +1,12 @@
+# Facts the drafts may use. The model must not claim anything that is not listed here.
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: Marcel
+sign_off: "Greetings from Munich, Marcel"
+sign_off_de: "Viele Grüße aus München, Marcel"
+allowed_facts:
+  - I work as a software engineer (C++, Qt, Python, embedded Linux).
+  - I currently explore agentic AI and local LLMs.
+mention_facts_in: [friendly_connection, generic_networking, substantive_professional]
+recruiting_preference: >-
+  Interested only in senior roles as team or group lead in software development,
+  at best embedded software engineering.

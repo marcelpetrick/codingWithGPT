@@ -1,0 +1,21 @@
+# Application settings. Copy to ~/.config/linkedin-reply-assistant/app.yaml to override.
+# SPDX-License-Identifier: GPL-3.0-or-later
+ui:
+  always_on_top: false
+  notify_on_draft: true
+hotkey:
+  shortcut_id: capture-and-draft
+  description: Capture & Draft
+  preferred_trigger: CTRL+ALT+L
+extraction:
+  mode: ocr              # ocr | vision | hybrid
+  ocr_languages: eng+deu
+  min_confidence: 55     # mean word confidence (0-100) below this -> "Extraction needs review"
+  min_characters: 20
+language:
+  policy: mirror         # mirror | fixed
+  fixed: en
+  supported: [en, de]
+debug:
+  save_captures: false
+  log_message_text: false

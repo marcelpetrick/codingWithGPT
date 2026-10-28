@@ -1,0 +1,38 @@
+# Category -> policy mapping, style rules and deterministic classification rules.
+# SPDX-License-Identifier: GPL-3.0-or-later
+style:
+  - Be warm and professional.
+  - Be concise. No corporate filler.
+  - Respond to something specific from the message.
+  - Never claim facts about the user that are not in the allowed facts.
+categories:
+  friendly_connection:        { policy: friendly_reply,  prompt: friendly_connection.md, max_words: 60 }
+  congratulations_or_support: { policy: friendly_reply,  prompt: friendly_connection.md, max_words: 50 }
+  generic_networking:         { policy: friendly_reply,  prompt: friendly_connection.md, max_words: 60 }
+  substantive_professional:   { policy: engaged_reply,   prompt: substantive.md,         max_words: 140 }
+  sales_outreach:             { policy: sales_decline,   prompt: sales_decline.md,       max_words: 60 }
+  lead_generation:            { policy: sales_decline,   prompt: sales_decline.md,       max_words: 60 }
+  meeting_request:            { policy: meeting_reply,   prompt: meeting_request.md,     max_words: 70 }
+  recruiting:                 { policy: recruiting_reply, prompt: recruiting.md,         max_words: 80 }
+  event_invitation:           { policy: event_reply,     prompt: event_invitation.md,    max_words: 60 }
+  partnership_request:        { policy: sales_decline,   prompt: sales_decline.md,       max_words: 70 }
+  unknown_manual_review:      { policy: manual_review,   prompt: generic.md,             max_words: 80 }
+# Deterministic rules: checked in order before the model. A rule fires when any keyword matches
+# (case-insensitive, whole words) and min_hits keywords are present. Ambiguous text goes to the model.
+rules:
+  - id: congratulations
+    category: congratulations_or_support
+    keywords: [congratulations, congrats, gratuliere, glückwunsch, "happy work anniversary"]
+    min_hits: 1
+  - id: lead_generation
+    category: lead_generation
+    keywords: [leads, "lead generation", "qualified meetings", "book more meetings", pipeline, "appointment setting"]
+    min_hits: 2
+  - id: sales_call
+    category: sales_outreach
+    keywords: [demo, "quick call", "15 minutes", "our solution", "our platform", pricing, offer, "free trial", agency, outsourcing]
+    min_hits: 2
+  - id: recruiting
+    category: recruiting
+    keywords: [role, position, opportunity, recruiter, hiring, "job opening", stelle, vakanz, bewerbung]
+    min_hits: 2

@@ -1,0 +1,22 @@
+# Ollama backends, tried by priority (low number first). Model names were probed on 2026-10-28.
+# SPDX-License-Identifier: GPL-3.0-or-later
+health_cache_seconds: 30
+backends:
+  - name: network-ollama
+    label: box 192.168.100.67
+    url: http://192.168.100.67:11434
+    priority: 10
+    connect_timeout_ms: 700
+    request_timeout_s: 120
+    model_preferences:
+      reply: [qwen3.6:35b-a3b-q4_K_M, qwen3.8:27b-q4_K_M]
+      vision: [qwen3.6:35b-a3b-q4_K_M, gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic]
+  - name: local-ollama
+    label: this machine
+    url: http://127.0.0.1:11434
+    priority: 20
+    connect_timeout_ms: 300
+    request_timeout_s: 120
+    model_preferences:
+      reply: [qwen3.5:4b]
+      vision: [qwen3-vl:4b]

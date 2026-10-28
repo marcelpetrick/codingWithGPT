@@ -10,7 +10,7 @@ requires-python = ">=3.14"
 license = "GPL-3.0-or-later"
 authors = [{ name = "Marcel Petrick", email = "mail@marcelpetrick.it" }]
 dynamic = ["version"]
-dependencies = []
+dependencies = ["PyYAML==6.0.3"]
 
 [project.optional-dependencies]
 dev = [
@@ -19,6 +19,7 @@ dev = [
     "pytest==9.2.0",
     "pytest-cov==7.1.0",
     "ruff==0.17.3",
+    "types-PyYAML==6.0.12.20260906",
 ]
 
 [project.scripts]
@@ -26,6 +27,9 @@ lra = "linkedin_reply_assistant.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+linkedin_reply_assistant = ["defaults/*.yaml", "defaults/prompts/*.md"]
 
 [tool.setuptools.dynamic]
 version = { attr = "linkedin_reply_assistant.version.__version__" }
