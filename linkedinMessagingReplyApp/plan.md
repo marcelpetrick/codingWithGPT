@@ -4,8 +4,9 @@ Living document for the build. The goal is in `VISION.md`. The rules are in `AGE
 
 ## Verdict so far
 
-`VISION.md` is buildable on this machine. Gate 0 facts are measured (table below). The plan is set.
-Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate 0 skeleton and pipeline.
+The product is built and works end to end (v0.6.0): capture → OCR → classification → Ollama draft →
+verified insertion, with Docker on GHCR, pipeline and CI green. All gates G0–G6 are implemented.
+What remains are owner live checks L1–L5 (portal dialogs, real browser, real LinkedIn), see "Resume here".
 
 ## Review of VISION.md (2026-10-28)
 
@@ -69,42 +70,49 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | Review and fix all findings | `review_20261028.md`, 5 findings | done, v0.5.3 |
 | README: say what the project is; screenshot of the current state | "What is this project?" section; `docs/screenshot.png` and `docs/about.png` rendered on the live KDE Wayland session | done, v0.6.0 |
 | About dialog (Help → About): author, mail, GPLv3, own risk, thought prototype, all dependencies with versions | `ui/about.py`; versions read at runtime (Python, Qt, PySide6, GStreamer, Tesseract, every declared Python requirement) | done, v0.6.0 |
-| `/githubAbout`, final check against `VISION.md` | after the above | open |
+| `/githubAbout`, final check against `VISION.md` | proposal only; tracker filled | done |
+| Fix the failing GitHub Action | Pages build broke on Liquid syntax in `review_20261028.md`; reword, guard every `.md` | done, v0.6.1 |
+| README: "How it works" as a Mermaid workflow chart, how content is grabbed and replies are prepared | Mermaid flowchart + 5 Ollama steps | done, v0.6.2 |
+| `/updateDependencies` for the current state | check every pin against upstream, update, pipeline, commit | open |
+| No open issues: pipeline, CI, Docker, Pages green, tree clean | final check | open |
 
 ## Acceptance criteria tracker (`VISION.md` §25)
 
+All 29 code criteria are implemented and tested. The live checks L1–L5 need the owner at the desktop
+(portal dialogs, a real LinkedIn tab); the procedure is under "Resume here".
+
 | # | Criterion (short) | Gate | Evidence | State |
 |---|---|---|---|---|
-| 1 | Runs as normal user | G0 | | open |
-| 2 | Select window via portal | G1 | | open |
-| 3 | Capture current frame | G1 | | open |
-| 4 | Persist conversation ROI | G1 | | open |
-| 5 | Capture & Draft button always works | G2 | | open |
-| 6 | Approved global hotkey triggers same action | G2 | | open |
-| 7 | Never overwrites an OS shortcut | G2 | | open |
-| 8 | Hotkey failure shown, app still works | G2 | | open |
-| 9 | Captured image visible | G1 | | open |
-| 10 | Extracted text visible + editable | G3 | | open |
-| 11 | Visible category | G4 | | open |
-| 12 | Category override | G4 | | open |
-| 13 | Network Ollama first | G4 | | open |
-| 14 | Local fallback | G4 | | open |
-| 15 | Backend + model shown | G4 | | open |
-| 16 | Reply editable | G4 | | open |
-| 17 | Regenerate after edits | G4 | | open |
-| 18 | Superseded result cannot overwrite | G2/G4 | | open |
-| 19 | Extension + bridge for first browser | G5 | | open |
-| 20 | Insert into composer | G5 | | open |
-| 21 | Insertion verified | G5 | | open |
-| 22 | Never presses Send | G5 | | open |
-| 23 | Blocks conversation mismatch | G5 | | open |
-| 24 | Copy fallback | G5 | | open |
-| 25 | Fixture tests per category | G4 | | open |
-| 26 | Injection fixtures hold | G4 | | open |
-| 27 | No content persisted by default | G6 | | open |
-| 28 | Logs redacted | G6 | | open |
-| 29 | Failures readable in UI | G6 | | open |
-| 30 | Repeated success on real conversations | owner | Manual checklist §23.7; needs the owner at LinkedIn | open |
+| 1 | Runs as normal user | G0 | No root anywhere; `scripts/install.sh` is user level; Docker runs as uid 1000 | done |
+| 2 | Select window via portal | G1 | `portal/screencast.py`; `tests/integration/test_screencast.py` (fake portal, private D-Bus); live preflight: ScreenCast v5 | done (fake portal); **live pick: owner check L1** |
+| 3 | Capture current frame | G1 | `capture/pipewire.py` latest-frame grabber, tested with GStreamer sources; `lra selftest` | done; **live: L1** |
+| 4 | Persist conversation ROI | G1 | `state/settings.py`, ROI editor; `test_roi_and_debug_data`, `test_roi_dialog_drag` | done |
+| 5 | Capture & Draft button always works | G2 | `test_window_full_flow`; `DisabledShortcuts` path | done |
+| 6 | Approved global hotkey triggers same action | G2 | `test_hotkey_runs_same_command`, `test_global_shortcuts.py`, rebind on start (review #1) | done (fake portal); **live: L2** |
+| 7 | Never overwrites an OS shortcut | G2 | App only proposes via portal; guardrails; no config writes (`shortcuts/`) | done |
+| 8 | Hotkey failure shown, app works | G2 | `test_portal_missing`, `test_disabled_service`, hotkey chip | done |
+| 9 | Captured image visible | G1 | Preview pane; screenshot `docs/screenshot.png` | done |
+| 10 | Extracted text visible + editable | G3 | Message pane; `test_window_full_flow` | done |
+| 11 | Visible category | G4 | Draft pane label; `test_window_full_flow` | done |
+| 12 | Category override | G4 | Category combo; `test_regenerate_with_override_and_errors` | done |
+| 13 | Network Ollama first | G4 | `backends.yaml` priority; `test_network_first_with_installed_model` | done (fakes); **live on box: L4** (box busy all day) |
+| 14 | Local fallback | G4 | `test_fallback_to_local_when_network_down`; live 14/14 on local `qwen3.5:4b` | done |
+| 15 | Backend + model shown | G4 | AI chip + backend info with fallback reason | done |
+| 16 | Reply editable | G4 | Draft editor; `test_editing_marks_stale_and_edited` | done |
+| 17 | Regenerate after edits | G4 | `test_regenerate_with_override_and_errors` | done |
+| 18 | Superseded result cannot overwrite | G2/G4 | `test_superseded_results_are_dropped`, cancel tests | done |
+| 19 | Extension + bridge for first browser | G5 | MV3 extension + `lra-native-host`; e2e 8/8 in Chromium | done; **live install: L3** |
+| 20 | Insert into composer | G5 | e2e `test_insert_into_composer_without_sending` | done (fake page); **live: L3** |
+| 21 | Insertion verified | G5 | Read-back in content script and `Inserter`; `NOT_VERIFIED` test | done |
+| 22 | Never presses Send | G5 | Guard test + e2e counts send clicks, submits, key events = 0 | done |
+| 23 | Blocks conversation mismatch | G5 | e2e `test_wrong_conversation_is_blocked`; token compare (review #4) | done |
+| 24 | Copy fallback | G5 | Copy Draft button, `EXTENSION_DOWN` path | done |
+| 25 | Fixture tests per category | G4 | 14 message fixtures, `test_reply_engine.py`, live test | done |
+| 26 | Injection fixtures hold | G4 | 2 injection fixtures, fence + output guard tests; live 2/2 | done |
+| 27 | No content persisted by default | G6 | Frames in memory; debug captures opt-in; `test_debug_captures_only_when_enabled` | done |
+| 28 | Logs redacted | G6 | `events.py`; `test_full_run_on_fixture`, `test_event_log_redaction` | done |
+| 29 | Failures readable in UI | G6 | `friendly_error`, §21 texts, chips; UI tests | done |
+| 30 | Repeated success on real conversations | owner | Manual checklist §23.7 | **open: owner check L5** |
 
 ## Commit log (one row per commit, with its check)
 
@@ -128,6 +136,7 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | 0.5.2 | fix(reply-assistant): keep prompt templates free of Liquid syntax so GitHub Pages builds again | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 | 0.5.3 | fix(reply-assistant): fix the five findings of the branch review | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 | 0.6.0 | feat(reply-assistant): add the About dialog and explain the project in the README | `./localPipeline.sh` (11 stages); screenshots rendered on the live Wayland session at v0.6.0 | green, coverage 99% |
+| 0.6.1 | fix(reply-assistant): remove Liquid syntax from the review notes so GitHub Pages builds | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 
 ## Results
 
@@ -156,9 +165,27 @@ Time per draft 3.4–10.5 s (classification by the model for the ambiguous fixtu
 |---|---|---|
 | 2026-10-28 | Read `VISION.md`, the sibling project, probed the machine and the box | Gate 0 facts above. Review V1–V8. |
 | 2026-10-28 | Wrote `AGENTS.md` and `plan.md` | Decisions D1–D12, bends B1–B2 |
+| 2026-10-28 | Gates G0–G6 built, v0.1.0 → v0.6.0 | See the commit log; CI, Docker workflow and GHCR image green |
+| 2026-10-28 | Incident: prompt `system.md` broke the monorepo GitHub Pages build (Liquid double curly braces) since v0.1.1 | Fixed in v0.5.2, guard test added, Pages green again |
+| 2026-10-28 | `/reviewBranch` | 5 findings, all fixed in v0.5.3 (`review_20261028.md`) |
+| 2026-10-28 | `/githubAbout` | Proposal only (monorepo About covers all projects): topics `ollama`, `pyside6`, `wayland` suggested; not applied |
+| 2026-10-28 | Final check against `VISION.md` §25 | 29/30 criteria done in code and tests; live checks L1–L5 wait for the owner |
 
 ## Resume here
 
-- State: planning done, no code yet.
-- Check: `./localPipeline.sh` (exit 0 = green), `git log --oneline -- linkedinMessagingReplyApp/`.
-- Next: G0 skeleton.
+- State: v0.6.0, all gates implemented, 289 tests, 98% branch coverage, CI + Docker workflow green.
+- Check: `./localPipeline.sh` (exit 0 = green); `.venv/bin/lra preflight`; `.venv/bin/lra selftest`.
+- Commit: `scripts/commit.sh patch "<subject>" "<why>"` (pipeline, plan row, commit, push).
+- Owner live checks (each takes a few minutes):
+  1. **L1 capture:** `.venv/bin/lra test-window` and `.venv/bin/lra gui`. Press Select Window, pick the test
+     window, press Capture & Draft, Edit Region around the conversation, capture again.
+  2. **L2 hotkey:** Tools → Keyboard Shortcuts… → Request from desktop, accept in the KDE dialog. Focus the
+     test window, press the hotkey. Restart the app and press it again (review finding #1).
+  3. **L3 extension:** `chromium://extensions` → Developer mode → Load unpacked → `extension/`. The chip
+     shows "Extension: connected".
+  4. **L4 network node:** when the box is free (`curl -s 192.168.100.67:11434/api/ps`), run
+     `LIVE_OLLAMA=1 .venv/bin/pytest tests/integration/test_live_ollama.py -s`.
+  5. **L5 LinkedIn (VISION §23.7):** in Chromium, open a real conversation, Capture & Draft, check text and
+     category, edit, Insert into LinkedIn, verify the composer, do not let the app send. Repeat on several
+     conversations. Record the result in the status table.
+- After the round: decide GitHub topics for the monorepo (proposal in the status table, 2026-10-28).

@@ -224,18 +224,16 @@ def test_demo_backend_contract() -> None:
     assert plain["category"] == "unknown_manual_review" and plain["needs_manual_review"]
 
 
-def test_prompt_templates_have_no_liquid_syntax() -> None:
-    """GitHub Pages runs Liquid over Markdown; "{{" or "{%" breaks the whole site build."""
-    prompts = (
-        Path(__file__).resolve().parents[3]
-        / "src"
-        / "linkedin_reply_assistant"
-        / "defaults"
-        / "prompts"
-    )
-    for path in prompts.glob("*.md"):
+def test_markdown_has_no_liquid_syntax() -> None:
+    """GitHub Pages runs Liquid over every Markdown file of the monorepo. Double curly braces or a
+    brace-percent tag break the whole site build (incident 2026-10-28). Covers every .md here."""
+    root = Path(__file__).resolve().parents[3]
+    skip = {".venv", "node_modules", "htmlcov", "dist", "build"}
+    files = [p for p in root.rglob("*.md") if not skip & set(p.parts)]
+    assert len(files) > 5
+    for path in files:
         text = path.read_text()
-        assert "{{" not in text and "{%" not in text, path.name
+        assert "{" + "{" not in text and "{" + "%" not in text, path.relative_to(root)
 
 
 def test_fill_keeps_unknown_braces() -> None:
