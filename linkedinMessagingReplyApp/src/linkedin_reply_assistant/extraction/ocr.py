@@ -4,6 +4,7 @@
 
 import csv
 import io
+import re
 import shutil
 import subprocess
 from collections.abc import Callable
@@ -42,6 +43,11 @@ def preprocess(image: Image.Image) -> Image.Image:
     return gray
 
 
+def fix_pipes(line: str) -> str:
+    """Tesseract often reads a capital I as "|". A lone bar between words is an I."""
+    return re.sub(r"(^|(?<=\s))\|(?=\s|$)", "I", line)
+
+
 def parse_tsv(tsv: str) -> tuple[list[str], float]:
     """Return text lines and the mean word confidence (0..1) from Tesseract TSV output."""
     lines: dict[tuple[int, int, int], list[str]] = {}
@@ -56,7 +62,7 @@ def parse_tsv(tsv: str) -> tuple[list[str], float]:
         key = (int(row["block_num"]), int(row["par_num"]), int(row["line_num"]))
         lines.setdefault(key, []).append(word)
         confidences.append(conf)
-    text_lines = [" ".join(words) for _, words in sorted(lines.items())]
+    text_lines = [fix_pipes(" ".join(words)) for _, words in sorted(lines.items())]
     mean = sum(confidences) / len(confidences) / 100 if confidences else 0.0
     return text_lines, mean
 

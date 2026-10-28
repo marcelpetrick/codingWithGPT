@@ -237,3 +237,11 @@ def test_build_extractor() -> None:
     assert build_extractor("ocr", ocr, manager) is ocr
     assert isinstance(build_extractor("vision", ocr, manager), VisionExtractor)
     assert isinstance(build_extractor("hybrid", ocr, manager), HybridExtractor)
+
+
+def test_fix_pipes() -> None:
+    from linkedin_reply_assistant.extraction.ocr import fix_pipes
+
+    assert fix_pipes("this week? | can show you") == "this week? I can show you"
+    assert fix_pipes("| think so") == "I think so"
+    assert fix_pipes("a||b and x | y") == "a||b and x I y"

@@ -1,0 +1,8 @@
+# Synthetic fixture. No real LinkedIn content.
+participant: Kevin Doyle
+expected_category: sales_outreach
+rule: sales_call
+language: en
+messages:
+  - {sender: Kevin Doyle, time: "11:45 AM", direction: incoming, text: "Hi Marcel, our platform cuts cloud costs by 40%. Do you have 15 minutes for a quick call this week? I can show you a demo and our pricing."}
+forbidden_reply_patterns: ["not the right person", "let's schedule", "send me more", "happy to (jump on|have) a call"]

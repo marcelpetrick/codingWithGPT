@@ -40,7 +40,9 @@ lra-native-host = "linkedin_reply_assistant.browser_bridge.native_host:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-linkedin_reply_assistant = ["defaults/*.yaml", "defaults/prompts/*.md"]
+linkedin_reply_assistant = [
+    "defaults/*.yaml", "defaults/*.png", "defaults/prompts/*.md", "defaults/samples/*.yaml"
+]
 
 [tool.setuptools.dynamic]
 version = { attr = "linkedin_reply_assistant.version.__version__" }
@@ -82,8 +84,13 @@ files = ["src", "tests"]
 
 [[tool.mypy.overrides]]
 # mypy narrows `flow.state` across method calls that change it.
-module = ["tests.unit.state.test_workflow"]
+module = ["tests.unit.state.test_workflow", "tests.unit.ui.test_ui"]
 disable_error_code = ["comparison-overlap"]
+
+[[tool.mypy.overrides]]
+# pytest-qt's mouse helpers have no type hints.
+module = ["tests.unit.ui.test_ui"]
+disallow_untyped_calls = false
 
 [[tool.mypy.overrides]]
 # dbus-fast reads D-Bus signatures from string annotations; mypy cannot type them.

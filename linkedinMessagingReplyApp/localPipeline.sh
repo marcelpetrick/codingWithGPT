@@ -58,6 +58,7 @@ wheel_smoke() {
   uv venv -q -p 3.14 "$tmp/venv" &&
     VIRTUAL_ENV="$tmp/venv" uv pip install -q dist/*.whl &&
     "$tmp/venv/bin/lra" --version &&
+    QT_QPA_PLATFORM=offscreen "$tmp/venv/bin/lra" --config-dir "$tmp/cfg" selftest &&
     "$tmp/venv/bin/python" -c "from pathlib import Path; from linkedin_reply_assistant.config.loader import load_config as f; c = f(Path('$tmp/none')); print(len(c.prompts), 'prompts shipped')"
   local rc=$?
   rm -rf "$tmp"
