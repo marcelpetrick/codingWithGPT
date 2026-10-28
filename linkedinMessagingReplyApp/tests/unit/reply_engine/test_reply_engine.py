@@ -222,3 +222,26 @@ def test_demo_backend_contract() -> None:
         backend.chat("demo", ChatRequest("Classify", "x"), token)
     plain = json.loads(backend.chat("demo", ChatRequest("Draft", "x"), CancelToken()))
     assert plain["category"] == "unknown_manual_review" and plain["needs_manual_review"]
+
+
+def test_prompt_templates_have_no_liquid_syntax() -> None:
+    """GitHub Pages runs Liquid over Markdown; "{{" or "{%" breaks the whole site build."""
+    prompts = (
+        Path(__file__).resolve().parents[3]
+        / "src"
+        / "linkedin_reply_assistant"
+        / "defaults"
+        / "prompts"
+    )
+    for path in prompts.glob("*.md"):
+        text = path.read_text()
+        assert "{{" not in text and "{%" not in text, path.name
+
+
+def test_fill_keeps_unknown_braces() -> None:
+    from linkedin_reply_assistant.reply_engine.prompts import fill
+
+    assert (
+        fill('{"reply": "{name}", "x": {unknown}}', {"name": "Ann"})
+        == '{"reply": "Ann", "x": {unknown}}'
+    )

@@ -16,6 +16,17 @@ MARKER = re.compile(r"<{0,3}\s*MESSAGE_DATA\s*>{0,3}", re.IGNORECASE)
 LANGUAGE_NAMES = {"en": "English", "de": "German"}
 
 
+def fill(template: str, values: dict[str, object]) -> str:
+    """Replace `{name}` placeholders of known names only. Other braces (JSON) stay as they are.
+
+    Unlike str.format, the templates need no doubled braces, so they stay valid Markdown for any
+    renderer (GitHub Pages runs Liquid over .md files and rejects "{{").
+    """
+    for key, value in values.items():
+        template = template.replace("{" + key + "}", str(value))
+    return template
+
+
 def fence(text: str) -> str:
     """Wrap untrusted text as data. Marker look-alikes inside the text are removed."""
     cleaned = MARKER.sub("[removed marker]", text)
@@ -45,8 +56,8 @@ def reply_prompt(config: Config, category: str, language: str, transcript: str) 
         "category": category,
         "recruiting_preference": profile.recruiting_preference,
     }
-    system = config.prompts["system.md"].format(**values)
-    task = config.prompts[policy.prompt].format(**values)
+    system = fill(config.prompts["system.md"], values)
+    task = fill(config.prompts[policy.prompt], values)
     user = (
         "Conversation, oldest message first. Draft the reply to the last incoming message.\n"
         + fence(transcript)

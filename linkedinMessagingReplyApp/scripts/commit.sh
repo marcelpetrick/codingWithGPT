@@ -20,7 +20,9 @@ version=$(sed -nE 's/^__version__ = "(.*)"$/\1/p' src/linkedin_reply_assistant/v
 
 log=$(mktemp)
 if ! ./localPipeline.sh >"$log" 2>&1; then
-  tail -40 "$log"; echo "pipeline red: nothing committed"; exit 1
+  grep -E "^(FAILED|ERROR) |^E  " "$log" | head -20
+  tail -15 "$log"; cp "$log" /tmp/lra-last-red-pipeline.log
+  echo "pipeline red: nothing committed (full log: /tmp/lra-last-red-pipeline.log)"; exit 1
 fi
 stages=$(grep -c '^ok ' "$log")
 check="\`./localPipeline.sh\` ($stages stages)"
