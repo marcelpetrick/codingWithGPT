@@ -65,7 +65,7 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 # dbus-fast reads D-Bus signatures from string annotations ("u", "a{sv}").
-"tests/integration/fake_portal.py" = ["UP037", "F821", "F722"]
+"tests/integration/fake_portal.py" = ["UP037", "F821", "F722", "E501"]
 
 [tool.mypy]
 strict = true

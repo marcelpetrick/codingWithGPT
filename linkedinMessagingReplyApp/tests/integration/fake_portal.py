@@ -175,3 +175,62 @@ class FakeScreenCast(PortalBase):
         read_end, write_end = os.pipe()
         os.close(write_end)
         return read_end
+
+
+class FakeGlobalShortcuts(PortalBase):
+    def __init__(self, bus: MessageBus, version: int = 2) -> None:
+        super().__init__("org.freedesktop.portal.GlobalShortcuts", bus, version)
+        self.remembered: list[list[object]] = []
+        self.assign: str | None = "Ctrl+Alt+L"  # None = desktop refuses to assign
+        self.configured = 0
+        self.fail_configure = False
+
+    def _shortcuts(self, entries: list[list[object]]) -> Variant:
+        return Variant("a(sa{sv})", entries)
+
+    @method()
+    def CreateSession(self, options: "a{sv}") -> "o":
+        session = self.new_session(options)
+        return self.respond("CreateSession", options, {"session_handle": Variant("s", session)})
+
+    @method()
+    def ListShortcuts(self, session: "o", options: "a{sv}") -> "o":
+        return self.respond(
+            "ListShortcuts", options, {"shortcuts": self._shortcuts(self.remembered)}
+        )
+
+    @method()
+    def BindShortcuts(
+        self, session: "o", shortcuts: "a(sa{sv})", parent: "s", options: "a{sv}"
+    ) -> "o":
+        self.calls.append(("BindShortcuts-args", {"session": session, "shortcuts": shortcuts}))
+        result = []
+        for shortcut_id, props in shortcuts:
+            out = {"description": props["description"]}
+            if self.assign is not None:
+                out["trigger_description"] = Variant("s", self.assign)
+            result.append([shortcut_id, out])
+        self.remembered = result
+        return self.respond("BindShortcuts", options, {"shortcuts": self._shortcuts(result)})
+
+    @method()
+    def ConfigureShortcuts(self, session: "o", parent: "s", options: "a{sv}") -> None:
+        if self.fail_configure:
+            raise DBusError("org.freedesktop.portal.Error.Failed", "no settings")
+        self.configured += 1
+
+    @signal()
+    def Activated(
+        self, session: "o", shortcut_id: "s", timestamp: "t", options: "a{sv}"
+    ) -> "osta{sv}":
+        return [session, shortcut_id, timestamp, options]
+
+
+class FakeRegistry(ServiceInterface):
+    def __init__(self) -> None:
+        super().__init__("org.freedesktop.host.portal.Registry")
+        self.app_ids: list[str] = []
+
+    @method()
+    def Register(self, app_id: "s", options: "a{sv}") -> None:
+        self.app_ids.append(app_id)

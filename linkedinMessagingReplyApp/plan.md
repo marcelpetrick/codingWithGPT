@@ -106,6 +106,7 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | 0.1.2 | feat(reply-assistant): add Ollama client and backend manager with fallback | `./localPipeline.sh` (9 stages) | green, coverage 100% |
 | 0.2.0 | feat(reply-assistant): add preflight service and 'lra preflight' (gate 0) | `./localPipeline.sh` (9 stages); live: lra preflight on KDE/Wayland = 8 OK, tesseract FAIL (no eng data, V5) | green, coverage 100% |
 | 0.2.1 | feat(reply-assistant): add ScreenCast portal capture with latest-frame PipeWire grabber | `./localPipeline.sh` (9 stages) | green, coverage 99% |
+| 0.2.2 | feat(reply-assistant): add GlobalShortcuts portal client with trigger guardrails | `./localPipeline.sh` (9 stages) | green, coverage 99% |
 
 ## Status
 
