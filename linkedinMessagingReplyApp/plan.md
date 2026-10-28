@@ -114,6 +114,7 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | 0.3.0 | feat(reply-assistant): add browser extension, native host relay and verified insertion (gate 5) | `./localPipeline.sh` (10 stages); e2e: 8/8 (insert, no Send, no key events, mismatch blocked, no composer, non-LinkedIn tab, zero LinkedIn requests) | green, coverage 99% |
 | 0.4.0 | feat(reply-assistant): add the PySide6 desktop UI, controller and lra commands | `./localPipeline.sh` (10 stages); lra selftest OK in a clean wheel venv; UI tests 20/20 | green, coverage 98% |
 | 0.4.1 | build(reply-assistant): add a user-level install script with desktop entry | `./localPipeline.sh` (10 stages); scripts/install.sh on this machine: selftest OK, preflight 8 OK + bridge WARN | green, coverage 98% |
+| 0.5.0 | build(reply-assistant): add Docker image, docker pipeline stage and GHCR publishing | `./localPipeline.sh` (11 stages); docker smoke: version, selftest --network none, UI render | green, coverage 98% |
 
 ## Results
 

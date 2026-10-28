@@ -6,8 +6,9 @@
 # Usage:  ./localPipeline.sh            run all stages, stop at the first failure
 # Stages: install (uv) · license headers · ruff lint · ruff format check · mypy --strict ·
 #         guard (hard limits) · pytest + branch coverage >= 95% · build sdist + wheel ·
-#         wheel smoke in a clean venv · e2e (Chromium + extension + native host, routed fake page)
-# Needs:  uv, Python 3.14. Never contacts linkedin.com.
+#         wheel smoke in a clean venv · e2e (Chromium + extension + native host, routed fake page) ·
+#         docker build + smoke (scripts/docker_smoke.sh)
+# Needs:  uv, Python 3.14, Tesseract, GStreamer, dbus-daemon, Docker. Never contacts linkedin.com.
 # Exit:   0 all green; 1 a stage failed (the summary names it).
 set -uo pipefail
 cd "$(dirname "$0")"
@@ -80,4 +81,5 @@ stage "pytest coverage"  "$VENV/bin/pytest" -q
 stage "build"            build_dist
 stage "wheel smoke"      wheel_smoke
 stage "e2e"              e2e
+stage "docker"           scripts/docker_smoke.sh
 print_summary

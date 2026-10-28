@@ -1,0 +1,45 @@
+# Docker image for linkedinMessagingReplyApp/: build, smoke test, publish to GHCR.
+# Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: linkedin-reply-assistant-docker
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "linkedinMessagingReplyApp/**"
+      - ".github/workflows/linkedin-reply-assistant-docker.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/marcelpetrick/linkedin-reply-assistant
+
+jobs:
+  docker:
+    name: Build, smoke test, publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: linkedinMessagingReplyApp
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Smoke test the image
+        run: scripts/docker_smoke.sh linkedin-reply-assistant:ci
+      - name: Read the version
+        id: version
+        run: echo "version=$(sed -nE 's/^__version__ = \"(.*)\"$/\1/p' src/linkedin_reply_assistant/version.py)" >> "$GITHUB_OUTPUT"
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Tag and push
+        if: github.event_name != 'pull_request'
+        run: |
+          for tag in "${{ steps.version.outputs.version }}" latest "sha-${GITHUB_SHA::7}"; do
+            docker tag linkedin-reply-assistant:ci "$IMAGE:$tag"
+            docker push -q "$IMAGE:$tag"
+          done
