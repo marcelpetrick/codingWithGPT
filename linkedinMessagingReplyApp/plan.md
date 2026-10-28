@@ -145,6 +145,7 @@ All 29 code criteria are implemented and tested. L4 passed. The live checks L1�
 | 0.6.5 | docs(reply-assistant): close the owner task list in the plan | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 | 0.6.6 | docs(reply-assistant): add the Ollama and profile steps to the README setup | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 | 0.6.7 | fix(reply-assistant): route prompt-injection attempts to manual review by rule | `./localPipeline.sh` (11 stages) | green, coverage 99% |
+| 0.6.8 | docs(reply-assistant): record the live run on the local Ollama fallback | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 
 ## Results
 
@@ -180,6 +181,7 @@ Time per draft 3.4–10.5 s (classification by the model for the ambiguous fixtu
 | 2026-10-28 | Final check against `VISION.md` §25 | 29/30 criteria done in code and tests; live checks L1–L5 wait for the owner |
 | 2026-10-28 | Dependency check (PyPI, actions, base image) and full pipeline | All current, pipeline green; README setup got the Ollama and profile steps (v0.6.6) |
 | 2026-10-28 | **L4** live run on the box (box idle, `api/ps` empty) | First run 12/14: the box model put both injection fixtures into manual review, the local model said sales. Not a leak; the test was too strict. Fix: deterministic `prompt_injection` rule, first in `reply_rules.yaml` (v0.6.7). Rerun 14/14. |
+| 2026-10-28 | Live run on local Ollama only (`LRA_CONFIG_DIR` with only `local-ollama`), RTX A2000 8 GB | 14/14 on `qwen3.5:4b`, 1.6–6.1 s per draft, 13.3 s for the first (model load). The local fallback is usable. |
 
 ## Resume here
 
