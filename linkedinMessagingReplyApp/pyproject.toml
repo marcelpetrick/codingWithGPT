@@ -55,6 +55,7 @@ addopts = [
 ]
 testpaths = ["tests"]
 qt_api = "pyside6"
+markers = ["live_ollama: calls the real Ollama backends (LIVE_OLLAMA=1)"]
 
 [tool.coverage.run]
 source = ["linkedin_reply_assistant"]
@@ -67,6 +68,8 @@ target-version = "py314"
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
+# Test data (TSV rows, JSON answers, call arguments) reads better on one line.
+"tests/**" = ["E501"]
 # dbus-fast reads D-Bus signatures from string annotations ("u", "a{sv}").
 "tests/integration/fake_portal.py" = ["UP037", "F821", "F722", "E501"]
 

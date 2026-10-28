@@ -109,6 +109,7 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | 0.2.2 | feat(reply-assistant): add GlobalShortcuts portal client with trigger guardrails | `./localPipeline.sh` (9 stages) | green, coverage 99% |
 | 0.2.3 | feat(reply-assistant): add OCR, vision and hybrid extractors with screenshot fixtures | `./localPipeline.sh` (9 stages); OCR on 5 fixtures: similarity 0.99-1.00, confidence 0.96 | green, coverage 99% |
 | 0.2.4 | test(reply-assistant): add extractor benchmark and record the OCR default (D9) | `./localPipeline.sh` (9 stages); benchmark run, local-ollama qwen3-vl:4b | green, coverage 99% |
+| 0.2.5 | feat(reply-assistant): add classifier, prompt fences and reply generator | `./localPipeline.sh` (9 stages) | green, coverage 99% |
 
 ## Results
 
