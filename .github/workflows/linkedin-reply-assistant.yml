@@ -1,0 +1,44 @@
+# CI for linkedinMessagingReplyApp/: installs the system packages, then runs exactly ./localPipeline.sh.
+# Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: linkedin-reply-assistant
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "linkedinMessagingReplyApp/**"
+      - ".github/workflows/linkedin-reply-assistant.yml"
+  pull_request:
+    paths:
+      - "linkedinMessagingReplyApp/**"
+      - ".github/workflows/linkedin-reply-assistant.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-pipeline:
+    name: Local pipeline replica
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: linkedinMessagingReplyApp
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install system packages
+        run: sudo ./scripts/install_system_deps.sh
+      - uses: astral-sh/setup-uv@v10.3.2
+        with:
+          python-version: "3.14"
+      - name: Run local pipeline
+        run: ./localPipeline.sh
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: reply-assistant-coverage-html
+          path: linkedinMessagingReplyApp/htmlcov
+          if-no-files-found: ignore

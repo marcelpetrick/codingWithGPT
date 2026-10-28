@@ -101,6 +101,7 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 
 | Version | Commit subject | Check run | Result |
 |---|---|---|---|
+| 0.1.0 | build(reply-assistant): add package skeleton, local pipeline and CI | `./localPipeline.sh` (9 stages) | green, coverage 100% |
 
 ## Status
 

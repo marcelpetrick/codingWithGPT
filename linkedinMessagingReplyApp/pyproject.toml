@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools==84.2.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linkedin-reply-assistant"
+description = "Local desktop assistant: capture a LinkedIn conversation, draft a reply with Ollama, insert it. Never sends."
+readme = "README.md"
+requires-python = ">=3.14"
+license = "GPL-3.0-or-later"
+authors = [{ name = "Marcel Petrick", email = "mail@marcelpetrick.it" }]
+dynamic = ["version"]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "build==1.6.1",
+    "mypy==2.4.0",
+    "pytest==9.2.0",
+    "pytest-cov==7.1.0",
+    "ruff==0.17.3",
+]
+
+[project.scripts]
+lra = "linkedin_reply_assistant.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = { attr = "linkedin_reply_assistant.version.__version__" }
+
+[tool.pytest.ini_options]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+    "--cov=linkedin_reply_assistant",
+    "--cov-branch",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=html:htmlcov",
+    "--cov-fail-under=95",
+]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["linkedin_reply_assistant"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+strict = true
+python_version = "3.14"
+files = ["src", "tests"]
