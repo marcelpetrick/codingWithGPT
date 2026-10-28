@@ -117,6 +117,7 @@ Two sibling rules are bent, not broken (`AGENTS.md`, B1 and B2). Next step: gate
 | 0.5.0 | build(reply-assistant): add Docker image, docker pipeline stage and GHCR publishing | `./localPipeline.sh` (11 stages); docker smoke: version, selftest --network none, UI render | green, coverage 98% |
 | 0.5.1 | docs(reply-assistant): write the README with setup, usage, pipeline, Docker and a real screenshot | `./localPipeline.sh` (11 stages); docker GUI ran on the live Wayland session (demo, 60 s, no errors) | green, coverage 98% |
 | 0.5.2 | fix(reply-assistant): keep prompt templates free of Liquid syntax so GitHub Pages builds again | `./localPipeline.sh` (11 stages) | green, coverage 98% |
+| 0.5.3 | fix(reply-assistant): fix the five findings of the branch review | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 
 ## Results
 

@@ -79,11 +79,12 @@ def test_build_services(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setenv("LRA_BRIDGE_SOCKET", str(tmp_path / "run" / "b.sock"))
     services = build_services(config, tmp_path, demo=True, image=tmp_path / "x.png")
     assert isinstance(services.shortcuts, DisabledShortcuts)
-    assert services.settings_path == tmp_path / "state.yaml"
+    assert services.settings_path == tmp_path / "state-image.yaml"  # never the real state
     assert services.bridge_connected() is False
     assert [c.name for c in services.preflight()][-1].startswith("ai")
     portal = build_services(config, None, bridge=BridgeServer(tmp_path / "p.sock"))
     assert isinstance(portal.shortcuts, PortalGlobalShortcuts)
+    assert portal.settings_path.name == "state.yaml"
     hybrid = replace(
         config, app=replace(config.app, extraction=replace(config.app.extraction, mode="hybrid"))
     )

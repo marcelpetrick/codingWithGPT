@@ -93,6 +93,8 @@ def test_fingerprint() -> None:
     assert compare("Anna", None) == "unknown"
     assert compare("Anna", Identity(" ", "u")) == "unknown"
     assert compare("123", page) == "unknown"
+    assert compare("Ann", Identity("Joanna Smith", "u")) == "mismatch"  # no partial-word match
+    assert compare("Keller Anna", page) == "match"
 
 
 # --- inserter with a scripted transport --------------------------------------------------------
@@ -274,3 +276,10 @@ def test_request_send_failure(server: Any) -> None:
         bridge.request({"type": "identify"})
     bridge._client = None
     client.close()
+
+
+def test_second_instance_does_not_steal_the_socket(server: Any) -> None:
+    bridge, _ = server
+    with pytest.raises(OSError, match="another instance"):
+        BridgeServer(bridge.path).start()
+    assert bridge.path.exists()

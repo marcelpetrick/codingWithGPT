@@ -103,10 +103,21 @@ def test_cancel_returns_to_resting_state_and_drops_late_results() -> None:
     kept.mark_stale("changed")
     seq, _ = kept.begin_regenerate()
     kept.cancel()
-    assert kept.state == State.DRAFT_READY  # regenerate cleared the stale reason
+    assert kept.state == State.DRAFT_STALE  # only a new draft clears the stale reason
     idle = drafted()
     idle.cancel()
     assert idle.state == State.DRAFT_READY
+
+
+def test_failed_regeneration_keeps_draft_stale() -> None:
+    flow = drafted()
+    flow.edit_extracted_text("changed text")
+    seq, _ = flow.begin_regenerate()
+    flow.failed(seq, "backend down")
+    assert flow.stale_reason and not flow.can_insert
+    seq, _ = flow.begin_regenerate()
+    flow.drafted(seq, DRAFT)
+    assert not flow.stale_reason and flow.can_insert
 
 
 def test_errors_keep_state() -> None:

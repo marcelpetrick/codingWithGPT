@@ -99,7 +99,7 @@ class Workflow:
         self.sequence += 1
         self.active = self.sequence
         self.token = CancelToken()
-        self.error = self.stale_reason = ""
+        self.error = ""  # stale_reason stays until a new draft arrives
         self.state = State.GENERATING
         return self.sequence, self.token
 
@@ -128,6 +128,7 @@ class Workflow:
             return False
         self.draft = draft
         self.draft_text = draft.reply
+        self.stale_reason = ""
         self.state = State.DRAFT_READY
         self._finish()
         return True

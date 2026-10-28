@@ -40,7 +40,8 @@ def compare(captured_participant: str | None, active: Identity | None) -> Verdic
     title = normalize_name(active.title)
     if not captured or not title:
         return "unknown"
-    if captured in title or title in captured:
+    shorter, longer = sorted((captured.split(), title.split()), key=len)
+    if set(shorter) <= set(longer):  # whole names only: "Ann" must not match "Joanna"
         return "match"
     ratio = difflib.SequenceMatcher(None, captured, title).ratio()
     return "match" if ratio >= MATCH_THRESHOLD else "mismatch"

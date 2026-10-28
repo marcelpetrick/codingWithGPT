@@ -38,6 +38,8 @@ class BridgeServer:
     def start(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         if self.path.exists():
+            if _alive(self.path):
+                raise OSError(f"another instance of the app owns {self.path}")
             self.path.unlink()  # a stale socket from a crashed run
         listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         old_umask = os.umask(0o177)
@@ -148,3 +150,15 @@ def _shutdown(sock: socket.socket) -> None:
     """Wake a reader blocked on this socket (close() alone does not)."""
     with contextlib.suppress(OSError):
         sock.shutdown(socket.SHUT_RDWR)
+
+
+def _alive(path: Path) -> bool:
+    """True if a running app answers on the socket (a crashed run leaves a dead file)."""
+    probe = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    try:
+        probe.connect(str(path))
+    except OSError:
+        return False
+    finally:
+        probe.close()
+    return True

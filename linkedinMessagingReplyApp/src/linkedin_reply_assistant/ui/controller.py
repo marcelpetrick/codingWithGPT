@@ -147,12 +147,23 @@ class Controller(QObject):
         """Probe health and shortcuts, and restore the capture source if a token exists."""
         self.refresh_health()
         self.submit(
-            lambda: self.services.shortcuts.start(self._on_hotkey),
+            self._start_shortcuts,
             self._on_shortcut,
             lambda exc: self._on_shortcut(ShortcutStatus(False, None, friendly_error(exc))),
         )
         if self.settings.restore_token:
             self.select_source(restore=True)
+
+    def _start_shortcuts(self) -> ShortcutStatus:
+        """Open the portal session. A new session has no bindings, so a hotkey the user approved
+        before is bound again; the desktop keeps that approval. Nothing is bound on first launch."""
+        shortcuts = self.services.shortcuts
+        status = shortcuts.start(self._on_hotkey)
+        remembered = self.settings.hotkey_trigger
+        if status.available and not status.active and remembered:
+            hotkey = self.services.config.app.hotkey
+            status = shortcuts.bind(hotkey.shortcut_id, hotkey.description, remembered)
+        return status
 
     def refresh_health(self) -> None:
         self.submit(self.services.preflight, self.health.emit, lambda exc: None)

@@ -93,7 +93,10 @@ def build_services(
         inserter=Inserter(active_bridge),
         bridge_connected=lambda: active_bridge.connected,
         preflight=lambda: run_preflight(manager, bridge_status=active_bridge.status),
-        settings_path=settings_path(config_dir or user_config_dir()),
+        # Image/demo runs must not overwrite the real ScreenCast restore token or ROI.
+        settings_path=settings_path(config_dir or user_config_dir()).with_name(
+            "state-image.yaml" if image is not None else "state.yaml"
+        ),
         debug_dir=user_state_dir() / "debug_captures",
         events=pipeline.events,
     )

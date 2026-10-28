@@ -506,3 +506,20 @@ def test_roi_dialog_drag(qtbot: QtBot) -> None:
     canvas.set_image(None)
     canvas.repaint()
     assert canvas.image_rect().isNull()
+
+
+def test_remembered_hotkey_is_bound_again_on_start(
+    qtbot: QtBot, tmp_path: Path, config: Config
+) -> None:
+    made = build(tmp_path, config, settings=Settings(hotkey_trigger="Ctrl+Alt+L"))
+    made.controller.start()
+    qtbot.waitUntil(lambda: made.controller.shortcut_status.active, timeout=5000)
+    assert made.shortcuts.bound == ["Ctrl+Alt+L"]
+    made.controller.shutdown()
+
+
+def test_first_start_binds_nothing(qtbot: QtBot, rig: Rig) -> None:
+    rig.controller.start()
+    qtbot.waitUntil(lambda: rig.shortcuts.on_activated is not None, timeout=5000)
+    qtbot.wait(100)
+    assert rig.shortcuts.bound == []
