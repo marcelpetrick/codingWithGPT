@@ -280,3 +280,198 @@ done, 0 failed rows
 == 2026-10-29T15:33:02+01:00 Ollama unloaded; VRAM 3050 MiB
 wrote /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/report.md and /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/dashboard.html
 == 2026-10-29T15:33:02+01:00 download Gemma 4 E4B (both engines)
+== 2026-10-29T15:40:06+01:00 unload Ollama; VRAM 55 MiB
+== 2026-10-29T15:40:06+01:00 load Magnitude gemma-4-e4b-it-qat:gguf:q4
+== 2026-10-29T15:40:12+01:00 Magnitude ready; VRAM 3995 MiB
+magnitude-gemma-e4b A-moby-4096 rep 0: 29.23 tok/s
+magnitude-gemma-e4b A-moby-4096 rep 1: 24.65 tok/s
+magnitude-gemma-e4b A-moby-4096 rep 2: 24.56 tok/s
+magnitude-gemma-e4b A-moby-4096 rep 3: 24.45 tok/s
+magnitude-gemma-e4b A-moby-4096 rep 4: 24.44 tok/s
+magnitude-gemma-e4b A-moby-16384 rep 0: 87.49 tok/s
+magnitude-gemma-e4b A-moby-16384 rep 1: 83.15 tok/s
+magnitude-gemma-e4b A-moby-16384 rep 2: 84.29 tok/s
+magnitude-gemma-e4b A-moby-16384 rep 3: 82.99 tok/s
+magnitude-gemma-e4b A-moby-16384 rep 4: 83.19 tok/s
+magnitude-gemma-e4b B-lru-ttl-1024 rep 0: 43.51 tok/s
+magnitude-gemma-e4b B-lru-ttl-1024 rep 1: 53.42 tok/s
+magnitude-gemma-e4b B-lru-ttl-1024 rep 2: 55.9 tok/s
+magnitude-gemma-e4b B-lru-ttl-1024 rep 3: 46.35 tok/s
+magnitude-gemma-e4b B-lru-ttl-1024 rep 4: 54.4 tok/s
+magnitude-gemma-e4b B-csv-report-1024 rep 0: 44.26 tok/s
+magnitude-gemma-e4b B-csv-report-1024 rep 1: 52.04 tok/s
+magnitude-gemma-e4b B-csv-report-1024 rep 2: 47.09 tok/s
+magnitude-gemma-e4b B-csv-report-1024 rep 3: 60.79 tok/s
+magnitude-gemma-e4b B-csv-report-1024 rep 4: 47.57 tok/s
+magnitude-gemma-e4b B-rate-limiter-1024 rep 0: 54.24 tok/s
+magnitude-gemma-e4b B-rate-limiter-1024 rep 1: 59.33 tok/s
+magnitude-gemma-e4b B-rate-limiter-1024 rep 2: 49.04 tok/s
+magnitude-gemma-e4b B-rate-limiter-1024 rep 3: 58.35 tok/s
+magnitude-gemma-e4b B-rate-limiter-1024 rep 4: 45.45 tok/s
+magnitude-gemma-e4b B-graph-paths-1024 rep 0: 49.61 tok/s
+magnitude-gemma-e4b B-graph-paths-1024 rep 1: 40.15 tok/s
+magnitude-gemma-e4b B-graph-paths-1024 rep 2: 49.65 tok/s
+magnitude-gemma-e4b B-graph-paths-1024 rep 3: 41.85 tok/s
+magnitude-gemma-e4b B-graph-paths-1024 rep 4: 50.43 tok/s
+magnitude-gemma-e4b B-log-parser-1024 rep 0: 42.79 tok/s
+magnitude-gemma-e4b B-log-parser-1024 rep 1: 47.56 tok/s
+magnitude-gemma-e4b B-log-parser-1024 rep 2: 45.51 tok/s
+magnitude-gemma-e4b B-log-parser-1024 rep 3: 40.11 tok/s
+magnitude-gemma-e4b B-log-parser-1024 rep 4: 41.89 tok/s
+magnitude-gemma-e4b B-lru-ttl-8192 rep 0: 48.63 tok/s
+magnitude-gemma-e4b B-lru-ttl-8192 rep 1: 50.25 tok/s
+magnitude-gemma-e4b B-lru-ttl-8192 rep 2: 50.29 tok/s
+magnitude-gemma-e4b B-lru-ttl-8192 rep 3: 49.88 tok/s
+magnitude-gemma-e4b B-lru-ttl-8192 rep 4: 49.09 tok/s
+magnitude-gemma-e4b B-csv-report-8192 rep 0: 45.73 tok/s
+magnitude-gemma-e4b B-csv-report-8192 rep 1: 56.05 tok/s
+magnitude-gemma-e4b B-csv-report-8192 rep 2: 57.73 tok/s
+magnitude-gemma-e4b B-csv-report-8192 rep 3: 58.67 tok/s
+magnitude-gemma-e4b B-csv-report-8192 rep 4: 56.96 tok/s
+magnitude-gemma-e4b B-rate-limiter-8192 rep 0: 50.67 tok/s
+magnitude-gemma-e4b B-rate-limiter-8192 rep 1: 50.95 tok/s
+magnitude-gemma-e4b B-rate-limiter-8192 rep 2: 51.19 tok/s
+magnitude-gemma-e4b B-rate-limiter-8192 rep 3: 50.6 tok/s
+magnitude-gemma-e4b B-rate-limiter-8192 rep 4: 51.07 tok/s
+magnitude-gemma-e4b B-graph-paths-8192 rep 0: 59.93 tok/s
+magnitude-gemma-e4b B-graph-paths-8192 rep 1: 57.6 tok/s
+magnitude-gemma-e4b B-graph-paths-8192 rep 2: 51.1 tok/s
+magnitude-gemma-e4b B-graph-paths-8192 rep 3: 57.69 tok/s
+magnitude-gemma-e4b B-graph-paths-8192 rep 4: 47.44 tok/s
+magnitude-gemma-e4b B-log-parser-8192 rep 0: 43.18 tok/s
+magnitude-gemma-e4b B-log-parser-8192 rep 1: 44.52 tok/s
+magnitude-gemma-e4b B-log-parser-8192 rep 2: 42.26 tok/s
+magnitude-gemma-e4b B-log-parser-8192 rep 3: 43.24 tok/s
+magnitude-gemma-e4b B-log-parser-8192 rep 4: 40.79 tok/s
+done, 0 failed rows
+== 2026-10-29T15:54:20+01:00 Magnitude stopped; VRAM 55 MiB
+ollama-gemma-e4b A-moby-4096 rep 0: 28.96 tok/s
+ollama-gemma-e4b A-moby-4096 rep 1: 29.0 tok/s
+ollama-gemma-e4b A-moby-4096 rep 2: 28.96 tok/s
+ollama-gemma-e4b A-moby-4096 rep 3: 28.5 tok/s
+ollama-gemma-e4b A-moby-4096 rep 4: 28.08 tok/s
+ollama-gemma-e4b A-moby-16384 rep 0: 27.49 tok/s
+ollama-gemma-e4b A-moby-16384 rep 1: 27.51 tok/s
+ollama-gemma-e4b A-moby-16384 rep 2: 27.5 tok/s
+ollama-gemma-e4b A-moby-16384 rep 3: 27.5 tok/s
+ollama-gemma-e4b A-moby-16384 rep 4: 27.57 tok/s
+ollama-gemma-e4b B-lru-ttl-1024 rep 0: 29.53 tok/s
+ollama-gemma-e4b B-lru-ttl-1024 rep 1: 29.5 tok/s
+ollama-gemma-e4b B-lru-ttl-1024 rep 2: 29.48 tok/s
+ollama-gemma-e4b B-lru-ttl-1024 rep 3: 28.5 tok/s
+ollama-gemma-e4b B-lru-ttl-1024 rep 4: 26.2 tok/s
+ollama-gemma-e4b B-csv-report-1024 rep 0: 24.32 tok/s
+ollama-gemma-e4b B-csv-report-1024 rep 1: 24.26 tok/s
+ollama-gemma-e4b B-csv-report-1024 rep 2: 25.27 tok/s
+ollama-gemma-e4b B-csv-report-1024 rep 3: 22.98 tok/s
+ollama-gemma-e4b B-csv-report-1024 rep 4: 24.97 tok/s
+ollama-gemma-e4b B-rate-limiter-1024 rep 0: 24.01 tok/s
+ollama-gemma-e4b B-rate-limiter-1024 rep 1: 24.26 tok/s
+ollama-gemma-e4b B-rate-limiter-1024 rep 2: 27.91 tok/s
+ollama-gemma-e4b B-rate-limiter-1024 rep 3: 25.89 tok/s
+ollama-gemma-e4b B-rate-limiter-1024 rep 4: 23.22 tok/s
+ollama-gemma-e4b B-graph-paths-1024 rep 0: 24.16 tok/s
+ollama-gemma-e4b B-graph-paths-1024 rep 1: 27.06 tok/s
+ollama-gemma-e4b B-graph-paths-1024 rep 2: 27.24 tok/s
+ollama-gemma-e4b B-graph-paths-1024 rep 3: 28.32 tok/s
+ollama-gemma-e4b B-graph-paths-1024 rep 4: 21.79 tok/s
+ollama-gemma-e4b B-log-parser-1024 rep 0: 25.61 tok/s
+ollama-gemma-e4b B-log-parser-1024 rep 1: 25.54 tok/s
+ollama-gemma-e4b B-log-parser-1024 rep 2: 24.07 tok/s
+ollama-gemma-e4b B-log-parser-1024 rep 3: 20.17 tok/s
+ollama-gemma-e4b B-log-parser-1024 rep 4: 22.5 tok/s
+ollama-gemma-e4b B-lru-ttl-8192 rep 0: 27.7 tok/s
+ollama-gemma-e4b B-lru-ttl-8192 rep 1: 27.82 tok/s
+ollama-gemma-e4b B-lru-ttl-8192 rep 2: 27.65 tok/s
+ollama-gemma-e4b B-lru-ttl-8192 rep 3: 27.85 tok/s
+ollama-gemma-e4b B-lru-ttl-8192 rep 4: 27.8 tok/s
+ollama-gemma-e4b B-csv-report-8192 rep 0: 27.41 tok/s
+ollama-gemma-e4b B-csv-report-8192 rep 1: 27.52 tok/s
+ollama-gemma-e4b B-csv-report-8192 rep 2: 27.39 tok/s
+ollama-gemma-e4b B-csv-report-8192 rep 3: 27.53 tok/s
+ollama-gemma-e4b B-csv-report-8192 rep 4: 27.47 tok/s
+ollama-gemma-e4b B-rate-limiter-8192 rep 0: 28.11 tok/s
+ollama-gemma-e4b B-rate-limiter-8192 rep 1: 28.0 tok/s
+ollama-gemma-e4b B-rate-limiter-8192 rep 2: 28.04 tok/s
+ollama-gemma-e4b B-rate-limiter-8192 rep 3: 28.01 tok/s
+ollama-gemma-e4b B-rate-limiter-8192 rep 4: 28.12 tok/s
+ollama-gemma-e4b B-graph-paths-8192 rep 0: 28.02 tok/s
+ollama-gemma-e4b B-graph-paths-8192 rep 1: 28.01 tok/s
+ollama-gemma-e4b B-graph-paths-8192 rep 2: 28.1 tok/s
+ollama-gemma-e4b B-graph-paths-8192 rep 3: 28.11 tok/s
+ollama-gemma-e4b B-graph-paths-8192 rep 4: 28.01 tok/s
+ollama-gemma-e4b B-log-parser-8192 rep 0: 28.07 tok/s
+ollama-gemma-e4b B-log-parser-8192 rep 1: 28.18 tok/s
+ollama-gemma-e4b B-log-parser-8192 rep 2: 28.07 tok/s
+ollama-gemma-e4b B-log-parser-8192 rep 3: 27.88 tok/s
+ollama-gemma-e4b B-log-parser-8192 rep 4: 28.1 tok/s
+done, 0 failed rows
+== 2026-10-29T16:12:06+01:00 Ollama unloaded; VRAM 4326 MiB
+wrote /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/report.md and /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/dashboard.html
+== 2026-10-29T16:12:06+01:00 unload Ollama; VRAM 4326 MiB
+== 2026-10-29T16:12:07+01:00 load Magnitude gemma-4-e4b-it-qat:gguf:q4
+== 2026-10-29T16:12:19+01:00 Magnitude ready; VRAM 3995 MiB
+magnitude-gemma-e4b C-is-palindrome rep 0: 48.0 tok/s
+magnitude-gemma-e4b C-run-length rep 0: 25.28 tok/s
+magnitude-gemma-e4b C-flatten rep 0: 25.24 tok/s
+magnitude-gemma-e4b C-roman rep 0: 26.35 tok/s
+magnitude-gemma-e4b C-from-roman rep 0: 30.41 tok/s
+magnitude-gemma-e4b C-anagram-groups rep 0: 58.64 tok/s
+magnitude-gemma-e4b C-merge-intervals rep 0: 32.19 tok/s
+magnitude-gemma-e4b C-primes rep 0: 51.97 tok/s
+magnitude-gemma-e4b C-balanced rep 0: 31.96 tok/s
+magnitude-gemma-e4b C-word-freq rep 0: 34.99 tok/s
+magnitude-gemma-e4b C-binary-search rep 0: 61.8 tok/s
+magnitude-gemma-e4b C-chunk rep 0: 25.55 tok/s
+magnitude-gemma-e4b C-camel-snake rep 0: 29.68 tok/s
+magnitude-gemma-e4b C-matrix-transpose rep 0: 27.42 tok/s
+magnitude-gemma-e4b C-fib-memo rep 0: 45.29 tok/s
+magnitude-gemma-e4b C-dedupe rep 0: 25.68 tok/s
+magnitude-gemma-e4b C-caesar rep 0: 32.01 tok/s
+magnitude-gemma-e4b C-digits-sum rep 0: 25.46 tok/s
+magnitude-gemma-e4b C-parse-duration rep 0: 43.58 tok/s
+magnitude-gemma-e4b C-spiral rep 0: 49.22 tok/s
+done, 0 failed rows
+== 2026-10-29T16:14:28+01:00 Magnitude stopped; VRAM 55 MiB
+ollama-gemma-e4b C-is-palindrome rep 0: 30.14 tok/s
+ollama-gemma-e4b C-run-length rep 0: 30.08 tok/s
+ollama-gemma-e4b C-flatten rep 0: 30.09 tok/s
+ollama-gemma-e4b C-roman rep 0: 29.85 tok/s
+ollama-gemma-e4b C-from-roman rep 0: 29.88 tok/s
+ollama-gemma-e4b C-anagram-groups rep 0: 29.74 tok/s
+ollama-gemma-e4b C-merge-intervals rep 0: 29.75 tok/s
+ollama-gemma-e4b C-primes rep 0: 29.89 tok/s
+ollama-gemma-e4b C-balanced rep 0: 29.95 tok/s
+ollama-gemma-e4b C-word-freq rep 0: 29.74 tok/s
+ollama-gemma-e4b C-binary-search rep 0: 29.83 tok/s
+ollama-gemma-e4b C-chunk rep 0: 30.09 tok/s
+ollama-gemma-e4b C-camel-snake rep 0: 30.01 tok/s
+ollama-gemma-e4b C-matrix-transpose rep 0: 29.89 tok/s
+ollama-gemma-e4b C-fib-memo rep 0: 29.52 tok/s
+ollama-gemma-e4b C-dedupe rep 0: 30.03 tok/s
+ollama-gemma-e4b C-caesar rep 0: 29.79 tok/s
+ollama-gemma-e4b C-digits-sum rep 0: 29.93 tok/s
+ollama-gemma-e4b C-parse-duration rep 0: 29.48 tok/s
+ollama-gemma-e4b C-spiral rep 0: 29.68 tok/s
+done, 0 failed rows
+== 2026-10-29T16:17:00+01:00 Ollama unloaded; VRAM 4254 MiB
+wrote /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/report.md and /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/dashboard.html
+== 2026-10-29T16:17:00+01:00 unload Ollama; VRAM 55 MiB
+== 2026-10-29T16:17:00+01:00 load Magnitude gemma-4-e4b-it-qat:gguf:q4
+== 2026-10-29T16:17:23+01:00 Magnitude ready; VRAM 3995 MiB
+magnitude-gemma-e4b V-shapes rep 0: 77.42 tok/s
+magnitude-gemma-e4b V-count rep 0: 0.0 tok/s
+magnitude-gemma-e4b V-bars rep 0: 30.05 tok/s
+magnitude-gemma-e4b V-flag rep 0: 30.15 tok/s
+magnitude-gemma-e4b V-position rep 0: 51.58 tok/s
+done, 0 failed rows
+== 2026-10-29T16:17:35+01:00 Magnitude stopped; VRAM 55 MiB
+ollama-gemma-e4b V-shapes rep 0: 31.31 tok/s
+ollama-gemma-e4b V-count rep 0: 0.0 tok/s
+ollama-gemma-e4b V-bars rep 0: 32.1 tok/s
+ollama-gemma-e4b V-flag rep 0: 35.95 tok/s
+ollama-gemma-e4b V-position rep 0: 55.49 tok/s
+done, 0 failed rows
+== 2026-10-29T16:17:51+01:00 Ollama unloaded; VRAM 4280 MiB
+wrote /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/report.md and /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/dashboard.html
+LONG RUN DONE 2026-10-29T16:17:51+01:00
