@@ -6,6 +6,8 @@ Both videos, caption files, and the reusable renderer are ready. The source has 
 
 ## Current change
 
+The watermark is farther left. Sampled frames show its full name. Both updated videos decoded without errors.
+
 1. Reduce the subtitle band. Estimate: 2 minutes.
 2. Add a faint watermark at the top right. Estimate: 2 minutes.
 3. Render both videos and check two-line captions. Estimate: 3 minutes.
@@ -31,6 +33,7 @@ Both videos, caption files, and the reusable renderer are ready. The source has 
 | 2026-10-29 | Checked sample frames and committed the source and exports. |
 | 2026-10-29 | Reduced the subtitle band and added a faint watermark. |
 | 2026-10-29 | Rendered and decoded both updated videos. Checked a two-line caption and the watermark. |
+| 2026-10-29 | Moved the watermark left. Checked a sample frame and decoded both videos. |
 
 ## Results
 

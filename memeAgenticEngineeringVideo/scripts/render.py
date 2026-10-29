@@ -75,7 +75,7 @@ ScaledBorderAndShadow: yes
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Caption,DejaVu Sans,38,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,0,2,30,30,8,1
-Style: Watermark,DejaVu Sans,17,&HC8FFFFFF,&HC8FFFFFF,&HD0000000,&HFF000000,0,0,0,0,100,100,0,0,1,1,0,9,16,16,14,1
+Style: Watermark,DejaVu Sans,17,&HC8FFFFFF,&HC8FFFFFF,&HD0000000,&HFF000000,0,0,0,0,100,100,0,0,1,1,0,9,16,64,14,1
 Style: Notice,DejaVu Sans,20,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,3,3,0,8,20,20,12,1
 
 [Events]
