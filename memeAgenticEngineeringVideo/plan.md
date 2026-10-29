@@ -4,6 +4,13 @@
 
 Both videos, caption files, and the reusable renderer are ready. The source has low resolution. Caption timing uses reading time and needs a human playback review.
 
+## Current change
+
+1. Reduce the subtitle band. Estimate: 2 minutes.
+2. Add a faint watermark at the top right. Estimate: 2 minutes.
+3. Render both videos and check two-line captions. Estimate: 3 minutes.
+4. Commit the changes locally. Estimate: 1 minute.
+
 ## Plan
 
 1. Commit the supplied meme plan. Estimate: 2 minutes.
@@ -22,6 +29,8 @@ Both videos, caption files, and the reusable renderer are ready. The source has 
 | 2026-10-29 | Created two editable scripts and a reusable renderer. |
 | 2026-10-29 | Rendered both exports and decoded each without errors. |
 | 2026-10-29 | Checked sample frames and committed the source and exports. |
+| 2026-10-29 | Reduced the subtitle band and added a faint watermark. |
+| 2026-10-29 | Rendered and decoded both updated videos. Checked a two-line caption and the watermark. |
 
 ## Results
 

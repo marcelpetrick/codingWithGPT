@@ -68,13 +68,14 @@ def main():
     header = '''[Script Info]
 ScriptType: v4.00+
 PlayResX: 960
-PlayResY: 930
+PlayResY: 826
 WrapStyle: 2
 ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Caption,DejaVu Sans,38,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,0,2,30,30,58,1
+Style: Caption,DejaVu Sans,38,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,0,2,30,30,8,1
+Style: Watermark,DejaVu Sans,17,&HC8FFFFFF,&HC8FFFFFF,&HD0000000,&HFF000000,0,0,0,0,100,100,0,0,1,1,0,9,16,16,14,1
 Style: Notice,DejaVu Sans,20,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,3,3,0,8,20,20,12,1
 
 [Events]
@@ -82,7 +83,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 1,0:00:00.00,0:00:06.00,Notice,,0,0,0,,PARODY SUBTITLES — NOT A TRANSLATION
 '''
     ass = subdir / f'{name}.ass'
-    ass.write_text(header + '\n'.join(events) + '\n', encoding='utf-8')
+    watermark = f"Dialogue: 1,0:00:00.00,{stamp(float(config['duration']), True)},Watermark,,0,0,0,,mpetrick\n"
+    ass.write_text(header + watermark + '\n'.join(events) + '\n', encoding='utf-8')
     if args.captions_only:
         return
     source = args.source.resolve()
@@ -90,7 +92,7 @@ Dialogue: 1,0:00:00.00,0:00:06.00,Notice,,0,0,0,,PARODY SUBTITLES — NOT A TRAN
     if float(probe.stdout.strip()) < float(config.get('source_start', 0)) + float(config['duration']):
         raise ValueError('Source is shorter than the requested cut.')
     # Use a relative ASS path so FFmpeg filter escaping does not depend on the checkout path.
-    vf = f"scale=960:726:force_original_aspect_ratio=decrease,pad=960:930:(ow-iw)/2:0:black,ass=subtitles/{name}.ass"
+    vf = f"scale=960:726:force_original_aspect_ratio=decrease,pad=960:826:(ow-iw)/2:0:black,ass=subtitles/{name}.ass"
     subprocess.run(['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-ss', str(config.get('source_start', 0)), '-i', str(source), '-t', str(config['duration']), '-vf', vf, '-c:v', 'libx264', '-crf', '20', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', str(outdir / f'{name}.mp4')], check=True, cwd=ROOT)
 
 
