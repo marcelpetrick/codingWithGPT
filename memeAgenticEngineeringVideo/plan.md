@@ -2,7 +2,7 @@
 
 ## Verdict
 
-Both parody scripts and the reusable renderer are ready. The source has low resolution. Caption timing uses reading time and needs a human playback review.
+Both videos, caption files, and the reusable renderer are ready. The source has low resolution. Caption timing uses reading time and needs a human playback review.
 
 ## Plan
 
@@ -20,11 +20,12 @@ Both parody scripts and the reusable renderer are ready. The source has low reso
 | 2026-10-29 | Committed the supplied plan and this working plan. |
 | 2026-10-29 | Downloaded the source. Sampled frames show the intended interview without visible subtitles. |
 | 2026-10-29 | Created two editable scripts and a reusable renderer. |
-| 2026-10-29 | Started both exports. |
+| 2026-10-29 | Rendered both exports and decoded each without errors. |
+| 2026-10-29 | Checked sample frames and committed the source and exports. |
 
 ## Results
 
-The source is 328×248 at 25 fps. The renderer enlarges it to fit a canvas with a separate subtitle band. The captions use reading-time timing. They are not matched to every speech or laugh boundary.
+The source is 328×248 at 25 fps. The renderer enlarges it to fit a canvas with a separate subtitle band. The captions use reading-time timing. They are not matched to every speech or laugh boundary. Sample frames show readable captions. Full audiovisual playback has not been checked.
 
 ## Resume here
 
