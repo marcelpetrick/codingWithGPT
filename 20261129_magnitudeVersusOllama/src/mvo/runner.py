@@ -16,12 +16,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from mvo import tasks
+from mvo import tasks, vision
 from mvo.client import Engine, EngineError, EngineUnreachable, Timing, stream_chat
 from mvo.sysinfo import gpu_facts
 from mvo.workloads import Prompt, build
 
-StreamFn = Callable[[Engine, list[dict[str, str]], int, int], Timing]
+StreamFn = Callable[[Engine, list[dict[str, Any]], int, int], Timing]
 
 
 @dataclass(frozen=True)
@@ -101,6 +101,8 @@ def measure(
     )
     if prompt.workload == "C":
         row["passed"] = tasks.check(prompt.prompt_id.removeprefix("C-"), timing.text)
+    if prompt.workload == "V":
+        row["passed"] = vision.check(prompt.prompt_id.removeprefix("V-"), timing.text)
     if timing.reasoning_chars:
         row.update(ok=False, error="thinking was not off (reasoning tokens in the stream)")
     return row

@@ -1,0 +1,3 @@
+== 2026-10-29T14:49:03+01:00 unload Ollama; VRAM 2901 MiB
+== 2026-10-29T14:49:03+01:00 load Magnitude hf:unsloth/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf
+== 2026-10-29T14:49:04+01:00 Magnitude ready; VRAM 2901 MiB

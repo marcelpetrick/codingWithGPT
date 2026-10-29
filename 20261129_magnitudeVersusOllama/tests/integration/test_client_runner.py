@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 from fake_engine import FakeEngine
@@ -104,7 +105,7 @@ def test_run_arm_http_error_row(fake: FakeEngine, tmp_path: Path) -> None:
     out = tmp_path / "r.jsonl"
     stream_calls = {"n": 0}
 
-    def flaky(engine: Engine, messages: list[dict[str, str]], max_tokens: int, ctx: int):  # type: ignore[no-untyped-def]
+    def flaky(engine: Engine, messages: list[dict[str, Any]], max_tokens: int, ctx: int):  # type: ignore[no-untyped-def]
         stream_calls["n"] += 1
         if stream_calls["n"] == 1:
             return stream_chat(engine, messages, max_tokens, ctx)
@@ -112,6 +113,15 @@ def test_run_arm_http_error_row(fake: FakeEngine, tmp_path: Path) -> None:
 
     assert run_arm(arm(fake.url), [("A", 4096)], 1, out, stream=flaky, facts_fn=dict, log=lambda _: None) == 1
     assert done_keys(out) == set()
+
+
+def test_run_arm_vision_rows(fake: FakeEngine, tmp_path: Path) -> None:
+    out = tmp_path / "r.jsonl"
+    fake.answer = "The square is red and on the right is a circle."
+    assert run_arm(arm(fake.url), [("V", 4096)], 1, out, facts_fn=dict, log=lambda _: None) == 0
+    rows = {json.loads(line)["prompt_id"]: json.loads(line) for line in out.read_text().splitlines()}
+    assert rows["V-shapes"]["passed"] is True and rows["V-count"]["passed"] is False
+    assert fake.requests[-1]["body"]["messages"][-1]["images"]
 
 
 def test_run_arm_unreachable_stops(tmp_path: Path) -> None:
@@ -123,7 +133,7 @@ def test_run_arm_unreachable_stops(tmp_path: Path) -> None:
 def test_measure_reraises_unreachable(fake: FakeEngine, tmp_path: Path) -> None:
     calls = {"n": 0}
 
-    def dies(engine: Engine, messages: list[dict[str, str]], max_tokens: int, ctx: int):  # type: ignore[no-untyped-def]
+    def dies(engine: Engine, messages: list[dict[str, Any]], max_tokens: int, ctx: int):  # type: ignore[no-untyped-def]
         calls["n"] += 1
         if calls["n"] == 1:
             return stream_chat(engine, messages, max_tokens, ctx)

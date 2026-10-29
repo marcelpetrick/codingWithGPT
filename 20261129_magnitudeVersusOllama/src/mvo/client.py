@@ -69,8 +69,23 @@ class Timing:
         return (self.completion_tokens - 1) / self.decode_s
 
 
+def openai_messages(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Turn ``images: [b64]`` into OpenAI content parts (text + image_url data URI)."""
+    out = []
+    for message in messages:
+        if "images" not in message:
+            out.append(message)
+            continue
+        parts: list[dict[str, Any]] = [{"type": "text", "text": message["content"]}]
+        parts += [
+            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}} for b64 in message["images"]
+        ]
+        out.append({"role": message["role"], "content": parts})
+    return out
+
+
 def build_request(
-    engine: Engine, messages: list[dict[str, str]], max_tokens: int, num_ctx: int
+    engine: Engine, messages: list[dict[str, Any]], max_tokens: int, num_ctx: int
 ) -> urllib.request.Request:
     """Build the HTTP request: greedy sampler, no penalties, thinking off, fixed seed."""
     if engine.protocol == "ollama":
@@ -94,7 +109,7 @@ def build_request(
     elif engine.protocol == "openai":
         body = {
             "model": engine.model,
-            "messages": messages,
+            "messages": openai_messages(messages),
             "stream": True,
             "stream_options": {"include_usage": True},
             "temperature": 0,
@@ -131,7 +146,7 @@ def _events(protocol: str, lines: Iterator[bytes]) -> Iterator[dict[str, Any]]:
 
 def stream_chat(
     engine: Engine,
-    messages: list[dict[str, str]],
+    messages: list[dict[str, Any]],
     max_tokens: int,
     num_ctx: int,
     timeout_s: float = 600.0,

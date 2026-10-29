@@ -107,6 +107,25 @@ Ollama library:
 None are usable as a baseline. `ollamaClaudeCode_v0` measured the network server, not this laptop.
 `ollamaClaudeCode_v2/muse_ollama.md` ran a model split between GPU and CPU on this laptop.
 
+## Focus: models that fill the 8 GB (owner, 2026-10-29 14:55)
+
+Fit check with `magnitude catalog inspect` on this laptop:
+
+| Model | Magnitude | Ollama | Use |
+|---|---|---|---|
+| Gemma 4 E4B QAT Q4 (8B with PLE) | "Snug (8 GB)", MTP drafter | `gemma4:e4b-it-qat` 6.1 GB, no MTP tag | **Main match: fills the GPU** |
+| Qwen3.5 4B | refused (plans 256K ctx, 212 MB short even forced) | runs, 100% GPU | Gate result only |
+| Qwen3.5 2B | fits (Q4_K_M to BF16), no drafter offered | `qwen3.5:2b` plain and MTP | Qwen match, pure engine |
+| Qwen3 / Qwen3-VL (all sizes) | "No kernels for the qwen3 architecture" | runs | Not comparable |
+| Gemma 4 E2B | fits, MTP | `gemma4:e2b-it-qat` | Quick test only (done) |
+
+New workload **V** (vision kept?): 5 generated PNG images with known answers (shapes, count, tallest bar,
+flag stripes, corner). Pass = every expected keyword matches. Images go as `images` (Ollama) or an
+`image_url` data URI (OpenAI protocol).
+
+Report fix: pairs now form only inside one model family (site, family, workload, ctx). Before, two
+families on one site would have paired Magnitude-Gemma with Ollama-Qwen.
+
 ## Disk (2026-10-29)
 
 Both engines wrote models to the root partition, and root ran full during the downloads.
@@ -149,11 +168,12 @@ Cells per model: `A:4096,A:16384,B:1024,B:8192` with n = 5, and `C:4096` with n 
 | 2026-10-29 14:05 | Magnitude catalog check | Qwen3.5 4B refused, Gemma 4 E2B/E4B allowed. |
 | 2026-10-29 14:10 | Root partition full (92 MB free) | Stopped all downloads. Owner removed 4 old Ollama models and moved both model stores to `/home` (see "Disk"). |
 | 2026-10-29 14:39 | Quick test Gemma 4 E2B | 36 rows, 0 failed. Result in "Verdict so far", point 6. |
+| 2026-10-29 14:49 | Long run started (Qwen 2B first) | Stopped at 14:58 after 33 rows (kept) for the new focus. |
+| 2026-10-29 15:05 | v0.2.0: workload V, family fix, E4B arms | Chain restarted: Qwen 2B (resumes), then Gemma 4 E4B. |
 
 ## Resume here
 
-- State: Magnitude service runs. Downloads: `gemma-4-e2b-it-qat:gguf:q4` and the forced Qwen3.5 4B
-  (Magnitude); `gemma4:e2b-it-qat`, `gemma4:e4b-it-qat` (Ollama, log in `~/magnitude_eval/`).
-- Check: `magnitude models status`, `ollama list`, `ollama ps`, `nvidia-smi`, `./localPipeline.sh`.
-- Next: add the Gemma arms to `arms.json`, put the network key in `MVO_MAGNITUDE_API_KEY`
-  (environment only), then run step 3.
+- State: chain `scripts/run_long.sh` runs detached; log `results/long_run.log`.
+- Check: `tail results/long_run.log`, `wc -l results/laptop_*.jsonl`, `nvidia-smi`, `magnitude models status`.
+- Restart (idempotent): `setsid nohup systemd-inhibit --what=sleep:idle --why="mvo long run" scripts/run_long.sh >> results/long_run.log 2>&1 &`
+- After the run: `.venv/bin/mvo report`, look at `dashboard.html`, update this file and `plan.html`.

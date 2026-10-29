@@ -30,7 +30,20 @@ def make_root(tmp_path: Path, url: str) -> Path:
                 "model": "m",
                 "quant": "Q4",
                 "drafter": "none",
+                "family": "Fam",
                 "note": "ollama note",
+            },
+            {
+                "label": "ollama-other",
+                "engine": "ollama",
+                "protocol": "ollama",
+                "base_url": url,
+                "version_url": url + "/api/version",
+                "model": "o",
+                "quant": "Q4",
+                "drafter": "none",
+                "family": "Other",
+                "note": "other family",
             },
             {
                 "label": "magnitude-t",
@@ -41,6 +54,7 @@ def make_root(tmp_path: Path, url: str) -> Path:
                 "model": "m",
                 "quant": "Q4",
                 "drafter": "dflash",
+                "family": "Fam",
                 "note": "mag note",
             },
         ]
@@ -54,6 +68,8 @@ def test_full_flow(fake: FakeEngine, tmp_path: Path, capsys: pytest.CaptureFixtu
     base = ["--root", str(root)]
     for label in ("ollama-t", "magnitude-t"):
         assert cli.main([*base, "run", "--arm", label, "--cells", "A:4096,B:1024,C:4096", "--reps", "5"]) == 0
+    assert cli.main([*base, "run", "--arm", "ollama-other", "--cells", "B:1024", "--reps", "5"]) == 0
+    assert cli.main([*base, "run", "--arm", "magnitude-t", "--cells", "V:4096", "--reps", "1"]) == 0
     assert (
         cli.main(
             [
@@ -77,9 +93,12 @@ def test_full_flow(fake: FakeEngine, tmp_path: Path, capsys: pytest.CaptureFixtu
     md = (root / "report.md").read_text()
     page = (root / "dashboard.html").read_text()
     assert "magnitude-t vs ollama-t" in md
+    assert "vs ollama-other" not in md  # another family never pairs
+    assert "| laptop | Fam | V | 4096 | magnitude-t |" in md
     assert "| laptop | magnitude | m | loaded | ok |" in md
     assert "No verdict yet" not in md
-    assert "Magnitude is not better here" in md  # same fake speed -> tie
+    assert "Fam (laptop): Magnitude is not better" in md  # same fake speed -> tie
+    assert "Other (laptop): no verdict yet" not in md  # no pair at all in that family
     assert "mag note" in page and "sortTable" in page
     assert 'class="bar s1"' in page and 'class="bar s2"' in page  # Magnitude+drafter blue, Ollama plain orange
     assert "Magnitude, with drafter" in page and "Tie under the rule" in page
@@ -134,8 +153,12 @@ def test_report_empty_and_helpers(tmp_path: Path) -> None:
     md = (tmp_path / "report.md").read_text()
     assert "No verdict yet" in md and "_No rows yet._" in md
     assert _fmt(Summary(0, 0, 0, 0)) == "–"
-    b_fast = {"workload": "B", "decode_verdict": "a faster"}
-    c_tie = {"workload": "C", "decode_verdict": "quality: tie (10 vs 10)"}
-    c_worse = {"workload": "C", "decode_verdict": "quality: b better (5 vs 15)"}
-    assert overall([b_fast, c_tie]).startswith("Magnitude is better")
+    fam = {"site": "s", "family": "F"}
+    b_fast = {**fam, "workload": "B", "decode_verdict": "a faster"}
+    c_tie = {**fam, "workload": "C", "decode_verdict": "quality: tie (10 vs 10)"}
+    c_worse = {**fam, "workload": "C", "decode_verdict": "quality: b better (5 vs 15)"}
+    assert overall([b_fast, c_tie]) == (
+        "F (s): Magnitude is better: clearly faster on every B cell and not worse on quality."
+    )
     assert "worse on quality" in overall([b_fast, c_worse])
+    assert "no verdict yet" in overall([b_fast])

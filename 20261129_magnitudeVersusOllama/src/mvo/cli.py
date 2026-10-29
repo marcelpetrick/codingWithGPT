@@ -27,7 +27,7 @@ def parse_cells(text: str) -> list[tuple[str, int]]:
     cells = []
     for part in text.split(","):
         workload, _, ctx = part.strip().partition(":")
-        if workload not in ("A", "B", "C") or not ctx.isdigit():
+        if workload not in ("A", "B", "C", "V") or not ctx.isdigit():
             raise ValueError(f"bad cell: {part!r} (use WORKLOAD:CTX, e.g. A:4096)")
         cells.append((workload, int(ctx)))
     return cells
@@ -74,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
 
     run = sub.add_parser("run", help="measure one arm")
     run.add_argument("--arm", required=True)
-    run.add_argument("--cells", required=True, help="e.g. A:4096,A:16384,B:1024,B:8192,C:4096")
+    run.add_argument("--cells", required=True, help="e.g. A:4096,A:16384,B:1024,B:8192,C:4096,V:4096")
     run.add_argument("--reps", type=int, default=5)
     run.add_argument("--site", default="laptop")
 

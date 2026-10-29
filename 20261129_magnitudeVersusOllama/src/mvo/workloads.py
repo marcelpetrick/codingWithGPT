@@ -12,7 +12,9 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
+from mvo import vision
 from mvo.tasks import TASKS
 
 CHARS_PER_TOKEN = 3.8  # English prose and Python, Qwen tokenizer; checked against prompt_tokens.
@@ -28,11 +30,17 @@ class Prompt:
     ctx: int
     max_tokens: int
     messages: tuple[tuple[str, str], ...]
+    image_b64: str = ""
 
-    def as_messages(self, nonce: str) -> list[dict[str, str]]:
-        """Return the chat messages with the nonce in the first line of the system message."""
-        out = [{"role": role, "content": content} for role, content in self.messages]
+    def as_messages(self, nonce: str) -> list[dict[str, Any]]:
+        """Return the chat messages with the nonce in the first line of the system message.
+
+        An image goes on the last (user) message as ``images: [base64 PNG]``.
+        """
+        out: list[dict[str, Any]] = [{"role": role, "content": content} for role, content in self.messages]
         out[0] = {"role": "system", "content": f"Request {nonce}.\n" + out[0]["content"]}
+        if self.image_b64:
+            out[-1]["images"] = [self.image_b64]
         return out
 
 
@@ -152,6 +160,15 @@ def workload_c(max_tokens: int = 768) -> list[Prompt]:
     ]
 
 
+def workload_v(max_tokens: int = 96) -> list[Prompt]:
+    """Vision: five generated images with known answers (is the capability kept?)."""
+    system = "You are a careful assistant. Look at the image and answer briefly."
+    return [
+        Prompt("V", f"V-{t.task_id}", 4096, max_tokens, (("system", system), ("user", t.question)), t.b64)
+        for t in vision.TASKS
+    ]
+
+
 def build(workload: str, ctx: int) -> list[Prompt]:
     """Return the prompts of one workload cell."""
     if workload == "A":
@@ -160,4 +177,6 @@ def build(workload: str, ctx: int) -> list[Prompt]:
         return workload_b(ctx)
     if workload == "C":
         return workload_c()
+    if workload == "V":
+        return workload_v()
     raise ValueError(f"unknown workload: {workload}")
