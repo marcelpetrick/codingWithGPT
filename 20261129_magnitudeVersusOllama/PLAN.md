@@ -34,6 +34,27 @@ Details: `report.md`, `dashboard.html`, `README.md`. Earlier gate notes (still v
    re-measurement after a stable warm-up gave the same 24.6 tok/s: Magnitude does not draft on that
    prompt. The first diagnosis was wrong; `results/exclusions.jsonl` says so.
 
+## Prediction for the box `.67` (written 2026-10-29, before any box data)
+
+Basis: the laptop round (engine alone about 1.0x; the drafter decides; the repeat test inflates the gain
+about 1.7x against new code) and the box notes (about 35.5 GB usable, GPU model and count unknown;
+current Qwen3.6 tag `qwen3.6:35b-a3b-q4_K_M-agentic-t06` without MTP, 131–136 tok/s; default model
+KAT-Coder-V2.5 Q5_K_M, a Qwen3.6 fine-tune). Ollama has `qwen3.6:35b-a3b-mtp-q4_K_M` and
+`qwen3.6:35b-a3b-coding-mtp-q4_K_M` (23 GB each).
+
+| Setup | Predicted decode on new code | Reason |
+|---|---|---|
+| Magnitude Qwen3.6 (DFlash) vs Ollama current tag (no MTP) | 1.5–2x, Magnitude clearly faster | drafter against no drafter |
+| Magnitude Qwen3.6 (DFlash) vs Ollama `…-mtp-q4_K_M` | 1.2–1.5x, often a tie under the 25% rule | DFlash against MTP |
+| KAT-Coder on both | tie | probably no drafter on either side for the fine-tune |
+| Prefill | about 1.1x, tie | vendor 1.11x for Qwen3.6; laptop 1.1–1.4x |
+
+Stoppers: more than one GPU (Magnitude issues #128, #141: second GPU not used); the 256K-context fit
+plan (KAT at Q5 is tight). First check (about 10 minutes, needs the owner's approval for `.67`):
+`magnitude hardware`, `magnitude catalog show qwen3.6-35b-a3b:gguf:q4`,
+`magnitude catalog inspect bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF`.
+Independent of Magnitude: measure Ollama's MTP tag against the current tag on `.67` (expected +25–40%).
+
 ## Vendor claim, and why it is weak
 
 Source: https://magnitude.dev/benchmarks (read 2026-10-29).
