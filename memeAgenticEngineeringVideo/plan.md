@@ -2,7 +2,7 @@
 
 ## Verdict
 
-The two scripts are ready for production. The source footage and final timing need verification.
+Both parody scripts and the reusable renderer are ready. The source has low resolution. Caption timing uses reading time and needs a human playback review.
 
 ## Plan
 
@@ -17,11 +17,15 @@ The two scripts are ready for production. The source footage and final timing ne
 | Time | Result |
 | --- | --- |
 | 2026-10-29 | Read the repository instructions and the supplied scripts. |
+| 2026-10-29 | Committed the supplied plan and this working plan. |
+| 2026-10-29 | Downloaded the source. Sampled frames show the intended interview without visible subtitles. |
+| 2026-10-29 | Created two editable scripts and a reusable renderer. |
+| 2026-10-29 | Started both exports. |
 
 ## Results
 
-No videos have been rendered yet.
+The source is 328×248 at 25 fps. The renderer enlarges it to fit a canvas with a separate subtitle band. The captions use reading-time timing. They are not matched to every speech or laugh boundary.
 
 ## Resume here
 
-Work in `memeAgenticEngineeringVideo` on the current branch. Check `git status --short`. Read `meme_plan.md` and this file. Commit the supplied plan first. Then acquire the source and inspect it before setting subtitle times.
+Work in `memeAgenticEngineeringVideo` on the current branch. Check `git status --short`. Run `python3 scripts/render.py versions/merge-hell.json` and `python3 scripts/render.py versions/automated-review.json` to rebuild. Run `ffprobe -v error -show_streams output/merge-hell.mp4` to inspect an export. Review both exports in a player for timing and sound.
