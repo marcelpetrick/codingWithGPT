@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 from fake_engine import FakeEngine
 
-from mvo import cli
+from mvo import cli, dashboard
 from mvo.report import _fmt, overall
 from mvo.stats import Summary
 
@@ -81,6 +81,8 @@ def test_full_flow(fake: FakeEngine, tmp_path: Path, capsys: pytest.CaptureFixtu
     assert "No verdict yet" not in md
     assert "Magnitude is not better here" in md  # same fake speed -> tie
     assert "mag note" in page and "sortTable" in page
+    assert 'class="bar s1"' in page and 'class="bar s2"' in page  # Magnitude+drafter blue, Ollama plain orange
+    assert "Magnitude, with drafter" in page and "Tie under the rule" in page
     rows = (root / "results" / "laptop_magnitude-t.jsonl").read_text().splitlines()
     assert json.loads(rows[0])["engine_version"] == "0.2.14"
     assert "wrote" in capsys.readouterr().out
@@ -110,6 +112,19 @@ def test_cli_unreachable_exit_2(tmp_path: Path) -> None:
     data["arms"][1]["version_cmd"] = ["false"]
     (root / "arms.json").write_text(json.dumps(data))
     assert cli.main(["--root", str(root), "run", "--arm", "magnitude-t", "--cells", "A:4096"]) == 2
+
+
+def test_dashboard_helpers() -> None:
+    assert dashboard.role({"engine": "magnitude", "drafter": "none"}) == "magnitude-plain"
+    assert dashboard.role({"engine": "ollama", "drafter": "MTP"}) == "ollama-draft"
+    assert dashboard.gate_kind("loaded, 100% GPU") == "good"
+    assert dashboard.gate_kind("refused: too large") == "critical"
+    assert dashboard.gate_kind("blocked") == "warning"
+    assert dashboard.bar_chart("t", "tok/s", []) == ""
+    page = dashboard.table(
+        "x", [{"status": "loaded", "decode_verdict": "b faster", "a": "1"}], ["status", "decode_verdict", "a"], {}
+    )
+    assert "chip good" in page and "chip critical" in page
 
 
 def test_report_empty_and_helpers(tmp_path: Path) -> None:

@@ -9,7 +9,8 @@
       "model": "qwen3.5:4b-mtp-q4_K_M",
       "quant": "Q4_K_M",
       "drafter": "MTP (tag default, draft_num_predict 1)",
-      "note": "Ollama with the official MTP tag. This matches the vendor's Ollama arm (drafter that ships with the tag). Greedy, no penalties, thinking off."
+      "note": "Ollama with the official MTP tag. This matches the vendor's Ollama arm (drafter that ships with the tag). Greedy, no penalties, thinking off.",
+      "family": "Qwen3.5 4B"
     },
     {
       "label": "ollama-plain",
@@ -20,7 +21,8 @@
       "model": "qwen3.5:4b-q4_K_M",
       "quant": "Q4_K_M",
       "drafter": "none",
-      "note": "Ollama without a drafter, the plain Q4_K_M tag. It shows what the MTP drafter adds. Greedy, no penalties, thinking off."
+      "note": "Ollama without a drafter, the plain Q4_K_M tag. It shows what the MTP drafter adds. Greedy, no penalties, thinking off.",
+      "family": "Qwen3.5 4B"
     },
     {
       "label": "magnitude-default",
@@ -39,7 +41,8 @@
           "enable_thinking": false
         }
       },
-      "note": "Magnitude with its catalog Qwen3.5 4B Q4 and its default DFlash drafter. This is the vendor's Magnitude arm."
+      "note": "Magnitude with its catalog Qwen3.5 4B Q4 and its default DFlash drafter. This is the vendor's Magnitude arm.",
+      "family": "Qwen3.5 4B"
     },
     {
       "label": "magnitude-nodraft",
@@ -58,7 +61,8 @@
           "enable_thinking": false
         }
       },
-      "note": "Magnitude with the drafter turned off. It isolates the kernel tuning from the speculative decoding."
+      "note": "Magnitude with the drafter turned off. It isolates the kernel tuning from the speculative decoding.",
+      "family": "Qwen3.5 4B"
     },
     {
       "label": "magnitude-gemma-e2b",
@@ -75,7 +79,8 @@
       "extra": {
         "reasoning_effort": "none"
       },
-      "note": "Magnitude, Gemma 4 E2B QAT Q4 from its catalog, default MTP drafter. This is the vendor's Magnitude arm for this model."
+      "note": "Magnitude, Gemma 4 E2B QAT Q4 from its catalog, default MTP drafter. This is the vendor's Magnitude arm for this model.",
+      "family": "Gemma 4 E2B"
     },
     {
       "label": "ollama-gemma-e2b",
@@ -86,7 +91,50 @@
       "model": "gemma4:e2b-it-qat",
       "quant": "Q4 QAT",
       "drafter": "none (no MTP tag for E2B)",
-      "note": "Ollama, Gemma 4 E2B QAT tag. Ollama has no MTP tag for E2B, so this arm runs without a drafter. Greedy, no penalties, thinking off."
+      "note": "Ollama, Gemma 4 E2B QAT tag. Ollama has no MTP tag for E2B, so this arm runs without a drafter. Greedy, no penalties, thinking off.",
+      "family": "Gemma 4 E2B"
+    },
+    {
+      "label": "magnitude-qwen2b",
+      "family": "Qwen3.5 2B",
+      "engine": "magnitude",
+      "protocol": "openai",
+      "base_url": "http://127.0.0.1:10100/inference/v1",
+      "version_cmd": [
+        "magnitude",
+        "--version"
+      ],
+      "model": "hf:unsloth/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf",
+      "quant": "Q4_K_M (unsloth GGUF)",
+      "drafter": "none (Magnitude offers no drafter for it)",
+      "extra": {
+        "reasoning_effort": "none"
+      },
+      "note": "Magnitude, Qwen3.5 2B Q4_K_M from Hugging Face (unsloth). Magnitude offers no drafter for this model, so this is the pure engine."
+    },
+    {
+      "label": "ollama-qwen2b",
+      "family": "Qwen3.5 2B",
+      "engine": "ollama",
+      "protocol": "ollama",
+      "base_url": "http://127.0.0.1:11434",
+      "version_url": "http://127.0.0.1:11434/api/version",
+      "model": "qwen3.5:2b-q4_K_M",
+      "quant": "Q4_K_M",
+      "drafter": "none",
+      "note": "Ollama, plain qwen3.5:2b-q4_K_M tag, no drafter. The clean engine-against-engine match for magnitude-qwen2b."
+    },
+    {
+      "label": "ollama-qwen2b-mtp",
+      "family": "Qwen3.5 2B",
+      "engine": "ollama",
+      "protocol": "ollama",
+      "base_url": "http://127.0.0.1:11434",
+      "version_url": "http://127.0.0.1:11434/api/version",
+      "model": "qwen3.5:2b-mtp-q4_K_M",
+      "quant": "Q4_K_M",
+      "drafter": "MTP (tag default)",
+      "note": "Ollama, qwen3.5:2b-mtp-q4_K_M with its built-in MTP drafter. Shows what Ollama gets from its own drafter."
     }
   ]
 }

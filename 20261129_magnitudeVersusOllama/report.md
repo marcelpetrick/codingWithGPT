@@ -39,6 +39,9 @@ No verdict yet: workload B and workload C must both have Magnitude and Ollama ro
 - `magnitude-nodraft`: Magnitude with the drafter turned off. It isolates the kernel tuning from the speculative decoding.
 - `magnitude-gemma-e2b`: Magnitude, Gemma 4 E2B QAT Q4 from its catalog, default MTP drafter. This is the vendor's Magnitude arm for this model.
 - `ollama-gemma-e2b`: Ollama, Gemma 4 E2B QAT tag. Ollama has no MTP tag for E2B, so this arm runs without a drafter. Greedy, no penalties, thinking off.
+- `magnitude-qwen2b`: Magnitude, Qwen3.5 2B Q4_K_M from Hugging Face (unsloth). Magnitude offers no drafter for this model, so this is the pure engine.
+- `ollama-qwen2b`: Ollama, plain qwen3.5:2b-q4_K_M tag, no drafter. The clean engine-against-engine match for magnitude-qwen2b.
+- `ollama-qwen2b-mtp`: Ollama, qwen3.5:2b-mtp-q4_K_M with its built-in MTP drafter. Shows what Ollama gets from its own drafter.
 
 ## Columns
 
