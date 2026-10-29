@@ -8,6 +8,7 @@ project rules. Where they differ, this file wins.
 
 - `PLAN.md` is the one living document. Update it after every step.
 - `PLAN.md` holds the verdict, the decision rule, the plan, the status table and "Resume here".
+- `plan.html` is the visual summary of `PLAN.md` for the owner. Update it when the plan changes.
 
 ## Measurement rules
 

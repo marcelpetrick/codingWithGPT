@@ -1,0 +1,180 @@
+<!doctype html>
+<!-- Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
+     SPDX-License-Identifier: GPL-3.0-or-later
+     Visual summary of PLAN.md. PLAN.md is the source; update this page when the plan changes. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Magnitude vs Ollama Plan</title>
+<style>
+:root {
+  --bg: #f7f7f5; --card: #ffffff; --fg: #1d1d1f; --muted: #66666e; --line: #deded8;
+  --go: #1f8a4c; --go-bg: #e5f4ea; --no: #b3261e; --no-bg: #fbe7e5; --wait: #9a6700; --wait-bg: #fff4d6;
+  --mag: #5b4bd6; --oll: #0f7b8a; --accent: #2b59c3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141416; --card: #1d1d21; --fg: #ececee; --muted: #a0a0a8; --line: #33333a;
+    --go: #5fd18b; --go-bg: #173323; --no: #ff8a80; --no-bg: #3a1b19; --wait: #f2c14e; --wait-bg: #3a2f12;
+    --mag: #a99cff; --oll: #5fc6d4; --accent: #8fb0ff;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141416; --card: #1d1d21; --fg: #ececee; --muted: #a0a0a8; --line: #33333a;
+  --go: #5fd18b; --go-bg: #173323; --no: #ff8a80; --no-bg: #3a1b19; --wait: #f2c14e; --wait-bg: #3a2f12;
+  --mag: #a99cff; --oll: #5fc6d4; --accent: #8fb0ff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1080px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -0.01em; }
+h2 { font-size: 18px; margin: 40px 0 12px; }
+.sub { color: var(--muted); margin: 0 0 24px; }
+.q { font-size: 20px; padding: 16px 20px; background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; }
+.grid { display: grid; gap: 12px; }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.g3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.g4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.card h3 { margin: 0 0 6px; font-size: 15px; }
+.card p { margin: 0; color: var(--muted); font-size: 14px; }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 99px; margin-bottom: 8px; }
+.go { color: var(--go); background: var(--go-bg); }
+.no { color: var(--no); background: var(--no-bg); }
+.wait { color: var(--wait); background: var(--wait-bg); }
+.matrix { display: grid; grid-template-columns: 120px 1fr 1fr; gap: 8px; }
+.matrix .h { font-size: 13px; color: var(--muted); align-self: end; padding: 0 4px; }
+.matrix .cell { border-radius: 8px; padding: 12px; border: 1px solid var(--line); background: var(--card); }
+.cell code { font-size: 13px; }
+.cell.mag { border-top: 3px solid var(--mag); }
+.cell.oll { border-top: 3px solid var(--oll); }
+.cell small { display: block; color: var(--muted); margin-top: 4px; }
+.rule { font-size: 16px; }
+.rule b { color: var(--accent); }
+table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 14px; }
+th { color: var(--muted); font-weight: 600; font-size: 13px; }
+tr:last-child td { border-bottom: 0; }
+.tablewrap { overflow-x: auto; }
+.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.steps li { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; }
+.num { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; background: var(--line); }
+.done .num { background: var(--go-bg); color: var(--go); }
+.next .num { background: var(--accent); color: #fff; }
+.blocked .num { background: var(--no-bg); color: var(--no); }
+.steps .t { font-weight: 600; }
+.steps .d { color: var(--muted); font-size: 13px; }
+svg text { fill: var(--fg); font: 13px system-ui, sans-serif; }
+svg .m { fill: var(--muted); font-size: 12px; }
+footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
+@media (max-width: 560px) {
+  .matrix { grid-template-columns: 1fr; }
+  .matrix .h:first-child { display: none; }
+  .steps li { grid-template-columns: 28px 1fr; }
+  .steps li > :last-child { grid-column: 2; }
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Magnitude vs Ollama: benchmark plan</h1>
+  <p class="sub">Laptop: RTX A2000 8 GB · Magnitude 0.2.14 · Ollama 0.40.4 · 2026-10-29 · source: <code>PLAN.md</code></p>
+
+  <div class="q">Is Magnitude really faster than Ollama for the same model on our hardware, without lower answer quality?</div>
+
+  <h2>1 · Gate: what runs on this laptop</h2>
+  <div class="grid g4">
+    <div class="card"><span class="tag go">Runs</span><h3>Magnitude itself</h3><p>Installed in server mode. CUDA sees the A2000. The service is "Ready".</p></div>
+    <div class="card"><span class="tag go">Match possible</span><h3>Gemma 4 E2B / E4B (QAT Q4)</h3><p>Magnitude allows both. Ollama has the same QAT tags. The vendor published numbers for both.</p></div>
+    <div class="card"><span class="tag no">Refused by Magnitude</span><h3>Qwen3.5 4B</h3><p>Magnitude plans for 262k context and asks for 9.9 GB. Ollama runs it in 1.4–3.7 GB at 16k.</p></div>
+    <div class="card"><span class="tag no">Blocked</span><h3>Qwen3.6 35B-A3B</h3><p>24.2 GB of weights, 8 GB GPU. Magnitude has no CPU offload for MoE experts (issue #194).</p></div>
+  </div>
+
+  <h2>2 · Arms: separate the engine from the drafter</h2>
+  <div class="matrix">
+    <div class="h"></div><div class="h">with drafter (vendor setup)</div><div class="h">without drafter (pure engine)</div>
+    <div class="h" style="align-self:center">Magnitude</div>
+    <div class="cell mag"><code>magnitude-default</code><small>catalog MTP / DFlash drafter</small></div>
+    <div class="cell mag"><code>magnitude-nodraft</code><small><code>--drafter none</code>: only the tuned kernels</small></div>
+    <div class="h" style="align-self:center">Ollama</div>
+    <div class="cell oll"><code>ollama-mtp</code><small>MTP tag where one exists</small></div>
+    <div class="cell oll"><code>ollama-plain</code><small>plain tag, no drafter</small></div>
+  </div>
+  <p class="sub" style="margin-top:10px">Left column = the vendor's comparison. Right column = the clean engine-against-engine test.</p>
+
+  <h2>3 · Workloads</h2>
+  <div class="grid g4">
+    <div class="card"><span class="tag wait">A · vendor replication</span><h3>Repeat a Moby-Dick passage</h3><p>Context 4k and 16k, 256 output tokens. This is the best case for drafters, because the text to output is already in the prompt.</p></div>
+    <div class="card"><span class="tag go">B · real use</span><h3>Write new code</h3><p>5 coding prompts, context 1k and 8k, 512 output tokens. B decides the speed verdict.</p></div>
+    <div class="card"><span class="tag go">C · quality</span><h3>20 Python tasks</h3><p>Each answer runs against unit tests. Faster but wrong is not better.</p></div>
+    <div class="card"><span class="tag wait">D · memory</span><h3>Fit and VRAM</h3><p>Which model and context loads. Peak VRAM during B.</p></div>
+  </div>
+
+  <h2>4 · How one run is measured</h2>
+  <div class="card" style="overflow-x:auto">
+    <svg viewBox="0 0 980 150" width="100%" style="min-width:640px" role="img" aria-label="Measurement flow">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="color:var(--muted)"/></marker></defs>
+      <g stroke="var(--line)" fill="var(--card)" stroke-width="1.5">
+        <rect x="5" y="30" width="170" height="70" rx="8"/>
+        <rect x="205" y="30" width="170" height="70" rx="8"/>
+        <rect x="405" y="30" width="170" height="70" rx="8"/>
+        <rect x="605" y="30" width="170" height="70" rx="8"/>
+        <rect x="805" y="30" width="170" height="70" rx="8"/>
+      </g>
+      <g stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)">
+        <line x1="177" y1="65" x2="202" y2="65"/><line x1="377" y1="65" x2="402" y2="65"/>
+        <line x1="577" y1="65" x2="602" y2="65"/><line x1="777" y1="65" x2="802" y2="65"/>
+      </g>
+      <text x="90" y="60" text-anchor="middle">Only one engine</text><text x="90" y="80" text-anchor="middle" class="m">other unloaded, VRAM checked</text>
+      <text x="290" y="60" text-anchor="middle">1 warm-up</text><text x="290" y="80" text-anchor="middle" class="m">model load not timed</text>
+      <text x="490" y="60" text-anchor="middle">5 timed runs</text><text x="490" y="80" text-anchor="middle" class="m">nonce: no prompt cache</text>
+      <text x="690" y="60" text-anchor="middle">Client-side clock</text><text x="690" y="80" text-anchor="middle" class="m">TTFT, prefill, decode</text>
+      <text x="890" y="60" text-anchor="middle">Row in results/*.jsonl</text><text x="890" y="80" text-anchor="middle" class="m">versions, GPU, commit</text>
+      <text x="490" y="128" text-anchor="middle" class="m">Same prompt bytes · greedy · no penalties · thinking off · same max tokens for both engines</text>
+    </svg>
+  </div>
+
+  <h2>5 · Decision rule (fixed before any data)</h2>
+  <div class="grid g2">
+    <div class="card rule"><h3>"Clearly faster"</h3>Median <b>≥ 25 % higher</b> and min–max ranges that <b>do not overlap</b>, with n ≥ 5 per arm. Anything else is a <b>tie</b>.</div>
+    <div class="card rule"><h3>"Really better"</h3>Clearly faster on <b>every workload-B cell</b> and <b>not worse on quality</b>: C pass counts within 2 of 20.</div>
+  </div>
+
+  <h2>6 · Confounds and their controls</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Risk</th><th>Control</th></tr>
+    <tr><td>Ollama tags ship <code>presence_penalty 1.5</code>, which costs about 35 % speed</td><td>The sampler is set explicitly in every request: greedy, all penalties 0</td></tr>
+    <tr><td>Thinking on in one engine only</td><td>Thinking off on both. A row with reasoning tokens is a failed row.</td></tr>
+    <tr><td>Prefix cache makes repeat runs fast</td><td>Each request starts with a unique nonce</td></tr>
+    <tr><td>Both engines on the GPU at the same time</td><td>Unload the other engine first, record the VRAM in use in every row</td></tr>
+    <tr><td>Magnitude server mode updates itself</td><td>The engine version is in every row. Rows of two versions never pool.</td></tr>
+    <tr><td>The drafter, not the engine, makes the speed</td><td>The <code>nodraft</code> / <code>plain</code> arms</td></tr>
+    <tr><td>A failure booked as a slow result</td><td>Errors, empty answers and timeouts are failed rows. An unreachable engine stops the run.</td></tr>
+  </table></div>
+
+  <h2>7 · Steps</h2>
+  <ol class="steps">
+    <li class="done"><span class="num">0</span><div><div class="t">Skeleton, plan, rules</div><div class="d">AGENTS.md, PLAN.md, GPLv3, localPipeline.sh, CI</div></div><span class="tag go">done</span></li>
+    <li class="done"><span class="num">1</span><div><div class="t">Gate: install, check what loads</div><div class="d">Qwen3.5 4B refused, Gemma 4 allowed</div></div><span class="tag go">done</span></li>
+    <li class="done"><span class="num">2</span><div><div class="t">Harness <code>mvo</code> v0.1.0</div><div class="d">38 tests, 99 % coverage, pipeline green</div></div><span class="tag go">done</span></li>
+    <li class="next"><span class="num">3</span><div><div class="t">Gemma 4 E2B: 4 arms × A, B, C</div><div class="d">Magnitude first, then Ollama · about 1 h</div></div><span class="tag wait">next</span></li>
+    <li><span class="num">4</span><div><div class="t">Gemma 4 E4B: same, if Magnitude loads it</div><div class="d">Magnitude lists 8 GB, which is the limit · about 1 h</div></div><span class="tag wait">open</span></li>
+    <li><span class="num">5</span><div><div class="t">Qwen3.5 4B forced load</div><div class="d">Gate row only: does it load at all?</div></div><span class="tag wait">downloading</span></li>
+    <li><span class="num">6</span><div><div class="t">Report, dashboard, README</div><div class="d">Generated from results, never edited by hand</div></div><span class="tag wait">open</span></li>
+    <li class="blocked"><span class="num">7</span><div><div class="t">Qwen3.6 35B on the box .67</div><div class="d">Needs your approval: installing Magnitude changes a shared server</div></div><span class="tag no">blocked</span></li>
+    <li><span class="num">8</span><div><div class="t">Independent review</div><div class="d">review_YYYYMMDD.md, fix what is real</div></div><span class="tag wait">open</span></li>
+  </ol>
+
+  <h2>8 · The vendor claim we test</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Model (DGX Spark, vendor)</th><th>Prefill</th><th>Decode</th><th>Our weak points found</th></tr>
+    <tr><td>Gemma 4 E2B</td><td>2.20×</td><td>1.51×</td><td rowspan="3">One prompt type (repeat known text) · 64k only · Ollama 0.35.1 (old) · n = 2, some n = 1 · quality not scored</td></tr>
+    <tr><td>Gemma 4 E4B</td><td>1.79×</td><td>1.65×</td></tr>
+    <tr><td>Qwen3.6 35B</td><td>1.11×</td><td>2.52×</td></tr>
+  </table></div>
+
+  <footer>Generated from PLAN.md on 2026-10-29. Source: magnitude.dev/benchmarks, magnitude.dev/models, GitHub issues #153 and #194.</footer>
+</main>
+</body>
+</html>
