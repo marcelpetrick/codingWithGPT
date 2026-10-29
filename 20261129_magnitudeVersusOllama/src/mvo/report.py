@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from mvo import dashboard
+from mvo.runner import EXCLUSIONS, load_exclusions
 from mvo.stats import Summary, quality_verdict, ratio, speed_verdict, summarize
 
 COLUMNS: dict[str, str] = {
@@ -39,6 +40,10 @@ COLUMNS: dict[str, str] = {
     "prefill_ratio": "Median prefill of a divided by median prefill of b.",
     "prefill_verdict": "Same fixed rule as decode_verdict, on prefill.",
     "status": "Gate result: does the model load and answer at all on this site.",
+    "reason": "Why the row is excluded. It is measured again; the excluded row stays in the file.",
+    "key": "Row key: arm | prompt id | repetition.",
+    "time": "UTC time of the excluded row.",
+    "file": "Result file of the excluded row.",
 }
 
 
@@ -55,13 +60,27 @@ class Cell:
 
 
 def load_rows(results_dir: Path) -> list[dict[str, Any]]:
-    """Read every row of every results/*.jsonl file except the gate file."""
+    """Read every row of every results/*.jsonl file except the gate file, the exclusion list and
+    the excluded rows (each excluded row keeps its reason in results/exclusions.jsonl)."""
+    excluded = load_exclusions(results_dir)
     rows: list[dict[str, Any]] = []
     for path in sorted(results_dir.glob("*.jsonl")):
-        if path.name == "gate.jsonl":
+        if path.name in ("gate.jsonl", EXCLUSIONS):
             continue
-        rows.extend(json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip())
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                row = json.loads(line)
+                if (path.name, row["key"], row["time"]) not in excluded:
+                    rows.append(row)
     return rows
+
+
+def exclusion_lines(results_dir: Path) -> list[dict[str, str]]:
+    """The excluded rows with their reasons, for the report."""
+    return [
+        {"file": f, "key": k, "time": t, "reason": reason}
+        for (f, k, t), reason in sorted(load_exclusions(results_dir).items())
+    ]
 
 
 def load_gate(results_dir: Path) -> list[dict[str, Any]]:
@@ -214,9 +233,15 @@ CMP_COLS = [
     "prefill_verdict",
 ]
 GATE_COLS = ["site", "engine", "model", "status", "detail"]
+EXCL_COLS = ["file", "key", "time", "reason"]
 
 
-def render_markdown(arms_doc: dict[str, Any], rows: list[dict[str, Any]], gate: list[dict[str, Any]]) -> str:
+def render_markdown(
+    arms_doc: dict[str, Any],
+    rows: list[dict[str, Any]],
+    gate: list[dict[str, Any]],
+    excluded: list[dict[str, str]] | None = None,
+) -> str:
     """Return report.md."""
     cells = group(rows, {a["label"]: a.get("family", "") for a in arms_doc.get("arms", [])})
     comps = comparisons(cells)
@@ -231,6 +256,8 @@ def render_markdown(arms_doc: dict[str, Any], rows: list[dict[str, Any]], gate: 
         _md_table(comps, CMP_COLS),
         "## Arms per cell\n",
         _md_table(arm_table(cells), ARM_COLS),
+        "## Excluded rows\n",
+        _md_table(excluded or [], EXCL_COLS),
         "## Arms\n",
         "\n".join(f"- `{a['label']}`: {a.get('note', '')}" for a in arms_doc.get("arms", [])) + "\n",
         "## Columns\n",
@@ -260,7 +287,12 @@ def cell_stats(cells: dict[CellKey, dict[str, Cell]]) -> list[dict[str, Any]]:
     return out
 
 
-def render_html(arms_doc: dict[str, Any], rows: list[dict[str, Any]], gate: list[dict[str, Any]]) -> str:
+def render_html(
+    arms_doc: dict[str, Any],
+    rows: list[dict[str, Any]],
+    gate: list[dict[str, Any]],
+    excluded: list[dict[str, str]] | None = None,
+) -> str:
     """Return dashboard.html: verdict, ratio tiles, bar charts per model, sortable tables."""
     specs = {a["label"]: a for a in arms_doc.get("arms", [])}
     cells = group(rows, {k: str(v.get("family", "")) for k, v in specs.items()})
@@ -270,6 +302,7 @@ def render_html(arms_doc: dict[str, Any], rows: list[dict[str, Any]], gate: list
         ("Gate: does it load here", "gate", gate_lines, GATE_COLS),
         ("Comparisons (fixed rule)", "cmp", comps, CMP_COLS),
         ("Arms per cell", "arms", arm_table(cells), ARM_COLS),
+        ("Excluded rows (with reason)", "excl", excluded or [], EXCL_COLS),
     ]
     return dashboard.render(overall(comps), specs, cell_stats(cells), comps, tables, COLUMNS)
 
@@ -281,6 +314,7 @@ def write_reports(root: Path) -> tuple[Path, Path]:
     gate = load_gate(root / "results")
     md = root / "report.md"
     page = root / "dashboard.html"
-    md.write_text(render_markdown(arms_doc, rows, gate), encoding="utf-8")
-    page.write_text(render_html(arms_doc, rows, gate), encoding="utf-8")
+    excluded = exclusion_lines(root / "results")
+    md.write_text(render_markdown(arms_doc, rows, gate, excluded), encoding="utf-8")
+    page.write_text(render_html(arms_doc, rows, gate, excluded), encoding="utf-8")
     return md, page

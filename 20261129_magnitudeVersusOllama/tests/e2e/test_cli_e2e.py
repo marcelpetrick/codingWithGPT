@@ -89,8 +89,45 @@ def test_full_flow(fake: FakeEngine, tmp_path: Path, capsys: pytest.CaptureFixtu
         )
         == 0
     )
+    assert (
+        cli.main(
+            [
+                *base,
+                "exclude",
+                "--site",
+                "laptop",
+                "--arm",
+                "ollama-t",
+                "--prompt-id",
+                "A-moby-4096",
+                "--reason",
+                "first-load tuning",
+            ]
+        )
+        == 0
+    )
+    assert (
+        cli.main(
+            [
+                *base,
+                "exclude",
+                "--site",
+                "laptop",
+                "--arm",
+                "ollama-t",
+                "--prompt-id",
+                "A-moby-4096",
+                "--reason",
+                "again",
+            ]
+        )
+        == 1
+    )  # nothing left to exclude
+    assert cli.main([*base, "exclude", "--site", "nope", "--arm", "ollama-t", "--prompt-id", "x", "--reason", "r"]) == 1
     assert cli.main([*base, "report"]) == 0
     md = (root / "report.md").read_text()
+    assert "first-load tuning" in md
+    assert "| laptop | Fam | A | 4096 | ollama-t |" not in md  # excluded rows do not count
     page = (root / "dashboard.html").read_text()
     assert "magnitude-t vs ollama-t" in md
     assert "vs ollama-other" not in md  # another family never pairs

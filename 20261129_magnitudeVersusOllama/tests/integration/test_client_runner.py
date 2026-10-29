@@ -11,8 +11,9 @@ from typing import Any
 import pytest
 from fake_engine import FakeEngine
 
-from mvo.client import Engine, EngineError, EngineUnreachable, stream_chat, unload_ollama
-from mvo.runner import Arm, done_keys, run_arm
+from mvo.client import Engine, EngineError, EngineUnreachable, Timing, stream_chat, unload_ollama
+from mvo.runner import EXCLUSIONS, Arm, done_keys, load_exclusions, run_arm, warm_up
+from mvo.workloads import build
 
 MSG = [{"role": "user", "content": "hi"}]
 
@@ -107,7 +108,7 @@ def test_run_arm_http_error_row(fake: FakeEngine, tmp_path: Path) -> None:
 
     def flaky(engine: Engine, messages: list[dict[str, Any]], max_tokens: int, ctx: int):  # type: ignore[no-untyped-def]
         stream_calls["n"] += 1
-        if stream_calls["n"] == 1:
+        if "warmup" in messages[0]["content"]:
             return stream_chat(engine, messages, max_tokens, ctx)
         raise EngineError("HTTP 500: refused")
 
@@ -135,7 +136,7 @@ def test_measure_reraises_unreachable(fake: FakeEngine, tmp_path: Path) -> None:
 
     def dies(engine: Engine, messages: list[dict[str, Any]], max_tokens: int, ctx: int):  # type: ignore[no-untyped-def]
         calls["n"] += 1
-        if calls["n"] == 1:
+        if "warmup" in messages[0]["content"]:
             return stream_chat(engine, messages, max_tokens, ctx)
         raise EngineUnreachable("gone")
 
@@ -143,3 +144,37 @@ def test_measure_reraises_unreachable(fake: FakeEngine, tmp_path: Path) -> None:
     with pytest.raises(EngineUnreachable):
         run_arm(arm(fake.url), [("A", 4096)], 1, out, stream=dies, facts_fn=dict, log=lambda _: None)
     assert not out.exists() or out.read_text() == ""
+
+
+def fixed_rates(rates: list[float]):  # type: ignore[no-untyped-def]
+    calls: list[int] = []
+
+    def stream(engine: Engine, messages: list[dict[str, Any]], max_tokens: int, ctx: int) -> Timing:
+        rate = rates[min(len(calls), len(rates) - 1)]
+        calls.append(max_tokens)
+        return Timing(10, 101, 0.1, 100 / rate, 1.0, "x", 0, {})
+
+    return stream, calls
+
+
+def test_warm_up_until_stable() -> None:
+    prompt = build("A", 4096)[0]
+    stream, calls = fixed_rates([25.0, 80.0, 83.0, 83.0])
+    assert warm_up(arm("http://unused"), prompt, stream) == (3, True)
+    assert calls == [128, 128, 128]
+    stream, calls = fixed_rates([10.0, 20.0, 40.0, 80.0, 160.0, 320.0])
+    assert warm_up(arm("http://unused"), prompt, stream) == (5, False)
+
+
+def test_exclusions_make_rows_run_again(fake: FakeEngine, tmp_path: Path) -> None:
+    out = tmp_path / "laptop_ollama-x.jsonl"
+    assert run_arm(arm(fake.url), [("A", 4096)], 2, out, facts_fn=dict, log=lambda _: None) == 0
+    rows = [json.loads(line) for line in out.read_text().splitlines()]
+    assert rows[0]["warmup_runs"] >= 1 and "warmup_stable" in rows[0]
+    first = rows[0]
+    entry = {"file": out.name, "key": first["key"], "time": first["time"], "reason": "tuning"}
+    (tmp_path / EXCLUSIONS).write_text(json.dumps(entry) + "\n")
+    assert load_exclusions(tmp_path) == {(out.name, first["key"], first["time"]): "tuning"}
+    assert done_keys(out) == {rows[1]["key"]}
+    assert run_arm(arm(fake.url), [("A", 4096)], 2, out, facts_fn=dict, log=lambda _: None) == 0
+    assert len(out.read_text().splitlines()) == 3

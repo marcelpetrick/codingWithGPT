@@ -17,7 +17,7 @@ from typing import Any
 
 from mvo.client import Engine, EngineError, EngineUnreachable
 from mvo.report import write_reports
-from mvo.runner import Arm, run_arm
+from mvo.runner import EXCLUSIONS, Arm, load_exclusions, run_arm
 from mvo.sysinfo import git_commit, run_text
 from mvo.version import __version__
 
@@ -65,6 +65,28 @@ def load_arm(root: Path, label: str, site: str) -> tuple[Arm, dict[str, Any]]:
     raise ValueError(f"unknown arm: {label}")
 
 
+def exclude_rows(results_dir: Path, site: str, arm: str, prompt_id: str, reason: str) -> int:
+    """Append an exclusion entry for every current good row of (site, arm, prompt_id)."""
+    name = f"{site}_{arm}.jsonl"
+    path = results_dir / name
+    if not path.exists():
+        print(f"error: no result file {path}", file=sys.stderr)
+        return 1
+    excluded = load_exclusions(results_dir)
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    hits = [
+        r for r in rows if r["prompt_id"] == prompt_id and r.get("ok") and (name, r["key"], r["time"]) not in excluded
+    ]
+    if not hits:
+        print(f"error: no good rows of {prompt_id} in {path}", file=sys.stderr)
+        return 1
+    with (results_dir / EXCLUSIONS).open("a", encoding="utf-8") as handle:
+        for r in hits:
+            handle.write(json.dumps({"file": name, "key": r["key"], "time": r["time"], "reason": reason}) + "\n")
+    print(f"excluded {len(hits)} rows of {prompt_id}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Entry point."""
     parser = argparse.ArgumentParser(prog="mvo", description=__doc__)
@@ -82,6 +104,12 @@ def main(argv: list[str] | None = None) -> int:
     for name in ("site", "engine", "model", "status", "detail"):
         gate.add_argument(f"--{name}", required=True)
 
+    exclude = sub.add_parser("exclude", help="exclude the current good rows of one prompt, with a reason")
+    exclude.add_argument("--site", required=True)
+    exclude.add_argument("--arm", required=True)
+    exclude.add_argument("--prompt-id", required=True)
+    exclude.add_argument("--reason", required=True)
+
     sub.add_parser("report", help="write report.md and dashboard.html")
 
     args = parser.parse_args(argv)
@@ -90,6 +118,8 @@ def main(argv: list[str] | None = None) -> int:
         md, page = write_reports(root)
         print(f"wrote {md} and {page}")
         return 0
+    if args.command == "exclude":
+        return exclude_rows(root / "results", args.site, args.arm, args.prompt_id, args.reason)
     if args.command == "gate":
         row = {k: getattr(args, k) for k in ("site", "engine", "model", "status", "detail")}
         row["time"] = dt.datetime.now(dt.UTC).isoformat(timespec="seconds")

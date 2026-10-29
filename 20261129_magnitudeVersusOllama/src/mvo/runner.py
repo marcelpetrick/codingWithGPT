@@ -3,8 +3,9 @@
 """Run one arm over workload cells and append one JSON row per request.
 
 The runner is idempotent: a row key that is already in the result file is skipped, so a
-re-run resumes. A failed request is written as a failed row. An unreachable engine stops
-the run (exit code 2) and writes nothing for that request.
+re-run resumes. A row listed in results/exclusions.jsonl does not count, so it is measured
+again. A failed request is written as a failed row. An unreachable engine stops the run
+(exit code 2) and writes nothing for that request.
 """
 
 from __future__ import annotations
@@ -41,17 +42,55 @@ def row_key(arm: str, prompt_id: str, rep: int) -> str:
     return f"{arm}|{prompt_id}|{rep}"
 
 
+EXCLUSIONS = "exclusions.jsonl"
+WARMUP_MAX = 5
+WARMUP_TOKENS = 128
+WARMUP_TOLERANCE = 0.05
+
+
+def load_exclusions(results_dir: Path) -> dict[tuple[str, str, str], str]:
+    """Return {(file, key, time): reason} from results/exclusions.jsonl (rows to ignore, with a reason)."""
+    path = results_dir / EXCLUSIONS
+    if not path.exists():
+        return {}
+    out = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            entry = json.loads(line)
+            out[(entry["file"], entry["key"], entry["time"])] = entry["reason"]
+    return out
+
+
 def done_keys(path: Path) -> set[str]:
-    """Return the keys of all rows in the file that are not failed rows."""
+    """Return the keys of all good rows in the file that are not excluded."""
     if not path.exists():
         return set()
+    excluded = load_exclusions(path.parent)
     keys = set()
     for line in path.read_text(encoding="utf-8").splitlines():
         if line.strip():
             row = json.loads(line)
-            if row.get("ok"):
+            if row.get("ok") and (path.name, row["key"], row["time"]) not in excluded:
                 keys.add(row["key"])
     return keys
+
+
+def warm_up(arm: Arm, prompt: Prompt, stream: StreamFn) -> tuple[int, bool]:
+    """Send warm-up requests until two in a row decode within 5% (max 5).
+
+    A freshly downloaded model can still tune kernels in the first minute after its load
+    (seen with Magnitude: drafter off, VRAM growing). Return (warm-up requests, stable).
+    """
+    previous = 0.0
+    for attempt in range(1, WARMUP_MAX + 1):
+        nonce = f"warmup-{arm.label}-{prompt.prompt_id}-{attempt}"
+        rate = stream(
+            arm.engine, prompt.as_messages(nonce), min(prompt.max_tokens, WARMUP_TOKENS), prompt.ctx
+        ).decode_tps
+        if previous and abs(rate - previous) <= WARMUP_TOLERANCE * previous:
+            return attempt, True
+        previous = rate
+    return WARMUP_MAX, False
 
 
 def measure(
@@ -118,7 +157,7 @@ def run_arm(
     commit: str = "",
     log: Callable[[str], None] = print,
 ) -> int:
-    """Measure every (workload, ctx) cell: one warm-up, then ``reps`` rows. Return failed rows."""
+    """Measure every (workload, ctx) cell: warm up until stable, then ``reps`` rows. Return failed rows."""
     out.parent.mkdir(parents=True, exist_ok=True)
     done = done_keys(out)
     failed = 0
@@ -128,10 +167,11 @@ def run_arm(
         if not todo:
             log(f"skip {arm.label} {workload}/{ctx}: all rows present")
             continue
-        warm = prompts[0]
-        stream(arm.engine, warm.as_messages(f"warmup-{arm.label}-{warm.prompt_id}"), 16, warm.ctx)
+        runs, stable = warm_up(arm, prompts[0], stream)
+        log(f"warm-up {arm.label} {workload}/{ctx}: {runs} requests, {'stable' if stable else 'NOT stable'}")
         for prompt, rep in todo:
-            row = measure(arm, prompt, rep, stream, {**facts_fn(), "commit": commit})
+            facts = {**facts_fn(), "commit": commit, "warmup_runs": runs, "warmup_stable": stable}
+            row = measure(arm, prompt, rep, stream, facts)
             with out.open("a", encoding="utf-8") as handle:
                 handle.write(json.dumps(row, ensure_ascii=False) + "\n")
             if not row["ok"]:
