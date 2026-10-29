@@ -1,0 +1,137 @@
+# Magnitude versus Ollama
+
+[![magnitude-versus-ollama](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/magnitude-versus-ollama.yml/badge.svg?branch=master)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/magnitude-versus-ollama.yml)
+[![License: GPL v3 or later](https://img.shields.io/badge/license-GPLv3%20or%20later-blue.svg)](LICENSE)
+[![Python 3.14+](https://img.shields.io/badge/Python-3.14%2B-3776ab.svg)](https://www.python.org/)
+[![Coverage: 99%](https://img.shields.io/badge/coverage-99%25-brightgreen.svg)](pyproject.toml)
+[![Magnitude 0.2.14](https://img.shields.io/badge/Magnitude-0.2.14-5b4bd6.svg)](https://github.com/magnitudedev/magnitude)
+[![Ollama 0.40.4](https://img.shields.io/badge/Ollama-0.40.4-0f7b8a.svg)](https://ollama.com)
+
+**Is [Magnitude](https://github.com/magnitudedev/magnitude) really faster than Ollama for the same model on
+the same GPU, without lower answer quality?** The vendor claims "over 2x faster". This project measures it
+on an RTX A2000 8 GB laptop with a fixed decision rule.
+
+**Author: Marcel Petrick <mail@marcelpetrick.it>**
+
+**License: GPLv3 or later. See [`LICENSE`](LICENSE).**
+
+**Note: project is generated with AI.**
+
+## Verdict
+
+<!-- VERDICT -->
+See [`report.md`](report.md) (generated) and [`PLAN.md`](PLAN.md) (living document).
+
+![Dashboard](docs/dashboard.png)
+
+## Where it ran
+
+The results hold for this machine and these settings. Other models, other GPUs (more VRAM, other
+architectures), other context sizes, other drivers or other engine versions can give other results.
+For example, the vendor measured on a DGX Spark and an M4 Pro, with 64k context only.
+
+| Item | Value |
+|---|---|
+| Machine | Dell Precision 5570 laptop, on AC power, power profile "balanced" |
+| CPU / RAM | Intel i9-12900H (20 threads) / 32 GB |
+| GPU | NVIDIA RTX A2000 8 GB Laptop GPU, compute capability 8.6, driver 610.57.04, CUDA 13.3 |
+| OS | Manjaro Linux, kernel 7.1.13-2 |
+| Ollama | 0.40.4, systemd service, `127.0.0.1:11434`, models in `/home/ollama-models`, flash attention off, default KV cache, `OLLAMA_NUM_PARALLEL=1` |
+| Magnitude | 0.2.14 (pacman package), server mode, `0.0.0.0:10100`, models in `/home/magnitude-data/models`, kernels tuned on first load |
+| Harness | `mvo` (this project), Python 3.14, client-side timing over HTTP on localhost |
+| Date | 2026-10-29 |
+
+Models and what decided them (8 GB VRAM):
+
+| Model | Magnitude | Ollama | Role here |
+|---|---|---|---|
+| Gemma 4 E4B QAT Q4 | catalog, MTP drafter, "Snug (8 GB)" | `gemma4:e4b-it-qat`, no MTP tag | Main match: fills the GPU |
+| Gemma 4 E2B QAT Q4 | catalog, MTP drafter | `gemma4:e2b-it-qat`, no MTP tag | Quick test |
+| Qwen3.5 2B Q4_K_M | Hugging Face (unsloth), no drafter | `qwen3.5:2b-q4_K_M`, `qwen3.5:2b-mtp-q4_K_M` | Qwen match, pure engine |
+| Qwen3.5 4B | refused (plans 256K context) | runs | Gate result only |
+| Qwen3 / Qwen3-VL | no kernels for the architecture | runs | Not comparable |
+| Qwen3.6 35B-A3B | does not fit (no MoE offload) | CPU offload only | Not comparable here |
+
+## Is Magnitude a drop-in replacement for an Ollama server?
+
+**No.** Measured on 2026-10-29 against Magnitude 0.2.14:
+
+| API | Ollama | Magnitude |
+|---|---|---|
+| Native Ollama API (`/api/chat`, `/api/generate`, `/api/tags`, `/api/pull`) | yes, port 11434 | **no** (404, or the web app HTML) |
+| OpenAI Chat Completions | `/v1/chat/completions` | `/inference/v1/chat/completions`, port 10100 |
+| Anthropic Messages | `/v1/messages` | `/inference/anthropic` |
+| Model IDs | `gemma4:e4b-it-qat` | `gemma-4-e4b-it-qat:gguf:q4`, `hf:owner/repo/file.gguf` |
+| Access from the network | no auth (if bound to the LAN) | Bearer key required; localhost needs none |
+| Per-request `num_ctx`, `keep_alive` | yes | no (Magnitude plans the context itself) |
+
+What this means for software that already exists:
+
+1. A client of the OpenAI-compatible endpoint can switch. Change the base URL, the model ID and add the key.
+2. A client of the native Ollama API cannot switch. This includes the `ollama` Python and JavaScript
+   libraries and tools that call `/api/chat` or `/api/generate`.
+3. An agent harness that Magnitude knows (Claude Code, Codex, OpenCode, Pi, Cline, and others) is
+   connected with `magnitude connections connect <harness>`.
+
+## How it measures
+
+- One engine on the GPU at a time. The other engine is unloaded first, and every row records the VRAM in use.
+- Same prompt bytes, greedy sampler, all penalties 0, thinking off, same output length for both engines.
+- A nonce in the first line of each request defeats the prefix cache.
+- Client-side clock on the streamed answer: time to first token, prefill tok/s, decode tok/s.
+- Errors, empty answers, timeouts and answers with thinking tokens are failed rows, never speed.
+- "Clearly faster" = median ≥ 25% higher and min–max ranges that do not overlap, n ≥ 5. Else a tie.
+
+| Workload | What | Why |
+|---|---|---|
+| A | Repeat a Moby-Dick passage (4k, 16k context) | The vendor's workload. Best case for speculative decoding. |
+| B | Write new code (5 prompts, 1k and 8k context) | The real use. Decides the speed verdict. |
+| C | 20 Python tasks with unit tests | Faster but wrong is not better. |
+| V | 5 generated images with known answers | Is the vision capability kept? |
+
+## Setup
+
+1. Install Ollama and Magnitude (`curl -fsSL https://magnitude.dev/install.sh | sh`, needs sudo).
+2. Check that both engines store models on a partition with free space (see `PLAN.md`, "Disk").
+3. Install this project: `./localPipeline.sh` creates `.venv` with `uv` and runs all checks.
+
+## Usage
+
+1. Define the arms (engine, model, drafter, model family) in `arms.json`.
+2. Measure one pair, one engine at a time:
+   ```sh
+   scripts/run_pair.sh laptop A:4096,B:1024 5 \
+     magnitude-gemma-e4b gemma-4-e4b-it-qat:gguf:q4 ollama-gemma-e4b gemma4:e4b-it-qat
+   ```
+3. Run the whole chain detached: see the usage line in `scripts/run_long.sh`.
+4. Write the report: `.venv/bin/mvo report`. It writes `report.md` and `dashboard.html` from `results/*.jsonl`.
+5. Record a load result: `.venv/bin/mvo gate --site laptop --engine magnitude --model X --status "refused: ..." --detail "..."`.
+
+`mvo run` resumes: rows that exist are skipped. An unreachable engine or a failed warm-up stops the run
+with exit code 2 and is never booked as a result.
+
+## Scripts
+
+| Script | Purpose |
+|---|---|
+| `localPipeline.sh` | Quality gate: ruff, ruff format, mypy --strict, pytest (unit, integration, e2e on a fake engine) with ≥ 95% branch coverage, CLI smoke. CI runs exactly this. |
+| `scripts/run_pair.sh` | Measure one Magnitude arm and one Ollama arm, one engine on the GPU at a time, then regenerate the report. |
+| `scripts/run_long.sh` | The full laptop run as one sequential, resumable chain (with a disk check before downloads). |
+| `scripts/bump_version.sh` | Raise the semver in `src/mvo/version.py` (patch per commit, minor per feature). |
+
+## Testing
+
+`./localPipeline.sh` needs no GPU and no engine. The tests start a fake engine that speaks both the Ollama
+and the OpenAI streaming protocol, including its failure modes (HTTP 500, empty answer, no usage, thinking).
+
+## Files
+
+| File | Content |
+|---|---|
+| `PLAN.md` | Living document: verdict, decision rule, plan, status, "Resume here". |
+| `plan.html` | Visual summary of the plan. |
+| `AGENTS.md` | Measurement and code rules of this project. |
+| `arms.json` | Arm definitions. |
+| `results/*.jsonl` | One row per request (append only); `results/gate.jsonl` holds load results. |
+| `report.md`, `dashboard.html` | Generated from the results. Do not edit. |
+| `data/moby_dick_ch01-19.txt` | Public-domain text for workload A. |

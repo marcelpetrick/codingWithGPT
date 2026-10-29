@@ -126,6 +126,13 @@ flag stripes, corner). Pass = every expected keyword matches. Images go as `imag
 Report fix: pairs now form only inside one model family (site, family, workload, ctx). Before, two
 families on one site would have paired Magnitude-Gemma with Ollama-Qwen.
 
+## Ollama API compatibility (owner question, 2026-10-29)
+
+Magnitude is **not** a drop-in replacement for the Ollama server. Probes against 0.2.14: `/api/chat` and
+`/api/generate` give 404; `/api/tags` and `/api/version` give the web app HTML, not JSON. It serves
+OpenAI Chat Completions at `/inference/v1` and Anthropic at `/inference/anthropic` on port 10100, with
+other model IDs and a Bearer key from the network. Details and the table: `README.md`.
+
 ## Disk (2026-10-29)
 
 Both engines wrote models to the root partition, and root ran full during the downloads.
