@@ -1,0 +1,42 @@
+# CI for 20261129_magnitudeVersusOllama/: runs exactly ./localPipeline.sh (no GPU, fake engine).
+# Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: magnitude-versus-ollama
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "20261129_magnitudeVersusOllama/**"
+      - ".github/workflows/magnitude-versus-ollama.yml"
+  pull_request:
+    paths:
+      - "20261129_magnitudeVersusOllama/**"
+      - ".github/workflows/magnitude-versus-ollama.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-pipeline:
+    name: Local pipeline replica
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: 20261129_magnitudeVersusOllama
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.2
+        with:
+          python-version: "3.14"
+      - name: Run local pipeline
+        run: ./localPipeline.sh
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: magnitude-versus-ollama-coverage-html
+          path: 20261129_magnitudeVersusOllama/htmlcov
+          if-no-files-found: ignore

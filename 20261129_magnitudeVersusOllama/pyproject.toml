@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools==84.2.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mvo"
+description = "Measure Magnitude versus Ollama with the same prompts on the same GPU."
+readme = "README.md"
+requires-python = ">=3.14"
+license = "GPL-3.0-or-later"
+authors = [{ name = "Marcel Petrick", email = "mail@marcelpetrick.it" }]
+dynamic = ["version"]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "mypy==2.4.0",
+    "pytest==9.2.0",
+    "pytest-cov==7.1.0",
+    "ruff==0.17.3",
+]
+
+[project.scripts]
+mvo = "mvo.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = { attr = "mvo.version.__version__" }
+
+[tool.pytest.ini_options]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+    "--cov=mvo",
+    "--cov-branch",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=html:htmlcov",
+    "--cov-fail-under=95",
+]
+testpaths = ["tests/unit", "tests/integration", "tests/e2e"]
+
+[tool.coverage.run]
+source = ["mvo"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# Task prompts and their assertions read better on one line.
+"src/mvo/tasks.py" = ["E501"]
+
+[tool.ruff.format]
+exclude = ["src/mvo/tasks.py"]
+
+[tool.mypy]
+strict = true
+files = ["src", "tests"]

@@ -1,0 +1,50 @@
+{
+  "arms": [
+    {
+      "label": "ollama-mtp",
+      "engine": "ollama",
+      "protocol": "ollama",
+      "base_url": "http://127.0.0.1:11434",
+      "version_url": "http://127.0.0.1:11434/api/version",
+      "model": "qwen3.5:4b-mtp-q4_K_M",
+      "quant": "Q4_K_M",
+      "drafter": "MTP (tag default, draft_num_predict 1)",
+      "note": "Ollama with the official MTP tag. This matches the vendor's Ollama arm (drafter that ships with the tag). Greedy, no penalties, thinking off."
+    },
+    {
+      "label": "ollama-plain",
+      "engine": "ollama",
+      "protocol": "ollama",
+      "base_url": "http://127.0.0.1:11434",
+      "version_url": "http://127.0.0.1:11434/api/version",
+      "model": "qwen3.5:4b-q4_K_M",
+      "quant": "Q4_K_M",
+      "drafter": "none",
+      "note": "Ollama without a drafter, the plain Q4_K_M tag. It shows what the MTP drafter adds. Greedy, no penalties, thinking off."
+    },
+    {
+      "label": "magnitude-default",
+      "engine": "magnitude",
+      "protocol": "openai",
+      "base_url": "http://127.0.0.1:10100/inference/v1",
+      "version_cmd": ["magnitude", "--version"],
+      "model": "qwen3.5-4b:gguf:q4",
+      "quant": "Q4 (catalog)",
+      "drafter": "DFlash (catalog default)",
+      "extra": {"chat_template_kwargs": {"enable_thinking": false}},
+      "note": "Magnitude with its catalog Qwen3.5 4B Q4 and its default DFlash drafter. This is the vendor's Magnitude arm."
+    },
+    {
+      "label": "magnitude-nodraft",
+      "engine": "magnitude",
+      "protocol": "openai",
+      "base_url": "http://127.0.0.1:10100/inference/v1",
+      "version_cmd": ["magnitude", "--version"],
+      "model": "qwen3.5-4b:gguf:q4",
+      "quant": "Q4 (catalog)",
+      "drafter": "none",
+      "extra": {"chat_template_kwargs": {"enable_thinking": false}},
+      "note": "Magnitude with the drafter turned off. It isolates the kernel tuning from the speculative decoding."
+    }
+  ]
+}
