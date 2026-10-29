@@ -60,6 +60,32 @@ plan (KAT at Q5 is tight). First check (about 10 minutes, needs the owner's appr
 `magnitude catalog inspect bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF`.
 Independent of Magnitude: measure Ollama's MTP tag against the current tag on `.67` (expected +25–40%).
 
+## Is the claim false advertising? (owner question, 2026-10-29)
+
+Not false, but framed too favorably. The gain is real where Magnitude has a drafter that Ollama lacks
+(Gemma 4 E4B: 1.8x on new code). The engine alone is not faster (0.98–1.02x). Where Ollama has the
+better drafter (Qwen3.5 2B MTP), Ollama is faster. The vendor used one best-case prompt, Ollama 0.35.1
+and n = 2.
+
+Agentic coding, estimates (not measured):
+
+- Prefill runs on every request, but only for the new tokens (both engines cache the prefix). One agent
+  turn on `.67`: about 5k new tokens prefill (about 2.5 s) and about 300 tokens decode (about 2.3 s).
+  A 1.1x prefill gain saves about 5% of a turn.
+- Agents copy a lot (Edit `old_string`/`new_string`, file rewrites, tool-call JSON), so drafters help more
+  than on new code. Expected E4B gain for agentic coding: between B (1.8x) and A (3.0x), about 2–2.5x.
+
+## Open decisions (owner decides later)
+
+| # | Option | Effort | Value |
+|---|---|---|---|
+| 1 | On `.67`, without Magnitude: Ollama `qwen3.6:35b-a3b-mtp-q4_K_M` vs the current tag | about 30 min | expected +25–40% decode, no new software |
+| 2 | On `.67`: install Magnitude (no server mode), run `magnitude hardware`, `catalog show qwen3.6-35b-a3b:gguf:q4`, `catalog inspect bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF` | about 10 min, needs approval (shared box) | settles GPU count, fit and drafter |
+| 3 | If 2 looks good: one real Claude Code session (ledger task) on each engine | about 1 h | answers the agentic question directly |
+| 4 | Workload E (edit an existing file) on the laptop | about 30 min | refines the agentic estimate; low priority |
+| 5 | Magnitude on the laptop: keep or remove (`magnitude server remove`, `sudo pacman -R magnitude-desktop`) | 2 min | it runs at boot on `0.0.0.0:10100` |
+| 6 | Push the commits | 1 min | CI run, Pages build check |
+
 ## Vendor claim, and why it is weak
 
 Source: https://magnitude.dev/benchmarks (read 2026-10-29).
@@ -231,9 +257,7 @@ Cells per model: `A:4096,A:16384,B:1024,B:8192` with n = 5, and `C:4096` with n 
 
 ## Resume here
 
-- State: laptop round complete. All results in `results/`, report generated, nothing running.
-- Check: `.venv/bin/mvo report`, `./localPipeline.sh`, `magnitude status`, `ollama ps`.
-- Open (needs the owner): Magnitude on the box `.67` for Qwen3.6 35B / KAT-Coder (shared server).
-- After the round (owner decision): remove Magnitude (`magnitude server remove`, then
-  `sudo pacman -R magnitude-desktop`) or keep it; it runs as a boot service on `0.0.0.0:10100`.
+- State: laptop round complete. Nothing running. Commits not pushed. Decisions open: see "Open decisions".
+- Check: `.venv/bin/mvo report`, `./localPipeline.sh`, `magnitude status`, `ollama ps`, `git log --oneline -5`.
 - Re-run a cell: `scripts/run_pair.sh laptop CELLS REPS MAG_ARM MAG_MODEL OLL_ARM OLL_MODEL` (idempotent).
+- Full chain: see the usage line in `scripts/run_long.sh`.
