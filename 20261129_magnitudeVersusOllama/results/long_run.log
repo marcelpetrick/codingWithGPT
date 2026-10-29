@@ -1,3 +1,282 @@
 == 2026-10-29T14:49:03+01:00 unload Ollama; VRAM 2901 MiB
 == 2026-10-29T14:49:03+01:00 load Magnitude hf:unsloth/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf
 == 2026-10-29T14:49:04+01:00 Magnitude ready; VRAM 2901 MiB
+== 2026-10-29T14:58:04+01:00 unload Ollama; VRAM 2955 MiB
+== 2026-10-29T14:58:04+01:00 load Magnitude hf:unsloth/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf
+== 2026-10-29T14:58:05+01:00 Magnitude ready; VRAM 2955 MiB
+skip magnitude-qwen2b A/4096: all rows present
+skip magnitude-qwen2b A/16384: all rows present
+magnitude-qwen2b B-log-parser-1024 rep 3: 52.77 tok/s
+magnitude-qwen2b B-log-parser-1024 rep 4: 52.66 tok/s
+magnitude-qwen2b B-lru-ttl-8192 rep 0: 49.56 tok/s
+magnitude-qwen2b B-lru-ttl-8192 rep 1: 49.57 tok/s
+magnitude-qwen2b B-lru-ttl-8192 rep 2: 49.61 tok/s
+magnitude-qwen2b B-lru-ttl-8192 rep 3: 49.64 tok/s
+magnitude-qwen2b B-lru-ttl-8192 rep 4: 49.64 tok/s
+magnitude-qwen2b B-csv-report-8192 rep 0: 49.64 tok/s
+magnitude-qwen2b B-csv-report-8192 rep 1: 49.64 tok/s
+magnitude-qwen2b B-csv-report-8192 rep 2: 49.65 tok/s
+magnitude-qwen2b B-csv-report-8192 rep 3: 49.63 tok/s
+magnitude-qwen2b B-csv-report-8192 rep 4: 49.65 tok/s
+magnitude-qwen2b B-rate-limiter-8192 rep 0: 49.65 tok/s
+magnitude-qwen2b B-rate-limiter-8192 rep 1: 49.66 tok/s
+magnitude-qwen2b B-rate-limiter-8192 rep 2: 49.66 tok/s
+magnitude-qwen2b B-rate-limiter-8192 rep 3: 49.66 tok/s
+magnitude-qwen2b B-rate-limiter-8192 rep 4: 49.65 tok/s
+magnitude-qwen2b B-graph-paths-8192 rep 0: 49.67 tok/s
+magnitude-qwen2b B-graph-paths-8192 rep 1: 49.65 tok/s
+magnitude-qwen2b B-graph-paths-8192 rep 2: 49.66 tok/s
+magnitude-qwen2b B-graph-paths-8192 rep 3: 49.66 tok/s
+magnitude-qwen2b B-graph-paths-8192 rep 4: 49.66 tok/s
+magnitude-qwen2b B-log-parser-8192 rep 0: 49.64 tok/s
+magnitude-qwen2b B-log-parser-8192 rep 1: 49.67 tok/s
+magnitude-qwen2b B-log-parser-8192 rep 2: 49.65 tok/s
+magnitude-qwen2b B-log-parser-8192 rep 3: 49.66 tok/s
+magnitude-qwen2b B-log-parser-8192 rep 4: 49.66 tok/s
+done, 0 failed rows
+== 2026-10-29T15:04:29+01:00 Magnitude stopped; VRAM 55 MiB
+ollama-qwen2b A-moby-4096 rep 0: 51.51 tok/s
+ollama-qwen2b A-moby-4096 rep 1: 51.43 tok/s
+ollama-qwen2b A-moby-4096 rep 2: 51.32 tok/s
+ollama-qwen2b A-moby-4096 rep 3: 51.35 tok/s
+ollama-qwen2b A-moby-4096 rep 4: 51.32 tok/s
+ollama-qwen2b A-moby-16384 rep 0: 49.38 tok/s
+ollama-qwen2b A-moby-16384 rep 1: 49.27 tok/s
+ollama-qwen2b A-moby-16384 rep 2: 49.24 tok/s
+ollama-qwen2b A-moby-16384 rep 3: 49.3 tok/s
+ollama-qwen2b A-moby-16384 rep 4: 49.24 tok/s
+ollama-qwen2b B-lru-ttl-1024 rep 0: 51.73 tok/s
+ollama-qwen2b B-lru-ttl-1024 rep 1: 51.86 tok/s
+ollama-qwen2b B-lru-ttl-1024 rep 2: 51.9 tok/s
+ollama-qwen2b B-lru-ttl-1024 rep 3: 51.6 tok/s
+ollama-qwen2b B-lru-ttl-1024 rep 4: 51.86 tok/s
+ollama-qwen2b B-csv-report-1024 rep 0: 51.87 tok/s
+ollama-qwen2b B-csv-report-1024 rep 1: 51.61 tok/s
+ollama-qwen2b B-csv-report-1024 rep 2: 51.86 tok/s
+ollama-qwen2b B-csv-report-1024 rep 3: 51.51 tok/s
+ollama-qwen2b B-csv-report-1024 rep 4: 51.51 tok/s
+ollama-qwen2b B-rate-limiter-1024 rep 0: 51.51 tok/s
+ollama-qwen2b B-rate-limiter-1024 rep 1: 51.52 tok/s
+ollama-qwen2b B-rate-limiter-1024 rep 2: 51.58 tok/s
+ollama-qwen2b B-rate-limiter-1024 rep 3: 51.68 tok/s
+ollama-qwen2b B-rate-limiter-1024 rep 4: 51.87 tok/s
+ollama-qwen2b B-graph-paths-1024 rep 0: 51.75 tok/s
+ollama-qwen2b B-graph-paths-1024 rep 1: 51.59 tok/s
+ollama-qwen2b B-graph-paths-1024 rep 2: 51.81 tok/s
+ollama-qwen2b B-graph-paths-1024 rep 3: 51.73 tok/s
+ollama-qwen2b B-graph-paths-1024 rep 4: 51.59 tok/s
+ollama-qwen2b B-log-parser-1024 rep 0: 51.62 tok/s
+ollama-qwen2b B-log-parser-1024 rep 1: 51.66 tok/s
+ollama-qwen2b B-log-parser-1024 rep 2: 51.71 tok/s
+ollama-qwen2b B-log-parser-1024 rep 3: 51.8 tok/s
+ollama-qwen2b B-log-parser-1024 rep 4: 51.67 tok/s
+ollama-qwen2b B-lru-ttl-8192 rep 0: 50.19 tok/s
+ollama-qwen2b B-lru-ttl-8192 rep 1: 50.22 tok/s
+ollama-qwen2b B-lru-ttl-8192 rep 2: 50.29 tok/s
+ollama-qwen2b B-lru-ttl-8192 rep 3: 50.08 tok/s
+ollama-qwen2b B-lru-ttl-8192 rep 4: 50.2 tok/s
+ollama-qwen2b B-csv-report-8192 rep 0: 50.27 tok/s
+ollama-qwen2b B-csv-report-8192 rep 1: 50.67 tok/s
+ollama-qwen2b B-csv-report-8192 rep 2: 50.34 tok/s
+ollama-qwen2b B-csv-report-8192 rep 3: 50.21 tok/s
+ollama-qwen2b B-csv-report-8192 rep 4: 50.14 tok/s
+ollama-qwen2b B-rate-limiter-8192 rep 0: 50.23 tok/s
+ollama-qwen2b B-rate-limiter-8192 rep 1: 50.32 tok/s
+ollama-qwen2b B-rate-limiter-8192 rep 2: 50.21 tok/s
+ollama-qwen2b B-rate-limiter-8192 rep 3: 50.42 tok/s
+ollama-qwen2b B-rate-limiter-8192 rep 4: 50.35 tok/s
+ollama-qwen2b B-graph-paths-8192 rep 0: 50.1 tok/s
+ollama-qwen2b B-graph-paths-8192 rep 1: 50.17 tok/s
+ollama-qwen2b B-graph-paths-8192 rep 2: 50.26 tok/s
+ollama-qwen2b B-graph-paths-8192 rep 3: 50.34 tok/s
+ollama-qwen2b B-graph-paths-8192 rep 4: 50.15 tok/s
+ollama-qwen2b B-log-parser-8192 rep 0: 50.19 tok/s
+ollama-qwen2b B-log-parser-8192 rep 1: 50.13 tok/s
+ollama-qwen2b B-log-parser-8192 rep 2: 50.25 tok/s
+ollama-qwen2b B-log-parser-8192 rep 3: 50.17 tok/s
+ollama-qwen2b B-log-parser-8192 rep 4: 50.37 tok/s
+done, 0 failed rows
+== 2026-10-29T15:16:45+01:00 Ollama unloaded; VRAM 2474 MiB
+wrote /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/report.md and /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/dashboard.html
+== 2026-10-29T15:16:45+01:00 unload Ollama; VRAM 2474 MiB
+== 2026-10-29T15:16:45+01:00 load Magnitude hf:unsloth/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf
+== 2026-10-29T15:16:52+01:00 Magnitude ready; VRAM 2891 MiB
+magnitude-qwen2b C-is-palindrome rep 0: 53.65 tok/s
+magnitude-qwen2b C-run-length rep 0: 53.17 tok/s
+magnitude-qwen2b C-flatten rep 0: 53.63 tok/s
+magnitude-qwen2b C-roman rep 0: 53.01 tok/s
+magnitude-qwen2b C-from-roman rep 0: 52.93 tok/s
+magnitude-qwen2b C-anagram-groups rep 0: 53.0 tok/s
+magnitude-qwen2b C-merge-intervals rep 0: 53.05 tok/s
+magnitude-qwen2b C-primes rep 0: 52.97 tok/s
+magnitude-qwen2b C-balanced rep 0: 52.91 tok/s
+magnitude-qwen2b C-word-freq rep 0: 53.01 tok/s
+magnitude-qwen2b C-binary-search rep 0: 53.21 tok/s
+magnitude-qwen2b C-chunk rep 0: 53.48 tok/s
+magnitude-qwen2b C-camel-snake rep 0: 53.1 tok/s
+magnitude-qwen2b C-matrix-transpose rep 0: 53.05 tok/s
+magnitude-qwen2b C-fib-memo rep 0: 53.31 tok/s
+magnitude-qwen2b C-dedupe rep 0: 53.37 tok/s
+magnitude-qwen2b C-caesar rep 0: 53.04 tok/s
+magnitude-qwen2b C-digits-sum rep 0: 53.14 tok/s
+magnitude-qwen2b C-parse-duration rep 0: 38.2 tok/s
+magnitude-qwen2b C-spiral rep 0: 39.66 tok/s
+done, 0 failed rows
+== 2026-10-29T15:18:25+01:00 Magnitude stopped; VRAM 55 MiB
+ollama-qwen2b C-is-palindrome rep 0: 52.41 tok/s
+ollama-qwen2b C-run-length rep 0: 52.2 tok/s
+ollama-qwen2b C-flatten rep 0: 52.45 tok/s
+ollama-qwen2b C-roman rep 0: 51.86 tok/s
+ollama-qwen2b C-from-roman rep 0: 51.9 tok/s
+ollama-qwen2b C-anagram-groups rep 0: 51.94 tok/s
+ollama-qwen2b C-merge-intervals rep 0: 51.89 tok/s
+ollama-qwen2b C-primes rep 0: 52.0 tok/s
+ollama-qwen2b C-balanced rep 0: 51.81 tok/s
+ollama-qwen2b C-word-freq rep 0: 51.77 tok/s
+ollama-qwen2b C-binary-search rep 0: 51.95 tok/s
+ollama-qwen2b C-chunk rep 0: 51.93 tok/s
+ollama-qwen2b C-camel-snake rep 0: 51.8 tok/s
+ollama-qwen2b C-matrix-transpose rep 0: 52.08 tok/s
+ollama-qwen2b C-fib-memo rep 0: 52.0 tok/s
+ollama-qwen2b C-dedupe rep 0: 52.28 tok/s
+ollama-qwen2b C-caesar rep 0: 51.97 tok/s
+ollama-qwen2b C-digits-sum rep 0: 52.15 tok/s
+ollama-qwen2b C-parse-duration rep 0: 51.84 tok/s
+ollama-qwen2b C-spiral rep 0: 51.81 tok/s
+done, 0 failed rows
+== 2026-10-29T15:19:54+01:00 Ollama unloaded; VRAM 2364 MiB
+wrote /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/report.md and /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/dashboard.html
+== 2026-10-29T15:19:55+01:00 unload Ollama; VRAM 55 MiB
+== 2026-10-29T15:19:55+01:00 load Magnitude hf:unsloth/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf
+== 2026-10-29T15:20:02+01:00 Magnitude ready; VRAM 2891 MiB
+magnitude-qwen2b V-shapes rep 0: 56.1 tok/s
+magnitude-qwen2b V-count rep 0: 0.0 tok/s
+magnitude-qwen2b V-bars rep 0: 56.99 tok/s
+magnitude-qwen2b V-flag rep 0: 62.87 tok/s
+magnitude-qwen2b V-position rep 0: 99.53 tok/s
+done, 0 failed rows
+== 2026-10-29T15:20:11+01:00 Magnitude stopped; VRAM 55 MiB
+ollama-qwen2b V-shapes rep 0: 54.8 tok/s
+ollama-qwen2b V-count rep 0: 0.0 tok/s
+ollama-qwen2b V-bars rep 0: 55.79 tok/s
+ollama-qwen2b V-flag rep 0: 62.22 tok/s
+ollama-qwen2b V-position rep 0: 94.94 tok/s
+done, 0 failed rows
+== 2026-10-29T15:20:16+01:00 Ollama unloaded; VRAM 2386 MiB
+wrote /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/report.md and /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/dashboard.html
+== 2026-10-29T15:20:16+01:00 unload Ollama; VRAM 55 MiB
+== 2026-10-29T15:20:16+01:00 load Magnitude hf:unsloth/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf
+== 2026-10-29T15:20:23+01:00 Magnitude ready; VRAM 2891 MiB
+skip magnitude-qwen2b A/4096: all rows present
+skip magnitude-qwen2b A/16384: all rows present
+skip magnitude-qwen2b B/1024: all rows present
+skip magnitude-qwen2b B/8192: all rows present
+done, 0 failed rows
+== 2026-10-29T15:20:29+01:00 Magnitude stopped; VRAM 55 MiB
+ollama-qwen2b-mtp A-moby-4096 rep 0: 70.82 tok/s
+ollama-qwen2b-mtp A-moby-4096 rep 1: 70.48 tok/s
+ollama-qwen2b-mtp A-moby-4096 rep 2: 70.2 tok/s
+ollama-qwen2b-mtp A-moby-4096 rep 3: 70.75 tok/s
+ollama-qwen2b-mtp A-moby-4096 rep 4: 70.7 tok/s
+ollama-qwen2b-mtp A-moby-16384 rep 0: 67.7 tok/s
+ollama-qwen2b-mtp A-moby-16384 rep 1: 67.2 tok/s
+ollama-qwen2b-mtp A-moby-16384 rep 2: 67.33 tok/s
+ollama-qwen2b-mtp A-moby-16384 rep 3: 66.63 tok/s
+ollama-qwen2b-mtp A-moby-16384 rep 4: 66.77 tok/s
+ollama-qwen2b-mtp B-lru-ttl-1024 rep 0: 65.95 tok/s
+ollama-qwen2b-mtp B-lru-ttl-1024 rep 1: 67.05 tok/s
+ollama-qwen2b-mtp B-lru-ttl-1024 rep 2: 67.4 tok/s
+ollama-qwen2b-mtp B-lru-ttl-1024 rep 3: 67.1 tok/s
+ollama-qwen2b-mtp B-lru-ttl-1024 rep 4: 66.74 tok/s
+ollama-qwen2b-mtp B-csv-report-1024 rep 0: 67.33 tok/s
+ollama-qwen2b-mtp B-csv-report-1024 rep 1: 67.01 tok/s
+ollama-qwen2b-mtp B-csv-report-1024 rep 2: 67.05 tok/s
+ollama-qwen2b-mtp B-csv-report-1024 rep 3: 68.21 tok/s
+ollama-qwen2b-mtp B-csv-report-1024 rep 4: 67.96 tok/s
+ollama-qwen2b-mtp B-rate-limiter-1024 rep 0: 65.96 tok/s
+ollama-qwen2b-mtp B-rate-limiter-1024 rep 1: 66.71 tok/s
+ollama-qwen2b-mtp B-rate-limiter-1024 rep 2: 65.08 tok/s
+ollama-qwen2b-mtp B-rate-limiter-1024 rep 3: 64.94 tok/s
+ollama-qwen2b-mtp B-rate-limiter-1024 rep 4: 66.53 tok/s
+ollama-qwen2b-mtp B-graph-paths-1024 rep 0: 63.49 tok/s
+ollama-qwen2b-mtp B-graph-paths-1024 rep 1: 65.01 tok/s
+ollama-qwen2b-mtp B-graph-paths-1024 rep 2: 63.95 tok/s
+ollama-qwen2b-mtp B-graph-paths-1024 rep 3: 65.26 tok/s
+ollama-qwen2b-mtp B-graph-paths-1024 rep 4: 66.6 tok/s
+ollama-qwen2b-mtp B-log-parser-1024 rep 0: 64.86 tok/s
+ollama-qwen2b-mtp B-log-parser-1024 rep 1: 64.75 tok/s
+ollama-qwen2b-mtp B-log-parser-1024 rep 2: 65.41 tok/s
+ollama-qwen2b-mtp B-log-parser-1024 rep 3: 65.9 tok/s
+ollama-qwen2b-mtp B-log-parser-1024 rep 4: 60.97 tok/s
+ollama-qwen2b-mtp B-lru-ttl-8192 rep 0: 62.79 tok/s
+ollama-qwen2b-mtp B-lru-ttl-8192 rep 1: 63.2 tok/s
+ollama-qwen2b-mtp B-lru-ttl-8192 rep 2: 62.93 tok/s
+ollama-qwen2b-mtp B-lru-ttl-8192 rep 3: 62.71 tok/s
+ollama-qwen2b-mtp B-lru-ttl-8192 rep 4: 63.65 tok/s
+ollama-qwen2b-mtp B-csv-report-8192 rep 0: 64.37 tok/s
+ollama-qwen2b-mtp B-csv-report-8192 rep 1: 63.15 tok/s
+ollama-qwen2b-mtp B-csv-report-8192 rep 2: 64.0 tok/s
+ollama-qwen2b-mtp B-csv-report-8192 rep 3: 62.98 tok/s
+ollama-qwen2b-mtp B-csv-report-8192 rep 4: 63.9 tok/s
+ollama-qwen2b-mtp B-rate-limiter-8192 rep 0: 62.57 tok/s
+ollama-qwen2b-mtp B-rate-limiter-8192 rep 1: 57.12 tok/s
+ollama-qwen2b-mtp B-rate-limiter-8192 rep 2: 62.64 tok/s
+ollama-qwen2b-mtp B-rate-limiter-8192 rep 3: 62.79 tok/s
+ollama-qwen2b-mtp B-rate-limiter-8192 rep 4: 62.81 tok/s
+ollama-qwen2b-mtp B-graph-paths-8192 rep 0: 64.01 tok/s
+ollama-qwen2b-mtp B-graph-paths-8192 rep 1: 64.39 tok/s
+ollama-qwen2b-mtp B-graph-paths-8192 rep 2: 63.45 tok/s
+ollama-qwen2b-mtp B-graph-paths-8192 rep 3: 63.15 tok/s
+ollama-qwen2b-mtp B-graph-paths-8192 rep 4: 64.76 tok/s
+ollama-qwen2b-mtp B-log-parser-8192 rep 0: 66.0 tok/s
+ollama-qwen2b-mtp B-log-parser-8192 rep 1: 64.19 tok/s
+ollama-qwen2b-mtp B-log-parser-8192 rep 2: 66.85 tok/s
+ollama-qwen2b-mtp B-log-parser-8192 rep 3: 64.14 tok/s
+ollama-qwen2b-mtp B-log-parser-8192 rep 4: 66.77 tok/s
+done, 0 failed rows
+== 2026-10-29T15:31:06+01:00 Ollama unloaded; VRAM 3202 MiB
+wrote /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/report.md and /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/dashboard.html
+== 2026-10-29T15:31:06+01:00 unload Ollama; VRAM 3202 MiB
+== 2026-10-29T15:31:06+01:00 load Magnitude hf:unsloth/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf
+== 2026-10-29T15:31:25+01:00 Magnitude ready; VRAM 2891 MiB
+skip magnitude-qwen2b C/4096: all rows present
+done, 0 failed rows
+== 2026-10-29T15:31:32+01:00 Magnitude stopped; VRAM 55 MiB
+ollama-qwen2b-mtp C-is-palindrome rep 0: 67.25 tok/s
+ollama-qwen2b-mtp C-run-length rep 0: 69.14 tok/s
+ollama-qwen2b-mtp C-flatten rep 0: 67.14 tok/s
+ollama-qwen2b-mtp C-roman rep 0: 69.08 tok/s
+ollama-qwen2b-mtp C-from-roman rep 0: 68.22 tok/s
+ollama-qwen2b-mtp C-anagram-groups rep 0: 65.84 tok/s
+ollama-qwen2b-mtp C-merge-intervals rep 0: 67.77 tok/s
+ollama-qwen2b-mtp C-primes rep 0: 67.02 tok/s
+ollama-qwen2b-mtp C-balanced rep 0: 66.58 tok/s
+ollama-qwen2b-mtp C-word-freq rep 0: 67.13 tok/s
+ollama-qwen2b-mtp C-binary-search rep 0: 69.03 tok/s
+ollama-qwen2b-mtp C-chunk rep 0: 67.2 tok/s
+ollama-qwen2b-mtp C-camel-snake rep 0: 64.13 tok/s
+ollama-qwen2b-mtp C-matrix-transpose rep 0: 69.13 tok/s
+ollama-qwen2b-mtp C-fib-memo rep 0: 65.86 tok/s
+ollama-qwen2b-mtp C-dedupe rep 0: 68.84 tok/s
+ollama-qwen2b-mtp C-caesar rep 0: 67.23 tok/s
+ollama-qwen2b-mtp C-digits-sum rep 0: 67.11 tok/s
+ollama-qwen2b-mtp C-parse-duration rep 0: 68.42 tok/s
+ollama-qwen2b-mtp C-spiral rep 0: 69.02 tok/s
+done, 0 failed rows
+== 2026-10-29T15:32:42+01:00 Ollama unloaded; VRAM 3028 MiB
+wrote /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/report.md and /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/dashboard.html
+== 2026-10-29T15:32:42+01:00 unload Ollama; VRAM 55 MiB
+== 2026-10-29T15:32:42+01:00 load Magnitude hf:unsloth/Qwen3.5-2B-GGUF/Qwen3.5-2B-Q4_K_M.gguf
+== 2026-10-29T15:32:49+01:00 Magnitude ready; VRAM 2891 MiB
+skip magnitude-qwen2b V/4096: all rows present
+done, 0 failed rows
+== 2026-10-29T15:32:55+01:00 Magnitude stopped; VRAM 55 MiB
+ollama-qwen2b-mtp V-shapes rep 0: 74.29 tok/s
+ollama-qwen2b-mtp V-count rep 0: 0.0 tok/s
+ollama-qwen2b-mtp V-bars rep 0: 75.41 tok/s
+ollama-qwen2b-mtp V-flag rep 0: 83.65 tok/s
+ollama-qwen2b-mtp V-position rep 0: 66.0 tok/s
+done, 0 failed rows
+== 2026-10-29T15:33:02+01:00 Ollama unloaded; VRAM 3050 MiB
+wrote /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/report.md and /home/mpetrick/repos/codingWithGPT/20261129_magnitudeVersusOllama/dashboard.html
+== 2026-10-29T15:33:02+01:00 download Gemma 4 E4B (both engines)
