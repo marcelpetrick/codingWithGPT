@@ -82,6 +82,10 @@ footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
   <p class="sub">Laptop: RTX A2000 8 GB · Magnitude 0.2.14 · Ollama 0.40.4 · 2026-10-29 · source: <code>PLAN.md</code></p>
 
   <div class="q">Is Magnitude really faster than Ollama for the same model on our hardware, without lower answer quality?</div>
+  <div class="card" style="margin-top:12px;border-left:4px solid var(--go)"><span class="tag go">Result 2026-10-29</span>
+    <h3>Only where Magnitude has a drafter that Ollama lacks</h3>
+    <p>Gemma 4 E4B (fills the 8 GB): Magnitude 1.81–1.88x on new code, clearly faster (MTP drafter; Ollama has no E4B MTP tag).
+    Qwen3.5 2B: tie without drafters; Ollama with MTP clearly faster. Quality and vision: ties. Details: dashboard.html, README.md.</p></div>
 
   <h2>1 · Gate: what runs on this laptop</h2>
   <div class="grid g4">
@@ -156,14 +160,14 @@ footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
   <h2>7 · Steps</h2>
   <ol class="steps">
     <li class="done"><span class="num">0</span><div><div class="t">Skeleton, plan, rules</div><div class="d">AGENTS.md, PLAN.md, GPLv3, localPipeline.sh, CI</div></div><span class="tag go">done</span></li>
-    <li class="done"><span class="num">1</span><div><div class="t">Gate: install, check what loads</div><div class="d">Qwen3.5 4B refused, Gemma 4 allowed</div></div><span class="tag go">done</span></li>
-    <li class="done"><span class="num">2</span><div><div class="t">Harness <code>mvo</code> v0.1.0</div><div class="d">38 tests, 99 % coverage, pipeline green</div></div><span class="tag go">done</span></li>
-    <li class="next"><span class="num">3</span><div><div class="t">Gemma 4 E2B: 4 arms × A, B, C</div><div class="d">Magnitude first, then Ollama · about 1 h</div></div><span class="tag wait">next</span></li>
-    <li><span class="num">4</span><div><div class="t">Gemma 4 E4B: same, if Magnitude loads it</div><div class="d">Magnitude lists 8 GB, which is the limit · about 1 h</div></div><span class="tag wait">open</span></li>
-    <li><span class="num">5</span><div><div class="t">Qwen3.5 4B forced load</div><div class="d">Gate row only: does it load at all?</div></div><span class="tag wait">downloading</span></li>
-    <li><span class="num">6</span><div><div class="t">Report, dashboard, README</div><div class="d">Generated from results, never edited by hand</div></div><span class="tag wait">open</span></li>
-    <li class="blocked"><span class="num">7</span><div><div class="t">Qwen3.6 35B on the box .67</div><div class="d">Needs your approval: installing Magnitude changes a shared server</div></div><span class="tag no">blocked</span></li>
-    <li><span class="num">8</span><div><div class="t">Independent review</div><div class="d">review_YYYYMMDD.md, fix what is real</div></div><span class="tag wait">open</span></li>
+    <li class="done"><span class="num">1</span><div><div class="t">Gate: install, check what loads</div><div class="d">Qwen3.5 4B refused, Qwen3 no kernels, Gemma 4 and Qwen3.5 2B allowed</div></div><span class="tag go">done</span></li>
+    <li class="done"><span class="num">2</span><div><div class="t">Harness <code>mvo</code></div><div class="d">v0.3.0: workloads A, B, C, V; stable warm-up; exclusions; ≥ 95 % coverage</div></div><span class="tag go">done</span></li>
+    <li class="done"><span class="num">3</span><div><div class="t">Gemma 4 E2B quick test</div><div class="d">5.4x on repeat, 1.15x tie on new code</div></div><span class="tag go">done</span></li>
+    <li class="done"><span class="num">4</span><div><div class="t">Qwen3.5 2B: 3 arms × A, B, C, V</div><div class="d">Tie without drafters; Ollama MTP clearly faster</div></div><span class="tag go">done</span></li>
+    <li class="done"><span class="num">5</span><div><div class="t">Gemma 4 E4B (fills the GPU): A, B, C, V</div><div class="d">Magnitude 1.81–1.88x on new code, clearly faster</div></div><span class="tag go">done</span></li>
+    <li class="done"><span class="num">6</span><div><div class="t">Report, dashboard, README, Claude Code smoke test</div><div class="d">Generated from results; Claude Code via /inference/anthropic works</div></div><span class="tag go">done</span></li>
+    <li class="blocked"><span class="num">7</span><div><div class="t">Qwen3.6 35B / KAT-Coder on the box .67</div><div class="d">Needs your approval: installing Magnitude changes a shared server</div></div><span class="tag no">blocked</span></li>
+    <li class="done"><span class="num">8</span><div><div class="t">Review</div><div class="d">review_20261029.md</div></div><span class="tag go">done</span></li>
   </ol>
 
   <h2>8 · The vendor claim we test</h2>

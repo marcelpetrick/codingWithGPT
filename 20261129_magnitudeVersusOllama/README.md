@@ -19,7 +19,27 @@ on an RTX A2000 8 GB laptop with a fixed decision rule.
 
 ## Verdict
 
-<!-- VERDICT -->
+**Magnitude is faster only where it has a drafter that Ollama does not have.** The engine itself is not
+faster at decode. Measured on an RTX A2000 8 GB laptop, 2026-10-29, fixed rule (n = 5, median ≥ 25% higher
+and no range overlap):
+
+| Model | Magnitude | Ollama | New code (B) decode | Rule verdict |
+|---|---|---|---|---|
+| **Gemma 4 E4B** QAT Q4 (fills the 8 GB) | MTP drafter, 48–51 tok/s | no MTP tag, 25–28 tok/s | **1.81–1.88x** | **Magnitude better** |
+| Qwen3.5 2B Q4_K_M | no drafter offered, 50–53 tok/s | plain tag, 50–52 tok/s | 0.99–1.02x | tie |
+| Qwen3.5 2B Q4_K_M | no drafter offered, 50–53 tok/s | MTP tag, 63–66 tok/s | 0.78–0.80x | **Ollama clearly faster** |
+| Gemma 4 E2B QAT Q4 (quick test, n = 3) | MTP drafter, 58 tok/s | no MTP tag, 51 tok/s | 1.15x | tie |
+
+- **Without a drafter, both engines decode at the same speed** (Qwen 2B: 0.98–1.02x; Gemma E4B on the one
+  prompt where Magnitude did not draft: 24.6 vs 25–29 tok/s).
+- **Prefill** is often faster on Magnitude (1.1–1.4x with long prompts), but mostly within the tie band.
+- **The vendor's repeat task inflates the gain**: 3.0x (E4B, 16k) and 5.4x (E2B, 4k), against 1.8x on new code.
+- **Magnitude's drafter is prompt-dependent**: on one 3.2k-token prompt it did not draft at all (reproduced).
+- **Quality and vision are kept**: C 19/20 vs 17/20 (E4B), 14/20 vs 12/20 (Qwen 2B); V 5/5 vs 5/5 and 4/5 vs 4/5. All ties.
+- **Fit is worse on 8 GB**: Magnitude plans for the full 256K context and refuses Qwen3.5 4B, which Ollama
+  runs in 3.7 GB. Qwen3 / Qwen3-VL have no Magnitude kernels. Qwen3.6 35B does not fit (no MoE offload).
+- **Not a drop-in for the Ollama API** (see below). Claude Code works through `/inference/anthropic` (smoke test: one tool call, 25 s).
+
 See [`report.md`](report.md) (generated) and [`PLAN.md`](PLAN.md) (living document).
 
 ![Dashboard](docs/dashboard.png)

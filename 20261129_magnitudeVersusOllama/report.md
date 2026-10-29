@@ -20,6 +20,7 @@ Gemma 4 E2B (laptop-quick): no verdict yet (needs workload B and C rows of both 
 | laptop | magnitude | qwen3.6-35b-a3b (Q4 24.2 GB) | blocked | 8 GB GPU; no MoE expert offload (issue #194) |
 | laptop | magnitude | unsloth/Qwen3.5-4B-GGUF:Q4_K_M (forced download) | refused: load | models load: needs 212.5 MB more memory; plans 256K ctx, 9.5 GB |
 | laptop | magnitude | unsloth/Qwen3.5-2B-GGUF:Q4_K_M | loaded (fits) | 6.2 GB planned at 256K ctx; no drafter offered; projector included |
+| laptop | magnitude | Claude Code 2.1.312 -> /inference/anthropic, gemma-4-e4b-it-qat:gguf:q4 | runs: tool call ok | claude -p with Write tool: hello.txt written, result DONE, 2 turns, 25 s; only warning: unrecognized_model |
 
 ## Comparisons (fixed rule)
 

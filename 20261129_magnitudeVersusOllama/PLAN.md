@@ -2,24 +2,37 @@
 
 Living document. Started 2026-10-29.
 
-## Verdict so far
+## Verdict (2026-10-29, final for the laptop)
 
-No speed result yet. Gate results on this laptop (2026-10-29):
+**Magnitude is faster only where it has a drafter that Ollama does not have.** The engine itself is not
+faster at decode. Measured on an RTX A2000 8 GB laptop, 2026-10-29, fixed rule (n = 5, median ≥ 25% higher
+and no range overlap):
 
-1. **Magnitude installs and runs here.** Version 0.2.14, CUDA on the RTX A2000, service "Ready".
-2. **Qwen3.6 35B-A3B: blocked.** The Q4 is 24.2 GB, the GPU has 8 GB. Magnitude cannot put MoE
-   experts in system RAM (issue #194, open). Ollama can, but that is a CPU-offload test, not a match.
-3. **Qwen3.5 4B: Magnitude refuses it.** It plans memory for the full 262144 context. The catalog Q4
-   needs 9.9 GB (392 MB short). Every Hugging Face quant is "too large", even the 1.52 GB one.
-   Ollama runs the same model at 16k context in 1.4 GB (MTP tag) or 3.7 GB (plain tag), 100% GPU.
-   This matches issue #153 (8 GB RTX 3070, same refusal). A forced download tests if it loads anyway.
-4. **The overlap is Gemma 4 E2B and E4B (QAT Q4).** Magnitude allows them here, Ollama has the same
-   QAT tags, and the vendor published numbers for both (decode 1.51x and 1.65x on DGX Spark).
-5. The vendor claim ("2x faster than Ollama") is from one workload only. Treat it as a claim.
-6. **Quick test, Gemma 4 E2B (site `laptop-quick`, n = 3, does not pool):** Magnitude (MTP drafter)
-   vs Ollama (no drafter tag exists). Repeat-a-passage decode 269 vs 50 tok/s (5.4x). New-code decode
-   58 [50–96] vs 51 [51–51] tok/s (1.15x, a **tie** under the rule). Prefill at 3k tokens 6608 vs
-   1560 tok/s (4.2x). The decode gain is the drafter on repeated text. The prefill gain is real.
+| Model | Magnitude | Ollama | New code (B) decode | Rule verdict |
+|---|---|---|---|---|
+| **Gemma 4 E4B** QAT Q4 (fills the 8 GB) | MTP drafter, 48–51 tok/s | no MTP tag, 25–28 tok/s | **1.81–1.88x** | **Magnitude better** |
+| Qwen3.5 2B Q4_K_M | no drafter offered, 50–53 tok/s | plain tag, 50–52 tok/s | 0.99–1.02x | tie |
+| Qwen3.5 2B Q4_K_M | no drafter offered, 50–53 tok/s | MTP tag, 63–66 tok/s | 0.78–0.80x | **Ollama clearly faster** |
+| Gemma 4 E2B QAT Q4 (quick test, n = 3) | MTP drafter, 58 tok/s | no MTP tag, 51 tok/s | 1.15x | tie |
+
+- **Without a drafter, both engines decode at the same speed** (Qwen 2B: 0.98–1.02x; Gemma E4B on the one
+  prompt where Magnitude did not draft: 24.6 vs 25–29 tok/s).
+- **Prefill** is often faster on Magnitude (1.1–1.4x with long prompts), but mostly within the tie band.
+- **The vendor's repeat task inflates the gain**: 3.0x (E4B, 16k) and 5.4x (E2B, 4k), against 1.8x on new code.
+- **Magnitude's drafter is prompt-dependent**: on one 3.2k-token prompt it did not draft at all (reproduced).
+- **Quality and vision are kept**: C 19/20 vs 17/20 (E4B), 14/20 vs 12/20 (Qwen 2B); V 5/5 vs 5/5 and 4/5 vs 4/5. All ties.
+- **Fit is worse on 8 GB**: Magnitude plans for the full 256K context and refuses Qwen3.5 4B, which Ollama
+  runs in 3.7 GB. Qwen3 / Qwen3-VL have no Magnitude kernels. Qwen3.6 35B does not fit (no MoE offload).
+- **Not a drop-in for the Ollama API** (see below). Claude Code works through `/inference/anthropic` (smoke test: one tool call, 25 s).
+
+Details: `report.md`, `dashboard.html`, `README.md`. Earlier gate notes (still valid):
+
+1. Magnitude 0.2.14 installs and runs here (CUDA on the A2000).
+2. Qwen3.6 35B-A3B: blocked (24.2 GB, no MoE expert offload, issue #194).
+3. Qwen3.5 4B: refused (256K-context planning, 212 MB short even when forced).
+4. Correction: the E4B A-4k rows were first excluded as "kernel tuning after the first load". The
+   re-measurement after a stable warm-up gave the same 24.6 tok/s: Magnitude does not draft on that
+   prompt. The first diagnosis was wrong; `results/exclusions.jsonl` says so.
 
 ## Vendor claim, and why it is weak
 
@@ -185,10 +198,16 @@ Cells per model: `A:4096,A:16384,B:1024,B:8192` with n = 5, and `C:4096` with n 
 | 2026-10-29 14:39 | Quick test Gemma 4 E2B | 36 rows, 0 failed. Result in "Verdict so far", point 6. |
 | 2026-10-29 14:49 | Long run started (Qwen 2B first) | Stopped at 14:58 after 33 rows (kept) for the new focus. |
 | 2026-10-29 15:05 | v0.2.0: workload V, family fix, E4B arms | Chain restarted: Qwen 2B (resumes), then Gemma 4 E4B. |
+| 2026-10-29 15:33 | Qwen3.5 2B done | Tie without drafters; Ollama MTP clearly faster. C and V ties. |
+| 2026-10-29 16:17 | Gemma 4 E4B done, chain ended | Magnitude 1.81–1.88x on B (clearly faster). C and V ties. 0 failed rows. |
+| 2026-10-29 16:20 | v0.3.0: stable warm-up, exclusions; A-4k re-measured | Same 24.6 tok/s: the drafter is off on that prompt. Diagnosis corrected. |
+| 2026-10-29 16:22 | Claude Code smoke test via `/inference/anthropic` | Passed: one Write tool call, 2 turns, 25 s. |
 
 ## Resume here
 
-- State: chain `scripts/run_long.sh` runs detached; log `results/long_run.log`.
-- Check: `tail results/long_run.log`, `wc -l results/laptop_*.jsonl`, `nvidia-smi`, `magnitude models status`.
-- Restart (idempotent): `setsid nohup systemd-inhibit --what=sleep:idle --why="mvo long run" scripts/run_long.sh >> results/long_run.log 2>&1 &`
-- After the run: `.venv/bin/mvo report`, look at `dashboard.html`, update this file and `plan.html`.
+- State: laptop round complete. All results in `results/`, report generated, nothing running.
+- Check: `.venv/bin/mvo report`, `./localPipeline.sh`, `magnitude status`, `ollama ps`.
+- Open (needs the owner): Magnitude on the box `.67` for Qwen3.6 35B / KAT-Coder (shared server).
+- After the round (owner decision): remove Magnitude (`magnitude server remove`, then
+  `sudo pacman -R magnitude-desktop`) or keep it; it runs as a boot service on `0.0.0.0:10100`.
+- Re-run a cell: `scripts/run_pair.sh laptop CELLS REPS MAG_ARM MAG_MODEL OLL_ARM OLL_MODEL` (idempotent).
