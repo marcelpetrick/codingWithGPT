@@ -1,0 +1,52 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 960
+PlayResY: 930
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Caption,DejaVu Sans,38,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,0,2,30,30,58,1
+Style: Notice,DejaVu Sans,20,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,3,3,0,8,20,20,12,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 1,0:00:00.00,0:00:06.00,Notice,,0,0,0,,PARODY SUBTITLES — NOT A TRANSLATION
+Dialogue: 0,0:00:01.00,0:00:06.23,Caption,,0,0,0,,We added an AI reviewer to save\Ndevelopers time.
+Dialogue: 0,0:00:06.43,0:00:11.54,Caption,,0,0,0,,First pull request: three hundred\Nsuggestions.
+Dialogue: 0,0:00:11.74,0:00:16.70,Caption,,0,0,0,,And some were really good!
+Dialogue: 0,0:00:16.90,0:00:21.86,Caption,,0,0,0,,So the coding agent fixed them.
+Dialogue: 0,0:00:22.06,0:00:27.03,Caption,,0,0,0,,Three hundred fixes.
+Dialogue: 0,0:00:27.23,0:00:32.19,Caption,,0,0,0,,Then the reviewer reviewed the\Nfixes.
+Dialogue: 0,0:00:32.39,0:00:37.35,Caption,,0,0,0,,More suggestions!
+Dialogue: 0,0:00:37.55,0:00:42.52,Caption,,0,0,0,,One agent renamed a function.
+Dialogue: 0,0:00:42.72,0:00:47.68,Caption,,0,0,0,,The other wanted a clearer name.
+Dialogue: 0,0:00:47.88,0:00:53.05,Caption,,0,0,0,,They discussed it all morning.\NThrough commits!
+Dialogue: 0,0:00:53.25,0:00:58.21,Caption,,0,0,0,,Every commit started a pipeline.
+Dialogue: 0,0:00:58.41,0:01:03.37,Caption,,0,0,0,,Our tests run in ninety seconds.
+Dialogue: 0,0:01:03.57,0:01:08.54,Caption,,0,0,0,,We spent months optimizing them.
+Dialogue: 0,0:01:08.74,0:01:13.70,Caption,,0,0,0,,Ninety seconds!
+Dialogue: 0,0:01:13.90,0:01:18.86,Caption,,0,0,0,,After six hours waiting for a\Nrunner.
+Dialogue: 0,0:01:19.06,0:01:24.02,Caption,,0,0,0,,At nine, all the developers logged\Nin.
+Dialogue: 0,0:01:24.22,0:01:29.19,Caption,,0,0,0,,Each one started five agents.
+Dialogue: 0,0:01:29.39,0:01:34.50,Caption,,0,0,0,,The runners were fully booked before\Nstand-up.
+Dialogue: 0,0:01:34.70,0:01:39.66,Caption,,0,0,0,,So we doubled the runners.
+Dialogue: 0,0:01:39.86,0:01:44.82,Caption,,0,0,0,,The queue started moving!
+Dialogue: 0,0:01:45.02,0:01:49.99,Caption,,0,0,0,,The agents got feedback faster!
+Dialogue: 0,0:01:50.19,0:01:55.15,Caption,,0,0,0,,And immediately submitted more\Nfixes.
+Dialogue: 0,0:01:55.35,0:02:00.31,Caption,,0,0,0,,We'd upgraded the traffic jam.
+Dialogue: 0,0:02:00.51,0:02:05.48,Caption,,0,0,0,,Then we added an autoscaler.
+Dialogue: 0,0:02:05.68,0:02:10.96,Caption,,0,0,0,,Finally, something could keep up\Nwith the agents.
+Dialogue: 0,0:02:11.16,0:02:16.13,Caption,,0,0,0,,The cloud bill.
+Dialogue: 0,0:02:16.33,0:02:21.29,Caption,,0,0,0,,And the human reviewers? Still\Nthere!
+Dialogue: 0,0:02:21.49,0:02:26.45,Caption,,0,0,0,,Someone has to check the AI's\Nsuggestions.
+Dialogue: 0,0:02:26.65,0:02:31.76,Caption,,0,0,0,,Now they read the code, the review,\Nthe fix...
+Dialogue: 0,0:02:31.96,0:02:36.92,Caption,,0,0,0,,And the review of the fix.
+Dialogue: 0,0:02:37.12,0:02:42.35,Caption,,0,0,0,,We automated everything except\Nunderstanding it.
+Dialogue: 0,0:02:42.55,0:02:47.78,Caption,,0,0,0,,Finance asked us to reduce\Ninfrastructure costs.
+Dialogue: 0,0:02:47.98,0:02:52.94,Caption,,0,0,0,,No problem. The agent wrote a patch.
+Dialogue: 0,0:02:53.14,0:02:58.31,Caption,,0,0,0,,Beautiful patch. Turns off\Nunnecessary runners.
+Dialogue: 0,0:02:58.51,0:03:03.47,Caption,,0,0,0,,Did we deploy it? Not yet.
+Dialogue: 0,0:03:03.67,0:03:08.64,Caption,,0,0,0,,It's waiting for a runner.
+Dialogue: 0,0:03:08.84,0:03:13.80,Caption,,0,0,0,,And the AI reviewer has a few\Nsuggestions.

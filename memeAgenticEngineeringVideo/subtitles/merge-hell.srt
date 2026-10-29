@@ -1,0 +1,166 @@
+1
+00:00:01,000 --> 00:00:05,833
+Agentic coding made us faster.
+
+2
+00:00:06,033 --> 00:00:10,867
+A whole week's code before
+breakfast.
+
+3
+00:00:11,067 --> 00:00:15,900
+Forty pull requests. I tagged the
+team.
+
+4
+00:00:16,100 --> 00:00:21,433
+The lead said: We need time to
+review them properly.
+
+5
+00:00:21,633 --> 00:00:26,466
+Of course! Quality comes first.
+
+6
+00:00:26,666 --> 00:00:31,500
+So while they reviewed them...
+
+7
+00:00:31,700 --> 00:00:36,533
+I made ten more.
+
+8
+00:00:36,733 --> 00:00:41,566
+Ten more!
+
+9
+00:00:41,766 --> 00:00:46,600
+And they were doing good reviews!
+
+10
+00:00:46,800 --> 00:00:51,633
+Checking edge cases. Finding real
+bugs.
+
+11
+00:00:51,833 --> 00:00:57,343
+One guy spent two hours
+understanding a race condition.
+
+12
+00:00:57,543 --> 00:01:02,935
+During those two hours, I created
+three new services.
+
+13
+00:01:03,135 --> 00:01:07,968
+He was still on the first service!
+
+14
+00:01:08,168 --> 00:01:13,001
+Then they organized a review day.
+
+15
+00:01:13,201 --> 00:01:18,035
+No coding. Everyone clears the
+backlog.
+
+16
+00:01:18,235 --> 00:01:23,068
+Everyone except my agents.
+
+17
+00:01:23,268 --> 00:01:28,101
+By lunch they'd reviewed fifty.
+
+18
+00:01:28,301 --> 00:01:33,134
+The queue had grown by ninety.
+
+19
+00:01:33,334 --> 00:01:38,168
+And they said: We're making good
+progress.
+
+20
+00:01:38,368 --> 00:01:43,201
+Good progress!
+
+21
+00:01:43,401 --> 00:01:48,234
+They asked me to help.
+
+22
+00:01:48,434 --> 00:01:53,267
+I built a dashboard to track the
+backlog.
+
+23
+00:01:53,467 --> 00:01:58,301
+Then I tagged them to review it.
+
+24
+00:01:58,501 --> 00:02:03,334
+They asked for smaller pull
+requests.
+
+25
+00:02:03,534 --> 00:02:08,367
+Very reasonable. Easier to
+understand.
+
+26
+00:02:08,567 --> 00:02:13,401
+So I split the next one into three.
+
+27
+00:02:13,601 --> 00:02:18,434
+Three pull requests! Three reviews!
+
+28
+00:02:18,634 --> 00:02:23,467
+Three pipelines!
+
+29
+00:02:23,667 --> 00:02:28,500
+The lead said: This is like
+Sisyphus.
+
+30
+00:02:28,700 --> 00:02:33,534
+I said: No, he had one rock.
+
+31
+00:02:33,734 --> 00:02:38,567
+Our rocks create more rocks.
+
+32
+00:02:38,767 --> 00:02:43,600
+At five they said: We'll finish
+tomorrow.
+
+33
+00:02:43,800 --> 00:02:48,634
+Tomorrow!
+
+34
+00:02:48,834 --> 00:02:53,667
+I left the agents running overnight.
+
+35
+00:02:53,867 --> 00:02:58,700
+They'll be reviewing until
+Tomorrowland.
+
+36
+00:02:58,900 --> 00:03:03,733
+Management asked if we'd saved time.
+
+37
+00:03:03,933 --> 00:03:08,767
+I said: I've saved loads.
+
+38
+00:03:08,967 --> 00:03:13,800
+Their time? I've booked the next six
+years.

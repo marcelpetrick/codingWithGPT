@@ -1,0 +1,53 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 960
+PlayResY: 930
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Caption,DejaVu Sans,38,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,0,2,30,30,58,1
+Style: Notice,DejaVu Sans,20,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,3,3,0,8,20,20,12,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 1,0:00:00.00,0:00:06.00,Notice,,0,0,0,,PARODY SUBTITLES — NOT A TRANSLATION
+Dialogue: 0,0:00:01.00,0:00:05.83,Caption,,0,0,0,,Agentic coding made us faster.
+Dialogue: 0,0:00:06.03,0:00:10.87,Caption,,0,0,0,,A whole week's code before\Nbreakfast.
+Dialogue: 0,0:00:11.07,0:00:15.90,Caption,,0,0,0,,Forty pull requests. I tagged the\Nteam.
+Dialogue: 0,0:00:16.10,0:00:21.43,Caption,,0,0,0,,The lead said: We need time to\Nreview them properly.
+Dialogue: 0,0:00:21.63,0:00:26.47,Caption,,0,0,0,,Of course! Quality comes first.
+Dialogue: 0,0:00:26.67,0:00:31.50,Caption,,0,0,0,,So while they reviewed them...
+Dialogue: 0,0:00:31.70,0:00:36.53,Caption,,0,0,0,,I made ten more.
+Dialogue: 0,0:00:36.73,0:00:41.57,Caption,,0,0,0,,Ten more!
+Dialogue: 0,0:00:41.77,0:00:46.60,Caption,,0,0,0,,And they were doing good reviews!
+Dialogue: 0,0:00:46.80,0:00:51.63,Caption,,0,0,0,,Checking edge cases. Finding real\Nbugs.
+Dialogue: 0,0:00:51.83,0:00:57.34,Caption,,0,0,0,,One guy spent two hours\Nunderstanding a race condition.
+Dialogue: 0,0:00:57.54,0:01:02.93,Caption,,0,0,0,,During those two hours, I created\Nthree new services.
+Dialogue: 0,0:01:03.13,0:01:07.97,Caption,,0,0,0,,He was still on the first service!
+Dialogue: 0,0:01:08.17,0:01:13.00,Caption,,0,0,0,,Then they organized a review day.
+Dialogue: 0,0:01:13.20,0:01:18.03,Caption,,0,0,0,,No coding. Everyone clears the\Nbacklog.
+Dialogue: 0,0:01:18.23,0:01:23.07,Caption,,0,0,0,,Everyone except my agents.
+Dialogue: 0,0:01:23.27,0:01:28.10,Caption,,0,0,0,,By lunch they'd reviewed fifty.
+Dialogue: 0,0:01:28.30,0:01:33.13,Caption,,0,0,0,,The queue had grown by ninety.
+Dialogue: 0,0:01:33.33,0:01:38.17,Caption,,0,0,0,,And they said: We're making good\Nprogress.
+Dialogue: 0,0:01:38.37,0:01:43.20,Caption,,0,0,0,,Good progress!
+Dialogue: 0,0:01:43.40,0:01:48.23,Caption,,0,0,0,,They asked me to help.
+Dialogue: 0,0:01:48.43,0:01:53.27,Caption,,0,0,0,,I built a dashboard to track the\Nbacklog.
+Dialogue: 0,0:01:53.47,0:01:58.30,Caption,,0,0,0,,Then I tagged them to review it.
+Dialogue: 0,0:01:58.50,0:02:03.33,Caption,,0,0,0,,They asked for smaller pull\Nrequests.
+Dialogue: 0,0:02:03.53,0:02:08.37,Caption,,0,0,0,,Very reasonable. Easier to\Nunderstand.
+Dialogue: 0,0:02:08.57,0:02:13.40,Caption,,0,0,0,,So I split the next one into three.
+Dialogue: 0,0:02:13.60,0:02:18.43,Caption,,0,0,0,,Three pull requests! Three reviews!
+Dialogue: 0,0:02:18.63,0:02:23.47,Caption,,0,0,0,,Three pipelines!
+Dialogue: 0,0:02:23.67,0:02:28.50,Caption,,0,0,0,,The lead said: This is like\NSisyphus.
+Dialogue: 0,0:02:28.70,0:02:33.53,Caption,,0,0,0,,I said: No, he had one rock.
+Dialogue: 0,0:02:33.73,0:02:38.57,Caption,,0,0,0,,Our rocks create more rocks.
+Dialogue: 0,0:02:38.77,0:02:43.60,Caption,,0,0,0,,At five they said: We'll finish\Ntomorrow.
+Dialogue: 0,0:02:43.80,0:02:48.63,Caption,,0,0,0,,Tomorrow!
+Dialogue: 0,0:02:48.83,0:02:53.67,Caption,,0,0,0,,I left the agents running overnight.
+Dialogue: 0,0:02:53.87,0:02:58.70,Caption,,0,0,0,,They'll be reviewing until\NTomorrowland.
+Dialogue: 0,0:02:58.90,0:03:03.73,Caption,,0,0,0,,Management asked if we'd saved time.
+Dialogue: 0,0:03:03.93,0:03:08.77,Caption,,0,0,0,,I said: I've saved loads.
+Dialogue: 0,0:03:08.97,0:03:13.80,Caption,,0,0,0,,Their time? I've booked the next six\Nyears.

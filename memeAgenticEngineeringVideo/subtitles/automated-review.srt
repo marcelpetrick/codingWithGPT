@@ -1,0 +1,163 @@
+1
+00:00:01,000 --> 00:00:06,228
+We added an AI reviewer to save
+developers time.
+
+2
+00:00:06,428 --> 00:00:11,538
+First pull request: three hundred
+suggestions.
+
+3
+00:00:11,738 --> 00:00:16,701
+And some were really good!
+
+4
+00:00:16,901 --> 00:00:21,864
+So the coding agent fixed them.
+
+5
+00:00:22,064 --> 00:00:27,027
+Three hundred fixes.
+
+6
+00:00:27,227 --> 00:00:32,190
+Then the reviewer reviewed the
+fixes.
+
+7
+00:00:32,390 --> 00:00:37,352
+More suggestions!
+
+8
+00:00:37,552 --> 00:00:42,515
+One agent renamed a function.
+
+9
+00:00:42,715 --> 00:00:47,678
+The other wanted a clearer name.
+
+10
+00:00:47,878 --> 00:00:53,047
+They discussed it all morning.
+Through commits!
+
+11
+00:00:53,247 --> 00:00:58,210
+Every commit started a pipeline.
+
+12
+00:00:58,410 --> 00:01:03,373
+Our tests run in ninety seconds.
+
+13
+00:01:03,573 --> 00:01:08,536
+We spent months optimizing them.
+
+14
+00:01:08,736 --> 00:01:13,699
+Ninety seconds!
+
+15
+00:01:13,899 --> 00:01:18,862
+After six hours waiting for a
+runner.
+
+16
+00:01:19,062 --> 00:01:24,025
+At nine, all the developers logged
+in.
+
+17
+00:01:24,225 --> 00:01:29,188
+Each one started five agents.
+
+18
+00:01:29,388 --> 00:01:34,498
+The runners were fully booked before
+stand-up.
+
+19
+00:01:34,698 --> 00:01:39,661
+So we doubled the runners.
+
+20
+00:01:39,861 --> 00:01:44,824
+The queue started moving!
+
+21
+00:01:45,024 --> 00:01:49,987
+The agents got feedback faster!
+
+22
+00:01:50,187 --> 00:01:55,150
+And immediately submitted more
+fixes.
+
+23
+00:01:55,350 --> 00:02:00,313
+We'd upgraded the traffic jam.
+
+24
+00:02:00,513 --> 00:02:05,476
+Then we added an autoscaler.
+
+25
+00:02:05,676 --> 00:02:10,962
+Finally, something could keep up
+with the agents.
+
+26
+00:02:11,162 --> 00:02:16,125
+The cloud bill.
+
+27
+00:02:16,325 --> 00:02:21,288
+And the human reviewers? Still
+there!
+
+28
+00:02:21,488 --> 00:02:26,451
+Someone has to check the AI's
+suggestions.
+
+29
+00:02:26,651 --> 00:02:31,761
+Now they read the code, the review,
+the fix...
+
+30
+00:02:31,961 --> 00:02:36,924
+And the review of the fix.
+
+31
+00:02:37,124 --> 00:02:42,352
+We automated everything except
+understanding it.
+
+32
+00:02:42,552 --> 00:02:47,779
+Finance asked us to reduce
+infrastructure costs.
+
+33
+00:02:47,979 --> 00:02:52,942
+No problem. The agent wrote a patch.
+
+34
+00:02:53,142 --> 00:02:58,311
+Beautiful patch. Turns off
+unnecessary runners.
+
+35
+00:02:58,511 --> 00:03:03,474
+Did we deploy it? Not yet.
+
+36
+00:03:03,674 --> 00:03:08,637
+It's waiting for a runner.
+
+37
+00:03:08,837 --> 00:03:13,800
+And the AI reviewer has a few
+suggestions.
