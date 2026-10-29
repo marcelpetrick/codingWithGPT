@@ -73,6 +73,27 @@ What this means for software that already exists:
 3. An agent harness that Magnitude knows (Claude Code, Codex, OpenCode, Pi, Cline, and others) is
    connected with `magnitude connections connect <harness>`.
 
+### Claude Code through Magnitude (like the `claude-ol-kat` alias)
+
+Claude Code speaks the Anthropic API. Magnitude serves it at `/inference/anthropic`, so the alias needs
+only these changes (not yet run on the box `.67`):
+
+1. `ANTHROPIC_BASE_URL=http://192.168.100.67:10100/inference/anthropic` (port 10100, path `/inference/anthropic`).
+2. `ANTHROPIC_AUTH_TOKEN=<Magnitude network key>` instead of `ollama`.
+3. The model ID in Magnitude's form, for example `hf:bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF/<file>.gguf`.
+4. Warm the model with `magnitude models load <id>` or one `/inference/v1/chat/completions` request,
+   not with Ollama's `/api/generate` and `keep_alive`.
+
+Open points before it can replace the Ollama alias:
+
+| Point | State |
+|---|---|
+| Magnitude on the shared box `.67` | Needs the owner's approval (shared server). |
+| KAT-Coder-V2.5 kernels | Present: Magnitude lists it as a "Variant of Qwen3.6 35B-A3B". |
+| Fit of Q5_K_M in ~35.5 GB | Unknown. Magnitude plans memory for the full 256K context. Check with `magnitude catalog inspect` on the box. |
+| Chat template | Risk. The GGUF template rejects Claude Code's mid-conversation system messages (Ollama uses its own renderer for it). Magnitude issue #84 reports broken agent sessions after tool calls with strict templates. |
+| Quality | The quality round of `ollamaClaudeCode_v4_tielCoder` (ledger session, held-out, T5) must run again on Magnitude. |
+
 ## How it measures
 
 - One engine on the GPU at a time. The other engine is unloaded first, and every row records the VRAM in use.

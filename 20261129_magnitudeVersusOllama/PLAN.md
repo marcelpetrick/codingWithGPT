@@ -133,6 +133,14 @@ Magnitude is **not** a drop-in replacement for the Ollama server. Probes against
 OpenAI Chat Completions at `/inference/v1` and Anthropic at `/inference/anthropic` on port 10100, with
 other model IDs and a Bearer key from the network. Details and the table: `README.md`.
 
+### Claude Code (owner question: `claude-ol-kat` through Magnitude?)
+
+The alias change is small: the base URL becomes `:10100/inference/anthropic`, the token becomes the network
+key, the model ID changes form, the warm-up changes. The real work is on the box: approval for the install,
+the fit check (256K-context planning), the chat-template risk (issue #84) and a new quality round.
+Details: `README.md`. A local smoke test (Claude Code against Magnitude, one task with a tool call) follows
+after the long run.
+
 ## Disk (2026-10-29)
 
 Both engines wrote models to the root partition, and root ran full during the downloads.
