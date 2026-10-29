@@ -27,11 +27,18 @@
       "engine": "magnitude",
       "protocol": "openai",
       "base_url": "http://127.0.0.1:10100/inference/v1",
-      "version_cmd": ["magnitude", "--version"],
+      "version_cmd": [
+        "magnitude",
+        "--version"
+      ],
       "model": "qwen3.5-4b:gguf:q4",
       "quant": "Q4 (catalog)",
       "drafter": "DFlash (catalog default)",
-      "extra": {"chat_template_kwargs": {"enable_thinking": false}},
+      "extra": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      },
       "note": "Magnitude with its catalog Qwen3.5 4B Q4 and its default DFlash drafter. This is the vendor's Magnitude arm."
     },
     {
@@ -39,12 +46,47 @@
       "engine": "magnitude",
       "protocol": "openai",
       "base_url": "http://127.0.0.1:10100/inference/v1",
-      "version_cmd": ["magnitude", "--version"],
+      "version_cmd": [
+        "magnitude",
+        "--version"
+      ],
       "model": "qwen3.5-4b:gguf:q4",
       "quant": "Q4 (catalog)",
       "drafter": "none",
-      "extra": {"chat_template_kwargs": {"enable_thinking": false}},
+      "extra": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      },
       "note": "Magnitude with the drafter turned off. It isolates the kernel tuning from the speculative decoding."
+    },
+    {
+      "label": "magnitude-gemma-e2b",
+      "engine": "magnitude",
+      "protocol": "openai",
+      "base_url": "http://127.0.0.1:10100/inference/v1",
+      "version_cmd": [
+        "magnitude",
+        "--version"
+      ],
+      "model": "gemma-4-e2b-it-qat:gguf:q4",
+      "quant": "Q4 QAT (catalog)",
+      "drafter": "MTP (catalog default)",
+      "extra": {
+        "reasoning_effort": "none"
+      },
+      "note": "Magnitude, Gemma 4 E2B QAT Q4 from its catalog, default MTP drafter. This is the vendor's Magnitude arm for this model."
+    },
+    {
+      "label": "ollama-gemma-e2b",
+      "engine": "ollama",
+      "protocol": "ollama",
+      "base_url": "http://127.0.0.1:11434",
+      "version_url": "http://127.0.0.1:11434/api/version",
+      "model": "gemma4:e2b-it-qat",
+      "quant": "Q4 QAT",
+      "drafter": "none (no MTP tag for E2B)",
+      "note": "Ollama, Gemma 4 E2B QAT tag. Ollama has no MTP tag for E2B, so this arm runs without a drafter. Greedy, no penalties, thinking off."
     }
   ]
 }

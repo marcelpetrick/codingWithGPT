@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """The project version. scripts/bump_version.sh changes it, one bump per commit."""
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"

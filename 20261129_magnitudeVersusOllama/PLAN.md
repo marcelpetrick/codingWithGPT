@@ -16,6 +16,10 @@ No speed result yet. Gate results on this laptop (2026-10-29):
 4. **The overlap is Gemma 4 E2B and E4B (QAT Q4).** Magnitude allows them here, Ollama has the same
    QAT tags, and the vendor published numbers for both (decode 1.51x and 1.65x on DGX Spark).
 5. The vendor claim ("2x faster than Ollama") is from one workload only. Treat it as a claim.
+6. **Quick test, Gemma 4 E2B (site `laptop-quick`, n = 3, does not pool):** Magnitude (MTP drafter)
+   vs Ollama (no drafter tag exists). Repeat-a-passage decode 269 vs 50 tok/s (5.4x). New-code decode
+   58 [50–96] vs 51 [51–51] tok/s (1.15x, a **tie** under the rule). Prefill at 3k tokens 6608 vs
+   1560 tok/s (4.2x). The decode gain is the drafter on repeated text. The prefill gain is real.
 
 ## Vendor claim, and why it is weak
 
@@ -103,6 +107,19 @@ Ollama library:
 None are usable as a baseline. `ollamaClaudeCode_v0` measured the network server, not this laptop.
 `ollamaClaudeCode_v2/muse_ollama.md` ran a model split between GPU and CPU on this laptop.
 
+## Disk (2026-10-29)
+
+Both engines wrote models to the root partition, and root ran full during the downloads.
+Necessary changes, done by the owner with sudo:
+
+1. `ollama rm` of `medgemma1.5:4b-it-q8_0`, `medgemma1.5:4b-it-q4_K_M`, `moondream:latest`, `minicpm-v:latest`.
+2. Ollama models moved to `/home/ollama-models`. Override
+   `/etc/systemd/system/ollama.service.d/override.conf` sets `OLLAMA_MODELS=/home/ollama-models`.
+   The old folder `/usr/share/ollama/.ollama/models` is deleted.
+3. Magnitude data moved to `/home/magnitude-data`; `/var/lib/magnitude` is a symlink to it.
+   The log confirms `Model store resolved root: /home/magnitude-data/models`.
+4. Rule from now on: check `df -h / /home` before every download.
+
 ## Plan
 
 | Step | What | Est. time | Status |
@@ -130,6 +147,8 @@ Cells per model: `A:4096,A:16384,B:1024,B:8192` with n = 5, and `C:4096` with n 
 | 2026-10-29 13:45 | Ollama smoke, Qwen3.5 4B, 4k | MTP tag 56.8 tok/s, plain 27.7 tok/s decode. Thinking off works. |
 | 2026-10-29 14:00 | Owner installed Magnitude (server mode) | Service ready, CUDA seen. |
 | 2026-10-29 14:05 | Magnitude catalog check | Qwen3.5 4B refused, Gemma 4 E2B/E4B allowed. |
+| 2026-10-29 14:10 | Root partition full (92 MB free) | Stopped all downloads. Owner removed 4 old Ollama models and moved both model stores to `/home` (see "Disk"). |
+| 2026-10-29 14:39 | Quick test Gemma 4 E2B | 36 rows, 0 failed. Result in "Verdict so far", point 6. |
 
 ## Resume here
 
