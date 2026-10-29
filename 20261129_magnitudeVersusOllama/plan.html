@@ -87,6 +87,29 @@ footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
     <p>Gemma 4 E4B (fills the 8 GB): Magnitude 1.81–1.88x on new code, clearly faster (MTP drafter; Ollama has no E4B MTP tag).
     Qwen3.5 2B: tie without drafters; Ollama with MTP clearly faster. Quality and vision: ties. Details: dashboard.html, README.md.</p></div>
 
+  <h2>Summary · what the laptop round showed</h2>
+  <div class="grid g3">
+    <div class="card"><span class="tag go">Drafter decides</span><h3>Gemma 4 E4B: 1.81–1.88x</h3><p>Magnitude has an MTP drafter for E4B, Ollama has no MTP tag. On new code Magnitude is clearly faster.</p></div>
+    <div class="card"><span class="tag wait">Engine alone</span><h3>Decode 0.98–1.02x</h3><p>Without drafters (Qwen3.5 2B) both engines decode at the same speed. The tuned kernels do not move decode.</p></div>
+    <div class="card"><span class="tag wait">Tuned kernels</span><h3>Prefill 1.1–1.4x</h3><p>Prefill (reading the prompt) is often faster on Magnitude with long prompts, mostly inside the tie band.</p></div>
+    <div class="card"><span class="tag no">Ollama wins</span><h3>Qwen3.5 2B MTP: 0.78–0.80x</h3><p>Where Ollama has the drafter and Magnitude does not, Ollama is clearly faster.</p></div>
+    <div class="card"><span class="tag wait">Vendor test</span><h3>Repeat task inflates ~1.7x</h3><p>Copying text from the prompt is the best case for drafters: E4B 3.03x there, 1.81x on new code.</p></div>
+    <div class="card"><span class="tag go">Kept</span><h3>Quality and vision: ties</h3><p>C 19/20 vs 17/20 and 14/20 vs 12/20; V 5/5 vs 5/5 and 4/5 vs 4/5.</p></div>
+  </div>
+
+  <h2>Forecast · the box .67 (written before any box data)</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Setup on .67</th><th>Forecast, decode on new code</th><th>Why</th></tr>
+    <tr><td>Magnitude Qwen3.6 35B (DFlash) vs Ollama current tag (no MTP, 131–136 tok/s)</td><td><span class="tag go">1.5–2x, Magnitude faster</span></td><td>Drafter against no drafter</td></tr>
+    <tr><td>Magnitude Qwen3.6 35B (DFlash) vs Ollama <code>qwen3.6:35b-a3b-mtp-q4_K_M</code></td><td><span class="tag wait">1.2–1.5x, often a tie</span></td><td>DFlash against MTP: only the drafter differs</td></tr>
+    <tr><td>KAT-Coder-V2.5 (fine-tune) on both</td><td><span class="tag wait">tie</span></td><td>Probably no drafter on either side for the fine-tune</td></tr>
+    <tr><td>Prefill, long agent contexts</td><td><span class="tag wait">about 1.1x, tie</span></td><td>Vendor 1.11x for Qwen3.6; laptop 1.1–1.4x</td></tr>
+    <tr><td>Tuned kernels alone (MoE, 3B active)</td><td><span class="tag wait">1.0–1.15x</span></td><td>Laptop: no decode gain. MoE has many small expert matmuls, where tuning can help a little more</td></tr>
+  </table></div>
+  <p class="sub" style="margin-top:10px">Stoppers: more than one GPU (Magnitude issues #128, #141: the second GPU is not used) and the 256K-context fit plan (KAT at Q5 is tight).
+  First check, about 10 minutes, needs your approval: <code>magnitude hardware</code>, <code>magnitude catalog show qwen3.6-35b-a3b:gguf:q4</code>, <code>magnitude catalog inspect bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF</code>.
+  Without Magnitude: Ollama's MTP tag against the current tag (expected +25–40%).</p>
+
   <h2>1 · Gate: what runs on this laptop</h2>
   <div class="grid g4">
     <div class="card"><span class="tag go">Runs</span><h3>Magnitude itself</h3><p>Installed in server mode. CUDA sees the A2000. The service is "Ready".</p></div>

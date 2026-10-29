@@ -48,6 +48,11 @@ KAT-Coder-V2.5 Q5_K_M, a Qwen3.6 fine-tune). Ollama has `qwen3.6:35b-a3b-mtp-q4_
 | Magnitude Qwen3.6 (DFlash) vs Ollama `…-mtp-q4_K_M` | 1.2–1.5x, often a tie under the 25% rule | DFlash against MTP |
 | KAT-Coder on both | tie | probably no drafter on either side for the fine-tune |
 | Prefill | about 1.1x, tie | vendor 1.11x for Qwen3.6; laptop 1.1–1.4x |
+| Tuned kernels alone (MoE, 3B active) | 1.0–1.15x | laptop: no decode gain without drafters; MoE has many small expert matmuls, where tuning can help a little more |
+
+Tuned kernels on the laptop: decode without drafters 0.98–1.02x (Qwen3.5 2B) and 24.6 vs 25–29 tok/s
+(Gemma E4B, the prompt without drafting); prefill 1.1–1.4x with long prompts. Both engines hit the same
+decode ceiling; the tuning did not move it.
 
 Stoppers: more than one GPU (Magnitude issues #128, #141: second GPU not used); the 256K-context fit
 plan (KAT at Q5 is tight). First check (about 10 minutes, needs the owner's approval for `.67`):
