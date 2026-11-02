@@ -125,6 +125,10 @@ no measurable effect on short sessions (R1), but it is the documented workaround
 
 The alias had been removed. It now points at `ornith-1.5-35b:q5km-ctx256k-agentic`, with the same shape as `claude-ol-kat`. The old Ornith 1.0 tag `ornith:35b-ctx256k-agentic` stays on the box and has no alias.
 
+## `claude-ol-occamy` (added 2026-11-02)
+
+It points at `occamy-1.0:q5km-ctx256k-agentic`, with the same shape as `claude-ol-kat`.
+
 ## `claude-ol-byte` (added 2026-09-25)
 
 In `~/.zshrc`, identical in shape to `claude-ol2`. The tag carries everything: ByteShape Q4_K_S 4.22 bpw,
