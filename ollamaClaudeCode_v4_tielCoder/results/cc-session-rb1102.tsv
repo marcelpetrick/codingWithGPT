@@ -1,0 +1,25 @@
+date	ollama	model	fixture	thinking	run	verdict	hidden	wall_s	warm_s	calls	turns	in_tok	out_tok	think_chars	api_s	ttft_s	max_gap_s	tools	reloads	foreign	note
+2026-11-02	0.40.11	qwen3.6:35b-a3b-q4_K_M-agentic	hard	on	1	PASS	18/18	47	20.6	10	20	21578	4261	2043	43.7	3.2	3.5	Readx7,Editx7,Bashx5	0	-	
+2026-11-02	0.40.11	qwen3.6:35b-a3b-q4_K_M-agentic	qtcpp	on	1	PASS	10/14	61	3.7	9	24	21269	5166	3648	50.1	3.1	4.6	Readx9,Bashx7,Editx7	0	-	
+2026-11-02	0.40.11	qwen3.6:35b-a3b-q4_K_M-agentic	gitlab	on	1	PASS	15/15	22	3.6	6	13	14138	2006	2543	21.0	3.6	3.6	Bashx11,Readx1	0	-	
+2026-11-02	0.40.11	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	1	PASS	18/18	41	26.0	7	18	19129	3478	1686	38.9	4.4	4.3	Bashx7,Readx6,Editx4	0	-	
+2026-11-02	0.40.11	kat-coder-v2.5:q5km-ctx256k-agentic	qtcpp	on	1	PASS	11/14	102	1.8	9	27	21571	9379	16344	95.5	4.5	37.9	Bashx12,Readx9,Editx4,Writex1	0	-	
+2026-11-02	0.40.11	kat-coder-v2.5:q5km-ctx256k-agentic	gitlab	on	1	PASS	14/15	31	2.3	5	14	13932	2829	5904	30.3	3.9	10.2	Bashx12,Readx1	0	-	
+2026-11-02	0.40.11	occamy-1.0:q5km-ctx256k-agentic	hard	on	1	PASS	18/18	52	25.9	16	21	19815	4596	1661	50.3	5.0	4.9	Editx9,Readx7,Bashx3,Writex1	0	-	
+2026-11-02	0.40.11	occamy-1.0:q5km-ctx256k-agentic	qtcpp	on	1	PASS	14/14	202	4.1	13	24	41046	19278	50853	188.6	4.7	115.9	Bashx10,Readx9,Writex4	0	-	
+2026-11-02	0.40.11	occamy-1.0:q5km-ctx256k-agentic	gitlab	on	1	PASS	15/15	37	4.6	5	13	17094	3602	8235	36.2	4.0	18.7	Bashx11,Readx1	0	-	
+2026-11-02	0.40.11	minicpm-v-4.7-35b:q5km-ctx256k-agentic	hard	on	1	PASS	17/18	45	22.0	12	16	18114	4033	2766	43.0	4.3	4.8	Bashx5,Readx5,Editx5	0	-	
+2026-11-02	0.40.11	minicpm-v-4.7-35b:q5km-ctx256k-agentic	qtcpp	on	1	PASS	9/14	76	3.2	14	24	19704	6796	6046	68.2	4.7	8.5	Bashx9,Readx9,Editx5	0	-	
+2026-11-02	0.40.11	minicpm-v-4.7-35b:q5km-ctx256k-agentic	gitlab	on	1	PASS	10/15	23	4.2	8	13	13989	1976	3769	22.6	4.2	4.1	Bashx10,Readx2	0	-	
+2026-11-02	0.40.11	qwen3.8-35b-distill:q5km-ctx256k-agentic	hard	on	1	PASS	17/18	42	24.6	11	17	18414	3730	1771	40.3	4.6	4.5	Bashx6,Readx5,Editx5	0	-	
+2026-11-02	0.40.11	qwen3.8-35b-distill:q5km-ctx256k-agentic	qtcpp	on	1	FAIL	2/14	6	2.8	1	1	11680	39	114	4.0	3.9	3.9	-	0	-	tests still red (rc=0)
+2026-11-02	0.40.11	qwen3.8-35b-distill:q5km-ctx256k-agentic	gitlab	on	1	PASS	10/15	24	1.1	5	13	14082	2207	1808	23.8	4.4	4.3	Bashx11,Readx1	0	-	
+2026-11-02	0.40.11	tiel-coder:35b-q5-ctx256k-agentic	hard	on	1	PASS	18/18	44	29.2	10	14	17545	3402	3668	41.5	3.9	5.2	Bashx5,Readx5,Writex2,Editx1	0	-	
+2026-11-02	0.40.11	tiel-coder:35b-q5-ctx256k-agentic	qtcpp	on	1	PASS	13/14	277	2.1	30	38	29251	22448	57232	245.2	3.8	76.4	Bashx20,Readx9,Writex5,Editx3	0	-	
+2026-11-02	0.40.11	tiel-coder:35b-q5-ctx256k-agentic	gitlab	on	1	PASS	15/15	40	2.9	7	9	15253	3299	7491	38.2	4.3	9.4	Bashx7,Readx1	0	-	
+2026-11-02	0.40.11	gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	hard	on	1	PASS	18/18	88	26.4	17	17	17197	7020	16585	86.4	4.8	16.7	Bashx7,Readx5,Writex3,Editx1	0	-	
+2026-11-02	0.40.11	gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	qtcpp	on	1	PASS	9/14	163	7.1	35	35	19631	12134	11946	151.1	3.4	14.9	Bashx18,Writex12,Editx3,．bashx1	0	-	
+2026-11-02	0.40.11	gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	gitlab	on	1	PASS	14/15	48	6.9	16	16	13186	3798	8398	46.2	5.7	6.3	Bashx14,Readx1	0	-	
+2026-11-02	0.40.11	ornith-1.5-35b:q5km-ctx256k-agentic	hard	on	1	PASS	18/18	110	19.2	13	17	23539	11337	24284	108.6	3.9	50.9	Bashx8,Readx5,Editx3	0	-	
+2026-11-02	0.40.11	ornith-1.5-35b:q5km-ctx256k-agentic	qtcpp	on	1	PASS	14/14	428	3.1	53	60	40691	39363	92402	402.4	3.9	98.0	Bashx28,Editx13,Readx12,Writex5,ToolSearchx1	0	-	
+2026-11-02	0.40.11	ornith-1.5-35b:q5km-ctx256k-agentic	gitlab	on	1	PASS	15/15	46	4.2	5	14	14477	4708	11213	45.1	3.6	24.4	Bashx12,Readx1	0	-	

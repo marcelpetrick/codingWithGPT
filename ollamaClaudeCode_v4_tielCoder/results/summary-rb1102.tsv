@@ -1,0 +1,25 @@
+model	run	phase	ollama	score	words	prompt_tok	prefill_s	prefill_tps	gen_tok	gen_tps	wall_s	void	missed
+qwen3.6:35b-a3b-q4_K_M-agentic	1	cold	0.40.11	15/16	204	151419	46.3	3270	3729	76.0	115.6		Root cause of the outage on Tuesday: a f
+qwen3.6:35b-a3b-q4_K_M-agentic	2	repeat	0.40.11	15/16	204	151419	0.1	1055494	3729	76.0	50.4		Root cause of the outage on Tuesday: a f
+qwen3.6:35b-a3b-q4_K_M-agentic	3	extend	0.40.11	15/16	195	151445	1.0	153696	3028	76.1	41.9		Decision: the telemetry retention drops 
+kat-coder-v2.5:q5km-ctx256k-agentic	1	cold	0.40.11	15/16	238	151419	49.4	3067	846	70.7	84.0		Risk: the database migration needs a two
+kat-coder-v2.5:q5km-ctx256k-agentic	2	repeat	0.40.11	16/16	230	151419	0.2	803924	916	70.9	14.3		
+kat-coder-v2.5:q5km-ctx256k-agentic	3	extend	0.40.11	16/16	246	151445	0.7	221763	991	71.1	15.8		
+occamy-1.0:q5km-ctx256k-agentic	1	cold	0.40.11	15/16	230	151419	55.7	2719	4791	73.5	151.3		Root cause of the outage on Tuesday: a f
+occamy-1.0:q5km-ctx256k-agentic	2	repeat	0.40.11	16/16	252	151419	0.1	1153396	3867	73.6	53.8		
+occamy-1.0:q5km-ctx256k-agentic	3	extend	0.40.11	16/16	249	151445	0.7	227430	3761	73.7	52.9		
+minicpm-v-4.7-35b:q5km-ctx256k-agentic	1	cold	0.40.11	10/16	124	151419	54.3	2787	1166	73.7	101.9		Decision: the telemetry retention drops ; Root cause of the outage on Tuesday: a f; Risk: the Qt license renewal costs 38000; Action: Priya reviews the installer sign; Risk: the database migration needs a two; Decision: the support hotline for the pi
+minicpm-v-4.7-35b:q5km-ctx256k-agentic	2	repeat	0.40.11	13/16	257	151419	0.1	1047636	1327	73.8	19.3		Decision: the telemetry retention drops ; Root cause of the outage on Tuesday: a f; Action: Priya reviews the installer sign
+minicpm-v-4.7-35b:q5km-ctx256k-agentic	3	extend	0.40.11	12/16	170	151445	0.6	236956	1779	73.7	26.0		Decision: the telemetry retention drops ; Action: Tomasz writes the serial port re; Root cause of the outage on Tuesday: a f; Action: Priya reviews the installer sign
+qwen3.8-35b-distill:q5km-ctx256k-agentic	1	cold	0.40.11	15/16	246	151419	55.3	2738	2245	74.0	110.3		Root cause of the outage on Tuesday: a f
+qwen3.8-35b-distill:q5km-ctx256k-agentic	2	repeat	0.40.11	15/16	225	151419	0.1	1067805	1142	74.2	16.7		Root cause of the outage on Tuesday: a f
+qwen3.8-35b-distill:q5km-ctx256k-agentic	3	extend	0.40.11	15/16	225	151445	0.7	232912	2834	74.1	40.1		Decision: the telemetry retention drops 
+tiel-coder:35b-q5-ctx256k-agentic	1	cold	0.40.11	16/16	244	151598	50.3	3016	7173	67.6	183.8		
+tiel-coder:35b-q5-ctx256k-agentic	2	repeat	0.40.11	15/16	188	151598	0.1	1045886	5598	67.7	83.2		Decision: the telemetry retention drops 
+tiel-coder:35b-q5-ctx256k-agentic	3	extend	0.40.11	15/16	232	151624	0.7	228168	4410	67.8	66.1		Decision: the telemetry retention drops 
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	1	cold	0.40.11	13/16	139	150969	46.0	3279	2369	67.3	101.9		Decision: the telemetry retention drops ; Root cause of the outage on Tuesday: a f; Correction: the beta starts on 17 May, n
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	2	repeat	0.40.11	12/16	168	150969	0.5	305039	2859	67.5	44.5		Decision: the telemetry retention drops ; Root cause of the outage on Tuesday: a f; Action: Priya reviews the installer sign; Correction: the beta starts on 17 May, n
+gemma4:26b-a4b-it-q4_K_M-ctx256k-agentic	3	extend	0.40.11	13/16	145	150994	0.6	253454	2422	67.4	38.2		Decision: the telemetry retention drops ; Root cause of the outage on Tuesday: a f; Decision: the support hotline for the pi
+ornith-1.5-35b:q5km-ctx256k-agentic	1	cold	0.40.11	15/16	222	151419	56.4	2686	1552	73.9	97.0		Decision: the support hotline for the pi
+ornith-1.5-35b:q5km-ctx256k-agentic	2	repeat	0.40.11	16/16	210	151419	0.1	1188849	5119	73.5	71.0		
+ornith-1.5-35b:q5km-ctx256k-agentic	3	extend	0.40.11	15/16	275	151445	0.7	228929	2749	73.7	39.1		Root cause of the outage on Tuesday: a f
