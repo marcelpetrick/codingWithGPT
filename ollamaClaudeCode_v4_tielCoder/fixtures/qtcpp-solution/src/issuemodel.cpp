@@ -1,0 +1,73 @@
+#include "issuemodel.h"
+
+int IssueModel::rowCount(const QModelIndex &parent) const
+{
+    return parent.isValid() ? 0 : m_issues.size();
+}
+
+QVariant IssueModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || index.row() >= m_issues.size())
+        return {};
+    const Issue &issue = m_issues.at(index.row());
+    switch (role) {
+    case Qt::DisplayRole: return issue.title;
+    case IdRole: return issue.id;
+    case EstimateRole: return issue.estimateMinutes;
+    case ClosedRole: return issue.closed;
+    }
+    return {};
+}
+
+bool IssueModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid() || index.row() >= m_issues.size())
+        return false;
+    Issue &issue = m_issues[index.row()];
+    if (role == EstimateRole) {
+        const int v = value.toInt();
+        if (v < 0 || v == issue.estimateMinutes)
+            return false;
+        issue.estimateMinutes = v;
+    } else if (role == ClosedRole) {
+        const bool v = value.toBool();
+        if (v == issue.closed)
+            return false;
+        issue.closed = v;
+    } else {
+        return false;
+    }
+    emit dataChanged(index, index, {role});
+    return true;
+}
+
+QHash<int, QByteArray> IssueModel::roleNames() const
+{
+    return {{Qt::DisplayRole, "title"}, {IdRole, "issueId"},
+            {EstimateRole, "estimate"}, {ClosedRole, "closed"}};
+}
+
+bool IssueModel::addIssue(const Issue &issue)
+{
+    for (const Issue &i : m_issues)
+        if (i.id == issue.id)
+            return false;
+    const int row = m_issues.size();
+    beginInsertRows(QModelIndex(), row, row);
+    m_issues.append(issue);
+    endInsertRows();
+    return true;
+}
+
+bool IssueModel::removeIssue(int id)
+{
+    for (int row = 0; row < m_issues.size(); ++row) {
+        if (m_issues.at(row).id == id) {
+            beginRemoveRows(QModelIndex(), row, row);
+            m_issues.removeAt(row);
+            endRemoveRows();
+            return true;
+        }
+    }
+    return false;
+}

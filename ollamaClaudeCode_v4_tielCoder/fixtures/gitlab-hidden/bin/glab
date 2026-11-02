@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+"""A local stand-in for glab. It never touches the network. State: $GLAB_MOCK_STATE."""
+import argparse, json, os, re, sys
+P = os.environ.get("GLAB_MOCK_STATE")
+if not P:
+    sys.exit("glab: not configured")
+s = json.load(open(P))
+HELP = """glab (project: acme/backlog). Supported commands:
+  glab issue list [--all|--closed] [--label L] [--milestone M] [--assignee A] [--output json]
+  glab issue view <iid> [--output json]
+  glab issue create --title T [--description D] [--label L[,L]] [--milestone M] [--assignee A]
+  glab issue update <iid> [--title T] [--label L[,L]] [--unlabel L[,L]] [--milestone M] [--unassign] [--assignee A]
+  glab issue close <iid>
+  glab issue reopen <iid>
+  glab issue note <iid> --message M        (also -m; "/estimate 1d 2h" sets the estimate)
+  glab milestone list
+A label given to update is added. Use --unlabel to remove one. Use --milestone "" to clear a milestone."""
+def save(): json.dump(s, open(P, "w"), indent=1)
+def get(i):
+    for x in s["issues"]:
+        if x["iid"] == int(i): return x
+    sys.exit(f"glab: issue {i} not found")
+def split(v): return [x.strip() for v_ in (v or []) for x in v_.split(",") if x.strip()]
+def show(x):
+    print(f"#{x['iid']} [{x['state']}] {x['title']} | labels: {','.join(x['labels']) or '-'} | milestone: {x['milestone'] or '-'} | assignee: {x['assignee'] or '-'} | estimate: {x['estimate']}m")
+    for n in x["notes"]: print("  note:", n)
+def minutes(t):
+    u = {"w": 2400, "d": 480, "h": 60, "m": 1}
+    return sum(int(a) * u[b] for a, b in re.findall(r"(\d+)\s*([wdhm])", t))
+a = sys.argv[1:]
+if not a or a[0] in ("--help", "-h", "help") or "--help" in a or "-h" in a:
+    print(HELP); sys.exit(0)
+if a[:2] == ["milestone", "list"]:
+    print("\n".join(s["milestones"])); sys.exit(0)
+if a[0] != "issue" or len(a) < 2:
+    sys.exit("glab: unsupported command. Run glab --help.")
+cmd, rest = a[1], a[2:]
+p = argparse.ArgumentParser(prog="glab issue " + cmd, add_help=False, exit_on_error=False)
+p.add_argument("--title", "-t"); p.add_argument("--description", "-d"); p.add_argument("--assignee", "-a")
+if cmd == "note":
+    p.add_argument("--milestone"); p.add_argument("--message", "-m")
+else:
+    p.add_argument("--milestone", "-m"); p.add_argument("--message")
+p.add_argument("--label", "-l", action="append"); p.add_argument("--unlabel", action="append")
+p.add_argument("--output", "-F", "-O")
+for f in ("--all", "--closed", "--unassign"): p.add_argument(f, action="store_true")
+p.add_argument("iid", nargs="?")
+try:
+    o = p.parse_args(rest)
+except Exception as e:
+    sys.exit(f"glab: {e}. Run glab --help.")
+def check_ref():
+    if o.milestone and o.milestone not in s["milestones"]: sys.exit(f"glab: milestone {o.milestone!r} not found")
+    if o.assignee and o.assignee.lstrip("@") not in s["members"]: sys.exit(f"glab: user {o.assignee!r} not found")
+if cmd == "list":
+    xs = [x for x in s["issues"] if (o.all or (x["state"] == "closed") == o.closed)
+          and (not o.label or set(split(o.label)) <= set(x["labels"]))
+          and (o.milestone is None or x["milestone"] == o.milestone)
+          and (o.assignee is None or x["assignee"] == o.assignee.lstrip("@"))]
+    if o.output == "json": print(json.dumps(xs, indent=1))
+    else:
+        for x in xs: show(x)
+elif cmd == "view":
+    x = get(o.iid)
+    print(json.dumps(x, indent=1)) if o.output == "json" else show(x)
+elif cmd == "create":
+    if not o.title: sys.exit("glab: --title is required")
+    check_ref()
+    iid = max(x["iid"] for x in s["issues"]) + 1
+    s["issues"].append({"iid": iid, "title": o.title, "state": "opened", "labels": split(o.label), "milestone": o.milestone or "",
+                        "assignee": (o.assignee or "").lstrip("@"), "estimate": 0, "notes": []})
+    save(); print(f"created #{iid}")
+elif cmd == "update":
+    x = get(o.iid); check_ref()
+    if o.title: x["title"] = o.title
+    x["labels"] = [l for l in x["labels"] if l not in split(o.unlabel)]
+    x["labels"] += [l for l in split(o.label) if l not in x["labels"]]
+    if o.milestone is not None: x["milestone"] = o.milestone
+    if o.unassign: x["assignee"] = ""
+    if o.assignee: x["assignee"] = o.assignee.lstrip("@")
+    save(); show(x)
+elif cmd in ("close", "reopen"):
+    x = get(o.iid); x["state"] = "closed" if cmd == "close" else "opened"; save(); show(x)
+elif cmd == "note":
+    x = get(o.iid)
+    if not o.message: sys.exit("glab: --message is required")
+    x["notes"].append(o.message)
+    m = re.match(r"\s*/estimate\s+(.+)", o.message)
+    if m: x["estimate"] = minutes(m.group(1))
+    save(); print("note added")
+else:
+    sys.exit("glab: unsupported command. Run glab --help.")

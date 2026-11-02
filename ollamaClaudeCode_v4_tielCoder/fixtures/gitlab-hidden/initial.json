@@ -1,0 +1,11 @@
+{"milestones": ["Sprint 41", "Sprint 42"], "members": ["alice", "bob", "carol", "dave", "erin", "marta"],
+ "issues": [
+ {"iid": 11, "title": "Crash when exporting a report to PDF", "state": "opened", "labels": ["bug"], "milestone": "Sprint 41", "assignee": "alice", "estimate": 0, "notes": []},
+ {"iid": 12, "title": "PDF export crashes on an empty table", "state": "opened", "labels": ["bug"], "milestone": "Sprint 41", "assignee": "", "estimate": 0, "notes": []},
+ {"iid": 14, "title": "Add dark mode to the settings dialog", "state": "opened", "labels": ["feature", "prio-low"], "milestone": "", "assignee": "", "estimate": 0, "notes": []},
+ {"iid": 15, "title": "Migrate CI to Qt 6.11", "state": "opened", "labels": ["ci"], "milestone": "Sprint 41", "assignee": "carol", "estimate": 0, "notes": []},
+ {"iid": 16, "title": "Update the Qt license notice in the About dialog", "state": "opened", "labels": ["docs"], "milestone": "Sprint 41", "assignee": "dave", "estimate": 0, "notes": []},
+ {"iid": 17, "title": "Flaky test: tst_serialport on CI", "state": "opened", "labels": ["ci", "bug"], "milestone": "Sprint 41", "assignee": "", "estimate": 0, "notes": []},
+ {"iid": 18, "title": "Remove the legacy Qt5 build path", "state": "opened", "labels": ["ci"], "milestone": "", "assignee": "", "estimate": 0, "notes": []},
+ {"iid": 19, "title": "Customer request: CSV import", "state": "opened", "labels": ["feature"], "milestone": "", "assignee": "", "estimate": 0, "notes": []}
+ ]}

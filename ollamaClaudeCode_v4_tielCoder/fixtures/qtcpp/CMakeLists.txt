@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.21)
+project(backlog LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOMOC ON)
+find_package(Qt6 REQUIRED COMPONENTS Core Test)
+add_library(backlog STATIC src/estimate.h src/estimate.cpp src/issuemodel.h src/issuemodel.cpp
+            src/backlogsummary.h src/backlogsummary.cpp)
+target_include_directories(backlog PUBLIC src)
+target_link_libraries(backlog PUBLIC Qt6::Core)
+enable_testing()
+add_subdirectory(tests)
