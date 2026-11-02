@@ -37,7 +37,7 @@ Verdict: Remediation is in progress. GitHub reports 46 open Dependabot alerts an
 | recognizer | Running | Worktree `/tmp/recognizer-security`; full gate `/tmp/recognizer-security-gate3.log` uses port 4174 to avoid the AlliumAssault test server; one low upstream deepmerge advisory remains. |
 | CodeQL test alerts | Part done | LinkedIn fix committed as `6a77d0b`; its full pipeline passed. AlliumAssault test fix remains. |
 
-The recognizer deepmerge advisory has no patched upstream version. It reaches build tooling through `vite-plugin-pwa` and `workbox-build`. TypeScript 7 is outside the current typescript-eslint peer range. GermanDubI also requires TypeScript 5 for openapi-typescript. The latest recognizer React Vite plugin has an unresolved npm Babel peer conflict. No dependency commit is made until its full gate passes.
+The recognizer deepmerge advisory has no patched upstream version. It reaches build tooling through `vite-plugin-pwa`, `workbox-build`, and `@rollup/plugin-node-resolve`. The installed plugin calls deepmerge only to copy its own static defaults. This reduces exposure in the inspected build path. TypeScript 7 is outside the current typescript-eslint peer range. GermanDubI also requires TypeScript 5 for openapi-typescript. The latest recognizer React Vite plugin has an unresolved npm Babel peer conflict. No dependency commit is made until its full gate passes.
 
 ## Scope and coverage
 
