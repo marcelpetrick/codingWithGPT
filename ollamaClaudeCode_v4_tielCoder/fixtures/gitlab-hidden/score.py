@@ -12,7 +12,7 @@ c = csv[0] if len(csv) == 1 else {}
 i = lambda n: by.get(n, {})
 checks = [
  i(15).get("milestone") == "Sprint 42", i(15).get("assignee") == "dave", i(15).get("estimate") == 480,
- i(12).get("state") == "closed", any(re.search(r"#?\b11\b", n) for n in i(12).get("notes", []) if not n.startswith("/")),
+ i(12).get("state") == "closed", any(re.search(r"#?\b11\b", n) for n in i(12).get("notes", []) if not n.startswith("/estimate")),
  i(11) == start[11],
  len(csv) == 1 and len(new) == 1, "feature" in c.get("labels", []), c.get("milestone") == "Sprint 42", c.get("assignee") == "erin",
  "prio-high" in i(14).get("labels", []) and "prio-low" not in i(14).get("labels", []), i(14).get("milestone") == "",

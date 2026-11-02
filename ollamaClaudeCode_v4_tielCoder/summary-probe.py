@@ -82,7 +82,9 @@ def score(text):
         else:
             missed.append(sent[:40])
     for _, _, _, sent, new, old in CORRECTIONS:
-        if re.search(new, text, re.I) and not re.search(old, text, re.I):
+        # The old value may appear only in a sentence that also gives the new value ("65000, corrected from 90000").
+        stale = any(re.search(old, s, re.I) and not re.search(new, s, re.I) for s in re.split(r"(?<![0-9])[.!?\n]+", text))
+        if re.search(new, text, re.I) and not stale:
             k += 1
         else:
             missed.append(sent[:40])
