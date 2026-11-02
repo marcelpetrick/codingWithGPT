@@ -33,9 +33,9 @@ Verdict: Remediation is in progress. GitHub reports 46 open Dependabot alerts an
 | codingWithGPT / ollama_northmini_jumpNRun | Done locally | Commit `02bb8cb`; `npm run ci` passed; `npm audit` found zero vulnerabilities. |
 | BavarianLemmings | Done locally | Commit `d32b8eb`; full pipeline and Docker smoke passed; `npm audit` found zero vulnerabilities. |
 | GermanDubI | Done locally | Commit `5a31dc3`; full pipeline passed; npm and default Python audits found no vulnerabilities. |
-| AlliumAssault | Running | Worktree `/tmp/allium-security`; full gate `/tmp/allium-security-gate.log`; npm audit clean. |
-| recognizer | Running | Worktree `/tmp/recognizer-security`; full gate `/tmp/recognizer-security-gate3.log` uses port 4174 to avoid the AlliumAssault test server; one low upstream deepmerge advisory remains. |
-| CodeQL test alerts | Part done | LinkedIn fix committed as `6a77d0b`; its full pipeline passed. AlliumAssault test fix remains. |
+| AlliumAssault | Running | Worktree `/tmp/allium-security`; combined dependency and CodeQL fix gate `/tmp/allium-security-gate2.log`; npm audit clean. |
+| recognizer | Done locally | Commit `e9207cc`; full gate passed on isolated port 4174; one low upstream deepmerge advisory remains. |
+| CodeQL test alerts | Part done | LinkedIn fix committed as `6a77d0b`; its full pipeline passed. AlliumAssault test fix is in the running gate. |
 
 The recognizer deepmerge advisory has no patched upstream version. It reaches build tooling through `vite-plugin-pwa`, `workbox-build`, and `@rollup/plugin-node-resolve`. The installed plugin calls deepmerge only to copy its own static defaults. This reduces exposure in the inspected build path. TypeScript 7 is outside the current typescript-eslint peer range. GermanDubI also requires TypeScript 5 for openapi-typescript. The latest recognizer React Vite plugin has an unresolved npm Babel peer conflict. No dependency commit is made until its full gate passes.
 
