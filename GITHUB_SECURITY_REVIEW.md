@@ -56,6 +56,10 @@ The recognizer deepmerge advisory has no patched upstream version. It reaches bu
 5. [codingWithGPT](https://github.com/marcelpetrick/codingWithGPT/security/dependabot/76) has one medium minimatch development dependency alert in `ollama_northmini_jumpNRun/package-lock.json`. Check the parent dependency and a compatible patched version.
 6. GitHub labels two code scanning alerts high. Both are in test code. [codingWithGPT alert 19](https://github.com/marcelpetrick/codingWithGPT/security/code-scanning/19) flags a substring in an E2E test assertion. The test intercepts and aborts non-fixture requests. This is not evidence of a production URL authorization bypass. [AlliumAssault alert 1](https://github.com/marcelpetrick/AlliumAssault/security/code-scanning/1) flags an unescaped dot in a test locator regex. This is a test accuracy issue. Review both before dismissal or change.
 
+## Optional model dependency audit
+
+GermanDubI's default Python audit found no known vulnerabilities. An audit of all optional model packages found stanza 1.10.1 and torch 2.10.0 advisories. `argostranslate` 1.11.0 pins stanza 1.10.1 exactly. The upstream fix needs stanza 1.12.2 or later. Torch remains pinned to 2.10.0 for CUDA 12 compatibility. One torch advisory has no patched version, and the other requires 2.13.0. The repository already records both constraints and their recheck conditions in `docs/project/plan.md`. The optional stacks were not changed or tested with a GPU.
+
 ## Dependabot pull requests
 
 GitHub search found 46 open Dependabot PRs across 10 owned repositories. These include routine updates as well as security fixes. The inventory did not review all 46 PRs or establish that each fixes an alert. Review each diff and checks before merging.
