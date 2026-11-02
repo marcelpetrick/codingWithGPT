@@ -148,6 +148,7 @@ All 29 code criteria are implemented and tested. L4 passed. The live checks L1â€
 | 0.6.7 | fix(reply-assistant): route prompt-injection attempts to manual review by rule | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 | 0.6.8 | docs(reply-assistant): record the live run on the local Ollama fallback | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 | 0.7.0 | feat(reply-assistant): forbid input injection and make manual mode a supported path | `./localPipeline.sh` (11 stages) | green, coverage 98% |
+| 0.7.1 | build(deps): bump mypy to 2.4.1, types-PyYAML to 6.0.12.20261030, setup-uv to v10.3.3 | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 
 ## Results
 
