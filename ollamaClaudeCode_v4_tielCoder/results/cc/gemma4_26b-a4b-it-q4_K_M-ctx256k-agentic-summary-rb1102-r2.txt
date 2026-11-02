@@ -1,0 +1,20 @@
+The project continues to progress through a high volume of task completions across numerous modules, including the logger, parser, driver, and adapter. Most components remain on schedule with no changes required from the lead.
+
+**Valid Decisions**
+* The release freeze for version 7.4 starts on 14 March.
+* The Windows installer moves to WiX 5.
+* The Hamburg trade fair budget is 65,000 euro.
+* The API gateway uses port 9443.
+* Lena leads the Android port.
+* The customer pilot moves from Graz to Linz.
+* The support hotline for the pilot opens at 7:00 AM.
+
+**Open Risks**
+* The sensor vendor Halberg may stop delivery of the K9 board in June.
+* The database migration requires a two-hour downtime window.
+* The Qt license renewal costs 38,000 euro, which exceeds the 30,000 euro budget.
+
+**Actions**
+* Nadia: move the Windows installer to WiX 5.
+* Tomasz: write the serial port recovery test before the demo.
+* Rafael: send the final price list to the Linz customer.

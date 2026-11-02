@@ -1,0 +1,22 @@
+**Project Summary**
+
+**Decisions**
+* The release freeze for version 7.4 starts on 14 March.
+* The API gateway uses port 9443.
+* The Hamburg trade fair budget is 65000 euro.
+* Lena leads the Android port.
+* The beta starts on 17 May.
+* The customer pilot moves from Graz to Linz.
+* The team drops the nightly Solaris build.
+
+**Open Risks**
+* The sensor vendor Halberg stops delivery of the K9 board in June.
+* The Qt license renewal costs 38000 euro, which exceeds the 30000 euro budget.
+* The database migration requires a two-hour downtime window.
+
+**Actions**
+* Nadia: Move the Windows installer to WiX 5.
+* Tomasz: Write the serial port recovery test before the demo.
+* Priya: Review the installer signing key before Friday.
+* Rafael: Send the final price list to the Linz customer.
+* Mirela: Update the CI matrix.

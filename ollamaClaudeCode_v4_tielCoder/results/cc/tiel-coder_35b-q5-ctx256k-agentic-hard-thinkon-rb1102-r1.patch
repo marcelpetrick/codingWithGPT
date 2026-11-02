@@ -1,0 +1,132 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..6a3e612 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -1,5 +1,7 @@
+ """Money parsing."""
+-from decimal import Decimal
++from decimal import Decimal, InvalidOperation
++
++TWO_PLACES = Decimal("0.01")
+ 
+ 
+ def parse_amount(text):
+@@ -14,4 +16,30 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    raw = text.strip()
++    if not raw:
++        raise ValueError("empty amount")
++
++    negative = False
++    if raw.startswith("(") and raw.endswith(")"):
++        negative = True
++        raw = raw[1:-1].strip()
++
++    if raw.startswith("+"):
++        raw = raw[1:]
++    elif raw.startswith("-"):
++        negative = not negative
++        raw = raw[1:]
++
++    if "," in raw:
++        raw = raw.replace(",", "")
++
++    try:
++        value = Decimal(raw)
++    except InvalidOperation:
++        raise ValueError(f"invalid amount: {text!r}")
++
++    value = value.quantize(TWO_PLACES)
++    if negative:
++        value = -value
++    return value
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..e912ea8 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,8 +26,25 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
+-    day, category, amount, currency = line.split(";")
+-    return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
++    stripped = line.strip()
++    if not stripped or stripped[0] == "#":
++        return None
++
++    parts = line.split(";")
++    if len(parts) != 4:
++        raise ValueError(f"expected 4 fields, got {len(parts)}")
++
++    day, category, amount, currency = (field.strip() for field in parts)
++
++    if not currency.isalpha() or len(currency) != 3:
++        raise ValueError(f"currency must be three letters: {currency!r}")
++
++    return Entry(
++        date.fromisoformat(day),
++        category.lower(),
++        parse_amount(amount),
++        currency.upper(),
++    )
+ 
+ 
+ def parse_ledger(text):
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..1d5774e 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,4 +1,12 @@
+ """Reports over parsed entries."""
++from collections import defaultdict
++from decimal import Decimal
++
++
++def _require_single_currency(entries):
++    currencies = {entry.currency for entry in entries}
++    if len(currencies) > 1:
++        raise ValueError("entries must share a single currency")
+ 
+ 
+ def monthly_totals(entries):
+@@ -8,11 +16,14 @@ def monthly_totals(entries):
+     chronological order. All entries must share one currency, otherwise
+     ValueError is raised. An empty input returns an empty dict.
+     """
++    _require_single_currency(entries)
++
+     totals = {}
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
+-        totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++        key = entry.day.strftime("%Y-%m")
++        totals[key] = totals.get(key, Decimal(0)) + entry.amount
++
++    return {month: totals[month] for month in sorted(totals)}
+ 
+ 
+ def category_breakdown(entries, month):
+@@ -23,4 +34,18 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    _require_single_currency(entries)
++
++    totals = defaultdict(Decimal)
++    for entry in entries:
++        if entry.day.strftime("%Y-%m") != month:
++            continue
++        totals[entry.category] += entry.amount
++
++    breakdown = [
++        (category, total)
++        for category, total in totals.items()
++        if total != 0
++    ]
++    breakdown.sort(key=lambda pair: (pair[1], pair[0]))
++    return breakdown

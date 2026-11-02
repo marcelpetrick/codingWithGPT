@@ -1,0 +1,27 @@
+**Project Summary for the Lead**
+
+The log records extensive routine work (profiling, testing, refactoring, documentation, merging, cleaning, rebuilding, and reviewing across many tickets), all reported as staying on schedule with no change for you. The items requiring your attention are the decisions, open risks, and actions below. Where an entry corrected an earlier one, only the valid state is listed.
+
+**Valid decisions**
+- Version 7.4 release freeze starts on 14 March.
+- Windows installer moves to WiX 5 (owner Nadia).
+- Hamburg trade fair budget is 65,000 euro (replaces the earlier 90,000 euro figure, which is now void).
+- API gateway uses port 9443 (replaces the earlier port 8443, which collides with the proxy).
+- Beta starts on 17 May (replaces the earlier 3 May date).
+- Telemetry retention drops to 45 days because of the audit.
+- Customer pilot moves from Graz to Linz.
+- Support hotline for the pilot opens at 7 in the morning.
+- Lena leads the Android port (replaces Oskar, who left the project).
+
+**Open risks**
+- Sensor vendor Halberg stops delivery of the K9 board in June.
+- Qt license renewal costs 38,000 euro against a 30,000 euro budget.
+- Database migration needs a two-hour downtime window.
+
+**Actions (with owners)**
+- Tomasz: write the serial port recovery test before the demo.
+- Priya: review the installer signing key before Friday.
+- Rafael: send the final price list to the Linz customer.
+- Mirela: update the CI matrix (in light of the dropped nightly Solaris build).
+
+Overall, all tracked components remain on schedule; the only items needing your input are the corrected decisions listed above and the three open risks.

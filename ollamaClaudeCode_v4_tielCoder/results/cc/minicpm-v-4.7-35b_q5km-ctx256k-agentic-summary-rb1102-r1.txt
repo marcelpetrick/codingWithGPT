@@ -1,0 +1,18 @@
+**Project Summary for Project Lead**
+
+**Valid Decisions:**
+- Release freeze for version 7.4 starts on 14 March.
+- Windows installer moves to WiX 5 (Owner: Nadia).
+- Hamburg trade fair budget is 65,000 euro (corrected from 90,000 euro).
+- Beta starts on 17 May (corrected from 3 May).
+- API gateway uses port 9443 (corrected from 8443 due to proxy collision).
+- Lena leads the Android port (Oskar left the project).
+
+**Open Risks:**
+- Sensor vendor Halberg stops delivery of the K9 board in June.
+
+**Actions with Owners:**
+- Tomasz: Write the serial port recovery test before the demo.
+- Rafael: Send the final price list to the Linz customer.
+
+All other project activities remain on schedule with no changes to the lead’s responsibilities.

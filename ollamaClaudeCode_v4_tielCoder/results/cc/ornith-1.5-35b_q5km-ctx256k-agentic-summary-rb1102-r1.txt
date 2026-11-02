@@ -1,0 +1,25 @@
+## Project Summary for the Lead
+
+**Overall status:** On schedule. Every module reports "stays on schedule with no change for the lead." (Note: the Tuesday outage was caused by a full disk on build agent nine.)
+
+### Valid decisions
+- Release freeze for version 7.4 starts on **14 March**.
+- Windows installer moves to **WiX 5** (owner Nadia).
+- Hamburg trade fair budget is **65,000 euro** *(corrected from 90,000; the old figure is void)*.
+- Telemetry retention drops to **45 days** because of the audit.
+- Beta starts on **17 May** *(corrected from 3 May)*.
+- Customer pilot moves from **Graz to Linz**.
+- API gateway uses **port 9443** *(corrected from 8443, which collides with the proxy)*.
+- **Lena** leads the Android port *(corrected — Oskar left the project)*.
+
+### Open risks
+- Sensor vendor **Halberg stops delivery of the K9 board in June**.
+- **Qt license renewal** costs 38,000 euro against a 30,000 euro budget (shortfall of 8,000).
+- **Database migration** needs a two-hour downtime window.
+
+### Actions with owners
+- **Tomasz** — writes the serial port recovery test before the demo.
+- **Priya** — reviews the installer signing key before Friday.
+- **Rafael** — sends the final price list to the Linz customer.
+
+*(All corrections above reflect the latest valid state only; earlier figures/dates/names have been superseded and are omitted.)*

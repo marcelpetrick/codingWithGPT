@@ -1,0 +1,11 @@
+**Project Summary**
+
+The team continues to make steady progress across all modules, with every component staying on schedule. Key valid decisions include: the release freeze for version 7.4 starting 14 March; the Windows installer moving to WiX 5 (owner: Nadia); the Hamburg trade fair budget set at 90,000 euro; and the API gateway using port 9443 (corrected from 8443 due to proxy collision). Oskar has left the project, and Lena now leads the Android port. The support hotline for the pilot opens at 7 AM.
+
+**Open Risks:**
+- Sensor vendor Halberg may stop K9 board delivery in June.
+- Qt license renewal costs 38,000 euro, exceeding the 30,000 euro budget.
+
+**Actions with Owners:**
+- Nadia: Manage Windows installer migration to WiX 5.
+- Rafael: Send final price list to the Linz customer.

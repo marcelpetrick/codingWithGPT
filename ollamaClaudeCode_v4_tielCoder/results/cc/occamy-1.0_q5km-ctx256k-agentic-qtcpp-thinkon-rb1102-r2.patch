@@ -1,0 +1,246 @@
+diff --git a/src/backlogsummary.cpp b/src/backlogsummary.cpp
+index 257e0df..0825444 100644
+--- a/src/backlogsummary.cpp
++++ b/src/backlogsummary.cpp
+@@ -1,8 +1,57 @@
+ #include "backlogsummary.h"
++#include "issuemodel.h"
+ 
+-BacklogSummary::BacklogSummary(IssueModel *, QObject *parent) : QObject(parent) {}
++BacklogSummary::BacklogSummary(IssueModel *model, QObject *parent)
++    : QObject(parent), m_model(model), m_total(0)
++{
++    if (m_model) {
++        recompute();
++
++        connect(m_model, &QAbstractItemModel::rowsInserted,
++                this, &BacklogSummary::recompute);
++        connect(m_model, &QAbstractItemModel::rowsRemoved,
++                this, &BacklogSummary::recompute);
++        connect(m_model, &QAbstractItemModel::layoutChanged,
++                this, &BacklogSummary::recompute);
++        connect(m_model, &QAbstractItemModel::dataChanged,
++                this, &BacklogSummary::recompute);
++
++        connect(m_model, &QObject::destroyed, this, [this]() {
++            m_model = nullptr;
++            if (m_total != 0) {
++                m_total = 0;
++                emit totalChanged(0);
++            }
++        });
++    }
++}
++
++BacklogSummary::~BacklogSummary() = default;
++
++void BacklogSummary::recompute()
++{
++    if (!m_model)
++        return;
++
++    int total = 0;
++    const int rows = m_model->rowCount();
++    for (int i = 0; i < rows; ++i) {
++        const QModelIndex idx = m_model->index(i, 0);
++        const bool closed = idx.data(IssueModel::ClosedRole).toBool();
++        const int estimate = idx.data(IssueModel::EstimateRole).toInt();
++        if (!closed)
++            total += estimate;
++    }
++
++    if (total != m_total) {
++        m_total = total;
++        emit totalChanged(m_total);
++    }
++}
+ 
+ int BacklogSummary::openMinutes() const
+ {
+-    return -1;
++    if (!m_model)
++        return 0;
++    return m_total;
+ }
+diff --git a/src/backlogsummary.h b/src/backlogsummary.h
+index d67a2f2..1ce4902 100644
+--- a/src/backlogsummary.h
++++ b/src/backlogsummary.h
+@@ -13,11 +13,14 @@ class BacklogSummary : public QObject
+     Q_PROPERTY(int openMinutes READ openMinutes NOTIFY totalChanged)
+ public:
+     explicit BacklogSummary(IssueModel *model, QObject *parent = nullptr);
++    ~BacklogSummary();
+     int openMinutes() const;
+ 
+ signals:
+     void totalChanged(int minutes);
+ 
+ private:
+-    // Not implemented yet.
++    void recompute();
++    IssueModel *m_model = nullptr;
++    int m_total = 0;
+ };
+diff --git a/src/estimate.cpp b/src/estimate.cpp
+index 6759172..b4984a7 100644
+--- a/src/estimate.cpp
++++ b/src/estimate.cpp
+@@ -3,27 +3,63 @@
+ 
+ int parseEstimate(const QString &text)
+ {
++    const QString trimmed = text.trimmed();
++    if (trimmed.isEmpty())
++        return -1;
++
+     int total = 0;
+-    const QStringList parts = text.split(' ');
++    const QStringList parts = trimmed.split(' ');
+     for (const QString &part : parts) {
+-        const int value = part.left(part.size() - 1).toInt();
++        if (part.isEmpty())
++            continue; // skip spaces between parts
++        if (part.size() < 2)
++            return -1; // missing number or unit
++
++        const QString numStr = part.left(part.size() - 1);
+         const QChar unit = part.back();
+-        if (unit == 'd')
+-            total += value * 24 * 60;
+-        else if (unit == 'h')
+-            total += value * 60;
+-        else if (unit == 'm')
+-            total += value;
++
++        bool ok = false;
++        const int value = numStr.toInt(&ok);
++        if (!ok || value < 0)
++            return -1; // missing number or negative number
++
++        switch (unit.toLatin1()) {
++        case 'w': total += value * 5 * 8 * 60; break; // 5 days of 8 hours
++        case 'd': total += value * 8 * 60; break;     // 8 hours
++        case 'h': total += value * 60; break;
++        case 'm': total += value; break;
++        default: return -1; // unknown unit
++        }
+     }
+     return total;
+ }
+ 
+ QString formatEstimate(int minutes)
+ {
++    if (minutes < 0)
++        return {};
++
+     QStringList out;
+-    const int hours = minutes / 60;
++    const int weeks = minutes / (5 * 8 * 60);
++    if (weeks)
++        out << QString::number(weeks) + "w";
++
++    const int afterWeeks = minutes % (5 * 8 * 60);
++    const int days = afterWeeks / (8 * 60);
++    if (days)
++        out << QString::number(days) + "d";
++
++    const int afterDays = afterWeeks % (8 * 60);
++    const int hours = afterDays / 60;
+     if (hours)
+         out << QString::number(hours) + "h";
+-    out << QString::number(minutes % 60) + "m";
++
++    const int mins = afterDays % 60;
++    if (mins)
++        out << QString::number(mins) + "m";
++
++    if (out.isEmpty())
++        out << "0m";
++
+     return out.join(' ');
+ }
+diff --git a/src/issuemodel.cpp b/src/issuemodel.cpp
+index 87b75a3..8349884 100644
+--- a/src/issuemodel.cpp
++++ b/src/issuemodel.cpp
+@@ -1,12 +1,17 @@
+ #include "issuemodel.h"
+ 
+-int IssueModel::rowCount(const QModelIndex &) const
++int IssueModel::rowCount(const QModelIndex &parent) const
+ {
++    if (parent.isValid())
++        return 0;
+     return m_issues.size();
+ }
+ 
+ QVariant IssueModel::data(const QModelIndex &index, int role) const
+ {
++    if (!index.isValid())
++        return {};
++
+     const Issue &issue = m_issues.at(index.row());
+     switch (role) {
+     case Qt::DisplayRole: return issue.title;
+@@ -21,15 +26,25 @@ bool IssueModel::setData(const QModelIndex &index, const QVariant &value, int ro
+ {
+     if (!index.isValid())
+         return false;
++
+     Issue &issue = m_issues[index.row()];
+-    if (role == EstimateRole)
+-        issue.estimateMinutes = value.toInt();
+-    else if (role == ClosedRole)
+-        issue.closed = value.toBool();
+-    else
+-        return false;
+-    emit dataChanged(index, index);
+-    return true;
++
++    if (role == EstimateRole) {
++        int v = value.toInt();
++        if (v < 0 || issue.estimateMinutes == v)
++            return false;
++        issue.estimateMinutes = v;
++        emit dataChanged(index, index, {EstimateRole});
++        return true;
++    } else if (role == ClosedRole) {
++        bool v = value.toBool();
++        if (issue.closed == v)
++            return false;
++        issue.closed = v;
++        emit dataChanged(index, index, {ClosedRole});
++        return true;
++    }
++    return false;
+ }
+ 
+ QHash<int, QByteArray> IssueModel::roleNames() const
+@@ -40,9 +55,15 @@ QHash<int, QByteArray> IssueModel::roleNames() const
+ 
+ bool IssueModel::addIssue(const Issue &issue)
+ {
+-    beginResetModel();
++    for (const Issue &existing : m_issues) {
++        if (existing.id == issue.id)
++            return false;
++    }
++
++    const int row = m_issues.size();
++    beginInsertRows(QModelIndex(), row, row);
+     m_issues.append(issue);
+-    endResetModel();
++    endInsertRows();
+     return true;
+ }
+ 
+@@ -50,7 +71,7 @@ bool IssueModel::removeIssue(int id)
+ {
+     for (int row = 0; row < m_issues.size(); ++row) {
+         if (m_issues.at(row).id == id) {
+-            beginRemoveRows(QModelIndex(), row, row + 1);
++            beginRemoveRows(QModelIndex(), row, row);
+             m_issues.removeAt(row);
+             endRemoveRows();
+             return true;

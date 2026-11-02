@@ -1,0 +1,21 @@
+**Project Summary**
+
+**Decisions**
+* Release freeze for version 7.4 starts on 14 March.
+* Windows installer moves to WiX 5 (Owner: Nadia).
+* Beta starts on 3 May.
+* Customer pilot moves from Graz to Linz.
+* Hamburg trade fair budget is 65000 euro.
+* Lena leads the Android port.
+* API gateway uses port 9443.
+* Support hotline for the pilot opens at 7 in the morning.
+
+**Open Risks**
+* The sensor vendor Halberg stops delivery of the K9 board in June.
+* The database migration needs a two hour downtime window.
+* The Qt license renewal costs 38000 euro, and the budget has 30000 euro.
+
+**Actions**
+* Tomasz: Write the serial port recovery test before the demo.
+* Priya: Review the installer signing key before Friday.
+* Rafael: Send the final price list to the Linz customer.

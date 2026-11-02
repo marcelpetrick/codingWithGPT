@@ -1,0 +1,20 @@
+**Project Summary**
+
+The project remains on schedule with all components progressing as planned. Below are the key decisions, open risks, and actions requiring attention.
+
+**Valid Decisions:**
+1.  The release freeze for version 7.4 starts on 14 March.
+2.  The Windows installer moves to WiX 5 (Owner: Nadia).
+3.  The API gateway uses port 9443 (corrected from 8443 due to proxy collision).
+4.  The Hamburg trade fair budget is 65000 euro (corrected from 90000 euro).
+5.  The support hotline for the pilot opens at 7 in the morning.
+6.  The customer pilot moves from Graz to Linz.
+7.  The team drops the nightly Solaris build.
+
+**Open Risks:**
+1.  The sensor vendor Halberg stops delivery of the K9 board in June.
+2.  The database migration requires a two-hour downtime window.
+
+**Actions with Owners:**
+1.  **Nadia:** Manage the Windows installer move to WiX 5.
+2.  **Mirela:** Update the CI matrix following the drop of the nightly Solaris build.
