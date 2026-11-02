@@ -230,7 +230,7 @@ Correctness now ranks first (`ROUND_2026-11-02.md`). Dense models were rejected 
 
 | entry | decision | date |
 |---|---|---|
-| `qwen3.8:27b`, `qwen3.6:27b`, `gemma4:31b` | **test** in `s16-extra.sh`, same arm | 2026-11-02 |
+| `qwen3.8:27b`, `qwen3.6:27b`, `gemma4:31b` | **test** in `s16-extra.sh`, same arm, 200k window (owner's decision) | 2026-11-02 |
 | `gemma4:26b` | already in the round | 2026-11-02 |
 | `muse-glimmer:30b`, `gpt-oss:20b` | not tested: 128k context, and the summary task needs about 151k | 2026-11-02 |
 | `qwen3-coder:30b` | not tested: July 2025, no thinking mode, superseded by qwen3.6 (decided 09-24) | 2026-11-02 |

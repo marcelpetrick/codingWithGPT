@@ -44,9 +44,9 @@ MODELS = [
     ("ornith-1.5-35b:q5km-ctx256k-agentic", "Ornith-1.5-35B-A3B"),
     ("minicpm-v-4.7-35b:q5km-ctx256k-agentic", "MiniCPM-V-4.7-35B-A3B"),
     ("qwen3.8-35b-distill:q5km-ctx256k-agentic", "Qwen3.8-35B-A3B-Distill"),
-    ("qwen3.8:27b-q4_K_M-ctx256k-agentic", "Qwen3.8-27B (dense)"),
-    ("qwen3.6-27b:q4km-ctx256k-agentic", "Qwen3.6-27B (dense)"),
-    ("gemma4:31b-ctx256k-agentic", "Gemma4 31B (dense)"),
+    ("qwen3.8:27b-q4_K_M-ctx200k-agentic", "Qwen3.8-27B (dense)"),
+    ("qwen3.6-27b:q4km-ctx200k-agentic", "Qwen3.6-27B (dense)"),
+    ("gemma4:31b-ctx200k-agentic", "Gemma4 31B (dense)"),
     ("north-mini-code-1.0:q4_K_M-ctx256k-agentic", "North-Mini-Code 1.0"),
     ("qwen3.6:35b-a3b-q4_K_M-agentic-t06", "Qwen3.6 at vendor sampler (t 0.6)"),
 ]
@@ -245,13 +245,13 @@ MODEL_FACTS = {
         "agentic work: SFT on ~15k trajectories, then RL, an expert merge and a final RL stage. MoE: 35B total, "
         "~3B active. Official GGUF Q5_K_M, 23.03 GiB + 0.84 GiB projector; 32.45 GB resident at 262k. Native "
         "context 262,144. Released mid-September 2026, Apache-2.0. Community reports: reasoning loops."),
-    "qwen3.8:27b-q4_K_M-ctx256k-agentic": (
+    "qwen3.8:27b-q4_K_M-ctx200k-agentic": (
         "Qwen3.8-27B -- Qwen, official. A dense 27B model with vision, Q4_K_M. Native context 262k. "
         "Rejected in v3 for speed. It runs here again because this round ranks correctness first."),
-    "qwen3.6-27b:q4km-ctx256k-agentic": (
+    "qwen3.6-27b:q4km-ctx200k-agentic": (
         "Qwen3.6-27B -- Qwen, official. A dense 27B model, from the Ollama library tag qwen3.6:27b. "
         "Not measured earlier here, by the owner's call on dense models. It runs here because this round ranks correctness first."),
-    "gemma4:31b-ctx256k-agentic": (
+    "gemma4:31b-ctx200k-agentic": (
         "Gemma4 31B -- Google, official. A dense 30.7B model, from the Ollama library tag gemma4:31b. "
         "v3 measured 25 tok/s and rejected it for speed. It runs here because this round ranks correctness first."),
     "qwen3.8-35b-distill:q5km-ctx256k-agentic": (

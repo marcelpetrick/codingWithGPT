@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # s16-extra.sh -- dense candidates, added 11-02 on the owner's list. Same arm, rule and harness as s15.
 # The earlier decisions rejected dense models for speed; this round ranks correctness first.
+# The owner fixed their window at 200k (num_ctx 200000), the Claude Code cap here; the main field stays baked at 262144.
 # Waits for s15, pulls and bakes, then runs s15 on these tags only. Idempotent. Deletes nothing.
 set -uo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
@@ -18,11 +19,11 @@ bake () {  # <tag> <from> <parameters>
 }
 pull qwen3.6:27b || say "pull failed: qwen3.6:27b"
 pull gemma4:31b || say "pull failed: gemma4:31b"
-bake qwen3.8:27b-q4_K_M-ctx256k-agentic qwen3.8:27b-q4_K_M-ctx128k-agentic '"num_ctx":262144'
-bake qwen3.6-27b:q4km-ctx256k-agentic qwen3.6:27b '"num_ctx":262144,"presence_penalty":0'
-bake gemma4:31b-ctx256k-agentic gemma4:31b '"num_ctx":262144,"presence_penalty":0'
-for t in qwen3.8:27b-q4_K_M-ctx256k-agentic qwen3.6-27b:q4km-ctx256k-agentic gemma4:31b-ctx256k-agentic; do
+bake qwen3.8:27b-q4_K_M-ctx200k-agentic qwen3.8:27b-q4_K_M-ctx128k-agentic '"num_ctx":200000'
+bake qwen3.6-27b:q4km-ctx200k-agentic qwen3.6:27b '"num_ctx":200000,"presence_penalty":0'
+bake gemma4:31b-ctx200k-agentic gemma4:31b '"num_ctx":200000,"presence_penalty":0'
+for t in qwen3.8:27b-q4_K_M-ctx200k-agentic qwen3.6-27b:q4km-ctx200k-agentic gemma4:31b-ctx200k-agentic; do
   say "$t: $(curl -s -m 10 "$BASE/api/show" -d "{\"name\":\"$t\"}" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d.get("details",{}).get("quantization_level"),d.get("details",{}).get("family"))')"
 done
-MODELS_OVERRIDE="qwen3.8:27b-q4_K_M-ctx256k-agentic qwen3.6-27b:q4km-ctx256k-agentic gemma4:31b-ctx256k-agentic" RUNS=3 ./s15-refresh.sh
+MODELS_OVERRIDE="qwen3.8:27b-q4_K_M-ctx200k-agentic qwen3.6-27b:q4km-ctx200k-agentic gemma4:31b-ctx200k-agentic" RUNS=3 ./s15-refresh.sh
 say "S16-EXTRA-END exit $?"
