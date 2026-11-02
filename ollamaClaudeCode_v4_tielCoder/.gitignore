@@ -27,3 +27,7 @@ sandbox/*.log
 # definitions, verifiers, solutions and results are. Per-run agent transcripts
 # under results/tb/ are regenerable, like the cc/ ones.
 results/tb/
+
+# 11-02 harness smoke arm, not a result
+results/*smoke*
+results/s15-*.log
