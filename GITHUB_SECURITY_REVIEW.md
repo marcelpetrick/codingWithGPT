@@ -1,6 +1,6 @@
 # GitHub security review
 
-Verdict: GitHub reports 46 open Dependabot alerts in five repositories and two open code scanning alerts. The scan has large coverage gaps. Prioritize GermanDubI's critical certifi alert and its failing security audit.
+Verdict: Remediation is in progress. GitHub reports 46 open Dependabot alerts and two code scanning alerts. Prioritize GermanDubI and its failing security audit.
 
 ## Plan
 
@@ -16,6 +16,15 @@ Verdict: GitHub reports 46 open Dependabot alerts in five repositories and two o
 | 2026-11-02 11:31 | Started the account-wide security inventory. |
 | 2026-11-02 | Checked 119 owned repositories and 357 alert endpoints. |
 | 2026-11-02 | Checked priority PR statuses and two failed CI logs. |
+
+## Remediation plan
+
+1. Check the current branches, repository rules, manifests, and quality gates. Allow 20 minutes.
+2. Fix and verify the GermanDubI alerts and audit failures. Allow 90 minutes.
+3. Fix and verify alerts in AlliumAssault, BavarianLemmings, recognizer, and the affected codingWithGPT project. Allow 2 hours.
+4. Review the two test-only CodeQL findings. Allow 20 minutes.
+5. Run the updateDependencies skill for each affected project. Commit only after its full gate passes. Allow 2 hours.
+6. Report fixes, blocked checks, and alert coverage. Do not enable scanners yet. Allow 15 minutes.
 
 ## Scope and coverage
 
@@ -40,7 +49,7 @@ GitHub search found 46 open Dependabot PRs across 10 owned repositories. These i
 
 ## Resume here
 
-State: Inventory complete. No repository settings, alerts, PRs, or dependencies were changed. GitHub alert data can change.
+State: Remediation started. BavarianLemmings work is assigned to an isolated worktree. No scanner settings will change during this phase. GitHub alert data can change.
 
 Check commands: `gh repo list marcelpetrick --limit 1000`; `gh api 'repos/marcelpetrick/GermanDubI/dependabot/alerts?state=open&per_page=100'`; `gh pr checks 6 -R marcelpetrick/GermanDubI`.
 
