@@ -121,6 +121,10 @@ no measurable effect on short sessions (R1), but it is the documented workaround
    Note: `north-mini-code-1.0` was one of the four standing-field comparators (BENCHMARK_HARNESS §9a).
    Its measurements stay in `results/`, but a future parity run must re-pull it or drop it from the field.
 
+## `claude-ol-ornith` (back on 2026-11-02, now Ornith-1.5)
+
+The alias had been removed. It now points at `ornith-1.5-35b:q5km-ctx256k-agentic`, with the same shape as `claude-ol-kat`. The old Ornith 1.0 tag `ornith:35b-ctx256k-agentic` stays on the box and has no alias.
+
 ## `claude-ol-byte` (added 2026-09-25)
 
 In `~/.zshrc`, identical in shape to `claude-ol2`. The tag carries everything: ByteShape Q4_K_S 4.22 bpw,
