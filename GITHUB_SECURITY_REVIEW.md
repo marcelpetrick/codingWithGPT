@@ -34,8 +34,8 @@ Verdict: Remediation is in progress. GitHub reports 46 open Dependabot alerts an
 | BavarianLemmings | Done locally | Commit `d32b8eb`; full pipeline and Docker smoke passed; `npm audit` found zero vulnerabilities. |
 | GermanDubI | Done locally | Commit `5a31dc3`; full pipeline passed; npm and default Python audits found no vulnerabilities. |
 | AlliumAssault | Running | Worktree `/tmp/allium-security`; full gate `/tmp/allium-security-gate.log`; npm audit clean. |
-| recognizer | Running | Worktree `/tmp/recognizer-security`; full gate `/tmp/recognizer-security-gate.log`; one low upstream deepmerge advisory remains. |
-| CodeQL test alerts | Running | LinkedIn E2E test fix in `/tmp/coding-linkedin-security`; full gate `/tmp/linkedin-security-gate.log`. AlliumAssault test fix remains. |
+| recognizer | Running | Worktree `/tmp/recognizer-security`; full gate `/tmp/recognizer-security-gate3.log` uses port 4174 to avoid the AlliumAssault test server; one low upstream deepmerge advisory remains. |
+| CodeQL test alerts | Part done | LinkedIn fix committed as `6a77d0b`; its full pipeline passed. AlliumAssault test fix remains. |
 
 The recognizer deepmerge advisory has no patched upstream version. It reaches build tooling through `vite-plugin-pwa` and `workbox-build`. TypeScript 7 is outside the current typescript-eslint peer range. GermanDubI also requires TypeScript 5 for openapi-typescript. The latest recognizer React Vite plugin has an unresolved npm Babel peer conflict. No dependency commit is made until its full gate passes.
 
