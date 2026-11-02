@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """summary-probe.py -- long-text summary correctness, plus speed, cache and context.
 
-One synthetic project log of about 150k tokens goes to the model three times:
+One synthetic project log of about 150k tokens (114000 words, measured on two tokenizers) goes to the model three times:
   r1 cold    the whole document: prefill speed, and proof that the window holds it
   r2 repeat  the same request: prefix cache
   r3 extend  the document plus one new section: the agent-turn cache case
 
 Score (of 16): 12 facts placed at the start, middle and end, and 4 corrections,
 where the corrected value must appear and the superseded value must not.
+Output is capped at 8192 tokens. A model that spends them all on reasoning scores what it wrote.
 A transport error, an empty answer or a truncated prompt stops the job or voids
 the row. It is never booked as a low score.
 
-Usage: summary-probe.py [--host URL] [--arm rb1102] [--words 85000] <model>...
+Usage: summary-probe.py [--host URL] [--arm rb1102] [--words 114000] <model>...
        summary-probe.py --print-doc      prints the document, for a check
 """
 import argparse
@@ -92,8 +93,12 @@ def strip_think(text):
     return re.sub(r"<think>.*?</think>", "", text, flags=re.S)
 
 
-def chat(host, model, content, timeout=900):
-    body = {"model": model, "stream": False, "messages": [{"role": "user", "content": content}]}
+MAX_OUTPUT = 8192   # a model that loops in its reasoning ends here, at about 100 s
+
+
+def chat(host, model, content, timeout=600):
+    body = {"model": model, "stream": False, "options": {"num_predict": MAX_OUTPUT},
+            "messages": [{"role": "user", "content": content}]}
     req = urllib.request.Request(host.rstrip("/") + "/api/chat", json.dumps(body).encode(), {"Content-Type": "application/json"})
     t0 = time.time()
     with urllib.request.urlopen(req, timeout=timeout) as r:
@@ -108,8 +113,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--host", default="http://192.168.100.67:11434")
     ap.add_argument("--arm", default="rb1102")
-    ap.add_argument("--words", type=int, default=85000)
-    ap.add_argument("--min-prompt", type=int, default=120000, help="a cold prompt below this was truncated")
+    ap.add_argument("--words", type=int, default=114000)
+    ap.add_argument("--min-prompt", type=int, default=140000, help="a cold prompt below this was truncated")
     ap.add_argument("--print-doc", action="store_true")
     ap.add_argument("models", nargs="*")
     a = ap.parse_args()
@@ -125,6 +130,11 @@ def main():
         for run, phase, text in ((1, "cold", doc), (2, "repeat", doc), (3, "extend", doc + EXTRA)):
             try:
                 d, wall = chat(a.host, model, PROMPT + text)
+            except TimeoutError:
+                with tsv.open("a") as f:
+                    f.write("\t".join(map(str, (model, run, phase, ver, "0/16", 0, "", "", "", "", "", "600", "request timeout", ""))) + "\n")
+                print(f"  {model[:40]:40} {phase:7} void: request timeout")
+                continue
             except Exception as e:
                 raise SystemExit(f"summary transport error for {model}: {e}; nothing booked")
             if d.get("error"):
@@ -133,8 +143,9 @@ def main():
             ptok, gtok = d.get("prompt_eval_count", 0), d.get("eval_count", 0)
             ps, gs = d.get("prompt_eval_duration", 0) / 1e9, d.get("eval_duration", 0) / 1e9
             void = ""
-            if not answer.strip():
-                void = "empty answer"
+            looped = d.get("done_reason") == "length"
+            if not answer.strip() and not looped:
+                void = "empty answer"   # a harness or server fault; a loop below is the model's own result
             elif phase == "cold" and ptok < a.min_prompt:
                 void = f"prompt truncated to {ptok} tokens"
             k, missed = score(answer)
@@ -144,7 +155,7 @@ def main():
                         f"{ptok / ps:.0f}" if ps else "", gtok, f"{gtok / gs:.1f}" if gs else "", f"{wall:.1f}", void,
                         "; ".join(missed)))) + "\n")
             (HERE / "results" / "cc" / f"{model.replace(':', '_').replace('/', '_')}-summary-{a.arm}-r{run}.txt").write_text(answer)
-            print(f"  {model[:40]:40} {phase:7} {k}/16 words={words} prompt={ptok} prefill={ps:.1f}s gen={gtok}tok wall={wall:.0f}s {void}")
+            print(f"  {model[:40]:40} {phase:7} {k}/16 words={words} done={d.get("done_reason")} prompt={ptok} prefill={ps:.1f}s gen={gtok}tok wall={wall:.0f}s {void}")
 
 
 if __name__ == "__main__":
