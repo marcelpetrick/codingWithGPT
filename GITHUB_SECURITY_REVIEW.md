@@ -19,10 +19,10 @@ Verdict: Local fixes cover the 46 reported Dependabot alerts and both test-only 
 
 ## Remediation plan
 
-1. Check the current branches, repository rules, manifests, and quality gates. Allow 20 minutes.
-2. Fix and verify the GermanDubI alerts and audit failures. Allow 90 minutes.
-3. Fix and verify alerts in AlliumAssault, BavarianLemmings, recognizer, and the affected codingWithGPT project. Allow 2 hours.
-4. Review the two test-only CodeQL findings. Allow 20 minutes.
+1. Check the current branches, repository rules, manifests, and quality gates. Done.
+2. Fix and verify the GermanDubI alerts and audit failures. Done. Optional model advisories remain.
+3. Fix and verify alerts in AlliumAssault, BavarianLemmings, recognizer, and the affected codingWithGPT project. Done.
+4. Review the two test-only CodeQL findings. Done.
 5. Run the updateDependencies skill for each affected project. Commit only after its full gate passes. Done.
 6. Report fixes, blocked checks, and alert coverage. Do not enable scanners yet. Done.
 
