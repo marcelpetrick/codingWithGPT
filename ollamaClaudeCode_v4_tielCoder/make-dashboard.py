@@ -15,6 +15,7 @@ so the page cannot drift from the data. Regenerate after every result.
 """
 import csv
 import html
+import importlib.util
 import re
 import statistics
 from math import comb
@@ -41,6 +42,8 @@ MODELS = [
     ("laguna-xs-2.1:q4km-ctx256k-agentic", "Laguna XS 2.1"),
     ("occamy-1.0:q5km-ctx256k-agentic", "occamy-1.0"),
     ("ornith-1.5-35b:q5km-ctx256k-agentic", "Ornith-1.5-35B-A3B"),
+    ("minicpm-v-4.7-35b:q5km-ctx256k-agentic", "MiniCPM-V-4.7-35B-A3B"),
+    ("qwen3.8-35b-distill:q5km-ctx256k-agentic", "Qwen3.8-35B-A3B-Distill"),
     ("north-mini-code-1.0:q4_K_M-ctx256k-agentic", "North-Mini-Code 1.0"),
     ("qwen3.6:35b-a3b-q4_K_M-agentic-t06", "Qwen3.6 at vendor sampler (t 0.6)"),
 ]
@@ -48,6 +51,7 @@ MODELS = [
 # The picks' rules, fixed in the round (09-25) and printed on the page.
 QUALITY = "held-out median 18/18 and no run below 16"
 T5_MIN = 7
+ARMS = ("rb0925", "rb1019", "rb1102")  # oldest first; the newest arm of a model wins
 
 
 def slug(tag):
@@ -108,15 +112,19 @@ def ledger():
 def ledger_same_client():
     """The same-version re-baselines (one Claude Code version, x5). Where a model has
     these runs, they replace its older runs, which were on mixed client versions. The
-    newest arm wins per model: rb1019 (0.35.1, client 2.1.303) over rb0925 (0.33.3, 2.1.282)."""
+    newest arm wins per model: rb1102 (0.40.11, client 2.1.316) over rb1019 (0.35.1, client 2.1.303)
+    over rb0925 (0.33.3, 2.1.282). A re-run replaces its void row, so the last row per run counts."""
     out = defaultdict(lambda: {"walls": [], "hidden": []})
     newest = {}
-    for arm in ("rb0925", "rb1019"):
+    for arm in ARMS:
         for r in rows(f"cc-session-{arm}.tsv"):
             if r.get("fixture") == "hard" and r.get("thinking") == "on":
                 newest[slug(r["model"])] = arm
-    for arm in ("rb0925", "rb1019"):
+    for arm in ARMS:
+        latest = {}
         for r in rows(f"cc-session-{arm}.tsv"):
+            latest[(r.get("model"), r.get("fixture"), r.get("thinking"), r.get("run"))] = r
+        for r in latest.values():
             if r.get("fixture") != "hard" or r.get("thinking") != "on":
                 continue
             if newest.get(slug(r["model"])) != arm:
@@ -164,7 +172,25 @@ def verdict_line():
 
 
 TIPS = {
-    "model": "The model, as run on .67 (Ollama 0.33.3 until 10-05, 0.35.1 since), one model resident at a time, 100% on the GPU. "
+    "r_rank": "The place by the rule of this round. An empty place means that the model is not ranked: T5 is below 7/8, or a task has too few valid runs.",
+    "r_correct": "The score that decides this round: the mean, over four tasks, of the median share of checks passed. "
+                 "Within 3 points of the best, the shorter session time wins. T5 below 7/8 removes a model from the ranking.",
+    "r_py": "Python: a real Claude Code session fixes a small ledger package. 18 hidden tests score the final code. The share is the median over the runs.",
+    "r_qt": "Qt/C++: a real Claude Code session fixes a Qt 6 list model and writes a missing class, with CMake and ctest. "
+            "14 hidden tests check the model contract, signals and object lifetime. The share is the median over the runs.",
+    "r_gl": "GitLab: the model applies meeting notes to issues with glab, against a local stand-in. 15 checks score the final state. "
+            "The notes contain reversed decisions, and some tickets must stay untouched.",
+    "r_sum": "Summary: a project log of about 150k tokens goes in, and a summary of at most 450 words comes out. "
+             "12 facts must appear, and 4 corrected values must replace the old ones. An answer above 600 words scores 0.",
+    "r_t5": "T5 x8: a nested tool-call schema, sent eight times. A model needs at least 7 of 8 to be ranked.",
+    "r_n": "The number of valid runs for the task with the fewest. 3 is final, 2 is preliminary, and below 2 is not ranked. Void runs do not count.",
+    "r_sess": "The sum of the median wall times of the Python, Qt/C++ and GitLab sessions. It breaks a correctness tie. Lower is better.",
+    "r_ctx": "Context: the prompt tokens that the model really received for the 150k document. A much lower number means a truncated prompt, and that run is void.",
+    "r_cold": "Speed of the first read of the whole document, in tokens per second. Higher is better. This is the cost of a new long context.",
+    "r_rep": "Token cache: the seconds to read the same request again. Near zero means that the prefix cache works.",
+    "r_ext": "Token cache in the agent case: the seconds to read the document plus one new section. Near zero means that a long session stays fast.",
+    "r_gen": "Generation speed in tokens per second, as the median over the three summary runs. Higher is better.",
+    "model": "The model, as run on .67 (Ollama 0.33.3 until 10-05, then 0.35.1, 0.40.11 for arm rb1102), one model resident at a time, 100% on the GPU. "
              "The (i) next to a name has its facts: maker, base, quant, size, sampler.",
     "tb": "Correctness. Terminal-Bench (terminal-bench-core 0.1.1): real terminal tasks in Docker, graded by the tasks' own tests. "
           "8 scored tasks x 3 attempts, thinking on for every model; VOID infrastructure failures are not counted. "
@@ -216,6 +242,14 @@ MODEL_FACTS = {
         "agentic work: SFT on ~15k trajectories, then RL, an expert merge and a final RL stage. MoE: 35B total, "
         "~3B active. Official GGUF Q5_K_M, 23.03 GiB + 0.84 GiB projector; 32.45 GB resident at 262k. Native "
         "context 262,144. Released mid-September 2026, Apache-2.0. Community reports: reasoning loops."),
+    "qwen3.8-35b-distill:q5km-ctx256k-agentic": (
+        "Qwen3.8-35B-A3B-Distill -- empero-ai, a community model. A distill onto the Qwen3.6-35B-A3B MoE base: 35B total, "
+        "~3B active. GGUF Q5_K_M, 23.61 GiB + 0.84 GiB projector. Apache-2.0. Its card says it was trained on 8,192-token "
+        "examples, and that long output can suffer. Vendor sampler: t 0.6, top_p 0.95, top_k 20."),
+    "minicpm-v-4.7-35b:q5km-ctx256k-agentic": (
+        "MiniCPM-V-4.7-35B-A3B -- OpenBMB. A vision MoE on the Qwen3.5/3.6 backbone: 35B total, ~3B active. "
+        "Official GGUF Q5_K_M, 23.03 GiB + 1.04 GiB projector. Public since 2026-10-07, Apache-2.0. "
+        "Its card has no SWE or Terminal-Bench numbers. Vendor sampler: t 0.7, top_p 0.95, top_k 100."),
     "ornith-1.5-35b:q5km-ctx256k-agentic": (
         "Ornith-1.5-35B-A3B -- ornith-ai. MoE: 35B total, ~3B active, on Qwen3.5/Gemma4 foundations with continued "
         "pretraining and RL. Official GGUF Q5_K_M, 23.61 GiB + 0.84 GiB projector; 32.45 GB resident at 262k. "
@@ -295,6 +329,85 @@ def extended():
     # qwen3.6's pass ran wholly on 0.33.3 and KAT's (10-08) wholly on 0.35.1: two runtimes even
     # though neither run changed mid-pass, so the pair is information only (round, 10-07)
     return {"tasks": len(common), "tot": tot, "p": p, "mixed": True}
+
+
+def refresh_panel(arm="rb1102"):
+    """The 11-02 round, from refresh-compare.py: the same rule and the same validity check as the verdict."""
+    spec = importlib.util.spec_from_file_location("refresh_compare", HERE / "refresh-compare.py")
+    rc = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rc)
+    by = rc.summarize(arm)
+    if not by:
+        return ""
+    E = html.escape
+    names = dict(MODELS)
+    rank = rc.ranking(by)
+    order = rank + sorted((t for t in by if not by[t]["ranked"]), key=lambda t: -(by[t]["correct"] or 0))
+
+    def name(t):
+        return (f"<td data-v='{E(names.get(t, t))}'><b>{E(names.get(t, t))}</b>{minfo(t)}"
+                f"<div class='muted small'>{E(t)}</div></td>")
+
+    def share(values):
+        if not values:
+            return "<td class='num' data-v=''>&mdash;</td>"
+        v = 100 * statistics.median(values)
+        cls = "good" if v >= 95 else "warn" if v >= 75 else "crit"
+        return f"<td class='num' data-v='{v:.1f}'><span class='chip {cls}'>{v:.0f}%</span></td>"
+
+    def cell(v, fmt="{:.0f}"):
+        x = None
+        try:
+            x = float(v)
+        except (TypeError, ValueError):
+            pass
+        return f"<td class='num' data-v='{'' if x is None else x}'>{'&mdash;' if x is None else fmt.format(x)}</td>"
+
+    a, b = [], []
+    for t in order:
+        e = by[t]
+        c = e["correct"]
+        pos = rank.index(t) + 1 if t in rank else None
+        d = e["t5"].split("/")[0]
+        t5ok = d.isdigit() and int(d) >= rc.T5_MIN
+        bar = (f"<td class='cicell' data-v='{c:.2f}'><b>{c:.1f}</b><div class='ci'>"
+               f"<div class='ci-range' style='left:0;width:{c:.1f}%'></div></div></td>") if c is not None else "<td data-v=''>&mdash;</td>"
+        a.append(f"<tr>{cell(pos, '#{:.0f}')}{name(t)}{bar}" + "".join(share(e["tasks"][k]) for k in ("hard", "qtcpp", "gitlab", "summary"))
+                 + f"<td class='num' data-v='{d if d.isdigit() else ''}'><span class='chip {'good' if t5ok else 'crit'}'>{E(e['t5'])}</span></td>"
+                 + cell(e["n"]) + cell(e["session_s"]) + "</tr>")
+        s = e["speed"]
+        g = [float(r["gen_tps"]) for r in s.values() if r["gen_tps"]]
+        b.append(f"<tr>{name(t)}" + cell(s.get("cold", {}).get("prompt_tok")) + cell(s.get("cold", {}).get("prefill_tps"))
+                 + cell(s.get("repeat", {}).get("prefill_s"), "{:.1f}") + cell(s.get("extend", {}).get("prefill_s"), "{:.1f}")
+                 + cell(statistics.median(g) if g else None) + "</tr>")
+    pick = ""
+    if rank:
+        w = by[rank[0]]
+        final = w["n"] >= rc.RUNS
+        pick = (f"<div class='picks'><div class='pick'><div class='muted small'>{'BEST FOR THIS WORK' if final else 'BEST SO FAR (PRELIMINARY)'}</div>"
+                f"<b>{E(names.get(rank[0], rank[0]))}</b><div class='small'>Correctness {w['correct']:.1f}, "
+                f"{w['session_s']:.0f} s for the three sessions, n={w['n']}</div>"
+                "<div class='muted small'>Rule: highest correctness over four tasks. Within 3 points, the shorter session time. T5 at least 7/8.</div></div>")
+        if len(rank) > 1:
+            r2 = by[rank[1]]
+            pick += (f"<div class='pick'><div class='muted small'>SECOND</div><b>{E(names.get(rank[1], rank[1]))}</b>"
+                     f"<div class='small'>Correctness {r2['correct']:.1f}, {r2['session_s']:.0f} s, n={r2['n']}</div></div>")
+        pick += "</div>"
+    voids = [f"{E(names.get(t, t))}: {E('; '.join(by[t]['void']))}" for t in order if by[t]["void"]]
+    drift = rc.control_drift(by)
+    notes = []
+    if drift is not None:
+        notes.append(f"Control (Qwen3.6, Python task) against 10-19: {100 * drift:+.0f}% median wall. Compare speed inside this table only.")
+    if voids:
+        notes.append("Void runs, not counted: " + " | ".join(voids))
+    return (f"<h2>This round: Qt/C++, Python, GitLab and long summaries</h2>{pick}"
+            f"<div class='panel'><table><tr>{th('rank','r_rank')}{th('model','model')}{th('correct','r_correct')}{th('Python','r_py')}{th('Qt/C++','r_qt')}"
+            f"{th('GitLab','r_gl')}{th('summary','r_sum')}{th('T5','r_t5')}{th('n','r_n')}{th('session s','r_sess')}</tr>{''.join(a)}</table></div>"
+            "<h2>Speed, token cache and context</h2>"
+            f"<div class='panel'><table><tr>{th('model','model')}{th('context tokens','r_ctx')}{th('read tok/s','r_cold')}{th('cache repeat s','r_rep')}"
+            f"{th('cache extend s','r_ext')}{th('generate tok/s','r_gen')}</tr>{''.join(b)}</table></div>"
+            f"<ul class='small muted'>{''.join(f'<li>{n}</li>' for n in notes)}</ul>"
+            "<h2>Earlier rounds: Python, T5 and Terminal-Bench</h2>")
 
 
 def main():
@@ -428,6 +541,7 @@ th[aria-sort=descending]::after{{content:" \\2193";opacity:1}}
 <h1>Local agentic coding on .67: results</h1>
 <div class="muted small">Rounds 2026-09-24 to {round_doc().stem[6:]} &middot; Claude Code against Ollama &middot; generated {datetime.now():%Y-%m-%d %H:%M} from results/ &middot; details: {round_doc().name}</div>
 
+{refresh_panel()}
 <div class="picks">{''.join(picks)}</div>
 
 <div class="panel"><table>
