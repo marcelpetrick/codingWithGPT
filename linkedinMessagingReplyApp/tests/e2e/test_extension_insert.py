@@ -13,6 +13,7 @@ import time
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import pytest
 from playwright.sync_api import BrowserContext, Page, Route, sync_playwright
@@ -156,4 +157,6 @@ def test_non_linkedin_tab_is_refused(env: Env) -> None:
 
 
 def test_no_request_left_the_machine(env: Env) -> None:
-    assert not [url for url in env.blocked if "linkedin.com" in url]
+    for url in env.blocked:
+        hostname = urlsplit(url).hostname or ""
+        assert hostname != "linkedin.com" and not hostname.endswith(".linkedin.com")

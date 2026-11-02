@@ -149,6 +149,7 @@ All 29 code criteria are implemented and tested. L4 passed. The live checks L1â€
 | 0.6.8 | docs(reply-assistant): record the live run on the local Ollama fallback | `./localPipeline.sh` (11 stages) | green, coverage 99% |
 | 0.7.0 | feat(reply-assistant): forbid input injection and make manual mode a supported path | `./localPipeline.sh` (11 stages) | green, coverage 98% |
 | 0.7.1 | build(deps): bump mypy to 2.4.1, types-PyYAML to 6.0.12.20261030, setup-uv to v10.3.3 | `./localPipeline.sh` (11 stages) | green, coverage 98% |
+| 0.7.2 | test(reply-assistant): check blocked LinkedIn URLs by hostname | `./localPipeline.sh` (11 stages) | green |
 
 ## Results
 
@@ -189,7 +190,7 @@ Time per draft 3.4â€“10.5 s (classification by the model for the ambiguous fixtu
 
 ## Resume here
 
-- State: v0.6.7, all gates implemented, L4 passed; CI, Docker/GHCR, Pages green.
+- State: v0.7.2 locally; all gates implemented and L4 passed.
 - Check: `./localPipeline.sh` (exit 0 = green); `.venv/bin/lra preflight`; `.venv/bin/lra selftest`.
 - Commit: `scripts/commit.sh patch "<subject>" "<why>"` (pipeline, plan row, commit, push).
 - Owner live checks (each takes a few minutes):
