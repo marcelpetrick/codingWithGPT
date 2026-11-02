@@ -26,6 +26,19 @@ Verdict: Remediation is in progress. GitHub reports 46 open Dependabot alerts an
 5. Run the updateDependencies skill for each affected project. Commit only after its full gate passes. Allow 2 hours.
 6. Report fixes, blocked checks, and alert coverage. Do not enable scanners yet. Allow 15 minutes.
 
+## Remediation status — 2026-11-02
+
+| Repository | State | Evidence |
+| --- | --- | --- |
+| codingWithGPT / ollama_northmini_jumpNRun | Done locally | Commit `02bb8cb`; `npm run ci` passed; `npm audit` found zero vulnerabilities. |
+| BavarianLemmings | Done locally | Commit `084e741`; full pipeline and Docker smoke passed; `npm audit` found zero vulnerabilities. |
+| GermanDubI | Running | Worktree `/tmp/germandubi-security`; full gate `/tmp/germandubi-security-gate.log`; npm audit clean. |
+| AlliumAssault | Running | Worktree `/tmp/allium-security`; full gate `/tmp/allium-security-gate.log`; npm audit clean. |
+| recognizer | Running | Worktree `/tmp/recognizer-security`; full gate `/tmp/recognizer-security-gate.log`; one low upstream deepmerge advisory remains. |
+| CodeQL test alerts | Open | Inspect and fix after dependency gates. |
+
+The recognizer deepmerge advisory has no patched upstream version. It reaches build tooling through `vite-plugin-pwa` and `workbox-build`. TypeScript 7 is outside the current typescript-eslint peer range. GermanDubI also requires TypeScript 5 for openapi-typescript. The latest recognizer React Vite plugin has an unresolved npm Babel peer conflict. No dependency commit is made until its full gate passes.
+
 ## Scope and coverage
 
 - The inventory covers repositories owned by `marcelpetrick`. It includes 97 public repositories, 22 private repositories, and 11 forks. It excludes organization-owned repositories.
@@ -49,7 +62,7 @@ GitHub search found 46 open Dependabot PRs across 10 owned repositories. These i
 
 ## Resume here
 
-State: Remediation started. BavarianLemmings work is assigned to an isolated worktree. No scanner settings will change during this phase. GitHub alert data can change.
+State: Remediation is running. See the status table for worktrees and gate logs. No scanner settings will change during this phase. GitHub alert data can change.
 
 Check commands: `gh repo list marcelpetrick --limit 1000`; `gh api 'repos/marcelpetrick/GermanDubI/dependabot/alerts?state=open&per_page=100'`; `gh pr checks 6 -R marcelpetrick/GermanDubI`.
 
