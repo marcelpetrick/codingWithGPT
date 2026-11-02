@@ -224,6 +224,19 @@ This is not a full sweep. Reddit, LinkedIn, X, HN and ollama.com were not checke
 | `kataguru/Industry-Coder-27B-v2.0-GGUF` (10-30) | yes, IQ4 14–15 GiB | not tested: Qwen3.8 27B fine-tune, 3 days old, vendor numbers only. Recheck for independent measurements | 2026-11-02 |
 | Xing4.0 | yes | still blocked: llama.cpp #29012 is closed and not merged | 2026-11-02 |
 
+## Owner's list 2026-11-02 ("Top 15 Ollama Models"), checked against this register
+
+Correctness now ranks first (`ROUND_2026-11-02.md`). Dense models were rejected for speed earlier, so three of them run again.
+
+| entry | decision | date |
+|---|---|---|
+| `qwen3.8:27b`, `qwen3.6:27b`, `gemma4:31b` | **test** in `s16-extra.sh`, same arm | 2026-11-02 |
+| `gemma4:26b` | already in the round | 2026-11-02 |
+| `muse-glimmer:30b`, `gpt-oss:20b` | not tested: 128k context, and the summary task needs about 151k | 2026-11-02 |
+| `qwen3-coder:30b` | not tested: July 2025, no thinking mode, superseded by qwen3.6 (decided 09-24) | 2026-11-02 |
+| `llama3.3:70b` | does not fit: more than 35.5 GB before KV | 2026-11-02 |
+| `deepseek-r1:14b`, `gemma4:12b`, `llama3.1:8b`, `qwen2.5-coder:7b`, `gemma4:e4b`, `qwen3-vl:8b`, `nomic-embed-text` | not tested: small-card, vision or embedding models, not candidates for agentic coding on this box | 2026-11-02 |
+
 ## Sweep 2026-10-19: one new candidate, and it needs Ollama ≥ 0.40.5
 
 *Web only, 10-07 → 10-19. Sources: HF (trending, about 55 orgs, newest bartowski/unsloth), llama.cpp PRs, Ollama
