@@ -1,6 +1,6 @@
 # CPU From Scratch issue review
 
-Verdict: The three reported failure cases are fixed in the proposed code. Two boundary cases remain. The pull requests are open.
+Verdict: The three reported failure cases appear fixed. PR 4 introduces a negative-address regression. PR 6 leaves an older malformed-file behavior unchanged. Real Verilator validation remains open.
 
 ## Plan
 
@@ -24,6 +24,13 @@ Verdict: The three reported failure cases are fixed in the proposed code. Two bo
 - Issue 3, PR 6, `b2af108b8933d3193d3272922f9b601d29bfd803`: A 4,097-word image exited with an error before the BRAM copy. Images of 4,095 and 4,096 words reached the socket setup. The actual changed C++ harness was compiled with simulated Verilator headers and a 4,096-word array. A real Verilator build was not available. `LoadProgram` drops incomplete trailing words. Therefore a 16,385-byte file is accepted as 4,096 words. Reject unaligned files and validate file size in bytes to enforce the stated image size rule.
 - None of the pull requests has reported GitHub checks. No regression tests were added in their diffs.
 
+## Reassessment of review findings
+
+- PR 4: Valid regression, but negative addresses were already invalid for the target. The old assembler accepted `.org -1` and emitted its word at the start of the image. The PR instead silently drops it. Both behaviors are wrong. The PR changes silent misplacement to silent loss. Rejecting the address is a reasonable fix. Do not describe this as a normal-address failure.
+- PR 5: The stale binary observation is true but is not a regression from this PR. It does not defeat the fix. Removing existing outputs is a separate design choice, not a requirement for this issue. The shell-body check does not prove an end-to-end `just` invocation.
+- PR 6: Partial-word truncation is real but existed before this PR. A 16,385-byte file has 4,096 complete words, and the copy stays within BRAM. The original memory-safety issue is fixed for this case too. Rejecting malformed files is optional follow-up hardening, not a blocker for that fix. My original comment should have made that distinction clear. The stubbed harness test did not validate real Verilator compilation.
+- The PRs add no regression tests. That is a test coverage gap, not proof that the changes fail.
+
 ## Posted comments
 
 - [PR 4](https://github.com/BoergeSt/CPU-From-Scratch/pull/4#issuecomment-6574805961) and [issue 2](https://github.com/BoergeSt/CPU-From-Scratch/issues/2#issuecomment-6574808896).
@@ -32,7 +39,7 @@ Verdict: The three reported failure cases are fixed in the proposed code. Two bo
 
 ## Resume here
 
-State: Review complete. Recheck the pull request heads before relying on this report.
+State: Review and critical reassessment complete. The earlier GitHub comments have not been amended. Recheck the pull request heads before relying on this report.
 
 Check commands: `gh pr view 4 --repo BoergeSt/CPU-From-Scratch --json headRefOid,state`; repeat for 5 and 6.
 
