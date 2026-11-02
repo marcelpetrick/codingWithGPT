@@ -1,6 +1,6 @@
 # GitHub security review
 
-Verdict: Remediation is in progress. GitHub reports 46 open Dependabot alerts and two code scanning alerts. Prioritize GermanDubI and its failing security audit.
+Verdict: Local fixes cover the 46 reported Dependabot alerts and both test-only CodeQL warnings. The fixes are not pushed. Additional optional-model and build-tool advisories remain open.
 
 ## Plan
 
@@ -23,8 +23,8 @@ Verdict: Remediation is in progress. GitHub reports 46 open Dependabot alerts an
 2. Fix and verify the GermanDubI alerts and audit failures. Allow 90 minutes.
 3. Fix and verify alerts in AlliumAssault, BavarianLemmings, recognizer, and the affected codingWithGPT project. Allow 2 hours.
 4. Review the two test-only CodeQL findings. Allow 20 minutes.
-5. Run the updateDependencies skill for each affected project. Commit only after its full gate passes. Allow 2 hours.
-6. Report fixes, blocked checks, and alert coverage. Do not enable scanners yet. Allow 15 minutes.
+5. Run the updateDependencies skill for each affected project. Commit only after its full gate passes. Done.
+6. Report fixes, blocked checks, and alert coverage. Do not enable scanners yet. Done.
 
 ## Remediation status — 2026-11-02
 
@@ -33,9 +33,9 @@ Verdict: Remediation is in progress. GitHub reports 46 open Dependabot alerts an
 | codingWithGPT / ollama_northmini_jumpNRun | Done locally | Commit `02bb8cb`; `npm run ci` passed; `npm audit` found zero vulnerabilities. |
 | BavarianLemmings | Done locally | Commit `d32b8eb`; full pipeline and Docker smoke passed; `npm audit` found zero vulnerabilities. |
 | GermanDubI | Done locally | Commit `5a31dc3`; full pipeline passed; npm and default Python audits found no vulnerabilities. |
-| AlliumAssault | Running | Worktree `/tmp/allium-security`; combined dependency and CodeQL fix gate `/tmp/allium-security-gate2.log`; npm audit clean. |
+| AlliumAssault | Done locally on an isolated branch | Commit `386d0f6` on `codex/security-dependency-update`; full gate and REUSE passed; npm audit clean. One browser test passed on retry and passed three focused reruns. |
 | recognizer | Done locally | Commit `e9207cc`; full gate passed on isolated port 4174; one low upstream deepmerge advisory remains. |
-| CodeQL test alerts | Part done | LinkedIn fix committed as `6a77d0b`; its full pipeline passed. AlliumAssault test fix is in the running gate. |
+| CodeQL test alerts | Done locally | LinkedIn fix committed as `6a77d0b`; AlliumAssault fix included in `386d0f6`. Both gates passed. GitHub must rescan after the commits reach its default branches. |
 
 The recognizer deepmerge advisory has no patched upstream version. It reaches build tooling through `vite-plugin-pwa`, `workbox-build`, and `@rollup/plugin-node-resolve`. The installed plugin calls deepmerge only to copy its own static defaults. This reduces exposure in the inspected build path. TypeScript 7 is outside the current typescript-eslint peer range. GermanDubI also requires TypeScript 5 for openapi-typescript. The latest recognizer React Vite plugin has an unresolved npm Babel peer conflict. No dependency commit is made until its full gate passes.
 
@@ -66,8 +66,8 @@ GitHub search found 46 open Dependabot PRs across 10 owned repositories. These i
 
 ## Resume here
 
-State: Remediation is running. See the status table for worktrees and gate logs. No scanner settings will change during this phase. GitHub alert data can change.
+State: Remediation is complete for the original GitHub alert list. See the status table for local commits and remaining advisory limits. No changes were pushed, and scanner settings were not changed.
 
-Check commands: `cat /tmp/allium-security-gate2.exit`; `tail -30 /tmp/allium-security-gate2.log`; `git -C /tmp/allium-security status --short`; `git -C /home/mpetrick/repos/GermanDubI status -sb`.
+Check commands: `git -C /tmp/allium-security log -1 --oneline`; `git -C /home/mpetrick/repos/GermanDubI status -sb`; `git -C /home/mpetrick/repos/recognizer status -sb`; `git -C /home/mpetrick/repos/BavarianLemmings status -sb`.
 
-Restart commands: `cd /tmp/allium-security`; `npm audit --audit-level=moderate`; `npm run lint:reuse`; `npm run verify`. If all pass, commit the four changed files with `/tmp/allium-security-commit-message`. Keep the current `mpe/gource` checkout intact. No changes have been pushed.
+Restart commands: `cd /tmp/allium-security`; `npm audit --audit-level=moderate`; `npm run lint:reuse`; `npm run verify`. Review branch `codex/security-dependency-update` before integrating it into AlliumAssault. Keep the current `mpe/gource` checkout intact. Discuss scanner coverage separately. No changes have been pushed.
