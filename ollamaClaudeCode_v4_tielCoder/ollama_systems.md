@@ -7,7 +7,7 @@ measurement, so a shared server is never upgraded mid-round (`AGENTS.md`, `ROUND
 
 | system | role | runs | latest stable | update? | when |
 |---|---|---|---|---|---|
-| `192.168.100.67:11434` | the benchmark box, ~35.5 GB VRAM | **0.35.1** since 10-05 ~16:45 (was 0.33.3) | 0.40.0 (10-06) | **done** to 0.35.1 (owner, 10-05); no reason to go to 0.40.0 yet (`CANDIDATE_REGISTER.md` 10-07) | re-baseline owed: steps 4–5 of the procedure below (the round closed 10-08) |
+| `192.168.100.67:11434` | the benchmark box, ~35.5 GB VRAM | **0.40.11** (read 11-02; upgrade date not recorded; was 0.35.1 from 10-05) | 0.40.0 (10-06) | **done** to 0.35.1 (owner, 10-05); no reason to go to 0.40.0 yet (`CANDIDATE_REGISTER.md` 10-07) | re-baseline owed: steps 4–5 of the procedure below (the round closed 10-08) |
 | `192.168.100.37:11434` | small models only, ~12 GB | **0.32.15** | 0.40.0 | **yes, can go first** | any time; it is not part of the running round. The owner's call (shared server) |
 | laptop, Claude Code | client | host 2.1.289, containers **pinned 2.1.283** | — | keep the pin for this round | re-pin with the post-upgrade re-baseline |
 
