@@ -68,6 +68,6 @@ GitHub search found 46 open Dependabot PRs across 10 owned repositories. These i
 
 State: Remediation is running. See the status table for worktrees and gate logs. No scanner settings will change during this phase. GitHub alert data can change.
 
-Check commands: `gh repo list marcelpetrick --limit 1000`; `gh api 'repos/marcelpetrick/GermanDubI/dependabot/alerts?state=open&per_page=100'`; `gh pr checks 6 -R marcelpetrick/GermanDubI`.
+Check commands: `cat /tmp/allium-security-gate2.exit`; `tail -30 /tmp/allium-security-gate2.log`; `git -C /tmp/allium-security status --short`; `git -C /home/mpetrick/repos/GermanDubI status -sb`.
 
-Restart commands: `cd /home/mpetrick/repos/codingWithGPT`; read this file; repeat the inventory with GitHub alert endpoints for each current owned repository.
+Restart commands: `cd /tmp/allium-security`; `npm audit --audit-level=moderate`; `npm run lint:reuse`; `npm run verify`. If all pass, commit the four changed files with `/tmp/allium-security-commit-message`. Keep the current `mpe/gource` checkout intact. No changes have been pushed.
