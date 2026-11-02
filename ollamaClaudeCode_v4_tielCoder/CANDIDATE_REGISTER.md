@@ -211,6 +211,19 @@ eval with CIs) shows an abliterated build beating its own base outside noise.
 - **Stale leaderboards:** SWE-bench (newest result 2026-02), Aider polyglot (2025-10), BFCL (2026-03), LiveCodeBench
   (2025-07).
 
+## Quick check 2026-11-02: no new version of a field model (Hugging Face API only)
+
+This is not a full sweep. Reddit, LinkedIn, X, HN and ollama.com were not checked. Ollama latest is 0.40.13; `.67` runs 0.40.11.
+
+| entry | fits | decision | date |
+|---|---|---|---|
+| KAT, Tiel, Laguna XS, gemma4, ByteShape Qwen3.6, Qwen3.6 | yes | no newer version in the owner's 8 newest repos | 2026-11-02 |
+| `Accio-Lab/occamy-1.0-APEX-GGUF` (10-02) | yes, 21.3 and 23.6 GiB | same occamy 1.0 weights, other quantization. Not a new version. Test only if occamy wins the re-measure | 2026-11-02 |
+| `ornith-ai/Ornith-1.5-122B-GGUF` (10-20) | **no**, Q4_K_M 70.6 GiB | known, not fitting | 2026-11-02 |
+| `anik-jha/Ornith-1.5-122B-24GB-GGUF` (10-25) | yes, 19.9 GiB | rejected: IQ2_XXS is below the 4-bit floor | 2026-11-02 |
+| `kataguru/Industry-Coder-27B-v2.0-GGUF` (10-30) | yes, IQ4 14–15 GiB | not tested: Qwen3.8 27B fine-tune, 3 days old, vendor numbers only. Recheck for independent measurements | 2026-11-02 |
+| Xing4.0 | yes | still blocked: llama.cpp #29012 is closed and not merged | 2026-11-02 |
+
 ## Sweep 2026-10-19: one new candidate, and it needs Ollama ≥ 0.40.5
 
 *Web only, 10-07 → 10-19. Sources: HF (trending, about 55 orgs, newest bartowski/unsloth), llama.cpp PRs, Ollama
