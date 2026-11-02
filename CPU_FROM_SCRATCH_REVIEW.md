@@ -37,9 +37,17 @@ Verdict: The three reported failure cases appear fixed. PR 4 introduces a negati
 - [PR 5](https://github.com/BoergeSt/CPU-From-Scratch/pull/5#issuecomment-6574805799) and [issue 1](https://github.com/BoergeSt/CPU-From-Scratch/issues/1#issuecomment-6574808653).
 - [PR 6](https://github.com/BoergeSt/CPU-From-Scratch/pull/6#issuecomment-6574805802) and [issue 3](https://github.com/BoergeSt/CPU-From-Scratch/issues/3#issuecomment-6574808656).
 
+## Formal reviews
+
+GitHub records all three reviews with the `COMMENTED` state.
+
+- [PR 4 review](https://github.com/BoergeSt/CPU-From-Scratch/pull/4#pullrequestreview-5735211905).
+- [PR 5 review](https://github.com/BoergeSt/CPU-From-Scratch/pull/5#pullrequestreview-5735211850).
+- [PR 6 review](https://github.com/BoergeSt/CPU-From-Scratch/pull/6#pullrequestreview-5735211884). This review clarifies the earlier partial-word finding.
+
 ## Resume here
 
-State: Review and critical reassessment complete. The earlier GitHub comments have not been amended. Recheck the pull request heads before relying on this report.
+State: Review and critical reassessment complete. Formal reviews were submitted. The PR 6 review clarifies the earlier comment. Recheck the pull request heads before relying on this report.
 
 Check commands: `gh pr view 4 --repo BoergeSt/CPU-From-Scratch --json headRefOid,state`; repeat for 5 and 6.
 
