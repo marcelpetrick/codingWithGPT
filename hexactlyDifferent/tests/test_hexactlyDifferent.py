@@ -16,7 +16,10 @@ def _run(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
     )
 
     # Ensure subprocess coverage auto-start is enabled (inherited or default)
-    env["COVERAGE_PROCESS_START"] = env.get("COVERAGE_PROCESS_START", ".coveragerc")
+    env["COVERAGE_PROCESS_START"] = str(
+        REPO_ROOT / env.get("COVERAGE_PROCESS_START", ".coveragerc")
+    )
+    env["COVERAGE_FILE"] = str(REPO_ROOT / env.get("COVERAGE_FILE", ".coverage"))
 
     return subprocess.run(
         [sys.executable, str(SCRIPT), *args],
