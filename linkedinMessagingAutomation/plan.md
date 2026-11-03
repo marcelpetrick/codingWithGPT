@@ -43,10 +43,11 @@ Route I+ (active navigation) is not in the plan. It enters only if the owner dec
 | 2026-10-27 | Phase 1: package `reply_desk`, `localPipeline.sh` (8 stages), CI workflow, GPLv3, README | v0.1.0–v0.1.1, pipeline green, 100% branch coverage. CI not run yet: nothing pushed. |
 | 2026-10-27 | Phase 3 (part): ruleset engine `reply_desk/rules.py`, `reply_desk/data/rules.yaml` | v0.2.0, 48 tests, golden case per rule. Prompts and LLM still open (needs D1, D3). |
 | 2026-10-27 | Side task: report + two LinkedIn carousels on automation and the crackdown 2025–2026 | `research/automation_crackdown_2025_2026.md`, `carousel/v1_timeline.pdf` (9 slides), `carousel/v2_status_codes.pdf` (7 slides), `carousel/post.md`. Build: `scripts/build_carousel.sh`. Self-review fixed 4 issues (contradiction on DM reading, slide count, unsupported "mostly", overflow on v2 slide 2). |
+| 2026-11-03 | Dependency refresh | Updated mypy, pytest and types-PyYAML. All eight local pipeline stages passed. CI runs after the push. |
 
 ## Resume here
 
-- State: v0.2.0. Skeleton, pipeline and ruleset engine done, all local (not pushed). Open owner decisions: D1, D2, D3 (`vision.md` §4).
+- State: v0.2.2. Skeleton, pipeline and ruleset engine are done. Open owner decisions: D1, D2, D3 (`vision.md` §4).
 - Check: `./localPipeline.sh` (exit 0 = green).
 - Owner actions before phase 0:
   1. Export the "unsolicited decline" GPT instructions (GPT editor → Configure → Instructions) into `prompts/unsolicited_decline.md`.
