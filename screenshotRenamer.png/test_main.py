@@ -62,13 +62,13 @@ class ScreenshotRenamerTests(unittest.TestCase):
 
     def test_rename_aborts_if_target_exists_unrelated(self) -> None:
         base = time.time()
-        self._create_png("shot1.png", base)
-        self._create_png("shot2.png", base + 10)
-        # Existing conflicting file not in the rename set.
+        first = self._create_png("shot1.png", base)
+        second = self._create_png("shot2.png", base + 10)
+        # Existing conflicting file not in the explicit rename set.
         (self.tmpdir / "img00.png").write_bytes(b"keep")
 
         with self.assertRaises(ScreenshotRenamerError):
-            rename_screenshots(self.tmpdir)
+            build_rename_plan([first, second])
 
         # Original files still present (no rename performed).
         self.assertTrue((self.tmpdir / "shot1.png").exists())
