@@ -195,6 +195,8 @@ before flipping the switch.
 
 ## Develop and verify
 
+Install the pinned development tools with `.venv/bin/pip install -e ".[dev]"`.
+
 ```bash
 python3 -m unittest discover -v
 ruff check .
