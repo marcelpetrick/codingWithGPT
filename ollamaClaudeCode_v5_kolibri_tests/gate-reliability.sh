@@ -16,7 +16,7 @@ mkdir -p "$out/results"
 exec 9>results/t1.lock
 flock -n 9 || { echo 'Another gate run is active.' >&2; exit 1; }
 # shellcheck disable=SC2154
-trap 'rc=$?; timeout 5 notify-send "Kolibri T1 reliability finished" "Exit status: $rc. See the T1 log." 2>/dev/null || true' EXIT
+trap 'rc=$?; timeout 5 notify-send "Kolibri tool gate finished" "Exit status: $rc. See the gate log." 2>/dev/null || true' EXIT
 [[ ! -e "$out/results/gate-rerun.raw.jsonl" ]] || { echo 'Existing result; review before retrying.' >&2; exit 1; }
 curl --noproxy '*' -fsS -m 10 "$base/api/version" | python3 -c 'import json,sys; assert json.load(sys.stdin)["version"] == "0.40.11"'
 curl --noproxy '*' -fsS -m 10 "$base/api/ps" | python3 -c 'import json,sys; m=json.load(sys.stdin)["models"]; assert not m or (len(m)==1 and m[0]["name"].lower()==sys.argv[1].lower()), "Server is busy"' "$model"

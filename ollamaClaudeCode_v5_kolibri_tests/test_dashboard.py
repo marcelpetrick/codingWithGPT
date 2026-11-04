@@ -112,6 +112,9 @@ class DashboardTest(unittest.TestCase):
                 if path.is_file():
                     (root / path.name).write_bytes(path.read_bytes())
             (root / "fidelity.tsv").write_text((root / "agentic-extra.tsv").read_text())
+            (root / "strict-t5.jsonl").write_text(
+                (root / "nothink-t1-eight.jsonl").read_text()
+            )
             (root / "parser-arm-t1.jsonl").write_text(
                 (root / "nothink-t1-eight.jsonl").read_text()
             )
@@ -134,6 +137,7 @@ class DashboardTest(unittest.TestCase):
                 dashboard.main()
             page = (root / "dashboard.html").read_text()
             self.assertIn("English and German smoke checks", page)
+            self.assertIn("Strict rerun", page)
             self.assertIn("Qwen3 parser", page)
             self.assertIn("Reasoning instruction", page)
             self.assertIn("Adaptive thinking", page)

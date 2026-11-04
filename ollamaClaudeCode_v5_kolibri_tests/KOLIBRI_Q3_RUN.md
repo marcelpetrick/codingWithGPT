@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.4.0. Started: 2026-11-04.
+Version: 0.4.1. Started: 2026-11-04.
 
 ## Verdict
 
@@ -102,7 +102,7 @@ The stock-template T1 smoke returned no tool call. The first corrected-template 
 
 `agentic-smoke.sh` copies the v4 T1 gate into the results directory and runs it once. It checks server version, idle state, residency and context. The single trial is a smoke test, not a reliability score.
 
-`gate-reliability.sh` repeats T1 eight times. It patches the copied v4 scorer to stop and save the raw response when content is empty. The request and scoring conditions otherwise stay the same. Apply the pre-registered 3-of-8 failure threshold instead of the copied summary label.
+`gate-reliability.sh` repeats T1 eight times. It patches the copied v4 scorer to stop and save the raw response when content is empty. The copied scorer now checks the tool name, exact required values, nested edit paths and rename hunk. The request conditions stay the same. T5 is repeated up to eight times and stops on empty content. Apply the pre-registered 3-of-8 failure threshold instead of the copied summary label.
 
 `needle-probe.sh` runs the v4 retrieval ladder on the corrected-template arm. It preserves the prompts and adds fail-fast checks for transport errors and empty answers.
 

@@ -126,7 +126,16 @@ def gate_counts(rows):
 
 
 def gate_table(
-    extra, basic, short, stock, adaptive, reason_arm, parser_arm, deep, raw_gates
+    extra,
+    basic,
+    short,
+    stock,
+    adaptive,
+    reason_arm,
+    parser_arm,
+    deep,
+    raw_gates,
+    strict_t5,
 ):
     body = []
     for label, rows in (
@@ -146,6 +155,19 @@ def gate_table(
             + text_cell(label)
             + text_cell(f"{passed}/{valid}", passed / valid if valid else -1)
             + text_cell(invalid)
+            + "</tr>"
+        )
+    if strict_t5:
+        verdicts = [gate_score.t5(row.get("response", {}))[0] for row in strict_t5]
+        valid = len(verdicts) - verdicts.count("ERROR")
+        passed = verdicts.count("PASS")
+        body.append(
+            "<tr>"
+            + model_cell(strict_t5[0]["model"])
+            + text_cell("T5 · nested schema")
+            + text_cell("Strict rerun")
+            + text_cell(f"{passed}/{valid}", passed / valid if valid else -1)
+            + text_cell(verdicts.count("ERROR"))
             + "</tr>"
         )
     for model, row in deep:
@@ -372,6 +394,7 @@ def render(
     needle,
     bilingual,
     raw_gates,
+    strict_t5,
 ):
     full = max(r["context"] for r in residency if r["full_gpu"])
     recall = max(
@@ -393,6 +416,7 @@ def render(
             parser_arm,
             deep,
             raw_gates,
+            strict_t5,
         )
         + coding_table(coding, corrections)
         + history_table(history)
@@ -476,6 +500,8 @@ def main():
             deep.extend((tag, row) for row in read_tsv(path))
     bilingual_path = MEASUREMENTS / "bilingual.jsonl"
     bilingual = read_jsonl(bilingual_path) if bilingual_path.exists() else []
+    strict_path = MEASUREMENTS / "strict-t5.jsonl"
+    strict_t5 = read_jsonl(strict_path) if strict_path.exists() else []
     page = render(
         read_tsv(MEASUREMENTS / "speed.tsv"),
         extra,
@@ -494,6 +520,7 @@ def main():
         read_jsonl(MEASUREMENTS / "needle-near.jsonl"),
         bilingual,
         read_jsonl(MEASUREMENTS / "agentic-gates.raw.jsonl"),
+        strict_t5,
     )
     target = ROOT / "dashboard.html"
     temporary = ROOT / "dashboard.html.new"

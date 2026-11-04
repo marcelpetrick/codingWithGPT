@@ -48,6 +48,7 @@ def sync():
             RESULTS / "t1-parser-arm" / "results" / "gate-rerun.raw.jsonl",
             "parser-arm-t1.jsonl",
         ),
+        (RESULTS / "t5-strict" / "results" / "gate-rerun.raw.jsonl", "strict-t5.jsonl"),
     )
     for source, name in sources:
         target = MEASUREMENTS / name
@@ -90,6 +91,7 @@ def watch():
             RESULTS / "bilingual",
             RESULTS / "t1-reason-effort" / "results",
             RESULTS / "t1-parser-arm" / "results",
+            RESULTS / "t5-strict" / "results",
         )
 
         def add_existing():

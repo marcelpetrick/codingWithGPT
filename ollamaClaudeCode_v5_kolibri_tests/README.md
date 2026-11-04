@@ -48,7 +48,7 @@ Open [dashboard.html](dashboard.html) in a browser. It is generated from the res
 - `agentic-battery.sh` runs v4 gates T2, T4, T5 and T8–T11 on both models. It waits for the near-limit test.
 - `near-limit.sh` waits for completed speed tests and retries retrieval below the overflow point.
 - `needle-probe.sh` runs the v4 retrieval ladder with stricter error checks.
-- `gate-reliability.sh` repeats v4 T1 eight times and keeps the raw responses. It stops and saves the raw response when API content is empty.
+- `gate-reliability.sh` repeats v4 T1 or T5 up to eight times and keeps the raw responses. It stops and saves the raw response when API content is empty.
 - `agentic-smoke.sh` runs the unchanged v4 T1 gate once at the measured context. Pass a model tag and result label to test a separate variant.
 - `after-residency.sh` waits for the ladder and starts `refine.py`.
 - `refine.py` searches the remaining context interval in steps of 1,024 tokens.
