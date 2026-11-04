@@ -1,10 +1,10 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.5. Started: 2026-11-04.
+Version: 0.2.6. Started: 2026-11-04.
 
 ## Verdict
 
-Ollama 0.40.11 includes upstream Kolibri architecture support. The actual model fit and output are not yet measured.
+Kolibri Q3_K_S runs on Ollama 0.40.11. The 4,096- and 8,192-token tests reported full GPU residency. The context search and agentic benchmark are still running or pending.
 
 ## Plan and decision rules
 
@@ -41,6 +41,8 @@ The model card's Ollama warning predates upstream support. [Ollama 0.40.11 pins 
 
 | 2026-11-04 12:58 | Pull | The server accepted the Q3_K_S pull. The digest matches the published checksum. |
 | 2026-11-04 12:59 | Residency | A detached chain waits on the pull lock before running the context ladder. |
+| 2026-11-04 13:18 | Pull | Ollama verified the weight digest and registered the model. It reports completion, tools and thinking capabilities. |
+| 2026-11-04 13:19 | First loads | 4,096 and 8,192 tokens ran fully on GPU. Both outputs included 391 but stopped at the 128-token limit. The context ladder continues. |
 
 ## Pull script
 
