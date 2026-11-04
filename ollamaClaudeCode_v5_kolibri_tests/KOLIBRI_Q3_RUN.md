@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.21. Started: 2026-11-04.
+Version: 0.2.22. Started: 2026-11-04.
 
 ## Verdict
 
@@ -54,6 +54,21 @@ The model card's Ollama warning predates upstream support. [Ollama 0.40.11 pins 
 `after-pull.sh` waits for the pull lock, then starts `residency.py`. The probe checks server version, tag, idle state and response completeness. It records each completed rung in `results/residency.jsonl`. It resumes only when recorded contexts, model digest and server version match. It stops at the first spill or error. It unloads only its exact model tag. The ladder establishes a tested floor, not an exact maximum or verified retrieval depth.
 
 `after-residency.sh` waits for the ladder lock and runs `refine.py`. The refinement requires a completed ladder. It records its own results and resumes only matching runs.
+
+## Cold throughput
+
+Ollama 0.40.11, 2026-11-04. Each row is median and range for three cold samples. The v4 prompts, seed 42 and temperature 0 are used. Kolibri uses a 147,456-token tag. The control uses its 262,144-token tag. This difference is a deployment confound.
+
+| Prompt words | Model | Generation tokens/s, median [range] | Prefill tokens/s, median [range] |
+| --- | --- | --- | --- |
+| 0 | Kolibri Q3_K_S | 107.38 [105.99, 107.57] | 108.1 [103.0, 109.0] |
+| 0 | Qwen 3.6 control | 124.59 [124.54, 125.69] | 69.1 [61.3, 72.7] |
+| 2,000 | Kolibri Q3_K_S | 107.26 [106.51, 107.97] | 2,222.2 [2,221.8, 2,251.5] |
+| 2,000 | Qwen 3.6 control | 127.75 [122.53, 129.56] | 2,894.8 [2,800.7, 2,916.1] |
+| 20,000 | Kolibri Q3_K_S | 97.01 [96.66, 97.14] | 2,919.4 [2,915.0, 2,922.8] |
+| 20,000 | Qwen 3.6 control | 110.08 [109.58, 112.0] | 4,762.7 [4,730.7, 4,764.0] |
+
+Short prefill rates use only about 25 prompt tokens and are noisy. The output lengths vary because models can stop before the 256-token limit. Raw responses and rows are in `measurements/`.
 
 ## Retrieval results
 
