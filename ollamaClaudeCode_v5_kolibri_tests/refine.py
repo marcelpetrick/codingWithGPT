@@ -2,6 +2,7 @@
 # Copyright (C) 2026 Marcel Petrick
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Refine the residency boundary in 1,024-token steps after the ladder."""
+
 import json
 import os
 from pathlib import Path
@@ -36,10 +37,14 @@ def main():
     if not ladder:
         raise RuntimeError("The residency ladder has no results")
     for index, row in enumerate(ladder):
-        if (index >= len(residency.CONTEXTS) or row.get("context") != residency.CONTEXTS[index]
-                or row.get("digest") != digest or row.get("ollama") != version
-                or not isinstance(row.get("full_gpu"), bool)
-                or (index < len(ladder) - 1 and not row["full_gpu"])):
+        if (
+            index >= len(residency.CONTEXTS)
+            or row.get("context") != residency.CONTEXTS[index]
+            or row.get("digest") != digest
+            or row.get("ollama") != version
+            or not isinstance(row.get("full_gpu"), bool)
+            or (index < len(ladder) - 1 and not row["full_gpu"])
+        ):
             raise RuntimeError("The residency ladder is inconsistent")
     if ladder[-1]["full_gpu"]:
         if ladder[-1]["context"] != residency.CONTEXTS[-1]:
@@ -49,9 +54,12 @@ def main():
     extra = read_rows(RESULTS)
     rows = ladder[:]
     for row in extra:
-        if (row.get("digest") != digest or row.get("ollama") != version
-                or not isinstance(row.get("full_gpu"), bool)
-                or row.get("context") != next_context(rows)):
+        if (
+            row.get("digest") != digest
+            or row.get("ollama") != version
+            or not isinstance(row.get("full_gpu"), bool)
+            or row.get("context") != next_context(rows)
+        ):
             raise RuntimeError("The refinement results are inconsistent")
         rows.append(row)
     while (ctx := next_context(rows)) is not None:

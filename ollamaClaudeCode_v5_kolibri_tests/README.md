@@ -6,7 +6,13 @@ This experiment tests Kolibri-1 Q3_K_S on the shared Ollama server. See [the run
 
 ## Run checks
 
-Install Python 3, `coverage` 7.14.0 and ShellCheck. Run `./localPipeline.sh`. This checks shell syntax, ShellCheck, Python compilation and unit tests. It requires at least 95% statement coverage across `residency.py` and `refine.py`. The tests do not contact the server.
+Install Python 3, `coverage` 7.14.0, `ruff` 0.17.2 and ShellCheck. Run `./localPipeline.sh`. This checks shell syntax, ShellCheck, Python compilation and unit tests. It requires at least 95% statement coverage across `residency.py` and `refine.py`. The tests do not contact the server.
+
+## Dashboard
+
+Open [dashboard.html](dashboard.html) in a browser. It is generated from the result files. Select a column heading to sort. The page reloads every 60 seconds. `dashboard_watch.py` updates the result snapshot and regenerates the page when a coding result arrives. Empty final TSV fields are shown as `-` in the dashboard snapshot; raw logs stay unchanged.
+
+![Screenshot of the generated dashboard](screenshots/dashboard.png)
 
 ## Scripts
 
@@ -16,6 +22,8 @@ Install Python 3, `coverage` 7.14.0 and ShellCheck. Run `./localPipeline.sh`. Th
 - `thinking-retry.sh` repeats v4 T1 with adaptive thinking as a separate arm.
 - `fidelity-retry.sh` repeats v4 T10 eight times and saves full API responses.
 - `deep-probe.sh` runs the v4 multi-turn and long-context tool gates after coding sessions.
+- `make_dashboard.py` generates the sortable dashboard from result files.
+- `dashboard_watch.py` updates the dashboard on filesystem events while the benchmark runs.
 - `coding-bench.sh` runs the v4 easy and hard fixtures in the existing sandbox image. It waits for the tool battery.
 - `agentic-battery.sh` runs v4 gates T2, T4, T5 and T8–T11 on both models. It waits for the near-limit test.
 - `near-limit.sh` waits for completed speed tests and retries retrieval below the overflow point.
@@ -26,6 +34,8 @@ Install Python 3, `coverage` 7.14.0 and ShellCheck. Run `./localPipeline.sh`. Th
 - `refine.py` searches the remaining context interval in steps of 1,024 tokens.
 - `residency.py` checks the server, tests context sizes and writes `results/residency.jsonl`. It resumes matching results and refuses to unload another model.
 - `localPipeline.sh` runs the local checks.
+- `test_dashboard.py` and `test_dashboard_watch.py` check report data and live updates.
+- `test_coding_patch.py` checks the copied harness patch and failing-test handling.
 - `test_fixture_baseline.py` checks scoring when a model commits fixture changes.
 - `test_pull.py` checks that failed preflight reads stop the pull.
 - `test_refine.py` checks the context search.

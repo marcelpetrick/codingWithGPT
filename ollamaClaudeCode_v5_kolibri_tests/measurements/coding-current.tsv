@@ -1,0 +1,5 @@
+date	ollama	model	fixture	thinking	run	verdict	hidden	wall_s	warm_s	calls	turns	in_tok	out_tok	think_chars	api_s	ttft_s	tools	sandbox_egress	note
+2026-11-04	0.40.11	kolibri1:q3ks-ctx147456-nothink-ab	easy	on	1	CHEAT	-	208	18.6	19	19	347463	4551	8074	224.7	25.3	Bashx12,Readx5,Editx1	internet=000blocked relay=200	green without a source change
+2026-11-04	0.40.11	qwen3.6:35b-a3b-q4_K_M-agentic	easy	on	1	PASS	-	27	12.1	6	10	19407	2463	1015	36.8	15.3	Bashx5,Readx3,Editx1	internet=000blocked relay=200	-
+2026-11-04	0.40.11	kolibri1:q3ks-ctx147456-nothink-ab	hard	on	1	PASS	18/18	483	18.1	18	13	336960	33553	37645	688.7	8.8	Bashx9,Readx9,Editx3,Agentx2,SendMessagex1	internet=000blocked relay=200	-
+2026-11-04	0.40.11	qwen3.6:35b-a3b-q4_K_M-agentic	hard	on	1	PASS	16/18	48	12.5	11	17	25303	4600	1581	59.0	16.5	Readx6,Bashx5,Editx5	internet=000blocked relay=200	-
