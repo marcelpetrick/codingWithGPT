@@ -33,6 +33,8 @@ new='''        with urllib.request.urlopen(req, timeout=timeout) as r:
             response = json.load(r)
         with (HERE / "results" / "api.raw.jsonl").open("a") as log:
             log.write(json.dumps({"path": path, "body": body, "response": response}) + "\\n")
+        if (path == "/v1/messages" and not response.get("content")) or (path == "/api/chat" and not (response.get("message") or {}).get("content")):
+            return {"error": "empty API content"}
         return response'''
 assert s.count(old)==1
 s=s.replace(old,new)

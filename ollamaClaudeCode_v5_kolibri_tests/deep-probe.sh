@@ -37,8 +37,11 @@ assert s.count("d.get('content',[])")==7
 s=s.replace("d.get('content',[])", "(d.get('content') or [])")
 s=s.replace('set -uo pipefail','set -euo pipefail')
 old='  resp=$(curl -s --max-time "$TIMEOUT" -X POST "$MSG_URL" "${HDR[@]}" -d "$body" 2>&1)'
-new='  resp=$(curl -fsS --max-time "$TIMEOUT" -X POST "$MSG_URL" "${HDR[@]}" -d "$body") || return $?\n  printf "%s" "$resp" | python3 -c \'import json,sys; d=json.load(sys.stdin); assert not d.get("error"), "API error"\' || return $?'
+new='  resp=$(curl -fsS --max-time "$TIMEOUT" -X POST "$MSG_URL" "${HDR[@]}" -d "$body") || return $?\n  printf "%s\\n" "$resp" >> "$RAW"\n  printf "%s" "$resp" | python3 -c \'import json,sys; d=json.load(sys.stdin); assert not d.get("error") and d.get("content"), "API error or empty content"\' || return $?'
 assert s.count(old)==1
+raw_line='  printf \'%s\\n\' "$resp" >> "$RAW"\n'
+assert s.count(raw_line)==1
+s=s.replace(raw_line,"")
 s=s.replace(old,new)
 for line in ('needle_test 2700  4k','needle_test 10700 16k','needle_test 40000 60k','needle_test 80000 120k'):
     assert s.count(line)==1

@@ -23,6 +23,10 @@ import sys
 from pathlib import Path
 p=Path(sys.argv[1]); s=p.read_text(); old='d.get("content", [])'; new='(d.get("content") or [])'
 assert s.count(old)==1
+s=s.replace(old,new)
+old='def judge(gate, d):'
+new='def judge(gate, d):\n    if not d.get("content"):\n        return "ERROR", "empty API content"'
+assert s.count(old)==1
 p.write_text(s.replace(old,new))
 PY
 python3 -u "$out/gate-rerun.py" --n 8 --gate T1 "$model"

@@ -27,7 +27,10 @@ p=Path(sys.argv[1]);s=p.read_text()
 for old,new in [('d.get("content", [])','(d.get("content") or [])'),('"thinking": {"type": "disabled"}','"thinking": {"type": "adaptive"}')]:
     assert s.count(old)==1
     s=s.replace(old,new)
-p.write_text(s)
+old='def judge(gate, d):'
+new='def judge(gate, d):\n    if not d.get("content"):\n        return "ERROR", "empty API content"'
+assert s.count(old)==1
+p.write_text(s.replace(old,new))
 PY
 NO_PROXY='*' no_proxy='*' python3 -u "$out/gate-rerun.py" --n 8 --gate T1 "$model"
 curl --noproxy '*' -fsS -m 10 "$base/api/ps" | python3 -c 'import json,sys; m=json.load(sys.stdin)["models"]; assert len(m)==1 and m[0]["name"].lower()==sys.argv[1].lower(), "Unexpected resident model"; assert m[0]["size_vram"]>=m[0]["size"], "GPU spill"' "$model"

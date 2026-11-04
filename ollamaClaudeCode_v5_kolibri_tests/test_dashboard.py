@@ -48,6 +48,14 @@ class DashboardTest(unittest.TestCase):
                 "Current coding sessions", (root / "dashboard.html").read_text()
             )
 
+    def test_empty_gate_responses_are_not_scored(self):
+        rows = [
+            {"verdict": "PASS", "response": {"content": [{"type": "tool_use"}]}},
+            {"verdict": "PARTIAL", "response": {"content": [{"type": "tool_use"}]}},
+            {"verdict": "FAIL", "response": {"content": None}},
+        ]
+        self.assertEqual(dashboard.gate_counts(rows), (1, 2, 1))
+
     def test_computes_medians_and_rescore_match(self):
         speed = [
             dict(

@@ -1,10 +1,10 @@
 # Kolibri Q3 experiment
 
-Version: 0.3.5. Started: 2026-11-04.
+Version: 0.3.6. Started: 2026-11-04.
 
 ## Verdict
 
-Kolibri Q3_K_S runs on Ollama 0.40.11. The highest tested full-GPU context is 147,456 tokens. At 148,480 tokens, the server reports a spill. Retrieval passed at 131,506 prompt tokens. The stock and corrected templates both failed the first tool-call reliability gate.
+Kolibri Q3_K_S runs on Ollama 0.40.11. The highest tested full-GPU context is 147,456 tokens. At 148,480 tokens, the server reports a spill. Retrieval passed at 131,506 prompt tokens. The stock template failed the first tool-call gate. The corrected-template gate is unresolved because six API responses were empty.
 
 ## Plan and decision rules
 
@@ -80,19 +80,21 @@ The sandbox uses Claude Code 2.1.274 and the same 147,456-token client limit for
 
 ## Agentic gates
 
-The corrected-template Kolibri arm and the Qwen control each passed 3/3 trials for T2, T4, T5, T8, T9 and T11. Kolibri passed 0/3 T10 argument-fidelity trials. The control passed 3/3. The Kolibri failures need eight reruns and raw response inspection before classification. T1 was separately 1/8 for this Kolibri arm. The extra-gate log records verdicts and details, not complete responses. Coding sessions are running in the sandbox.
+The corrected-template Kolibri arm and the Qwen control each passed 3/3 trials for T2, T4, T5, T8, T9 and T11. Kolibri passed 0/3 T10 argument-fidelity trials. The control passed 3/3. The Kolibri failures need eight reruns and raw response inspection before classification. T1 produced one pass and one malformed call among two scoreable corrected-template responses. Six empty responses are invalid. The extra-gate log records verdicts and details, not complete responses. Coding sessions are running in the sandbox.
+
+The corrected-template T1 test continued after empty API content. That violated the fail-fast rule. Its six empty responses are retained as invalid, not as model failures. The copied scorers now save the raw response and stop on empty content.
 
 ## Template investigation
 
 The stock Ollama template always appends `<think>`, even when thinking is disabled. The [official tokenizer template](https://huggingface.co/Aleph-Alpha/Kolibri-1/blob/main/tokenizer_config.json) instead closes the thinking block for disabled thinking. `templates/kolibri-no-think.gotmpl` changes only that generation prefix. It is an experimental A/B arm based on the installed Ollama template. It does not yet implement every detail of the official template. Keep its results separate from the stock template.
 
-The stock-template T1 smoke returned no tool call. The first corrected-template trial returned `content: null` and crashed the v4 scorer before it saved the response. A second identical request returned the correct `write_file` call. The stock template passed 2 of 8 T1 trials. The corrected template passed 1 of 8 T1 trials. Six returned null content. One emitted nested tool arguments. This exceeds the pre-registered 3-of-8 failure threshold for this configuration. It does not identify whether the cause is the model, parser or template. Raw responses are in `measurements/`.
+The stock-template T1 smoke returned no tool call. The first corrected-template trial returned `content: null` and crashed the v4 scorer before it saved the response. A second identical request returned the correct `write_file` call. The stock template passed 2 of 8 T1 trials. The corrected template returned one valid call, one malformed call and six null-content responses. The six empty responses are invalid under the run rules. The original wrapper incorrectly continued and labeled them failures. The model gate is therefore unresolved. The cause may be the model, parser or template. Raw responses are in `measurements/`.
 
 ## Agentic smoke test
 
 `agentic-smoke.sh` copies the v4 T1 gate into the results directory and runs it once. It checks server version, idle state, residency and context. The single trial is a smoke test, not a reliability score.
 
-`gate-reliability.sh` repeats T1 eight times. It patches the copied v4 scorer to handle `content: null`. The request and scoring conditions otherwise stay the same. Apply the pre-registered 3-of-8 failure threshold instead of the copied summary label.
+`gate-reliability.sh` repeats T1 eight times. It patches the copied v4 scorer to stop and save the raw response when content is empty. The request and scoring conditions otherwise stay the same. Apply the pre-registered 3-of-8 failure threshold instead of the copied summary label.
 
 `needle-probe.sh` runs the v4 retrieval ladder on the corrected-template arm. It preserves the prompts and adds fail-fast checks for transport errors and empty answers.
 

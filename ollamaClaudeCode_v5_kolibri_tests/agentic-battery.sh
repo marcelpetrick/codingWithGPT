@@ -24,7 +24,22 @@ for name in ('gate-rerun.py','gate-extra.py'):
     p=root/name; s=p.read_text(); old='d.get("content", [])'; new='(d.get("content") or [])'
     assert s.count(old)==(1 if name == "gate-rerun.py" else 2), name
     p.write_text(s.replace(old,new))
-p=root/'gate-extra.py'; s=p.read_text(); old='                verdicts.append(v)'; new='                if v == "ERROR":\n                    raise SystemExit("gate transport error: " + detail)\n                verdicts.append(v)'
+p=root/'gate-rerun.py'; s=p.read_text(); old_judge='def judge(gate, d):'; new_judge='def judge(gate, d):\n    if not d.get("content"):\n        return "ERROR", "empty API content"'
+assert s.count(old_judge)==1
+p.write_text(s.replace(old_judge,new_judge))
+p=root/'gate-extra.py'; s=p.read_text()
+old_post='''        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return json.load(r)'''
+new_post='''        with urllib.request.urlopen(req, timeout=timeout) as r:
+            response = json.load(r)
+        with (HERE / "results" / "api.raw.jsonl").open("a") as log:
+            log.write(json.dumps({"path": path, "body": body, "response": response}) + "\\n")
+        if (path == "/v1/messages" and not response.get("content")) or (path == "/api/chat" and not (response.get("message") or {}).get("content")):
+            return {"error": "empty API content"}
+        return response'''
+assert s.count(old_post)==1
+s=s.replace(old_post,new_post)
+old='                verdicts.append(v)'; new='                if v == "ERROR":\n                    raise SystemExit("gate transport error: " + detail)\n                verdicts.append(v)'
 assert s.count(old)==1
 p.write_text(s.replace(old,new))
 PY

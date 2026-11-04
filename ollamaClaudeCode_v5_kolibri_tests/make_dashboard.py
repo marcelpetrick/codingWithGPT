@@ -109,36 +109,33 @@ def speed_table(rows):
     )
 
 
+def gate_counts(rows):
+    valid = [row for row in rows if row.get("response", {}).get("content")]
+    return (
+        sum(row["verdict"] == "PASS" for row in valid),
+        len(valid),
+        len(rows) - len(valid),
+    )
+
+
 def gate_table(extra, basic, short, stock, adaptive, reason_arm, deep):
     body = []
-    for label, rows in (("Stock template", stock), ("Corrected template", short)):
-        passed = sum(r["verdict"] == "PASS" for r in rows)
+    for label, rows in (
+        ("Stock template", stock),
+        ("Corrected template", short),
+        ("Adaptive thinking", adaptive),
+        ("Reasoning instruction", reason_arm),
+    ):
+        if not rows:
+            continue
+        passed, valid, invalid = gate_counts(rows)
         body.append(
             "<tr>"
             + model_cell(rows[0]["model"])
             + text_cell("T1 · write file")
             + text_cell(label)
-            + text_cell(f"{passed}/{len(rows)}", passed)
-            + "</tr>"
-        )
-    if adaptive:
-        passed = sum(row["verdict"] == "PASS" for row in adaptive)
-        body.append(
-            "<tr>"
-            + model_cell(adaptive[0]["model"])
-            + text_cell("T1 · write file")
-            + text_cell("Adaptive thinking")
-            + text_cell(f"{passed}/{len(adaptive)}", passed)
-            + "</tr>"
-        )
-    if reason_arm:
-        passed = sum(row["verdict"] == "PASS" for row in reason_arm)
-        body.append(
-            "<tr>"
-            + model_cell(reason_arm[0]["model"])
-            + text_cell("T1 · write file")
-            + text_cell("Reasoning instruction")
-            + text_cell(f"{passed}/{len(reason_arm)}", passed)
+            + text_cell(f"{passed}/{valid}", passed / valid if valid else -1)
+            + text_cell(invalid)
             + "</tr>"
         )
     for model, row in deep:
@@ -155,6 +152,7 @@ def gate_table(extra, basic, short, stock, adaptive, reason_arm, deep):
             + text_cell(row["test"].replace("_", " · ", 1))
             + text_cell("Long-context run")
             + text_cell(count)
+            + text_cell("—")
             + "</tr>"
         )
     for row in basic:
@@ -166,7 +164,8 @@ def gate_table(extra, basic, short, stock, adaptive, reason_arm, deep):
             + text_cell(
                 "Corrected" if row["model"].startswith("kolibri1:") else "Control"
             )
-            + text_cell(f"{passed}/{total}", int(passed))
+            + text_cell(f"{passed}/{total}", int(passed) / int(total))
+            + text_cell("—")
             + "</tr>"
         )
     for row in extra:
@@ -177,7 +176,10 @@ def gate_table(extra, basic, short, stock, adaptive, reason_arm, deep):
             + text_cell(
                 "Corrected" if row["model"].startswith("kolibri1:") else "Control"
             )
-            + text_cell(f"{row['pass_n']}/{row['runs']}", int(row["pass_n"]))
+            + text_cell(
+                f"{row['pass_n']}/{row['runs']}", int(row["pass_n"]) / int(row["runs"])
+            )
+            + text_cell("—")
             + "</tr>"
         )
     columns = [
@@ -185,13 +187,17 @@ def gate_table(extra, basic, short, stock, adaptive, reason_arm, deep):
         ("Gate", "The v4 tool or structured-output test."),
         ("Configuration", "The template or control used for this arm."),
         (
-            "Passes",
-            "Passes divided by trials. Three trials are preliminary; failures need eight reruns.",
+            "Valid passes",
+            "Passes divided by scoreable responses. Three trials are preliminary.",
+        ),
+        (
+            "Empty",
+            "Empty API content is invalid and excluded from the pass count. A dash means the original log lacks enough detail.",
         ),
     ]
     return table(
         "Agentic gates",
-        "T1 was repeated eight times for both Kolibri templates. The other gates have three trials per model.",
+        "Empty API responses are invalid. T1 retains eight raw responses per original arm; other gates have three trials per model.",
         columns,
         body,
     )
@@ -334,8 +340,7 @@ def render(
         for r in needle
         if "CRIMSON-PANGOLIN-4471" in r["message"]["content"].upper()
     )
-    gate_passes = sum(row["verdict"] == "PASS" for row in short)
-    gate_total = len(short)
+    gate_passes, gate_total, gate_empty = gate_counts(short)
     built = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     body = (
         speed_table(speed)
@@ -352,7 +357,7 @@ def render(
         + f"{recall:,}"
         + """</strong><p>prompt tokens in the longest successful test</p></div><div class="card"><small>First tool gate <span class="info" title="The corrected-template arm was tested on the T1 file-write call.">i</span></small><strong>"""
         + f"{gate_passes} / {gate_total}"
-        + """</strong><p>correct calls with the corrected template</p></div></div>"""
+        + f"</strong><p>correct among valid responses; {gate_empty} empty</p></div></div>"
         + body
         + """<footer>Generated from result files at """
         + esc(built)
