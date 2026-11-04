@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.31. Started: 2026-11-04.
+Version: 0.2.32. Started: 2026-11-04.
 
 ## Verdict
 
@@ -105,6 +105,8 @@ The stock-template T1 smoke returned no tool call. The first corrected-template 
 `fidelity-retry.sh` waits for the deep gates and reruns T10 eight times. It saves each request and complete response for diagnosis.
 
 `thinking-retry.sh` repeats T1 eight times with adaptive thinking. It labels this A/B arm separately from the disabled-thinking gate.
+
+The first control hard run produced a saved tree with 16/18 hidden tests. Strict shell mode stopped the scorer before it saved a timing row. This incomplete run is retained separately and repeated. The resume logic skips recorded sessions.
 
 ## Resume here
 
