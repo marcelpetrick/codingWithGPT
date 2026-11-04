@@ -91,13 +91,17 @@ class MoreResidencyTests(unittest.TestCase):
         responses = [{"version": "0.40.11"}, {"models": [{"name": residency.MODEL, "digest": "abc"}]}]
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp) / "results" / "residency.jsonl"
-            results = [{"context": 4096, "full_gpu": True}, {"context": 8192, "full_gpu": False}]
+            results = [{"context": 4096, "full_gpu": True, "ollama": "0.40.11", "digest": "abc"}, {"context": 8192, "full_gpu": False, "ollama": "0.40.11", "digest": "abc"}]
             with patch.object(residency, "RESULTS", output), patch.object(residency, "request", side_effect=responses), patch.object(residency, "ensure_idle"), patch.object(residency, "unload_ours") as unload, patch.object(residency, "run_one", side_effect=results):
                 residency.main()
                 self.assertEqual(unload.call_count, 2)
                 self.assertEqual(len(output.read_text().splitlines()), 2)
+            with patch.object(residency, "RESULTS", output), patch.object(residency, "request", side_effect=responses), patch.object(residency, "ensure_idle"), patch.object(residency, "run_one") as run_one:
+                residency.main()
+                run_one.assert_not_called()
+            output.write_text('{"context": 123}\n')
             with patch.object(residency, "RESULTS", output), patch.object(residency, "request", side_effect=responses), patch.object(residency, "ensure_idle"):
-                with self.assertRaisesRegex(RuntimeError, "Result file exists"):
+                with self.assertRaisesRegex(RuntimeError, "do not match"):
                     residency.main()
 
     def test_main_propagates_probe_errors(self):

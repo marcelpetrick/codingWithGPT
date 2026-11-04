@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.1.5. Started: 2026-11-04.
+Version: 0.1.6. Started: 2026-11-04.
 
 ## Verdict
 
@@ -46,7 +46,7 @@ The model card's Ollama warning predates upstream support. [Ollama 0.40.11 pins 
 
 ## Residency script
 
-`after-pull.sh` waits for the pull lock, then starts `residency.py`. The probe checks server version, tag, idle state and response completeness. It records each completed rung in `results/residency.jsonl`. It stops at the first spill or error. It unloads only its exact model tag. The ladder establishes a tested floor, not an exact maximum or verified retrieval depth.
+`after-pull.sh` waits for the pull lock, then starts `residency.py`. The probe checks server version, tag, idle state and response completeness. It records each completed rung in `results/residency.jsonl`. It resumes only when recorded contexts, model digest and server version match. It stops at the first spill or error. It unloads only its exact model tag. The ladder establishes a tested floor, not an exact maximum or verified retrieval depth.
 
 ## Resume here
 

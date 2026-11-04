@@ -82,9 +82,19 @@ def main():
     if len(candidates) != 1 or not candidates[0].get("digest"):
         raise RuntimeError("Model is missing or has no digest")
     RESULTS.parent.mkdir(exist_ok=True)
+    completed = []
     if RESULTS.exists():
-        raise RuntimeError("Result file exists; review it before restarting")
-    for ctx in CONTEXTS:
+        with RESULTS.open(encoding="utf-8") as existing:
+            completed = [json.loads(line) for line in existing if line.strip()]
+        for index, row in enumerate(completed):
+            if (index >= len(CONTEXTS) or row.get("context") != CONTEXTS[index]
+                    or row.get("ollama") != version or row.get("digest") != candidates[0]["digest"]
+                    or not isinstance(row.get("full_gpu"), bool)
+                    or (index < len(completed) - 1 and not row["full_gpu"])):
+                raise RuntimeError("Existing results do not match this run")
+        if completed and not completed[-1]["full_gpu"]:
+            return
+    for ctx in CONTEXTS[len(completed):]:
         try:
             result = run_one(ctx, version, candidates[0]["digest"])
             with RESULTS.open("a", encoding="utf-8") as output:
