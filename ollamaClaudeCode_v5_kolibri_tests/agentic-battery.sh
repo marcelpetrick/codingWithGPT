@@ -22,7 +22,7 @@ import sys
 root=Path(sys.argv[1])
 for name in ('gate-rerun.py','gate-extra.py'):
     p=root/name; s=p.read_text(); old='d.get("content", [])'; new='(d.get("content") or [])'
-    assert s.count(old)==1, name
+    assert s.count(old)==(1 if name == "gate-rerun.py" else 2), name
     p.write_text(s.replace(old,new))
 p=root/'gate-extra.py'; s=p.read_text(); old='                verdicts.append(v)'; new='                if v == "ERROR":\n                    raise SystemExit("gate transport error: " + detail)\n                verdicts.append(v)'
 assert s.count(old)==1
