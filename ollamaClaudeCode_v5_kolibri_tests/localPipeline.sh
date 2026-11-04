@@ -3,7 +3,9 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 bash -n localPipeline.sh pull-model.sh after-pull.sh
-python3 -m py_compile residency.py
+python3 -m py_compile residency.py test_residency.py
+python3 -m unittest -v test_residency
+shellcheck localPipeline.sh pull-model.sh after-pull.sh
 test -s KOLIBRI_Q3_RUN.md
 grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' VERSION
 git diff --check -- KOLIBRI_Q3_RUN.md VERSION localPipeline.sh
