@@ -1,0 +1,40 @@
+{
+  "model": "kolibri1:q3ks-ctx147456-nothink-ab",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Write hello world to /tmp/test.txt"
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "write_file",
+        "description": "Write content to a file",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ]
+        }
+      }
+    }
+  ],
+  "think": false,
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_predict": 512
+  }
+}
