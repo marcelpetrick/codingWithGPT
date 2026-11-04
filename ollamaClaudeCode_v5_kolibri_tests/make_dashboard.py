@@ -109,7 +109,7 @@ def speed_table(rows):
     )
 
 
-def gate_table(extra, basic, short, stock, adaptive, deep):
+def gate_table(extra, basic, short, stock, adaptive, reason_arm, deep):
     body = []
     for label, rows in (("Stock template", stock), ("Corrected template", short)):
         passed = sum(r["verdict"] == "PASS" for r in rows)
@@ -129,6 +129,16 @@ def gate_table(extra, basic, short, stock, adaptive, deep):
             + text_cell("T1 · write file")
             + text_cell("Adaptive thinking")
             + text_cell(f"{passed}/{len(adaptive)}", passed)
+            + "</tr>"
+        )
+    if reason_arm:
+        passed = sum(row["verdict"] == "PASS" for row in reason_arm)
+        body.append(
+            "<tr>"
+            + model_cell(reason_arm[0]["model"])
+            + text_cell("T1 · write file")
+            + text_cell("Reasoning instruction")
+            + text_cell(f"{passed}/{len(reason_arm)}", passed)
             + "</tr>"
         )
     for model, row in deep:
@@ -309,6 +319,7 @@ def render(
     short,
     stock,
     adaptive,
+    reason_arm,
     deep,
     coding,
     corrections,
@@ -328,7 +339,7 @@ def render(
     built = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     body = (
         speed_table(speed)
-        + gate_table(extra, basic, short, stock, adaptive, deep)
+        + gate_table(extra, basic, short, stock, adaptive, reason_arm, deep)
         + coding_table(coding, corrections)
         + history_table(history)
         + (bilingual_table(bilingual) if bilingual else "")
@@ -367,6 +378,8 @@ def main():
         extra += read_tsv(fidelity)
     adaptive_path = MEASUREMENTS / "adaptive-t1.jsonl"
     adaptive = read_jsonl(adaptive_path) if adaptive_path.exists() else []
+    reason_path = MEASUREMENTS / "reason-effort-t1.jsonl"
+    reason_arm = read_jsonl(reason_path) if reason_path.exists() else []
     deep = []
     for filename, tag in (
         ("deep-kolibri.tsv", "kolibri1:q3ks-ctx147456-nothink-ab"),
@@ -384,6 +397,7 @@ def main():
         read_jsonl(MEASUREMENTS / "nothink-t1-eight.jsonl"),
         read_jsonl(MEASUREMENTS / "stock-t1-eight.jsonl"),
         adaptive,
+        reason_arm,
         deep,
         coding,
         json.loads((MEASUREMENTS / "coding-rescores.json").read_text()),

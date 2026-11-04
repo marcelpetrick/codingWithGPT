@@ -39,6 +39,10 @@ def sync():
             "adaptive-t1.jsonl",
         ),
         (RESULTS / "bilingual" / "results.jsonl", "bilingual.jsonl"),
+        (
+            RESULTS / "t1-reason-effort" / "results" / "gate-rerun.raw.jsonl",
+            "reason-effort-t1.jsonl",
+        ),
     )
     for source, name in sources:
         target = MEASUREMENTS / name
@@ -78,6 +82,7 @@ def watch():
             RESULTS / "fidelity" / "results",
             RESULTS / "t1-adaptive" / "results",
             RESULTS / "bilingual",
+            RESULTS / "t1-reason-effort" / "results",
         )
 
         def add_existing():
@@ -111,7 +116,7 @@ def watch():
                     add_existing()
                 if mask & CLOSE_WRITE:
                     changed = True
-                    if descriptors.get(wd) == RESULTS and name == "bilingual.log":
+                    if descriptors.get(wd) == RESULTS and name == "reasoning.log":
                         finished = True
             if changed:
                 sync()
