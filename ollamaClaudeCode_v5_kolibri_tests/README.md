@@ -34,6 +34,7 @@ Open [dashboard.html](dashboard.html) in a browser. It is generated from the res
 - `thinking-retry.sh` repeats v4 T1 with adaptive thinking as a separate arm.
 - `fidelity-retry.sh` repeats v4 T10 eight times and saves full API responses.
 - `deep-probe.sh` runs the v4 multi-turn and long-context tool gates after coding sessions.
+- `raw-diagnostic.sh` tests a T1-shaped raw prompt without the chat tool parser.
 - `reasoning-arm.sh` tests the official disabled-reasoning instruction as a separate T1 arm.
 - `bilingual-probe.sh` waits for the adaptive-thinking gate, then starts `bilingual.py`.
 - `bilingual.py` runs paired English and German arithmetic prompts with exact-answer scoring.

@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.3.9. Started: 2026-11-04.
+Version: 0.3.10. Started: 2026-11-04.
 
 ## Verdict
 
@@ -123,6 +123,8 @@ The first control hard run produced a saved tree with 16/18 hidden tests. Strict
 `bilingual-probe.sh` waits for adaptive-thinking tests. It then runs three paired English and German arithmetic prompts per model. These are smoke checks, not a broad language-quality benchmark.
 
 `reasoning-arm.sh` tests one further template change after the bilingual stage. It adds the official disabled-reasoning instruction to the corrected-template system message. It repeats T1 eight times and keeps this arm separate. Three or more failures remain a systematic failure.
+
+`raw-diagnostic.sh` tests one T1-shaped prompt using `/api/generate` with `raw: true`. The manually rendered prompt approximates the corrected template; it is a diagnostic arm, not a score comparable to T1. It saves the request and response.
 
 ## Resume here
 
