@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.3. Started: 2026-11-04.
+Version: 0.2.4. Started: 2026-11-04.
 
 ## Verdict
 
@@ -26,6 +26,8 @@ A result requires a completed request and a nonempty response. Use one request a
 | Testable | Eliasfpv28 Q3_K_S, 33,870,242,400 bytes | [Model card](https://huggingface.co/Eliasfpv28/Kolibri-1-Q3_K_S-GGUF), revision `3003c47b0d4c47fae0c40f645397b456b50d8931`. Published full-file SHA-256: `26ce4a2f618e3d55d401faaa78bb144057268b8303e645b6e3d552258d1d34aa`. The publisher tested 4,096 tokens on a patched runtime. |
 | Known but not fitting | Hob-forge Q3_K_M, approximately 37.5 GB | [Model card](https://huggingface.co/Hob-forge/Kolibri-1-GGUF). We previously measured about 35.56 GB usable VRAM. |
 | Blocked | Patched standalone runtime on the server | Shell access is denied. Recheck if the admin supplies an isolated runtime or access. |
+
+The publisher later reported a 32,768-token configuration on two GPUs with a Q8 KV cache. The publisher did not validate full 32k inputs. The same note says its original source revision cannot be resolved. See [LOCAL-RUNTIME.md](https://huggingface.co/Eliasfpv28/Kolibri-1-Q3_K_S-GGUF/blob/3003c47b0d4c47fae0c40f645397b456b50d8931/LOCAL-RUNTIME.md). This evidence does not prove a fit or quality on our server.
 
 The model card's Ollama warning predates upstream support. [Ollama 0.40.11 pins llama.cpp b11845](https://github.com/ollama/ollama/blob/v0.40.11/LLAMA_CPP_VERSION). [That revision registers `kolibri1`](https://github.com/ggml-org/llama.cpp/blob/b11845/src/llama-arch.cpp). This is source evidence, not a successful load.
 
