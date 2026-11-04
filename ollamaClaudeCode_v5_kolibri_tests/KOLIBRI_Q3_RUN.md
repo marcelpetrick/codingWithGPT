@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.3.17. Started: 2026-11-04.
+Version: 0.3.18. Started: 2026-11-04.
 
 ## Verdict
 
@@ -84,7 +84,7 @@ The full v4 T3/T7 stage stopped on empty API content in its first request. The r
 
 ## Agentic gates
 
-The corrected-template Kolibri arm and the Qwen control each passed 3/3 trials for T2, T4, T5, T8, T9 and T11. Kolibri passed 0/3 T10 argument-fidelity trials. The control passed 3/3. The Kolibri failures need eight reruns and raw response inspection before classification. T1 produced one pass and one malformed call among two scoreable corrected-template responses. Six empty responses are invalid. The extra-gate log records verdicts and details, not complete responses. Coding sessions are running in the sandbox.
+The corrected-template Kolibri arm and the Qwen control each passed 3/3 trials for T2, T4, T5, T8, T9 and T11. Kolibri passed 0/3 T10 argument-fidelity trials. The control passed 3/3. The three preliminary T10 responses lack complete raw data. The first diagnostic rerun returned null content and stopped. It is invalid and does not establish a T10 score. See `measurements/fidelity-api.jsonl`. T1 produced one pass and one malformed call among two scoreable corrected-template responses. Six empty responses are invalid. The extra-gate log records verdicts and details, not complete responses. Coding sessions are running in the sandbox.
 
 The corrected-template T1 test continued after empty API content. That violated the fail-fast rule. Its six empty responses are retained as invalid, not as model failures. The copied scorers now save the raw response and stop on empty content.
 
