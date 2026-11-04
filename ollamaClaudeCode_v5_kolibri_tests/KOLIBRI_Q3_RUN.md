@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.17. Started: 2026-11-04.
+Version: 0.2.18. Started: 2026-11-04.
 
 ## Verdict
 
@@ -74,6 +74,8 @@ The stock-template T1 smoke returned no tool call. The first corrected-template 
 `needle-probe.sh` runs the v4 retrieval ladder on the corrected-template arm. It preserves the prompts and adds fail-fast checks for transport errors and empty answers.
 
 `speed-probe.sh` runs v4 throughput prompts for Kolibri and the same-session Qwen control. It alternates models and unloads each after a sample. It saves raw responses and stops on errors, empty answers or spills. It takes three cold samples per prompt size and model.
+
+`near-limit.sh` waits for all 18 speed samples and retries retrieval at 60,000 and 70,000 words. Compare the reported prompt token counts with the 147,456-token allocation before scoring.
 
 ## Resume here
 

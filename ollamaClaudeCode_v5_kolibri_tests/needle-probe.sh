@@ -6,7 +6,11 @@ set -euo pipefail
 cd "$(dirname "$0")"
 base='http://192.168.100.67:11434'
 model='kolibri1:q3ks-ctx147456-nothink-ab'
-out='results/needle-nothink'
+label="${1:-nothink}"
+depths="${2:-2700 10700 40000 80000}"
+[[ "$label" =~ ^[a-z0-9_-]+$ ]] || { echo 'Invalid result label.' >&2; exit 1; }
+[[ "$depths" =~ ^[0-9\ ]+$ ]] || { echo 'Invalid depths.' >&2; exit 1; }
+out="results/needle-$label"
 mkdir -p "$out/results"
 exec 9>results/needle.lock
 flock -n 9 || { echo 'Another needle test is running.' >&2; exit 1; }
@@ -26,6 +30,6 @@ for old,new in changes:
     s=s.replace(old,new)
 p.write_text(s)
 PY
-NO_PROXY='*' no_proxy='*' bash "$out/needle-v2.sh" --model "$model" --num-predict 2048 --depths '2700 10700 40000 80000'
+NO_PROXY='*' no_proxy='*' bash "$out/needle-v2.sh" --model "$model" --num-predict 2048 --depths "$depths"
 curl --noproxy '*' -fsS -m 10 "$base/api/ps" | python3 -c 'import json,sys; m=json.load(sys.stdin)["models"]; assert len(m)==1 and m[0]["name"].lower()==sys.argv[1].lower(), "Unexpected resident model"; assert m[0]["size_vram"]>=m[0]["size"], "GPU spill"; print("Final resident context:",m[0]["context_length"])' "$model"
 curl --noproxy '*' -fsS -m 30 "$base/api/generate" -H 'Content-Type: application/json' --data "{\"model\":\"$model\",\"keep_alive\":0}" >/dev/null
