@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.0.2. Started: 2026-11-04.
+Version: 0.1.0. Started: 2026-11-04.
 
 ## Verdict
 
@@ -23,7 +23,7 @@ A result requires a completed request and a nonempty response. Use one request a
 
 | Class | Candidate | Evidence |
 | --- | --- | --- |
-| Testable | Eliasfpv28 Q3_K_S, 33,870,240,992 bytes | [Model card](https://huggingface.co/Eliasfpv28/Kolibri-1-Q3_K_S-GGUF), revision `3003c47b0d4c47fae0c40f645397b456b50d8931`. Published full-file SHA-256: `26ce4a2f618e3d55d401faaa78bb144057268b8303e645b6e3d552258d1d34aa`. The publisher tested 4,096 tokens on a patched runtime. |
+| Testable | Eliasfpv28 Q3_K_S, 33,870,242,400 bytes | [Model card](https://huggingface.co/Eliasfpv28/Kolibri-1-Q3_K_S-GGUF), revision `3003c47b0d4c47fae0c40f645397b456b50d8931`. Published full-file SHA-256: `26ce4a2f618e3d55d401faaa78bb144057268b8303e645b6e3d552258d1d34aa`. The publisher tested 4,096 tokens on a patched runtime. |
 | Known but not fitting | Hob-forge Q3_K_M, approximately 37.5 GB | [Model card](https://huggingface.co/Hob-forge/Kolibri-1-GGUF). We previously measured about 35.56 GB usable VRAM. |
 | Blocked | Patched standalone runtime on the server | Shell access is denied. Recheck if the admin supplies an isolated runtime or access. |
 
@@ -40,6 +40,10 @@ The model card's Ollama warning predates upstream support. [Ollama 0.40.11 pins 
 ## Pull script
 
 `pull-model.sh` checks the server version and idle state, then pulls the Q3_K_S tag. It skips an existing tag. It writes streaming progress to standard output and uses `results/pull.lock` to prevent duplicate local runs. It sends a desktop notification at exit.
+
+## Residency script
+
+`after-pull.sh` waits for the pull lock, then starts `residency.py`. The probe checks server version, tag, idle state and response completeness. It records each completed rung in `results/residency.jsonl`. It stops at the first spill or error. It unloads only its exact model tag. The ladder establishes a tested floor, not an exact maximum or verified retrieval depth.
 
 ## Resume here
 
