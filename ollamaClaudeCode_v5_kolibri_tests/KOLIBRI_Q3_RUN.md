@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.25. Started: 2026-11-04.
+Version: 0.2.26. Started: 2026-11-04.
 
 ## Verdict
 
@@ -101,6 +101,8 @@ The stock-template T1 smoke returned no tool call. The first corrected-template 
 `coding-bench.sh` runs three easy and three hard Claude Code sessions per model in the existing v4 sandbox image. Both models use the same 147,456-token client limit. The copied harness checks sandbox egress and refuses a missing working tree. The sandbox CLI version differs from the host; compare only the two sandbox arms.
 
 `deep-probe.sh` runs v4 T3 and T7 once per model after the coding stage. T7 itself repeats three times. The copied harness omits retrieval, already measured separately. It rejects malformed responses and uses safe scorer parsing instead of `eval`. A T7 prompt must report at least 40,000 tokens. Rerun any failure eight times before classification.
+
+`fidelity-retry.sh` waits for the deep gates and reruns T10 eight times. It saves each request and complete response for diagnosis.
 
 ## Resume here
 
