@@ -1,0 +1,6 @@
+=== needle-v2 on 192.168.100.67: kolibri1:q3ks-ctx147456-nothink-ab (baked num_ctx=147456, num_predict=2048) ===
+  5k     PASS      prompt_eval=4536    eval=13    done=stop     answer='CRIMSON-PANGOLIN-4471'
+  21k    PASS      prompt_eval=18349   eval=13    done=stop     answer='CRIMSON-PANGOLIN-4471'
+  80k    PASS      prompt_eval=74239   eval=13    done=stop     answer='CRIMSON-PANGOLIN-4471'
+  160k   FAIL      prompt_eval=73730   eval=49    done=stop     answer='The provided document does not contain any information about'
+=== finished ===

@@ -1,10 +1,10 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.16. Started: 2026-11-04.
+Version: 0.2.17. Started: 2026-11-04.
 
 ## Verdict
 
-Kolibri Q3_K_S runs on Ollama 0.40.11. The highest tested full-GPU context is 147,456 tokens. At 148,480 tokens, the server reports a spill. Retrieval and agentic quality remain unverified.
+Kolibri Q3_K_S runs on Ollama 0.40.11. The highest tested full-GPU context is 147,456 tokens. At 148,480 tokens, the server reports a spill. Retrieval passed at 74,239 prompt tokens. The stock and corrected templates both failed the first tool-call reliability gate.
 
 ## Plan and decision rules
 
@@ -54,6 +54,10 @@ The model card's Ollama warning predates upstream support. [Ollama 0.40.11 pins 
 `after-pull.sh` waits for the pull lock, then starts `residency.py`. The probe checks server version, tag, idle state and response completeness. It records each completed rung in `results/residency.jsonl`. It resumes only when recorded contexts, model digest and server version match. It stops at the first spill or error. It unloads only its exact model tag. The ladder establishes a tested floor, not an exact maximum or verified retrieval depth.
 
 `after-residency.sh` waits for the ladder lock and runs `refine.py`. The refinement requires a completed ladder. It records its own results and resumes only matching runs.
+
+## Retrieval results
+
+The corrected-template arm retrieved the v4 needle at 4,536, 18,349 and 74,239 reported prompt tokens. The 80,000-word request returned only 73,730 prompt tokens at a 147,456-token allocation. This indicates overflow and half-window truncation. Do not score that trial as a model failure. Rerun at a smaller input. The raw responses and log are in `measurements/`.
 
 ## Template investigation
 
