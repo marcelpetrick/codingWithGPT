@@ -5,3 +5,5 @@ date	ollama	model	fixture	thinking	run	verdict	hidden	wall_s	warm_s	calls	turns	
 2026-11-04	0.40.11	qwen3.6:35b-a3b-q4_K_M-agentic	hard	on	1	PASS	16/18	48	12.5	11	17	25303	4600	1581	59.0	16.5	Readx6,Bashx5,Editx5	internet=000blocked relay=200	-
 2026-11-04	0.40.11	kolibri1:q3ks-ctx147456-nothink-ab	easy	on	2	PASS	-	101	18.5	8	12	138067	3803	4650	119.9	28.4	Readx5,Bashx5,Editx1	internet=000blocked relay=200	-
 2026-11-04	0.40.11	qwen3.6:35b-a3b-q4_K_M-agentic	easy	on	2	PASS	-	28	12.6	6	10	19434	2605	1015	38.1	15.3	Bashx5,Readx3,Editx1	internet=000blocked relay=200	-
+2026-11-04	0.40.11	kolibri1:q3ks-ctx147456-nothink-ab	hard	on	2	PASS	18/18	389	18.4	18	30	488401	14986	42747	396.3	18.6	Bashx15,Readx9,Writex5	internet=000blocked relay=200	-
+2026-11-04	0.40.11	qwen3.6:35b-a3b-q4_K_M-agentic	hard	on	2	PASS	15/18	48	12.0	8	18	26597	4646	1392	59.3	16.6	Readx6,Editx6,Bashx5	internet=000blocked relay=200	-

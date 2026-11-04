@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.3.2. Started: 2026-11-04.
+Version: 0.3.3. Started: 2026-11-04.
 
 ## Verdict
 
@@ -73,6 +73,10 @@ Short prefill rates use only about 25 prompt tokens and are noisy. The output le
 ## Retrieval results
 
 The corrected-template arm retrieved the v4 needle at 4,536, 18,349 and 74,239 reported prompt tokens. The 80,000-word request returned only 73,730 prompt tokens at a 147,456-token allocation. This indicates overflow and half-window truncation. Do not score that trial as a model failure. Rerun at a smaller input. The smaller rerun passed at 112,417 and 131,506 prompt tokens. The raw responses and logs are in `measurements/`.
+
+## Coding results so far
+
+The sandbox uses Claude Code 2.1.274 and the same 147,456-token client limit for both models. Kolibri passed both completed easy runs in 208 and 101 seconds. It passed 18/18 held-out tests in both completed hard runs, in 483 and 389 seconds. The control passed its easy runs in 27 and 28 seconds. Its hard runs passed 16/18 and 15/18, both in 48 seconds. These are preliminary two-run results; the third run is pending. The first Kolibri easy row has a documented correction.
 
 ## Agentic gates
 
