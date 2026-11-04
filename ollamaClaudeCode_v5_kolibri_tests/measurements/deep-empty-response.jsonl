@@ -1,0 +1,1 @@
+{"id":"msg_71bb6468f3958d75400e4b4a","type":"message","role":"assistant","model":"kolibri1:q3ks-ctx147456-nothink-ab","content":null,"stop_reason":"end_turn","usage":{"input_tokens":147,"cache_read_input_tokens":0,"output_tokens":29}}

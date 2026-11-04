@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.3.8. Started: 2026-11-04.
+Version: 0.3.9. Started: 2026-11-04.
 
 ## Verdict
 
@@ -74,9 +74,13 @@ Short prefill rates use only about 25 prompt tokens and are noisy. The output le
 
 The corrected-template arm retrieved the v4 needle at 4,536, 18,349 and 74,239 reported prompt tokens. The 80,000-word request returned only 73,730 prompt tokens at a 147,456-token allocation. This indicates overflow and half-window truncation. Do not score that trial as a model failure. The default probe now rejects inputs above the calibrated 70,000-word limit and checks the model digest. The smaller rerun passed at 112,417 and 131,506 prompt tokens. The raw responses and logs are in `measurements/`.
 
-## Coding results so far
+## Coding results
 
-The sandbox uses Claude Code 2.1.274 and the same 147,456-token client limit for both models. Kolibri passed both completed easy runs in 208 and 101 seconds. It passed 18/18 held-out tests in both completed hard runs, in 483 and 389 seconds. The control passed its easy runs in 27 and 28 seconds. Its hard runs passed 16/18 and 15/18, both in 48 seconds. These are preliminary two-run results; the third run is pending. The first Kolibri easy row has a documented correction.
+The sandbox used Claude Code 2.1.274 and a 147,456-token client limit for both models. All three easy runs passed for both models. Kolibri took 101, 117 and 208 seconds. Qwen took 27, 28 and 30 seconds.
+
+Kolibri passed 18/18 held-out tests in all three hard runs. Its times were 389, 483 and 809 seconds. Qwen passed 16/18, 15/18 and 16/18. Its times were 48, 48 and 62 seconds. These are three runs of one Python fixture, not a general coding ranking. The first Kolibri easy row has a documented rescore.
+
+The full v4 T3/T7 stage stopped on empty API content in its first request. The raw response is in `measurements/deep-empty-response.jsonl`. No T3 or T7 score was recorded. The later independent checks were held pending diagnosis.
 
 ## Agentic gates
 
