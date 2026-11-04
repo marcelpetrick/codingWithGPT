@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.7. Started: 2026-11-04.
+Version: 0.2.8. Started: 2026-11-04.
 
 ## Verdict
 
@@ -54,6 +54,10 @@ The model card's Ollama warning predates upstream support. [Ollama 0.40.11 pins 
 `after-pull.sh` waits for the pull lock, then starts `residency.py`. The probe checks server version, tag, idle state and response completeness. It records each completed rung in `results/residency.jsonl`. It resumes only when recorded contexts, model digest and server version match. It stops at the first spill or error. It unloads only its exact model tag. The ladder establishes a tested floor, not an exact maximum or verified retrieval depth.
 
 `after-residency.sh` waits for the ladder lock and runs `refine.py`. The refinement requires a completed ladder. It records its own results and resumes only matching runs.
+
+## Agentic smoke test
+
+`agentic-smoke.sh` copies the v4 T1 gate into the results directory and runs it once. It checks server version, idle state, residency and context. The single trial is a smoke test, not a reliability score.
 
 ## Resume here
 
