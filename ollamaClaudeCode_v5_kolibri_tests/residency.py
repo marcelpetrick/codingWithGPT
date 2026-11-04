@@ -53,7 +53,7 @@ def unload_ours():
 def run_one(ctx, version, digest):
     ensure_idle()
     start = time.monotonic()
-    response = request("/api/generate", {"model": MODEL, "prompt": "What is 17 multiplied by 23? Answer briefly.", "stream": False, "keep_alive": "10m", "options": {"num_ctx": ctx, "num_predict": 128, "temperature": 0, "seed": 42}}, timeout=1800)
+    response = request("/api/generate", {"model": MODEL, "prompt": "What is 17 multiplied by 23? Answer briefly.", "stream": False, "think": False, "keep_alive": "10m", "options": {"num_ctx": ctx, "num_predict": 128, "temperature": 0, "seed": 42}}, timeout=1800)
     elapsed = time.monotonic() - start
     if not response.get("done") or not response.get("response", "").strip() or not response.get("prompt_eval_count"):
         raise RuntimeError("Incomplete or empty response")
