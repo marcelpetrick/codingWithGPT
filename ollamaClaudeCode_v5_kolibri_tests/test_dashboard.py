@@ -90,6 +90,9 @@ class DashboardTest(unittest.TestCase):
             (root / "adaptive-t1.jsonl").write_text(
                 (root / "nothink-t1-eight.jsonl").read_text()
             )
+            (root / "bilingual.jsonl").write_text(
+                '{"model":"kolibri1:test","language":"German","pass":true}\n'
+            )
             (root / "deep-kolibri.tsv").write_text(
                 "test\tresult\tdetail\nT3_multiturn\tPASS\tused_tool_result\nT7_tool_at_long_ctx\tPASS\t3/3_at_50000_tokens\n"
             )
@@ -99,6 +102,7 @@ class DashboardTest(unittest.TestCase):
             ):
                 dashboard.main()
             page = (root / "dashboard.html").read_text()
+            self.assertIn("English and German smoke checks", page)
             self.assertIn("Adaptive thinking", page)
             self.assertIn("T3 · multiturn", page)
             self.assertIn("T7 · tool_at_long_ctx", page)

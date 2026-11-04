@@ -34,6 +34,8 @@ Open [dashboard.html](dashboard.html) in a browser. It is generated from the res
 - `thinking-retry.sh` repeats v4 T1 with adaptive thinking as a separate arm.
 - `fidelity-retry.sh` repeats v4 T10 eight times and saves full API responses.
 - `deep-probe.sh` runs the v4 multi-turn and long-context tool gates after coding sessions.
+- `bilingual-probe.sh` waits for the adaptive-thinking gate, then starts `bilingual.py`.
+- `bilingual.py` runs paired English and German arithmetic prompts with exact-answer scoring.
 - `make_dashboard.py` generates the sortable dashboard from result files.
 - `dashboard_watch.py` updates the dashboard on filesystem events while the benchmark runs.
 - `coding-bench.sh` runs the v4 easy and hard fixtures in the existing sandbox image. It waits for the tool battery.
@@ -46,6 +48,7 @@ Open [dashboard.html](dashboard.html) in a browser. It is generated from the res
 - `refine.py` searches the remaining context interval in steps of 1,024 tokens.
 - `residency.py` checks the server, tests context sizes and writes `results/residency.jsonl`. It resumes matching results and refuses to unload another model.
 - `localPipeline.sh` runs the local checks.
+- `test_bilingual.py` checks bilingual scoring and server safety.
 - `test_dashboard.py` and `test_dashboard_watch.py` check report data and live updates.
 - `test_coding_patch.py` checks the copied harness patch and failing-test handling.
 - `test_fixture_baseline.py` checks scoring when a model commits fixture changes.

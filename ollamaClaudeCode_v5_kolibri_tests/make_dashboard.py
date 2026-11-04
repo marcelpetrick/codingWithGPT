@@ -187,6 +187,33 @@ def gate_table(extra, basic, short, stock, adaptive, deep):
     )
 
 
+def bilingual_table(rows):
+    groups = {}
+    for row in rows:
+        groups.setdefault((row["model"], row["language"]), []).append(row)
+    body = []
+    for (model, language), values in sorted(groups.items()):
+        passed = sum(row["pass"] for row in values)
+        body.append(
+            "<tr>"
+            + model_cell(model)
+            + text_cell(language)
+            + text_cell(f"{passed}/{len(values)}", passed)
+            + "</tr>"
+        )
+    columns = [
+        ("Model", "The exact tag is shown beside each model."),
+        ("Language", "The language used in the arithmetic instruction."),
+        ("Exact answers", "Correct exact-number answers out of the completed prompts."),
+    ]
+    return table(
+        "English and German smoke checks",
+        "Three simple arithmetic instructions per language. This is not a broad language-quality evaluation.",
+        columns,
+        body,
+    )
+
+
 def coding_table(rows, corrections):
     body = []
     for row in rows:
@@ -288,6 +315,7 @@ def render(
     history,
     residency,
     needle,
+    bilingual,
 ):
     full = max(r["context"] for r in residency if r["full_gpu"])
     recall = max(
@@ -303,6 +331,7 @@ def render(
         + gate_table(extra, basic, short, stock, adaptive, deep)
         + coding_table(coding, corrections)
         + history_table(history)
+        + (bilingual_table(bilingual) if bilingual else "")
     )
     return (
         """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="60"><title>Kolibri Q3 benchmark</title><style>
@@ -346,6 +375,8 @@ def main():
         path = MEASUREMENTS / filename
         if path.exists():
             deep.extend((tag, row) for row in read_tsv(path))
+    bilingual_path = MEASUREMENTS / "bilingual.jsonl"
+    bilingual = read_jsonl(bilingual_path) if bilingual_path.exists() else []
     page = render(
         read_tsv(MEASUREMENTS / "speed.tsv"),
         extra,
@@ -360,6 +391,7 @@ def main():
         read_jsonl(MEASUREMENTS / "residency.jsonl")
         + read_jsonl(MEASUREMENTS / "refinement.jsonl"),
         read_jsonl(MEASUREMENTS / "needle-near.jsonl"),
+        bilingual,
     )
     target = ROOT / "dashboard.html"
     temporary = ROOT / "dashboard.html.new"

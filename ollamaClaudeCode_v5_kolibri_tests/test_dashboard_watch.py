@@ -75,7 +75,7 @@ class DashboardWatchTest(unittest.TestCase):
                 self.assertTrue(ready.wait(5))
                 source.write_text("date\tollama\tmodel\nfirst\n")
                 self.assertTrue(updated.wait(5))
-                (results / "thinking.log").write_text("finished\n")
+                (results / "bilingual.log").write_text("finished\n")
                 thread.join(5)
                 self.assertFalse(thread.is_alive())
                 self.assertEqual(
