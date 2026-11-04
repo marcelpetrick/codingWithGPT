@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.3.0. Started: 2026-11-04.
+Version: 0.3.1. Started: 2026-11-04.
 
 ## Verdict
 
@@ -119,4 +119,10 @@ curl --noproxy '*' -fsS http://192.168.100.67:11434/api/version
 curl --noproxy '*' -fsS http://192.168.100.67:11434/api/ps
 ```
 
-Use the v4 harness at `../ollamaClaudeCode_v4_tielCoder/` after confirming model support. Never evict a foreign model. Preserve the user's untracked `vision.md` and unrelated repository changes.
+The model tag is `kolibri1:q3ks-ctx147456-nothink-ab`. The coding benchmark is resumable and skips recorded sessions. After checking the logs and confirming the server is idle, restart it with:
+
+```sh
+setsid nohup systemd-inhibit --what=sleep:idle ./coding-bench.sh >>results/coding.log 2>&1 </dev/null & disown
+```
+
+Check `results/coding.log`, `results/deep.log`, `results/fidelity.log`, `results/thinking.log` and `results/dashboard-watch.log`. Do not restart downstream stages until their prior stage finishes. Inspect partial results before restarting a stage that refuses existing output. Never evict a foreign model. Preserve unrelated repository changes.

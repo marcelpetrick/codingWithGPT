@@ -4,6 +4,18 @@
 
 This experiment tests Kolibri-1 Q3_K_S on the shared Ollama server. See [the run record](KOLIBRI_Q3_RUN.md) for the plan, evidence, status and resume commands. See [the vision](vision.md) for the goal.
 
+## Use the model
+
+The tested tag is `kolibri1:q3ks-ctx147456-nothink-ab` on `192.168.100.67:11434`. It uses a 147,456-token allocation and a corrected disabled-thinking prefix. Wait until the current benchmark is finished before sending requests.
+
+```sh
+curl --noproxy '*' -fsS http://192.168.100.67:11434/api/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"kolibri1:q3ks-ctx147456-nothink-ab","messages":[{"role":"user","content":"Hello"}],"think":false,"stream":false}'
+```
+
+The tag passes long-context retrieval. Tool-call reliability depends on the request mode and is still under test. Check the dashboard before using it as a coding agent.
+
 ## Run checks
 
 Install Python 3, `coverage` 7.14.0, `ruff` 0.17.2 and ShellCheck. Run `./localPipeline.sh`. This checks shell syntax, ShellCheck, Python compilation and unit tests. It requires at least 95% statement coverage across `residency.py` and `refine.py`. The tests do not contact the server.
