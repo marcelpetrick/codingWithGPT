@@ -1,0 +1,113 @@
+{
+  "ollama": "0.40.11",
+  "server": "192.168.100.67:11434",
+  "model_tags": [
+    {
+      "name": "kolibri1:q3ks-ctx147456-nothink-ab",
+      "model": "kolibri1:q3ks-ctx147456-nothink-ab",
+      "modified_at": "2026-11-04T13:25:43.620474679+01:00",
+      "size": 33870255622,
+      "digest": "464a60f538cb5063b6ddc20d0ff33c696adaa3d4b791342f1a86336f521a61ea",
+      "details": {
+        "parent_model": "kolibri1:q3ks-ctx147456-agentic",
+        "format": "gguf",
+        "family": "kolibri1",
+        "families": [
+          "kolibri1"
+        ],
+        "parameter_size": "78.1B",
+        "quantization_level": "Q3_K_S",
+        "context_length": 262144,
+        "embedding_length": 2560,
+        "runner": "llamacpp"
+      },
+      "capabilities": [
+        "completion",
+        "tools",
+        "thinking"
+      ]
+    },
+    {
+      "name": "kolibri1:q3ks-ctx147456-agentic",
+      "model": "kolibri1:q3ks-ctx147456-agentic",
+      "modified_at": "2026-11-04T13:23:33.20058676+01:00",
+      "size": 33870255545,
+      "digest": "5403a184848523e6f9bca45010f29aa6edf41a2b8b8867c17f43b11c3d2411b9",
+      "details": {
+        "parent_model": "hf.co/Eliasfpv28/Kolibri-1-Q3_K_S-GGUF:Q3_K_S",
+        "format": "gguf",
+        "family": "kolibri1",
+        "families": [
+          "kolibri1"
+        ],
+        "parameter_size": "78.1B",
+        "quantization_level": "Q3_K_S",
+        "context_length": 262144,
+        "embedding_length": 2560,
+        "runner": "llamacpp"
+      },
+      "capabilities": [
+        "completion",
+        "tools",
+        "thinking"
+      ]
+    },
+    {
+      "name": "hf.co/Eliasfpv28/Kolibri-1-Q3_K_S-GGUF:Q3_K_S",
+      "model": "hf.co/Eliasfpv28/Kolibri-1-Q3_K_S-GGUF:Q3_K_S",
+      "modified_at": "2026-11-04T13:18:01.37878363+01:00",
+      "size": 33870256072,
+      "digest": "8240742a97e22a8c08d04bf69f325a987eafd61f5ef3e1a108e57c0015783712",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "kolibri1",
+        "families": [
+          "kolibri1"
+        ],
+        "parameter_size": "78.1B",
+        "quantization_level": "Q3_K_S",
+        "context_length": 262144,
+        "embedding_length": 2560,
+        "runner": "ggml"
+      },
+      "capabilities": [
+        "completion",
+        "tools",
+        "thinking"
+      ]
+    },
+    {
+      "name": "qwen3.6:35b-a3b-q4_K_M-agentic",
+      "model": "qwen3.6:35b-a3b-q4_K_M-agentic",
+      "modified_at": "2026-08-06T12:21:12.481218635+02:00",
+      "size": 23938333592,
+      "digest": "891b2ad6882e6e8e4d99b15e6865e119388c0a68f697412f770e9f090b1cfcca",
+      "details": {
+        "parent_model": "qwen3.6:35b-a3b-q4_K_M",
+        "format": "gguf",
+        "family": "qwen35moe",
+        "families": [
+          "qwen35moe"
+        ],
+        "parameter_size": "36.0B",
+        "quantization_level": "Q4_K_M",
+        "context_length": 262144,
+        "embedding_length": 2048,
+        "runner": "ggml"
+      },
+      "capabilities": [
+        "completion",
+        "vision",
+        "tools",
+        "thinking"
+      ]
+    }
+  ],
+  "sandbox_image": "sha256:f387bf4f0b46a99ebecd4a72e06ad482a970a33d0fe9630cbcfc0a29a14b9aa9",
+  "sandbox_claude_code": "2.1.274",
+  "sandbox_python": "3.14.7",
+  "sandbox_pytest": "9.1.1",
+  "source_model_revision": "3003c47b0d4c47fae0c40f645397b456b50d8931",
+  "weight_sha256": "26ce4a2f618e3d55d401faaa78bb144057268b8303e645b6e3d552258d1d34aa"
+}

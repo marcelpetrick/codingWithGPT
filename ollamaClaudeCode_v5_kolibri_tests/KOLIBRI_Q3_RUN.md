@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.3.6. Started: 2026-11-04.
+Version: 0.3.7. Started: 2026-11-04.
 
 ## Verdict
 
@@ -68,11 +68,11 @@ Ollama 0.40.11, 2026-11-04. Each row is median and range for three cold samples.
 | 20,000 | Kolibri Q3_K_S | 97.01 [96.66, 97.14] | 2,919.4 [2,915.0, 2,922.8] |
 | 20,000 | Qwen 3.6 control | 110.08 [109.58, 112.0] | 4,762.7 [4,730.7, 4,764.0] |
 
-Short prefill rates use only about 25 prompt tokens and are noisy. The output lengths vary because models can stop before the 256-token limit. Raw responses and rows are in `measurements/`.
+Short prefill rates use only about 25 prompt tokens and are noisy. The output lengths vary because models can stop before the 256-token limit. Raw responses and rows are in `measurements/`. Model digests and client versions are in `measurements/provenance.json`.
 
 ## Retrieval results
 
-The corrected-template arm retrieved the v4 needle at 4,536, 18,349 and 74,239 reported prompt tokens. The 80,000-word request returned only 73,730 prompt tokens at a 147,456-token allocation. This indicates overflow and half-window truncation. Do not score that trial as a model failure. Rerun at a smaller input. The smaller rerun passed at 112,417 and 131,506 prompt tokens. The raw responses and logs are in `measurements/`.
+The corrected-template arm retrieved the v4 needle at 4,536, 18,349 and 74,239 reported prompt tokens. The 80,000-word request returned only 73,730 prompt tokens at a 147,456-token allocation. This indicates overflow and half-window truncation. Do not score that trial as a model failure. The default probe now rejects inputs above the calibrated 70,000-word limit and checks the model digest. The smaller rerun passed at 112,417 and 131,506 prompt tokens. The raw responses and logs are in `measurements/`.
 
 ## Coding results so far
 

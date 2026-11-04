@@ -7,9 +7,14 @@ cd "$(dirname "$0")"
 base='http://192.168.100.67:11434'
 model='kolibri1:q3ks-ctx147456-nothink-ab'
 label="${1:-nothink}"
-depths="${2:-2700 10700 40000 80000}"
+depths="${2:-2700 10700 40000 70000}"
 [[ "$label" =~ ^[a-z0-9_-]+$ ]] || { echo 'Invalid result label.' >&2; exit 1; }
 [[ "$depths" =~ ^[0-9\ ]+$ ]] || { echo 'Invalid depths.' >&2; exit 1; }
+read -r -a depth_list <<< "$depths"
+[[ ${#depth_list[@]} -gt 0 ]] || { echo 'No depths given.' >&2; exit 1; }
+for depth in "${depth_list[@]}"; do
+  (( 10#$depth > 0 && 10#$depth <= 70000 )) || { echo 'Depth exceeds the calibrated 70,000-word limit.' >&2; exit 1; }
+done
 out="results/needle-$label"
 mkdir -p "$out/results"
 exec 9>results/needle.lock
@@ -18,6 +23,7 @@ flock -n 9 || { echo 'Another needle test is running.' >&2; exit 1; }
 trap 'rc=$?; timeout 5 notify-send "Kolibri retrieval test finished" "Exit status: $rc. See results/needle-nothink.log." 2>/dev/null || true' EXIT
 [[ ! -e "$out/results/needle-v2.raw.jsonl" ]] || { echo 'Existing results; review before retrying.' >&2; exit 1; }
 curl --noproxy '*' -fsS -m 10 "$base/api/version" | python3 -c 'import json,sys; assert json.load(sys.stdin)["version"] == "0.40.11"'
+curl --noproxy '*' -fsS -m 10 "$base/api/tags" | python3 -c 'import json,sys; rows=[m for m in json.load(sys.stdin)["models"] if m["name"].lower()==sys.argv[1].lower()]; assert len(rows)==1 and rows[0]["digest"]=="464a60f538cb5063b6ddc20d0ff33c696adaa3d4b791342f1a86336f521a61ea", "Model digest changed"' "$model"
 curl --noproxy '*' -fsS -m 10 "$base/api/ps" | python3 -c 'import json,sys; assert json.load(sys.stdin)["models"] == [], "Server is busy"'
 cp ../ollamaClaudeCode_v4_tielCoder/needle-v2.sh ../ollamaClaudeCode_v4_tielCoder/lib-preflight.sh "$out/"
 python3 - "$out/needle-v2.sh" <<'PY'

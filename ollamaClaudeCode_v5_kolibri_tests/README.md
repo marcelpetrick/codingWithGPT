@@ -49,6 +49,7 @@ Open [dashboard.html](dashboard.html) in a browser. It is generated from the res
 - `refine.py` searches the remaining context interval in steps of 1,024 tokens.
 - `residency.py` checks the server, tests context sizes and writes `results/residency.jsonl`. It resumes matching results and refuses to unload another model.
 - `localPipeline.sh` runs the local checks.
+- `test_needle_guard.py` checks that uncalibrated retrieval depths stop before server access.
 - `test_gate_safety.py` checks fail-fast handling for empty gate responses.
 - `test_bilingual.py` checks bilingual scoring and server safety.
 - `test_dashboard.py` and `test_dashboard_watch.py` check report data and live updates.
