@@ -226,9 +226,16 @@ def coding_table(rows, corrections):
         ),
         ("Seconds", "Wall time for the coding session, excluding warm load."),
     ]
+    progress = (
+        "All twelve sessions are recorded."
+        if len(rows) >= 12
+        else "Sessions are ongoing."
+    )
     return table(
         "Current coding sessions",
-        "Ollama 0.40.11, Claude Code 2.1.274, isolated container. Sessions are ongoing. * The first Kolibri verdict was corrected after it committed its fix.",
+        "Ollama 0.40.11, Claude Code 2.1.274, isolated container. "
+        + progress
+        + " * The first Kolibri verdict was corrected after it committed its fix.",
         columns,
         body,
     )
