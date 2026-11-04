@@ -120,5 +120,51 @@ class MoreResidencyTests(unittest.TestCase):
             self.assertEqual(result.exception.code, 1)
 
 
+class HttpIntegrationTest(unittest.TestCase):
+    def test_probe_uses_real_http_with_a_local_server(self):
+        import json
+        import threading
+        from http.server import BaseHTTPRequestHandler, HTTPServer
+
+        class Handler(BaseHTTPRequestHandler):
+            model_loaded = False
+
+            def log_message(self, *_args):
+                pass
+
+            def do_GET(self):
+                models = [{"name": residency.MODEL, "size": 100, "size_vram": 100, "context_length": 4096}] if self.model_loaded else []
+                self.reply({"models": models})
+
+            def do_POST(self):
+                data = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                self.model_loaded = data.get("keep_alive") != 0
+                Handler.model_loaded = self.model_loaded
+                self.reply({"done": True, "response": "391", "prompt_eval_count": 12})
+
+            def reply(self, data):
+                payload = json.dumps(data).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+
+        server = HTTPServer(("127.0.0.1", 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with patch.object(residency, "BASE", f"http://127.0.0.1:{server.server_port}"):
+                result = residency.run_one(4096, "0.40.11", "digest")
+                self.assertTrue(result["full_gpu"])
+                self.assertEqual(result["response"], "391")
+                residency.unload_ours()
+                residency.ensure_idle()
+        finally:
+            server.shutdown()
+            thread.join()
+            server.server_close()
+
+
 if __name__ == "__main__":
     unittest.main()
