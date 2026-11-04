@@ -7,6 +7,7 @@ base='http://192.168.100.67:11434'
 mkdir -p results
 exec 9>results/pull.lock
 flock -n 9 || { echo 'Another pull is running.' >&2; exit 1; }
+# shellcheck disable=SC2154
 trap 'rc=$?; timeout 5 notify-send "Kolibri pull finished" "Exit status: $rc. See results/pull.log." 2>/dev/null || true' EXIT
 curl --noproxy '*' -fsS --max-time 10 "$base/api/version" | python3 -c 'import json,sys; assert json.load(sys.stdin)["version"] == "0.40.11"'
 curl --noproxy '*' -fsS --max-time 10 "$base/api/ps" | python3 -c 'import json,sys; assert json.load(sys.stdin)["models"] == [], "Server is busy"'
