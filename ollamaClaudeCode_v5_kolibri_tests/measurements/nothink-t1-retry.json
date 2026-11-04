@@ -1,0 +1,23 @@
+{
+  "id": "msg_3b468a06f9dfda65471fa5b7",
+  "type": "message",
+  "role": "assistant",
+  "model": "kolibri1:q3ks-ctx147456-nothink-ab",
+  "content": [
+    {
+      "type": "tool_use",
+      "id": "call_v4b1mbo1",
+      "name": "write_file",
+      "input": {
+        "path": "/tmp/test.txt",
+        "content": "hello world"
+      }
+    }
+  ],
+  "stop_reason": "tool_use",
+  "usage": {
+    "input_tokens": 5,
+    "cache_read_input_tokens": 142,
+    "output_tokens": 36
+  }
+}

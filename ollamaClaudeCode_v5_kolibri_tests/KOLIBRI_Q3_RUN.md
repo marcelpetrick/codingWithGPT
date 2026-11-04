@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.10. Started: 2026-11-04.
+Version: 0.2.11. Started: 2026-11-04.
 
 ## Verdict
 
@@ -58,6 +58,8 @@ The model card's Ollama warning predates upstream support. [Ollama 0.40.11 pins 
 ## Template investigation
 
 The stock Ollama template always appends `<think>`, even when thinking is disabled. The [official tokenizer template](https://huggingface.co/Aleph-Alpha/Kolibri-1/blob/main/tokenizer_config.json) instead closes the thinking block for disabled thinking. `templates/kolibri-no-think.gotmpl` changes only that generation prefix. It is an experimental A/B arm based on the installed Ollama template. It does not yet implement every detail of the official template. Keep its results separate from the stock template.
+
+The stock-template T1 smoke returned no tool call. The first corrected-template trial returned `content: null` and crashed the v4 scorer before it saved the response. A second identical request returned the correct `write_file` call. One pass does not establish reliability. Raw available responses are in `measurements/`.
 
 ## Agentic smoke test
 
