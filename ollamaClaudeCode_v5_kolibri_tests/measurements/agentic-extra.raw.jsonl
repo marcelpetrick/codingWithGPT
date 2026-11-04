@@ -1,0 +1,24 @@
+{"model": "kolibri1:q3ks-ctx147456-nothink-ab", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PARTIAL", "detail": "path ok, dropped: '\\\\backslash'"}
+{"model": "kolibri1:q3ks-ctx147456-nothink-ab", "gate": "T10_argument_fidelity", "run": 2, "verdict": "FAIL", "detail": "no tool call"}
+{"model": "kolibri1:q3ks-ctx147456-nothink-ab", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PARTIAL", "detail": "path ok, dropped: '\\\\backslash'"}
+{"model": "kolibri1:q3ks-ctx147456-nothink-ab", "gate": "T11_zero_arg_tool", "run": 1, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "kolibri1:q3ks-ctx147456-nothink-ab", "gate": "T11_zero_arg_tool", "run": 2, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "kolibri1:q3ks-ctx147456-nothink-ab", "gate": "T11_zero_arg_tool", "run": 3, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "kolibri1:q3ks-ctx147456-nothink-ab", "gate": "T8_structured_output", "run": 1, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add(a, b)\", \"m"}
+{"model": "kolibri1:q3ks-ctx147456-nothink-ab", "gate": "T8_structured_output", "run": 2, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "kolibri1:q3ks-ctx147456-nothink-ab", "gate": "T8_structured_output", "run": 3, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "kolibri1:q3ks-ctx147456-nothink-ab", "gate": "T9_error_recovery", "run": 1, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "kolibri1:q3ks-ctx147456-nothink-ab", "gate": "T9_error_recovery", "run": 2, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "kolibri1:q3ks-ctx147456-nothink-ab", "gate": "T9_error_recovery", "run": 3, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T10_argument_fidelity", "run": 1, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T10_argument_fidelity", "run": 2, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T10_argument_fidelity", "run": 3, "verdict": "PASS", "detail": "path space+quote and all non-ASCII/tab/quote survived"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T11_zero_arg_tool", "run": 1, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T11_zero_arg_tool", "run": 2, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T11_zero_arg_tool", "run": 3, "verdict": "PASS", "detail": "called with no arguments"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T8_structured_output", "run": 1, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T8_structured_output", "run": 2, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T8_structured_output", "run": 3, "verdict": "PASS", "detail": "valid+correct {\"language\": \"Python\", \"functions\": [\"add\", \"mul\", \""}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T9_error_recovery", "run": 1, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T9_error_recovery", "run": 2, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}
+{"model": "qwen3.6:35b-a3b-q4_K_M-agentic", "gate": "T9_error_recovery", "run": 3, "verdict": "PASS", "detail": "corrected to '/app/config/settings.yaml'"}

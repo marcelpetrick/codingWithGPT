@@ -1,0 +1,9 @@
+model	gate	pass_n	runs	verdicts	last_detail
+kolibri1:q3ks-ctx147456-nothink-ab	T10_argument_fidelity	0	3	PARTIAL,FAIL,PARTIAL	path ok, dropped: '\\backslash'
+kolibri1:q3ks-ctx147456-nothink-ab	T11_zero_arg_tool	3	3	PASS,PASS,PASS	called with no arguments
+kolibri1:q3ks-ctx147456-nothink-ab	T8_structured_output	3	3	PASS,PASS,PASS	valid+correct {"language": "Python", "functions": ["add", "mul", "
+kolibri1:q3ks-ctx147456-nothink-ab	T9_error_recovery	3	3	PASS,PASS,PASS	corrected to '/app/config/settings.yaml'
+qwen3.6:35b-a3b-q4_K_M-agentic	T10_argument_fidelity	3	3	PASS,PASS,PASS	path space+quote and all non-ASCII/tab/quote survived
+qwen3.6:35b-a3b-q4_K_M-agentic	T11_zero_arg_tool	3	3	PASS,PASS,PASS	called with no arguments
+qwen3.6:35b-a3b-q4_K_M-agentic	T8_structured_output	3	3	PASS,PASS,PASS	valid+correct {"language": "Python", "functions": ["add", "mul", "
+qwen3.6:35b-a3b-q4_K_M-agentic	T9_error_recovery	3	3	PASS,PASS,PASS	corrected to '/app/config/settings.yaml'

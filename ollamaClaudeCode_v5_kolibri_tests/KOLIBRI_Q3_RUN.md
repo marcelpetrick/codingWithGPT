@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.23. Started: 2026-11-04.
+Version: 0.2.24. Started: 2026-11-04.
 
 ## Verdict
 
@@ -73,6 +73,10 @@ Short prefill rates use only about 25 prompt tokens and are noisy. The output le
 ## Retrieval results
 
 The corrected-template arm retrieved the v4 needle at 4,536, 18,349 and 74,239 reported prompt tokens. The 80,000-word request returned only 73,730 prompt tokens at a 147,456-token allocation. This indicates overflow and half-window truncation. Do not score that trial as a model failure. Rerun at a smaller input. The smaller rerun passed at 112,417 and 131,506 prompt tokens. The raw responses and logs are in `measurements/`.
+
+## Agentic gates
+
+The corrected-template Kolibri arm and the Qwen control each passed 3/3 trials for T2, T4, T5, T8, T9 and T11. Kolibri passed 0/3 T10 argument-fidelity trials. The control passed 3/3. The Kolibri failures need eight reruns and raw response inspection before classification. T1 was separately 1/8 for this Kolibri arm. The extra-gate log records verdicts and details, not complete responses. Coding sessions are running in the sandbox.
 
 ## Template investigation
 
