@@ -230,6 +230,13 @@ def bilingual_table(rows):
     )
 
 
+def optional_number(row, key):
+    value = row.get(key, "")
+    if str(value).isdigit():
+        return text_cell(f"{int(value):,}", int(value))
+    return text_cell("—")
+
+
 def coding_table(rows, corrections):
     body = []
     for row in rows:
@@ -250,6 +257,8 @@ def coding_table(rows, corrections):
             + text_cell(verdict)
             + text_cell(row["hidden"])
             + text_cell(row["wall_s"], int(row["wall_s"]))
+            + optional_number(row, "calls")
+            + optional_number(row, "out_tok")
             + "</tr>"
         )
     columns = [
@@ -268,6 +277,8 @@ def coding_table(rows, corrections):
             "Hard-fixture tests passed out of 18. A dash means not applicable.",
         ),
         ("Seconds", "Wall time for the coding session, excluding warm load."),
+        ("API calls", "The number of model API calls made during the session."),
+        ("Output tokens", "The total generated tokens across all model calls."),
     ]
     progress = (
         "All twelve sessions are recorded."

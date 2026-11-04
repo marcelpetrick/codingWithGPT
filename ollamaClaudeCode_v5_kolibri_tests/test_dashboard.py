@@ -17,6 +17,8 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("title=", dashboard.model_cell("unknown:<model>"))
         self.assertNotIn("<model>", dashboard.model_cell("unknown:<model>"))
         self.assertIn('data-sort="7"', dashboard.text_cell("seven", 7))
+        self.assertIn("1,000", dashboard.optional_number({"n": "1000"}, "n"))
+        self.assertIn("—", dashboard.optional_number({}, "n"))
 
     def test_generated_report_uses_results_and_rescore(self):
         with tempfile.TemporaryDirectory() as tmp:
