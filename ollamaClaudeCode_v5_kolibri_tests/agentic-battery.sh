@@ -16,17 +16,15 @@ flock 9
 grep -q '^=== finished ===$' results/needle-near/results/needle-v2.log || { echo 'Near-limit retrieval did not finish.' >&2; exit 1; }
 [[ ! -e "$out/results/gate-rerun.raw.jsonl" && ! -e "$out/results/gate-extra.raw.jsonl" ]] || { echo 'Existing gate results; review before restarting.' >&2; exit 1; }
 cp ../ollamaClaudeCode_v4_tielCoder/gate-rerun.py ../ollamaClaudeCode_v4_tielCoder/gate-extra.py "$out/"
+cp gate_score.py "$out/gate_score.py"
+python3 patch_v4_gate.py "$out/gate-rerun.py"
 python3 - "$out" <<'PY'
 from pathlib import Path
 import sys
 root=Path(sys.argv[1])
-for name in ('gate-rerun.py','gate-extra.py'):
-    p=root/name; s=p.read_text(); old='d.get("content", [])'; new='(d.get("content") or [])'
-    assert s.count(old)==(1 if name == "gate-rerun.py" else 2), name
-    p.write_text(s.replace(old,new))
-p=root/'gate-rerun.py'; s=p.read_text(); old_judge='def judge(gate, d):'; new_judge='def judge(gate, d):\n    if not d.get("content"):\n        return "ERROR", "empty API content"'
-assert s.count(old_judge)==1
-p.write_text(s.replace(old_judge,new_judge))
+p=root/'gate-extra.py'; s=p.read_text(); old='d.get("content", [])'; new='(d.get("content") or [])'
+assert s.count(old)==2
+p.write_text(s.replace(old,new))
 p=root/'gate-extra.py'; s=p.read_text()
 old_post='''        with urllib.request.urlopen(req, timeout=timeout) as r:
             return json.load(r)'''

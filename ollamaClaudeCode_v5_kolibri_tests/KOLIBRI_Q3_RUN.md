@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.3.21. Started: 2026-11-04.
+Version: 0.4.0. Started: 2026-11-04.
 
 ## Verdict
 
@@ -84,9 +84,9 @@ The full v4 T3/T7 stage stopped on empty API content in its first request. The r
 
 ## Agentic gates
 
-The corrected-template Kolibri arm and the Qwen control each passed 3/3 trials for T2, T4, T5, T8, T9 and T11. Kolibri passed 0/3 T10 argument-fidelity trials. The control passed 3/3. The three preliminary T10 responses lack complete raw data. The first diagnostic rerun returned null content and stopped. It is invalid and does not establish a T10 score. See `measurements/fidelity-api.jsonl`. T1 produced one pass and one malformed call among two scoreable corrected-template responses. Six empty responses are invalid. The extra-gate log records verdicts and details, not complete responses. Coding sessions are running in the sandbox.
+The corrected-template Kolibri arm and the Qwen control each passed 3/3 trials for T2, T4, T8, T9 and T11. A stricter review of the raw T5 calls found that Kolibri passed 1/3 and Qwen passed 3/3. In two Kolibri calls, `commit_message` was an object instead of the required string. Kolibri passed 0/3 T10 argument-fidelity trials. The control passed 3/3. The three preliminary T10 responses lack complete raw data. The first diagnostic rerun returned null content and stopped. It is invalid and does not establish a T10 score. See `measurements/fidelity-api.jsonl`. T1 produced one pass and one malformed call among two scoreable corrected-template responses. Six empty responses are invalid. The extra-gate log records verdicts and details, not complete responses. Coding sessions are running in the sandbox.
 
-The corrected-template T1 test continued after empty API content. That violated the fail-fast rule. Its six empty responses are retained as invalid, not as model failures. The copied scorers now save the raw response and stop on empty content.
+The corrected-template T1 test continued after empty API content. That violated the fail-fast rule. Its six empty responses are retained as invalid, not as model failures. The copied scorers now save the raw response and stop on empty content. The v4 T1 scorer also failed to check the tool name and content type. The v4 T5 scorer failed to check the commit message. The dashboard re-scores the raw calls using `gate_score.py`.
 
 ## English and German smoke checks
 
@@ -132,7 +132,7 @@ The first control hard run produced a saved tree with 16/18 hidden tests. Strict
 
 `native-tool-probe.sh` checks one T1-shaped request through `/api/chat` at temperature zero. This is a diagnostic, not a reliability score. The native chat request returned empty content without a tool call. It is invalid under the run rules. The request and response are in `measurements/`. Raw generation produced a tool call, but its manually rendered prompt was not identical.
 
-`parser-arm.sh` tests Ollama 0.40.11’s `qwen3-thinking` parser with the existing corrected template. Kolibri and that parser use `<tool_call>` JSON tags. This changes only the parser in a separate tag. Run T1 eight times; stop on empty content. Three or more scoreable failures are systematic. Parser compatibility and long-term deployment are not assumed.
+`parser-arm.sh` tests Ollama 0.40.11’s `qwen3-thinking` parser with the existing corrected template. Kolibri and that parser use `<tool_call>` JSON tags. This changes only the parser in a separate tag. Run T1 eight times; stop on empty content. Three or more scoreable failures are systematic. The v4 T1 scorer initially reported 7/8 passes for this arm. All eight calls used the tool name `function` instead of `write_file`, so the strict score is 0/8. The original raw responses are in `measurements/parser-arm-t1.jsonl`. Parser compatibility and long-term deployment are not assumed.
 
 ## Resume here
 

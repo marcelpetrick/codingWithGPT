@@ -1,0 +1,44 @@
+/* Copyright (C) 2026 Marcel Petrick. SPDX-License-Identifier: GPL-3.0-or-later */
+
+:root{--paper:#F6F7F9;--panel:#FFF;--ink:#131822;--muted:#5C6675;--rule:#DCE1E8;
+--good:#0F8A6B;--good-soft:#E2F1EC;--warn:#A57C0C;--warn-soft:#F5EEDC;--crit:#C6304F;--crit-soft:#FAE4E9;
+--ref:#3D5FC4;--ref-soft:#E5EAFA}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0E1218;--panel:#161B24;--ink:#E9EDF3;
+--muted:#8F99A8;--rule:#28303C;--good:#3FC79F;--good-soft:#123229;--warn:#E0B544;--warn-soft:#2E2812;
+--crit:#F06A86;--crit-soft:#361820;--ref:#7F9BF0;--ref-soft:#1B2340}}
+:root[data-theme="dark"]{--paper:#0E1218;--panel:#161B24;--ink:#E9EDF3;--muted:#8F99A8;--rule:#28303C;
+--good:#3FC79F;--good-soft:#123229;--warn:#E0B544;--warn-soft:#2E2812;--crit:#F06A86;--crit-soft:#361820;
+--ref:#7F9BF0;--ref-soft:#1B2340}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:1080px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:22px;margin:0 0 4px} h2{font-size:16px;margin:28px 0 8px} h3{font-size:14px;margin:18px 0 6px}
+.muted{color:var(--muted)} .small{font-size:12px}
+.verdict{background:var(--good-soft);border-left:4px solid var(--good);padding:14px 16px;border-radius:8px;margin:16px 0}
+.verdict b{font-size:17px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:10px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:720px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip{display:inline-block;padding:1px 7px;border-radius:99px;font-size:12px;font-weight:600;margin:1px 0}
+.chip.good{background:var(--good-soft);color:var(--good)} .chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.crit{background:var(--crit-soft);color:var(--crit)}
+.cicell{min-width:160px}
+.ci{position:relative;height:14px;margin-top:5px;border-radius:7px;background:var(--rule)}
+.ci-range{position:absolute;top:0;bottom:0;background:var(--ref-soft);border:1px solid var(--ref);border-radius:7px}
+.ci-dot{position:absolute;top:1px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--ref)}
+ul{margin:6px 0;padding-left:20px}
+.info{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;margin-left:5px;border-radius:50%;
+border:1px solid var(--muted);font:600 10px/1 Georgia,serif;font-style:italic;text-transform:none;letter-spacing:0;
+color:var(--muted);cursor:help;vertical-align:1px}
+.info:hover,.info:focus{color:var(--ref);border-color:var(--ref);outline:none}
+#tip{position:fixed;z-index:10;max-width:380px;padding:10px 12px;border-radius:8px;background:var(--ink);color:var(--paper);
+font-size:13px;line-height:1.45;font-weight:400;text-transform:none;letter-spacing:0;box-shadow:0 6px 20px rgba(0,0,0,.25);
+pointer-events:none;display:none}
+th.sortable{cursor:pointer;user-select:none} th.sortable:hover{color:var(--ink)}
+th.sortable::after{content:" \2195";opacity:.35} th[aria-sort=ascending]::after{content:" \2191";opacity:1}
+th[aria-sort=descending]::after{content:" \2193";opacity:1}
+.pick{background:var(--panel);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:10px;padding:12px 14px;flex:1 1 280px}
+.pick b{font-size:18px} .picks{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.chip.ref{background:var(--ref-soft);color:var(--ref)}

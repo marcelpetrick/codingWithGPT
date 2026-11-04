@@ -22,7 +22,7 @@ Install Python 3, `coverage` 7.14.0, `ruff` 0.17.2 and ShellCheck. Run `./localP
 
 ## Dashboard
 
-Open [dashboard.html](dashboard.html) in a browser. It is generated from the result files. Select a column heading to sort. The page reloads every 60 seconds. `dashboard_watch.py` updates the result snapshot and regenerates the page when a coding result arrives. Empty final TSV fields are shown as `-` in the dashboard snapshot; raw logs stay unchanged.
+Open [dashboard.html](dashboard.html) in a browser. It is generated from the result files and uses the v4 dashboard style. Select a column heading to sort. The page reloads every 60 seconds. `dashboard_watch.py` updates the result snapshot and regenerates the page when a coding result arrives. Empty final TSV fields are shown as `-` in the dashboard snapshot; raw logs stay unchanged.
 
 ![Screenshot of the generated dashboard](screenshots/dashboard.png)
 
@@ -40,6 +40,8 @@ Open [dashboard.html](dashboard.html) in a browser. It is generated from the res
 - `reasoning-arm.sh` tests the official disabled-reasoning instruction as a separate T1 arm.
 - `bilingual-probe.sh` waits for the adaptive-thinking gate, then starts `bilingual.py`. Use `after-raw` after reviewing an interrupted gate.
 - `bilingual.py` runs paired English and German arithmetic prompts with exact-answer scoring.
+- `gate_score.py` checks tool names and required argument values for T1 and T5.
+- `patch_v4_gate.py` applies those checks to a copied v4 gate runner.
 - `make_dashboard.py` generates the sortable dashboard from result files.
 - `dashboard_watch.py` updates the dashboard on filesystem events while the benchmark runs.
 - `coding-bench.sh` runs the v4 easy and hard fixtures in the existing sandbox image. It waits for the tool battery.
@@ -54,6 +56,7 @@ Open [dashboard.html](dashboard.html) in a browser. It is generated from the res
 - `localPipeline.sh` runs the local checks.
 - `test_needle_guard.py` checks that uncalibrated retrieval depths stop before server access.
 - `test_gate_safety.py` checks fail-fast handling for empty gate responses.
+- `test_gate_score.py` and `test_patch_v4_gate.py` check the strict gate rules.
 - `test_bilingual.py` checks bilingual scoring and server safety.
 - `test_dashboard.py` and `test_dashboard_watch.py` check report data and live updates.
 - `test_coding_patch.py` checks the copied harness patch and failing-test handling.

@@ -32,20 +32,6 @@ def load(path):
 
 
 class GateSafetyTest(unittest.TestCase):
-    def test_t1_scorers_reject_null_content(self):
-        for wrapper in ("gate-reliability.sh", "thinking-retry.sh"):
-            with self.subTest(wrapper=wrapper), tempfile.TemporaryDirectory() as tmp:
-                target = Path(tmp) / "gate-rerun.py"
-                patch_copy(
-                    wrapper,
-                    "gate-rerun.py",
-                    "python3 - \"$out/gate-rerun.py\" <<'PY'\n",
-                    target,
-                )
-                module = load(target)
-                self.assertEqual(module.judge("T1", {"content": None})[0], "ERROR")
-                self.assertEqual(module.judge("T1", {"content": []})[0], "ERROR")
-
     def test_fidelity_records_then_rejects_null(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

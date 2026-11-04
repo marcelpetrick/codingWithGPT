@@ -7,6 +7,7 @@ cd "$(dirname "$0")"
 base='http://192.168.100.67:11434'
 model="${1:-kolibri1:q3ks-ctx147456-agentic}"
 label="${2:-stock}"
+[[ "$model" =~ ^[A-Za-z0-9._:/-]+$ ]] || { echo 'Invalid model tag.' >&2; exit 1; }
 [[ "$label" =~ ^[a-z0-9_-]+$ ]] || { echo 'Invalid result label.' >&2; exit 1; }
 out="results/v4-smoke-$label"
 mkdir -p "$out/results"
@@ -18,17 +19,8 @@ trap 'rc=$?; timeout 5 notify-send "Kolibri tool smoke test finished" "Exit stat
 curl --noproxy '*' -fsS -m 10 "$base/api/version" | python3 -c 'import json,sys; assert json.load(sys.stdin)["version"] == "0.40.11"'
 curl --noproxy '*' -fsS -m 10 "$base/api/ps" | python3 -c 'import json,sys; assert json.load(sys.stdin)["models"] == [], "Server is busy"'
 cp ../ollamaClaudeCode_v4_tielCoder/gate-rerun.py "$out/gate-rerun.py"
-python3 - "$out/gate-rerun.py" <<'PYGATE'
-from pathlib import Path
-import sys
-p=Path(sys.argv[1]);s=p.read_text()
-old='d.get("content", [])'; new='(d.get("content") or [])'
-assert s.count(old)==1
-s=s.replace(old,new)
-old='def judge(gate, d):';new='def judge(gate, d):\n    if not d.get("content"):\n        return "ERROR", "empty API content"'
-assert s.count(old)==1
-p.write_text(s.replace(old,new))
-PYGATE
+cp gate_score.py "$out/gate_score.py"
+python3 patch_v4_gate.py "$out/gate-rerun.py"
 python3 -u "$out/gate-rerun.py" --n 1 --gate T1 "$model"
 curl --noproxy '*' -fsS -m 10 "$base/api/ps" | python3 -c 'import json,sys; models=json.load(sys.stdin)["models"]; assert len(models)==1 and models[0]["name"].lower()==sys.argv[1].lower(), "Unexpected resident model"; m=models[0]; assert m["size_vram"]>=m["size"] and m["context_length"]>=147456, "Unexpected spill or context"' "$model"
 curl --noproxy '*' -fsS -m 30 "$base/api/generate" -H 'Content-Type: application/json' --data "{\"model\":\"$model\",\"keep_alive\":0}" >/dev/null

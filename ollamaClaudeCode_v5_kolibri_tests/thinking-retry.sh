@@ -29,18 +29,8 @@ esac
 curl --noproxy '*' -fsS -m 10 "$base/api/version" | python3 -c 'import json,sys; assert json.load(sys.stdin)["version"] == "0.40.11"'
 curl --noproxy '*' -fsS -m 10 "$base/api/ps" | python3 -c 'import json,sys; assert json.load(sys.stdin)["models"] == [], "Server is busy"'
 cp ../ollamaClaudeCode_v4_tielCoder/gate-rerun.py "$out/gate-rerun.py"
-python3 - "$out/gate-rerun.py" <<'PY'
-from pathlib import Path
-import sys
-p=Path(sys.argv[1]);s=p.read_text()
-for old,new in [('d.get("content", [])','(d.get("content") or [])'),('"thinking": {"type": "disabled"}','"thinking": {"type": "adaptive"}')]:
-    assert s.count(old)==1
-    s=s.replace(old,new)
-old='def judge(gate, d):'
-new='def judge(gate, d):\n    if not d.get("content"):\n        return "ERROR", "empty API content"'
-assert s.count(old)==1
-p.write_text(s.replace(old,new))
-PY
+cp gate_score.py "$out/gate_score.py"
+python3 patch_v4_gate.py "$out/gate-rerun.py" --adaptive
 NO_PROXY='*' no_proxy='*' python3 -u "$out/gate-rerun.py" --n 8 --gate T1 "$model"
 curl --noproxy '*' -fsS -m 10 "$base/api/ps" | python3 -c 'import json,sys; m=json.load(sys.stdin)["models"]; assert len(m)==1 and m[0]["name"].lower()==sys.argv[1].lower(), "Unexpected resident model"; assert m[0]["size_vram"]>=m[0]["size"], "GPU spill"' "$model"
 curl --noproxy '*' -fsS -m 30 "$base/api/generate" -H 'Content-Type: application/json' --data "{\"model\":\"$model\",\"keep_alive\":0}" >/dev/null

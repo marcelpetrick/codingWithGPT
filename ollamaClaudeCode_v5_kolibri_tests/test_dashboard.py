@@ -14,9 +14,9 @@ class DashboardTest(unittest.TestCase):
     def test_escape_and_model_labels(self):
         self.assertEqual(dashboard.esc('<script>"'), "&lt;script&gt;&quot;")
         self.assertEqual(dashboard.model_name("unknown:model"), "unknown:model")
-        self.assertIn("title=", dashboard.model_cell("unknown:<model>"))
+        self.assertIn("data-tip=", dashboard.model_cell("unknown:<model>"))
         self.assertNotIn("<model>", dashboard.model_cell("unknown:<model>"))
-        self.assertIn('data-sort="7"', dashboard.text_cell("seven", 7))
+        self.assertIn('data-v="7"', dashboard.text_cell("seven", 7))
         self.assertIn("1,000", dashboard.optional_number({"n": "1000"}, "n"))
         self.assertIn("—", dashboard.optional_number({}, "n"))
 
@@ -30,7 +30,7 @@ class DashboardTest(unittest.TestCase):
             self.assertIn("131,506", page)
             self.assertIn("PASS *", page)
             self.assertIn("KAT-Coder V2.5", page)
-            self.assertIn("data-sort=", page)
+            self.assertIn("data-v=", page)
             self.assertIn("0.33.3", page)
             self.assertIn("0.40.11", page)
 
@@ -52,7 +52,22 @@ class DashboardTest(unittest.TestCase):
 
     def test_empty_gate_responses_are_not_scored(self):
         rows = [
-            {"verdict": "PASS", "response": {"content": [{"type": "tool_use"}]}},
+            {
+                "verdict": "PASS",
+                "response": {
+                    "stop_reason": "tool_use",
+                    "content": [
+                        {
+                            "type": "tool_use",
+                            "name": "write_file",
+                            "input": {
+                                "path": "/tmp/test.txt",
+                                "content": "hello world",
+                            },
+                        }
+                    ],
+                },
+            },
             {"verdict": "PARTIAL", "response": {"content": [{"type": "tool_use"}]}},
             {"verdict": "FAIL", "response": {"content": None}},
         ]
@@ -97,6 +112,9 @@ class DashboardTest(unittest.TestCase):
                 if path.is_file():
                     (root / path.name).write_bytes(path.read_bytes())
             (root / "fidelity.tsv").write_text((root / "agentic-extra.tsv").read_text())
+            (root / "parser-arm-t1.jsonl").write_text(
+                (root / "nothink-t1-eight.jsonl").read_text()
+            )
             (root / "reason-effort-t1.jsonl").write_text(
                 (root / "nothink-t1-eight.jsonl").read_text()
             )
@@ -116,6 +134,7 @@ class DashboardTest(unittest.TestCase):
                 dashboard.main()
             page = (root / "dashboard.html").read_text()
             self.assertIn("English and German smoke checks", page)
+            self.assertIn("Qwen3 parser", page)
             self.assertIn("Reasoning instruction", page)
             self.assertIn("Adaptive thinking", page)
             self.assertIn("T3 · multiturn", page)

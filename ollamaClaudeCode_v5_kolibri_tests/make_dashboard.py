@@ -11,6 +11,8 @@ import os
 from pathlib import Path
 import statistics
 
+import gate_score
+
 ROOT = Path(__file__).resolve().parent
 MEASUREMENTS = ROOT / "measurements"
 HISTORY = (
@@ -45,22 +47,27 @@ def model_name(tag):
     return next((label for prefix, label in names if tag.startswith(prefix)), tag)
 
 
+def info(note, label):
+    return f'<span class="info" tabindex="0" role="button" aria-label="{esc(label)}" data-tip="{esc(note)}">i</span>'
+
+
 def model_cell(tag):
     note = f"Model tag: {tag}. The displayed value applies only to the stated test conditions."
-    return f'<td data-sort="{esc(model_name(tag))}">{esc(model_name(tag))} <span class="info" title="{esc(note)}" tabindex="0">i</span></td>'
+    return f'<td data-v="{esc(model_name(tag))}"><b>{esc(model_name(tag))}</b>{info(note, "About this model")}</td>'
 
 
 def text_cell(value, sort=None):
-    return f'<td data-sort="{esc(value if sort is None else sort)}">{esc(value)}</td>'
+    css = ' class="num"' if sort is not None else ""
+    return f'<td{css} data-v="{esc(value if sort is None else sort)}">{esc(value)}</td>'
 
 
 def header(label, note):
-    return f'<th tabindex="0">{esc(label)} <span class="info" title="{esc(note)}">i</span><span class="arrow"> ↕</span></th>'
+    return f'<th tabindex="0">{esc(label)}{info(note, "About this column")}</th>'
 
 
 def table(title, description, columns, rows):
     headings = "".join(header(*col) for col in columns)
-    return f'<section><div class="section-head"><h2>{esc(title)}</h2><p>{esc(description)}</p></div><div class="scroll"><table><thead><tr>{headings}</tr></thead><tbody>{"".join(rows)}</tbody></table></div></section>'
+    return f'<section><h2>{esc(title)}</h2><p class="muted small">{esc(description)}</p><div class="panel"><table><thead><tr>{headings}</tr></thead><tbody>{"".join(rows)}</tbody></table></div></section>'
 
 
 def speed_table(rows):
@@ -110,21 +117,24 @@ def speed_table(rows):
 
 
 def gate_counts(rows):
-    valid = [row for row in rows if row.get("response", {}).get("content")]
+    verdicts = [gate_score.t1(row.get("response", {}))[0] for row in rows]
     return (
-        sum(row["verdict"] == "PASS" for row in valid),
-        len(valid),
-        len(rows) - len(valid),
+        verdicts.count("PASS"),
+        len(verdicts) - verdicts.count("ERROR"),
+        verdicts.count("ERROR"),
     )
 
 
-def gate_table(extra, basic, short, stock, adaptive, reason_arm, deep):
+def gate_table(
+    extra, basic, short, stock, adaptive, reason_arm, parser_arm, deep, raw_gates
+):
     body = []
     for label, rows in (
         ("Stock template", stock),
         ("Corrected template", short),
         ("Adaptive thinking", adaptive),
         ("Reasoning instruction", reason_arm),
+        ("Qwen3 parser", parser_arm),
     ):
         if not rows:
             continue
@@ -157,6 +167,19 @@ def gate_table(extra, basic, short, stock, adaptive, reason_arm, deep):
         )
     for row in basic:
         passed, total = row["passes"].split("/")
+        if row["gate"] == "T5":
+            matching = [
+                item
+                for item in raw_gates
+                if item["model"] == row["model"] and item["gate"] == "T5"
+            ]
+            verdicts = [gate_score.t5(item["response"])[0] for item in matching]
+            passed, total = (
+                str(verdicts.count("PASS")),
+                str(len(verdicts) - verdicts.count("ERROR")),
+            )
+        if int(total) == 0:
+            continue
         body.append(
             "<tr>"
             + model_cell(row["model"])
@@ -184,7 +207,10 @@ def gate_table(extra, basic, short, stock, adaptive, reason_arm, deep):
         )
     columns = [
         ("Model", "The exact tag is shown beside each model."),
-        ("Gate", "The v4 tool or structured-output test."),
+        (
+            "Gate",
+            "The v4 tool or structured-output test. T1 and T5 use stricter argument checks.",
+        ),
         ("Configuration", "The template or control used for this arm."),
         (
             "Valid passes",
@@ -337,6 +363,7 @@ def render(
     stock,
     adaptive,
     reason_arm,
+    parser_arm,
     deep,
     coding,
     corrections,
@@ -344,6 +371,7 @@ def render(
     residency,
     needle,
     bilingual,
+    raw_gates,
 ):
     full = max(r["context"] for r in residency if r["full_gpu"])
     recall = max(
@@ -355,26 +383,66 @@ def render(
     built = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     body = (
         speed_table(speed)
-        + gate_table(extra, basic, short, stock, adaptive, reason_arm, deep)
+        + gate_table(
+            extra,
+            basic,
+            short,
+            stock,
+            adaptive,
+            reason_arm,
+            parser_arm,
+            deep,
+            raw_gates,
+        )
         + coding_table(coding, corrections)
         + history_table(history)
         + (bilingual_table(bilingual) if bilingual else "")
     )
+    static = Path(__file__).resolve().parent
+    style = (static / "dashboard_style.css").read_text(encoding="utf-8")
+    script = (static / "dashboard_ui.js").read_text(encoding="utf-8")
     return (
-        """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="60"><title>Kolibri Q3 benchmark</title><style>
-:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#0c1420;color:#eaf1f8}body{margin:0}main{max-width:1240px;margin:auto;padding:42px 28px 80px}header{border-bottom:1px solid #2a3b4d;padding-bottom:26px}.eyebrow{color:#76dbc4;font-size:.75rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase}h1{font-size:clamp(2rem,5vw,3.6rem);margin:.35em 0 .2em;letter-spacing:-.04em}header p{color:#a9b9c9;max-width:820px;line-height:1.6}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:26px 0}.card{background:#172536;border:1px solid #2a3b4d;border-radius:12px;padding:18px}.card small{color:#a9b9c9}.card strong{display:block;color:#7fe5ca;font-size:1.75rem;margin:.3em 0}.card p{font-size:.85rem;color:#a9b9c9;line-height:1.45;margin:0}section{margin-top:34px;background:#111e2c;border:1px solid #26384a;border-radius:12px;overflow:hidden}.section-head{padding:20px 20px 0}h2{font-size:1.15rem;margin:0}.section-head p{color:#a9b9c9;line-height:1.5;font-size:.88rem}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;font-size:.88rem}th,td{text-align:left;padding:12px 20px;border-top:1px solid #26384a;white-space:nowrap}th{color:#a9b9c9;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;cursor:pointer}tr:hover td{background:#192b3d}.info{display:inline-grid;place-items:center;width:15px;height:15px;border:1px solid #668293;border-radius:50%;color:#9eb5c2;font-size:.65rem;font-weight:700;text-transform:none;cursor:help}.arrow{color:#678292}footer{color:#9aabba;font-size:.8rem;margin-top:30px;line-height:1.6}a{color:#7fe5ca}</style></head><body><main><header><div class="eyebrow">Local inference · experiment</div><h1>Kolibri Q3 benchmark</h1><p>Measured on the shared Ollama server. Long-context retrieval works; agentic reliability and coding sessions are still under investigation. Select a column heading to sort. Hover over an i for details.</p></header><div class="cards"><div class="card"><small>Full GPU allocation <span class="info" title="Largest tested context with size_vram equal to size. The next 1,024-token step spilled.">i</span></small><strong>"""
-        + f"{full:,}"
-        + """</strong><p>tokens, on the current server configuration</p></div><div class="card"><small>Verified retrieval <span class="info" title="Largest non-overflowing v4 needle prompt that returned the expected fact.">i</span></small><strong>"""
-        + f"{recall:,}"
-        + """</strong><p>prompt tokens in the longest successful test</p></div><div class="card"><small>First tool gate <span class="info" title="The corrected-template arm was tested on the T1 file-write call.">i</span></small><strong>"""
-        + f"{gate_passes} / {gate_total}"
-        + f"</strong><p>correct among valid responses; {gate_empty} empty</p></div></div>"
-        + body
-        + """<footer>Generated from result files at """
+        '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">'
+        '<meta http-equiv="refresh" content="60"><title>Kolibri Q3 benchmark</title><style>'
+        + style
+        + "</style></head><body><main><h1>Local agentic coding on .67: Kolibri Q3</h1>"
+        + '<div class="muted small">Ollama 0.40.11 · Claude Code · generated '
         + esc(built)
-        + """. Results may be incomplete while tests run. See <a href="KOLIBRI_Q3_RUN.md">the run record</a> and <a href="../ollamaClaudeCode_v4_tielCoder/dashboard.html">the v4 dashboard</a>.</footer></main><script>
-document.querySelectorAll('th').forEach((head,index)=>{head.addEventListener('click',()=>{const table=head.closest('table');const column=[...head.parentNode.children].indexOf(head);const rows=[...table.tBodies[0].rows];const direction=head.dataset.direction==='asc'?'desc':'asc';table.querySelectorAll('th').forEach(x=>delete x.dataset.direction);head.dataset.direction=direction;rows.sort((a,b)=>{const av=a.cells[column].dataset.sort,bv=b.cells[column].dataset.sort;const an=Number(av),bn=Number(bv);const c=av.trim()!==''&&bv.trim()!==''&&!Number.isNaN(an)&&!Number.isNaN(bn)?an-bn:av.localeCompare(bv);return direction==='asc'?c:-c});rows.forEach(row=>table.tBodies[0].appendChild(row))});head.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();head.click()}})});
-</script></body></html>"""
+        + " from result files · refreshes every 60 seconds</div>"
+        + '<div class="verdict"><b>Kolibri runs and retrieves long context.</b><br>'
+        + "It passed the hard Python fixture, but tool-call delivery needs more work. Qwen remains the safer default.</div>"
+        + '<h2>Current findings</h2><div class="picks"><div class="pick"><div class="muted small">FULL GPU ALLOCATION'
+        + info(
+            "Largest tested context with size_vram equal to size. The next 1,024-token step spilled.",
+            "About full GPU allocation",
+        )
+        + "</div><b>"
+        + f"{full:,}"
+        + '</b><div class="small">tokens on the current server</div></div>'
+        + '<div class="pick"><div class="muted small">VERIFIED RETRIEVAL'
+        + info(
+            "Largest non-overflowing v4 needle prompt that returned the expected fact.",
+            "About verified retrieval",
+        )
+        + "</div><b>"
+        + f"{recall:,}"
+        + '</b><div class="small">prompt tokens</div></div>'
+        + '<div class="pick"><div class="muted small">FIRST TOOL GATE'
+        + info(
+            "The corrected-template arm was tested on the T1 file-write call. Empty API responses are invalid.",
+            "About the first tool gate",
+        )
+        + "</div><b>"
+        + f"{gate_passes} / {gate_total}"
+        + '</b><div class="small">correct among valid responses; '
+        + str(gate_empty)
+        + " empty</div></div></div>"
+        + body
+        + '<p class="small muted">Results may be incomplete while tests run. See <a href="KOLIBRI_Q3_RUN.md">the run record</a> and <a href="../ollamaClaudeCode_v4_tielCoder/dashboard.html">the v4 dashboard</a>. Click a column to sort.</p></main>'
+        + '<div id="tip" role="tooltip"></div><script>'
+        + script
+        + "</script></body></html>"
     )
 
 
@@ -396,6 +464,8 @@ def main():
     adaptive = read_jsonl(adaptive_path) if adaptive_path.exists() else []
     reason_path = MEASUREMENTS / "reason-effort-t1.jsonl"
     reason_arm = read_jsonl(reason_path) if reason_path.exists() else []
+    parser_path = MEASUREMENTS / "parser-arm-t1.jsonl"
+    parser_arm = read_jsonl(parser_path) if parser_path.exists() else []
     deep = []
     for filename, tag in (
         ("deep-kolibri.tsv", "kolibri1:q3ks-ctx147456-nothink-ab"),
@@ -414,6 +484,7 @@ def main():
         read_jsonl(MEASUREMENTS / "stock-t1-eight.jsonl"),
         adaptive,
         reason_arm,
+        parser_arm,
         deep,
         coding,
         json.loads((MEASUREMENTS / "coding-rescores.json").read_text()),
@@ -422,6 +493,7 @@ def main():
         + read_jsonl(MEASUREMENTS / "refinement.jsonl"),
         read_jsonl(MEASUREMENTS / "needle-near.jsonl"),
         bilingual,
+        read_jsonl(MEASUREMENTS / "agentic-gates.raw.jsonl"),
     )
     target = ROOT / "dashboard.html"
     temporary = ROOT / "dashboard.html.new"
