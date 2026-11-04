@@ -13,6 +13,7 @@ Install Python 3, `coverage` 7.14.0 and ShellCheck. Run `./localPipeline.sh`. Th
 - `pull-model.sh` checks that the server is idle and downloads the selected model. It uses `results/pull.lock` to prevent duplicate local pulls.
 - `after-pull.sh` waits on the pull lock and starts the residency probe. Run it only after starting the pull.
 - `speed-probe.sh` runs three cold v4 throughput samples per prompt size for each model. It waits for the retrieval stage.
+- `agentic-battery.sh` runs v4 gates T2, T4, T5 and T8–T11 on both models. It waits for the near-limit test.
 - `near-limit.sh` waits for completed speed tests and retries retrieval below the overflow point.
 - `needle-probe.sh` runs the v4 retrieval ladder with stricter error checks.
 - `gate-reliability.sh` repeats v4 T1 eight times and keeps the raw responses. It fixes a null-content crash in the copied scorer.

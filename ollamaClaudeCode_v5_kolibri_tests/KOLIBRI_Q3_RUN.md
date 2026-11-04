@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.18. Started: 2026-11-04.
+Version: 0.2.19. Started: 2026-11-04.
 
 ## Verdict
 
@@ -76,6 +76,8 @@ The stock-template T1 smoke returned no tool call. The first corrected-template 
 `speed-probe.sh` runs v4 throughput prompts for Kolibri and the same-session Qwen control. It alternates models and unloads each after a sample. It saves raw responses and stops on errors, empty answers or spills. It takes three cold samples per prompt size and model.
 
 `near-limit.sh` waits for all 18 speed samples and retries retrieval at 60,000 and 70,000 words. Compare the reported prompt token counts with the 147,456-token allocation before scoring.
+
+`agentic-battery.sh` runs v4 gates T2, T4, T5 and T8–T11 three times on each model. It patches the copied scorer for null content and stops on reported transport errors. T3 and T7 remain separate tests.
 
 ## Resume here
 
