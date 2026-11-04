@@ -12,10 +12,19 @@ exec 8>results/thinking.lock
 flock -n 8 || { echo 'Another thinking retry is running.' >&2; exit 1; }
 # shellcheck disable=SC2154
 trap 'rc=$?; timeout 5 notify-send "Kolibri adaptive-thinking gate finished" "Exit status: $rc. See results/thinking.log." 2>/dev/null || true' EXIT
+mode="${1:-after-fidelity}"
 exec 9>results/fidelity.lock
 flock 9
-[[ -f results/fidelity/results/gate-extra.tsv ]] || { echo 'Fidelity retry is incomplete.' >&2; exit 1; }
-[[ $(wc -l < results/fidelity/results/gate-extra.raw.jsonl) -eq 8 ]] || { echo 'Fidelity runs are incomplete.' >&2; exit 1; }
+case "$mode" in
+  after-fidelity)
+    [[ -f results/fidelity/results/gate-extra.tsv ]] || { echo 'Fidelity retry is incomplete.' >&2; exit 1; }
+    [[ $(wc -l < results/fidelity/results/gate-extra.raw.jsonl) -eq 8 ]] || { echo 'Fidelity runs are incomplete.' >&2; exit 1; }
+    ;;
+  after-invalid)
+    python3 -c 'import json; rows=[json.loads(x) for x in open("results/fidelity/results/api.raw.jsonl")]; assert rows and not rows[-1]["response"].get("content"), "No reviewed empty response"'
+    ;;
+  *) echo 'Use after-fidelity or after-invalid.' >&2; exit 1 ;;
+esac
 [[ ! -e "$out/results/gate-rerun.raw.jsonl" ]] || { echo 'Existing result; review before restarting.' >&2; exit 1; }
 curl --noproxy '*' -fsS -m 10 "$base/api/version" | python3 -c 'import json,sys; assert json.load(sys.stdin)["version"] == "0.40.11"'
 curl --noproxy '*' -fsS -m 10 "$base/api/ps" | python3 -c 'import json,sys; assert json.load(sys.stdin)["models"] == [], "Server is busy"'

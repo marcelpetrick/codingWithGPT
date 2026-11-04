@@ -31,7 +31,7 @@ Open [dashboard.html](dashboard.html) in a browser. It is generated from the res
 - `pull-model.sh` checks that the server is idle and downloads the selected model. It uses `results/pull.lock` to prevent duplicate local pulls.
 - `after-pull.sh` waits on the pull lock and starts the residency probe. Run it only after starting the pull.
 - `speed-probe.sh` runs three cold v4 throughput samples per prompt size for each model. It waits for the retrieval stage.
-- `thinking-retry.sh` repeats v4 T1 with adaptive thinking as a separate arm.
+- `thinking-retry.sh` repeats v4 T1 with adaptive thinking as a separate arm. Use `after-invalid` after reviewing an empty fidelity response.
 - `fidelity-retry.sh` repeats v4 T10 up to eight times and saves full API responses. Use `after-native` after reviewing an interrupted deep gate.
 - `deep-probe.sh` runs the v4 multi-turn and long-context tool gates after coding sessions.
 - `native-tool-probe.sh` checks one native Ollama tool call at temperature zero.
