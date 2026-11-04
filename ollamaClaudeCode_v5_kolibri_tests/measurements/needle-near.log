@@ -1,0 +1,4 @@
+=== needle-v2 on 192.168.100.67: kolibri1:q3ks-ctx147456-nothink-ab (baked num_ctx=147456, num_predict=2048) ===
+  120k   PASS      prompt_eval=112417  eval=13    done=stop     answer='CRIMSON-PANGOLIN-4471'
+  140k   PASS      prompt_eval=131506  eval=13    done=stop     answer='CRIMSON-PANGOLIN-4471'
+=== finished ===
