@@ -28,6 +28,14 @@ from pathlib import Path
 import sys
 p=Path(sys.argv[1]); s=p.read_text()
 changes=[('set -uo pipefail','set -euo pipefail'),('NET="v4-egress-none"','NET="v5-kolibri-egress"'),('RELAY="v4-relay"','RELAY="v5-kolibri-relay"'),('CLAUDE_CODE_MAX_CONTEXT_TOKENS=200000','CLAUDE_CODE_MAX_CONTEXT_TOKENS=147456'),('curl -s -m 900 "$API/api/generate"','curl -fsS -m 900 "$API/api/generate"'),('t.extractall(dest)','t.extractall(dest, filter="data")'),('    print("  WARNING: no working tree came back from the container", file=sys.stderr)','    raise SystemExit("No working tree came back from the container")'),('  W0=$(date +%s.%N)','  if [[ "$EGRESS" != *"relay=200"* || "$EGRESS" != *"internet=000"* ]]; then docker rm -f "$CID" >/dev/null 2>&1 || true; echo "Sandbox egress check failed: $EGRESS" >&2; exit 1; fi\n  W0=$(date +%s.%N)')]
+old_score = '''  TESTS_EDITED=$( cd "$WORK" && git diff --name-only HEAD -- tests/ 2>/dev/null | wc -l )
+  SRC_EDITED=$(   cd "$WORK" && git diff --name-only HEAD -- "$SRC" 2>/dev/null | wc -l )'''
+new_score = '''  BASELINE=$( cd "$WORK" && git rev-list --max-parents=0 HEAD | tail -1 )
+  [ -n "$BASELINE" ] || { echo "Missing fixture baseline" >&2; exit 1; }
+  [ "$(cd "$WORK" && git log -1 --format=%s "$BASELINE")" = fixture ] || { echo "Invalid fixture baseline" >&2; exit 1; }
+  TESTS_EDITED=$( cd "$WORK" && git diff --name-only "$BASELINE" -- tests/ | wc -l )
+  SRC_EDITED=$(   cd "$WORK" && git diff --name-only "$BASELINE" -- "$SRC" | wc -l )'''
+changes.append((old_score, new_score))
 for old,new in changes:
     assert s.count(old)==1, old
     s=s.replace(old,new)

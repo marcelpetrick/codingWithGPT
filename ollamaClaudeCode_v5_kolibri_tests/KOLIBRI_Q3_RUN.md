@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.26. Started: 2026-11-04.
+Version: 0.2.27. Started: 2026-11-04.
 
 ## Verdict
 
@@ -98,7 +98,7 @@ The stock-template T1 smoke returned no tool call. The first corrected-template 
 
 `agentic-battery.sh` runs v4 gates T2, T4, T5 and T8–T11 three times on each model. It patches the copied scorer for null content and stops on reported transport errors. T3 and T7 remain separate tests.
 
-`coding-bench.sh` runs three easy and three hard Claude Code sessions per model in the existing v4 sandbox image. Both models use the same 147,456-token client limit. The copied harness checks sandbox egress and refuses a missing working tree. The sandbox CLI version differs from the host; compare only the two sandbox arms.
+`coding-bench.sh` runs three easy and three hard Claude Code sessions per model in the existing v4 sandbox image. Both models use the same 147,456-token client limit. The copied harness checks sandbox egress and refuses a missing working tree. The sandbox CLI version differs from the host; compare only the two sandbox arms. The first session committed its changes. The original v4 scorer compares with current `HEAD` and can miss committed edits. Subsequent sessions use the fixture root commit as the baseline. Re-score the first session from its saved tree.
 
 `deep-probe.sh` runs v4 T3 and T7 once per model after the coding stage. T7 itself repeats three times. The copied harness omits retrieval, already measured separately. It rejects malformed responses and uses safe scorer parsing instead of `eval`. A T7 prompt must report at least 40,000 tokens. Rerun any failure eight times before classification.
 
