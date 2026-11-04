@@ -34,6 +34,7 @@ Open [dashboard.html](dashboard.html) in a browser. It is generated from the res
 - `thinking-retry.sh` repeats v4 T1 with adaptive thinking as a separate arm. Use `after-invalid` after reviewing an empty fidelity response.
 - `fidelity-retry.sh` repeats v4 T10 up to eight times and saves full API responses. Use `after-native` after reviewing an interrupted deep gate.
 - `deep-probe.sh` runs the v4 multi-turn and long-context tool gates after coding sessions.
+- `parser-arm.sh` tests Ollama’s Qwen3 thinking parser as a separate T1 arm.
 - `native-tool-probe.sh` checks one native Ollama tool call at temperature zero.
 - `raw-diagnostic.sh` tests a T1-shaped raw prompt without the chat tool parser.
 - `reasoning-arm.sh` tests the official disabled-reasoning instruction as a separate T1 arm.

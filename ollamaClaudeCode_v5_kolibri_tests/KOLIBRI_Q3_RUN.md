@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.3.20. Started: 2026-11-04.
+Version: 0.3.21. Started: 2026-11-04.
 
 ## Verdict
 
@@ -131,6 +131,8 @@ The first control hard run produced a saved tree with 16/18 hidden tests. Strict
 `raw-diagnostic.sh` tests one T1-shaped prompt using `/api/generate` with `raw: true`. The manually rendered prompt approximates the corrected template; it is a diagnostic arm, not a score comparable to T1. It saves the request and response. This diagnostic returned a correctly shaped `write_file` call. The prompt and sampling differ from T1, so it does not isolate the cause of the empty API responses.
 
 `native-tool-probe.sh` checks one T1-shaped request through `/api/chat` at temperature zero. This is a diagnostic, not a reliability score. The native chat request returned empty content without a tool call. It is invalid under the run rules. The request and response are in `measurements/`. Raw generation produced a tool call, but its manually rendered prompt was not identical.
+
+`parser-arm.sh` tests Ollama 0.40.11’s `qwen3-thinking` parser with the existing corrected template. Kolibri and that parser use `<tool_call>` JSON tags. This changes only the parser in a separate tag. Run T1 eight times; stop on empty content. Three or more scoreable failures are systematic. Parser compatibility and long-term deployment are not assumed.
 
 ## Resume here
 
