@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.0.1. Started: 2026-11-04.
+Version: 0.0.2. Started: 2026-11-04.
 
 ## Verdict
 
@@ -36,6 +36,10 @@ The model card's Ollama warning predates upstream support. [Ollama 0.40.11 pins 
 | 2026-11-04 12:56 | Server preflight | `/api/version` returned 0.40.11. `/api/ps` returned no resident models. |
 | 2026-11-04 12:56 | Shell access | SSH denied for `mpetrick`. The API remains reachable. |
 | 2026-11-04 12:57 | Compatibility | Upstream Kolibri support is present in Ollama's pinned llama.cpp source. A model load is still needed. |
+
+## Pull script
+
+`pull-model.sh` checks the server version and idle state, then pulls the Q3_K_S tag. It skips an existing tag. It writes streaming progress to standard output and uses `results/pull.lock` to prevent duplicate local runs. It sends a desktop notification at exit.
 
 ## Resume here
 
