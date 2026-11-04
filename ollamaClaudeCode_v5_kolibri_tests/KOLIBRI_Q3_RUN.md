@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.29. Started: 2026-11-04.
+Version: 0.2.30. Started: 2026-11-04.
 
 ## Verdict
 
@@ -103,6 +103,8 @@ The stock-template T1 smoke returned no tool call. The first corrected-template 
 `deep-probe.sh` runs v4 T3 and T7 once per model after the coding stage. T7 itself repeats three times. The copied harness omits retrieval, already measured separately. It rejects malformed responses and uses safe scorer parsing instead of `eval`. A T7 prompt must report at least 40,000 tokens. Rerun any failure eight times before classification.
 
 `fidelity-retry.sh` waits for the deep gates and reruns T10 eight times. It saves each request and complete response for diagnosis.
+
+`thinking-retry.sh` repeats T1 eight times with adaptive thinking. It labels this A/B arm separately from the disabled-thinking gate.
 
 ## Resume here
 
