@@ -6,7 +6,7 @@ This experiment tests Kolibri-1 Q3_K_S on the shared Ollama server. See [the run
 
 ## Run checks
 
-Install Python 3, `coverage` 7.14.0 and ShellCheck. Run `./localPipeline.sh`. This checks shell syntax, ShellCheck, Python compilation and unit tests. It requires at least 95% statement coverage for `residency.py`. The tests do not contact the server.
+Install Python 3, `coverage` 7.14.0 and ShellCheck. Run `./localPipeline.sh`. This checks shell syntax, ShellCheck, Python compilation and unit tests. It requires at least 95% statement coverage across `residency.py` and `refine.py`. The tests do not contact the server.
 
 ## Scripts
 
