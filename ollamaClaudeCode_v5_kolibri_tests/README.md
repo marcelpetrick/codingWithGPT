@@ -12,8 +12,11 @@ Install Python 3, `coverage` 7.14.0 and ShellCheck. Run `./localPipeline.sh`. Th
 
 - `pull-model.sh` checks that the server is idle and downloads the selected model. It uses `results/pull.lock` to prevent duplicate local pulls.
 - `after-pull.sh` waits on the pull lock and starts the residency probe. Run it only after starting the pull.
+- `after-residency.sh` waits for the ladder and starts `refine.py`.
+- `refine.py` searches the remaining context interval in steps of 1,024 tokens.
 - `residency.py` checks the server, tests context sizes and writes `results/residency.jsonl`. It resumes matching results and refuses to unload another model.
 - `localPipeline.sh` runs the local checks.
+- `test_refine.py` checks the context search.
 - `test_residency.py` tests the probe with mocked responses and a local HTTP server.
 
 The scripts use `192.168.100.67:11434`. Do not run them while another user occupies the server. Check `results/pull.log` and `results/chain.log` after a detached run. The probe stops on errors or the first GPU spill. A successful allocation does not establish retrieval or tool-use quality.
