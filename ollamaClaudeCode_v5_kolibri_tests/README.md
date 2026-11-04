@@ -25,6 +25,7 @@ Install Python 3, `coverage` 7.14.0 and ShellCheck. Run `./localPipeline.sh`. Th
 - `refine.py` searches the remaining context interval in steps of 1,024 tokens.
 - `residency.py` checks the server, tests context sizes and writes `results/residency.jsonl`. It resumes matching results and refuses to unload another model.
 - `localPipeline.sh` runs the local checks.
+- `test_fixture_baseline.py` checks scoring when a model commits fixture changes.
 - `test_pull.py` checks that failed preflight reads stop the pull.
 - `test_refine.py` checks the context search.
 - `test_residency.py` tests the probe with mocked responses and a local HTTP server.
