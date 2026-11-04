@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.1.4. Started: 2026-11-04.
+Version: 0.1.5. Started: 2026-11-04.
 
 ## Verdict
 

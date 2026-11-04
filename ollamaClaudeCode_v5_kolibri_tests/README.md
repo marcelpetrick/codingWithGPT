@@ -1,5 +1,7 @@
 # Kolibri Q3 experiment
 
+[![Kolibri Q3 checks](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/kolibri-q3.yml/badge.svg)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/kolibri-q3.yml)
+
 This experiment tests Kolibri-1 Q3_K_S on the shared Ollama server. See [the run record](KOLIBRI_Q3_RUN.md) for the plan, evidence, status and resume commands. See [the vision](vision.md) for the goal.
 
 ## Run checks
