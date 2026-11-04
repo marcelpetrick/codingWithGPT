@@ -12,6 +12,7 @@ Install Python 3, `coverage` 7.14.0 and ShellCheck. Run `./localPipeline.sh`. Th
 
 - `pull-model.sh` checks that the server is idle and downloads the selected model. It uses `results/pull.lock` to prevent duplicate local pulls.
 - `after-pull.sh` waits on the pull lock and starts the residency probe. Run it only after starting the pull.
+- `gate-reliability.sh` repeats v4 T1 eight times and keeps the raw responses. It fixes a null-content crash in the copied scorer.
 - `agentic-smoke.sh` runs the unchanged v4 T1 gate once at the measured context. Pass a model tag and result label to test a separate variant.
 - `after-residency.sh` waits for the ladder and starts `refine.py`.
 - `refine.py` searches the remaining context interval in steps of 1,024 tokens.
