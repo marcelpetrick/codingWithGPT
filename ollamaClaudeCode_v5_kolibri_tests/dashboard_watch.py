@@ -34,6 +34,7 @@ def sync():
             "deep-qwen.tsv",
         ),
         (RESULTS / "fidelity" / "results" / "gate-extra.tsv", "fidelity.tsv"),
+        (RESULTS / "fidelity" / "results" / "api.raw.jsonl", "fidelity-api.jsonl"),
         (
             RESULTS / "t1-adaptive" / "results" / "gate-rerun.raw.jsonl",
             "adaptive-t1.jsonl",
@@ -72,6 +73,7 @@ def watch():
     if fd < 0:
         raise OSError(ctypes.get_errno(), "inotify_init1 failed")
     try:
+        stop_log = os.environ.get("KOLIBRI_WATCH_UNTIL", "reasoning.log")
         descriptors = {}
         candidates = (
             RESULTS,
@@ -116,7 +118,7 @@ def watch():
                     add_existing()
                 if mask & CLOSE_WRITE:
                     changed = True
-                    if descriptors.get(wd) == RESULTS and name == "reasoning.log":
+                    if descriptors.get(wd) == RESULTS and name == stop_log:
                         finished = True
             if changed:
                 sync()

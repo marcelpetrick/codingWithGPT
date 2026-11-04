@@ -32,7 +32,7 @@ Open [dashboard.html](dashboard.html) in a browser. It is generated from the res
 - `after-pull.sh` waits on the pull lock and starts the residency probe. Run it only after starting the pull.
 - `speed-probe.sh` runs three cold v4 throughput samples per prompt size for each model. It waits for the retrieval stage.
 - `thinking-retry.sh` repeats v4 T1 with adaptive thinking as a separate arm.
-- `fidelity-retry.sh` repeats v4 T10 eight times and saves full API responses.
+- `fidelity-retry.sh` repeats v4 T10 up to eight times and saves full API responses. Use `after-native` after reviewing an interrupted deep gate.
 - `deep-probe.sh` runs the v4 multi-turn and long-context tool gates after coding sessions.
 - `native-tool-probe.sh` checks one native Ollama tool call at temperature zero.
 - `raw-diagnostic.sh` tests a T1-shaped raw prompt without the chat tool parser.

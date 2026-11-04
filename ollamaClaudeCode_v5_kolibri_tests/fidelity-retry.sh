@@ -12,10 +12,21 @@ exec 8>results/fidelity.lock
 flock -n 8 || { echo 'Another fidelity retry is running.' >&2; exit 1; }
 # shellcheck disable=SC2154
 trap 'rc=$?; timeout 5 notify-send "Kolibri fidelity retry finished" "Exit status: $rc. See results/fidelity.log." 2>/dev/null || true' EXIT
-exec 9>results/deep.lock
-flock 9
-[[ -f results/deep/kolibri1/kolibri1_q3ks-ctx147456-nothink-ab.tsv ]] || { echo 'Deep gates are incomplete.' >&2; exit 1; }
-[[ -f results/deep/qwen3.6/qwen3.6_35b-a3b-q4_K_M-agentic.tsv ]] || { echo 'Control deep gates are incomplete.' >&2; exit 1; }
+mode="${1:-after-deep}"
+case "$mode" in
+  after-deep)
+    exec 9>results/deep.lock
+    flock 9
+    [[ -f results/deep/kolibri1/kolibri1_q3ks-ctx147456-nothink-ab.tsv ]] || { echo 'Deep gates are incomplete.' >&2; exit 1; }
+    [[ -f results/deep/qwen3.6/qwen3.6_35b-a3b-q4_K_M-agentic.tsv ]] || { echo 'Control deep gates are incomplete.' >&2; exit 1; }
+    ;;
+  after-native)
+    exec 9>results/native-tool.lock
+    flock 9
+    python3 -c 'import json; d=json.load(open("results/native-tool/response.json")); assert d.get("done") and "message" in d, "Native diagnostic is incomplete"'
+    ;;
+  *) echo 'Use after-deep or after-native.' >&2; exit 1 ;;
+esac
 [[ ! -e "$out/results/gate-extra.raw.jsonl" ]] || { echo 'Existing fidelity results; review before restarting.' >&2; exit 1; }
 curl --noproxy '*' -fsS -m 10 "$base/api/version" | python3 -c 'import json,sys; assert json.load(sys.stdin)["version"] == "0.40.11"'
 curl --noproxy '*' -fsS -m 10 "$base/api/ps" | python3 -c 'import json,sys; assert json.load(sys.stdin)["models"] == [], "Server is busy"'
