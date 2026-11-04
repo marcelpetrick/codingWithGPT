@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.1.7. Started: 2026-11-04.
+Version: 0.1.8. Started: 2026-11-04.
 
 ## Verdict
 
@@ -12,9 +12,9 @@ Ollama 0.40.11 includes upstream Kolibri architecture support. The actual model 
 2. Pull Q3_K_S through the existing Ollama API. Estimate: download dependent.
 3. Test one request at 4,096 tokens. Stop if the server is busy, unavailable or the model fails.
 4. Measure GPU residency at increasing contexts. Record `size` and `size_vram` from `/api/ps`.
-5. Find the highest tested fully resident context. A spill is `size_vram < size`.
+5. Find the highest tested fully resident context. A spill is `size_vram < size`. After a spill, bisect the interval at 1,024-token resolution. If 4,096 spills, test 2,048 before declaring failure.
 6. Verify retrieval at the chosen context. Allocation alone does not prove usable context.
-7. Run v4 tool gates and coding sessions if the model and template support them.
+7. Run v4 tool gates and three easy and three hard Claude Code sessions if the model and template support them. Compare against the v4 control measured in the same session. Keep T1–T5 unchanged. Run long-context gates only when their actual prompt fits. Label scaled probes separately. Measure cold prefill, generation and warm cache behavior.
 8. Review findings and record limits. Do not restart or upgrade the shared server.
 
 A result requires a completed request and a nonempty response. Use one request at a time. Record the runtime version and model digest. Stop on a foreign resident model. Unload only a model this experiment loaded. A failed load is not a VRAM measurement. Treat gate failures as systematic only when at least 3 of 8 reruns fail. Report three-run medians and ranges for timing. Use the v4 control in the same session before making comparisons.
