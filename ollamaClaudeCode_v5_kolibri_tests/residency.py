@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (C) 2026 Marcel Petrick
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Measure a Kolibri context ladder on the existing, idle Ollama server."""
 import json
 import os

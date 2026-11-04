@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Marcel Petrick
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Safety checks for the residency probe; no server access is required."""
 import unittest
 from unittest.mock import patch

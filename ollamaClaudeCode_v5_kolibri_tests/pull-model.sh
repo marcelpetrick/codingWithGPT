@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Marcel Petrick
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Download the selected Q3 model to the Ollama server. See KOLIBRI_Q3_RUN.md.
 set -euo pipefail
 cd "$(dirname "$0")"

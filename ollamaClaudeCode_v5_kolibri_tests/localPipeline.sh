@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Marcel Petrick
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Check the experiment record without contacting the shared server.
 set -euo pipefail
 cd "$(dirname "$0")"

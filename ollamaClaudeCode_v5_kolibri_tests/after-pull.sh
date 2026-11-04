@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Marcel Petrick
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Wait for the pull lock, then run the residency ladder if the pull succeeded.
 set -euo pipefail
 cd "$(dirname "$0")"
