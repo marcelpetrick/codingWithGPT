@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.3.14. Started: 2026-11-04.
+Version: 0.3.15. Started: 2026-11-04.
 
 ## Verdict
 
@@ -129,6 +129,8 @@ The first control hard run produced a saved tree with 16/18 hidden tests. Strict
 `reasoning-arm.sh` tests one further template change after the bilingual stage. It adds the official disabled-reasoning instruction to the corrected-template system message. It repeats T1 eight times and keeps this arm separate. The first API response had null content, so this arm stopped without a score. The raw response is in `measurements/reason-effort-t1.jsonl`. Three or more scoreable failures would be systematic.
 
 `raw-diagnostic.sh` tests one T1-shaped prompt using `/api/generate` with `raw: true`. The manually rendered prompt approximates the corrected template; it is a diagnostic arm, not a score comparable to T1. It saves the request and response. This diagnostic returned a correctly shaped `write_file` call. The prompt and sampling differ from T1, so it does not isolate the cause of the empty API responses.
+
+`native-tool-probe.sh` checks one T1-shaped request through `/api/chat` at temperature zero. This is a diagnostic, not a reliability score. It saves the request and complete response.
 
 ## Resume here
 
