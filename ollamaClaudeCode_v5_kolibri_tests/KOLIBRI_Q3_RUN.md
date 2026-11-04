@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.20. Started: 2026-11-04.
+Version: 0.2.21. Started: 2026-11-04.
 
 ## Verdict
 
@@ -78,6 +78,8 @@ The stock-template T1 smoke returned no tool call. The first corrected-template 
 `near-limit.sh` waits for all 18 speed samples and retries retrieval at 60,000 and 70,000 words. Compare the reported prompt token counts with the 147,456-token allocation before scoring.
 
 `agentic-battery.sh` runs v4 gates T2, T4, T5 and T8–T11 three times on each model. It patches the copied scorer for null content and stops on reported transport errors. T3 and T7 remain separate tests.
+
+`coding-bench.sh` runs three easy and three hard Claude Code sessions per model in the existing v4 sandbox image. Both models use the same 147,456-token client limit. The copied harness checks sandbox egress and refuses a missing working tree. The sandbox CLI version differs from the host; compare only the two sandbox arms.
 
 ## Resume here
 
