@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.2.15. Started: 2026-11-04.
+Version: 0.2.16. Started: 2026-11-04.
 
 ## Verdict
 
@@ -68,6 +68,8 @@ The stock-template T1 smoke returned no tool call. The first corrected-template 
 `gate-reliability.sh` repeats T1 eight times. It patches the copied v4 scorer to handle `content: null`. The request and scoring conditions otherwise stay the same. Apply the pre-registered 3-of-8 failure threshold instead of the copied summary label.
 
 `needle-probe.sh` runs the v4 retrieval ladder on the corrected-template arm. It preserves the prompts and adds fail-fast checks for transport errors and empty answers.
+
+`speed-probe.sh` runs v4 throughput prompts for Kolibri and the same-session Qwen control. It alternates models and unloads each after a sample. It saves raw responses and stops on errors, empty answers or spills. It takes three cold samples per prompt size and model.
 
 ## Resume here
 
