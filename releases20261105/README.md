@@ -23,7 +23,7 @@ Started: 2026-11-05, Europe/Berlin.
 | myLastFmPlayer | Done | https://github.com/marcelpetrick/myLastFmPlayer/releases/tag/v0.0.200 |
 | DividendenDackel | Running | Release notes commit 4784d81 passed the local gate. Workflow 42029283775 is running. |
 | Raumfreund | Blocked | Production signing secrets are missing from the release environment. |
-| CroLingo | Running | Real Linux integration tests passed. Release workflow 42026421526 is running. |
+| CroLingo | Done | https://github.com/marcelpetrick/CroLingo/releases/tag/v0.0.87 |
 | GitLabTeamPulse | Done | https://github.com/marcelpetrick/GitLabTeamPulse/releases/tag/v0.5.2 |
 
 ## Chronological log
@@ -49,14 +49,14 @@ Started: 2026-11-05, Europe/Berlin.
 | 2026-11-05 | Publish GermanDubI | Published v0.5.6 with wheel and source archive. The container image builds are running. |
 | 2026-11-05 | Retry DividendenDackel | Version 0.65.14 passed the local gate. A short commit ID caused checkout to fail. Restarted workflow 42029283775 with the full ID. |
 | 2026-11-05 | Finish GermanDubI | The full release and container workflows passed. Removed its temporary worktree. |
+| 2026-11-05 | Publish CroLingo | The signed release workflow passed. Published v0.0.87 with Android and Linux artifacts, SBOMs, and checksums. Removed its temporary worktree. |
 
 ## Resume here
 
-1. Check CroLingo release workflow 42026421526.
-2. Check DividendenDackel release workflow 42029283775 and its CI for commit 4784d811ffee1b8a9449b5f4aff9189bbad7e015.
-3. Verify the public releases and their artifacts after the workflows pass.
-4. Remove `/home/mpetrick/repos/CroLingo-release-20261105` and `/home/mpetrick/repos/DividendenDackel-release-20261105` after their releases finish.
-5. Resolve Raumfreund signing secrets or the debug-release choice.
-6. Record the results and commit this document locally.
+1. Check DividendenDackel release workflow 42029283775 for commit 4784d811ffee1b8a9449b5f4aff9189bbad7e015.
+2. Verify the public release and its artifacts after the workflow passes.
+3. Remove `/home/mpetrick/repos/DividendenDackel-release-20261105` after its release finishes.
+4. Resolve Raumfreund signing secrets or the debug-release choice.
+5. Record the results and commit this document locally.
 
 The owner authorized public releases and the required pushes. Keep unrelated local work intact.
