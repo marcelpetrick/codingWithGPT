@@ -18,13 +18,13 @@ Started: 2026-11-05, Europe/Berlin.
 | --- | --- | --- |
 | AlliumAssault | Running | Tag v1.83.7 pushed. Release and Pages workflows are running. |
 | recognizer | Done | https://github.com/marcelpetrick/recognizer/releases/tag/v0.4.3 |
-| GermanDubI | Running | Preparing release notes for v0.5.6. |
+| GermanDubI | Running | Release notes commit 08e362b pushed. Waiting for main CI before tagging v0.5.6. |
 | androidCatEars | Running | Release workflow 42025625441. |
-| myLastFmPlayer | Running | Release workflow 42025649166. |
+| myLastFmPlayer | Done | https://github.com/marcelpetrick/myLastFmPlayer/releases/tag/v0.0.200 |
 | DividendenDackel | Running | Release workflow 42025676901. |
 | Raumfreund | Blocked | Production signing secrets are missing from the release environment. |
-| CroLingo | Blocked | A real target is required for integration tests before release. |
-| GitLabTeamPulse | Waiting | — |
+| CroLingo | Running | Integration tests are running on the live Linux desktop with isolated data. |
+| GitLabTeamPulse | Running | Preparing v0.5.2 and running the full local gate. |
 
 ## Chronological log
 
@@ -35,6 +35,9 @@ Started: 2026-11-05, Europe/Berlin.
 | 2026-11-05 | Check release prerequisites | CroLingo needs a real target. Raumfreund needs release signing secrets. Asked the owner for both. |
 | 2026-11-05 | Publish recognizer | Published v0.4.3 from the verified default branch. This repository has no dedicated release workflow. |
 | 2026-11-05 | Start release workflows | Started androidCatEars, myLastFmPlayer, and DividendenDackel. |
+| 2026-11-05 | Publish myLastFmPlayer | Release v0.0.200 and its artifacts are public. Its release workflow passed. |
+| 2026-11-05 | Verify CroLingo target | Found an active Linux desktop and audio device. Started integration tests with isolated documents. |
+| 2026-11-05 | Prepare GermanDubI | `make check` passed. Pushed release notes commit 08e362b. |
 
 ## Resume here
 
