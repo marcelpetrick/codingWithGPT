@@ -23,8 +23,8 @@ Started: 2026-11-05, Europe/Berlin.
 | myLastFmPlayer | Done | https://github.com/marcelpetrick/myLastFmPlayer/releases/tag/v0.0.200 |
 | DividendenDackel | Running | Release workflow 42025676901. |
 | Raumfreund | Blocked | Production signing secrets are missing from the release environment. |
-| CroLingo | Running | Integration tests are running on the live Linux desktop with isolated data. |
-| GitLabTeamPulse | Running | Preparing v0.5.2 and running the full local gate. |
+| CroLingo | Running | Real Linux integration tests passed. Release workflow 42026421526 is running. |
+| GitLabTeamPulse | Running | https://github.com/marcelpetrick/GitLabTeamPulse/releases/tag/v0.5.2 — tag Docker workflow running. |
 
 ## Chronological log
 
@@ -38,12 +38,15 @@ Started: 2026-11-05, Europe/Berlin.
 | 2026-11-05 | Publish myLastFmPlayer | Release v0.0.200 and its artifacts are public. Its release workflow passed. |
 | 2026-11-05 | Verify CroLingo target | Found an active Linux desktop and audio device. Started integration tests with isolated documents. |
 | 2026-11-05 | Prepare GermanDubI | `make check` passed. Pushed release notes commit 08e362b. |
+| 2026-11-05 | Verify CroLingo | Five real Linux integration tests passed with isolated data. Started release workflow 42026421526. |
+| 2026-11-05 | Prepare GitLabTeamPulse | Full local gate passed twice. Pushed release commit 0d7aa34. Restored the original Docker image tag. |
+| 2026-11-05 | Publish GitLabTeamPulse | Main CI passed. Published v0.5.2 with wheel and source archive. The tag Docker workflow is running. |
 
 ## Resume here
 
 1. Check release workflows for AlliumAssault, androidCatEars, myLastFmPlayer, and DividendenDackel.
-2. Prepare GermanDubI v0.5.6 and GitLabTeamPulse releases.
-3. Resolve the CroLingo real-target test and Raumfreund signing prerequisites.
+2. Wait for GermanDubI main CI, then tag v0.5.6. Check the GitLabTeamPulse tag Docker workflow.
+3. Monitor CroLingo and resolve Raumfreund signing prerequisites.
 4. Record release URLs, verify artifacts and workflow results, and remove temporary copies.
 
 AlliumAssault worktree: `/home/mpetrick/repos/AlliumAssault-release-20261105`. GermanDubI worktree: `/home/mpetrick/repos/GermanDubI-release-20261105`.
