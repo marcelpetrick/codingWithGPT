@@ -18,7 +18,7 @@ Started: 2026-11-05, Europe/Berlin.
 | --- | --- | --- |
 | AlliumAssault | Done | https://github.com/marcelpetrick/AlliumAssault/releases/tag/v1.83.7 |
 | recognizer | Done | https://github.com/marcelpetrick/recognizer/releases/tag/v0.4.3 |
-| GermanDubI | Running | Main CI passed. Tag v0.5.6 pushed. Release workflow running. |
+| GermanDubI | Running | https://github.com/marcelpetrick/GermanDubI/releases/tag/v0.5.6 — container builds running. |
 | androidCatEars | Done | https://github.com/marcelpetrick/androidCatEars/releases/tag/v0.1.225 — unsigned AAB and debug APK. |
 | myLastFmPlayer | Done | https://github.com/marcelpetrick/myLastFmPlayer/releases/tag/v0.0.200 |
 | DividendenDackel | Running | Release workflow failed: missing dated changelog. Corrected v0.65.14 is in the local gate. |
@@ -46,6 +46,7 @@ Started: 2026-11-05, Europe/Berlin.
 | 2026-11-05 | Fix DividendenDackel release | The workflow requires a dated changelog. Prepared v0.65.14 and started the full local gate. |
 | 2026-11-05 | Tag GermanDubI | Main CI passed. Pushed annotated tag v0.5.6. |
 | 2026-11-05 | Publish AlliumAssault | Release and Pages passed. Published v1.83.7 with web archive and checksum. Removed the temporary worktree. |
+| 2026-11-05 | Publish GermanDubI | Published v0.5.6 with wheel and source archive. The container image builds are running. |
 
 ## Resume here
 
