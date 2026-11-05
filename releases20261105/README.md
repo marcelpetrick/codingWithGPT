@@ -16,7 +16,7 @@ Started: 2026-11-05, Europe/Berlin.
 
 | Repository | State | Release |
 | --- | --- | --- |
-| AlliumAssault | Running | Tag v1.83.7 pushed. Release and Pages workflows are running. |
+| AlliumAssault | Done | https://github.com/marcelpetrick/AlliumAssault/releases/tag/v1.83.7 |
 | recognizer | Done | https://github.com/marcelpetrick/recognizer/releases/tag/v0.4.3 |
 | GermanDubI | Running | Main CI passed. Tag v0.5.6 pushed. Release workflow running. |
 | androidCatEars | Done | https://github.com/marcelpetrick/androidCatEars/releases/tag/v0.1.225 — unsigned AAB and debug APK. |
@@ -45,6 +45,7 @@ Started: 2026-11-05, Europe/Berlin.
 | 2026-11-05 | Finish GitLabTeamPulse | The tag Docker workflow passed. Removed its temporary worktree and build files. |
 | 2026-11-05 | Fix DividendenDackel release | The workflow requires a dated changelog. Prepared v0.65.14 and started the full local gate. |
 | 2026-11-05 | Tag GermanDubI | Main CI passed. Pushed annotated tag v0.5.6. |
+| 2026-11-05 | Publish AlliumAssault | Release and Pages passed. Published v1.83.7 with web archive and checksum. Removed the temporary worktree. |
 
 ## Resume here
 
