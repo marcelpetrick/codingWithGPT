@@ -1,6 +1,6 @@
 # Public releases
 
-Verdict: Eight releases are public and verified. Raumfreund is preparing an approved debug-signed release.
+Verdict: All nine requested releases are public and verified. Raumfreund is a debug-signed release.
 
 Started: 2026-11-05, Europe/Berlin.
 
@@ -22,7 +22,7 @@ Started: 2026-11-05, Europe/Berlin.
 | androidCatEars | Done | https://github.com/marcelpetrick/androidCatEars/releases/tag/v0.1.225 — unsigned AAB and debug APK. |
 | myLastFmPlayer | Done | https://github.com/marcelpetrick/myLastFmPlayer/releases/tag/v0.0.200 |
 | DividendenDackel | Done | https://github.com/marcelpetrick/DividendenDackel/releases/tag/v0.65.14 |
-| Raumfreund | Running | The owner approved a debug-signed release. Preparing a temporary pinned Flutter SDK. |
+| Raumfreund | Done | https://github.com/marcelpetrick/Raumfreund/releases/tag/debug-v0.8.4-build91 — debug-signed APK. |
 | CroLingo | Done | https://github.com/marcelpetrick/CroLingo/releases/tag/v0.0.87 |
 | GitLabTeamPulse | Done | https://github.com/marcelpetrick/GitLabTeamPulse/releases/tag/v0.5.2 |
 
@@ -53,14 +53,16 @@ Started: 2026-11-05, Europe/Berlin.
 | 2026-11-05 | Publish DividendenDackel | CI and release workflow passed. Published v0.65.14 with Android and Linux artifacts and checksums. Removed its temporary worktree. |
 | 2026-11-05 | Check Raumfreund signing | The production release environment has no signing secrets. The local debug certificate matches the previous public debug release. |
 | 2026-11-05 | Start Raumfreund debug release | The owner approved a debug-signed release. |
+| 2026-11-05 | Publish Raumfreund | The dry run and release command passed. Published debug-v0.8.4-build91 with APK, checksum, and version file. Its certificate matches the prior release. Removed the temporary SDK and release files. |
 
 ## Resume here
 
-1. Check `/tmp/raum-release-prepare-result-20261105` and `/tmp/raum-release-prepare-20261105.log`.
-2. Run `tool/release_debug.sh --dry-run` with `RAUMFREUND_FLUTTER_ROOT=/tmp/raum-release-sdk-20261105/flutter`.
-3. Run `tool/release_debug.sh` with the same SDK after the dry run passes.
-4. Verify the release, signing certificate, and artifacts.
-5. Remove the temporary SDK and task-created build files.
-6. Record the URL and commit this document locally.
+The requested releases are complete. No release work remains in scope.
 
-The owner approved a public debug-signed release. Its certificate must match the previous debug release.
+Check the final release with:
+
+```sh
+gh release view debug-v0.8.4-build91 -R marcelpetrick/Raumfreund
+```
+
+Raumfreund is debug-signed. AndroidCatEars includes an unsigned AAB and a debug APK. No task-created worktrees or SDK copies remain.
