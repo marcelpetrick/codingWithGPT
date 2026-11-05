@@ -1,6 +1,6 @@
 # Public releases
 
-Verdict: Work is in progress. Release one repository at a time.
+Verdict: Work is in progress. Independent release pipelines run in parallel.
 
 Started: 2026-11-05, Europe/Berlin.
 
@@ -9,19 +9,19 @@ Started: 2026-11-05, Europe/Berlin.
 1. Inspect the default branch, release instructions, version, and existing tags.
 2. Prepare and verify the release according to the repository rules.
 3. Publish the release and verify its release workflows and assets.
-4. Record its URL and remove task-created temporary copies.
-5. Continue with the next repository.
+4. Record each URL and remove task-created temporary copies.
+5. Resolve any release blockers.
 
 ## Status
 
 | Repository | State | Release |
 | --- | --- | --- |
 | AlliumAssault | Running | Tag v1.83.7 pushed. Release and Pages workflows are running. |
-| recognizer | Waiting | — |
-| GermanDubI | Waiting | — |
-| androidCatEars | Waiting | — |
-| myLastFmPlayer | Waiting | — |
-| DividendenDackel | Waiting | — |
+| recognizer | Done | https://github.com/marcelpetrick/recognizer/releases/tag/v0.4.3 |
+| GermanDubI | Running | Preparing release notes for v0.5.6. |
+| androidCatEars | Running | Release workflow 42025625441. |
+| myLastFmPlayer | Running | Release workflow 42025649166. |
+| DividendenDackel | Running | Release workflow 42025676901. |
 | Raumfreund | Blocked | Production signing secrets are missing from the release environment. |
 | CroLingo | Blocked | A real target is required for integration tests before release. |
 | GitLabTeamPulse | Waiting | — |
@@ -33,11 +33,16 @@ Started: 2026-11-05, Europe/Berlin.
 | 2026-11-05 | Start release task | The owner requested public releases and a committed local record. |
 | 2026-11-05 | Start AlliumAssault release | Default branch version 1.83.7 passed CI. Pushed tag v1.83.7. |
 | 2026-11-05 | Check release prerequisites | CroLingo needs a real target. Raumfreund needs release signing secrets. Asked the owner for both. |
+| 2026-11-05 | Publish recognizer | Published v0.4.3 from the verified default branch. This repository has no dedicated release workflow. |
+| 2026-11-05 | Start release workflows | Started androidCatEars, myLastFmPlayer, and DividendenDackel. |
 
 ## Resume here
 
-1. Check `gh run list -R marcelpetrick/AlliumAssault --limit 10` for tag v1.83.7.
-2. Verify the release, its assets, and the Release and Pages workflows.
-3. Record the release URL and continue with recognizer.
+1. Check release workflows for AlliumAssault, androidCatEars, myLastFmPlayer, and DividendenDackel.
+2. Prepare GermanDubI v0.5.6 and GitLabTeamPulse releases.
+3. Resolve the CroLingo real-target test and Raumfreund signing prerequisites.
+4. Record release URLs, verify artifacts and workflow results, and remove temporary copies.
+
+AlliumAssault worktree: `/home/mpetrick/repos/AlliumAssault-release-20261105`. GermanDubI worktree: `/home/mpetrick/repos/GermanDubI-release-20261105`.
 
 The owner authorized public releases and the required pushes. Keep unrelated local work intact.
