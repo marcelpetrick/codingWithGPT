@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.4.2. Started: 2026-11-04.
+Version: 0.4.3. Started: 2026-11-04.
 
 ## Verdict
 
@@ -134,6 +134,10 @@ The first control hard run produced a saved tree with 16/18 hidden tests. Strict
 
 `parser-arm.sh` tests Ollama 0.40.11’s `qwen3-thinking` parser with the existing corrected template. Kolibri and that parser use `<tool_call>` JSON tags. This changes only the parser in a separate tag. Run T1 eight times; stop on empty content. Three or more scoreable failures are systematic. The v4 T1 scorer initially reported 7/8 passes for this arm. All eight calls used the tool name `function` instead of `write_file`, so the strict score is 0/8. The original raw responses are in `measurements/parser-arm-t1.jsonl`. Parser compatibility and long-term deployment are not assumed.
 
+## Targeted tool gates
+
+`targeted-gate.sh` runs three T3 and three T7 trials for each model. It uses the v4 tool definitions and a temperature of zero. T3 checks a tool call and the reply after its result. T7 uses the v4 long excerpt and requires at least 40,000 input tokens. These trials are a separate arm from the earlier gate runs. The script records full responses and stops on empty responses or short prompts. It checks the server version, model digest and GPU residency. A restart skips valid recorded trials and refuses an invalid record until reviewed.
+
 ## Resume here
 
 Work in `ollamaClaudeCode_v5_kolibri_tests`. Confirm the server is idle before any run:
@@ -142,6 +146,14 @@ Work in `ollamaClaudeCode_v5_kolibri_tests`. Confirm the server is idle before a
 curl --noproxy '*' -fsS http://192.168.100.67:11434/api/version
 curl --noproxy '*' -fsS http://192.168.100.67:11434/api/ps
 ```
+
+The targeted gate runner is ready. Check the server and then start it with:
+
+```sh
+setsid nohup systemd-inhibit --what=sleep:idle ./targeted-gate.sh >>results/targeted-gates.log 2>&1 </dev/null & disown
+```
+
+Inspect `results/targeted-gates.jsonl` and the log before restarting a stopped run.
 
 The model tag is `kolibri1:q3ks-ctx147456-nothink-ab`. The coding benchmark is resumable and skips recorded sessions. After checking the logs and confirming the server is idle, restart it with:
 
