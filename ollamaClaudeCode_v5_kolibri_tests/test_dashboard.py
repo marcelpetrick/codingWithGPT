@@ -33,6 +33,8 @@ class DashboardTest(unittest.TestCase):
             self.assertIn("data-v=", page)
             self.assertIn("0.33.3", page)
             self.assertIn("0.40.11", page)
+            self.assertIn("Targeted · temperature 0", page)
+            self.assertIn("2/3", page)
 
     def test_no_current_coding_file_is_allowed(self):
         with tempfile.TemporaryDirectory() as tmp:

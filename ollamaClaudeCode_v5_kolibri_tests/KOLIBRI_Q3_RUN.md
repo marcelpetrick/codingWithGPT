@@ -1,6 +1,6 @@
 # Kolibri Q3 experiment
 
-Version: 0.4.3. Started: 2026-11-04.
+Version: 0.4.4. Started: 2026-11-04.
 
 ## Verdict
 
@@ -80,11 +80,11 @@ The sandbox used Claude Code 2.1.274 and a 147,456-token client limit for both m
 
 Kolibri passed 18/18 held-out tests in all three hard runs. Its times were 389, 483 and 809 seconds. Qwen passed 16/18, 15/18 and 16/18. Its times were 48, 48 and 62 seconds. These are three runs of one Python fixture, not a general coding ranking. The first Kolibri easy row has a documented rescore.
 
-The full v4 T3/T7 stage stopped on empty API content in its first request. The raw response is in `measurements/deep-empty-response.jsonl`. No T3 or T7 score was recorded. The later independent checks were held pending diagnosis.
+The full v4 T3/T7 stage stopped on empty API content in its first request. The raw response is in `measurements/deep-empty-response.jsonl`. No score was recorded for that stage. A separate targeted arm later completed.
 
 ## Agentic gates
 
-The corrected-template Kolibri arm and the Qwen control each passed 3/3 trials for T2, T4, T8, T9 and T11. A stricter review of the raw T5 calls found that Kolibri passed 1/3 and Qwen passed 3/3. In two Kolibri calls, `commit_message` was an object instead of the required string. Kolibri passed 0/3 T10 argument-fidelity trials. The control passed 3/3. An eight-run strict T5 rerun passed 3/8 for Kolibri. The other five calls used a wrong commit-message value or type. This is systematic under the pre-registered rule. The three preliminary T10 responses lack complete raw data. The first diagnostic rerun returned null content and stopped. It is invalid and does not establish a T10 score. See `measurements/fidelity-api.jsonl`. T1 produced one pass and one malformed call among two scoreable corrected-template responses. Six empty responses are invalid. The extra-gate log records verdicts and details, not complete responses. Coding sessions are running in the sandbox.
+The corrected-template Kolibri arm and the Qwen control each passed 3/3 trials for T2, T4, T8, T9 and T11. A stricter review of the raw T5 calls found that Kolibri passed 1/3 and Qwen passed 3/3. In two Kolibri calls, `commit_message` was an object instead of the required string. Kolibri passed 0/3 T10 argument-fidelity trials. The control passed 3/3. An eight-run strict T5 rerun passed 3/8 for Kolibri. The other five calls used a wrong commit-message value or type. This is systematic under the pre-registered rule. The three preliminary T10 responses lack complete raw data. The first diagnostic rerun returned null content and stopped. It is invalid and does not establish a T10 score. See `measurements/fidelity-api.jsonl`. T1 produced one pass and one malformed call among two scoreable corrected-template responses. Six empty responses are invalid. The extra-gate log records verdicts and details, not complete responses. The coding sessions are complete.
 
 The corrected-template T1 test continued after empty API content. That violated the fail-fast rule. Its six empty responses are retained as invalid, not as model failures. The copied scorers now save the raw response and stop on empty content. The v4 T1 scorer also failed to check the tool name and content type. The v4 T5 scorer failed to check the commit message. The dashboard re-scores the raw calls using `gate_score.py`.
 
@@ -136,6 +136,9 @@ The first control hard run produced a saved tree with 16/18 hidden tests. Strict
 
 ## Targeted tool gates
 
+On 2026-11-05, the targeted arm completed three trials per gate and model. Kolibri passed T3 in 2/3 trials and T7 in 3/3 trials. Qwen passed both gates in 3/3 trials. T7 used 55,578 input tokens for Kolibri and 53,283 for Qwen. In the failed T3 trial, Kolibri requested the same file again after receiving its result. These small samples do not establish systematic failure. Full responses are in `measurements/targeted-gates.jsonl`.
+
+
 `targeted-gate.sh` runs three T3 and three T7 trials for each model. It uses the v4 tool definitions and a temperature of zero. T3 checks a tool call and the reply after its result. T7 uses the v4 long excerpt and requires at least 40,000 input tokens. These trials are a separate arm from the earlier gate runs. The script records full responses and stops on empty responses or short prompts. It checks the server version, model digest and GPU residency. A restart skips valid recorded trials and refuses an invalid record until reviewed.
 
 ## Resume here
@@ -147,7 +150,7 @@ curl --noproxy '*' -fsS http://192.168.100.67:11434/api/version
 curl --noproxy '*' -fsS http://192.168.100.67:11434/api/ps
 ```
 
-The targeted gate runner is ready. Check the server and then start it with:
+The targeted gate run is complete. Its saved rows prevent duplicate trials on restart. To resume an incomplete future run, check the server and run:
 
 ```sh
 setsid nohup systemd-inhibit --what=sleep:idle ./targeted-gate.sh >>results/targeted-gates.log 2>&1 </dev/null & disown
@@ -160,5 +163,7 @@ The model tag is `kolibri1:q3ks-ctx147456-nothink-ab`. The coding benchmark is r
 ```sh
 setsid nohup systemd-inhibit --what=sleep:idle ./coding-bench.sh >>results/coding.log 2>&1 </dev/null & disown
 ```
+
+As of 2026-11-05 12:43 CET, no benchmark is running and the server is idle. The remaining work is Docker validation, CI and publication, a final review, and the requested GitHub About proposal. Docker drafts are untracked and have not been validated. Two untracked TSV files contain headers only from stopped stages. Preserve them until their disposition is reviewed.
 
 Check `results/coding.log`, `results/deep.log`, `results/fidelity.log`, `results/thinking.log` and `results/dashboard-watch.log`. Do not restart downstream stages until their prior stage finishes. Inspect partial results before restarting a stage that refuses existing output. Never evict a foreign model. Preserve unrelated repository changes.

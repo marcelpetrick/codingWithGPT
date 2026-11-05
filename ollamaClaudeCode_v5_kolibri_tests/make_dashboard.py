@@ -176,14 +176,16 @@ def gate_table(
         count = (
             row["detail"].split("_at_")[0]
             if row["test"].startswith("T7")
+            else row.get("detail", "").split("_at_")[0]
+            if row.get("configuration")
             else ("1/1" if row["result"] == "PASS" else "0/1")
         )
         body.append(
             "<tr>"
             + model_cell(model)
             + text_cell(row["test"].replace("_", " · ", 1))
-            + text_cell("Long-context run")
-            + text_cell(count)
+            + text_cell(row.get("configuration", "Long-context run"))
+            + text_cell(count, int(count.split("/")[0]) / int(count.split("/")[1]))
             + text_cell("—")
             + "</tr>"
         )
@@ -498,6 +500,28 @@ def main():
         path = MEASUREMENTS / filename
         if path.exists():
             deep.extend((tag, row) for row in read_tsv(path))
+    targeted_path = MEASUREMENTS / "targeted-gates.jsonl"
+    if targeted_path.exists():
+        groups = {}
+        for row in read_jsonl(targeted_path):
+            groups.setdefault((row["model"], row["gate"]), []).append(row)
+        for (model, gate), rows in groups.items():
+            valid = [row for row in rows if row["verdict"] in ("PASS", "FAIL")]
+            passed = sum(row["verdict"] == "PASS" for row in valid)
+            if valid:
+                deep.append(
+                    (
+                        model,
+                        {
+                            "test": "T7_tool_at_long_ctx"
+                            if gate == "T7"
+                            else "T3_multiturn",
+                            "detail": f"{passed}/{len(valid)}_at_targeted",
+                            "result": "PASS" if passed == len(valid) else "FAIL",
+                            "configuration": "Targeted · temperature 0",
+                        },
+                    )
+                )
     bilingual_path = MEASUREMENTS / "bilingual.jsonl"
     bilingual = read_jsonl(bilingual_path) if bilingual_path.exists() else []
     strict_path = MEASUREMENTS / "strict-t5.jsonl"
