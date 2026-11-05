@@ -19,7 +19,7 @@ Started: 2026-11-05, Europe/Berlin.
 | AlliumAssault | Running | Tag v1.83.7 pushed. Release and Pages workflows are running. |
 | recognizer | Done | https://github.com/marcelpetrick/recognizer/releases/tag/v0.4.3 |
 | GermanDubI | Running | Release notes commit 08e362b pushed. Waiting for main CI before tagging v0.5.6. |
-| androidCatEars | Running | Release workflow 42025625441. |
+| androidCatEars | Done | https://github.com/marcelpetrick/androidCatEars/releases/tag/v0.1.225 — unsigned AAB and debug APK. |
 | myLastFmPlayer | Done | https://github.com/marcelpetrick/myLastFmPlayer/releases/tag/v0.0.200 |
 | DividendenDackel | Running | Release workflow 42025676901. |
 | Raumfreund | Blocked | Production signing secrets are missing from the release environment. |
@@ -41,6 +41,7 @@ Started: 2026-11-05, Europe/Berlin.
 | 2026-11-05 | Verify CroLingo | Five real Linux integration tests passed with isolated data. Started release workflow 42026421526. |
 | 2026-11-05 | Prepare GitLabTeamPulse | Full local gate passed twice. Pushed release commit 0d7aa34. Restored the original Docker image tag. |
 | 2026-11-05 | Publish GitLabTeamPulse | Main CI passed. Published v0.5.2 with wheel and source archive. The tag Docker workflow is running. |
+| 2026-11-05 | Publish androidCatEars | The release workflow passed. Published v0.1.225 with its unsigned AAB, debug APK, and SBOMs. |
 
 ## Resume here
 
