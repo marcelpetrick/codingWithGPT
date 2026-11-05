@@ -21,7 +21,7 @@ Started: 2026-11-05, Europe/Berlin.
 | GermanDubI | Running | https://github.com/marcelpetrick/GermanDubI/releases/tag/v0.5.6 — container builds running. |
 | androidCatEars | Done | https://github.com/marcelpetrick/androidCatEars/releases/tag/v0.1.225 — unsigned AAB and debug APK. |
 | myLastFmPlayer | Done | https://github.com/marcelpetrick/myLastFmPlayer/releases/tag/v0.0.200 |
-| DividendenDackel | Running | Release workflow failed: missing dated changelog. Corrected v0.65.14 is in the local gate. |
+| DividendenDackel | Running | Release notes commit 4784d81 passed the local gate and was pushed. Workflow 42028740315 is running. |
 | Raumfreund | Blocked | Production signing secrets are missing from the release environment. |
 | CroLingo | Running | Real Linux integration tests passed. Release workflow 42026421526 is running. |
 | GitLabTeamPulse | Done | https://github.com/marcelpetrick/GitLabTeamPulse/releases/tag/v0.5.2 |
@@ -47,6 +47,7 @@ Started: 2026-11-05, Europe/Berlin.
 | 2026-11-05 | Tag GermanDubI | Main CI passed. Pushed annotated tag v0.5.6. |
 | 2026-11-05 | Publish AlliumAssault | Release and Pages passed. Published v1.83.7 with web archive and checksum. Removed the temporary worktree. |
 | 2026-11-05 | Publish GermanDubI | Published v0.5.6 with wheel and source archive. The container image builds are running. |
+| 2026-11-05 | Retry DividendenDackel | Version 0.65.14 passed the local gate. Pushed commit 4784d81 and started workflow 42028740315. |
 
 ## Resume here
 
