@@ -1,6 +1,6 @@
 # Public releases
 
-Verdict: Eight releases are public and verified. Raumfreund waits for production signing secrets or a debug-release decision.
+Verdict: Eight releases are public and verified. Raumfreund is preparing an approved debug-signed release.
 
 Started: 2026-11-05, Europe/Berlin.
 
@@ -22,7 +22,7 @@ Started: 2026-11-05, Europe/Berlin.
 | androidCatEars | Done | https://github.com/marcelpetrick/androidCatEars/releases/tag/v0.1.225 — unsigned AAB and debug APK. |
 | myLastFmPlayer | Done | https://github.com/marcelpetrick/myLastFmPlayer/releases/tag/v0.0.200 |
 | DividendenDackel | Done | https://github.com/marcelpetrick/DividendenDackel/releases/tag/v0.65.14 |
-| Raumfreund | Blocked | Production signing secrets are missing from the release environment. |
+| Raumfreund | Running | The owner approved a debug-signed release. Preparing a temporary pinned Flutter SDK. |
 | CroLingo | Done | https://github.com/marcelpetrick/CroLingo/releases/tag/v0.0.87 |
 | GitLabTeamPulse | Done | https://github.com/marcelpetrick/GitLabTeamPulse/releases/tag/v0.5.2 |
 
@@ -51,14 +51,16 @@ Started: 2026-11-05, Europe/Berlin.
 | 2026-11-05 | Finish GermanDubI | The full release and container workflows passed. Removed its temporary worktree. |
 | 2026-11-05 | Publish CroLingo | The signed release workflow passed. Published v0.0.87 with Android and Linux artifacts, SBOMs, and checksums. Removed its temporary worktree. |
 | 2026-11-05 | Publish DividendenDackel | CI and release workflow passed. Published v0.65.14 with Android and Linux artifacts and checksums. Removed its temporary worktree. |
-| 2026-11-05 | Check Raumfreund signing | The production release environment has no signing secrets. The local debug certificate matches the previous public debug release. Asked the owner to choose a debug release or provide production secrets. |
+| 2026-11-05 | Check Raumfreund signing | The production release environment has no signing secrets. The local debug certificate matches the previous public debug release. |
+| 2026-11-05 | Start Raumfreund debug release | The owner approved a debug-signed release. |
 
 ## Resume here
 
-1. Check the owner’s choice for Raumfreund.
-2. For a production release, add the four Android signing secrets to the GitHub `release` environment.
-3. For a debug release, use `tool/release_debug.sh --dry-run`, then `tool/release_debug.sh`.
-4. Verify the public release and its artifacts.
-5. Record the URL and commit this document locally.
+1. Check `/tmp/raum-release-prepare-result-20261105` and `/tmp/raum-release-prepare-20261105.log`.
+2. Run `tool/release_debug.sh --dry-run` with `RAUMFREUND_FLUTTER_ROOT=/tmp/raum-release-sdk-20261105/flutter`.
+3. Run `tool/release_debug.sh` with the same SDK after the dry run passes.
+4. Verify the release, signing certificate, and artifacts.
+5. Remove the temporary SDK and task-created build files.
+6. Record the URL and commit this document locally.
 
-The local debug certificate matches the previous public release. No task-created worktrees remain. The owner authorized public releases and the required pushes.
+The owner approved a public debug-signed release. Its certificate must match the previous debug release.
