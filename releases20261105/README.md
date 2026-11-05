@@ -52,11 +52,11 @@ Started: 2026-11-05, Europe/Berlin.
 
 ## Resume here
 
-1. Check release workflows for AlliumAssault, androidCatEars, myLastFmPlayer, and DividendenDackel.
-2. Wait for GermanDubI main CI, then tag v0.5.6. Check the GitLabTeamPulse tag Docker workflow.
-3. Monitor CroLingo and resolve Raumfreund signing prerequisites.
-4. Record release URLs, verify artifacts and workflow results, and remove temporary copies.
-
-AlliumAssault worktree: `/home/mpetrick/repos/AlliumAssault-release-20261105`. GermanDubI worktree: `/home/mpetrick/repos/GermanDubI-release-20261105`.
+1. Check CroLingo release workflow 42026421526.
+2. Check DividendenDackel release workflow 42029283775 and its CI for commit 4784d811ffee1b8a9449b5f4aff9189bbad7e015.
+3. Verify the public releases and their artifacts after the workflows pass.
+4. Remove `/home/mpetrick/repos/CroLingo-release-20261105` and `/home/mpetrick/repos/DividendenDackel-release-20261105` after their releases finish.
+5. Resolve Raumfreund signing secrets or the debug-release choice.
+6. Record the results and commit this document locally.
 
 The owner authorized public releases and the required pushes. Keep unrelated local work intact.
