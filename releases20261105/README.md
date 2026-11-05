@@ -18,13 +18,13 @@ Started: 2026-11-05, Europe/Berlin.
 | --- | --- | --- |
 | AlliumAssault | Running | Tag v1.83.7 pushed. Release and Pages workflows are running. |
 | recognizer | Done | https://github.com/marcelpetrick/recognizer/releases/tag/v0.4.3 |
-| GermanDubI | Running | Release notes commit 08e362b pushed. Waiting for main CI before tagging v0.5.6. |
+| GermanDubI | Running | Main CI passed. Tag v0.5.6 pushed. Release workflow running. |
 | androidCatEars | Done | https://github.com/marcelpetrick/androidCatEars/releases/tag/v0.1.225 — unsigned AAB and debug APK. |
 | myLastFmPlayer | Done | https://github.com/marcelpetrick/myLastFmPlayer/releases/tag/v0.0.200 |
-| DividendenDackel | Running | Release workflow 42025676901. |
+| DividendenDackel | Running | Release workflow failed: missing dated changelog. Corrected v0.65.14 is in the local gate. |
 | Raumfreund | Blocked | Production signing secrets are missing from the release environment. |
 | CroLingo | Running | Real Linux integration tests passed. Release workflow 42026421526 is running. |
-| GitLabTeamPulse | Running | https://github.com/marcelpetrick/GitLabTeamPulse/releases/tag/v0.5.2 — tag Docker workflow running. |
+| GitLabTeamPulse | Done | https://github.com/marcelpetrick/GitLabTeamPulse/releases/tag/v0.5.2 |
 
 ## Chronological log
 
@@ -42,6 +42,9 @@ Started: 2026-11-05, Europe/Berlin.
 | 2026-11-05 | Prepare GitLabTeamPulse | Full local gate passed twice. Pushed release commit 0d7aa34. Restored the original Docker image tag. |
 | 2026-11-05 | Publish GitLabTeamPulse | Main CI passed. Published v0.5.2 with wheel and source archive. The tag Docker workflow is running. |
 | 2026-11-05 | Publish androidCatEars | The release workflow passed. Published v0.1.225 with its unsigned AAB, debug APK, and SBOMs. |
+| 2026-11-05 | Finish GitLabTeamPulse | The tag Docker workflow passed. Removed its temporary worktree and build files. |
+| 2026-11-05 | Fix DividendenDackel release | The workflow requires a dated changelog. Prepared v0.65.14 and started the full local gate. |
+| 2026-11-05 | Tag GermanDubI | Main CI passed. Pushed annotated tag v0.5.6. |
 
 ## Resume here
 
