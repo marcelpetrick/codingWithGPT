@@ -1,10 +1,10 @@
 # Kolibri Q3 experiment
 
-Version: 0.4.1. Started: 2026-11-04.
+Version: 0.4.2. Started: 2026-11-04.
 
 ## Verdict
 
-Kolibri Q3_K_S runs on Ollama 0.40.11. The highest tested full-GPU context is 147,456 tokens. At 148,480 tokens, the server reports a spill. Retrieval passed at 131,506 prompt tokens. The stock template failed the first tool-call gate. The corrected-template gate is unresolved because six API responses were empty.
+Kolibri Q3_K_S runs on Ollama 0.40.11. The highest tested full-GPU context is 147,456 tokens. At 148,480 tokens, the server reports a spill. Retrieval passed at 131,506 prompt tokens. The stock template failed the first tool-call gate. The corrected template passed 3/8 strict T5 trials. Its T1 gate is unresolved because six API responses were empty. Keep Qwen as the default coding agent.
 
 ## Plan and decision rules
 
@@ -84,7 +84,7 @@ The full v4 T3/T7 stage stopped on empty API content in its first request. The r
 
 ## Agentic gates
 
-The corrected-template Kolibri arm and the Qwen control each passed 3/3 trials for T2, T4, T8, T9 and T11. A stricter review of the raw T5 calls found that Kolibri passed 1/3 and Qwen passed 3/3. In two Kolibri calls, `commit_message` was an object instead of the required string. Kolibri passed 0/3 T10 argument-fidelity trials. The control passed 3/3. The three preliminary T10 responses lack complete raw data. The first diagnostic rerun returned null content and stopped. It is invalid and does not establish a T10 score. See `measurements/fidelity-api.jsonl`. T1 produced one pass and one malformed call among two scoreable corrected-template responses. Six empty responses are invalid. The extra-gate log records verdicts and details, not complete responses. Coding sessions are running in the sandbox.
+The corrected-template Kolibri arm and the Qwen control each passed 3/3 trials for T2, T4, T8, T9 and T11. A stricter review of the raw T5 calls found that Kolibri passed 1/3 and Qwen passed 3/3. In two Kolibri calls, `commit_message` was an object instead of the required string. Kolibri passed 0/3 T10 argument-fidelity trials. The control passed 3/3. An eight-run strict T5 rerun passed 3/8 for Kolibri. The other five calls used a wrong commit-message value or type. This is systematic under the pre-registered rule. The three preliminary T10 responses lack complete raw data. The first diagnostic rerun returned null content and stopped. It is invalid and does not establish a T10 score. See `measurements/fidelity-api.jsonl`. T1 produced one pass and one malformed call among two scoreable corrected-template responses. Six empty responses are invalid. The extra-gate log records verdicts and details, not complete responses. Coding sessions are running in the sandbox.
 
 The corrected-template T1 test continued after empty API content. That violated the fail-fast rule. Its six empty responses are retained as invalid, not as model failures. The copied scorers now save the raw response and stop on empty content. The v4 T1 scorer also failed to check the tool name and content type. The v4 T5 scorer failed to check the commit message. The dashboard re-scores the raw calls using `gate_score.py`.
 
