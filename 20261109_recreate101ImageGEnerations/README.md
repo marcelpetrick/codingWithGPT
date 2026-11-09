@@ -16,8 +16,9 @@ The current animation uses the Codex image tool. The experiment targets 101 gene
 | Completed generations | Animation | Host token usage | Subscriber allowance |
 | --- | --- | --- | --- |
 | 10 | [Checkpoint GIF](pilot-niklaus-wirth/checkpoints/0010.gif) | Unavailable | Unavailable |
+| 12 | [Partial GIF](pilot-niklaus-wirth/evolution.gif) | Unavailable | Unavailable |
 
-The run stopped after 12 completed generations. The image tool rejected generation 13. The current GIF includes all 12 completed generations.
+The run stopped after 12 completed generations and 13 image-tool attempts. The image tool rejected generation 13 during output safety checks. The current GIF includes the original and all 12 completed generations. It has 13 frames and a 4.75-second loop. See the [experiment report](pilot-niklaus-wirth/report.md) for the request ID and recorded limits.
 
 The host tool does not expose token counts, per-call charges, or remaining subscription allowance to this runner. These values are unknown, not zero. A generation may consume included usage. The count is the number of completed image-tool calls in this experiment.
 

@@ -8,7 +8,7 @@ Verdict: the Codex host-tool workflow and ten-generation example work. The direc
 2. Run ten sequential generations with the Codex image tool. Done.
 3. Save the PNGs and GIF, then embed the GIF in the README. Done.
 4. Review the changes and repository About text. Done. See the review files.
-5. Push the commits and check GitHub Actions. Running.
+5. Push the commits and check GitHub Actions. Done.
 
 ## Status
 
@@ -45,7 +45,7 @@ Docker is excluded by the user. The repository default branch is `master`, not `
 
 The user requested continuation and a checkpoint for each multiple of ten. Save each result before the next request. Preserve `checkpoints/0010.gif` and add a new GIF at each multiple of ten. Update the README after each checkpoint. Track completed image-tool calls. Mark host tokens, charges, and remaining subscription allowance as unavailable.
 
-Restart: `node recreate-101/scripts/host.mjs next --run-dir pilot-niklaus-wirth`. The host agent supplies the printed preceding frame to the image tool. Record the result with `node recreate-101/scripts/host.mjs accept --run-dir pilot-niklaus-wirth --image RESULT.png`. Do not repeat a pending call without reconciliation.
+Restart state: the run has a recorded safety refusal for generation 13. The pending record blocks the next request. Do not retry the rejected request or change the prompt to bypass the refusal.
 
 ## Continuation status
 
