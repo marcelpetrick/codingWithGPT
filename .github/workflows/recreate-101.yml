@@ -1,0 +1,32 @@
+name: Recreate 101
+
+on:
+  push:
+    paths:
+      - '20261109_recreate101ImageGEnerations/**'
+      - '.github/workflows/recreate-101.yml'
+  pull_request:
+    paths:
+      - '20261109_recreate101ImageGEnerations/**'
+      - '.github/workflows/recreate-101.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install image tools
+        run: sudo apt-get update && sudo apt-get install --yes imagemagick ffmpeg shellcheck
+
+      - name: Run local pipeline
+        working-directory: 20261109_recreate101ImageGEnerations
+        run: bash ./localPipeline.sh
