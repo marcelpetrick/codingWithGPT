@@ -43,3 +43,9 @@ The user selected the Codex image tool and excluded Docker. The requested live t
 5. Push the checked commits and inspect GitHub Actions. The existing unrelated local commit needs a push decision.
 
 The repository uses `master` as its default branch. It has no `main` branch. The project is one directory inside the larger `codingWithGPT` repository. Docker work is excluded by the user.
+
+## Ten-generation host test
+
+The Codex image tool completed ten sequential generations. The saved GIF contains 11 frames and lasts 4.25 seconds. The first call used the JPEG source. Each later call used the preceding generated PNG. The lineage ledger was reconstructed after the calls. Per-call times, host tokens, and charges are unavailable. No direct API calls were made.
+
+The PNGs and GIF are in `pilot-niklaus-wirth/`. The README embeds the GIF. The original photograph and permission information are in `examples/`.

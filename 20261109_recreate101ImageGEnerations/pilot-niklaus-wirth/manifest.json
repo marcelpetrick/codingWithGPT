@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "provider": "codex-host-image-tool",
+  "target": 10,
+  "original": "original.jpg",
+  "originalSha256": "88f793a5d5571ff8cc67ef9059f83b28c29ab3aeb97bbd030d32ef49b7dfc513",
+  "preparation": "frame zero converted from original JPEG to PNG; first tool call used original JPEG",
+  "frames": [
+    {
+      "index": 0,
+      "path": "frames/0000.png",
+      "sha256": "872826f735c80e1cb027e3cd9034bab5f5042b5fa6312182cd7c21943f8983f8"
+    },
+    {
+      "index": 1,
+      "path": "frames/0001.png",
+      "sha256": "d4223835eee5712c729b4351a5e6e1edb3bc5c928f67713897b30707c46e2e6b",
+      "inputSha256": "88f793a5d5571ff8cc67ef9059f83b28c29ab3aeb97bbd030d32ef49b7dfc513"
+    },
+    {
+      "index": 2,
+      "path": "frames/0002.png",
+      "sha256": "0440524e8fdab3a9bccb78d6f3504fc2fdeb9455060d23f401e11fcfca57802a",
+      "inputSha256": "d4223835eee5712c729b4351a5e6e1edb3bc5c928f67713897b30707c46e2e6b"
+    },
+    {
+      "index": 3,
+      "path": "frames/0003.png",
+      "sha256": "3b38f022ab45ca9615fce9fd82ae1d29fb56189fad7bc9fb50cc590cb127d522",
+      "inputSha256": "0440524e8fdab3a9bccb78d6f3504fc2fdeb9455060d23f401e11fcfca57802a"
+    },
+    {
+      "index": 4,
+      "path": "frames/0004.png",
+      "sha256": "3f64fb34eccb6fa4f4ab577990e166b02fe6add22602f38a952166005c0f78a7",
+      "inputSha256": "3b38f022ab45ca9615fce9fd82ae1d29fb56189fad7bc9fb50cc590cb127d522"
+    },
+    {
+      "index": 5,
+      "path": "frames/0005.png",
+      "sha256": "851ea89567086253c2ce239df5f717c366a37fdf6ba51f76ac5af87cdc825048",
+      "inputSha256": "3f64fb34eccb6fa4f4ab577990e166b02fe6add22602f38a952166005c0f78a7"
+    },
+    {
+      "index": 6,
+      "path": "frames/0006.png",
+      "sha256": "72ac07a4ebfd013d25e093256a124fd60bd06a9c026a047fc816ffefb394ddeb",
+      "inputSha256": "851ea89567086253c2ce239df5f717c366a37fdf6ba51f76ac5af87cdc825048"
+    },
+    {
+      "index": 7,
+      "path": "frames/0007.png",
+      "sha256": "23f25929db28e3ff5ab1b6837212d3afbc5b9c6768e09553fd8d87244e90ea8f",
+      "inputSha256": "72ac07a4ebfd013d25e093256a124fd60bd06a9c026a047fc816ffefb394ddeb"
+    },
+    {
+      "index": 8,
+      "path": "frames/0008.png",
+      "sha256": "d9396e2d6af4937a7035d1848f085e9f35e9646cf932970dd2809a876ef1abba",
+      "inputSha256": "23f25929db28e3ff5ab1b6837212d3afbc5b9c6768e09553fd8d87244e90ea8f"
+    },
+    {
+      "index": 9,
+      "path": "frames/0009.png",
+      "sha256": "65bc863e4253cc5ae45f9eafe741ea24c8a0da57aa90ba72d5c6f6273cb83e2f",
+      "inputSha256": "d9396e2d6af4937a7035d1848f085e9f35e9646cf932970dd2809a876ef1abba"
+    },
+    {
+      "index": 10,
+      "path": "frames/0010.png",
+      "sha256": "1cadc5764616545a8513373dc862f7efdc155f5a6561f0d083d47907d8d59206",
+      "inputSha256": "65bc863e4253cc5ae45f9eafe741ea24c8a0da57aa90ba72d5c6f6273cb83e2f"
+    }
+  ],
+  "pending": null,
+  "created": "2026-11-09",
+  "timing": "Per-call timing not recorded",
+  "usage": "Unavailable from host",
+  "prompt": "Recreate the provided image as faithfully as possible. Preserve its composition, subjects, shapes, colors, lighting, textures, background, framing, and any visible text. Make no intentional additions, removals, improvements, or stylistic changes. Return one image."
+}
