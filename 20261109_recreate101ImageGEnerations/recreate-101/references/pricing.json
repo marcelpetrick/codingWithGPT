@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-09",
+  "source": "https://developers.openai.com/api/docs/pricing",
+  "currency": "USD",
+  "per_million_tokens": {
+    "gpt-image-2": {"text_input": 5, "image_input": 8, "image_output": 30},
+    "gpt-image-2.5-sunburst": {"text_input": 5, "image_input": 8, "image_output": 30},
+    "gpt-image-2.5-flare": {"text_input": 5, "image_input": 8, "image_output": 30}
+  },
+  "note": "Images API input is charged at non-cached rates. Verify rates before a paid run."
+}
