@@ -40,3 +40,9 @@ Host run: follow `recreate-101/references/usage.md`. A pending request requires 
 GitHub checks: `gh run list --workflow recreate-101.yml --limit 5`.
 
 Docker is excluded by the user. The repository default branch is `master`, not `main`.
+
+## Continuation to 101
+
+The user requested continuation and a checkpoint for each multiple of ten. Save each result before the next request. Preserve `checkpoints/0010.gif` and add a new GIF at each multiple of ten. Update the README after each checkpoint. Track completed image-tool calls. Mark host tokens, charges, and remaining subscription allowance as unavailable.
+
+Restart: `node recreate-101/scripts/host.mjs next --run-dir pilot-niklaus-wirth`. The host agent supplies the printed preceding frame to the image tool. Record the result with `node recreate-101/scripts/host.mjs accept --run-dir pilot-niklaus-wirth --image RESULT.png`. Do not repeat a pending call without reconciliation.

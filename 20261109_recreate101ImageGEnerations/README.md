@@ -5,11 +5,19 @@
 
 Recreate an image repeatedly and watch the changes accumulate. Each generation uses only the previous image. The skill keeps the original, full-resolution PNG frames, a GIF, and a lineage record.
 
-## Ten-generation example
+## Niklaus Wirth experiment
 
-![Ten sequential recreations of Niklaus Wirth](pilot-niklaus-wirth/evolution.gif)
+![Sequential recreations of Niklaus Wirth](pilot-niklaus-wirth/evolution.gif)
 
-The example uses the Codex image tool. The original photograph is by Tyomitch. See [the source and license notes](examples/README.md). The source and generated PNGs are in [the pilot directory](pilot-niklaus-wirth/). The GIF is a color-quantized viewing copy.
+The current animation uses the Codex image tool. The experiment targets 101 generations. The original photograph is by Tyomitch. See [the source and license notes](examples/README.md). The source and generated PNGs are in [the pilot directory](pilot-niklaus-wirth/). The GIF is a color-quantized viewing copy.
+
+## Checkpoints and usage
+
+| Completed generations | Animation | Host token usage | Subscriber allowance |
+| --- | --- | --- | --- |
+| 10 | [Checkpoint GIF](pilot-niklaus-wirth/checkpoints/0010.gif) | Unavailable | Unavailable |
+
+The host tool does not expose token counts, per-call charges, or remaining subscription allowance to this runner. These values are unknown, not zero. A generation may consume included usage. The count is the number of completed image-tool calls in this experiment.
 
 ## Setup
 
