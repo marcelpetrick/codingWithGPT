@@ -1,0 +1,10 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const script=fileURLToPath(new URL('../scripts/host.mjs',import.meta.url));
+const run=(...a)=>spawnSync(process.execPath,[script,...a],{encoding:'utf8'});
+test('host requests require a checkpoint and use the preceding frame',()=>{const d=fs.mkdtempSync(path.join(os.tmpdir(),'recreate-host-')),input=path.join(d,'source.png');assert.equal(spawnSync('convert',['-size','50x30','xc:red',input]).status,0);let r=run('init','--input',input,'--iterations','2');assert.equal(r.status,0,r.stderr);const dir=r.stdout.trim();r=run('accept','--run-dir',dir,'--image',input);assert.notEqual(r.status,0);r=run('next','--run-dir',dir);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/0000.png/);assert.notEqual(run('next','--run-dir',dir).status,0);r=run('accept','--run-dir',dir,'--image',input);assert.equal(r.status,0,r.stderr);r=run('next','--run-dir',dir);assert.match(r.stdout,/0001.png/);r=run('accept','--run-dir',dir,'--image',input);assert.equal(r.status,0,r.stderr);assert.equal(run('encode','--run-dir',dir).status,0);assert.notEqual(run('next','--run-dir',dir).status,0);const m=JSON.parse(fs.readFileSync(path.join(dir,'manifest.json')));assert.equal(m.frames[2].inputSha256,m.frames[1].sha256);assert.equal(spawnSync('ffprobe',['-v','error',path.join(dir,'evolution.gif')]).status,0);});

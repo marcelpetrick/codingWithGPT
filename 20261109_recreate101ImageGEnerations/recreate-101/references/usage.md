@@ -32,3 +32,16 @@ The source is padded to the chosen canvas, with no crop or stretch. Supported ca
 The reservation is an estimate selected by the user. It is not an enforceable cost ceiling. Usage without a complete token breakdown retains the full reservation. The runner stops after any uncertain request. A network failure, timeout, invalid response, or process crash can leave a potentially billable request unresolved. Do not remove its pending record or retry without provider-side reconciliation. A lock directory prevents concurrent runs. After a crash, verify that no runner is active before removing `.lock`.
 
 The ledger stores raw usage and request identifiers where available. The report calculates known costs from the dated rate snapshot. It does not claim to be an invoice. Agent session costs and account balance are unavailable. Local mock output changes one pixel per frame. It does not measure visual drift.
+
+## Codex host image tool
+
+This path uses the image tool supplied by the host. It does not call the OpenAI API directly. The agent performs each image tool call; the Node script cannot invoke the private tool.
+
+1. Create a run: `node recreate-101/scripts/host.mjs init --input IMAGE --iterations 10`.
+2. Record the next request: `node recreate-101/scripts/host.mjs next --run-dir RUN_DIR`.
+3. View the printed PNG and pass only that image to the host image tool with the fixed prompt from `SKILL.md`.
+4. Save the returned PNG and record it: `node recreate-101/scripts/host.mjs accept --run-dir RUN_DIR --image RESULT.png`.
+5. Repeat steps 2–4 until the target is complete.
+6. Rebuild the GIF if needed: `node recreate-101/scripts/host.mjs encode --run-dir RUN_DIR`.
+
+Each accepted image updates the GIF and report. A pending request blocks another request. If a tool call is interrupted, reconcile the result before resuming. Do not delete a pending entry to hide an uncertain call. Host tokens, cost, model, and request IDs are unavailable unless the host exposes them. The host path cannot enforce a USD allowance.
