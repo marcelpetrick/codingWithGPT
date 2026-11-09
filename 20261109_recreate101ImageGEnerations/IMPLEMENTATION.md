@@ -31,3 +31,15 @@ Validate: `python3 /home/mpetrick/.codex/skills/.system/skill-creator/scripts/qu
 Local test: `node recreate-101/scripts/recreate.mjs run --input IMAGE --iterations 3 --provider mock --budget-usd 0`.
 
 Paid pilot, after the required choices: `node recreate-101/scripts/recreate.mjs run --input IMAGE --iterations 3 --provider openai --model gpt-image-2 --size 1024x1024 --quality medium --budget-usd BUDGET --reserve-usd RESERVE --accept-estimated-reserve`.
+
+## Updated plan: host-tool product
+
+The user selected the Codex image tool and excluded Docker. The requested live test now has ten generations. The original source and every generated PNG remain in `pilot-niklaus-wirth/frames/`. The first request used the original JPEG. Later requests use only the previous generated PNG. The Codex host does not expose token usage or a per-call price here.
+
+1. Save all ten host-tool generations in sequence. Running.
+2. Build the GIF, retain the frames, and embed the GIF in the README. Open.
+3. Validate the host checkpoint workflow and local pipeline. Running.
+4. Review the branch and repository About text. Open.
+5. Push the checked commits and inspect GitHub Actions. The existing unrelated local commit needs a push decision.
+
+The repository uses `master` as its default branch. It has no `main` branch. The project is one directory inside the larger `codingWithGPT` repository. Docker work is excluded by the user.
