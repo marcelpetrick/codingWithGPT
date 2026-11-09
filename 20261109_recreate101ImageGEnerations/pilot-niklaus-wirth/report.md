@@ -1,15 +1,13 @@
 # Host-tool run
 
-Status: complete.
+Status: stopped after the image tool rejected generation 13. The unresolved request record remains in the manifest. Do not retry or change the prompt to bypass the refusal.
 
-Completed generations: 10 / 10.
+Completed generations: 12 / 101. Image-tool calls attempted: 13. The partial GIF has 13 frames, including the original.
 
-Provider: Codex host image tool. Model, image settings, tokens, request charges, and account balance: unavailable unless the host exposes them. API cost: not applicable; no direct API calls were made. Agent session overhead: unavailable.
+The Codex host tool did not expose token usage, charges, or the remaining subscriber allowance. These values are unavailable, not zero. No direct API calls were made.
 
-Original SHA-256: 88f793a5d5571ff8cc67ef9059f83b28c29ab3aeb97bbd030d32ef49b7dfc513. See manifest.json and usage.jsonl for frame lineage.
+The first call used the original JPEG. Calls 2–12 used the preceding generated PNG. The ledger for calls 1–10 was reconstructed after those calls. Their per-call times are unavailable. The continuation records request start and completion times.
 
-The first call used `original.jpg`. The PNG frame zero is a lossless conversion for the animation. Each later call used the preceding generated PNG. The lineage ledger was reconstructed after the calls from the saved images. Per-call timestamps were not recorded.
+Source: Tyomitch, https://commons.wikimedia.org/wiki/File:Niklaus_Wirth,_UrGU.jpg. See ../examples/README.md for the source terms.
 
-Source: Tyomitch, https://commons.wikimedia.org/wiki/File:Niklaus_Wirth,_UrGU.jpg. See `../examples/README.md` for the source terms.
-
-The animation has 11 logical frames and a 4.25 second loop. The endpoint holds are 1 second each. Intermediate frames are 0.25 seconds each.
+Refusal request ID: 744cf41e-1625-417c-abcf-87edc5f6b27b.

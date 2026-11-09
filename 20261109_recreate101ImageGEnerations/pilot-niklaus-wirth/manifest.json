@@ -1,7 +1,7 @@
 {
   "version": 1,
   "provider": "codex-host-image-tool",
-  "target": 10,
+  "target": 101,
   "original": "original.jpg",
   "originalSha256": "88f793a5d5571ff8cc67ef9059f83b28c29ab3aeb97bbd030d32ef49b7dfc513",
   "preparation": "frame zero converted from original JPEG to PNG; first tool call used original JPEG",
@@ -70,9 +70,36 @@
       "path": "frames/0010.png",
       "sha256": "1cadc5764616545a8513373dc862f7efdc155f5a6561f0d083d47907d8d59206",
       "inputSha256": "65bc863e4253cc5ae45f9eafe741ea24c8a0da57aa90ba72d5c6f6273cb83e2f"
+    },
+    {
+      "index": 11,
+      "path": "frames/0011.png",
+      "sha256": "8d32042740ae4e28fcab59a33a0d00c68bfb63b96f857d232b662976155e5feb",
+      "inputSha256": "1cadc5764616545a8513373dc862f7efdc155f5a6561f0d083d47907d8d59206",
+      "started": "2026-11-09T17:28:57.681Z",
+      "ended": "2026-11-09T17:29:33.057Z",
+      "usage": null,
+      "requestId": null
+    },
+    {
+      "index": 12,
+      "path": "frames/0012.png",
+      "sha256": "dc6a27c535eed4fb61e286fdc562e9fc129ac636cff70063e530c2e10d66e753",
+      "inputSha256": "8d32042740ae4e28fcab59a33a0d00c68bfb63b96f857d232b662976155e5feb",
+      "started": "2026-11-09T17:29:50.850Z",
+      "ended": "2026-11-09T17:30:15.097Z",
+      "usage": null,
+      "requestId": null
     }
   ],
-  "pending": null,
+  "pending": {
+    "iteration": 13,
+    "inputSha256": "dc6a27c535eed4fb61e286fdc562e9fc129ac636cff70063e530c2e10d66e753",
+    "started": "2026-11-09T17:30:17.284Z",
+    "outcome": "moderation_blocked",
+    "requestId": "744cf41e-1625-417c-abcf-87edc5f6b27b",
+    "ended": "2026-11-09T17:31:03.838924+00:00"
+  },
   "created": "2026-11-09",
   "timing": "Per-call timing not recorded",
   "usage": "Unavailable from host",

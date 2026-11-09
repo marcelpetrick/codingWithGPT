@@ -46,3 +46,7 @@ Docker is excluded by the user. The repository default branch is `master`, not `
 The user requested continuation and a checkpoint for each multiple of ten. Save each result before the next request. Preserve `checkpoints/0010.gif` and add a new GIF at each multiple of ten. Update the README after each checkpoint. Track completed image-tool calls. Mark host tokens, charges, and remaining subscription allowance as unavailable.
 
 Restart: `node recreate-101/scripts/host.mjs next --run-dir pilot-niklaus-wirth`. The host agent supplies the printed preceding frame to the image tool. Record the result with `node recreate-101/scripts/host.mjs accept --run-dir pilot-niklaus-wirth --image RESULT.png`. Do not repeat a pending call without reconciliation.
+
+## Continuation status
+
+The run stopped at 12 completed generations. The host image tool rejected generation 13. The partial GIF has 13 frames. The pending record includes the refusal and its request ID. Do not retry the rejected request or alter the prompt to bypass the refusal. The 20-generation checkpoint does not exist. Host token usage and subscriber allowance remain unavailable.
