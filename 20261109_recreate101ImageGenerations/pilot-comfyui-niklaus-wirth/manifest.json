@@ -670,6 +670,116 @@
       "usage": null,
       "requestId": null,
       "threadId": "3b2e77e6-92c4-4989-af6d-d8256dd8b13c"
+    },
+    {
+      "index": 61,
+      "path": "frames/0061.png",
+      "sha256": "e58c82406433f2a1a925e3500d70ad75abc812f018bd3d640efbbbb9855b2266",
+      "inputSha256": "77fd9d1a88e2b8c5238fe2870e08dca6cc0cef9a0c4a3e22b2d8367d2ce2aecf",
+      "started": "2026-11-10T22:01:33.053Z",
+      "ended": "2026-11-10T22:01:48.832Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "54249d57-8e06-48be-90e8-696d44a2b1d8"
+    },
+    {
+      "index": 62,
+      "path": "frames/0062.png",
+      "sha256": "40dc35f264ce596facb82a9ff68cba18ab1b45f5c3d7edd5701a2d03a1f42335",
+      "inputSha256": "e58c82406433f2a1a925e3500d70ad75abc812f018bd3d640efbbbb9855b2266",
+      "started": "2026-11-10T22:02:00.335Z",
+      "ended": "2026-11-10T22:02:16.064Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "9e4ce0c6-7f84-445d-9455-adf7be80a1f3"
+    },
+    {
+      "index": 63,
+      "path": "frames/0063.png",
+      "sha256": "16ec61fac2744cf1e0ce21e7c06301bba9baa5e6d4a3d729b9d77f06fc2e435d",
+      "inputSha256": "40dc35f264ce596facb82a9ff68cba18ab1b45f5c3d7edd5701a2d03a1f42335",
+      "started": "2026-11-10T22:02:28.041Z",
+      "ended": "2026-11-10T22:02:43.851Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "17c33c67-ffc4-42f3-832a-d11334cd2a78"
+    },
+    {
+      "index": 64,
+      "path": "frames/0064.png",
+      "sha256": "112824236b6f1f74c9fa083f77d002a92c408113890806231dc5500dabb09843",
+      "inputSha256": "16ec61fac2744cf1e0ce21e7c06301bba9baa5e6d4a3d729b9d77f06fc2e435d",
+      "started": "2026-11-10T22:02:57.162Z",
+      "ended": "2026-11-10T22:03:12.953Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "7c2d8218-76c6-4d25-b7e1-d872e5ea9c59"
+    },
+    {
+      "index": 65,
+      "path": "frames/0065.png",
+      "sha256": "1c1878d60af9dc9da091e86bc5ded60e3ef47a7f2ff93a6bfb576d2db647cc75",
+      "inputSha256": "112824236b6f1f74c9fa083f77d002a92c408113890806231dc5500dabb09843",
+      "started": "2026-11-10T22:03:25.684Z",
+      "ended": "2026-11-10T22:03:41.430Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "6d42b71f-56be-4010-9219-24fa39ca0958"
+    },
+    {
+      "index": 66,
+      "path": "frames/0066.png",
+      "sha256": "165cfd7f710359d50bc7feb8166d780182412f5d80a0a55dcbf872ae04d8e04a",
+      "inputSha256": "1c1878d60af9dc9da091e86bc5ded60e3ef47a7f2ff93a6bfb576d2db647cc75",
+      "started": "2026-11-10T22:03:54.449Z",
+      "ended": "2026-11-10T22:04:10.184Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "61bb33fc-67e8-462f-b4f1-17a60e1b1583"
+    },
+    {
+      "index": 67,
+      "path": "frames/0067.png",
+      "sha256": "1a127c6ccdf786e18d2a5fcf8383b9a470977fb799e22160951e55aa5b73959b",
+      "inputSha256": "165cfd7f710359d50bc7feb8166d780182412f5d80a0a55dcbf872ae04d8e04a",
+      "started": "2026-11-10T22:04:21.941Z",
+      "ended": "2026-11-10T22:04:37.679Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "f73b1eea-7910-407a-8785-a1c3c51d6970"
+    },
+    {
+      "index": 68,
+      "path": "frames/0068.png",
+      "sha256": "65982748b3fc3c0fd57d4560ee86985ad16268951f3be04889cbbb244c1c504c",
+      "inputSha256": "1a127c6ccdf786e18d2a5fcf8383b9a470977fb799e22160951e55aa5b73959b",
+      "started": "2026-11-10T22:04:50.465Z",
+      "ended": "2026-11-10T22:05:06.273Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "10e539cf-512d-4efa-95bd-ed1c7fe02b51"
+    },
+    {
+      "index": 69,
+      "path": "frames/0069.png",
+      "sha256": "c62921928404b3b158057fe8724042a46cfd0aff84551db6b67e48fa67b54124",
+      "inputSha256": "65982748b3fc3c0fd57d4560ee86985ad16268951f3be04889cbbb244c1c504c",
+      "started": "2026-11-10T22:05:28.533Z",
+      "ended": "2026-11-10T22:05:45.942Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "c9120d3e-6377-470a-a136-a05fc3d5f2fc"
+    },
+    {
+      "index": 70,
+      "path": "frames/0070.png",
+      "sha256": "873ad3af16de6d1eacfe85365a7aa6e23e89ea7edb3c34b307d0705059587a30",
+      "inputSha256": "c62921928404b3b158057fe8724042a46cfd0aff84551db6b67e48fa67b54124",
+      "started": "2026-11-10T22:06:02.424Z",
+      "ended": "2026-11-10T22:06:18.166Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "f703c0d2-02d7-4f13-8c66-9d262fe1f6ae"
     }
   ],
   "pending": null,
