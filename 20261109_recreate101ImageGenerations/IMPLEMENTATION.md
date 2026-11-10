@@ -61,7 +61,8 @@ The image arrives in `~/.codex/generated_images/<thread_id>/`. The driver takes 
 4. Stop on any other failure: no image, an invalid PNG, more than one image, a timeout of 600 s, or an unreachable service.
 5. Use `cancel` only when the evidence shows that no request reached Codex. It does not count as a refusal.
 6. At each multiple of ten, save `checkpoints/NNNN.gif`, regenerate the README table and commit.
-7. Push when the owner asks. The owner asked for a push of the results on 2026-11-10.
+7. Do not use the direct API path or `moderation: "low"`. The owner excluded this path on 2026-11-10. After 3 refusals in a row, the chain stops, and that is the result.
+8. Push when the owner asks. The owner asked for a push of the results on 2026-11-10.
 
 ### Plan
 
@@ -82,6 +83,9 @@ The image arrives in `~/.codex/generated_images/<thread_id>/`. The driver takes 
 | 22:15 | Directory renamed to `20261109_recreate101ImageGenerations`. Pushed. |
 | 22:16 | First driver start failed: `codex exec -i` swallowed the prompt. No thread started. Fixed in `180414f`; the request was cancelled. |
 | 22:17 | Driver restarted. Generation 13 is the second attempt on frame 12. |
+| 22:19–22:22 | Real moderation blocks (HTTP 400, output stage, category `other`): generation 16 twice, generation 18 once. Retries passed for 16. |
+| 22:22 | Refusal check tightened to the `moderation_blocked` code, with request IDs (`3c6ca89`). The running driver keeps the old check until restart. |
+| 22:25 | Owner decision: no direct API path and no `moderation: "low"`. |
 
 ## Resume here (continuation)
 
