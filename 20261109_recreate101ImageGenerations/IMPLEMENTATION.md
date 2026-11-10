@@ -59,9 +59,9 @@ The image arrives in `~/.codex/generated_images/<thread_id>/`. The driver takes 
 2. A refusal is recorded with the `refuse` command. It clears the pending request. The same input frame is then sent again in a new session.
 3. Stop after 3 consecutive refusals on the same input frame. Report the stop to the owner.
 4. Stop on any other failure: no image, an invalid PNG, more than one image, a timeout of 600 s, or an unreachable service.
-7. Use `cancel` only when the evidence shows that no request reached Codex. It does not count as a refusal.
-5. At each multiple of ten, save `checkpoints/NNNN.gif`, regenerate the README table and commit.
-6. Do not push without the owner's request.
+5. Use `cancel` only when the evidence shows that no request reached Codex. It does not count as a refusal.
+6. At each multiple of ten, save `checkpoints/NNNN.gif`, regenerate the README table and commit.
+7. Push when the owner asks. The owner asked for a push of the results on 2026-11-10.
 
 ### Plan
 
@@ -69,10 +69,10 @@ The image arrives in `~/.codex/generated_images/<thread_id>/`. The driver takes 
 | --- | --- | --- |
 | 1 | Probe `codex exec` with one test image (30 s, 1254 x 1254 PNG). | Done 2026-11-10 22:12 |
 | 2 | Fix the directory name typo and push. | Done, commit `0903d23` |
-| 3 | Add `refuse`, agent usage and automatic checkpoints to `host.mjs`, with tests. | Open |
-| 4 | Add the driver `codex-chain.sh` and the README table generator. | Open |
-| 5 | Clear the recorded refusal of generation 13 and start the chain detached. | Open |
-| 6 | Watch, commit each checkpoint, then review and push on request. | Open |
+| 3 | Add `refuse`, agent usage and automatic checkpoints to `host.mjs`, with tests. | Done, `70f651f` |
+| 4 | Add the driver `codex-chain.sh` and the README table generator. | Done, `ab29493` |
+| 5 | Clear the recorded refusal of generation 13 and start the chain detached. | Done 22:17 |
+| 6 | Watch, commit each checkpoint, then review and push. | Running |
 
 ## Status log
 
@@ -80,6 +80,8 @@ The image arrives in `~/.codex/generated_images/<thread_id>/`. The driver takes 
 | --- | --- |
 | 22:12 | Probe call passed. 97 009 input tokens (82 432 cached), 468 output tokens. |
 | 22:15 | Directory renamed to `20261109_recreate101ImageGenerations`. Pushed. |
+| 22:16 | First driver start failed: `codex exec -i` swallowed the prompt. No thread started. Fixed in `180414f`; the request was cancelled. |
+| 22:17 | Driver restarted. Generation 13 is the second attempt on frame 12. |
 
 ## Resume here (continuation)
 
