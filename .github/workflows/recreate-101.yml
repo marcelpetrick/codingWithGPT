@@ -3,11 +3,11 @@ name: Recreate 101
 on:
   push:
     paths:
-      - '20261109_recreate101ImageGEnerations/**'
+      - '20261109_recreate101ImageGenerations/**'
       - '.github/workflows/recreate-101.yml'
   pull_request:
     paths:
-      - '20261109_recreate101ImageGEnerations/**'
+      - '20261109_recreate101ImageGenerations/**'
       - '.github/workflows/recreate-101.yml'
   workflow_dispatch:
 
@@ -28,5 +28,5 @@ jobs:
         run: sudo apt-get update && sudo apt-get install --yes imagemagick ffmpeg shellcheck
 
       - name: Run local pipeline
-        working-directory: 20261109_recreate101ImageGEnerations
+        working-directory: 20261109_recreate101ImageGenerations
         run: bash ./localPipeline.sh
