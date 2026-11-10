@@ -16,3 +16,5 @@
 {"event":"intent","iteration":13,"inputSha256":"dc6a27c535eed4fb61e286fdc562e9fc129ac636cff70063e530c2e10d66e753","started":"2026-11-09T17:30:17.284Z"}
 {"event": "refusal", "iteration": 13, "inputSha256": "dc6a27c535eed4fb61e286fdc562e9fc129ac636cff70063e530c2e10d66e753", "started": "2026-11-09T17:30:17.284Z", "outcome": "moderation_blocked", "requestId": "744cf41e-1625-417c-abcf-87edc5f6b27b", "ended": "2026-11-09T17:31:03.838924+00:00", "usage": null}
 {"event":"pending-cleared","iteration":13,"reason":"refusal already recorded","cleared":"2026-11-10T21:15:57.650Z"}
+{"event":"intent","iteration":13,"inputSha256":"dc6a27c535eed4fb61e286fdc562e9fc129ac636cff70063e530c2e10d66e753","started":"2026-11-10T21:16:24.910Z"}
+{"event":"cancelled","iteration":13,"reason":"codex exec argument error before dispatch (no thread started)","cancelled":"2026-11-10T21:17:05.835Z"}
