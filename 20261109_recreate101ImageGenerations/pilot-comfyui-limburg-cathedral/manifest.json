@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "provider": "comfyui-flux2-klein-4b-distilled",
+  "target": 100,
+  "original": "original.jpg",
+  "originalSha256": "b1a6dc513137d92ead11e5c293ff094728d6e599dbb9edf63111ea039281c898",
+  "preparation": "EXIF orientation, lossless PNG conversion",
+  "frames": [
+    {
+      "index": 0,
+      "path": "frames/0000.png",
+      "sha256": "2d6b20f417d6f974540b51b4eb4695948cde4546d6ac47e79c07700e6d4b851b"
+    }
+  ],
+  "pending": null,
+  "created": "2026-11-10T21:40:44.881Z"
+}

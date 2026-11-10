@@ -1,8 +1,8 @@
 # Host-tool run
 
-Status: complete.
+Status: ready.
 
-Completed generations: 10 / 10. Refusals recorded: 0. 
+Completed generations: 10 / 100. Refusals recorded: 0. 
 
 Provider: comfyui-flux2-klein-4b-distilled. The notes below give the model and the settings. API cost: not applicable; no remote calls were made.
 
