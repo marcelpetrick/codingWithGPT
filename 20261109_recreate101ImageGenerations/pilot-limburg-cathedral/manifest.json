@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "provider": "codex-host-image-tool",
+  "target": 100,
+  "original": "original.jpg",
+  "originalSha256": "b1a6dc513137d92ead11e5c293ff094728d6e599dbb9edf63111ea039281c898",
+  "preparation": "EXIF orientation, lossless PNG conversion",
+  "frames": [
+    {
+      "index": 0,
+      "path": "frames/0000.png",
+      "sha256": "c915d92968be7e9492e8035e4009ba83aba15a142ec73e296f48e55d8b98daee"
+    }
+  ],
+  "pending": null,
+  "created": "2026-11-10T21:28:58.465Z"
+}

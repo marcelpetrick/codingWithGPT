@@ -11,6 +11,10 @@ Recreate an image repeatedly and watch the changes accumulate. Each generation u
 
 The current animation uses the Codex image tool. The experiment targets 101 generations. The original photograph is by Tyomitch. See [the source and license notes](examples/README.md). The source and generated PNGs are in [the pilot directory](pilot-niklaus-wirth/). The GIF is a color-quantized viewing copy.
 
+## Limburg Cathedral experiment
+
+The second chain uses a CC BY-SA 3.0 photo of Limburg Cathedral by Norbert Nagel. It targets 100 generations with the same driver. See [its page](pilot-limburg-cathedral/README.md).
+
 ## Checkpoints and usage
 
 The table is generated from `pilot-niklaus-wirth/manifest.json` by `host.mjs readme`. Do not edit it by hand.

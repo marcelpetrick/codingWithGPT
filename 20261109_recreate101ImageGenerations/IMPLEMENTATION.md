@@ -75,6 +75,20 @@ The image arrives in `~/.codex/generated_images/<thread_id>/`. The driver takes 
 | 5 | Clear the recorded refusal of generation 13 and start the chain detached. | Done 22:17 |
 | 6 | Watch, commit each checkpoint, then review and push. | Running |
 
+## Parallel tracks (added 2026-11-10 22:30)
+
+The owner asked for two more tracks.
+
+| Track | What | Owner of the work | Document |
+| --- | --- | --- | --- |
+| A | Wirth chain to 101 with `codex-chain.sh` | Claude Code | this file |
+| B | Local ComfyUI path: 10 Wirth generations, each under 240 s | Subagent | `COMFYUI_PATH.md` |
+| C | Limburg Cathedral (CC BY-SA 3.0) chain to 100 with `codex-chain.sh` | Claude Code | this file, `pilot-limburg-cathedral/README.md` |
+
+Tracks A and C run at the same time. Both use the same decision rules (fixed prompt, 60 s back-off, 3 refusals in a row stop the run). Each driver commits only its own run directory and README. A blocked commit is tried again 5 times. If Codex reports a usage limit, the driver stops with the request pending. Then check the thread folder and resume later.
+
+Church source choice: six Commons Featured pictures of European churches were compared on 2026-11-10. Limburg Cathedral was chosen for its colour, detail, water reflections and clear license. The run uses the 1920 × 1281 Commons thumbnail.
+
 ## Status log
 
 | Time (2026-11-10) | Event |
@@ -95,13 +109,17 @@ State: see `pilot-niklaus-wirth/report.md` and `manifest.json`.
 
 Check progress: `tail -n 20 pilot-niklaus-wirth/chain.log`.
 
-Check the driver: `pgrep -af '^bash .*codex-chain.sh'`.
+Check the drivers: `ps -eo pid,args | grep -E '^ *[0-9]+ bash recreate-101'`. (`pgrep` inside a background tool shell returned nothing once; use `ps`.)
+
+Check the church run: `tail -n 20 pilot-limburg-cathedral/chain.log`.
 
 Restart (idempotent, resumes at the last committed frame):
 
 ```sh
 setsid nohup systemd-inhibit --what=sleep:idle --why="recreate-101 chain" \
   bash recreate-101/scripts/codex-chain.sh pilot-niklaus-wirth >> pilot-niklaus-wirth/chain.log 2>&1 < /dev/null & disown
+CHAIN_README=pilot-limburg-cathedral/README.md setsid nohup systemd-inhibit --what=sleep:idle --why="recreate-101 church" \
+  bash recreate-101/scripts/codex-chain.sh pilot-limburg-cathedral >> pilot-limburg-cathedral/chain.log 2>&1 < /dev/null & disown
 ```
 
 If a request is pending after a crash, look in `~/.codex/generated_images/` for its thread before you clear it.
