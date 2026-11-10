@@ -15,3 +15,4 @@
 {"event":"result","index":12,"path":"frames/0012.png","sha256":"dc6a27c535eed4fb61e286fdc562e9fc129ac636cff70063e530c2e10d66e753","inputSha256":"8d32042740ae4e28fcab59a33a0d00c68bfb63b96f857d232b662976155e5feb","started":"2026-11-09T17:29:50.850Z","ended":"2026-11-09T17:30:15.097Z","usage":null,"requestId":null}
 {"event":"intent","iteration":13,"inputSha256":"dc6a27c535eed4fb61e286fdc562e9fc129ac636cff70063e530c2e10d66e753","started":"2026-11-09T17:30:17.284Z"}
 {"event": "refusal", "iteration": 13, "inputSha256": "dc6a27c535eed4fb61e286fdc562e9fc129ac636cff70063e530c2e10d66e753", "started": "2026-11-09T17:30:17.284Z", "outcome": "moderation_blocked", "requestId": "744cf41e-1625-417c-abcf-87edc5f6b27b", "ended": "2026-11-09T17:31:03.838924+00:00", "usage": null}
+{"event":"pending-cleared","iteration":13,"reason":"refusal already recorded","cleared":"2026-11-10T21:15:57.650Z"}

@@ -92,16 +92,19 @@
       "requestId": null
     }
   ],
-  "pending": {
-    "iteration": 13,
-    "inputSha256": "dc6a27c535eed4fb61e286fdc562e9fc129ac636cff70063e530c2e10d66e753",
-    "started": "2026-11-09T17:30:17.284Z",
-    "outcome": "moderation_blocked",
-    "requestId": "744cf41e-1625-417c-abcf-87edc5f6b27b",
-    "ended": "2026-11-09T17:31:03.838924+00:00"
-  },
+  "pending": null,
   "created": "2026-11-09",
   "timing": "Per-call timing not recorded",
   "usage": "Unavailable from host",
-  "prompt": "Recreate the provided image as faithfully as possible. Preserve its composition, subjects, shapes, colors, lighting, textures, background, framing, and any visible text. Make no intentional additions, removals, improvements, or stylistic changes. Return one image."
+  "prompt": "Recreate the provided image as faithfully as possible. Preserve its composition, subjects, shapes, colors, lighting, textures, background, framing, and any visible text. Make no intentional additions, removals, improvements, or stylistic changes. Return one image.",
+  "refusals": [
+    {
+      "iteration": 13,
+      "inputSha256": "dc6a27c535eed4fb61e286fdc562e9fc129ac636cff70063e530c2e10d66e753",
+      "started": "2026-11-09T17:30:17.284Z",
+      "outcome": "moderation_blocked",
+      "requestId": "744cf41e-1625-417c-abcf-87edc5f6b27b",
+      "ended": "2026-11-09T17:31:03.838924+00:00"
+    }
+  ]
 }

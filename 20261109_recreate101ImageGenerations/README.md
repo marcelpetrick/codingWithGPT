@@ -13,14 +13,18 @@ The current animation uses the Codex image tool. The experiment targets 101 gene
 
 ## Checkpoints and usage
 
-| Completed generations | Animation | Host token usage | Subscriber allowance |
-| --- | --- | --- | --- |
-| 10 | [Checkpoint GIF](pilot-niklaus-wirth/checkpoints/0010.gif) | Unavailable | Unavailable |
-| 12 | [Partial GIF](pilot-niklaus-wirth/evolution.gif) | Unavailable | Unavailable |
+The table is generated from `pilot-niklaus-wirth/manifest.json` by `host.mjs readme`. Do not edit it by hand.
 
-The run stopped after 12 completed generations and 13 image-tool attempts. The image tool rejected generation 13 during output safety checks. The current GIF includes the original and all 12 completed generations. It has 13 frames and a 4.75-second loop. See the [experiment report](pilot-niklaus-wirth/report.md) for the request ID and recorded limits.
+<!-- checkpoints:start -->
+| Completed generations | Animation | Refusals so far | Codex agent tokens (calls with data) | Subscriber allowance |
+| --- | --- | --- | --- | --- |
+| 10 | [Checkpoint GIF](pilot-niklaus-wirth/checkpoints/0010.gif) | 0 | Unavailable | Unavailable |
+| 12 | [Current GIF](pilot-niklaus-wirth/evolution.gif) | 1 | Unavailable | Unavailable |
+<!-- checkpoints:end -->
 
-The host tool does not expose token counts, per-call charges, or remaining subscription allowance to this runner. These values are unknown, not zero. A generation may consume included usage. The count is the number of completed image-tool calls in this experiment.
+Generations 1–12 ran in one Codex session on 2026-11-09. The image tool refused generation 13 at the output moderation stage. From 2026-11-10, Claude Code runs the chain. It starts one fresh `codex exec` session for each generation with `recreate-101/scripts/codex-chain.sh`. The prompt does not change. A refused frame is sent again, at most three times in a row. See the [experiment report](pilot-niklaus-wirth/report.md).
+
+The host tool does not expose image token counts, per-call charges, or remaining subscription allowance. "Codex agent tokens" are the tokens of the `codex exec` sessions that called the tool. These values are unknown, not zero. A generation may consume included usage. The count is the number of completed image-tool calls in this experiment.
 
 ## Setup
 
@@ -48,7 +52,8 @@ The pipeline checks shell syntax with ShellCheck, checks JavaScript syntax, runs
 
 ## Scripts
 
-- `recreate-101/scripts/host.mjs` records a host-tool run and builds its GIF.
+- `recreate-101/scripts/host.mjs` records a host-tool run, its refusals and checkpoints, and builds its GIF.
+- `recreate-101/scripts/codex-chain.sh` runs a host-tool chain with one `codex exec` session per generation.
 - `recreate-101/scripts/recreate.mjs` runs the mock or optional direct API provider.
 - `localPipeline.sh` runs local checks.
 

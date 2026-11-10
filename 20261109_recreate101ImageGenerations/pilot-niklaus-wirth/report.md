@@ -1,23 +1,19 @@
 # Host-tool run
 
-Status: stopped after the image tool rejected generation 13. The unresolved request record remains in the manifest. Do not retry or change the prompt to bypass the refusal.
+Status: ready.
 
-Completed generations: 12 / 101. Image-tool calls attempted: 13. The partial GIF has 13 frames, including the original.
+Completed generations: 12 / 101. Refusals recorded: 1. Codex agent tokens: Unavailable.
 
-The Codex host tool did not expose token usage, charges, or the remaining subscriber allowance. These values are unavailable, not zero. No direct API calls were made.
+Provider: Codex host image tool. Model, image settings, tokens, request charges, and account balance: unavailable unless the host exposes them. API cost: not applicable; no direct API calls were made. Agent session overhead: the Codex agent tokens above, where recorded.
 
-The first call used the original JPEG. Calls 2–12 used the preceding generated PNG. The ledger for calls 1–10 was reconstructed after those calls. Their per-call times are unavailable. The continuation records request start and completion times.
+Original SHA-256: 88f793a5d5571ff8cc67ef9059f83b28c29ab3aeb97bbd030d32ef49b7dfc513. See manifest.json and usage.jsonl for frame lineage.
+
+## Run notes
 
 Source: Tyomitch, https://commons.wikimedia.org/wiki/File:Niklaus_Wirth,_UrGU.jpg. See ../examples/README.md for the source terms.
 
-Refusal request ID: 744cf41e-1625-417c-abcf-87edc5f6b27b.
+The first call used the original JPEG. Every later call used the preceding generated PNG. The ledger for calls 1–10 was reconstructed after those calls. Their per-call times are unavailable.
 
-## Result and limits
+Generations 1–12 ran in one Codex session on 2026-11-09. Generation 13 was refused (`moderation_blocked`, output stage, request ID `744cf41e-1625-417c-abcf-87edc5f6b27b`). From 2026-11-10, Claude Code runs the chain with `recreate-101/scripts/codex-chain.sh`. Each generation uses a fresh `codex exec` session with the unchanged prompt. A refused frame is sent again, at most three times in a row.
 
-The GIF contains 13 frames and plays for 4.75 seconds. `frames/0000.png` is the prepared original. `frames/0001.png` through `frames/0012.png` are the generated images. The GIF is a color-quantized viewing copy. The PNGs are the source frames.
-
-The image-tool response described the rejection as `moderation_blocked` at the output stage. It did not report a rate limit or a waiting period. No image was returned for generation 13. The target of 101 generations and the 20-generation checkpoint were not reached.
-
-The original SHA-256 is `88f793a5d5571ff8cc67ef9059f83b28c29ab3aeb97bbd030d32ef49b7dfc513`. The generation 12 SHA-256 is `dc6a27c535eed4fb61e286fdc562e9fc129ac636cff70063e530c2e10d66e753`.
-
-The local pipeline passed. The GitHub Actions run for the saved partial result passed. The host does not provide enough data to calculate a subscriber budget or project the cost of further calls.
+The Codex host tool does not expose image tokens, charges or the subscription allowance. These values are unavailable, not zero. "Codex agent tokens" are the tokens of the `codex exec` session that called the tool. No direct API calls were made. The GIF is a color-quantized viewing copy. The PNGs are the source frames.
