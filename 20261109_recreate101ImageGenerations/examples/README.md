@@ -17,3 +17,15 @@ Source: https://commons.wikimedia.org/wiki/File:Cathedral_Limburg_-_Limburger_Do
 The file here is the 1920 × 1281 Commons thumbnail of the 6466 × 4315 original. It was downloaded on 2026-11-10. No other change was made.
 
 SHA-256: `b1a6dc513137d92ead11e5c293ff094728d6e599dbb9edf63111ea039281c898`
+
+## Alan Turing
+
+`alan-turing-16.jpg` is a passport photo of Alan Turing at about age 16 (1927–1929). Commons names the author as possibly Arthur Reginald Chaffin (1893–1954). The source is King's College, Cambridge, Turing Archive (AMT/K/7/4).
+
+Status: public domain. Commons uses `PD-old-70-expired` (the author died in 1954) and the Creative Commons Public Domain Mark 1.0. In the US it was published before 1931. No restrictions are listed.
+
+Source: https://commons.wikimedia.org/wiki/File:Alan_Turing_Aged_16.jpg
+
+The file is the current Commons version (675 × 919, greyscale), downloaded on 2026-11-10 without change.
+
+SHA-256: `f31e84277a693f53010dfee0a47dfee3e56cf4f2403049c5d5d138b756cb5412`
