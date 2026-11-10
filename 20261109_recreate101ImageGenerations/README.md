@@ -11,6 +11,12 @@ Recreate an image repeatedly and watch the changes accumulate. Each generation u
 
 The current animation uses the Codex image tool. The experiment targets 101 generations. The original photograph is by Tyomitch. See [the source and license notes](examples/README.md). The source and generated PNGs are in [the pilot directory](pilot-niklaus-wirth/). The GIF is a color-quantized viewing copy.
 
+## ComfyUI local path
+
+![Ten local recreations of Niklaus Wirth with FLUX.2 klein 4B](pilot-comfyui-niklaus-wirth/evolution.gif)
+
+A second, fully local chain uses ComfyUI on the workstation GPU (RTX A2000, 8 GB). The model is FLUX.2 [klein] 4B distilled (Apache 2.0), with the same fixed prompt and only the previous frame as input. A generation takes about 15 s. The colours and the contrast grow with each generation. See [COMFYUI_PATH.md](COMFYUI_PATH.md) and [the run directory](pilot-comfyui-niklaus-wirth/). The driver is `recreate-101/scripts/comfy-chain.mjs`.
+
 ## Limburg Cathedral experiment
 
 The second chain uses a CC BY-SA 3.0 photo of Limburg Cathedral by Norbert Nagel. It targets 100 generations with the same driver. See [its page](pilot-limburg-cathedral/README.md).
@@ -59,6 +65,7 @@ The pipeline checks shell syntax with ShellCheck, checks JavaScript syntax, runs
 
 - `recreate-101/scripts/host.mjs` records a host-tool run, its refusals and checkpoints, and builds its GIF.
 - `recreate-101/scripts/codex-chain.sh` runs a host-tool chain with one `codex exec` session per generation.
+- `recreate-101/scripts/comfy-chain.mjs` runs a chain through a local ComfyUI server, one API prompt per generation.
 - `recreate-101/scripts/recreate.mjs` runs the mock or optional direct API provider.
 - `localPipeline.sh` runs local checks.
 
