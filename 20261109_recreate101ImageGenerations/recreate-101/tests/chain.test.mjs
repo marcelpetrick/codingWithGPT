@@ -11,6 +11,7 @@ import {fileURLToPath} from 'node:url';
 const chain=fileURLToPath(new URL('../scripts/codex-chain.sh',import.meta.url));
 const host=fileURLToPath(new URL('../scripts/host.mjs',import.meta.url));
 const fake=`#!/usr/bin/env bash
+for a in "$@"; do last=$a; done; prev=""; for a in "$@"; do [[ $a == -- ]] && prev=1; done; [[ -n $prev && $last == "Use the image"* ]] || { echo "bad args" >&2; exit 64; }
 step=$(head -n 1 "$PLAN"); sed -i 1d "$PLAN"; n=$(cat "$COUNTER" 2>/dev/null || echo 0); n=$((n+1)); echo $n > "$COUNTER"
 echo '{"type":"thread.started","thread_id":"t'$n'"}'
 case $step in

@@ -9,7 +9,7 @@ Recreate 101 sends an image through a chain of image generations. Each generatio
 ## Files
 
 - `recreate-101/SKILL.md`: the skill and the fixed prompt.
-- `recreate-101/scripts/host.mjs`: the checkpoint ledger (`init`, `next`, `accept`, `refuse`, `target`, `encode`).
+- `recreate-101/scripts/host.mjs`: the checkpoint ledger (`init`, `next`, `accept`, `refuse`, `cancel`, `status`, `target`, `encode`, `readme`).
 - `recreate-101/scripts/codex-chain.sh`: the driver. It starts one `codex exec` session for each generation.
 - `recreate-101/scripts/recreate.mjs`: the mock and the direct API runner.
 - `IMPLEMENTATION.md`: the living document. Read its "Resume here" section first.

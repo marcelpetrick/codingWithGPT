@@ -46,7 +46,7 @@ while :; do
   cp -- "$input" "$work/input.png"
   say "gen $n: start (input $(basename "$input"), refusals so far $refusals)"
   rc=0
-  timeout "$call_timeout" codex exec --skip-git-repo-check --ephemeral -s read-only -C "$work" --json -i "$work/input.png" \
+  timeout "$call_timeout" codex exec --skip-git-repo-check --ephemeral -s read-only -C "$work" --json -i "$work/input.png" -- \
     "Use the image generation tool exactly once. Use the attached image as the only input image. Use this prompt verbatim: $prompt Do not run shell commands. Do not edit files." \
     < /dev/null > "$work/events.jsonl" 2> "$work/stderr.txt" || rc=$?
   thread=$(node -e 'for(const l of require("fs").readFileSync(process.argv[1],"utf8").split("\n")){try{const e=JSON.parse(l);if(e.thread_id){console.log(e.thread_id);break;}}catch{}}' "$work/events.jsonl")

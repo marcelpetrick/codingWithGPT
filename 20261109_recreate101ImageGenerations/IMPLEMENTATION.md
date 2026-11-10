@@ -59,6 +59,7 @@ The image arrives in `~/.codex/generated_images/<thread_id>/`. The driver takes 
 2. A refusal is recorded with the `refuse` command. It clears the pending request. The same input frame is then sent again in a new session.
 3. Stop after 3 consecutive refusals on the same input frame. Report the stop to the owner.
 4. Stop on any other failure: no image, an invalid PNG, more than one image, a timeout of 600 s, or an unreachable service.
+7. Use `cancel` only when the evidence shows that no request reached Codex. It does not count as a refusal.
 5. At each multiple of ten, save `checkpoints/NNNN.gif`, regenerate the README table and commit.
 6. Do not push without the owner's request.
 
