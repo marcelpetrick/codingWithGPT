@@ -117,3 +117,21 @@
 2026-11-10T21:57:24Z gen 59: accepted (thread 01a1c776-5007-7b51-bc11-94fd9fa19efc, usage {"input_tokens":43746,"cached_input_tokens":38656,"cache_write_input_tokens":0,"output_tokens":125,"reasoning_output_tokens":0})
 2026-11-10T21:57:26Z gen 60: start (input 0059.png, refusals so far 0)
 2026-11-10T21:58:11Z gen 60: accepted (thread 01a1c777-4ae0-7993-9bd9-a789a7409916, usage {"input_tokens":80333,"cached_input_tokens":53504,"cache_write_input_tokens":0,"output_tokens":215,"reasoning_output_tokens":19})
+2026-11-10T21:58:13Z committed: docs: checkpoint 60 generations of the Wirth chain
+2026-11-10T21:58:14Z gen 61: start (input 0060.png, refusals so far 0)
+2026-11-10T21:58:46Z gen 61: REFUSED (thread 01a1c778-08b8-7fc3-8334-af2f142c0fde, request 748197f1-8e92-98cc-9f48-04a6bd558445); evidence kept in /tmp/recreate101.hgJ0qa
+2026-11-10T21:59:49Z gen 61: start (input 0060.png, refusals so far 1)
+2026-11-10T22:00:36Z gen 61: accepted (thread 01a1c779-797b-7ec2-a4d4-9f9a11d0b29f, usage {"input_tokens":43779,"cached_input_tokens":30208,"cache_write_input_tokens":0,"output_tokens":142,"reasoning_output_tokens":0})
+2026-11-10T22:00:38Z gen 62: start (input 0061.png, refusals so far 0)
+2026-11-10T22:01:25Z gen 62: accepted (thread 01a1c77a-38e1-74c1-8036-e8c80e8d91d5, usage {"input_tokens":64749,"cached_input_tokens":45312,"cache_write_input_tokens":0,"output_tokens":221,"reasoning_output_tokens":21})
+2026-11-10T22:01:27Z gen 63: start (input 0062.png, refusals so far 0)
+2026-11-10T22:02:16Z gen 63: accepted (thread 01a1c77a-f8b1-7601-8555-2b42c6886843, usage {"input_tokens":64960,"cached_input_tokens":59648,"cache_write_input_tokens":0,"output_tokens":232,"reasoning_output_tokens":27})
+2026-11-10T22:02:18Z gen 64: start (input 0063.png, refusals so far 0)
+2026-11-10T22:03:08Z gen 64: accepted (thread 01a1c77b-bf91-79c3-a914-809278a7bfda, usage {"input_tokens":65643,"cached_input_tokens":57216,"cache_write_input_tokens":0,"output_tokens":202,"reasoning_output_tokens":17})
+2026-11-10T22:03:09Z gen 65: start (input 0064.png, refusals so far 0)
+2026-11-10T22:03:56Z gen 65: accepted (thread 01a1c77c-889a-7b10-9a6f-c41a147bfb9b, usage {"input_tokens":43753,"cached_input_tokens":38656,"cache_write_input_tokens":0,"output_tokens":124,"reasoning_output_tokens":0})
+2026-11-10T22:03:57Z gen 66: start (input 0065.png, refusals so far 0)
+2026-11-10T22:04:49Z gen 66: accepted (thread 01a1c77d-438a-7be3-bedd-348d2135621b, usage {"input_tokens":64004,"cached_input_tokens":53376,"cache_write_input_tokens":0,"output_tokens":209,"reasoning_output_tokens":19})
+2026-11-10T22:04:51Z gen 67: start (input 0066.png, refusals so far 0)
+2026-11-10T22:05:27Z STOP gen 67: rc=1, 1 images, thread '01a1c77e-1502-7b02-8e8a-59f415f86cfc'; evidence in /tmp/recreate101.R6XRqX; request left pending
+2026-11-10T22:06:39Z gen 67: accepted by hand after review: the image tool returned one image, then the turn failed on the usage limit (thread 01a1c77e-1502-7b02-8e8a-59f415f86cfc)
