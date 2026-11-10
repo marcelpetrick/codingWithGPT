@@ -1,6 +1,6 @@
 # ComfyUI local path (Track B)
 
-Verdict: pending. The model is chosen and the decision rule is fixed. No probe has run yet.
+Verdict: the local path works and passes the rule by a wide margin. FLUX.2 [klein] 4B distilled made 10 generations with a median of 15.2 s each (range 11.2–15.3 s), against a limit of 240 s. Peak GPU memory was 7618 MiB of 8192 MiB. The frames drift clearly: saturation, contrast and sharpening grow, skin turns red, and a fine texture appears. The composition stays the same.
 
 This document is the living document for Track B. Track B recreates the Wirth image with a fully local model in ComfyUI. It does not touch the Codex chain in `pilot-niklaus-wirth/`.
 
@@ -68,10 +68,11 @@ The fixed seed is a choice. With a fixed seed, the noise is the same for each ge
 | 1 | Find ComfyUI, the GPU and the installed models. | Done 22:27 |
 | 2 | Pre-evaluate the candidates on the web and fix the rule. | Done 22:30 |
 | 3 | Start ComfyUI 0.37.0 detached on 127.0.0.1:8188. | Done 22:28 |
-| 4 | Probe one generation through the API. | Open |
-| 5 | Build `recreate-101/scripts/comfy-chain.sh` and a test with a fake ComfyUI. | Open |
-| 6 | Run 10 generations into `pilot-comfyui-niklaus-wirth/`. | Open |
-| 7 | Look at frames 0, 5 and 10. Write the results and the README section. | Open |
+| 4 | Probe one generation through the API. | Done 22:31, 15.2 s |
+| 5 | Build `recreate-101/scripts/comfy-chain.mjs` and a test with a fake ComfyUI. | Done 22:33, `a3f488f`, `71701a5` |
+| 6 | Run 10 generations into `pilot-comfyui-niklaus-wirth/`. | Done 22:37, `b3c625e` |
+| 7 | Look at frames 0, 5 and 10. Write the results and the README section. | Done 22:42 |
+| 8 | Extend the chain to 100 generations (about 25 min). | Open: the owner decides |
 
 ## Status log
 
@@ -79,12 +80,68 @@ The fixed seed is a choice. With a fixed seed, the noise is the same for each ge
 | --- | --- |
 | 22:27 | ComfyUI found at `/home/mpetrick/repos/ComfyUI` (0.37.0, PyTorch 2.14.0+cu130, Python 3.13.16). GPU: RTX A2000 8 GB Laptop. Not running. |
 | 22:28 | Server started with the owner's flags (`--lowvram --disable-api-nodes --listen 127.0.0.1`), log in `~/.cache/recreate101-comfy/comfyui.log`. |
-| 22:30 | Model chosen and rule fixed (this document). |
+| 22:30 | Model chosen and rule fixed (this document, `e3f9e6b`). |
+| 22:31 | Probe in `~/.cache/recreate101-comfy/probe/`: 15.2 s end to end, 14.86 s in ComfyUI, model load included. Output 800 x 608, faithful. Rule passed; no change to the settings. |
+| 22:32 | `host.mjs init --provider` added, so the report does not claim the Codex tool (`a3f488f`, 0.9.0). |
+| 22:33 | Driver `comfy-chain.mjs`, graph file and fake-server tests added (`71701a5`, 0.10.0). Pipeline green, driver line coverage 100%. |
+| 22:34 | Chain started detached under `systemd-inhibit`. |
+| 22:37 | 10 / 10 done, exit 0. Checkpoint commit `b3c625e`. A second, empty-value commit `50e1077` came from the DONE step; fixed in `046225e` (0.10.1). |
+| 22:40 | Frames 0, 5 and 10 checked by eye. Lineage checked: each frame's input hash is the previous frame's hash. README section added. |
 
 ## Results
 
-None yet.
+| Generation | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Seconds (API, end to end) | 11.2 | 14.4 | 15.2 | 15.2 | 15.2 | 15.2 | 15.3 | 15.3 | 15.3 | 15.3 |
+| Pixel standard deviation | 0.307 | 0.321 | 0.333 | 0.344 | 0.352 | 0.356 | 0.359 | 0.359 | 0.358 | 0.357 |
+
+Frame 0 (the source) has a standard deviation of 0.250. The values are from `identify -format '%[fx:standard_deviation]'`. They show the contrast growth, and it slows after generation 7.
+
+- Median: 15.2 s. Range: 11.2–15.3 s. The limit is 240 s. The rule passed.
+- The driver loop adds about 1.3 s per generation for the ledger and the GIF. A generation thus takes about 16.5 s of wall clock.
+- Peak GPU memory (whole GPU, `nvidia-smi` every 0.5 s): 7618 MiB of 8192 MiB. ComfyUI loads the 3.9 GB model dynamically in `--lowvram` mode.
+- RMSE to the previous frame: 0.031 at generation 5, 0.024 at generation 10. RMSE between generation 1 and generation 10: 0.164.
+
+Visual check (frames 0, 5 and 10, side by side): no black frame, no copy, the correct input each time. Generation 1 is close to the source but sharper and more saturated. By generation 5 the suit is a strong blue, the skin is red and the background is yellow-green. By generation 10 the face and the jacket have a fine crosshatch texture, and the beard and the tie start to break up. The pose, the glasses, the bottle and the microphone stay in place.
+
+Open points:
+
+1. The fixed seed gives the same noise each generation. The noise may print the same texture again and again, and this may cause part of the crosshatch. A second arm with seed `42 + n` would test this. Label it as an A/B arm; do not pool it with this run.
+2. The fp8 weights are upcast on the A2000. This affects speed only. At 15 s per generation it does not matter.
+3. ComfyUI keeps the uploaded frames in `~/repos/ComfyUI/input/recreate101/` (about 1 MB each). The outputs go to its `temp/` directory, which ComfyUI clears at start.
+4. If the driver stops between `POST /prompt` and the `queued` line in `comfy.jsonl` (a window of milliseconds), the next start cancels the request. ComfyUI may still finish that prompt; the result is then not used.
 
 ## Resume here
 
-None yet.
+State: 10 / 10 generations in `pilot-comfyui-niklaus-wirth/`. Target 10. No request pending. The ComfyUI server was stopped after the run, as it was not running before.
+
+Check:
+
+```sh
+cd /home/mpetrick/repos/codingWithGPT/20261109_recreate101ImageGenerations
+node recreate-101/scripts/host.mjs status --run-dir pilot-comfyui-niklaus-wirth
+tail -n 5 pilot-comfyui-niklaus-wirth/chain.log
+curl -s 127.0.0.1:8188/system_stats | head -c 200
+pgrep -af 'comfy-chain.mjs'
+```
+
+Start the ComfyUI server (if `system_stats` gives no answer):
+
+```sh
+cd /home/mpetrick/repos/ComfyUI
+setsid nohup systemd-inhibit --what=sleep:idle --why="recreate-101 ComfyUI server" \
+  venv/bin/python main.py --lowvram --preview-method none --disable-api-nodes --listen 127.0.0.1 --port 8188 \
+  >> ~/.cache/recreate101-comfy/comfyui.log 2>&1 < /dev/null & disown
+```
+
+Extend to 100 generations (about 25 min; the driver commits the run directory at every tenth frame):
+
+```sh
+cd /home/mpetrick/repos/codingWithGPT/20261109_recreate101ImageGenerations
+node recreate-101/scripts/host.mjs target --run-dir pilot-comfyui-niklaus-wirth --iterations 100
+setsid nohup systemd-inhibit --what=sleep:idle --why="recreate-101 ComfyUI chain" \
+  node recreate-101/scripts/comfy-chain.mjs pilot-comfyui-niklaus-wirth \
+  >> pilot-comfyui-niklaus-wirth/chain.log 2>&1 < /dev/null & disown
+```
+
+The driver is idempotent. A restart resumes a queued prompt from ComfyUI's history, or cancels a request that was never queued. It stops (exit 3) on an unreachable server, an empty read, a failed prompt, or an invalid image. A stopped request stays pending for review. Stop the server afterwards with `pkill -f 'main.py --lowvram --preview-method none'`.
