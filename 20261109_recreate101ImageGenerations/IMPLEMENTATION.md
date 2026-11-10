@@ -62,7 +62,7 @@ The image arrives in `~/.codex/generated_images/<thread_id>/`. The driver takes 
 5. Use `cancel` only when the evidence shows that no request reached Codex. It does not count as a refusal.
 6. At each multiple of ten, save `checkpoints/NNNN.gif`, regenerate the README table and commit.
 7. Do not use the direct API path or `moderation: "low"`. The owner excluded this path on 2026-11-10. After 3 refusals in a row, the chain stops, and that is the result.
-8. Push when the owner asks. The owner asked for a push of the results on 2026-11-10.
+8. Push only when the owner asks.
 
 ### Plan
 
@@ -86,6 +86,8 @@ The image arrives in `~/.codex/generated_images/<thread_id>/`. The driver takes 
 | 22:19–22:22 | Real moderation blocks (HTTP 400, output stage, category `other`): generation 16 twice, generation 18 once. Retries passed for 16. |
 | 22:22 | Refusal check tightened to the `moderation_blocked` code, with request IDs (`3c6ca89`). The running driver keeps the old check until restart. |
 | 22:25 | Owner decision: no direct API path and no `moderation: "low"`. |
+| 22:24 | Driver swapped at a refusal to the 60 s back-off (`9f4b784`). |
+| 22:25 | Checkpoint 20 committed (`61e9e1f`). 6 refusals so far; every refused frame passed on a retry. |
 
 ## Resume here (continuation)
 
