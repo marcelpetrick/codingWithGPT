@@ -5,3 +5,15 @@
 Source: https://commons.wikimedia.org/wiki/File:Niklaus_Wirth,_UrGU.jpg
 
 SHA-256: `88f793a5d5571ff8cc67ef9059f83b28c29ab3aeb97bbd030d32ef49b7dfc513`
+
+## Limburg Cathedral
+
+`limburg-cathedral.jpg` shows Limburg Cathedral (Limburger Dom) in Hesse, Germany, above the river Lahn. Norbert Nagel took the photo on 26 October 2013. It is a Wikimedia Commons Featured picture and a Quality image.
+
+License: Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0), https://creativecommons.org/licenses/by-sa/3.0/. Attribution: "Norbert Nagel / Wikimedia Commons". The generated frames are adaptations. They are shared under the same license (CC BY-SA 3.0).
+
+Source: https://commons.wikimedia.org/wiki/File:Cathedral_Limburg_-_Limburger_Dom_-_October_26th_2013_-_06.jpg
+
+The file here is the 1920 × 1281 Commons thumbnail of the 6466 × 4315 original. It was downloaded on 2026-11-10. No other change was made.
+
+SHA-256: `b1a6dc513137d92ead11e5c293ff094728d6e599dbb9edf63111ea039281c898`
