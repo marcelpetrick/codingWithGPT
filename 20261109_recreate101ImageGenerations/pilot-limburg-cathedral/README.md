@@ -9,5 +9,5 @@ The table is generated from `manifest.json` by `host.mjs readme`. Do not edit it
 <!-- checkpoints:start -->
 | Completed generations | Animation | Refusals so far | Codex agent tokens (calls with data) | Subscriber allowance |
 | --- | --- | --- | --- | --- |
-| 0 | [Current GIF](evolution.gif) | 0 | Unavailable | Unavailable |
+| 10 | [Checkpoint GIF](checkpoints/0010.gif) | 0 | 581502 in (466816 cached), 1552 out, 10 calls | Unavailable |
 <!-- checkpoints:end -->
