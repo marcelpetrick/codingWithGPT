@@ -19,7 +19,7 @@ The table is generated from `pilot-niklaus-wirth/manifest.json` by `host.mjs rea
 | Completed generations | Animation | Refusals so far | Codex agent tokens (calls with data) | Subscriber allowance |
 | --- | --- | --- | --- | --- |
 | 10 | [Checkpoint GIF](pilot-niklaus-wirth/checkpoints/0010.gif) | 0 | Unavailable | Unavailable |
-| 12 | [Current GIF](pilot-niklaus-wirth/evolution.gif) | 1 | Unavailable | Unavailable |
+| 20 | [Checkpoint GIF](pilot-niklaus-wirth/checkpoints/0020.gif) | 6 | 391118 in (284800 cached), 1186 out, 8 calls | Unavailable |
 <!-- checkpoints:end -->
 
 Generations 1–12 ran in one Codex session on 2026-11-09. The image tool refused generation 13 at the output moderation stage. From 2026-11-10, Claude Code runs the chain. It starts one fresh `codex exec` session for each generation with `recreate-101/scripts/codex-chain.sh`. The prompt does not change. A refused frame is sent again, at most three times in a row. See the [experiment report](pilot-niklaus-wirth/report.md).

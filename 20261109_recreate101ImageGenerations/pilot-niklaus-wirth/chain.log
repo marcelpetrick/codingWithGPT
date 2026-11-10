@@ -1,2 +1,31 @@
 2026-11-10T21:16:24Z gen 13: start (input 0012.png, refusals so far 1)
 2026-11-10T21:16:25Z STOP gen 13: rc=1, 0 images, thread ''; evidence in /tmp/recreate101.fG3PwV; request left pending
+2026-11-10T21:17:10Z gen 13: start (input 0012.png, refusals so far 1)
+2026-11-10T21:17:46Z gen 13: accepted (thread 01a1c752-6ed2-7331-81e2-18ead0647634, usage {"input_tokens":43755,"cached_input_tokens":33024,"cache_write_input_tokens":0,"output_tokens":126,"reasoning_output_tokens":0})
+2026-11-10T21:17:47Z gen 14: start (input 0013.png, refusals so far 0)
+2026-11-10T21:18:21Z gen 14: accepted (thread 01a1c752-fe37-70a1-9cdc-a4c274eac4f8, usage {"input_tokens":43750,"cached_input_tokens":33024,"cache_write_input_tokens":0,"output_tokens":124,"reasoning_output_tokens":0})
+2026-11-10T21:18:21Z gen 15: start (input 0014.png, refusals so far 0)
+2026-11-10T21:19:00Z gen 15: accepted (thread 01a1c753-863e-7341-89a5-705a0c616d92, usage {"input_tokens":64762,"cached_input_tokens":53888,"cache_write_input_tokens":0,"output_tokens":222,"reasoning_output_tokens":16})
+2026-11-10T21:19:00Z gen 16: start (input 0015.png, refusals so far 0)
+2026-11-10T21:19:29Z gen 16: REFUSED (thread 01a1c754-1d04-7360-90c9-d79cec135241); evidence kept in /tmp/recreate101.9crbXZ
+2026-11-10T21:19:39Z gen 16: start (input 0015.png, refusals so far 1)
+2026-11-10T21:20:11Z gen 16: REFUSED (thread 01a1c754-b608-76c3-b9b8-576e615c3fa0); evidence kept in /tmp/recreate101.2MQWDO
+2026-11-10T21:20:22Z gen 16: start (input 0015.png, refusals so far 2)
+2026-11-10T21:20:54Z gen 16: accepted (thread 01a1c755-5b03-7a91-8209-662607463e98, usage {"input_tokens":42648,"cached_input_tokens":20224,"cache_write_input_tokens":0,"output_tokens":118,"reasoning_output_tokens":0})
+2026-11-10T21:20:54Z gen 17: start (input 0016.png, refusals so far 0)
+2026-11-10T21:21:28Z gen 17: accepted (thread 01a1c755-db56-7d32-a8ff-30f85831f31f, usage {"input_tokens":43743,"cached_input_tokens":33024,"cache_write_input_tokens":0,"output_tokens":117,"reasoning_output_tokens":0})
+2026-11-10T21:21:28Z gen 18: start (input 0017.png, refusals so far 0)
+2026-11-10T21:21:58Z gen 18: REFUSED (thread 01a1c756-600a-7e23-8bf7-2c03900a8922); evidence kept in /tmp/recreate101.JNSprV
+2026-11-10T21:22:09Z gen 18: start (input 0017.png, refusals so far 1)
+2026-11-10T21:22:41Z gen 18: REFUSED (thread 01a1c756-fcf1-7853-b204-5c7196f1a263); evidence kept in /tmp/recreate101.dcgUrI
+2026-11-10T21:22:52Z gen 18: start (input 0017.png, refusals so far 2)
+2026-11-10T21:23:27Z gen 18: accepted (thread 01a1c757-a4fa-7192-8187-0925ef590a38, usage {"input_tokens":43752,"cached_input_tokens":24576,"cache_write_input_tokens":0,"output_tokens":126,"reasoning_output_tokens":0})
+2026-11-10T21:23:28Z gen 19: start (input 0018.png, refusals so far 0)
+2026-11-10T21:23:59Z gen 19: REFUSED (thread 01a1c758-326a-7d03-84c1-642454099104); evidence kept in /tmp/recreate101.fQXdTi
+'bash' terminated by signal TERM.
+2026-11-10T21:24:07Z driver restarted with the 60 s refusal pause (9f4b784)
+2026-11-10T21:24:07Z start: run /home/mpetrick/repos/codingWithGPT/20261109_recreate101ImageGenerations/pilot-niklaus-wirth, refusal pause 60s, max refusals 3
+2026-11-10T21:24:07Z gen 19: start (input 0018.png, refusals so far 1)
+2026-11-10T21:24:47Z gen 19: accepted (thread 01a1c758-cc7c-7960-9c29-fc0007359417, usage {"input_tokens":64961,"cached_input_tokens":54016,"cache_write_input_tokens":0,"output_tokens":233,"reasoning_output_tokens":31})
+2026-11-10T21:24:47Z gen 20: start (input 0019.png, refusals so far 0)
+2026-11-10T21:25:26Z gen 20: accepted (thread 01a1c759-691c-7bc1-9143-6541324711c3, usage {"input_tokens":43747,"cached_input_tokens":33024,"cache_write_input_tokens":0,"output_tokens":120,"reasoning_output_tokens":0})
