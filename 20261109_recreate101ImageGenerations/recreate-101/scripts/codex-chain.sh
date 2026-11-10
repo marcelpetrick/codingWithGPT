@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Drive a host-tool run: one fresh `codex exec` session per generation.
 # Usage: codex-chain.sh RUN_DIR
-# Env: MAX_REFUSALS (3), CALL_TIMEOUT (600 s), COMMIT_CHECKPOINTS (1), REFUSAL_PAUSE (10 s),
+# Env: MAX_REFUSALS (3), CALL_TIMEOUT (600 s), COMMIT_CHECKPOINTS (1), REFUSAL_PAUSE (60 s),
 #      CODEX_IMAGES (~/.codex/generated_images), CHAIN_README (project README.md)
 # Exit: 0 target reached, 2 refusal limit, 3 failure (the request stays pending for review).
 set -euo pipefail
@@ -15,6 +15,7 @@ max_refusals=${MAX_REFUSALS:-3}
 call_timeout=${CALL_TIMEOUT:-600}
 images=${CODEX_IMAGES:-$HOME/.codex/generated_images}
 readme=${CHAIN_README:-$project/README.md}
+refusal_pause=${REFUSAL_PAUSE:-60}
 prompt=$(sed -n 's/^> //p' "$here/../SKILL.md" | head -n 1)
 [[ -n $prompt ]] || { echo "No fixed prompt found in SKILL.md" >&2; exit 3; }
 
@@ -29,6 +30,7 @@ publish() {
   say "committed: $1"
 }
 
+say "start: run $run_dir, refusal pause ${refusal_pause}s, max refusals $max_refusals"
 while :; do
   status=$("${host[@]}" status --run-dir "$run_dir")
   completed=$(field "$status" completed); target=$(field "$status" target)
@@ -66,7 +68,7 @@ while :; do
     [[ -n $request ]] && extra+=(--request-id "$request")
     "${host[@]}" refuse --run-dir "$run_dir" --outcome moderation_blocked "${extra[@]}" > /dev/null
     say "gen $n: REFUSED (thread $thread, request ${request:-unknown}); evidence kept in $work"
-    sleep "${REFUSAL_PAUSE:-10}"
+    sleep "$refusal_pause"
   else
     say "STOP gen $n: rc=$rc, ${#pngs[@]} images, thread '$thread'; evidence in $work; request left pending"
     exit 3
