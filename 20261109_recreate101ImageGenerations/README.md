@@ -5,6 +5,31 @@
 
 Recreate an image repeatedly and watch the changes accumulate. Each generation uses only the previous image. The skill keeps the original, full-resolution PNG frames, a GIF, and a lineage record.
 
+## Step-by-step comparison
+
+Four chains use the same fixed prompt. Two sources (Niklaus Wirth, Limburg Cathedral) go through two image models: the Codex image tool and a local FLUX.2 [klein] 4B in ComfyUI. Each row shows the same generation in every chain. The thumbnails are JPEG viewing copies. The PNG frames are the source data.
+
+`./updateComparison.sh` generates this section from the run manifests. Do not edit it by hand.
+
+<!-- comparison:start -->
+| Run | Provider | Generations | Refusals | Median time per generation | Status |
+| --- | --- | --- | --- | --- | --- |
+| Wirth, Codex | `codex-host-image-tool` | 64 / 101 | 9 | 33.6 s (54 timed) | request pending |
+| Wirth, ComfyUI | `comfyui-flux2-klein-4b-distilled` | 64 / 100 | 0 | 15.5 s (64 timed) | request pending |
+| Limburg, Codex | `codex-host-image-tool` | 38 / 100 | 0 | 40.8 s (38 timed) | request pending |
+| Limburg, ComfyUI | `comfyui-flux2-klein-4b-distilled` | 0 / 100 | 0 | Unavailable | running or stopped |
+
+| Generation | Wirth, Codex | Wirth, ComfyUI | Limburg, Codex | Limburg, ComfyUI |
+| --- | --- | --- | --- | --- |
+| 0 | <img src="comparison/run0-0000.jpg" width="200" alt="Wirth, Codex, generation 0"> | <img src="comparison/run1-0000.jpg" width="200" alt="Wirth, ComfyUI, generation 0"> | <img src="comparison/run2-0000.jpg" width="200" alt="Limburg, Codex, generation 0"> | <img src="comparison/run3-0000.jpg" width="200" alt="Limburg, ComfyUI, generation 0"> |
+| 10 | <img src="comparison/run0-0010.jpg" width="200" alt="Wirth, Codex, generation 10"> | <img src="comparison/run1-0010.jpg" width="200" alt="Wirth, ComfyUI, generation 10"> | <img src="comparison/run2-0010.jpg" width="200" alt="Limburg, Codex, generation 10"> | — |
+| 20 | <img src="comparison/run0-0020.jpg" width="200" alt="Wirth, Codex, generation 20"> | <img src="comparison/run1-0020.jpg" width="200" alt="Wirth, ComfyUI, generation 20"> | <img src="comparison/run2-0020.jpg" width="200" alt="Limburg, Codex, generation 20"> | — |
+| 30 | <img src="comparison/run0-0030.jpg" width="200" alt="Wirth, Codex, generation 30"> | <img src="comparison/run1-0030.jpg" width="200" alt="Wirth, ComfyUI, generation 30"> | <img src="comparison/run2-0030.jpg" width="200" alt="Limburg, Codex, generation 30"> | — |
+| 40 | <img src="comparison/run0-0040.jpg" width="200" alt="Wirth, Codex, generation 40"> | <img src="comparison/run1-0040.jpg" width="200" alt="Wirth, ComfyUI, generation 40"> | — | — |
+| 50 | <img src="comparison/run0-0050.jpg" width="200" alt="Wirth, Codex, generation 50"> | <img src="comparison/run1-0050.jpg" width="200" alt="Wirth, ComfyUI, generation 50"> | — | — |
+| 60 | <img src="comparison/run0-0060.jpg" width="200" alt="Wirth, Codex, generation 60"> | <img src="comparison/run1-0060.jpg" width="200" alt="Wirth, ComfyUI, generation 60"> | — | — |
+<!-- comparison:end -->
+
 ## Niklaus Wirth experiment
 
 ![Sequential recreations of Niklaus Wirth](pilot-niklaus-wirth/evolution.gif)
