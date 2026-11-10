@@ -414,6 +414,186 @@
         "output_tokens": 147,
         "reasoning_output_tokens": 0
       }
+    },
+    {
+      "index": 31,
+      "path": "frames/0031.png",
+      "sha256": "ead5866dd947fc14889188bcc2dec3e80c949ee7b62539c4166c296cbffcc902",
+      "inputSha256": "7bd669acd3129ca9a98c417a80d41f9618b4e085ed08cb6a9311fa12425de729",
+      "started": "2026-11-10T21:34:55.500Z",
+      "ended": "2026-11-10T21:35:38.763Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "01a1c762-ae8a-7001-bff0-aa17af7f0d34",
+      "agentUsage": {
+        "input_tokens": 65319,
+        "cached_input_tokens": 54272,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 220,
+        "reasoning_output_tokens": 20
+      }
+    },
+    {
+      "index": 32,
+      "path": "frames/0032.png",
+      "sha256": "4b537e6408fc197db0548979055ab63f520808d6c7e2196b63aac00ef647941f",
+      "inputSha256": "ead5866dd947fc14889188bcc2dec3e80c949ee7b62539c4166c296cbffcc902",
+      "started": "2026-11-10T21:35:45.503Z",
+      "ended": "2026-11-10T21:36:23.484Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "01a1c763-71ee-7e43-885a-10ea372ea7f8",
+      "agentUsage": {
+        "input_tokens": 43769,
+        "cached_input_tokens": 38784,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 147,
+        "reasoning_output_tokens": 0
+      }
+    },
+    {
+      "index": 33,
+      "path": "frames/0033.png",
+      "sha256": "054ec098bfef361d893fc8e388b618768c152dc84f33212c725f671ee9e7e7b5",
+      "inputSha256": "4b537e6408fc197db0548979055ab63f520808d6c7e2196b63aac00ef647941f",
+      "started": "2026-11-10T21:36:30.858Z",
+      "ended": "2026-11-10T21:37:03.466Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "01a1c764-2316-7aa1-a38a-f188062fb2f5",
+      "agentUsage": {
+        "input_tokens": 43749,
+        "cached_input_tokens": 33024,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 123,
+        "reasoning_output_tokens": 0
+      }
+    },
+    {
+      "index": 34,
+      "path": "frames/0034.png",
+      "sha256": "ef4163f416790eacc4791b73808888e62f3fb25a83bda005997a27d6b0ed3bb7",
+      "inputSha256": "054ec098bfef361d893fc8e388b618768c152dc84f33212c725f671ee9e7e7b5",
+      "started": "2026-11-10T21:37:11.026Z",
+      "ended": "2026-11-10T21:37:44.356Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "01a1c764-c006-7112-a208-47b3915dbc54",
+      "agentUsage": {
+        "input_tokens": 43743,
+        "cached_input_tokens": 38656,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 125,
+        "reasoning_output_tokens": 0
+      }
+    },
+    {
+      "index": 35,
+      "path": "frames/0035.png",
+      "sha256": "988c8d8877b85c371e9ae42a75b3f42f34b0b326e62a9afb4ecbe5d2663f1848",
+      "inputSha256": "ef4163f416790eacc4791b73808888e62f3fb25a83bda005997a27d6b0ed3bb7",
+      "started": "2026-11-10T21:37:51.752Z",
+      "ended": "2026-11-10T21:38:32.700Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "01a1c765-5f26-7b31-9a3b-681336563e31",
+      "agentUsage": {
+        "input_tokens": 43748,
+        "cached_input_tokens": 38656,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 126,
+        "reasoning_output_tokens": 0
+      }
+    },
+    {
+      "index": 36,
+      "path": "frames/0036.png",
+      "sha256": "ef5df819ea9c050113570ae9da8033ba21120cc7e0e900e079199a1131c0b805",
+      "inputSha256": "988c8d8877b85c371e9ae42a75b3f42f34b0b326e62a9afb4ecbe5d2663f1848",
+      "started": "2026-11-10T21:38:39.406Z",
+      "ended": "2026-11-10T21:39:14.929Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "01a1c766-193e-7f82-ba80-e294a94f138a",
+      "agentUsage": {
+        "input_tokens": 43729,
+        "cached_input_tokens": 38784,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 144,
+        "reasoning_output_tokens": 0
+      }
+    },
+    {
+      "index": 37,
+      "path": "frames/0037.png",
+      "sha256": "512fa935a7ff803d2304397b1e47caf3c34fbb95e52de6dff48e8e37a7537ef5",
+      "inputSha256": "ef5df819ea9c050113570ae9da8033ba21120cc7e0e900e079199a1131c0b805",
+      "started": "2026-11-10T21:39:21.562Z",
+      "ended": "2026-11-10T21:39:59.070Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "01a1c766-bdd6-74e3-ae3e-4402d1ac8ca4",
+      "agentUsage": {
+        "input_tokens": 43754,
+        "cached_input_tokens": 33024,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 125,
+        "reasoning_output_tokens": 0
+      }
+    },
+    {
+      "index": 38,
+      "path": "frames/0038.png",
+      "sha256": "2721feb7c8351cc5b082679dad34ad355112b7975012ec230ea55d8796db029d",
+      "inputSha256": "512fa935a7ff803d2304397b1e47caf3c34fbb95e52de6dff48e8e37a7537ef5",
+      "started": "2026-11-10T21:40:06.507Z",
+      "ended": "2026-11-10T21:40:40.222Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "01a1c767-6d6d-7e72-904c-7d309b88edae",
+      "agentUsage": {
+        "input_tokens": 43765,
+        "cached_input_tokens": 30208,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 126,
+        "reasoning_output_tokens": 0
+      }
+    },
+    {
+      "index": 39,
+      "path": "frames/0039.png",
+      "sha256": "cf8ef5f24ffb0de4f5990324761e9d3bcb75f87971bc65b9c0b8bd5b952c54aa",
+      "inputSha256": "2721feb7c8351cc5b082679dad34ad355112b7975012ec230ea55d8796db029d",
+      "started": "2026-11-10T21:40:47.676Z",
+      "ended": "2026-11-10T21:41:25.022Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "01a1c768-0e40-7511-909a-26ca1b8c3c6d",
+      "agentUsage": {
+        "input_tokens": 43774,
+        "cached_input_tokens": 33152,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 147,
+        "reasoning_output_tokens": 0
+      }
+    },
+    {
+      "index": 40,
+      "path": "frames/0040.png",
+      "sha256": "8807e9851392753b4aa3a08ad242b86dfdd3d6044a785b621d4c0398d8861bac",
+      "inputSha256": "cf8ef5f24ffb0de4f5990324761e9d3bcb75f87971bc65b9c0b8bd5b952c54aa",
+      "started": "2026-11-10T21:41:33.487Z",
+      "ended": "2026-11-10T21:42:10.316Z",
+      "usage": null,
+      "requestId": null,
+      "threadId": "01a1c768-c14b-7543-90ac-71565e49b132",
+      "agentUsage": {
+        "input_tokens": 43762,
+        "cached_input_tokens": 24576,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 143,
+        "reasoning_output_tokens": 0
+      }
     }
   ],
   "pending": null,
