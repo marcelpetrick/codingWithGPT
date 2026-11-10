@@ -20,7 +20,7 @@ const seed=Number(env.COMFY_SEED||42);
 const timeoutMs=Number(env.CALL_TIMEOUT||600)*1000;
 const pollMs=Number(env.POLL_MS||1000);
 const workflow=env.COMFY_WORKFLOW||path.join(here,'../references/comfy-flux2-klein-edit.json');
-const prompt=(fs.readFileSync(path.join(here,'../SKILL.md'),'utf8').match(/^> (.+)$/m)||[])[1];
+let prompt=(fs.readFileSync(path.join(here,'../SKILL.md'),'utf8').match(/^> (.+)$/m)||[])[1];
 class Stop extends Error{}
 const say=m=>console.log(`${new Date().toISOString()} ${m}`);
 const run=(cmd,args)=>{const r=spawnSync(cmd,args,{encoding:'utf8'});if(r.status!==0)throw new Stop(`${cmd} ${args[0]}: ${(r.stderr||r.error?.message||'').trim()}`);return r.stdout.trim();};
@@ -40,7 +40,7 @@ function git(dir,args){for(let i=0;;i++){const r=spawnSync('git',['-C',dir,...ar
 let published=-1;
 function publish(dir,n){if((env.COMMIT_CHECKPOINTS||'1')!=='1'||published===n)return;published=n;const a=git(dir,['add','--','.']);if(a.status!==0)throw new Stop(`git add: ${a.stderr.trim()}`);const c=git(dir,['commit','-q','-m',`docs: checkpoint ${n} generations of the ComfyUI chain ${path.basename(dir)}`,'--','.']);say(`checkpoint ${n}: ${c.status===0?'committed':'nothing new to commit'}`);}
 async function main(){
- const dir=path.resolve(process.argv[2]||'');if(!process.argv[2]||!fs.existsSync(path.join(dir,'manifest.json')))throw new Stop('RUN_DIR with a manifest.json is required');if(!prompt)throw new Stop('No fixed prompt found in SKILL.md');
+ const dir=path.resolve(process.argv[2]||'');if(!process.argv[2]||!fs.existsSync(path.join(dir,'manifest.json')))throw new Stop('RUN_DIR with a manifest.json is required');prompt=JSON.parse(fs.readFileSync(path.join(dir,'manifest.json'),'utf8')).prompt||prompt;if(!prompt)throw new Stop('No fixed prompt found in SKILL.md');
  const work=fs.mkdtempSync(path.join(os.tmpdir(),'recreate101-comfy-'));
  try{
   await json('GET','/system_stats');

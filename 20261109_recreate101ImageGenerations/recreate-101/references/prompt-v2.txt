@@ -1,0 +1,1 @@
+Recreate the provided image as an exact copy. Match its colors, saturation, contrast, brightness, sharpness, noise and grain exactly. Do not enhance, sharpen, smooth, saturate, recolor or stylize anything. Preserve the composition, framing, subjects, faces, shapes, lighting, textures, background and any visible text. Make no additions, removals or corrections. Return one image.
