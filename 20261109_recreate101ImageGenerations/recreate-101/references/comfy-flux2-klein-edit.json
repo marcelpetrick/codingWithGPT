@@ -1,0 +1,21 @@
+{
+  "unet": {"class_type": "UNETLoader", "inputs": {"unet_name": "flux-2-klein-4b-fp8.safetensors", "weight_dtype": "default"}},
+  "clip": {"class_type": "CLIPLoader", "inputs": {"clip_name": "qwen_3_4b_fp4_mixed.safetensors", "type": "flux2", "device": "default"}},
+  "vae": {"class_type": "VAELoader", "inputs": {"vae_name": "flux2-vae.safetensors"}},
+  "load": {"class_type": "LoadImage", "inputs": {"image": "SET_BY_DRIVER"}},
+  "scale": {"class_type": "ImageScaleToTotalPixels", "inputs": {"image": ["load", 0], "upscale_method": "lanczos", "megapixels": 0.47, "resolution_steps": 16}},
+  "size": {"class_type": "GetImageSize", "inputs": {"image": ["scale", 0]}},
+  "encode": {"class_type": "VAEEncode", "inputs": {"pixels": ["scale", 0], "vae": ["vae", 0]}},
+  "prompt": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["clip", 0], "text": "SET_BY_DRIVER"}},
+  "zero": {"class_type": "ConditioningZeroOut", "inputs": {"conditioning": ["prompt", 0]}},
+  "positive": {"class_type": "ReferenceLatent", "inputs": {"conditioning": ["prompt", 0], "latent": ["encode", 0]}},
+  "negative": {"class_type": "ReferenceLatent", "inputs": {"conditioning": ["zero", 0], "latent": ["encode", 0]}},
+  "latent": {"class_type": "EmptyFlux2LatentImage", "inputs": {"width": ["size", 0], "height": ["size", 1], "batch_size": 1}},
+  "sigmas": {"class_type": "Flux2Scheduler", "inputs": {"steps": 4, "width": ["size", 0], "height": ["size", 1]}},
+  "sampler": {"class_type": "KSamplerSelect", "inputs": {"sampler_name": "euler"}},
+  "noise": {"class_type": "RandomNoise", "inputs": {"noise_seed": 42}},
+  "guider": {"class_type": "CFGGuider", "inputs": {"model": ["unet", 0], "positive": ["positive", 0], "negative": ["negative", 0], "cfg": 1.0}},
+  "sample": {"class_type": "SamplerCustomAdvanced", "inputs": {"noise": ["noise", 0], "guider": ["guider", 0], "sampler": ["sampler", 0], "sigmas": ["sigmas", 0], "latent_image": ["latent", 0]}},
+  "decode": {"class_type": "VAEDecode", "inputs": {"samples": ["sample", 0], "vae": ["vae", 0]}},
+  "output": {"class_type": "PreviewImage", "inputs": {"images": ["decode", 0]}}
+}

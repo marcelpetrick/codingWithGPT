@@ -5,6 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 shellcheck localPipeline.sh recreate-101/scripts/codex-chain.sh
+node --check recreate-101/scripts/comfy-chain.mjs
 node --check recreate-101/scripts/recreate.mjs
 node --check recreate-101/scripts/host.mjs
 node --test --experimental-test-coverage --test-coverage-lines=95 --test-coverage-include="**/recreate-101/scripts/*.mjs" recreate-101/tests/*.test.mjs
