@@ -61,9 +61,11 @@ while :; do
     say "gen $n: accepted (thread $thread, usage $usage)"
     rm -rf -- "$work"
     if (( n % 10 == 0 )); then publish "docs: checkpoint $n generations of the Wirth chain"; fi
-  elif (( ${#pngs[@]} == 0 )) && grep -qiE 'moderation|safety (system|check|filter)|content polic|blocked' "$work/events.jsonl" "$work/stderr.txt"; then
+  elif (( ${#pngs[@]} == 0 )) && grep -q 'moderation_blocked' "$work/stderr.txt" "$work/events.jsonl"; then
+    request=$(grep -ohE 'request ID [0-9a-f-]{36}' "$work/stderr.txt" "$work/events.jsonl" | head -n 1 | cut -d' ' -f3 || true)
+    [[ -n $request ]] && extra+=(--request-id "$request")
     "${host[@]}" refuse --run-dir "$run_dir" --outcome moderation_blocked "${extra[@]}" > /dev/null
-    say "gen $n: REFUSED (thread $thread); evidence kept in $work"
+    say "gen $n: REFUSED (thread $thread, request ${request:-unknown}); evidence kept in $work"
     sleep "${REFUSAL_PAUSE:-10}"
   else
     say "STOP gen $n: rc=$rc, ${#pngs[@]} images, thread '$thread'; evidence in $work; request left pending"
