@@ -2,7 +2,7 @@
 
 Status: ready.
 
-Completed generations: 40 / 101. Refusals recorded: 8. Codex agent tokens: 1331703 in (1028736 cached), 4054 out, 28 calls.
+Completed generations: 60 / 101. Refusals recorded: 8. Codex agent tokens: 2345333 in (1816064 cached), 7212 out, 48 calls.
 
 Provider: Codex host image tool. Model, image settings, tokens, request charges, and account balance: unavailable unless the host exposes them. API cost: not applicable; no direct API calls were made. Agent session overhead: the Codex agent tokens above, where recorded.
 
