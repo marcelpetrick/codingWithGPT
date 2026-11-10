@@ -16,6 +16,7 @@ call_timeout=${CALL_TIMEOUT:-600}
 images=${CODEX_IMAGES:-$HOME/.codex/generated_images}
 readme=${CHAIN_README:-$project/README.md}
 refusal_pause=${REFUSAL_PAUSE:-60}
+name=$(basename "$run_dir")
 prompt=$(sed -n 's/^> //p' "$here/../SKILL.md" | head -n 1)
 [[ -n $prompt ]] || { echo "No fixed prompt found in SKILL.md" >&2; exit 3; }
 
@@ -26,8 +27,12 @@ publish() {
   "${host[@]}" readme --run-dir "$run_dir" --readme "$readme" > /dev/null
   [[ ${COMMIT_CHECKPOINTS:-1} == 1 ]] || return 0
   git -C "$project" add -- "$run_dir" "$readme"
-  git -C "$project" commit -q -m "$1" -- "$run_dir" "$readme" || true
-  say "committed: $1"
+  for _ in 1 2 3 4 5; do
+    if git -C "$project" diff --cached --quiet -- "$run_dir" "$readme"; then say "nothing to commit: $1"; return 0; fi
+    if git -C "$project" commit -q -m "$1" -- "$run_dir" "$readme"; then say "committed: $1"; return 0; fi
+    sleep 3
+  done
+  say "WARNING: commit failed after 5 tries: $1"
 }
 
 say "start: run $run_dir, refusal pause ${refusal_pause}s, max refusals $max_refusals"
@@ -35,7 +40,7 @@ while :; do
   status=$("${host[@]}" status --run-dir "$run_dir")
   completed=$(field "$status" completed); target=$(field "$status" target)
   if [[ $(field "$status" pending) == true ]]; then say "STOP: a request is pending; reconcile it first"; exit 3; fi
-  if (( completed >= target )); then publish "docs: complete $completed generations of the Wirth chain"; say "DONE: $completed / $target"; exit 0; fi
+  if (( completed >= target )); then publish "docs: complete $completed generations of the $name chain"; say "DONE: $completed / $target"; exit 0; fi
   refusals=$(field "$status" refusalsForNext)
   if (( refusals >= max_refusals )); then
     publish "docs: stop the Wirth chain after $refusals refusals at generation $((completed + 1))"
@@ -62,7 +67,7 @@ while :; do
     "${host[@]}" accept --run-dir "$run_dir" --image "${pngs[0]}" "${extra[@]}" > /dev/null
     say "gen $n: accepted (thread $thread, usage $usage)"
     rm -rf -- "$work"
-    if (( n % 10 == 0 )); then publish "docs: checkpoint $n generations of the Wirth chain"; fi
+    if (( n % 10 == 0 )); then publish "docs: checkpoint $n generations of the $name chain"; fi
   elif (( ${#pngs[@]} == 0 )) && grep -q 'moderation_blocked' "$work/stderr.txt" "$work/events.jsonl"; then
     request=$(grep -ohE 'request ID [0-9a-f-]{36}' "$work/stderr.txt" "$work/events.jsonl" | head -n 1 | cut -d' ' -f3 || true)
     [[ -n $request ]] && extra+=(--request-id "$request")
