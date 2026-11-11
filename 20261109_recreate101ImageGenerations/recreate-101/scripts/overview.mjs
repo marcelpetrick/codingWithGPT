@@ -43,7 +43,7 @@ function promptText(file) {
 
 function status(m) {
   if (m.pending) return 'request pending';
-  return m.frames.length - 1 >= m.target ? 'complete' : 'running or queued';
+  return m.frames.length - 1 >= m.target ? 'complete' : 'incomplete';
 }
 
 function main() {
