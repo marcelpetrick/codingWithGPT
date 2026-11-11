@@ -5,6 +5,20 @@
 
 Recreate an image repeatedly and watch the changes accumulate. Each generation uses only the previous image. The skill keeps the original, full-resolution PNG frames, a GIF, and a lineage record.
 
+## Status and results
+
+The experiment was stopped by the owner on 2026-11-11 at about 09:26. 26 of 30 runs are complete. The Corgi img2img run stopped at 47 frames. Three img2img runs (Christmas market, Dwayne Johnson, Mona Lisa) did not start. The overview below shows each run's state.
+
+Results (one chain per arm, so each result is an indication, not a proof):
+
+1. Every chain drifts. After 100 generations `d` is 0.36–0.47 on every run. Faces and buildings dissolve into texture or color fields.
+2. The two models drift in different directions. Codex (ChatGPT image tool) goes to grain, posterized color and fine marks. FLUX.2 [klein] on ComfyUI goes to smooth, saturated color.
+3. Prompt v2 ("exact copy, match colors, do not enhance") does not reduce drift: a tie against v1 on ComfyUI (Turing). Codex kept the greyscale of the Turing photo with v2; ComfyUI colorized it by frame 3.
+4. Prompt v3 ("a very small step toward an oil painting") fails. On the default graph, generation 1 is already a full painting on all five subjects (`d` 0.16–0.23).
+5. The img2img graph gives really small steps (`d` about 0.007 at generation 1), but the loop then drifts to a saturated red-orange noise field by generation 25. The v2 control does the same, so the loop, not the prompt, causes it.
+
+The decision rules and the full data are in [IMPLEMENTATION.md](IMPLEMENTATION.md).
+
 ## Overview of all runs
 
 Every run sends an image through a chain of generations. Each generation sees only the previous frame and one fixed prompt. The table shows each source, its latest frame and the drift `d` (ImageMagick SSIM distortion against the source, 0 = identical). It is generated from the run manifests by `updateComparison.sh`. Click a run for its frames, report and checkpoints. The image sources and licenses are in [examples/README.md](examples/README.md).
@@ -24,17 +38,17 @@ Every run sends an image through a chain of generations. Each generation sees on
 | [Cat, ComfyUI img2img, v3](pilot-comfyui-tabby-cat-v3i/) | <img src="comparison/overview-pilot-comfyui-tabby-cat-v3i-first.jpg" width="120" alt="Cat, ComfyUI img2img, v3, source"> | <img src="comparison/overview-pilot-comfyui-tabby-cat-v3i-last.jpg" width="120" alt="Cat, ComfyUI img2img, v3, generation 100"><br>gen 100, d = 0.417 · [GIF](pilot-comfyui-tabby-cat-v3i/evolution.gif) | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 100 / 100 | complete |
 | [Corgi, ComfyUI, v2](pilot-comfyui-corgi-puppy/) | <img src="comparison/overview-pilot-comfyui-corgi-puppy-first.jpg" width="120" alt="Corgi, ComfyUI, v2, source"> | <img src="comparison/overview-pilot-comfyui-corgi-puppy-last.jpg" width="120" alt="Corgi, ComfyUI, v2, generation 100"><br>gen 100, d = 0.448 · [GIF](pilot-comfyui-corgi-puppy/evolution.gif) | `comfyui-flux2-klein-4b-distilled` | prompt-v2 | 100 / 100 | complete |
 | [Corgi, ComfyUI, v3](pilot-comfyui-corgi-puppy-v3/) | <img src="comparison/overview-pilot-comfyui-corgi-puppy-v3-first.jpg" width="120" alt="Corgi, ComfyUI, v3, source"> | <img src="comparison/overview-pilot-comfyui-corgi-puppy-v3-last.jpg" width="120" alt="Corgi, ComfyUI, v3, generation 100"><br>gen 100, d = 0.445 · [GIF](pilot-comfyui-corgi-puppy-v3/evolution.gif) | `comfyui-flux2-klein-4b-distilled` | prompt-v3 | 100 / 100 | complete |
-| [Corgi, ComfyUI img2img, v3](pilot-comfyui-corgi-puppy-v3i/) | <img src="comparison/overview-pilot-comfyui-corgi-puppy-v3i-first.jpg" width="120" alt="Corgi, ComfyUI img2img, v3, source"> | <img src="comparison/overview-pilot-comfyui-corgi-puppy-v3i-last.jpg" width="120" alt="Corgi, ComfyUI img2img, v3, generation 0"><br>gen 0, d = 0.000 | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 0 / 100 | running or queued |
+| [Corgi, ComfyUI img2img, v3](pilot-comfyui-corgi-puppy-v3i/) | <img src="comparison/overview-pilot-comfyui-corgi-puppy-v3i-first.jpg" width="120" alt="Corgi, ComfyUI img2img, v3, source"> | <img src="comparison/overview-pilot-comfyui-corgi-puppy-v3i-last.jpg" width="120" alt="Corgi, ComfyUI img2img, v3, generation 47"><br>gen 47, d = 0.351 · [GIF](pilot-comfyui-corgi-puppy-v3i/evolution.gif) | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 47 / 100 | incomplete |
 | [Christmas market, ComfyUI, v2](pilot-comfyui-berlin-christmas-market/) | <img src="comparison/overview-pilot-comfyui-berlin-christmas-market-first.jpg" width="120" alt="Christmas market, ComfyUI, v2, source"> | <img src="comparison/overview-pilot-comfyui-berlin-christmas-market-last.jpg" width="120" alt="Christmas market, ComfyUI, v2, generation 100"><br>gen 100, d = 0.441 · [GIF](pilot-comfyui-berlin-christmas-market/evolution.gif) | `comfyui-flux2-klein-4b-distilled` | prompt-v2 | 100 / 100 | complete |
 | [Christmas market, ComfyUI, v3](pilot-comfyui-berlin-christmas-market-v3/) | <img src="comparison/overview-pilot-comfyui-berlin-christmas-market-v3-first.jpg" width="120" alt="Christmas market, ComfyUI, v3, source"> | <img src="comparison/overview-pilot-comfyui-berlin-christmas-market-v3-last.jpg" width="120" alt="Christmas market, ComfyUI, v3, generation 100"><br>gen 100, d = 0.474 · [GIF](pilot-comfyui-berlin-christmas-market-v3/evolution.gif) | `comfyui-flux2-klein-4b-distilled` | prompt-v3 | 100 / 100 | complete |
-| [Christmas market, ComfyUI img2img, v3](pilot-comfyui-berlin-christmas-market-v3i/) | <img src="comparison/overview-pilot-comfyui-berlin-christmas-market-v3i-first.jpg" width="120" alt="Christmas market, ComfyUI img2img, v3, source"> | <img src="comparison/overview-pilot-comfyui-berlin-christmas-market-v3i-last.jpg" width="120" alt="Christmas market, ComfyUI img2img, v3, generation 0"><br>gen 0, d = 0.000 | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 0 / 100 | running or queued |
+| [Christmas market, ComfyUI img2img, v3](pilot-comfyui-berlin-christmas-market-v3i/) | <img src="comparison/overview-pilot-comfyui-berlin-christmas-market-v3i-first.jpg" width="120" alt="Christmas market, ComfyUI img2img, v3, source"> | <img src="comparison/overview-pilot-comfyui-berlin-christmas-market-v3i-last.jpg" width="120" alt="Christmas market, ComfyUI img2img, v3, generation 0"><br>gen 0, d = 0.000 | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 0 / 100 | incomplete |
 | [Dwayne Johnson, ComfyUI, v2](pilot-comfyui-dwayne-johnson/) | <img src="comparison/overview-pilot-comfyui-dwayne-johnson-first.jpg" width="120" alt="Dwayne Johnson, ComfyUI, v2, source"> | <img src="comparison/overview-pilot-comfyui-dwayne-johnson-last.jpg" width="120" alt="Dwayne Johnson, ComfyUI, v2, generation 100"><br>gen 100, d = 0.360 · [GIF](pilot-comfyui-dwayne-johnson/evolution.gif) | `comfyui-flux2-klein-4b-distilled` | prompt-v2 | 100 / 100 | complete |
 | [Dwayne Johnson, ComfyUI, v3](pilot-comfyui-dwayne-johnson-v3/) | <img src="comparison/overview-pilot-comfyui-dwayne-johnson-v3-first.jpg" width="120" alt="Dwayne Johnson, ComfyUI, v3, source"> | <img src="comparison/overview-pilot-comfyui-dwayne-johnson-v3-last.jpg" width="120" alt="Dwayne Johnson, ComfyUI, v3, generation 100"><br>gen 100, d = 0.468 · [GIF](pilot-comfyui-dwayne-johnson-v3/evolution.gif) | `comfyui-flux2-klein-4b-distilled` | prompt-v3 | 100 / 100 | complete |
-| [Dwayne Johnson, ComfyUI img2img, v3](pilot-comfyui-dwayne-johnson-v3i/) | <img src="comparison/overview-pilot-comfyui-dwayne-johnson-v3i-first.jpg" width="120" alt="Dwayne Johnson, ComfyUI img2img, v3, source"> | <img src="comparison/overview-pilot-comfyui-dwayne-johnson-v3i-last.jpg" width="120" alt="Dwayne Johnson, ComfyUI img2img, v3, generation 0"><br>gen 0, d = 0.000 | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 0 / 100 | running or queued |
+| [Dwayne Johnson, ComfyUI img2img, v3](pilot-comfyui-dwayne-johnson-v3i/) | <img src="comparison/overview-pilot-comfyui-dwayne-johnson-v3i-first.jpg" width="120" alt="Dwayne Johnson, ComfyUI img2img, v3, source"> | <img src="comparison/overview-pilot-comfyui-dwayne-johnson-v3i-last.jpg" width="120" alt="Dwayne Johnson, ComfyUI img2img, v3, generation 0"><br>gen 0, d = 0.000 | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 0 / 100 | incomplete |
 | [Mona Lisa, ComfyUI, v2](pilot-comfyui-mona-lisa/) | <img src="comparison/overview-pilot-comfyui-mona-lisa-first.jpg" width="120" alt="Mona Lisa, ComfyUI, v2, source"> | <img src="comparison/overview-pilot-comfyui-mona-lisa-last.jpg" width="120" alt="Mona Lisa, ComfyUI, v2, generation 100"><br>gen 100, d = 0.420 · [GIF](pilot-comfyui-mona-lisa/evolution.gif) | `comfyui-flux2-klein-4b-distilled` | prompt-v2 | 100 / 100 | complete |
 | [Mona Lisa, ComfyUI, v3](pilot-comfyui-mona-lisa-v3/) | <img src="comparison/overview-pilot-comfyui-mona-lisa-v3-first.jpg" width="120" alt="Mona Lisa, ComfyUI, v3, source"> | <img src="comparison/overview-pilot-comfyui-mona-lisa-v3-last.jpg" width="120" alt="Mona Lisa, ComfyUI, v3, generation 100"><br>gen 100, d = 0.471 · [GIF](pilot-comfyui-mona-lisa-v3/evolution.gif) | `comfyui-flux2-klein-4b-distilled` | prompt-v3 | 100 / 100 | complete |
-| [Mona Lisa, ComfyUI img2img, v3](pilot-comfyui-mona-lisa-v3i/) | <img src="comparison/overview-pilot-comfyui-mona-lisa-v3i-first.jpg" width="120" alt="Mona Lisa, ComfyUI img2img, v3, source"> | <img src="comparison/overview-pilot-comfyui-mona-lisa-v3i-last.jpg" width="120" alt="Mona Lisa, ComfyUI img2img, v3, generation 0"><br>gen 0, d = 0.000 | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 0 / 100 | running or queued |
-| [Cat, ComfyUI img2img, v2 (control)](pilot-comfyui-tabby-cat-v2i/) | <img src="comparison/overview-pilot-comfyui-tabby-cat-v2i-first.jpg" width="120" alt="Cat, ComfyUI img2img, v2 (control), source"> | <img src="comparison/overview-pilot-comfyui-tabby-cat-v2i-last.jpg" width="120" alt="Cat, ComfyUI img2img, v2 (control), generation 74"><br>gen 74, d = 0.422 · [GIF](pilot-comfyui-tabby-cat-v2i/evolution.gif) | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v2 | 74 / 100 | running or queued |
+| [Mona Lisa, ComfyUI img2img, v3](pilot-comfyui-mona-lisa-v3i/) | <img src="comparison/overview-pilot-comfyui-mona-lisa-v3i-first.jpg" width="120" alt="Mona Lisa, ComfyUI img2img, v3, source"> | <img src="comparison/overview-pilot-comfyui-mona-lisa-v3i-last.jpg" width="120" alt="Mona Lisa, ComfyUI img2img, v3, generation 0"><br>gen 0, d = 0.000 | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 0 / 100 | incomplete |
+| [Cat, ComfyUI img2img, v2 (control)](pilot-comfyui-tabby-cat-v2i/) | <img src="comparison/overview-pilot-comfyui-tabby-cat-v2i-first.jpg" width="120" alt="Cat, ComfyUI img2img, v2 (control), source"> | <img src="comparison/overview-pilot-comfyui-tabby-cat-v2i-last.jpg" width="120" alt="Cat, ComfyUI img2img, v2 (control), generation 100"><br>gen 100, d = 0.429 · [GIF](pilot-comfyui-tabby-cat-v2i/evolution.gif) | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v2 | 100 / 100 | complete |
 <!-- overview:end -->
 
 ## Prompts
@@ -179,26 +193,47 @@ The first v3 runs jump to a full painting in generation 1. The cause is the grap
 | Run | Provider | Prompt | Generations | Refusals | Median time per generation | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | Cat, v3 img2img | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 100 / 100 | 0 | 8.5 s (100 timed) | complete |
-| Corgi, v3 img2img | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 0 / 100 | 0 | Unavailable | running or stopped |
+| Corgi, v3 img2img | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 47 / 100 | 0 | 9.4 s (47 timed) | running or stopped |
 | Christmas market, v3 img2img | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 0 / 100 | 0 | Unavailable | running or stopped |
 | Dwayne Johnson, v3 img2img | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 0 / 100 | 0 | Unavailable | running or stopped |
 | Mona Lisa, v3 img2img | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v3 | 0 / 100 | 0 | Unavailable | running or stopped |
-| Cat, v2 img2img (control) | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v2 | 74 / 100 | 0 | 8.6 s (74 timed) | running or stopped |
+| Cat, v2 img2img (control) | `comfyui-flux2-klein-4b-img2img-d0.25` | prompt-v2 | 100 / 100 | 0 | 8.7 s (100 timed) | complete |
 
 | Generation | Cat, v3 img2img | Corgi, v3 img2img | Christmas market, v3 img2img | Dwayne Johnson, v3 img2img | Mona Lisa, v3 img2img | Cat, v2 img2img (control) |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0000.jpg" width="200" alt="Cat, v3 img2img, generation 0"><br>d = 0.000 | <img src="comparison/pilot-comfyui-corgi-puppy-v3i-0000.jpg" width="200" alt="Corgi, v3 img2img, generation 0"><br>d = 0.000 | <img src="comparison/pilot-comfyui-berlin-christmas-market-v3i-0000.jpg" width="200" alt="Christmas market, v3 img2img, generation 0"><br>d = 0.000 | <img src="comparison/pilot-comfyui-dwayne-johnson-v3i-0000.jpg" width="200" alt="Dwayne Johnson, v3 img2img, generation 0"><br>d = 0.000 | <img src="comparison/pilot-comfyui-mona-lisa-v3i-0000.jpg" width="200" alt="Mona Lisa, v3 img2img, generation 0"><br>d = 0.000 | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0000.jpg" width="200" alt="Cat, v2 img2img (control), generation 0"><br>d = 0.000 |
-| 10 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0010.jpg" width="200" alt="Cat, v3 img2img, generation 10"><br>d = 0.168 | — | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0010.jpg" width="200" alt="Cat, v2 img2img (control), generation 10"><br>d = 0.143 |
-| 20 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0020.jpg" width="200" alt="Cat, v3 img2img, generation 20"><br>d = 0.340 | — | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0020.jpg" width="200" alt="Cat, v2 img2img (control), generation 20"><br>d = 0.303 |
-| 30 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0030.jpg" width="200" alt="Cat, v3 img2img, generation 30"><br>d = 0.378 | — | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0030.jpg" width="200" alt="Cat, v2 img2img (control), generation 30"><br>d = 0.369 |
-| 40 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0040.jpg" width="200" alt="Cat, v3 img2img, generation 40"><br>d = 0.396 | — | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0040.jpg" width="200" alt="Cat, v2 img2img (control), generation 40"><br>d = 0.394 |
+| 10 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0010.jpg" width="200" alt="Cat, v3 img2img, generation 10"><br>d = 0.168 | <img src="comparison/pilot-comfyui-corgi-puppy-v3i-0010.jpg" width="200" alt="Corgi, v3 img2img, generation 10"><br>d = 0.169 | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0010.jpg" width="200" alt="Cat, v2 img2img (control), generation 10"><br>d = 0.143 |
+| 20 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0020.jpg" width="200" alt="Cat, v3 img2img, generation 20"><br>d = 0.340 | <img src="comparison/pilot-comfyui-corgi-puppy-v3i-0020.jpg" width="200" alt="Corgi, v3 img2img, generation 20"><br>d = 0.272 | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0020.jpg" width="200" alt="Cat, v2 img2img (control), generation 20"><br>d = 0.303 |
+| 30 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0030.jpg" width="200" alt="Cat, v3 img2img, generation 30"><br>d = 0.378 | <img src="comparison/pilot-comfyui-corgi-puppy-v3i-0030.jpg" width="200" alt="Corgi, v3 img2img, generation 30"><br>d = 0.327 | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0030.jpg" width="200" alt="Cat, v2 img2img (control), generation 30"><br>d = 0.369 |
+| 40 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0040.jpg" width="200" alt="Cat, v3 img2img, generation 40"><br>d = 0.396 | <img src="comparison/pilot-comfyui-corgi-puppy-v3i-0040.jpg" width="200" alt="Corgi, v3 img2img, generation 40"><br>d = 0.348 | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0040.jpg" width="200" alt="Cat, v2 img2img (control), generation 40"><br>d = 0.394 |
 | 50 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0050.jpg" width="200" alt="Cat, v3 img2img, generation 50"><br>d = 0.404 | — | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0050.jpg" width="200" alt="Cat, v2 img2img (control), generation 50"><br>d = 0.409 |
 | 60 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0060.jpg" width="200" alt="Cat, v3 img2img, generation 60"><br>d = 0.406 | — | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0060.jpg" width="200" alt="Cat, v2 img2img (control), generation 60"><br>d = 0.416 |
 | 70 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0070.jpg" width="200" alt="Cat, v3 img2img, generation 70"><br>d = 0.409 | — | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0070.jpg" width="200" alt="Cat, v2 img2img (control), generation 70"><br>d = 0.420 |
-| 80 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0080.jpg" width="200" alt="Cat, v3 img2img, generation 80"><br>d = 0.412 | — | — | — | — | — |
-| 90 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0090.jpg" width="200" alt="Cat, v3 img2img, generation 90"><br>d = 0.416 | — | — | — | — | — |
-| 100 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0100.jpg" width="200" alt="Cat, v3 img2img, generation 100"><br>d = 0.417 | — | — | — | — | — |
+| 80 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0080.jpg" width="200" alt="Cat, v3 img2img, generation 80"><br>d = 0.412 | — | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0080.jpg" width="200" alt="Cat, v2 img2img (control), generation 80"><br>d = 0.424 |
+| 90 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0090.jpg" width="200" alt="Cat, v3 img2img, generation 90"><br>d = 0.416 | — | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0090.jpg" width="200" alt="Cat, v2 img2img (control), generation 90"><br>d = 0.426 |
+| 100 | <img src="comparison/pilot-comfyui-tabby-cat-v3i-0100.jpg" width="200" alt="Cat, v3 img2img, generation 100"><br>d = 0.417 | — | — | — | — | <img src="comparison/pilot-comfyui-tabby-cat-v2i-0100.jpg" width="200" alt="Cat, v2 img2img (control), generation 100"><br>d = 0.429 |
 <!-- img2img:end -->
+
+## Codex usage
+
+The Codex runs use the ChatGPT Plus subscription through `codex exec`. There is no price per image. Images count against the Codex usage limits: a 5-hour window and a weekly window.
+
+| Run | Images kept | Refused | Image calls |
+| --- | --- | --- | --- |
+| Niklaus Wirth | 101 | 13 | 114 |
+| Limburg Cathedral | 100 | 0 | 100 |
+| Alan Turing, v2 | 100 | 9 | 109 |
+| Probe call (2026-11-10 22:12) | 1 | 0 | 1 |
+| Total | 302 | 22 | 324 |
+
+| Reading (local time) | 5-hour window | Weekly window |
+| --- | --- | --- |
+| 2026-11-10 21:44 | 39% | 66% |
+| 2026-11-11 08:37 | 24% (reset 09:48) | 85% (reset Fri 2026-11-13 20:14) |
+
+Almost all Codex images came after the first reading. The runs therefore used about 19 points of the weekly window, about 0.06% per image. This is an estimate: other Codex sessions on the same account count against the same windows. The 5-hour window ran out once (2026-11-10 23:05). The driver waited it out and lost no frame. The Codex sessions used about 13.4 M input tokens (mostly cached) and 58 k output tokens.
+
+Codex writes the readings to `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` (`rate_limits` in a `token_count` event). `codex exec --ephemeral` writes no such file, so take a reading with one short non-ephemeral `codex exec` call.
 
 ## Niklaus Wirth experiment
 
