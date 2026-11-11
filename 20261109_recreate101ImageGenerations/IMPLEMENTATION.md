@@ -173,6 +173,43 @@ Decision rule (fixed before the data, `d` as above):
 
 The img2img arm works if rules 1–3 hold for at least 4 of the 5 subjects. n = 1 per subject.
 
+## Verdicts (2026-11-11)
+
+Prompt v3 on the default graph: **fails**. Rule 1 fails on 5 of 5 subjects.
+
+| Subject | `d` gen 1 (≤ 0.15) | `d` gen 100, v3 | `d` gen 100, v2 | v3 − v2 (≥ 0.05) |
+| --- | --- | --- | --- | --- |
+| Cat | 0.233 | 0.469 | 0.383 | 0.086 |
+| Corgi | 0.202 | 0.445 | 0.448 | −0.003 |
+| Christmas market | 0.213 | 0.474 | 0.441 | 0.033 |
+| Dwayne Johnson | 0.222 | 0.468 | 0.360 | 0.108 |
+| Mona Lisa | 0.162 | 0.471 | 0.420 | 0.051 |
+
+Visual check of the cat: generation 1 is a full post-impressionist painting. Generation 100 is a brown, dashed texture; the cat is gone.
+
+Prompt v3 with img2img: **fails**. The owner stopped the experiment after two complete runs and one partial run. The result is clear enough without the rest.
+
+| Run | `d` gen 1 (≤ 0.05) | `d` gen 50 | `d` gen 100 (≥ 0.30) | Visual |
+| --- | --- | --- | --- | --- |
+| Cat, v3 img2img | 0.007 | 0.404 | 0.417 | Red-orange noise field from about generation 25. The cat is gone. No brush strokes. |
+| Cat, v2 img2img (control) | 0.006 | 0.409 | 0.429 | The same red-orange noise field. |
+| Corgi, v3 img2img | 0.006 | — | — (stopped at 47, `d` 0.351) | Yellow field, the dog is a faint shape. |
+
+Rules 1 and 2 pass. Rule 3 fails: there is no painted look. Rule 4 fails: the v2 control drifts the same way. The low-denoise loop itself saturates the colors, independent of the prompt.
+
+## Codex usage (2026-11-11)
+
+Codex image calls: 302 kept and 22 refused, so 324 calls in total (114 Wirth, 100 Limburg, 109 Turing, 1 probe). 11 cancels happened before any image call. The agent sessions used about 13.4 M input tokens (mostly cached) and 58 k output tokens.
+
+Subscription (ChatGPT Plus), from the `rate_limits` field in Codex session files:
+
+| Reading (local time) | 5-hour window | Weekly window |
+| --- | --- | --- |
+| 2026-11-10 21:44 | 39% | 66% |
+| 2026-11-11 08:37 | 24%, reset 09:48 | 85%, reset Fri 2026-11-13 20:14 |
+
+The runs used about 19 points of the weekly window (about 0.06% per image). Other Codex sessions on the account are in the same number. The 5-hour window ran out once, at 2026-11-10 23:05.
+
 ## Status log
 
 | Time (2026-11-10) | Event |
@@ -204,12 +241,23 @@ The img2img arm works if rules 1–3 hold for at least 4 of the 5 subjects. n = 
 | 04:47 (11-11) | Codex Turing found stopped at 50 since 00:16: `git add` hit the index lock under `set -e`. Fixed in `b72811d` (add and commit retry together, with a test). Resumed; at 60 it was restarted once more with its own README (`CHAIN_README`). 5 refusals so far, all passed on retry. |
 | 04:50 (11-11) | v3 rule 1 fails on the cat: generation 1 is a full painting (`d` = 0.233). Cause: empty-latent graph with denoise 1.0. |
 | 05:30 (11-11) | img2img graph probed (denoise 0.35–0.6) and fixed at 0.25. Six img2img runs and their rule committed (`9ba654e`), queued in `comfy-seq5.sh` after the v3 queue. README shows 23 runs (`e269dc9`). |
+| 08:15 (11-11) | Five v3 runs complete. Codex Turing complete (100/100, 9 refusals). Cat img2img v3 and its v2 control complete. |
+| 08:37 (11-11) | Codex usage reading: 5-hour 24%, weekly 85%. |
+| 09:26 (11-11) | Owner stopped the experiment. Queue, Corgi img2img driver (47/100, no request pending), ComfyUI server and README refresher stopped. Verdicts and usage documented. |
 
 ## Resume here (continuation)
 
-State (2026-11-11 00:55): running are `pilot-turing-codex-v2` (Codex, about 50/100) and `pilot-comfyui-limburg-cathedral` (ComfyUI). Running: Codex Turing (about 71/100) and the five v3 runs (`comfy-seq4.sh`). Queued: the six img2img runs (`comfy-seq5.sh`). Everything else is complete. Expected end: about 10:30 local.
+State (2026-11-11 09:26): **stopped by the owner.** No process runs. 19 of 23 runs are complete. `pilot-comfyui-corgi-puppy-v3i` stopped at 47/100 with no request pending. `pilot-comfyui-{berlin-christmas-market,dwayne-johnson,mona-lisa}-v3i` have only frame 0.
 
-Check the ComfyUI queue: `tail -n 5 ~/.cache/recreate101-comfy/seq4.log ~/.cache/recreate101-comfy/seq5.log`. The img2img runs need `COMFY_WORKFLOW=recreate-101/references/comfy-flux2-klein-img2img.json` on restart. After the runs: `./updateComparison.sh`, evaluate the v3 rule, commit. Restart one new run with the ComfyUI resume command in `COMFYUI_PATH.md` (RUN = `pilot-comfyui-<name>`).
+Open after the round: review F5 (format the minified scripts, add a branch-coverage threshold). Nothing is pushed; push only when the owner asks.
+
+To resume an img2img run, start the ComfyUI server (see `COMFYUI_PATH.md`), then:
+
+```sh
+COMFY_WORKFLOW=recreate-101/references/comfy-flux2-klein-img2img.json \
+  node recreate-101/scripts/comfy-chain.mjs pilot-comfyui-corgi-puppy-v3i >> pilot-comfyui-corgi-puppy-v3i/chain.log 2>&1
+./updateComparison.sh
+```
 
 Older state: see `pilot-niklaus-wirth/report.md` and `manifest.json`.
 

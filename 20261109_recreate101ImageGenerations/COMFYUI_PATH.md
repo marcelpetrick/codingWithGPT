@@ -113,7 +113,7 @@ Open points:
 
 ## Resume here
 
-State (2026-11-10 23:35): `pilot-comfyui-niklaus-wirth` 100 / 100 done. `pilot-comfyui-turing-v2` running, then `pilot-comfyui-turing-v1`, then `pilot-comfyui-limburg-cathedral` (stopped at generation 1 with a queued prompt; the driver resumes it from the ComfyUI history). The scratchpad script `comfy-reorder.sh` runs the church last and then stops the server. Logs: `~/.cache/recreate101-comfy/*.log`.
+State (2026-11-11 09:26): the owner stopped the experiment. The server is stopped and no ComfyUI chain runs. 16 ComfyUI runs are complete; `pilot-comfyui-corgi-puppy-v3i` stopped at 47/100; three img2img runs did not start. The img2img runs need `COMFY_WORKFLOW=recreate-101/references/comfy-flux2-klein-img2img.json`. The results are in `IMPLEMENTATION.md`. Logs: `~/.cache/recreate101-comfy/*.log`.
 
 Check (read-only; `status` takes no lock since 0.14.3):
 
