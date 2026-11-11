@@ -41,7 +41,7 @@ Sources:
 
 1. A generation must finish in less than 240 s wall clock. The measure is the median over the 10 generations, end to end through the HTTP API (upload, queue, wait, download).
 2. If the first probe takes 240 s or more, change the resolution or the steps, then probe again. Record each change here.
-3. A frame is valid only if it is a PNG of the expected size, is not uniform (not black, not one color), and differs from its input. The driver stops on an invalid frame. It never books it.
+3. A frame is valid only if it is a PNG, is not uniform (not black, not one color), and differs from its input. The driver stops on an invalid frame. It never books it. (Review F9, 2026-11-10: the size check was in this rule but not in the code. The rule now matches the code; all frames were checked at the end with `identify`.)
 4. An unreachable server or an empty read stops the chain. It is never booked as a result.
 
 ## Constant settings (the whole chain)
@@ -50,9 +50,9 @@ Sources:
 | --- | --- |
 | Graph | Template `image_flux2_klein_image_edit_4b_distilled`, flattened to API format |
 | Input | Only the previous frame, through `LoadImage` → `ImageScaleToTotalPixels` → `VAEEncode` → `ReferenceLatent` |
-| Prompt | The fixed prompt from `recreate-101/SKILL.md`, without change |
+| Prompt | The run's prompt: `manifest.json` field `prompt` if present (prompt v2 runs), else the fixed prompt from `recreate-101/SKILL.md` (v1) |
 | Negative | `ConditioningZeroOut` of the prompt, with the same reference latent (as in the template) |
-| Size | `ImageScaleToTotalPixels` lanczos, 0.47 MP, resolution steps 16. The 800 x 612 source becomes 800 x 608, and every later frame stays 800 x 608. |
+| Size | `ImageScaleToTotalPixels` lanczos, 0.47 MP, resolution steps 16. The 800 x 612 Wirth source becomes 800 x 608, and every later frame keeps the size. Other sources get their own size from their aspect ratio. |
 | Latent | `EmptyFlux2LatentImage` of the same size. Denoise is 1.0: no pixels are copied. The input enters only as the reference. |
 | Sampler | `euler`, `Flux2Scheduler` 4 steps, `CFGGuider` cfg 1.0 |
 | Seed | Fixed seed 42 for every generation |
@@ -72,7 +72,7 @@ The fixed seed is a choice. With a fixed seed, the noise is the same for each ge
 | 5 | Build `recreate-101/scripts/comfy-chain.mjs` and a test with a fake ComfyUI. | Done 22:33, `a3f488f`, `71701a5` |
 | 6 | Run 10 generations into `pilot-comfyui-niklaus-wirth/`. | Done 22:37, `b3c625e` |
 | 7 | Look at frames 0, 5 and 10. Write the results and the README section. | Done 22:42 |
-| 8 | Extend the chain to 100 generations (about 25 min). | Open: the owner decides |
+| 8 | Extend the chain to 100 generations (about 25 min). | Done 2026-11-10 23:23 (owner asked for the comparison); Limburg and Turing v1/v2 added |
 
 ## Status log
 
@@ -113,16 +113,16 @@ Open points:
 
 ## Resume here
 
-State: 10 / 10 generations in `pilot-comfyui-niklaus-wirth/`. Target 10. No request pending. The ComfyUI server was stopped after the run, as it was not running before.
+State (2026-11-10 23:35): `pilot-comfyui-niklaus-wirth` 100 / 100 done. `pilot-comfyui-turing-v2` running, then `pilot-comfyui-turing-v1`, then `pilot-comfyui-limburg-cathedral` (stopped at generation 1 with a queued prompt; the driver resumes it from the ComfyUI history). The scratchpad script `comfy-reorder.sh` runs the church last and then stops the server. Logs: `~/.cache/recreate101-comfy/*.log`.
 
-Check:
+Check (read-only; `status` takes no lock since 0.14.3):
 
 ```sh
 cd /home/mpetrick/repos/codingWithGPT/20261109_recreate101ImageGenerations
-node recreate-101/scripts/host.mjs status --run-dir pilot-comfyui-niklaus-wirth
-tail -n 5 pilot-comfyui-niklaus-wirth/chain.log
+node recreate-101/scripts/host.mjs status --run-dir RUN
+tail -n 5 RUN/chain.log
 curl -s 127.0.0.1:8188/system_stats | head -c 200
-pgrep -af 'comfy-chain.mjs'
+ps -eo pid,args | grep -E '^ *[0-9]+ node recreate-101/scripts/comfy-chain.mjs'
 ```
 
 Start the ComfyUI server (if `system_stats` gives no answer):
@@ -134,14 +134,12 @@ setsid nohup systemd-inhibit --what=sleep:idle --why="recreate-101 ComfyUI serve
   >> ~/.cache/recreate101-comfy/comfyui.log 2>&1 < /dev/null & disown
 ```
 
-Extend to 100 generations (about 25 min; the driver commits the run directory at every tenth frame):
+Resume one run (only one ComfyUI chain at a time):
 
 ```sh
 cd /home/mpetrick/repos/codingWithGPT/20261109_recreate101ImageGenerations
-node recreate-101/scripts/host.mjs target --run-dir pilot-comfyui-niklaus-wirth --iterations 100
 setsid nohup systemd-inhibit --what=sleep:idle --why="recreate-101 ComfyUI chain" \
-  node recreate-101/scripts/comfy-chain.mjs pilot-comfyui-niklaus-wirth \
-  >> pilot-comfyui-niklaus-wirth/chain.log 2>&1 < /dev/null & disown
+  node recreate-101/scripts/comfy-chain.mjs RUN >> RUN/chain.log 2>&1 < /dev/null & disown
 ```
 
-The driver is idempotent. A restart resumes a queued prompt from ComfyUI's history, or cancels a request that was never queued. It stops (exit 3) on an unreachable server, an empty read, a failed prompt, or an invalid image. A stopped request stays pending for review. Stop the server afterwards with `pkill -f 'main.py --lowvram --preview-method none'`.
+The driver is idempotent. A restart resumes a queued prompt from ComfyUI's history, or cancels a request that was never queued. It stops (exit 3) on an unreachable server, an empty read, a failed prompt, or an invalid image. Stop the server afterwards with `pkill -f 'main.py --lowvram --preview-method none'`.

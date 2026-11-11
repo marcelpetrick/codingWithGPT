@@ -5,7 +5,7 @@
 # Usage: codex-chain.sh RUN_DIR
 # Env: MAX_REFUSALS (3), CALL_TIMEOUT (600 s), COMMIT_CHECKPOINTS (1), REFUSAL_PAUSE (60 s),
 #      LIMIT_PAUSE (900 s) and LIMIT_WAITS (24) for a Codex usage limit,
-#      CODEX_IMAGES (~/.codex/generated_images), CHAIN_README (project README.md)
+#      CODEX_IMAGES (~/.codex/generated_images), CHAIN_README (project README.md), LOCK_WAIT (3 s between commit tries)
 # Exit: 0 target reached, 2 refusal limit, 3 failure (the request stays pending for review), 4 usage limit too long.
 set -euo pipefail
 run_dir=$(realpath "${1:?RUN_DIR is required}")
@@ -30,16 +30,18 @@ field() { node -e 'const s=JSON.parse(process.argv[1]);console.log(s[process.arg
 publish() {
   "${host[@]}" readme --run-dir "$run_dir" --readme "$readme" > /dev/null
   [[ ${COMMIT_CHECKPOINTS:-1} == 1 ]] || return 0
-  git -C "$project" add -- "$run_dir" "$readme"
+  # A busy index lock (another writer) must not end the driver: retry add and commit together.
   for _ in 1 2 3 4 5; do
-    if git -C "$project" diff --cached --quiet -- "$run_dir" "$readme"; then say "nothing to commit: $1"; return 0; fi
-    if git -C "$project" commit -q -m "$1" -- "$run_dir" "$readme"; then say "committed: $1"; return 0; fi
-    sleep 3
+    if git -C "$project" add -- "$run_dir" "$readme"; then
+      if git -C "$project" diff --cached --quiet -- "$run_dir" "$readme"; then say "nothing to commit: $1"; return 0; fi
+      if git -C "$project" commit -q -m "$1" -- "$run_dir" "$readme"; then say "committed: $1"; return 0; fi
+    fi
+    sleep "${LOCK_WAIT:-3}"
   done
   say "WARNING: commit failed after 5 tries: $1"
 }
 
-say "start: run $run_dir, refusal pause ${refusal_pause}s, max refusals $max_refusals"
+say "start: run $run_dir, refusal pause ${refusal_pause}s, max refusals $max_refusals, agent instruction v2 (no skills, verbatim, PROMPT_SENT)"
 while :; do
   status=$("${host[@]}" status --run-dir "$run_dir")
   completed=$(field "$status" completed); target=$(field "$status" target)
@@ -49,7 +51,7 @@ while :; do
   run_prompt=$(field "$status" prompt)
   [[ $run_prompt == null ]] && run_prompt=$prompt
   if (( refusals >= max_refusals )); then
-    publish "docs: stop the Wirth chain after $refusals refusals at generation $((completed + 1))"
+    publish "docs: stop the $name chain after $refusals refusals at generation $((completed + 1))"
     say "STOP: $refusals refusals for generation $((completed + 1))"; exit 2
   fi
 
@@ -60,12 +62,16 @@ while :; do
   say "gen $n: start (input $(basename "$input"), refusals so far $refusals)"
   rc=0
   timeout "$call_timeout" codex exec --skip-git-repo-check --ephemeral -s read-only -C "$work" --json -i "$work/input.png" -- \
-    "Use the image generation tool exactly once. Use the attached image as the only input image. Use this prompt verbatim: $run_prompt Do not run shell commands. Do not edit files." \
+    "Call the built-in image generation tool exactly once, directly. Do not open or read any skill file or other file. Use the attached image as the only input image. Pass the text between <prompt> and </prompt> to the tool exactly as written, without rewording, reformatting, structuring or additions: <prompt>$run_prompt</prompt> Do not run shell commands. Do not edit files. After the call, reply with exactly one line: PROMPT_SENT: followed by the exact prompt text you passed to the tool." \
     < /dev/null > "$work/events.jsonl" 2> "$work/stderr.txt" || rc=$?
   thread=$(node -e 'for(const l of require("fs").readFileSync(process.argv[1],"utf8").split("\n")){try{const e=JSON.parse(l);if(e.thread_id){console.log(e.thread_id);break;}}catch{}}' "$work/events.jsonl")
   usage=$(node -e 'let u="";for(const l of require("fs").readFileSync(process.argv[1],"utf8").split("\n")){try{const e=JSON.parse(l);if(e.type==="turn.completed")u=JSON.stringify(e.usage);}catch{}}console.log(u)' "$work/events.jsonl")
   mapfile -t pngs < <( [[ -n $thread && -d $images/$thread ]] && find "$images/$thread" -maxdepth 1 -name '*.png' | sort )
+  mkdir -p "$run_dir/codex-events"
+  gzip -c "$work/events.jsonl" > "$run_dir/codex-events/$(printf '%04d' "$n")-${thread:-nothread}.jsonl.gz"
+  sent=$(node -e 'let t="";for(const l of require("fs").readFileSync(process.argv[1],"utf8").split("\n")){try{const e=JSON.parse(l);if(e.item?.type==="agent_message")t=e.item.text;}catch{}}const m=t.match(/PROMPT_SENT:\s*([\s\S]*)/);console.log(m?m[1].trim().replace(/\s+/g," "):"")' "$work/events.jsonl")
   extra=()
+  [[ -n $sent ]] && extra+=(--prompt-sent "$sent")
   [[ -n $thread ]] && extra+=(--thread-id "$thread")
   [[ -n $usage ]] && extra+=(--agent-usage "$usage")
 

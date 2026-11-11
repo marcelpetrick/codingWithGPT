@@ -29,3 +29,59 @@ Source: https://commons.wikimedia.org/wiki/File:Alan_Turing_Aged_16.jpg
 The file is the current Commons version (675 × 919, greyscale), downloaded on 2026-11-10 without change.
 
 SHA-256: `f31e84277a693f53010dfee0a47dfee3e56cf4f2403049c5d5d138b756cb5412`
+
+## Image set for the five ComfyUI runs (2026-11-11)
+
+Each file is the 1280-pixel-wide Commons thumbnail of the original, downloaded on 2026-11-11 without other change. The Commons API supplied the license, author and date fields below.
+
+### Tabby cat
+
+`tabby-cat.jpg`: a black tabby and white cat with blue eyes. Author: AdinaVoicu (via Pixabay), 2018-03-31. Commons Featured picture.
+
+License: CC0 1.0 (public domain dedication), https://creativecommons.org/publicdomain/zero/1.0/.
+
+Source: https://commons.wikimedia.org/wiki/File:Tabby_cat_with_blue_eyes-3336579.jpg (original 2877 × 3456, file 1280 × 1538)
+
+SHA-256: `3e46fb5858d3f67ea55df2b30707c265ec98f0a8c7831dad376229c2d04d07ac`
+
+### Corgi puppy
+
+`corgi-puppy.jpg`: a fawn and white Welsh Corgi puppy that stands on its rear legs. Author: Huoadg5888 (via Pixabay), 2016-11-10. Commons Featured picture.
+
+License: CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/.
+
+Source: https://commons.wikimedia.org/wiki/File:Fawn_and_white_Welsh_Corgi_puppy_standing_on_rear_legs_and_sticking_out_the_tongue.jpg (original 3126 × 4682, file 1280 × 1917)
+
+SHA-256: `411a8f226532eb43db7f702568f57030ffeddc305bbd3cba3c95c62100b84570`
+
+### Berlin Christmas market
+
+`berlin-christmas-market.jpg`: the Christmas market at Breitscheidplatz, Berlin, at dusk. Author: Arild Vågen, 2013-11-28. Commons Featured picture. Commons notes personality rights for the people in the photo.
+
+License: CC BY-SA 3.0, https://creativecommons.org/licenses/by-sa/3.0/. Attribution: "Arild Vågen / Wikimedia Commons". The generated frames are adaptations under CC BY-SA 3.0.
+
+Source: https://commons.wikimedia.org/wiki/File:Breitscheidplatz_November_2013.jpg (original 5261 × 3758, file 1280 × 914)
+
+SHA-256: `8c6caef42419ee53c9ee307aa07b04999eb92bbf2d18867a40d3b76e800a9ee0`
+
+### Dwayne Johnson
+
+`dwayne-johnson.jpg`: the actor Dwayne Johnson at the 2025 Venice Film Festival. Author: Harald Krichel, 2025-09-01.
+
+License: CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/. Attribution: "Harald Krichel / Wikimedia Commons". The generated frames are adaptations under CC BY-SA 4.0.
+
+Personality rights: Commons marks this file with a personality rights warning. The license covers the photo, not the person's likeness. Do not use the frames to suggest an endorsement or as an advertisement. Label them as AI-generated if you post them.
+
+Source: https://commons.wikimedia.org/wiki/File:Dwayne_Johnson-1809.jpg (original 4806 × 4806, file 1280 × 1280)
+
+SHA-256: `9a17f44290ebe7f7b77bb5b430c993cc911f46b8542b9b0899ac25f5eb15b48e`
+
+### Mona Lisa
+
+`mona-lisa.jpg`: Leonardo da Vinci, Mona Lisa (1503–1506), from the C2RMF scan, cropped and relevelled on Commons.
+
+Status: public domain (a faithful reproduction of a public-domain painting).
+
+Source: https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg (original 7479 × 11146, file 1280 × 1908)
+
+SHA-256: `8056105c343c16563f8afd4615b4653067e168ec41f344ef5b7e8aaea97463ad`

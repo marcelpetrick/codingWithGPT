@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "provider": "comfyui-flux2-klein-4b-img2img-d0.25",
+  "prompt": "Recreate the provided image almost exactly. Keep the composition, framing, subjects, faces, poses, shapes, lighting, background and colors. Change only one thing, and only by a very small step: render the image slightly more like a post-impressionist oil painting, with faintly visible brush strokes and a little more painterly color. The change must be barely noticeable when compared with the input. Make no additions or removals. Return one image.",
+  "promptId": "prompt-v3",
+  "target": 100,
+  "original": "original.jpg",
+  "originalSha256": "8056105c343c16563f8afd4615b4653067e168ec41f344ef5b7e8aaea97463ad",
+  "preparation": "EXIF orientation, lossless PNG conversion",
+  "frames": [
+    {
+      "index": 0,
+      "path": "frames/0000.png",
+      "sha256": "b49e8af3195ac0170a1b0e1c3fb39c467f3d6f1120fcaa7fa6372fe9977b3b8d"
+    }
+  ],
+  "pending": null,
+  "created": "2026-11-11T04:12:39.324Z"
+}

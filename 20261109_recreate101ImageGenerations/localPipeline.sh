@@ -4,10 +4,12 @@
 # Run the local checks for Recreate 101. Requires Node.js, ImageMagick and FFmpeg.
 set -euo pipefail
 cd "$(dirname "$0")"
-shellcheck localPipeline.sh updateComparison.sh recreate-101/scripts/codex-chain.sh
+shellcheck localPipeline.sh updateComparison.sh refreshComparison.sh recreate-101/scripts/codex-chain.sh
 node --check recreate-101/scripts/comfy-chain.mjs
 node --check recreate-101/scripts/recreate.mjs
 node --check recreate-101/scripts/host.mjs
 node --check recreate-101/scripts/compare.mjs
+node --check recreate-101/scripts/overview.mjs
+node --check recreate-101/scripts/drift.mjs
 node --test --experimental-test-coverage --test-coverage-lines=95 --test-coverage-include="**/recreate-101/scripts/*.mjs" recreate-101/tests/*.test.mjs
 node -e "const fs=require('fs');const s=fs.readFileSync('recreate-101/SKILL.md','utf8');if(!/^---\\nname: recreate-101\\ndescription: .+\\n---/m.test(s))process.exit(1);JSON.parse(fs.readFileSync('recreate-101/references/pricing.json'));"
