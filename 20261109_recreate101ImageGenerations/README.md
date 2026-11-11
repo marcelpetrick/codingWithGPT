@@ -7,7 +7,7 @@ Recreate an image repeatedly and watch the changes accumulate. Each generation u
 
 ## Status and results
 
-The experiment was stopped by the owner on 2026-11-11 at about 09:26. 26 of 30 runs are complete. The Corgi img2img run stopped at 47 frames. Three img2img runs (Christmas market, Dwayne Johnson, Mona Lisa) did not start. The overview below shows each run's state.
+The experiment was stopped by the owner on 2026-11-11 at about 09:26. 19 of 23 runs are complete: 3 on Codex (301 frames) and 16 on ComfyUI (1647 frames over all ComfyUI runs). The Corgi img2img run stopped at 47 frames. Three img2img runs (Christmas market, Dwayne Johnson, Mona Lisa) did not start. The overview below shows each run's state.
 
 Results (one chain per arm, so each result is an indication, not a proof):
 
