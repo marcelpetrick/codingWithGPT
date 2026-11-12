@@ -2,7 +2,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Shared helpers for the README blocks: drift distance, thumbnails and README block replacement.
 import fs from 'node:fs';
+import path from 'node:path';
 import {spawnSync} from 'node:child_process';
+
+// Resolve a manifest frame path. Archived runs keep only some frames, as AVIF next to the recorded PNG name.
+export function frameFile(dir, rel) {
+  const png = path.join(dir, rel);
+  const avif = png.replace(/\.png$/, '.avif');
+  return !fs.existsSync(png) && fs.existsSync(avif) ? avif : png;
+}
 
 // Drift: ImageMagick 7 SSIM distortion against a reference on 256x256 copies (0 = identical).
 // Returns 'n/a' when ImageMagick 7 (`magick`) is not available.

@@ -9,7 +9,7 @@
 // A run without a stored prompt uses the --default-prompt id.
 import fs from 'node:fs';
 import path from 'node:path';
-import {distance, replaceBlock, thumbnail} from './drift.mjs';
+import {distance, frameFile, replaceBlock, thumbnail} from './drift.mjs';
 
 const fail = message => { throw Error(message); };
 
@@ -79,9 +79,9 @@ function main() {
     const name = path.basename(run.dir);
     const firstThumb = path.join(out, `overview-${name}-first.jpg`);
     const lastThumb = path.join(out, `overview-${name}-last.jpg`);
-    thumbnail(path.join(run.dir, first.path), firstThumb, 240);
-    thumbnail(path.join(run.dir, last.path), lastThumb, 240);
-    const d = last.index === 0 ? '0.000' : distance(path.join(run.dir, first.path), path.join(run.dir, last.path));
+    thumbnail(frameFile(run.dir, first.path), firstThumb, 240);
+    thumbnail(frameFile(run.dir, last.path), lastThumb, 240);
+    const d = last.index === 0 ? '0.000' : distance(frameFile(run.dir, first.path), frameFile(run.dir, last.path));
     const gif = path.join(run.dir, 'evolution.gif');
     const animation = fs.existsSync(gif) ? ` · [GIF](${rel(gif)})` : '';
     const prompt = prompts.find(p => p.id === run.promptId);

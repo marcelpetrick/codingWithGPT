@@ -6,7 +6,7 @@
 // The README section between <!-- BLOCK:start --> and <!-- BLOCK:end --> is replaced.
 import fs from 'node:fs';
 import path from 'node:path';
-import {distance, replaceBlock, thumbnail} from './drift.mjs';
+import {distance, frameFile, replaceBlock, thumbnail} from './drift.mjs';
 const fail=m=>{throw Error(m);};
 const args=process.argv.slice(2);const runs=[];const flags={};
 while(args.length){const k=args.shift();if(!k.startsWith('--')||!args.length)fail('Expected --option value');const v=args.shift();if(k==='--run')runs.push(v);else flags[k.slice(2)]=v;}
@@ -20,6 +20,6 @@ try{
  const loaded=runs.map(r=>{const i=r.indexOf('=');if(i<1)fail(`Bad --run ${r}`);const dir=path.resolve(r.slice(i+1));return {label:r.slice(0,i),dir,m:JSON.parse(fs.readFileSync(path.join(dir,'manifest.json'),'utf8'))};});
  const max=Math.max(...loaded.map(r=>r.m.target));const rel=p=>path.relative(base,p).split(path.sep).join('/');
  const lines=['| Run | Provider | Prompt | Generations | Refusals | Median time per generation | Status |','| --- | --- | --- | --- | --- | --- | --- |',...loaded.map(r=>summary(r.label,r.m)),'',`| Generation | ${loaded.map(r=>r.label).join(' | ')} |`,`| --- | ${loaded.map(()=>'---').join(' | ')} |`];
- for(let g=0;g<=max;g+=step){const cells=loaded.map((r,k)=>{const f=r.m.frames.find(x=>x.index===g);if(!f)return '—';const thumb=path.join(out,`${path.basename(r.dir)}-${String(g).padStart(4,'0')}.jpg`);const src=path.join(r.dir,f.path);thumbnail(src,thumb);return `<img src="${rel(thumb)}" width="200" alt="${r.label}, generation ${g}"><br>d = ${g===0?'0.000':distance(path.join(r.dir,r.m.frames[0].path),src)}`;});if(cells.every(c=>c==='—'))continue;lines.push(`| ${g} | ${cells.join(' | ')} |`);}
+ for(let g=0;g<=max;g+=step){const cells=loaded.map((r,k)=>{const f=r.m.frames.find(x=>x.index===g);if(!f)return '—';const thumb=path.join(out,`${path.basename(r.dir)}-${String(g).padStart(4,'0')}.jpg`);const src=frameFile(r.dir,f.path);thumbnail(src,thumb);return `<img src="${rel(thumb)}" width="200" alt="${r.label}, generation ${g}"><br>d = ${g===0?'0.000':distance(frameFile(r.dir,r.m.frames[0].path),src)}`;});if(cells.every(c=>c==='—'))continue;lines.push(`| ${g} | ${cells.join(' | ')} |`);}
  const text=fs.readFileSync(readme,'utf8');fs.writeFileSync(readme,replaceBlock(text,flags.block||'comparison',lines));console.log(readme);
 }catch(e){console.error(`Error: ${e.message}`);process.exitCode=1;}
