@@ -19,6 +19,16 @@ Results (one chain per arm, so each result is an indication, not a proof):
 
 The decision rules and the full data are in [IMPLEMENTATION.md](IMPLEMENTATION.md).
 
+## Archive format
+
+On 2026-11-12 the run folders were reduced from 7.1 GB to 0.19 GB, and the git history was rewritten to match. See [SHRINK_20261112.md](SHRINK_20261112.md).
+
+- Each run keeps every 10th frame and its last frame as AVIF (quality 90, SSIM about 0.99 against the PNG).
+- Each `evolution.gif` shows all generations at 320 px.
+- The original PNG frames and the checkpoint GIFs were deleted. `manifest.json` still records the SHA-256 of every PNG.
+- The `d` values and thumbnails in this README were measured on the PNG frames. A new run of `updateComparison.sh` measures the AVIF frames, so a `d` value can change in the third decimal.
+- An archived run is read-only: `host.mjs` allows only `status` and `readme`.
+
 ## Overview of all runs
 
 Every run sends an image through a chain of generations. Each generation sees only the previous frame and one fixed prompt. The table shows each source, its latest frame and the drift `d` (ImageMagick SSIM distortion against the source, 0 = identical). It is generated from the run manifests by `updateComparison.sh`. Click a run for its frames, report and checkpoints. The image sources and licenses are in [examples/README.md](examples/README.md).

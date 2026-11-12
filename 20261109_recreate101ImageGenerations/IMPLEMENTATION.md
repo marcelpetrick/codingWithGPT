@@ -20,6 +20,7 @@ Verdict: the Codex host-tool workflow and ten-generation example work. The conti
 | 2026-11-09 | Host pilot | Ten generations produced 11 PNG frames and a 4.25 second GIF. |
 | 2026-11-09 | Review | Recorded findings and repository metadata suggestions. |
 | 2026-11-09 | Release | Pushed commits to the repository default branch, `master`. |
+| 2026-11-12 | Archive | Reduced the runs from 7.1 GB to 0.19 GB: every 10th frame as AVIF, 320 px GIFs, no checkpoint GIFs. See `SHRINK_20261112.md`. |
 
 ## Results
 
