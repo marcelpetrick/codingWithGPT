@@ -80,7 +80,7 @@ The renderer + parser combination replaced it. This is the "suspect the harness 
 
 | where | peak | after the build |
 |---|---|---|
-| laptop `/` (`/var/tmp/v6`) | 28.9 GB (Q8_0 + LoRA) | delete `/var/tmp/v6` when the round is done |
+| laptop `/` (`/var/tmp/v6`) | 28.9 GB (Q8_0 + LoRA) | the merged Q8_0 was deleted after the round (`/` was 98% full); the LoRA stays |
 | laptop `/home` (`~/.cache/v6-out`) | 16.5 GB, one Q4_K_M at a time | 0 (each Q4_K_M is deleted after upload) |
 | laptop `/home` (`~/.cache/v6-llamacpp`, `v6-venv`, `ollama-src`) | ~1.5 GB | can be deleted |
 | box `.67` | +33 GB (two Q4_K_M blobs) | stays while the tags exist |
@@ -93,4 +93,5 @@ The renderer + parser combination replaced it. This is the "suspect the harness 
 | build llama.cpp (`llama-quantize` only) | ~3 min |
 | quantize one arm | ~6 min |
 | upload one arm over the USB ethernet | ~2.5 min |
-| in-place merge, 512 tensors | see `results/build.log` |
+| in-place merge, 256 tensor pairs (dry run first, ~7 min) | ~8 min |
+| total, from download to both tags on the box | ~70 min |
