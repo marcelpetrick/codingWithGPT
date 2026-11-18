@@ -41,7 +41,7 @@ is near the current default `claude-ol-kat` (KAT-Coder-V2.5-Dev).
 | P1 | load the LoRA with `ADAPTER` | 10 min | **failed**: Ollama 0.40.11 says "LoRA adapters are no longer supported" |
 | P1b | merge it ourselves: Q8_0 base + LoRA, in place (`merge_lora_inplace.py`), then Q4_K_M; build the base arm the same way (`build.sh`) | ~1 h | running |
 | P2 | prove that the adapter is active: greedy output of pi and base must differ | 10 min | |
-| P3 | thinking off: `templates/qwen38-nothink.gotmpl` + parser `qwen3-coder` | 30 min | done 10:58: byte-identical to Ollama's renderer at think=false (`render_check.py`) |
+| P3 | thinking off: renderer `qwen3.8` + parser `qwen3-coder`, no custom template | 30 min | done 11:16: byte-identical to Ollama's renderer at think=false (`render_check.py`). A first Go-template attempt was wrong, see the status table |
 | P4 | smoke: residency 100% GPU, tool calls, `think_chars = 0`, one Claude Code turn through the alias | 20 min | alias written to `~/.zshrc` |
 | P5 | measure: `v6-run.sh` (s15 harness, arm `pi1118`, n=3), pi vs base vs KAT | ~4–5 h, detached | |
 | P6 | read every failure and void run in the transcripts; then believe the score | 30 min | |
@@ -49,6 +49,8 @@ is near the current default `claude-ol-kat` (KAT-Coder-V2.5-Dev).
 | P8 | verdict, review file, commit | 30 min | |
 
 ### Why the merge, and what it costs
+
+The full account is in [`MERGE_ON_THIS_MACHINE.md`](MERGE_ON_THIS_MACHINE.md).
 
 The card's own merge (`PEFT merge_and_unload` on the BF16 checkpoint) needs about 110 GB of disk and
 about 54 GB of RAM. The laptop has 25 GiB free on `/home`, 30 GiB on `/` and 32 GB of RAM.
@@ -61,9 +63,9 @@ The LoRA covers FFN in all 64 blocks and q/k/v/o in the 16 full-attention blocks
 
 A capture of Claude Code 2.1.327 shows that each request carries `output_config.effort: high`, also
 with `CLAUDE_CODE_DISABLE_THINKING=1` or `MAX_THINKING_TOKENS=0`. Ollama maps that to thinking on.
-The adapter was trained with thinking off. The tag therefore uses a Go template that always emits
-the closed `<think>\n\n</think>` block, and the `qwen3-coder` parser, which has no thinking. Ollama
-then drops the thinking request from Claude Code instead of refusing it.
+The adapter was trained with thinking off. The tags therefore use renderer `qwen3.8` with parser
+`qwen3-coder`. That parser has no thinking support, so the tag has no thinking capability. Ollama then
+drops the thinking request from Claude Code and renders with think=false.
 
 ### Arms (all in arm `pi1118`, same client, same server, same sampler)
 
@@ -114,8 +116,10 @@ The recommendation to the owner follows from these numbers:
 | 11-18 10:48 | P1 | `ADAPTER` refused by Ollama 0.40.11. Plan changed to a local merge |
 | 11-18 10:50 | P1b | download of `ggml-org/Qwen3.8-27B-GGUF` Q8_0 (28.6 GB) started to `/var/tmp/v6` |
 | 11-18 10:55 | P1b | `merge_lora_inplace.py` + 6 tests pass |
-| 11-18 10:58 | P3 | no-think template byte-identical to the renderer at think=false |
+| 11-18 10:58 | P3 | Go template looked byte-identical to the renderer. **Harness defect**: the check tag inherited the `qwen3.8` renderer, so the template was never tested |
 | 11-18 11:01 | P1b | `build.sh` waits for the download, then builds both tags. Alias `claude-ol-qwen3.8_27b_pi` added (`~/.zshrc`, backup `~/.zshrc.bak-v6-20261118`) |
+| 11-18 11:14 | P1b | base arm published (16.5 GB, Q4_K_M 4.92 BPW). Its render check FAILED: the template was used and was wrong (compact JSON, missing newlines) |
+| 11-18 11:16 | P3 | base tag re-created with renderer `qwen3.8` + parser `qwen3-coder`: IDENTICAL. Template deleted. `build.sh` fixed by rename while it runs; the pi tag gets re-created after the build |
 
 ## Results
 
