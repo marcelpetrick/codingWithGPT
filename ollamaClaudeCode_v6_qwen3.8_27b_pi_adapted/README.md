@@ -172,7 +172,7 @@ Its single-turn effect is small; its claimed gain is in multi-step agent work, w
 
 State (11-18 14:30): **the round is closed.** Nothing of this round runs on `.67`, and no model of it is loaded.
 The tags `qwen3.8-pi:27b-q4km-ctx200k-nothink` and `qwen3.8-base:27b-q4km-ctx200k-nothink` stay on the box.
-Open: P7 (Q8_0 arm), blocked on box disk space.
+Open: P7 (Q8_0 arm). The box has room now; it waits for 31 GB free on the laptop (owner, 11-18).
 
 Box cleanup (11-18, owner's decision): 13 tags of 5 models were deleted on `.67`. They are Kolibri-1 Q3_K_S,
 ornith 35b v1, Laguna XS 2.1, MiniCPM-V-4.7 and the Qwen3.8-35B Distill. The weight blobs went from 343.7 GB to 216.3 GB,
@@ -183,10 +183,10 @@ Check the state:
 2. `python3 ../ollamaClaudeCode_v4_tielCoder/refresh-compare.py --arm pi1118`
 3. `python3 make_report.py`, then open `report.html`
 
-Run P7 when the box has 30 GB free. The merged Q8_0 was deleted from the laptop to free `/`, so build it again first:
-1. Download `ggml-org/Qwen3.8-27B-GGUF` `Qwen3.8-27B-Q8_0.gguf` to `/var/tmp/v6`, and the LoRA GGUF next to it.
-2. `rm /var/tmp/v6/.merge-started /var/tmp/v6/.merged`
-3. `~/.cache/v6-venv/bin/python -I merge_lora_inplace.py /var/tmp/v6/Qwen3.8-27B-Q8_0.gguf /var/tmp/v6/Qwen3.8-27B-pi-lora-F16.gguf && touch /var/tmp/v6/.merged`
-4. `./publish_q8.sh && setsid nohup systemd-inhibit --what=sleep:idle ./v6-q8.sh >/dev/null 2>&1 & disown`
+Run P7 when the laptop has 31 GB free on `/` (the box has room since the cleanup). The chain downloads, verifies,
+merges, uploads, runs the arm and regenerates the report. It stops with a log line if `/` is too full:
+1. `cd ollamaClaudeCode_v6_qwen3.8_27b_pi_adapted`
+2. `setsid nohup systemd-inhibit --what=sleep:idle ./p7-chain.sh >/dev/null 2>&1 & disown`
+3. Check with `grep 'p7:' results/build.log` and `tail ../ollamaClaudeCode_v4_tielCoder/results/s15-pi1118q8.log`.
 
 Remove the build tools when they are no longer needed: `rm -r ~/.cache/v6-out ~/.cache/v6-llamacpp ~/.cache/v6-venv ~/.cache/ollama-src /var/tmp/v6`.
