@@ -12,6 +12,8 @@ with the Ollama release that is installed there (0.40.11). The work was done on 
 
 The alias `claude-ol-qwen3.8_27b_pi` in `~/.zshrc` starts Claude Code on the pi tag.
 
+The merged Q8_0 itself (P7 arm `qwen3.8-pi:27b-q8-ctx64k-nothink`) never reached the box: the upload got HTTP 500 on a full disk.
+
 ## Obstacle 1: Ollama does not load LoRA adapters anymore
 
 The card gives a LoRA GGUF (`Qwen3.8-27B-pi-lora-F16.gguf`, 319 MB). The usual Ollama way is a
@@ -29,7 +31,7 @@ The card merges with PEFT (`merge_and_unload`) on the BF16 checkpoint.
 
 | path | disk | RAM | fits this laptop? |
 |---|---|---|---|
-| card: PEFT merge on BF16, then convert to GGUF, then quantize | ~54 GB base + ~54 GB merged + ~54 GB GGUF | ~54 GB | no (25 GiB free on `/home`, 30 GiB on `/`, 32 GB RAM) |
+| card: PEFT merge on BF16, then convert to GGUF, then quantize | ~54 GB base + ~54 GB merged + ~54 GB GGUF | ~54 GB | no (on 11-18 morning: 25 GiB free on `/home`, 30 GiB on `/`, 32 GB RAM) |
 | `llama-export-lora` on a GGUF base | writes F16 output, ~54 GB | low | no |
 | **in-place merge into the Q8_0 GGUF (used)** | 28.6 GB Q8_0 on `/`, then 16.5 GB Q4_K_M on `/home`, one at a time | < 2 GB | **yes** |
 
@@ -95,3 +97,10 @@ The renderer + parser combination replaced it. This is the "suspect the harness 
 | upload one arm over the USB ethernet | ~2.5 min |
 | in-place merge, 256 tensor pairs (dry run first, ~7 min) | ~8 min |
 | total, from download to both tags on the box | ~70 min |
+
+## Can the merge be reused for P7? No
+
+The merged Q8_0 was deleted from the laptop at 14:16 to free `/`. Its blob (`sha256:68896b5c…`) is 404 on the box,
+because both uploads failed. The Q4_K_M pi tag cannot give it back: requantization loses the Q8_0 values.
+So P7 repeats the download (~15 min) and the merge (~8 min). `p7-chain.sh` does both, then the upload and the arm.
+It resets markers that have no Q8_0 file, so a stale `.merged` cannot skip the merge.
