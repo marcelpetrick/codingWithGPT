@@ -41,14 +41,15 @@ publish () {  # <tag> <q4 file>: upload the blob and create the tag
     say "$tag: upload $(du -h "$f" | cut -f1)"
     curl -sf -T "$f" -X POST "$BASE/api/blobs/sha256:$sha" >/dev/null
   fi
-  "$PY" -I - "$BASE" "$tag" "$sha" "$HERE/templates/qwen38-nothink.gotmpl" <<'EOF' | tee -a "$LOG"
+  # renderer qwen3.8 = Ollama's own prompt format; parser qwen3-coder has no thinking support, so the
+  # tag has no thinking capability and Ollama resolves every request (also Claude Code's) to think=false.
+  "$PY" -I - "$BASE" "$tag" "$sha" <<'EOF' | tee -a "$LOG"
 import json, sys, urllib.request
-base, tag, sha, tmpl = sys.argv[1:5]
+base, tag, sha = sys.argv[1:4]
 body = {"model": tag, "files": {"model.gguf": "sha256:" + sha},
-        "template": open(tmpl).read(), "parser": "qwen3-coder",
+        "renderer": "qwen3.8", "parser": "qwen3-coder",
         "parameters": {"num_ctx": 200000, "temperature": 0.8, "top_p": 0.95, "top_k": 20,
-                       "min_p": 0, "presence_penalty": 0, "repeat_penalty": 1,
-                       "stop": ["<|im_end|>", "<|im_start|>"]},
+                       "min_p": 0, "presence_penalty": 0, "repeat_penalty": 1},
         "stream": False}
 r = urllib.request.urlopen(urllib.request.Request(base + "/api/create", json.dumps(body).encode()), timeout=1800)
 out = r.read().decode()

@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Compare the no-think template with Ollama's qwen3.8 renderer at think=false.
+"""Compare a v6 tag's prompt with Ollama's qwen3.8 renderer at think=false.
+
+The v6 tags use renderer qwen3.8 + parser qwen3-coder. The parser has no thinking support, so the
+tag has no thinking capability and Ollama resolves think to false for every request.
 
 Both prompts come from the box with _debug_render_only, so no model loads.
-Usage: render_check.py HOST STOCK_TAG TEMPLATE_TAG
+Usage: render_check.py HOST STOCK_TAG V6_TAG
 Exit 0 = identical apart from the tool-JSON spacing (the one known difference).
 """
 import difflib, json, sys, urllib.request
@@ -51,8 +54,8 @@ def spaced(s):
 
 def main(host, stock, tmpl):
     a = render(host, stock, False)
-    # The template tag has no thinking capability: /api/chat refuses think=true with 400,
-    # and the Anthropic route (Claude Code) relaxes it to nil. So nil is what Claude Code gets.
+    # The tag has no thinking capability: /api/chat refuses think=true with 400, and the
+    # Anthropic route (Claude Code) relaxes it to nil. So nil is what Claude Code gets.
     b_true = render(host, tmpl, None)
     if b_true != render(host, tmpl, False):
         print("FAIL: the template depends on think"); return 1
