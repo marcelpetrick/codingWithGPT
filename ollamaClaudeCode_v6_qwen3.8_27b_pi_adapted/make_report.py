@@ -125,7 +125,9 @@ def verdict(ms):
     t5ok = pi["t5"].split("/")[0].isdigit() and int(pi["t5"].split("/")[0]) >= rc.T5_MIN
     d = pi["correct"] - kat["correct"]
     if t5ok and d > rc.TIE_POINTS:
-        v = "Use Qwen3.8-27B pi as the default: it is more than 3 points more correct than KAT."
+        v = ("By the fixed rule, Qwen3.8-27B pi wins: %.1f correctness against KAT's %.1f. "
+             "The cost is time: its sessions take %.1f times as long." % (pi["correct"], kat["correct"],
+                                                                        pi["session"] / kat["session"]))
     elif t5ok and d >= -rc.TIE_POINTS:
         v = ("Keep Qwen3.8-27B pi as an extra alias, not as the default: its correctness ties KAT "
              "(%+.1f points), and KAT is faster." % d)
@@ -137,8 +139,9 @@ def verdict(ms):
         pi["correct"], kat["correct"], fmt(pi["session"]), fmt(kat["session"])))
     if base and base["correct"] is not None:
         a = pi["correct"] - base["correct"]
-        lines.append("Adapter vs its own base: %+.1f points (%s)." % (
-            a, "the adapter helps" if a > rc.TIE_POINTS else "a tie under the rule"))
+        lines.append("Adapter vs its own base: %+.1f points (%s); sessions %s s vs %s s; median tool calls %s vs %s." % (
+            a, "the adapter helps" if a > rc.TIE_POINTS else "a tie under the rule", fmt(pi["session"]),
+            fmt(base["session"]), fmt(pi["calls"]), fmt(base["calls"])))
     if occ and occ["correct"] is not None:
         lines.append("Runner-up occamy: %.1f correctness, sessions %s s." % (occ["correct"], fmt(occ["session"])))
     return v, lines
