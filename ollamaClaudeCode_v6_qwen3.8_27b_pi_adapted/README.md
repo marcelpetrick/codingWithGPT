@@ -39,13 +39,13 @@ is near the current default `claude-ol-kat` (KAT-Coder-V2.5-Dev).
 |---|---|---|---|
 | P0 | pre-evaluate the card, write the plan and the red team, fix the rule | 20 min | done 10:47 |
 | P1 | load the LoRA with `ADAPTER` | 10 min | **failed**: Ollama 0.40.11 says "LoRA adapters are no longer supported" |
-| P1b | merge it ourselves: Q8_0 base + LoRA, in place (`merge_lora_inplace.py`), then Q4_K_M; build the base arm the same way (`build.sh`) | ~1 h | running |
-| P2 | prove that the adapter is active: greedy output of pi and base must differ | 10 min | |
+| P1b | merge it ourselves: Q8_0 base + LoRA, in place (`merge_lora_inplace.py`), then Q4_K_M; build the base arm the same way (`build.sh`) | ~1 h | done 12:00 |
+| P2 | prove that the adapter is active | 10 min | done 12:04: active but small. Logprobs differ on 6/6 prompts, greedy answers on 3/6 (`adapter_probe.py`) |
 | P3 | thinking off: renderer `qwen3.8` + parser `qwen3-coder`, no custom template | 30 min | done 11:16: byte-identical to Ollama's renderer at think=false (`render_check.py`). A first Go-template attempt was wrong, see the status table |
-| P4 | smoke: residency 100% GPU, tool calls, `think_chars = 0`, one Claude Code turn through the alias | 20 min | alias written to `~/.zshrc` |
-| P5 | measure: `v6-run.sh` (s15 harness, arm `pi1118`, n=3), pi vs base vs KAT | ~4–5 h, detached | |
+| P4 | smoke: residency, tool calls, thinking, overflow | 20 min | done 12:05: 31.17 GB at 100% GPU with 200k, 30.8 tok/s, tool call OK, 0 thinking chars; past 200k it silently halves |
+| P5 | measure: `v6-run.sh` (s15 harness, arm `pi1118`, n=3), pi vs base vs KAT | ~3.5 h, detached | running since 12:05 |
 | P6 | read every failure and void run in the transcripts; then believe the score | 30 min | |
-| P7 | optional: Q8_0 pi at a smaller window, to see the quant drift | 1–2 h | only if P5 is close |
+| P7 | Q8_0 pi at 65536 (`v6-q8.sh`, arm `pi1118q8`): T5 and the three session tasks, no summary | ~1 h | queued, starts after P5. Promoted from optional because the adapter delta (0.18% of each weight) is below Q4 rounding noise |
 | P8 | verdict, review file, commit | 30 min | |
 
 ### Why the merge, and what it costs
@@ -119,27 +119,46 @@ The recommendation to the owner follows from these numbers:
 | 11-18 10:58 | P3 | Go template looked byte-identical to the renderer. **Harness defect**: the check tag inherited the `qwen3.8` renderer, so the template was never tested |
 | 11-18 11:01 | P1b | `build.sh` waits for the download, then builds both tags. Alias `claude-ol-qwen3.8_27b_pi` added (`~/.zshrc`, backup `~/.zshrc.bak-v6-20261118`) |
 | 11-18 11:14 | P1b | base arm published (16.5 GB, Q4_K_M 4.92 BPW). Its render check FAILED: the template was used and was wrong (compact JSON, missing newlines) |
+| 11-18 11:21 | P1b | merge dry run: 256 tensors, scale 64/32, median relative change 0.18% (max 0.25%) |
 | 11-18 11:16 | P3 | base tag re-created with renderer `qwen3.8` + parser `qwen3-coder`: IDENTICAL. Template deleted. `build.sh` fixed by rename while it runs; the pi tag gets re-created after the build |
 
 ## Results
 
-None yet.
+### Smoke (P2, P4), 2026-11-18 12:00–12:05
+
+| check | pi Q4_K_M | base Q4_K_M |
+|---|---|---|
+| resident at `num_ctx` 200000 | 31.17 GB, 100% GPU | 31.17 GB, 100% GPU |
+| generation, greedy, short prompt | 30.8 tok/s | 30.7 tok/s |
+| one tool call (`write_file`) | correct | correct |
+| thinking characters | 0 | 0 |
+| prompt vs Ollama's renderer at think=false | identical | identical |
+| prompt past `num_ctx` | **silently halved** (prompt_eval 100,002) | not probed (same runtime path) |
+
+Adapter effect, greedy, 6 prompts (`results/adapter_probe.json`): every prompt shows logprob differences
+(mean |Δ| 0.003–0.022), and 3 of 6 answers diverge after 13–71 identical tokens. The adapter is active.
+Its single-turn effect is small; its claimed gain is in multi-step agent work, which P5 measures.
 
 ## Resume here
 
-State (11-18 11:01): `build.sh` runs detached. It waits for the Q8_0 download, then builds and uploads both tags.
-Next: P2 and P4 by hand, then start `v6-run.sh`.
+State (11-18 12:10): both Q4 tags are on `.67`. `v6-run.sh` (P5) runs detached. `v6-q8.sh` (P7) waits for it.
+Next: read the results (P6), write the verdict (P8).
 
 Check the state:
 1. `tail results/build.log`
 2. `ls -l /var/tmp/v6 ~/.cache/v6-out`
 3. `curl --noproxy '*' -fsS http://192.168.100.67:11434/api/ps`
-4. `pgrep -af 'build.sh|v6-run.sh|s15-refresh'`
+4. `pgrep -af 'build.sh|v6-run.sh|v6-q8.sh|s15-refresh'`
+5. `tail ../ollamaClaudeCode_v4_tielCoder/results/s15-pi1118.log ../ollamaClaudeCode_v4_tielCoder/results/s15-pi1118q8.log`
+6. `python3 ../ollamaClaudeCode_v4_tielCoder/refresh-compare.py --arm pi1118`
 
 Restart the build. It skips every step it has marked in `/var/tmp/v6/.<step>`:
 `setsid nohup systemd-inhibit --what=sleep:idle ./build.sh >/dev/null 2>&1 & disown`
 
 If the build says "a merge was interrupted", delete `/var/tmp/v6/Qwen3.8-27B-Q8_0.gguf` and `/var/tmp/v6/.merge-started`, download again, then restart.
 
-Start the measurement after P2 and P4:
-`setsid nohup systemd-inhibit --what=sleep:idle ./v6-run.sh >/dev/null 2>&1 & disown`
+Restart the measurement (each skips every valid run):
+1. `setsid nohup systemd-inhibit --what=sleep:idle ./v6-run.sh >/dev/null 2>&1 & disown`
+2. `setsid nohup systemd-inhibit --what=sleep:idle ./v6-q8.sh >/dev/null 2>&1 & disown`
+
+Clean up after the round: `rm -r /var/tmp/v6 ~/.cache/v6-out ~/.cache/v6-llamacpp ~/.cache/v6-venv ~/.cache/ollama-src`.

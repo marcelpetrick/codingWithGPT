@@ -1,0 +1,80 @@
+[
+ {
+  "prompt": "Write a Python function that returns the n-th Fibo",
+  "identical": true,
+  "common_prefix_tokens": 99,
+  "tokens": [
+   99,
+   99
+  ],
+  "mean_abs_dlogprob": 0.00309,
+  "max_abs_dlogprob": 0.084,
+  "pi": "```python\ndef fibonacci(n: int) -> int:\n    if n < 0:\n        raise ValueError(\"n must be non-negative\")\n    if n == 0:\n        return 0\n    if n == 1:\n        return 1\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b\n```",
+  "base": "```python\ndef fibonacci(n: int) -> int:\n    if n < 0:\n        raise ValueError(\"n must be non-negative\")\n    if n == 0:\n        return 0\n    if n == 1:\n        return 1\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b\n```"
+ },
+ {
+  "prompt": "A pytest run fails with 'ModuleNotFoundError: No m",
+  "identical": false,
+  "common_prefix_tokens": 39,
+  "tokens": [
+   300,
+   300
+  ],
+  "mean_abs_dlogprob": 0.01543,
+  "max_abs_dlogprob": 0.1029,
+  "pi": "Here are the three most likely causes for `ModuleNotFoundError: No module named src` in a pytest run, along with their fixes:\n\n### 1. **Incorrect Working Directory or Test Invocation Path**\n**Cause:** You are running `pytest` from a directory that is not the project root, or you are invoking tests in a way that doesn\u2019t include the project root in `sys.path`. Python\u2019s module resolution depends on the current working directory (CWD) and `sys.path`. If `src` is a top-level package in your project root, but you run `pytest` from inside `src/` or another subdirectory, Python won\u2019t find `src` as a module.\n\n**Fix:**\n- **Run pytest from the project root:**\n  ```bash\n  cd /path/to/project_root\n  pytest\n  ```\n- **Or specify the rootdir explicitly:**\n  ```bash\n  pytest --rootdir=/path/to/project_root\n  ```\n- **Ensure your test files import using absolute paths from the project root**, e.g., `from src.module import func`, not `from module import func`.\n\n---\n\n### 2. **Missing `__init__.py` in the `src` Directory**\n**Cause:** In Python 3.3+, packages can be \"namespace packages\" without `__init__.py`, but many tools (including pytest and some linters) expect explicit package markers. If `",
+  "base": "Here are the three most likely causes for `ModuleNotFoundError: No module named src` in a pytest run, along with their fixes:\n\n### 1. **Incorrect Working Directory or Test Invocation**\n**Cause:** You are running `pytest` from a directory that is not the project root, or you are invoking tests in a way that doesn\u2019t include the project root in `sys.path`. Python\u2019s module resolution depends on the current working directory (CWD) being in `sys.path`. If you run `pytest tests/test_foo.py` from inside the `tests/` directory, Python won\u2019t know where to find `src`.\n\n**Fix:**\n- **Run pytest from the project root:**\n  ```bash\n  cd /path/to/project_root\n  pytest\n  ```\n- **Or use the `--rootdir` option** (less common, but helpful in complex setups):\n  ```bash\n  pytest --rootdir=/path/to/project_root\n  ```\n- **Ensure your test files use absolute imports** relative to the project root, e.g., `from src.module import func`, not `from module import func`.\n\n---\n\n### 2. **Missing `__init__.py` Files (Namespace Package Issues)**\n**Cause:** If `src` is a package (directory), Python may not recognize it as a package if it lacks an `__init__.py` file, especially in older Python versions or if you"
+ },
+ {
+  "prompt": "You are in a git repo. Give the exact shell comman",
+  "identical": true,
+  "common_prefix_tokens": 18,
+  "tokens": [
+   18,
+   18
+  ],
+  "mean_abs_dlogprob": 0.00346,
+  "max_abs_dlogprob": 0.0268,
+  "pi": "```bash\ngit log -S 'TODO-42' --oneline\n```",
+  "base": "```bash\ngit log -S 'TODO-42' --oneline\n```"
+ },
+ {
+  "prompt": "Explain in five sentences how Qt's parent-child ow",
+  "identical": false,
+  "common_prefix_tokens": 71,
+  "tokens": [
+   134,
+   121
+  ],
+  "mean_abs_dlogprob": 0.02166,
+  "max_abs_dlogprob": 0.0871,
+  "pi": "In Qt, every QObject can have a parent QObject, establishing a hierarchical tree structure where the parent takes ownership of its children. When a parent QObject is destroyed, its destructor automatically iterates through its list of child objects and deletes each one. This recursive process ensures that the entire subtree of QObjects is cleaned up in a single operation, preventing memory leaks. Because the parent manages the lifetime of its children, developers do not need to manually call `delete` on child objects, simplifying resource management. This mechanism relies on the fact that QObject is the base class for most Qt widgets and classes, making it the standard approach for managing object lifecycles in Qt applications.",
+  "base": "In Qt, every QObject can have a parent QObject, establishing a hierarchical tree structure where the parent takes ownership of its children. When a parent QObject is destroyed, its destructor automatically iterates through its list of child objects and deletes each one. This recursive process ensures that the entire subtree of QObjects is cleaned up in a single operation, preventing memory leaks. The deletion order is typically depth-first, meaning children are destroyed before their parents, which is crucial for maintaining valid object states during cleanup. This mechanism allows developers to manage complex object lifecycles simply by managing the lifetime of the top-level parent object."
+ },
+ {
+  "prompt": "Write a bash one-liner that prints the 5 largest f",
+  "identical": true,
+  "common_prefix_tokens": 25,
+  "tokens": [
+   25,
+   25
+  ],
+  "mean_abs_dlogprob": 0.01199,
+  "max_abs_dlogprob": 0.1007,
+  "pi": "```bash\nfind . -type f -exec du -b {} + | sort -rn | head -5\n```",
+  "base": "```bash\nfind . -type f -exec du -b {} + | sort -rn | head -5\n```"
+ },
+ {
+  "prompt": "In C++, why can a std::vector<T>::push_back invali",
+  "identical": false,
+  "common_prefix_tokens": 13,
+  "tokens": [
+   87,
+   86
+  ],
+  "mean_abs_dlogprob": 0.00925,
+  "max_abs_dlogprob": 0.0535,
+  "pi": "`std::vector` stores its elements in a contiguous block of memory, so adding a new element may require allocating a larger block and moving all existing elements to the new location. This reallocation process changes the memory addresses of the stored elements, causing any previously obtained iterators to point to the old, deallocated memory. Consequently, these iterators become invalid and must be reacquired after the `push_back` operation to ensure safe access.",
+  "base": "`std::vector` stores its elements in a contiguous block of dynamically allocated memory, which must be reallocated to a larger block when the current capacity is exceeded. This reallocation process involves copying or moving all existing elements to the new memory location and then freeing the old one. Consequently, any iterators, pointers, or references pointing to the old memory block become invalid because that memory is no longer part of the vector's storage."
+ }
+]

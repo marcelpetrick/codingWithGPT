@@ -1,0 +1,48 @@
+{
+ "pi": {
+  "tag": "qwen3.8-pi:27b-q4km-ctx200k-nothink",
+  "answer": "```python\ndef fibonacci(n: int) -> int:\n    if n < 0:\n        raise ValueError(\"n must be non-negative\")\n    if n == 0:\n        return 0\n    if n == 1:\n        return 1\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b\n```",
+  "thinking_chars": 0,
+  "gen_tok_s": 30.8,
+  "first_call_s": 13.1,
+  "size_gb": 31.17,
+  "gpu_share": 1.0,
+  "context_length": 200000,
+  "tool_calls": [
+   {
+    "index": 0,
+    "name": "write_file",
+    "arguments": {
+     "path": "hello.txt",
+     "content": "hi there"
+    }
+   }
+  ],
+  "tool_content": "",
+  "tool_ok": true
+ },
+ "base": {
+  "tag": "qwen3.8-base:27b-q4km-ctx200k-nothink",
+  "answer": "```python\ndef fibonacci(n: int) -> int:\n    if n < 0:\n        raise ValueError(\"n must be non-negative\")\n    if n == 0:\n        return 0\n    if n == 1:\n        return 1\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b\n```",
+  "thinking_chars": 0,
+  "gen_tok_s": 30.7,
+  "first_call_s": 22.2,
+  "size_gb": 31.17,
+  "gpu_share": 1.0,
+  "context_length": 200000,
+  "tool_calls": [
+   {
+    "index": 0,
+    "name": "write_file",
+    "arguments": {
+     "path": "hello.txt",
+     "content": "hi there"
+    }
+   }
+  ],
+  "tool_content": "",
+  "tool_ok": true
+ },
+ "adapter_active": false,
+ "pass": false
+}
