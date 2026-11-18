@@ -1832,3 +1832,7 @@ qwen3.8-pi:27b-q4km-ctx200k-nothink {"status":"success"}
 [12:00:29] BUILD-DONE
 [12:03:53] qwen3.8-pi:27b-q8-ctx64k-nothink: blob sha256:68896b5cdec46a402bd6f38f03db30043663698c8bdc838b99b11a3f9a06a6f6
 [12:03:53] qwen3.8-pi:27b-q8-ctx64k-nothink: upload
+[14:12:30] qwen3.8-pi:27b-q8-ctx64k-nothink: blob sha256:68896b5cdec46a402bd6f38f03db30043663698c8bdc838b99b11a3f9a06a6f6
+[14:12:30] qwen3.8-pi:27b-q8-ctx64k-nothink: upload
+[14:14:48] UPLOAD FAILED: curl: (22) The requested URL returned error: 500
+{"error":"write /usr/share/ollama/.ollama/models/blobs/sha256-3749432253: no space left on device"}
