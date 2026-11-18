@@ -1,0 +1,13 @@
+model	run	phase	ollama	score	words	prompt_tok	prefill_s	prefill_tps	gen_tok	gen_tps	wall_s	void	missed
+qwen3.8-pi:27b-q4km-ctx200k-nothink	1	cold	0.40.11	16/16	259	151421	142.8	1060	440	20.0	175.3		
+qwen3.8-pi:27b-q4km-ctx200k-nothink	2	repeat	0.40.11	16/16	241	151421	0.3	473303	442	20.1	23.5		
+qwen3.8-pi:27b-q4km-ctx200k-nothink	3	extend	0.40.11	15/16	273	151447	1.7	90575	495	20.1	27.5		Correction: the beta starts on 17 May, n
+qwen3.8-base:27b-q4km-ctx200k-nothink	1	cold	0.40.11	13/16	324	151421	142.9	1059	536	20.1	180.5		Root cause of the outage on Tuesday: a f; Correction: the Hamburg trade fair budge; Correction: the beta starts on 17 May, n
+qwen3.8-base:27b-q4km-ctx200k-nothink	2	repeat	0.40.11	16/16	218	151421	0.3	483480	368	20.1	19.8		
+qwen3.8-base:27b-q4km-ctx200k-nothink	3	extend	0.40.11	15/16	249	151447	1.7	90838	390	20.1	22.3		Root cause of the outage on Tuesday: a f
+kat-coder-v2.5:q5km-ctx256k-agentic	1	cold	0.40.11	16/16	198	151419	50.7	2985	779	70.0	74.7		
+kat-coder-v2.5:q5km-ctx256k-agentic	2	repeat	0.40.11	15/16	257	151419	0.1	1137548	1036	70.4	16.0		Decision: the telemetry retention drops 
+kat-coder-v2.5:q5km-ctx256k-agentic	3	extend	0.40.11	15/16	225	151445	0.7	226493	932	70.1	15.1		Decision: the telemetry retention drops 
+occamy-1.0:q5km-ctx256k-agentic	1	cold	0.40.11	15/16	215	151419	56.8	2666	3712	73.0	109.0		Correction: the beta starts on 17 May, n
+occamy-1.0:q5km-ctx256k-agentic	2	repeat	0.40.11	16/16	228	151419	0.1	1043628	4343	72.7	61.0		
+occamy-1.0:q5km-ctx256k-agentic	3	extend	0.40.11	15/16	214	151445	0.7	221436	4086	72.6	58.1		Decision: the telemetry retention drops 

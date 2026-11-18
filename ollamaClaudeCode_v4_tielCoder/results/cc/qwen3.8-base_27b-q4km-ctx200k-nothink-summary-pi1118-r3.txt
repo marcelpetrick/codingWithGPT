@@ -1,0 +1,26 @@
+**Project Summary**
+
+All modules are currently on schedule with no changes required for the lead. The following decisions, risks, and actions are valid as of the latest log entries.
+
+**Valid Decisions**
+*   The release freeze for version 7.4 starts on 14 March.
+*   The Windows installer moves to WiX 5 (Owner: Nadia).
+*   The API gateway uses port 9443 (Correction: The earlier decision to use port 8443 is void due to a collision with the proxy).
+*   The beta starts on 17 May (Correction: The earlier decision for a 3 May start is void).
+*   The telemetry retention drops to 45 days because of the audit.
+*   The customer pilot moves from Graz to Linz.
+*   The support hotline for the pilot opens at 7 in the morning.
+*   The team drops the nightly Solaris build.
+*   Lena leads the Android port (Correction: Oskar left the project, voiding the earlier decision that Oskar would lead).
+*   The Hamburg trade fair budget is 65,000 euro (Correction: The earlier figure of 90,000 euro is void).
+
+**Open Risks**
+*   The sensor vendor Halberg stops delivery of the K9 board in June.
+*   The Qt license renewal costs 38,000 euro, but the budget only has 30,000.
+*   The database migration needs a two-hour downtime window.
+
+**Actions**
+*   Tomasz writes the serial port recovery test before the demo.
+*   Priya reviews the installer signing key before Friday.
+*   Rafael sends the final price list to the Linz customer.
+*   Mirela updates the CI matrix.

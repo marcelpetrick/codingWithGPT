@@ -1,0 +1,37 @@
+date	ollama	model	fixture	thinking	run	verdict	hidden	wall_s	warm_s	calls	turns	in_tok	out_tok	think_chars	api_s	ttft_s	max_gap_s	tools	reloads	foreign	note
+2026-11-18	0.40.11	qwen3.8-pi:27b-q4km-ctx200k-nothink	hard	on	1	PASS	18/18	232	11.1	17	21	17681	5981	0	228.9	11.0	32.7	Bashx8,Readx6,Editx4,Writex2	0	-	
+2026-11-18	0.40.11	qwen3.8-pi:27b-q4km-ctx200k-nothink	qtcpp	on	1	PASS	14/14	263	8.1	17	24	108621	4282	0	245.2	12.4	33.9	Readx10,Bashx8,Writex3,Editx2	0	-	
+2026-11-18	0.40.11	qwen3.8-pi:27b-q4km-ctx200k-nothink	gitlab	on	1	PASS	15/15	60	2.9	6	15	15005	1325	0	59.5	10.7	15.6	Bashx13,Readx1	0	-	
+2026-11-18	0.40.11	qwen3.8-base:27b-q4km-ctx200k-nothink	hard	on	1	FAIL	17/18	601	9.8	54	-	-	-	0	-	-	32.4	Bashx40,Readx8,Editx8,Writex3	0	-	timeout after 600s
+2026-11-18	0.40.11	qwen3.8-base:27b-q4km-ctx200k-nothink	qtcpp	on	1	FAIL	14/14	602	7.4	38	-	-	-	0	-	-	43.7	Bashx25,Readx10,Editx5,Writex4	0	-	timeout after 600s
+2026-11-18	0.40.11	qwen3.8-base:27b-q4km-ctx200k-nothink	gitlab	on	1	PASS	15/15	68	2.5	6	13	14571	1592	0	67.7	10.4	24.7	Bashx11,Readx1	0	-	
+2026-11-18	0.40.11	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	1	PASS	18/18	38	12.7	6	16	20291	3050	1090	35.6	4.8	7.5	Bashx6,Readx5,Editx4	0	-	
+2026-11-18	0.40.11	kat-coder-v2.5:q5km-ctx256k-agentic	qtcpp	on	1	PASS	12/14	79	2.0	10	25	22690	5855	5131	64.6	5.1	6.6	Readx10,Bashx8,Editx4,Writex2	0	-	
+2026-11-18	0.40.11	kat-coder-v2.5:q5km-ctx256k-agentic	gitlab	on	1	PASS	13/15	18	2.1	4	13	13638	1373	1242	17.3	4.4	4.3	Bashx11,Readx1	0	-	
+2026-11-18	0.40.11	qwen3.8-base:27b-q4km-ctx200k-nothink	hard	on	2	PASS	18/18	247	10.8	18	22	16160	6490	0	244.9	10.0	35.2	Bashx10,Readx5,Editx4,Writex2	0	-	
+2026-11-18	0.40.11	qwen3.8-base:27b-q4km-ctx200k-nothink	qtcpp	on	2	PASS	12/14	374	7.1	37	41	104633	7186	0	356.2	12.3	40.0	Bashx25,Readx9,Writex4,Editx2	0	-	
+2026-11-18	0.40.11	qwen3.8-base:27b-q4km-ctx200k-nothink	gitlab	on	2	PASS	15/15	57	2.8	6	14	15186	1270	0	56.8	10.0	15.5	Bashx12,Readx1	0	-	
+2026-11-18	0.40.11	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	2	PASS	18/18	41	13.2	7	16	19878	3363	1670	38.7	4.3	4.3	Bashx5,Readx5,Editx5	0	-	
+2026-11-18	0.40.11	kat-coder-v2.5:q5km-ctx256k-agentic	qtcpp	on	2	PASS	12/14	76	1.7	9	23	24879	5734	6234	63.2	4.7	9.7	Bashx10,Readx8,Writex4	0	-	
+2026-11-18	0.40.11	kat-coder-v2.5:q5km-ctx256k-agentic	gitlab	on	2	PASS	14/15	26	1.8	6	16	14514	2158	2782	25.3	4.9	4.8	Bashx14,Readx1	0	-	
+2026-11-18	0.40.11	qwen3.8-pi:27b-q4km-ctx200k-nothink	hard	on	2	PASS	17/18	237	10.9	19	22	17262	6160	0	234.7	11.6	26.6	Bashx9,Readx5,Writex5,Editx2	0	-	
+2026-11-18	0.40.11	qwen3.8-pi:27b-q4km-ctx200k-nothink	qtcpp	on	2	FAIL	13/14	602	6.6	42	-	-	-	0	-	-	73.8	Bashx31,Readx10,Editx5,Writex4	0	-	timeout after 600s
+2026-11-18	0.40.11	qwen3.8-pi:27b-q4km-ctx200k-nothink	gitlab	on	2	PASS	15/15	59	2.9	6	12	15638	1291	0	57.6	9.7	11.3	Bashx10,Readx1	0	-	
+2026-11-18	0.40.11	kat-coder-v2.5:q5km-ctx256k-agentic	hard	on	3	PASS	16/18	34	13.8	7	14	18878	2805	1215	33.2	4.2	4.1	Bashx7,Editx4,Readx2	0	-	
+2026-11-18	0.40.11	kat-coder-v2.5:q5km-ctx256k-agentic	qtcpp	on	3	PASS	11/14	107	1.6	7	23	26671	8941	17475	92.9	5.0	42.0	Readx9,Bashx8,Editx5	0	-	
+2026-11-18	0.40.11	kat-coder-v2.5:q5km-ctx256k-agentic	gitlab	on	3	PASS	12/15	21	2.3	5	12	14290	1672	2453	20.2	4.1	4.0	Bashx10,Readx1	0	-	
+2026-11-18	0.40.11	qwen3.8-pi:27b-q4km-ctx200k-nothink	hard	on	3	PASS	18/18	334	9.8	17	26	16196	8940	0	330.5	13.1	38.0	Bashx11,Editx8,Readx6	0	-	
+2026-11-18	0.40.11	qwen3.8-pi:27b-q4km-ctx200k-nothink	qtcpp	on	3	PASS	14/14	230	6.9	13	22	63661	4839	0	220.0	12.3	31.5	Readx9,Bashx7,Writex5	0	-	
+2026-11-18	0.40.11	qwen3.8-pi:27b-q4km-ctx200k-nothink	gitlab	on	3	PASS	14/15	71	2.9	6	16	14752	1649	0	69.9	10.4	15.2	Bashx14,Readx1	0	-	
+2026-11-18	0.40.11	qwen3.8-base:27b-q4km-ctx200k-nothink	hard	on	3	PASS	18/18	437	9.9	31	34	16099	11529	0	429.7	9.8	28.5	Bashx22,Editx6,Readx5	0	-	
+2026-11-18	0.40.11	qwen3.8-base:27b-q4km-ctx200k-nothink	qtcpp	on	3	PASS	13/14	368	7.6	25	34	88704	7499	0	338.0	12.1	59.9	Bashx18,Readx9,Writex4,Editx2	0	-	
+2026-11-18	0.40.11	qwen3.8-base:27b-q4km-ctx200k-nothink	gitlab	on	3	PASS	15/15	68	5.1	6	14	14744	1521	0	65.7	10.5	16.2	Bashx12,Readx1	0	-	
+2026-11-18	0.40.11	occamy-1.0:q5km-ctx256k-agentic	hard	on	1	PASS	18/18	58	4.2	7	16	17561	5735	10415	56.9	4.2	26.6	Readx7,Bashx5,Writex3	0	-	
+2026-11-18	0.40.11	occamy-1.0:q5km-ctx256k-agentic	qtcpp	on	1	PASS	12/14	196	2.8	28	35	29191	16744	27207	171.0	4.9	31.7	Bashx13,Readx9,Editx6,Writex6	0	-	
+2026-11-18	0.40.11	occamy-1.0:q5km-ctx256k-agentic	gitlab	on	1	PASS	14/15	32	4.1	5	13	16842	2991	5969	31.7	4.2	13.8	Bashx11,Readx1	0	-	
+2026-11-18	0.40.11	occamy-1.0:q5km-ctx256k-agentic	hard	on	2	PASS	18/18	98	2.3	6	14	17512	10286	23535	96.9	4.0	61.7	Readx6,Bashx4,Editx3	0	-	
+2026-11-18	0.40.11	occamy-1.0:q5km-ctx256k-agentic	qtcpp	on	2	PASS	10/14	115	2.6	16	23	26683	10028	20304	102.0	4.9	39.1	Bashx9,Readx9,Writex4	0	-	
+2026-11-18	0.40.11	occamy-1.0:q5km-ctx256k-agentic	gitlab	on	2	PASS	13/15	39	4.0	6	13	14321	3694	7143	37.1	4.4	12.5	Bashx11,Readx1	0	-	
+2026-11-18	0.40.11	occamy-1.0:q5km-ctx256k-agentic	hard	on	3	PASS	18/18	70	2.4	6	13	19298	6971	16417	68.5	4.8	40.5	Readx6,Bashx3,Writex3	0	-	
+2026-11-18	0.40.11	occamy-1.0:q5km-ctx256k-agentic	qtcpp	on	3	PASS	12/14	165	2.6	18	29	25133	14870	35246	147.4	5.1	67.3	Readx13,Bashx9,Writex3,Editx3	0	-	
+2026-11-18	0.40.11	occamy-1.0:q5km-ctx256k-agentic	gitlab	on	3	PASS	14/15	39	4.1	8	14	14451	3672	6475	38.0	4.8	8.6	Bashx12,Readx1	0	-	

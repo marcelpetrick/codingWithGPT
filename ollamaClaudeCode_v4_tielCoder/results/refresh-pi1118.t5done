@@ -1,0 +1,4 @@
+qwen3.8-pi:27b-q4km-ctx200k-nothink
+qwen3.8-base:27b-q4km-ctx200k-nothink
+kat-coder-v2.5:q5km-ctx256k-agentic
+occamy-1.0:q5km-ctx256k-agentic

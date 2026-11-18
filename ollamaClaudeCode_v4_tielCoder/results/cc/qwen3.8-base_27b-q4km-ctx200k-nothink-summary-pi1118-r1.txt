@@ -1,0 +1,28 @@
+**Project Summary for Lead**
+
+All reported module work (logging, parsing, scheduling, driver, adapter, cache, widget, dialog, exporter, report, queue, and module components) remains on schedule with no changes required for the lead. The log contains no schedule slippage or conflicts regarding development timelines.
+
+**Valid Decisions**
+The following decisions are currently in effect. Where corrections were made in the log, only the latest valid state is listed:
+1.  **Release Freeze:** The release freeze for version 7.4 starts on 14 March.
+2.  **Windows Installer:** The Windows installer moves to WiX 5.
+3.  **Android Port Leadership:** Lena leads the Android port. (Correction: Oskar left the project; the earlier decision assigning Oskar is void.)
+4.  **Hamburg Trade Fair Budget:** The budget is 65,000 euro. (Correction: The initial figure of 90,000 euro is void.)
+5.  **API Gateway Port:** The API gateway uses port 9443. (Correction: The initial decision to use port 8443 is void due to proxy collision.)
+6.  **Beta Start Date:** The beta starts on 17 May. (Correction: The earlier date of 3 May is void.)
+7.  **Telemetry Retention:** Telemetry retention drops to 45 days due to audit requirements.
+8.  **Customer Pilot Location:** The customer pilot moves from Graz to Linz.
+9.  **Support Hotline:** The support hotline for the pilot opens at 7 in the morning.
+
+**Open Risks**
+The following risks are currently open:
+1.  **Hardware Supply:** Sensor vendor Halberg stops delivery of the K9 board in June.
+2.  **Licensing Budget:** The Qt license renewal costs 38,000 euro, but the current budget is only 30,000 euro.
+3.  **Database Migration:** The database migration requires a two-hour downtime window.
+
+**Actions and Owners**
+The following actions are assigned:
+1.  **Windows Installer Implementation:** Nadia owns the move to WiX 5.
+2.  **Serial Port Recovery Test:** Tomasz writes the serial port recovery test before the demo.
+3.  **Installer Signing Key Review:** Priya reviews the installer signing key before Friday.
+4.  **Price List Delivery:** Rafael sends the final price list to the Linz customer.

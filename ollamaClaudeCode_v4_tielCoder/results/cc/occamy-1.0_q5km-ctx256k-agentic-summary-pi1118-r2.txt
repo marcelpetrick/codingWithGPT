@@ -1,0 +1,25 @@
+**Project Lead Summary**
+
+**Overall Status**
+The team continues to execute on schedule across all tracked components (logger, parser, scheduler, driver, module, report, cache, adapter, dialog, widget, queue, and exporter). Every logged activity reports no schedule changes required from the lead. The only operational incident recorded was Tuesday’s outage, caused by a full disk on build agent nine.
+
+**Valid Decisions**
+- Release freeze for version 7.4 starts on 14 March.
+- Windows installer moves to WiX 5 (owner: Nadia).
+- Hamburg trade fair budget is 65,000 euro *(valid state; original 90,000 figure is void)*.
+- API gateway uses port 9443 *(valid state; 8443 collides with the proxy)*.
+- Lena leads the Android port *(valid state; Oskar left the project)*.
+- Beta starts on 17 May *(valid state; original date was 3 May)*.
+- Telemetry retention drops to 45 days due to the audit.
+- Customer pilot moves from Graz to Linz.
+- Support hotline for the pilot opens at 7 a.m.
+
+**Open Risks**
+- Sensor vendor Halberg stops delivery of the K9 board in June.
+- Qt license renewal costs 38,000 euro, exceeding the 30,000 euro budget.
+- Database migration requires a two-hour downtime window.
+
+**Actions & Owners**
+- Tomasz: Write the serial port recovery test before the demo.
+- Priya: Review the installer signing key before Friday.
+- Rafael: Send the final price list to the Linz customer.

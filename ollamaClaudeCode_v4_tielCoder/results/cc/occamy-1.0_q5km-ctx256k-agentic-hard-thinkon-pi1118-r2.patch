@@ -1,0 +1,113 @@
+diff --git a/ledger/money.py b/ledger/money.py
+index 64dc61c..ec3e22d 100644
+--- a/ledger/money.py
++++ b/ledger/money.py
+@@ -1,5 +1,5 @@
+ """Money parsing."""
+-from decimal import Decimal
++from decimal import Decimal, InvalidOperation
+ 
+ 
+ def parse_amount(text):
+@@ -14,4 +14,21 @@ def parse_amount(text):
+     The result always carries exactly two decimal places, so "7" parses to
+     Decimal("7.00"). Anything else raises ValueError.
+     """
+-    return Decimal(text)
++    s = text.strip()
++    negative = False
++    if s.startswith("(") and s.endswith(")"):
++        negative = True
++        s = s[1:-1].strip()
++    if s.startswith("-"):
++        negative = not negative
++        s = s[1:].strip()
++    elif s.startswith("+"):
++        s = s[1:].strip()
++    s = s.replace(",", "")
++    try:
++        value = Decimal(s)
++    except InvalidOperation:
++        raise ValueError(f"invalid amount: {text!r}")
++    if negative:
++        value = -value
++    return value.quantize(Decimal("0.01"))
+diff --git a/ledger/parser.py b/ledger/parser.py
+index 52dd009..79f0993 100644
+--- a/ledger/parser.py
++++ b/ledger/parser.py
+@@ -26,8 +26,25 @@ def parse_line(line):
+     Blank lines, and lines whose first non-space character is '#', return None.
+     Anything malformed raises ValueError.
+     """
+-    day, category, amount, currency = line.split(";")
+-    return Entry(date.fromisoformat(day), category, parse_amount(amount), currency)
++    stripped = line.strip()
++    if stripped == "" or stripped.startswith("#"):
++        return None
++    parts = line.split(";")
++    if len(parts) != 4:
++        raise ValueError(f"invalid entry: {line!r}")
++    day, category, amount, currency = parts
++    day_str = day.strip()
++    category_str = category.strip().lower()
++    amount_str = amount.strip()
++    currency_str = currency.strip().upper()
++    if len(currency_str) != 3 or not currency_str.isalpha():
++        raise ValueError(f"invalid currency: {currency!r}")
++    return Entry(
++        date.fromisoformat(day_str),
++        category_str,
++        parse_amount(amount_str),
++        currency_str,
++    )
+ 
+ 
+ def parse_ledger(text):
+diff --git a/ledger/report.py b/ledger/report.py
+index acc137e..3395016 100644
+--- a/ledger/report.py
++++ b/ledger/report.py
+@@ -1,4 +1,5 @@
+ """Reports over parsed entries."""
++from decimal import Decimal
+ 
+ 
+ def monthly_totals(entries):
+@@ -9,10 +10,15 @@ def monthly_totals(entries):
+     ValueError is raised. An empty input returns an empty dict.
+     """
+     totals = {}
++    currency = None
+     for entry in entries:
+-        key = f"{entry.day.year}-{entry.day.month}"
+-        totals[key] = totals.get(key, 0) + entry.amount
+-    return totals
++        if currency is None:
++            currency = entry.currency
++        elif entry.currency != currency:
++            raise ValueError("all entries must share one currency")
++        key = f"{entry.day.year}-{entry.day.month:02d}"
++        totals[key] = totals.get(key, Decimal("0")) + entry.amount
++    return {k: totals[k] for k in sorted(totals)}
+ 
+ 
+ def category_breakdown(entries, month):
+@@ -23,4 +29,16 @@ def category_breakdown(entries, month):
+     Categories whose total is exactly zero are left out. Entries from other
+     months are ignored. Same single-currency rule as monthly_totals.
+     """
+-    raise NotImplementedError
++    year, month_num = month.split("-")
++    month_num = int(month_num)
++    totals = {}
++    currency = None
++    for entry in entries:
++        if entry.day.year == int(year) and entry.day.month == month_num:
++            if currency is None:
++                currency = entry.currency
++            elif entry.currency != currency:
++                raise ValueError("all entries must share one currency")
++            totals[entry.category] = totals.get(entry.category, Decimal("0")) + entry.amount
++    filtered = {k: v for k, v in totals.items() if v != Decimal("0")}
++    return sorted(filtered.items(), key=lambda item: (item[1], item[0]))

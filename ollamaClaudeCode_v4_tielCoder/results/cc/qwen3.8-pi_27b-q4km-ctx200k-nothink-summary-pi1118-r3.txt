@@ -1,0 +1,30 @@
+**Project Lead Summary**
+
+All scheduled modules remain on track with no changes reported. The following items require your attention:
+
+**Valid Decisions**
+1.  **Release Freeze:** Starts on 14 March for version 7.4.
+2.  **Windows Installer:** Moves to WiX 5.
+3.  **Hamburg Trade Fair Budget:** Set at €65,000. *(Note: An earlier figure of €90,000 was explicitly voided by a subsequent correction.)*
+4.  **Android Port Leadership:** Lena leads the port. *(Note: Oskar was originally assigned but left the project; Lena is the current valid owner.)*
+5.  **API Gateway Port:** Uses port 9443. *(Note: Port 8443 was originally selected but changed due to a proxy collision.)*
+6.  **Telemetry Retention:** Drops to 45 days due to audit requirements.
+7.  **Beta Start Date:** Begins on 17 May. *(Note: An earlier date of 3 May was corrected.)*
+8.  **Customer Pilot Location:** Moves from Graz to Linz.
+9.  **Support Hotline:** Opens at 7:00 AM for the pilot.
+10. **Solaris Build:** The nightly Solaris build is dropped.
+
+**Open Risks**
+1.  **Sensor Supply:** Vendor Halberg stops delivery of the K9 board in June.
+2.  **Qt License:** Renewal costs €38,000, but the current budget only has €30,000 available.
+3.  **Database Migration:** Requires a two-hour downtime window.
+
+**Pending Actions**
+1.  **Nadia:** Owns the transition of the Windows installer to WiX 5.
+2.  **Tomasz:** Must write the serial port recovery test before the demo.
+3.  **Priya:** Must review the installer signing key before Friday.
+4.  **Rafael:** Must send the final price list to the Linz customer.
+5.  **Mirela:** Must update the CI matrix to reflect the dropped Solaris build.
+
+**Outage Note**
+The root cause of the Tuesday outage was a full disk on build agent nine.

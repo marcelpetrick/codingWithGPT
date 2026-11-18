@@ -1,0 +1,25 @@
+**Project Summary for Lead**
+
+All reported modules (logger, parser, scheduler, driver, report, module, adapter, dialog, exporter, cache, queue, widget) remain on schedule with no changes required for the lead. The root cause of the Tuesday outage was a full disk on build agent nine.
+
+**Valid Decisions**
+1. Release freeze for version 7.4 starts on 14 March.
+2. Windows installer moves to WiX 5.
+3. API gateway uses port 9443 (corrected from 8443 due to proxy collision).
+4. Beta starts on 17 May (corrected from 3 May).
+5. Telemetry retention drops to 45 days due to audit.
+6. Customer pilot moves from Graz to Linz.
+7. Support hotline for the pilot opens at 7 in the morning.
+8. Hamburg trade fair budget is 65,000 euro (corrected from 90,000 euro).
+
+**Open Risks**
+1. Sensor vendor Halberg stops delivery of the K9 board in June.
+2. Qt license renewal costs 38,000 euro, but the budget only has 30,000.
+3. Database migration requires a two-hour downtime window.
+
+**Actions and Owners**
+1. Nadia: Move Windows installer to WiX 5.
+2. Lena: Lead the Android port (corrected from Oskar, who left the project).
+3. Tomasz: Write the serial port recovery test before the demo.
+4. Priya: Review the installer signing key before Friday.
+5. Rafael: Send the final price list to the Linz customer.
