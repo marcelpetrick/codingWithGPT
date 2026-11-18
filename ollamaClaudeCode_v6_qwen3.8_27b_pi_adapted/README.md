@@ -1,6 +1,6 @@
 # v6: Qwen3.8-27B "pi-adapted" on the Ollama box
 
-This file is the living document of the task. It holds the verdict, the plan, the status and the
+Short version: [`notes.md`](notes.md) (ten points). This file is the living document of the task. It holds the verdict, the plan, the status and the
 "Resume here" section.
 
 ## Verdict (2026-11-18, n=3, round closed)
