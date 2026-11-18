@@ -174,6 +174,10 @@ State (11-18 14:30): **the round is closed.** Nothing of this round runs on `.67
 The tags `qwen3.8-pi:27b-q4km-ctx200k-nothink` and `qwen3.8-base:27b-q4km-ctx200k-nothink` stay on the box.
 Open: P7 (Q8_0 arm), blocked on box disk space.
 
+Box cleanup (11-18, owner's decision): 13 tags of 5 models were deleted on `.67`. They are Kolibri-1 Q3_K_S,
+ornith 35b v1, Laguna XS 2.1, MiniCPM-V-4.7 and the Qwen3.8-35B Distill. The weight blobs went from 343.7 GB to 216.3 GB,
+so 127.4 GB are free. That is enough for the P7 upload (28.6 GB).
+
 Check the state:
 1. `curl --noproxy '*' -fsS http://192.168.100.67:11434/api/ps`
 2. `python3 ../ollamaClaudeCode_v4_tielCoder/refresh-compare.py --arm pi1118`
