@@ -37,22 +37,40 @@ is near the current default `claude-ol-kat` (KAT-Coder-V2.5-Dev).
 
 | step | what | est. | status |
 |---|---|---|---|
-| P0 | pre-evaluate the card, write the plan and the red team, fix the rule | 20 min | done |
-| P1 | upload the LoRA blob; create `qwen3.8-pi:27b-q4km-ctx200k` = base Q4_K_M + `ADAPTER` | 10 min | |
-| P2 | prove that the adapter is active: greedy output with and without it must differ | 10 min | |
-| P3 | make the thinking-off variant (template prefix `<think>\n\n</think>`), because Claude Code always asks for thinking | 30 min | |
-| P4 | smoke: residency 100% GPU, T1/T5 tool calls, one Claude Code turn through the alias | 20 min | |
-| P5 | measure: s15 harness, arm `pi1118`, n=3, pi vs base vs `kat` (control), same server state | ~4–5 h, detached | |
+| P0 | pre-evaluate the card, write the plan and the red team, fix the rule | 20 min | done 10:47 |
+| P1 | load the LoRA with `ADAPTER` | 10 min | **failed**: Ollama 0.40.11 says "LoRA adapters are no longer supported" |
+| P1b | merge it ourselves: Q8_0 base + LoRA, in place (`merge_lora_inplace.py`), then Q4_K_M; build the base arm the same way (`build.sh`) | ~1 h | running |
+| P2 | prove that the adapter is active: greedy output of pi and base must differ | 10 min | |
+| P3 | thinking off: `templates/qwen38-nothink.gotmpl` + parser `qwen3-coder` | 30 min | done 10:58: byte-identical to Ollama's renderer at think=false (`render_check.py`) |
+| P4 | smoke: residency 100% GPU, tool calls, `think_chars = 0`, one Claude Code turn through the alias | 20 min | alias written to `~/.zshrc` |
+| P5 | measure: `v6-run.sh` (s15 harness, arm `pi1118`, n=3), pi vs base vs KAT | ~4–5 h, detached | |
 | P6 | read every failure and void run in the transcripts; then believe the score | 30 min | |
-| P7 | optional: Q8_0 base + adapter at a smaller window, to see the quant drift | 1–2 h | only if P5 is close |
-| P8 | verdict, alias in `~/.zshrc`, review file, commit | 30 min | |
+| P7 | optional: Q8_0 pi at a smaller window, to see the quant drift | 1–2 h | only if P5 is close |
+| P8 | verdict, review file, commit | 30 min | |
+
+### Why the merge, and what it costs
+
+The card's own merge (`PEFT merge_and_unload` on the BF16 checkpoint) needs about 110 GB of disk and
+about 54 GB of RAM. The laptop has 25 GiB free on `/home`, 30 GiB on `/` and 32 GB of RAM.
+`llama-export-lora` writes F16 (54 GB). So `merge_lora_inplace.py` adds `2.0 · B·A` to each Q8_0
+tensor and quantizes it again to Q8_0. The byte size stays the same, so it overwrites the base file.
+Both arms then go through the same `llama-quantize` Q8_0 → Q4_K_M, so the adapter is the only difference.
+The LoRA covers FFN in all 64 blocks and q/k/v/o in the 16 full-attention blocks, not the SSM layers.
+
+### Why thinking must be forced off
+
+A capture of Claude Code 2.1.327 shows that each request carries `output_config.effort: high`, also
+with `CLAUDE_CODE_DISABLE_THINKING=1` or `MAX_THINKING_TOKENS=0`. Ollama maps that to thinking on.
+The adapter was trained with thinking off. The tag therefore uses a Go template that always emits
+the closed `<think>\n\n</think>` block, and the `qwen3-coder` parser, which has no thinking. Ollama
+then drops the thinking request from Claude Code instead of refusing it.
 
 ### Arms (all in arm `pi1118`, same client, same server, same sampler)
 
 | tag | what | why |
 |---|---|---|
-| `qwen3.8-pi:27b-q4km-ctx200k-nothink` | base Q4_K_M + adapter, thinking forced off | the subject, as trained |
-| `qwen3.8:27b-q4km-ctx200k-nothink` | the same, without the adapter | isolates the adapter effect |
+| `qwen3.8-pi:27b-q4km-ctx200k-nothink` | Q8_0 base + merged adapter → Q4_K_M, thinking forced off | the subject, as trained |
+| `qwen3.8-base:27b-q4km-ctx200k-nothink` | the same Q8_0 → Q4_K_M path, without the adapter | isolates the adapter effect |
 | `kat-coder-v2.5:q5km-ctx256k-agentic` | the current default | the bar to beat and the drift control |
 
 Both Qwen3.8 arms use `num_ctx 200000` (the owner's window from round 11-02), temperature 0.8,
@@ -92,7 +110,12 @@ The recommendation to the owner follows from these numbers:
 
 | time | step | result |
 |---|---|---|
-| 11-18 10:47 | P0 | LoRA downloaded to the laptop scratchpad, hash matches HF. Box idle, Ollama 0.40.11, client 2.1.327 |
+| 11-18 10:47 | P0 | LoRA downloaded, hash matches HF. Box idle, Ollama 0.40.11, client 2.1.327 |
+| 11-18 10:48 | P1 | `ADAPTER` refused by Ollama 0.40.11. Plan changed to a local merge |
+| 11-18 10:50 | P1b | download of `ggml-org/Qwen3.8-27B-GGUF` Q8_0 (28.6 GB) started to `/var/tmp/v6` |
+| 11-18 10:55 | P1b | `merge_lora_inplace.py` + 6 tests pass |
+| 11-18 10:58 | P3 | no-think template byte-identical to the renderer at think=false |
+| 11-18 11:01 | P1b | `build.sh` waits for the download, then builds both tags. Alias `claude-ol-qwen3.8_27b_pi` added (`~/.zshrc`, backup `~/.zshrc.bak-v6-20261118`) |
 
 ## Results
 
@@ -100,8 +123,19 @@ None yet.
 
 ## Resume here
 
-State: P0 done. Nothing runs on `.67`.
+State (11-18 11:01): `build.sh` runs detached. It waits for the Q8_0 download, then builds and uploads both tags.
+Next: P2 and P4 by hand, then start `v6-run.sh`.
 
 Check the state:
-1. `curl --noproxy '*' -fsS http://192.168.100.67:11434/api/ps`
-2. `pgrep -af 'bash \./(s15-refresh|v6-run)'`
+1. `tail results/build.log`
+2. `ls -l /var/tmp/v6 ~/.cache/v6-out`
+3. `curl --noproxy '*' -fsS http://192.168.100.67:11434/api/ps`
+4. `pgrep -af 'build.sh|v6-run.sh|s15-refresh'`
+
+Restart the build. It skips every step it has marked in `/var/tmp/v6/.<step>`:
+`setsid nohup systemd-inhibit --what=sleep:idle ./build.sh >/dev/null 2>&1 & disown`
+
+If the build says "a merge was interrupted", delete `/var/tmp/v6/Qwen3.8-27B-Q8_0.gguf` and `/var/tmp/v6/.merge-started`, download again, then restart.
+
+Start the measurement after P2 and P4:
+`setsid nohup systemd-inhibit --what=sleep:idle ./v6-run.sh >/dev/null 2>&1 & disown`
