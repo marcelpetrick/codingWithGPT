@@ -34,6 +34,11 @@ Reddit sweep 2026-10-07.*
 
 ## Standing field (measured, in use)
 
+> **Update 2026-11-18.** The default is `kat-coder-v2.5:q5km-ctx256k-agentic` since 10-19 (`ROUND_2026-10-19.md`);
+> `qwen3.6` was the default until then. New in use: `qwen3.8-pi:27b-q4km-ctx200k-nothink` (the most correct, slow; v6),
+> `occamy-1.0:q5km-ctx256k-agentic` and `ornith-1.5-35b:q5km-ctx256k-agentic` (aliases since 11-02).
+> Laguna XS 2.1 was deleted from `.67` on 11-18 (see § Box cleanup). The table below is the 09-25 state.
+
 | model | role | decided |
 |---|---|---|
 | `kat-coder-v2.5:q5km-ctx256k-agentic` | **ties the default** (same-version re-baseline 09-25): 45 s, quality PASS, T5 8/8. The equal alternative | ROUND_2026-09-24.md |
@@ -270,6 +275,25 @@ drops thinking after a tool call, closed "not planned" on 10-18.
 It stays out unless the owner accepts a 64k window. Xing4.0: [#29012](https://github.com/ggml-org/llama.cpp/pull/29012)
 still open (10-16, another rebase asked). Abliterations (`MiniCPM-V-4.7-CRACK`, LFM2.5 heretic): no independent
 evidence; the class decision stands.
+
+## 2026-11-18: Qwen3.8-27B-pi-adapted, measured (v6)
+
+| model | decision | evidence |
+|---|---|---|
+| `harness-hub/Qwen3.8-27B-pi-adapted` (RL LoRA on Qwen3.8-27B), merged in place, Q4_K_M, thinking off | **in use as an extra alias** `claude-ol-qwen3.8_27b_pi`. Correctness 100.0 vs base 96.7, occamy 93.2, KAT 91.5 (arm `pi1118`, n=3). Sessions 560 s vs KAT 138 s. Not the default | `../ollamaClaudeCode_v6_qwen3.8_27b_pi_adapted/README.md` |
+| the same at Q8_0, 64k window (P7) | **open**: measures quantization drift. The box has room; waits for laptop disk | same, "Resume here" |
+
+## Box cleanup 2026-11-18 (owner's decision)
+
+These tags were deleted from `.67` to free 127.4 GB. Their decisions above stay. Pull them again before any re-run.
+
+| model | why it could go |
+|---|---|
+| Kolibri-1 Q3_K_S (5 tags) | below the 4-bit floor; v5 experiment only |
+| ornith 35b v1 (2 tags) | replaced by Ornith-1.5; no alias |
+| Laguna XS 2.1 (2 tags) | ties mid-field, no pick; not in round 11-02 |
+| MiniCPM-V-4.7 (2 tags) | lowest interim scores of round 11-02 (76.7) |
+| Qwen3.8-35B-A3B-Distill (2 tags) | lowest interim scores of round 11-02 (70.9) |
 
 ## Known, not fitting: decided, not pulled
 

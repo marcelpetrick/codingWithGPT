@@ -5,9 +5,10 @@ What changes in `~/.zshrc` as a result of the v4 measurements, and why. v2's doc
 explains every environment variable in detail and v3's records the four-model-slot fix; this
 records only the delta.
 
-> **Applied 2026-09-25** (see *Alias review* below): `~/.zshrc` holds exactly four local launchers,
-> `claude-ol-qwen` (the default), `claude-ol-kat`, `claude-ol-byte` and `claude-ol-tiel`. The sections in
-> between are the history of how it got there.
+> **Current (2026-11-18):** `~/.zshrc` holds seven local launchers. **`claude-ol-kat`** is the default
+> (since 10-19). `claude-ol-qwen3.8_27b_pi` is for correctness over time (v6, 11-18). `claude-ol-occamy` and
+> `claude-ol-ornith` (Ornith-1.5) came back on 11-02 at the owner's request. `claude-ol-qwen`, `claude-ol-byte` and
+> `claude-ol-tiel` stay. The 09-25 state and its history follow below.
 
 ## The delta (as applied 09-25; confirmed by the 10-08 verdict)
 
@@ -17,6 +18,9 @@ records only the delta.
 | **`claude-ol-kat`** — **default since 10-19** | — | `kat-coder-v2.5:q5km-ctx256k-agentic` @ 262144. The fastest model that passes the quality rule on the current state (44 s, held-out 18,17,17,18,18, T5 8/8; `ROUND_2026-10-19.md`) |
 | *(new)* **`claude-ol-byte`** | — | `byteshape-qwen3.6-35b:q4ks-ctx256k-agentic`: fastest session and top Terminal-Bench score, held-out median 17 |
 | *(new)* `claude-ol-tiel` | — | the pick **when overflow safety matters**, and vision: `tiel-coder:35b-q5-ctx256k-agentic` @ 262144 |
+| *(new 11-02)* `claude-ol-occamy` | — | `occamy-1.0:q5km-ctx256k-agentic`, the runner-up (93.2 in arm `pi1118`) |
+| *(new 11-02)* `claude-ol-ornith` | — | `ornith-1.5-35b:q5km-ctx256k-agentic` (Ornith-1.5, not the removed 1.0 alias) |
+| *(new 11-18)* `claude-ol-qwen3.8_27b_pi` | — | `qwen3.8-pi:27b-q4km-ctx200k-nothink`, cap 180k: the most correct (100.0), ~4× slower than KAT |
 | `claude-ol-north`, `claude-ol-ornith`, `claude-ol-nemo`, `claude-ol`, `claude-ol-mistral`, `claude-ol-local`, `claude-locallama` | various | **removed** 09-25 (reasons in *Alias review*) |
 
 A `claude-ol-tiel-fast` variant (`<|think_off|>`, 2.3× faster) was proposed below but not installed.

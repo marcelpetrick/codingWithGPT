@@ -408,6 +408,10 @@ question, not by winning.
 
 **Every future round measures a new contender against exactly these four, and nothing else.**
 
+> **Update 2026-11-18.** The default changed to KAT-Coder-V2.5 on 10-19 (`ROUND_2026-10-19.md`), and rounds since then
+> measure KAT as the bar. Slot 1 below keeps qwen3.6 as the capability control. The most correct model is now
+> the v6 pi alias (`../ollamaClaudeCode_v6_qwen3.8_27b_pi_adapted/README.md`).
+
 | # | tag | role it holds | why it is kept |
 |---|---|---|---|
 | 1 | `qwen3.6:35b-a3b-q4_K_M-agentic` | **the default**, confirmed 2026-09-25 (same-version re-baseline) and 2026-10-08 (round closed); KAT-Coder ties it | 48 s ledger (46–49), held-out 18,18,18,17,17, T5 8/8, Terminal-Bench 50% [31, 69] (8 tasks × 3, thinking parity). 131.6 tok/s, 32.68 GB. (The 53% of the first official round is void: thinking asymmetry, §8b) |

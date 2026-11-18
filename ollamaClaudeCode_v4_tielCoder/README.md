@@ -20,6 +20,18 @@ closed)**; the 2026-09-25 and 2026-09-21 verdicts are kept below as history.
 
 ---
 
+## Current state (2026-11-18)
+
+This section is the current answer. The verdicts below it are history.
+
+| question | answer | source |
+|---|---|---|
+| the default | **`claude-ol-kat`** (KAT-Coder-V2.5-Dev), since 2026-10-19. Fastest model that passes the quality rule | [`ROUND_2026-10-19.md`](ROUND_2026-10-19.md) |
+| the most correct model | **`claude-ol-qwen3.8_27b_pi`** (Qwen3.8-27B + pi LoRA): 100.0 vs KAT 91.5, but ~4× slower sessions (560 vs 138 s). Use it when correctness matters more than time | [`../ollamaClaudeCode_v6_qwen3.8_27b_pi_adapted/README.md`](../ollamaClaudeCode_v6_qwen3.8_27b_pi_adapted/README.md) |
+| the runner-up | `claude-ol-occamy` (occamy-1.0): 93.2, 274 s, same arm `pi1118` | same |
+| the field refresh on Ollama 0.40.11 | **stopped, not finished**; interim numbers only | [`ROUND_2026-11-02.md`](ROUND_2026-11-02.md) |
+| box cleanup 11-18 | Kolibri-1 Q3_K_S, ornith 35b v1, Laguna XS 2.1, MiniCPM-V-4.7 and the Qwen3.8-35B Distill deleted from `.67` (−127.4 GB). Pull again before any re-run | [`CANDIDATE_REGISTER.md`](CANDIDATE_REGISTER.md) |
+
 ## The verdict (2026-10-08, round closed): unchanged
 
 **qwen3.6 greedy stays the default; KAT-Coder-V2.5-Dev ties it; Laguna XS 2.1 ties mid-field.** The extended
