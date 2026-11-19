@@ -13,4 +13,4 @@ Ten points on the work and the checks of today. Details are in [`README.md`](REA
 9. **But it is about 4× slower.** A pi session takes 560 s, a KAT session 138 s. The prefill is 1,060 tok/s against 2,985 for KAT.
 10. **Verdict: stay with KAT for daily work.** `claude-ol-kat` is [KAT-Coder-V2.5-Dev](https://huggingface.co/bartowski/Kwaipilot_KAT-Coder-V2.5-Dev-GGUF) by Kwaipilot, a Qwen3.6-35B-A3B fine-tune trained with Claude Code as the harness, at Q5_K_M. It has been the default since 2026-10-19. Use `claude-ol-qwen3.8_27b_pi` when correctness matters more than time.
 
-Open: P7, the same model at Q8_0, to check how much of the gain is quantization noise. It waits for disk space on the laptop.
+Open, on hold: P7 (the same model at Q8_0, to check how much of the gain is quantization noise), Ornith-1.5 in the same arm, and the rest of round 11-02. The list is in README.md, "Left to do".

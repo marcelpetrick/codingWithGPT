@@ -174,9 +174,21 @@ Adapter effect, greedy, 6 prompts (`results/adapter_probe.json`): every prompt s
 (mean |Δ| 0.003–0.022), and 3 of 6 answers diverge after 13–71 identical tokens. The adapter is active.
 Its single-turn effect is small; its claimed gain is in multi-step agent work, which P5 measures.
 
+## Left to do (on hold by the owner since 2026-11-19, "not today")
+
+Nothing runs. Start these only when the owner has time for them, in this order:
+
+| # | item | why | est. | blocked by |
+|---|---|---|---|---|
+| 1 | P7: Q8_0 pi arm (`p7-chain.sh`, arm `pi1118q8`) | shows if pi's +3.3 over base is the adapter or Q4_K_M rounding (review #8) | ~2 h, detached | 31 GB free on the laptop's `/`, or change `W=` to `/home` (47 GB free on 11-18) |
+| 2 | Ornith-1.5 in the same arm as pi | its interim 98.4 (n=1, round 11-02) may be close to pi; only a same-arm run can rank them | ~1 h | the owner's go |
+| 3 | finish round 11-02 (`../ollamaClaudeCode_v4_tielCoder/ROUND_2026-11-02.md`) | the field refresh on 0.40.11 is open: main field ~1 h 10 min, dense models ~2 h | ~3 h | MiniCPM-V-4.7 and the Distill were deleted 11-18: pull again or drop them |
+| 4 | decide the v3 `qwen3.8:27b` tags on `.67` (4 tags, 17.7 GB) | rejected in v3; delete only if round 11-02 does not use them as a dense model | 5 min | item 3 |
+| 5 | remove the laptop build tools | `~/.cache/v6-out`, `v6-llamacpp`, `v6-venv`, `ollama-src`, `/var/tmp/v6` (~1.8 GB) | 1 min | item 1 |
+
 ## Resume here
 
-State (11-18 17:45): **the round is closed.** Nothing of this round runs on `.67`, and no model of it is loaded.
+State (11-19): **the round is closed. The open items are on hold (see "Left to do").** Nothing of this round runs on `.67`, and no model of it is loaded.
 The tags `qwen3.8-pi:27b-q4km-ctx200k-nothink` and `qwen3.8-base:27b-q4km-ctx200k-nothink` stay on the box.
 Open: P7 (Q8_0 arm). The box has room now; it waits for 31 GB free on the laptop (owner, 11-18).
 
