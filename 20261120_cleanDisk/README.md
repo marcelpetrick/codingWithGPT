@@ -1,7 +1,8 @@
 # 20261120_cleanDisk: free disk space in `~/repos`
 
-**Result:** about 30 GB free again on `/home`. Free space went from about 19 GB to 49 GB (94% used).
-Seven repos went from 42.9 GB to 13.2 GB. No commit and no tracked file was lost.
+**Result:** about 57 GB free again on `/home`. Free space went from about 19 GB to 76 GB (91% used).
+Seven repos went from 42.9 GB to 13.2 GB (step 3). ComfyUI went from 29.2 GB to 2.1 GB (step 6).
+No commit and no tracked file was lost.
 
 ## 1. Find the large repos
 
@@ -70,8 +71,41 @@ To get the Raumfreund work back: `git -C ~/repos/Raumfreund stash pop`.
   Six have uncommitted changes, and some branches are not merged into `main`.
 - `Raumfreund/.toolchain` (2.3 GB) and `CroLingo/.tooling` (2.4 GB): most likely nested repos, such as an SDK clone.
 
-## 6. Open items (decision for the owner)
+## 6. ComfyUI: update, test, then remove the venv and the models
+
+ComfyUI went from 29.2 GB to 2.1 GB. Free space on `/home` is now 76 GB (91% used).
+
+1. Make a backup branch: `git branch backup/myMods-20261120 mpe/myMods`.
+2. Merge upstream: `git fetch origin && git merge origin/master` on `mpe/myMods`. This was 395 commits, with no conflicts (`92d0a7a4e`, ComfyUI 0.46.0).
+3. Update the dependencies: `uv pip install --python venv/bin/python -r requirements.txt` (torch 2.14.0+cu130).
+4. Test: `./generate_image.sh "a red fox sitting in fresh snow, morning light"` gave a correct image in 21 s.
+5. On the owner's instruction, remove `venv/` (6.8 GB) and the model files: `rm -rf venv; git clean -xfdq models`.
+
+The removed models (20.6 GB):
+
+| File | Size |
+|------|-----:|
+| `diffusion_models/qwen_image_2.1_int8_convrot.safetensors` | 6.76 GB |
+| `text_encoders/qwen3vl_8b_w4a8.safetensors` | 5.88 GB |
+| `diffusion_models/flux-2-klein-4b-fp8.safetensors` | 3.79 GB |
+| `text_encoders/qwen_3_4b_fp4_mixed.safetensors` | 3.24 GB |
+| `vae/qwen_image_2.1_vae_bf16.safetensors` | 0.63 GB |
+| `vae/flux2-vae.safetensors` | 0.31 GB |
+
+Effect: ComfyUI does not run now. `20261109_recreate101ImageGenerations` (Track B), `qwenImage2.1` and
+`llmPEG/src/llmpeg/generators.py` need it. To make it run again:
+
+1. Create the venv: `python -m venv venv`.
+2. Install the dependencies: `uv pip install --python venv/bin/python -r requirements.txt`.
+3. Download the model files above into `models/` again.
+
+The fork remote `github_clone` (`github.com/marcelpetrick/ComfyUI`) returns "Repository not found".
+The 5 own commits on `mpe/myMods` exist only on this laptop.
+
+## 7. Open items (decision for the owner)
 
 1. Remove the old worktrees in ThoraxGPT and BavarianLemmings (about 8 GB). First keep or commit the uncommitted changes.
-2. Look at the repos that were not cleaned. `ComfyUI` is 29.2 GB and `mpt` is 22.5 GB.
+2. Look at `mpt` (22.5 GB). It was not cleaned.
 3. Pop or drop the Raumfreund stash `pre-clean 2026-11-20`.
+4. Push the ComfyUI branch `mpe/myMods` to a remote that exists, or export it as patches.
+5. The rest of ComfyUI is `input/` (1.7 GB), `temp/` and `output/` (200 MB each). Remove them if they are not needed.
