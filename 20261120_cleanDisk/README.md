@@ -102,10 +102,18 @@ Effect: ComfyUI does not run now. `20261109_recreate101ImageGenerations` (Track 
 The fork remote `github_clone` (`github.com/marcelpetrick/ComfyUI`) returns "Repository not found".
 The 5 own commits on `mpe/myMods` exist only on this laptop.
 
+Owner decision: ComfyUI stays pure vanilla. Do not merge own changes into it.
+
+1. Check out `master` and fast-forward it to `origin/master` (`a20552b5e`).
+2. Move `mpe/myMods` back to its own last commit `43a41b5c`. This removes the merge from step 2.
+3. Delete the backup branch, because `mpe/myMods` is the same commit.
+
+To update later: `git checkout master && git pull --ff-only origin master`.
+
 ## 7. Open items (decision for the owner)
 
 1. Remove the old worktrees in ThoraxGPT and BavarianLemmings (about 8 GB). First keep or commit the uncommitted changes.
 2. Look at `mpt` (22.5 GB). It was not cleaned.
 3. Pop or drop the Raumfreund stash `pre-clean 2026-11-20`.
-4. Push the ComfyUI branch `mpe/myMods` to a remote that exists, or export it as patches.
+4. Keep, export or delete the local ComfyUI branch `mpe/myMods` (not on any remote).
 5. The rest of ComfyUI is `input/` (1.7 GB), `temp/` and `output/` (200 MB each). Remove them if they are not needed.
