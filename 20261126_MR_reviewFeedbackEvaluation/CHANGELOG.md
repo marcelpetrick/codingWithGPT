@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.0: docs(worklog): record the MVP state and the live LLM result
 - 0.1.22: docs: add README, C4 architecture, rubric and live demo dashboard
 - 0.1.21: ci: add local pipeline and the GitHub Actions mirror
 - 0.1.20: style: apply Black, Ruff and mypy strict fixes
