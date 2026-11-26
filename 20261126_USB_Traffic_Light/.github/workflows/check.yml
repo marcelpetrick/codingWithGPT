@@ -20,8 +20,8 @@ jobs:
           python -m pip install --only-binary=:all: -r requirements-dev.txt
       - name: Check source and documentation
         run: |
-          ruff check traffic_light.py tests tools
-          black --check traffic_light.py tests tools
+          ruff check traffic_light.py agent_status.py tests tools
+          black --check traffic_light.py agent_status.py tests tools
           pymarkdown --config .pymarkdown.json scan README.md docs
           yamllint --strict .github/workflows
           udevadm verify udev/70-cleware-ampel.rules
@@ -39,6 +39,7 @@ jobs:
           coverage erase
           coverage run --append -m unittest discover -s tests
           coverage run --append traffic_light.py --help
+          coverage run --append agent_status.py --help
           coverage report --precision=2
           coverage json -o - | python tools/check_coverage.py
           python tools/mutation_check.py
@@ -60,6 +61,9 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
         with:
           python-version: '3.14.10'
+      - name: Install the pinned monitor dependency
+        run: >-
+          python -m pip install --only-binary=:all: -r requirements-monitor.txt
       - name: Build and check release files
         run: |
           python tools/build_release.py "$GITHUB_REF_NAME"

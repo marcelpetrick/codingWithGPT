@@ -30,7 +30,15 @@ def build_release(tag, output):
     output.mkdir(parents=True, exist_ok=True)
     archive = output / f"{name}.tar.gz"
     with tarfile.open(archive, "w:gz") as bundle:
-        for filename in ("traffic_light.py", "README.md", "LICENSE", "docs", "udev"):
+        for filename in (
+            "traffic_light.py",
+            "agent_status.py",
+            "requirements-monitor.txt",
+            "README.md",
+            "LICENSE",
+            "docs",
+            "udev",
+        ):
             bundle.add(ROOT / filename, arcname=f"{name}/{filename}")
 
     history = "HEAD"
@@ -72,6 +80,26 @@ def build_release(tag, output):
                 "licenseConcluded": LICENSE,
                 "copyrightText": "NOASSERTION",
                 "checksums": [{"algorithm": "SHA256", "checksumValue": digest}],
+            },
+            {
+                "SPDXID": "SPDXRef-Websockets",
+                "name": "websockets",
+                "versionInfo": (ROOT / "requirements-monitor.txt")
+                .read_text(encoding="utf-8")
+                .strip()
+                .split("==")[1],
+                "downloadLocation": "https://pypi.org/project/websockets/",
+                "filesAnalyzed": False,
+                "licenseDeclared": "BSD-3-Clause",
+                "licenseConcluded": "BSD-3-Clause",
+                "copyrightText": "NOASSERTION",
+            },
+        ],
+        "relationships": [
+            {
+                "spdxElementId": "SPDXRef-Websockets",
+                "relationshipType": "OPTIONAL_DEPENDENCY_OF",
+                "relatedSpdxElement": "SPDXRef-Package",
             }
         ],
     }
@@ -93,6 +121,11 @@ def smoke_test(archive):
             bundle.extractall(temporary, filter="data")
         script = (
             Path(temporary) / archive.name.removesuffix(".tar.gz") / "traffic_light.py"
+        )
+        subprocess.run(
+            [sys.executable, script.with_name("agent_status.py"), "--help"],
+            check=True,
+            stdout=subprocess.DEVNULL,
         )
         result = subprocess.run(
             [

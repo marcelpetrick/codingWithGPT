@@ -145,6 +145,11 @@ with find_device("63813").open("wb", buffering=0) as device:
 
 Each CLI invocation locks the device while it sends reports. Use the CLI for concurrent callers.
 
+## Monitor Claude and Codex agents
+
+Run the optional Python monitor to show the combined state of Claude, Claude DMO, Codex and Codex DMO.
+See [agent status](docs/agent-status.md) for installation, color priority and coverage.
+
 ## Build and test
 
 Run these commands from a clean source checkout with Python 3.14.10 and Git.
@@ -153,14 +158,15 @@ Run these commands from a clean source checkout with Python 3.14.10 and Git.
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install --only-binary=:all: -r requirements-dev.txt
-ruff check traffic_light.py tests tools
-black --check traffic_light.py tests tools
+ruff check traffic_light.py agent_status.py tests tools
+black --check traffic_light.py agent_status.py tests tools
 pymarkdown --config .pymarkdown.json scan README.md docs
 yamllint --strict .github/workflows
 udevadm verify udev/70-cleware-ampel.rules
 coverage erase
 coverage run --append -m unittest discover -s tests
 coverage run --append traffic_light.py --help
+coverage run --append agent_status.py --help
 coverage json -o - | python tools/check_coverage.py
 python tools/mutation_check.py
 python tools/build_release.py v0.0.0

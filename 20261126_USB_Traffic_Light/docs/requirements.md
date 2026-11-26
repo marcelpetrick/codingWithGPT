@@ -17,6 +17,7 @@ The attached light reports the requested steady channel states after the user gr
 | --- | --- | --- | --- |
 | USB-01 | Identify the hardware and describe what it can do. | Compare the USB descriptors with Cleware's Linux source and the controller data sheet. Record observed and inferred details in [README.md](../README.md). | Match the IDs and report sizes against the attached light. Check the controller claim against both sources. |
 | USB-02 | Change the light from Python. | Use the Python standard library and Linux hidraw to avoid a third-party runtime dependency. Implement steady colors, a color cycle, all off, and documented flash intervals. | Check the reports for each operation with a fixture. Confirm changes with the attached light when the account can open its control port. |
+| USB-05 | Show the state of local agents. | Use the profile status interfaces and color priority in the [monitor work record](agent-status.md). | Verify mixed states and read back live USB output. |
 | USB-04 | Keep access after reboot and replug. | Install a udev rule for the USB-Ampel hidraw interface. Let systemd grant access to the active local login. | Verify the rule and simulate events for the light and an unrelated device. Replug after installation and check the account ACL. |
 | USB-03 | Keep tests, documentation and release checks in this directory. | Use Python unittest, Ruff, Black, coverage.py and pinned check tools. Use GitHub Actions for a standalone checkout of this directory. | Run the checks from a clean clone. Check the release archive, checksum, SBOM and changelog. Record the hosted workflow status. |
 
@@ -59,9 +60,9 @@ The live `cycle` command reached the correct device path. Linux denied access be
 ## CI and release decisions
 
 Use one Linux archive for Python 3.14.10. The distro supplies the kernel HID driver.
-The archive contains the controller, license and user documentation. It needs no Python packages at runtime.
+The archive contains the controller, license and user documentation. Manual control uses the standard library. The optional monitor uses the pinned WebSocket dependency.
 The dependency lock contains the development and lint tools. The release does not ship them.
-The coverage gate counts all executable lines in `traffic_light.py`.
+The coverage gate counts all executable lines in `traffic_light.py` and `agent_status.py`.
 Build scripts, checks and fixtures are development tools outside the released application.
 
 The workflow checks pull requests and pushes when this directory is a repository root.

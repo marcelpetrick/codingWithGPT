@@ -8,7 +8,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MUTATIONS = (
+USB_MUTATIONS = (
     ("wrong color channel", '"yellow": 0x11', '"yellow": 0x12'),
     ("wrong report ID", "bytes((0, 0,", "bytes((1, 0,"),
     ("wrong return value", "    return 0\n", "    return 1\n"),
@@ -19,6 +19,13 @@ MUTATIONS = (
         "    finally:\n        set_lights(device, ())",
         "    finally:\n        pass",
     ),
+)
+
+
+MONITOR_MUTATIONS = (
+    ("blocked beats waiting", '(State.BLOCKED, "red")', '(State.BLOCKED, "green")'),
+    ("waiting turns yellow", '(State.WAITING, "yellow")', '(State.WAITING, "green")'),
+    ("ignore reset time", "and resets_at > now", "and resets_at >= now"),
 )
 
 
@@ -34,12 +41,21 @@ def run_tests(directory):
 
 
 def main():
-    source = (ROOT / "traffic_light.py").read_text(encoding="utf-8")
     baseline = run_tests(ROOT)
     if baseline.returncode:
         sys.exit(baseline.stderr)
     survivors = []
-    for label, before, after in MUTATIONS:
+    targets = {
+        "traffic_light.py": USB_MUTATIONS,
+        "agent_status.py": MONITOR_MUTATIONS,
+    }
+    cases = [
+        (filename, *mutation)
+        for filename, mutations in targets.items()
+        for mutation in mutations
+    ]
+    for filename, label, before, after in cases:
+        source = (ROOT / filename).read_text(encoding="utf-8")
         if source.count(before) != 1:
             sys.exit(f"Expected one match for mutation {label}")
         with tempfile.TemporaryDirectory() as temporary:
@@ -49,13 +65,17 @@ def main():
                 directory / "tests",
                 ignore=shutil.ignore_patterns("__pycache__"),
             )
-            (directory / "traffic_light.py").write_text(
+            for production_file in targets:
+                shutil.copyfile(ROOT / production_file, directory / production_file)
+            (directory / filename).write_text(
                 source.replace(before, after), encoding="utf-8"
             )
             result = run_tests(directory)
         if result.returncode == 0:
             survivors.append(label)
-        elif "FAIL: " in result.stderr or "ERROR: test_" in result.stderr:
+        elif "unittest.loader._FailedTest" not in result.stderr and (
+            "FAIL: " in result.stderr or "ERROR: test_" in result.stderr
+        ):
             print(f"Detected: {label}")
         else:
             sys.exit(result.stderr)
