@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.2: test: close mutation-testing gaps in time, text and censoring
 - 0.2.1: feat(llm): prompt p2 sharpens declines, partial work and split findings
 - 0.2.0: docs(worklog): record the MVP state and the live LLM result
 - 0.1.22: docs: add README, C4 architecture, rubric and live demo dashboard

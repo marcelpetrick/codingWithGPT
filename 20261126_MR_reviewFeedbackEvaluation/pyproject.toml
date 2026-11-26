@@ -1,6 +1,6 @@
 [project]
 name = "mrreview"
-version = "0.2.1"
+version = "0.2.2"
 description = "Evidence-based GitLab merge request review and collaboration analytics with a local LLM."
 readme = "README.md"
 license = "GPL-3.0-or-later"
@@ -64,6 +64,8 @@ source = ["mrreview"]
 exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "\\.\\.\\."]
 
 [tool.mutmut]
-paths_to_mutate = ["src/mrreview/bizhours.py", "src/mrreview/textutil.py", "src/mrreview/evaluate.py"]
-tests_dir = ["tests/unit"]
-pytest_add_cli_args = ["--no-cov", "-p", "no:cacheprovider", "-q", "-x"]
+# Mutate the three modules with the most decision logic; the rest is copied unchanged.
+source_paths = ["src/mrreview"]
+do_not_mutate = ["src/mrreview/__init__.py", "src/mrreview/__main__.py", "src/mrreview/analyze.py", "src/mrreview/cli.py", "src/mrreview/collect.py", "src/mrreview/config.py", "src/mrreview/dataset.py", "src/mrreview/db.py", "src/mrreview/diffs.py", "src/mrreview/gitlab.py", "src/mrreview/http.py", "src/mrreview/identity.py", "src/mrreview/llm.py", "src/mrreview/metrics.py", "src/mrreview/normalize.py", "src/mrreview/quality.py", "src/mrreview/report.py", "src/mrreview/demo/*"]
+pytest_add_cli_args_test_selection = ["tests/unit"]
+pytest_add_cli_args = ["--no-cov", "-p", "no:cacheprovider"]
