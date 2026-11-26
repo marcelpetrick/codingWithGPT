@@ -33,6 +33,13 @@ def gl(fixture_data: Fixture) -> Iterator[Env]:
     fake = FakeGitLab(build_fixture(seed=7), token="tok-123")
     with serve(fake) as url:
         cfg = Config(gitlab_url=url, gitlab_token="tok-123", backoff_base_s=0.0, per_page=20)
-        client = GitLabClient(url, "tok-123", UrllibTransport(), per_page=20, backoff_base=0.0,
-                              max_retries=3, sleep=lambda _s: None)
+        client = GitLabClient(
+            url,
+            "tok-123",
+            UrllibTransport(),
+            per_page=20,
+            backoff_base=0.0,
+            max_retries=3,
+            sleep=lambda _s: None,
+        )
         yield Env(fake, url, client, cfg, fake.fixture)

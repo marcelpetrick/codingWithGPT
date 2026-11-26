@@ -22,7 +22,9 @@ from .conftest import Env
 def ollama() -> Iterator[tuple[FakeOllama, llm.OllamaClient]]:
     fake = FakeOllama()
     with serve(fake) as url:
-        yield fake, llm.OllamaClient(url, UrllibTransport(), max_retries=1, backoff_base=0, sleep=lambda _s: None)
+        yield fake, llm.OllamaClient(
+            url, UrllibTransport(), max_retries=1, backoff_base=0, sleep=lambda _s: None
+        )
 
 
 @pytest.fixture
@@ -32,8 +34,9 @@ def collected(gl: Env, conn: sqlite3.Connection) -> Config:
     return replace(gl.cfg, ollama_model=STUB_MODEL)
 
 
-def test_analyze_and_reuse(conn: sqlite3.Connection, collected: Config,
-                           ollama: tuple[FakeOllama, llm.OllamaClient]) -> None:
+def test_analyze_and_reuse(
+    conn: sqlite3.Connection, collected: Config, ollama: tuple[FakeOllama, llm.OllamaClient]
+) -> None:
     fake, client = ollama
     n_sub = conn.execute("SELECT COUNT(*) FROM threads WHERE substantive=1").fetchone()[0]
     stats = analyze.run_analyze(conn, collected, client)
@@ -50,8 +53,9 @@ def test_analyze_and_reuse(conn: sqlite3.Connection, collected: Config,
     assert fake.calls == n_sub
 
 
-def test_request_shape_and_minimised_names(conn: sqlite3.Connection, collected: Config,
-                                           ollama: tuple[FakeOllama, llm.OllamaClient]) -> None:
+def test_request_shape_and_minimised_names(
+    conn: sqlite3.Connection, collected: Config, ollama: tuple[FakeOllama, llm.OllamaClient]
+) -> None:
     fake, client = ollama
     analyze.run_analyze(conn, collected, client, limit=5)
     body = fake.bodies[0]
@@ -67,8 +71,9 @@ def test_request_shape_and_minimised_names(conn: sqlite3.Connection, collected: 
         assert "author_role" in text
 
 
-def test_changed_thread_is_reclassified_only(conn: sqlite3.Connection, collected: Config,
-                                             ollama: tuple[FakeOllama, llm.OllamaClient]) -> None:
+def test_changed_thread_is_reclassified_only(
+    conn: sqlite3.Connection, collected: Config, ollama: tuple[FakeOllama, llm.OllamaClient]
+) -> None:
     fake, client = ollama
     analyze.run_analyze(conn, collected, client)
     calls = fake.calls
@@ -81,8 +86,9 @@ def test_changed_thread_is_reclassified_only(conn: sqlite3.Connection, collected
     assert fake.calls == calls + 1
 
 
-def test_malformed_output_is_kept_and_retried(conn: sqlite3.Connection, collected: Config,
-                                              ollama: tuple[FakeOllama, llm.OllamaClient]) -> None:
+def test_malformed_output_is_kept_and_retried(
+    conn: sqlite3.Connection, collected: Config, ollama: tuple[FakeOllama, llm.OllamaClient]
+) -> None:
     fake, client = ollama
     fake.faults = ["malformed", "bad_enum", "500", "500", "nomessage", "length"]
     stats = analyze.run_analyze(conn, collected, client, limit=6)
@@ -95,18 +101,22 @@ def test_malformed_output_is_kept_and_retried(conn: sqlite3.Connection, collecte
     assert sum(1 for b in bad if b["raw_excerpt"]) == 2
     stats2 = analyze.run_analyze(conn, collected, client)
     assert stats2.todo >= 6
-    assert conn.execute("SELECT COUNT(*) FROM classifications WHERE status!='ok'").fetchone()[0] == 0
+    assert (
+        conn.execute("SELECT COUNT(*) FROM classifications WHERE status!='ok'").fetchone()[0] == 0
+    )
 
 
-def test_concurrency(conn: sqlite3.Connection, collected: Config,
-                     ollama: tuple[FakeOllama, llm.OllamaClient]) -> None:
+def test_concurrency(
+    conn: sqlite3.Connection, collected: Config, ollama: tuple[FakeOllama, llm.OllamaClient]
+) -> None:
     _, client = ollama
     stats = analyze.run_analyze(conn, replace(collected, ollama_concurrency=4), client)
     assert stats.ok == stats.todo
 
 
-def test_missing_model_and_unreachable(conn: sqlite3.Connection, collected: Config,
-                                       ollama: tuple[FakeOllama, llm.OllamaClient]) -> None:
+def test_missing_model_and_unreachable(
+    conn: sqlite3.Connection, collected: Config, ollama: tuple[FakeOllama, llm.OllamaClient]
+) -> None:
     _, client = ollama
     with pytest.raises(LookupError, match="not on the Ollama server"):
         analyze.run_analyze(conn, replace(collected, ollama_model="nope"), client)
@@ -130,13 +140,19 @@ def test_server_dies_mid_run_stops_job(conn: sqlite3.Connection, collected: Conf
     assert conn.execute("SELECT COUNT(*) FROM classifications").fetchone()[0] == 3
 
 
-def test_evaluate_on_fixture_truth(gl: Env, conn: sqlite3.Connection, collected: Config,
-                                   ollama: tuple[FakeOllama, llm.OllamaClient]) -> None:
+def test_evaluate_on_fixture_truth(
+    gl: Env,
+    conn: sqlite3.Connection,
+    collected: Config,
+    ollama: tuple[FakeOllama, llm.OllamaClient],
+) -> None:
     _, client = ollama
     analyze.run_analyze(conn, collected, client)
     counts = evaluate.run_evaluate(conn, collected)
     assert sum(counts.values()) == conn.execute("SELECT COUNT(*) FROM findings").fetchone()[0]
-    rows = conn.execute("SELECT f.*, t.id AS tid FROM findings f JOIN threads t ON t.id=f.thread_id").fetchall()
+    rows = conn.execute(
+        "SELECT f.*, t.id AS tid FROM findings f JOIN threads t ON t.id=f.thread_id"
+    ).fetchall()
     by_key: dict[str, list[sqlite3.Row]] = {}
     for r in rows:
         by_key.setdefault(gl.fixture.truth[r["tid"]], []).append(r)
