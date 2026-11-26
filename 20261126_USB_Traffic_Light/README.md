@@ -123,8 +123,9 @@ Use `set` to replace the full light state. It switches off any color you do not 
 Use `flash` with an interval of `0.5`, `1` or `2` seconds.
 The program sends changes in separate reports, one per channel.
 The channel changes can therefore take effect at slightly different times.
-If you connect more than one matching light, use `--usb-serial` to select a device by its USB descriptor string.
-If two units expose the same marker, their descriptor strings alone cannot tell them apart.
+If you connect more than one light, use `--usb-serial` when the USB descriptor strings differ.
+If the strings match, use `--usb-port` with the physical port path, for example `3-2.1.4`.
+Use `udevadm info -q path -n /dev/hidraw9` to see a node's USB path. Use the node name for your light.
 
 ### Temporary access
 

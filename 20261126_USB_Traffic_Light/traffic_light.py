@@ -10,25 +10,40 @@ from pathlib import Path
 
 CHANNELS = {"red": 0x10, "yellow": 0x11, "green": 0x12}
 FLASH = {"0.5": 16, "1": 17, "2": 18}
-DEVICE_DIR = Path("/dev/input/by-id")
-DEVICE_PREFIX = "usb-Cleware_GmbH_USB-Ampel_"
+DEVICE_DIR = Path("/dev")
+HIDRAW_SYSFS_DIR = Path("/sys/class/hidraw")
+HID_ID = "0003:00000D50:00000008"
 
 
-def find_device(serial):
-    devices = [
-        path
-        for path in sorted(DEVICE_DIR.glob(f"{DEVICE_PREFIX}*-hidraw"))
-        if serial is None or path.name == f"{DEVICE_PREFIX}{serial}-hidraw"
-    ]
+def find_device(serial, port=None):
+    devices = []
+    for entry in sorted(HIDRAW_SYSFS_DIR.glob("hidraw*")):
+        try:
+            hid = (entry / "device").resolve(strict=True)
+            uevent = (hid / "uevent").read_text(encoding="utf-8")
+        except FileNotFoundError:
+            continue
+        properties = dict(
+            line.split("=", 1) for line in uevent.splitlines() if "=" in line
+        )
+        if properties.get("HID_ID") != HID_ID:
+            continue
+        if serial is not None and properties.get("HID_UNIQ") != serial:
+            continue
+        if port is not None and port not in hid.parts:
+            continue
+        devices.append(DEVICE_DIR / entry.name)
     if not devices:
         raise OSError("No matching Cleware USB-Ampel found")
     if len(devices) > 1:
-        raise OSError("Multiple Cleware USB-Ampel devices found. Use --usb-serial.")
+        raise OSError(
+            "Multiple Cleware USB-Ampel devices found. Use --usb-serial or --usb-port."
+        )
     return devices[0]
 
 
 def write_channel(device, color, state):
-    # Linux adds a leading report ID byte even for unnumbered HID reports.
+    # hidraw expects a leading zero for an unnumbered report.
     report = bytes((0, 0, CHANNELS[color], state))
     if os.write(device.fileno(), report) != len(report):
         raise OSError(f"Incomplete USB report for {color}")
@@ -57,6 +72,7 @@ def cycle(device):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--usb-serial", help="USB descriptor serial string")
+    parser.add_argument("--usb-port", help="Linux USB port path, for example 3-2.1.4")
     commands = parser.add_subparsers(dest="command", required=True)
     steady = commands.add_parser("set", help="Turn on the listed colors")
     steady.add_argument("colors", nargs="+", choices=CHANNELS)
@@ -68,7 +84,7 @@ def main():
 
     args = parser.parse_args()
     try:
-        path = find_device(args.usb_serial)
+        path = find_device(args.usb_serial, args.usb_port)
         with path.open("wb", buffering=0) as device:
             fcntl.flock(device, fcntl.LOCK_EX)
             if args.command == "cycle":

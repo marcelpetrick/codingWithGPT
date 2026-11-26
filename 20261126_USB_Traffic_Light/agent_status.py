@@ -246,14 +246,15 @@ def read_profiles(home, codex, now):
     return result
 
 
-def show_color(color):
-    with find_device(None).open("wb", buffering=0) as device:
+def show_color(color, port=None):
+    with find_device(None, port).open("wb", buffering=0) as device:
         fcntl.flock(device, fcntl.LOCK_EX)
         set_lights(device, () if color == "off" else (color,))
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--usb-port", help="Linux USB port path, for example 3-2.1.4")
     parser.add_argument("--once", action="store_true", help="Check once and exit")
     parser.add_argument(
         "--dry-run", action="store_true", help="Print status without writing to USB"
@@ -281,7 +282,7 @@ def main(argv=None):
                 previous = line
             if not args.dry_run:
                 try:
-                    show_color(color)
+                    show_color(color, args.usb_port)
                     last_usb_error = None
                 except OSError as error:
                     if args.once:

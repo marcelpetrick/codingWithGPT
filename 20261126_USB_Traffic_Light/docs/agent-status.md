@@ -57,6 +57,7 @@ Use Python 3.14 on Linux. Run the commands from the project directory.
 
 The monitor waits five seconds between scans. Use `--once` to write one color and exit.
 The light keeps the last color after the process stops.
+Use `--usb-port` to select one light when several are connected.
 Use the [udev setup](../README.md#setup-and-use) for USB access after replug.
 
 ## Color and source rules

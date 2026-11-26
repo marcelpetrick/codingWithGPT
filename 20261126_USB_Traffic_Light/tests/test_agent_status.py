@@ -262,8 +262,8 @@ class CliTest(unittest.TestCase):
             monitor.main(["--once", "--dry-run"])
             show.assert_not_called()
             self.assertIn("yellow", output.getvalue())
-            monitor.main(["--once"])
-            show.assert_called_once_with("yellow")
+            monitor.main(["--once", "--usb-port", "1-2"])
+            show.assert_called_once_with("yellow", "1-2")
 
     def test_reports_usb_failure_and_recovers_on_later_scan(self):
         with (

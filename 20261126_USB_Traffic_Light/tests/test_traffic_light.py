@@ -25,12 +25,26 @@ class CommandsTest(unittest.TestCase):
         workspace = self.enterContext(tempfile.TemporaryDirectory())
         self.directory = Path(workspace)
         self.enterContext(patch.object(light, "DEVICE_DIR", self.directory))
+        self.sysfs = self.directory / "sysfs"
+        self.sysfs.mkdir()
+        self.enterContext(patch.object(light, "HIDRAW_SYSFS_DIR", self.sysfs))
         self.wait = self.enterContext(patch.object(light.time, "sleep"))
         self.stdout = self.enterContext(contextlib.redirect_stdout(io.StringIO()))
         self.device = self.add_device("63813")
 
-    def add_device(self, serial):
-        device = self.directory / f"usb-Cleware_GmbH_USB-Ampel_{serial}-hidraw"
+    def add_device(self, serial, port=None):
+        index = len(list(self.sysfs.iterdir()))
+        node = f"hidraw{index}"
+        port = port or f"1-{index+1}"
+        entry = self.sysfs / node
+        entry.mkdir()
+        hid = self.directory / "devices" / port / f"{port}:1.0" / node
+        hid.mkdir(parents=True)
+        (entry / "device").symlink_to(hid, target_is_directory=True)
+        (hid / "uevent").write_text(
+            f"HID_ID=0003:00000D50:00000008\nHID_UNIQ={serial}\n", encoding="utf-8"
+        )
+        device = self.directory / node
         device.touch()
         return device
 
@@ -109,6 +123,22 @@ class CommandsTest(unittest.TestCase):
         self.add_device("another")
         self.check_cli_error("Multiple Cleware", "off")
         self.check_cli_error("invalid choice", "set", "blue", code=2)
+
+    def test_identical_descriptor_serials_require_a_usb_port(self):
+        other = self.add_device("63813", port="1-2")
+        self.check_cli_error("Multiple Cleware", "--usb-serial", "63813", "off")
+        self.assertEqual(self.run_cli("--usb-port", "1-2", "set", "red"), 0)
+        self.assertEqual(
+            other.read_bytes(), bytes.fromhex("00001100 00001200 00001001")
+        )
+        self.assertEqual(self.device.read_bytes(), b"")
+
+    def test_ignores_disappeared_and_unrelated_hid_nodes(self):
+        (self.sysfs / "hidraw9").mkdir()
+        unrelated = self.add_device("other")
+        event = self.sysfs / unrelated.name / "device" / "uevent"
+        event.write_text("HID_ID=0003:00000000:00000000\n", encoding="utf-8")
+        self.assertEqual(light.find_device(None), self.device)
 
     def test_device_permission_error(self):
         with patch.object(
