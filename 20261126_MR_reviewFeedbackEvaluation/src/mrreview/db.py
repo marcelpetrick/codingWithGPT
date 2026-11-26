@@ -114,10 +114,12 @@ MIGRATIONS: list[str] = [
         to_created_at TEXT, status TEXT NOT NULL, file_changed INTEGER NOT NULL,
         file_diff TEXT NOT NULL, detail TEXT, fetched_at TEXT NOT NULL
     );
-    CREATE TABLE project_pseudonyms (project_id INTEGER PRIMARY KEY, label TEXT NOT NULL UNIQUE);
     UPDATE mr_versions SET diffs_complete = 0 WHERE NOT EXISTS (
         SELECT 1 FROM version_diffs d WHERE d.project_id = mr_versions.project_id
         AND d.mr_iid = mr_versions.mr_iid AND d.version_id = mr_versions.version_id);
+    """,
+    """
+    CREATE TABLE project_pseudonyms (project_id INTEGER PRIMARY KEY, label TEXT NOT NULL UNIQUE);
     """,
 ]
 
@@ -150,11 +152,24 @@ def connect(path: str | Path) -> sqlite3.Connection:
     if version > len(MIGRATIONS):
         conn.close()
         raise RuntimeError(f"database schema {version} is newer than this program")
+    if 0 < version < len(MIGRATIONS) and str(path) != ":memory:":
+        _backup(conn, Path(path), version)
     for number in range(version, len(MIGRATIONS)):
         conn.executescript(
             "BEGIN;" + MIGRATIONS[number] + f"PRAGMA user_version = {number + 1};COMMIT;"
         )
     return conn
+
+
+def _backup(conn: sqlite3.Connection, path: Path, version: int) -> Path:
+    """Copy the database before a schema migration (a rollback point)."""
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
+    target = path.with_name(f"{path.name}.schema{version}-{stamp}.bak")
+    dst = sqlite3.connect(str(target))
+    with dst:
+        conn.backup(dst)
+    dst.close()
+    return target
 
 
 @contextmanager

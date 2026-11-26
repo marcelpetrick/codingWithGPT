@@ -78,3 +78,19 @@ def test_record_gap_dedupes(conn: sqlite3.Connection) -> None:
         db.record_gap(conn, "mr", "1:2", "diff_too_large", "a.py")
         db.record_gap(conn, "mr", "1:2", "diff_too_large", "a.py")
     assert conn.execute("SELECT COUNT(*) FROM gaps").fetchone()[0] == 1
+
+
+APPLIED_MIGRATIONS = [
+    "56f7ae89cf509976",
+    "f05a6acc4b622adc",
+    "56a4bfd85dd36e27",
+    "d651af305e943c95",
+]
+
+
+def test_applied_migrations_never_change() -> None:
+    """A migration that ran on a real database must never be edited; add a new one instead."""
+    import hashlib
+
+    sums = [hashlib.sha256(m.encode()).hexdigest()[:16] for m in db.MIGRATIONS]
+    assert sums[: len(APPLIED_MIGRATIONS)] == APPLIED_MIGRATIONS

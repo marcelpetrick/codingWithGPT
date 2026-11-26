@@ -24,6 +24,7 @@ from mrreview import (
     evidence,
     llm,
     normalize,
+    portability,
     quality,
     report,
 )
@@ -199,6 +200,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     sa = sub.add_parser("sample", help="write a stratified sample for manual annotation")
     sa.add_argument("--n", type=int, default=40)
     sa.add_argument("--out", type=Path, default=Path("out/annotation_sample.csv"))
+    dp = sub.add_parser("db-pack", help="write a consistent single-file copy of the database")
+    dp.add_argument("--out", type=Path, required=True)
+    de = sub.add_parser("db-export", help="export the database as portable gzip JSON lines")
+    de.add_argument("--out", type=Path, required=True)
+    di = sub.add_parser("db-import", help="import an export into a new database (--db)")
+    di.add_argument("file", type=Path)
     ag = sub.add_parser("agreement", help="model vs human agreement of an annotated sample")
     ag.add_argument("file", type=Path)
     args = p.parse_args(argv)
@@ -214,6 +221,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             return cmd_demo(args, cfg)
         if args.cmd == "smoke":
             return cmd_smoke(args, cfg)
+        if args.cmd == "db-import":
+            _log(f"imported: {portability.import_db(args.file, cfg.db_path)}")
+            return 0
         if args.cmd == "agreement":
             print(json.dumps(quality.agreement(args.file), indent=2))
             return 0
@@ -248,10 +258,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                 return MORE_WORK
         elif args.cmd == "status":
             print(json.dumps(collect.collect_summary(conn), indent=2, default=str))
+        elif args.cmd == "db-pack":
+            _log(f"packed: {portability.pack(conn, args.out)}")
+        elif args.cmd == "db-export":
+            _log(f"exported {portability.export_db(conn, args.out)} rows to {args.out}")
         elif args.cmd == "sample":
             print(f"wrote {quality.write_sample(conn, args.out, args.n)} rows to {args.out}")
         conn.close()
-    except (ConfigError, collect.StopRun, LookupError, RuntimeError) as exc:
+    except (ConfigError, collect.StopRun, LookupError, RuntimeError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
     return 0
