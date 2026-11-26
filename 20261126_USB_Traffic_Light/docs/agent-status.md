@@ -58,6 +58,21 @@ Use Python 3.14 on Linux. Run the commands from the project directory.
 The monitor waits five seconds between scans. Use `--once` to write one color and exit.
 The monitor switches the light off on Ctrl+C or SIGTERM. A one-shot command leaves its color on.
 Use `--usb-port` to select one light when several are connected.
+
+Version 0.2.0 prints its Semantic Version at startup and with `--version`.
+It adds the color counts at the end of each status line.
+
+```text
+Cleware agent monitor 0.2.0
+yellow claude=running claude-dmo=waiting codex=running codex-dmo=idle shown=red:0,yellow:1,green:2,off:0
+```
+
+Each count records a new display period after a successful USB write.
+A scan that keeps the same color adds no count. Failed writes add no count.
+The first successful write after a detected USB failure starts a new period.
+Counts reset when you start the monitor. They omit the switch-off during shutdown.
+A dry run labels the calculated counts `planned`.
+
 Use the [udev setup](../README.md#setup-and-use) for USB access after replug.
 
 ## Color and source rules

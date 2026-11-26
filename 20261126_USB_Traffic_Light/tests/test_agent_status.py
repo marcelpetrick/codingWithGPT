@@ -286,7 +286,14 @@ class CliTest(unittest.TestCase):
                 [call.args[0] for call in show.call_args_list],
                 ["green", "green", "green", "off"],
             )
-            self.assertEqual(output.getvalue().count("green"), 1)
+            status_lines = output.getvalue().splitlines()[1:]
+            self.assertEqual(len(status_lines), 2)
+            self.assertIn(
+                "usb=unavailable shown=red:0,yellow:0,green:0,off:0", status_lines[0]
+            )
+            self.assertTrue(
+                status_lines[1].endswith("shown=red:0,yellow:0,green:1,off:0")
+            )
             self.assertEqual(errors.getvalue(), "unplugged\n")
             show.side_effect = OSError("unplugged")
             with self.assertRaises(SystemExit) as failure:
@@ -301,6 +308,7 @@ class CliTest(unittest.TestCase):
         with (
             patch.object(monitor, "read_profiles", side_effect=KeyboardInterrupt),
             patch.object(monitor, "show_color") as show,
+            contextlib.redirect_stdout(io.StringIO()),
         ):
             monitor.main(["--dry-run"])
         show.assert_not_called()
@@ -332,6 +340,51 @@ class CliTest(unittest.TestCase):
                 self.assertEqual(
                     fixture.read_bytes(), bytes.fromhex("00001000 00001100 00001200")
                 )
+
+    def test_counts_distinct_display_periods_and_reports_version(self):
+        observations = [
+            {"claude": [State.RUNNING]},
+            {"claude": [State.RUNNING, State.IDLE]},
+            {"claude": [State.WAITING]},
+            {"claude": [State.BLOCKED]},
+            {"claude": [State.RUNNING]},
+            {"claude": [State.IDLE]},
+        ]
+        with (
+            patch.object(monitor, "read_profiles", side_effect=observations),
+            patch.object(monitor, "show_color"),
+            patch.object(
+                monitor.time, "sleep", side_effect=[None] * 5 + [KeyboardInterrupt]
+            ),
+            contextlib.redirect_stdout(io.StringIO()) as output,
+        ):
+            monitor.main([])
+        banner, first, same, waiting, blocked, running, idle = (
+            output.getvalue().splitlines()
+        )
+        self.assertRegex(banner, r"^Cleware agent monitor [0-9]+\.[0-9]+\.[0-9]+$")
+        self.assertIn("shown=red:0,yellow:0,green:1,off:0", first)
+        self.assertIn("shown=red:0,yellow:0,green:1,off:0", same)
+        self.assertTrue(waiting.endswith("shown=red:0,yellow:1,green:1,off:0"))
+        self.assertTrue(blocked.endswith("shown=red:1,yellow:1,green:1,off:0"))
+        self.assertTrue(running.endswith("shown=red:1,yellow:1,green:2,off:0"))
+        self.assertTrue(idle.endswith("shown=red:1,yellow:1,green:2,off:1"))
+
+    def test_dry_run_counts_without_usb_and_version_exits_before_scanning(self):
+        with (
+            patch.object(
+                monitor, "read_profiles", return_value={"claude": [State.WAITING]}
+            ) as read,
+            patch.object(monitor, "show_color") as show,
+            contextlib.redirect_stdout(io.StringIO()) as output,
+        ):
+            with self.assertRaises(SystemExit) as exit_status:
+                monitor.main(["--version"])
+            self.assertEqual(exit_status.exception.code, 0)
+            read.assert_not_called()
+            monitor.main(["--dry-run", "--once"])
+            show.assert_not_called()
+        self.assertIn("planned=red:0,yellow:1,green:0,off:0", output.getvalue())
 
     def test_normal_cli_entrypoint(self):
         result = subprocess.run(

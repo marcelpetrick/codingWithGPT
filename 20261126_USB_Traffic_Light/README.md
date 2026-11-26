@@ -149,6 +149,7 @@ Each CLI invocation locks the device while it sends reports. Use the CLI for con
 ## Monitor Claude and Codex agents
 
 Run the optional Python monitor to show the combined state of Claude, Claude DMO, Codex and Codex DMO.
+The monitor prints its version at startup and keeps color counts for the current run.
 See [agent status](docs/agent-status.md) for installation, color priority and coverage.
 
 ## Build and test

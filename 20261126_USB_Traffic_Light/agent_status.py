@@ -17,6 +17,7 @@ from websockets.sync.client import unix_connect
 
 from traffic_light import find_device, set_lights
 
+__version__ = "0.2.0"
 POLL_SECONDS = 5
 QUOTA_SECONDS = 60
 CLAUDE_QUOTA_MAX_AGE = 300
@@ -162,7 +163,7 @@ class CodexSource:
 
             rpc(
                 "initialize",
-                clientInfo={"name": "cleware_status_light", "version": "0.1.0"},
+                clientInfo={"name": "cleware_status_light", "version": __version__},
             )
             connection.send('{"method":"initialized"}')
             states = []
@@ -255,12 +256,15 @@ def show_color(color, port=None):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
+    banner = f"Cleware agent monitor {__version__}"
+    parser.add_argument("--version", action="version", version=banner)
     parser.add_argument("--usb-port", help="Linux USB port path, for example 3-2.1.4")
     parser.add_argument("--once", action="store_true", help="Check once and exit")
     parser.add_argument(
         "--dry-run", action="store_true", help="Print status without writing to USB"
     )
     args = parser.parse_args(argv)
+    print(banner, flush=True)
 
     home = Path.home()
     codex = {
@@ -270,6 +274,9 @@ def main(argv=None):
     previous = None
     last_usb_error = None
     displayed = False
+    counts = dict.fromkeys(("red", "yellow", "green", "off"), 0)
+    last_shown = None
+    count_label = "planned" if args.dry_run else "shown"
     try:
         while True:
             profiles = read_profiles(home, codex, time.time())
@@ -278,21 +285,29 @@ def main(argv=None):
                 f"{name}={','.join(sorted(states)) or 'idle'}"
                 for name, states in profiles.items()
             ]
-            line = " ".join([color, *parts])
-            if line != previous:
-                print(line, flush=True)
-                previous = line
+            shown = color
             if not args.dry_run:
                 try:
                     show_color(color, args.usb_port)
                     displayed = True
                     last_usb_error = None
                 except OSError as error:
+                    shown = None
                     if args.once:
                         parser.exit(1, f"{error}\n")
                     if str(error) != last_usb_error:
                         print(error, file=sys.stderr, flush=True)
                         last_usb_error = str(error)
+                    parts.append("usb=unavailable")
+
+            if shown is not None and shown != last_shown:
+                counts[shown] += 1
+            last_shown = shown
+            totals = ",".join(f"{key}:{value}" for key, value in counts.items())
+            line = " ".join([color, *parts, f"{count_label}={totals}"])
+            if line != previous:
+                print(line, flush=True)
+                previous = line
             if args.once:
                 return
             time.sleep(POLL_SECONDS)

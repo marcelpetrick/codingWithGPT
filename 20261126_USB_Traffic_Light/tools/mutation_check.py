@@ -26,6 +26,16 @@ MONITOR_MUTATIONS = (
     ("blocked beats waiting", '(State.BLOCKED, "red")', '(State.BLOCKED, "green")'),
     ("waiting turns yellow", '(State.WAITING, "yellow")', '(State.WAITING, "green")'),
     ("ignore reset time", "and resets_at > now", "and resets_at >= now"),
+    (
+        "inflate repeated color counts",
+        "if shown is not None and shown != last_shown:",
+        "if shown is not None:",
+    ),
+    (
+        "count failed USB output",
+        "\n                    shown = None\n",
+        "\n                    shown = color\n",
+    ),
 )
 
 
