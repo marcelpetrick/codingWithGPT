@@ -83,7 +83,7 @@ const months = (() => {
   while (y < ey || (y === ey && mo <= em)) { out.push(y + "-" + String(mo).padStart(2, "0")); mo++; if (mo > 12) { mo = 1; y++; } }
   return out;
 })();
-const selectedProjects = DATA.projects.filter(p => p.selected);
+const selectedProjects = DATA.projects.filter(p => p.selected).sort((a, b) => a.label.localeCompare(b.label));
 
 /* ---------- state ---------- */
 const S = { tab: "overview", projects: new Set(selectedProjects.map(p => p.id)), from: months[0] || "", to: months[months.length - 1] || "",
@@ -134,8 +134,8 @@ function person(id) {
   if (p.kind === "deleted") return "Deleted user";
   return S.names ? p.name : p.label;
 }
-const unmask = text => (text || "").replace(/⟦u:(\d+)⟧/g, (_, id) => person(Number(id)));
-const projName = id => { const p = projById.get(id); return p ? p.path : String(id); };
+const unmask = text => (text || "").replace(/⟦u:(\d+)⟧/g, (_, id) => person(Number(id))).replace(/⟦u:\?⟧/g, "@someone").replace(/⟦p:(\d+)⟧/g, (_, id) => projName(Number(id)));
+const projName = id => { const p = projById.get(id); return p ? (S.names ? p.path : p.label) : String(id); };
 function tag(dict, key, extraTip) {
   const d = dict[key] || [key, C.gray, ""]; const col = d.length > 2 ? d[1] : C.gray; const desc = d.length > 2 ? d[2] : d[1];
   return h("span", { class: "tag", style: "background:" + col + "1A;color:" + shade(col) + ";border-color:" + col + "55", tip: d[0] + ": " + desc + (extraTip ? "\n" + extraTip : "") }, h("span", { class: "swatch", style: "background:" + col }), d[0]);
@@ -313,7 +313,7 @@ function clues(F, T) {
   }
   // most intensive project
   const ints = selectedProjects.filter(p => S.projects.has(p.id)).map(p => { const mrs = MRF.filter(m => m.p === p.id).length; const th = T.filter(t => t.p === p.id && t.sub).length; return { p, mrs, th, r: mrs ? th / mrs : 0 }; }).filter(x => x.mrs >= 10).sort((a, b) => b.r - a.r);
-  if (ints.length >= 2) out.push({ icon: "★", color: C.blue, title: "Most review per MR: " + ints[0].p.path + " (" + ints[0].r.toFixed(1) + " threads/MR)", desc: "Lowest: " + ints[ints.length - 1].p.path + " (" + ints[ints.length - 1].r.toFixed(1) + "). Review intensity, not quality.", facets: [["project", String(ints[0].p.id)]], n: ints[0].th });
+  if (ints.length >= 2) out.push({ icon: "★", color: C.blue, title: "Most review per MR: " + projName(ints[0].p.id) + " (" + ints[0].r.toFixed(1) + " threads/MR)", desc: "Lowest: " + projName(ints[ints.length - 1].p.id) + " (" + ints[ints.length - 1].r.toFixed(1) + "). Review intensity, not quality.", facets: [["project", String(ints[0].p.id)]], n: ints[0].th });
   const ver = n("verified");
   if (ver) add("✔", C.green, ver + " findings have direct code evidence of a change", "The commented lines changed after the comment, and the text states a change.", "verified", ver);
   return out;
@@ -323,7 +323,7 @@ function clues(F, T) {
 const app = document.getElementById("app");
 function header() {
   const cov = M.coverage;
-  const toggle = h("label", { class: "switch", tip: "Show real names instead of pseudonyms everywhere: tables, charts, tooltips, excerpts and search.\nThis is a display switch, not access control: the names are inside this file.\nSwitch it off again before screenshots." },
+  const toggle = h("label", { class: "switch", tip: "Show real names of people and projects instead of pseudonyms everywhere: tables, charts, tooltips, excerpts and search.\nOff (default): screenshots show only pseudonyms such as 'Jade Crane' and 'Project Orion'.\nThis is a display switch, not access control: the names are inside this file." },
     h("input", { type: "checkbox", id: "names", "aria-label": "Show real names", onchange: e => { S.names = e.target.checked; render(); } }), "Show real names");
   toggle.querySelector("input").checked = S.names;
   return h("header", { class: "top" },
@@ -343,7 +343,7 @@ const TABS = [["overview", "Overview"], ["projects", "Projects"], ["effect", "Re
 const TAB_TIPS = { overview: "Key numbers, clues and trends for the current filter.", projects: "Activity and review intensity per project, and the skipped projects.", effect: "What reviews find, how people respond, what happens, and how long it takes.", people: "Per-person context, split into giving and receiving review. No score and no ranking.", evidence: "Every finding with its classification, rationale, evidence and GitLab link.", method: "Definitions, denominators, assumptions, coverage and limits." };
 function tabs() { return h("nav", { class: "tabs", role: "tablist" }, TABS.map(([k, l]) => h("button", { role: "tab", "aria-selected": String(S.tab === k), tip: TAB_TIPS[k], onclick: () => { S.tab = k; render(); } }, l))); }
 function filters() {
-  const pc = h("div", { class: "pchips" }, selectedProjects.map(p => h("button", { class: "pchip", "aria-pressed": String(S.projects.has(p.id)), tip: p.path + "\nClick to include or exclude this project.", onclick: () => { if (S.projects.has(p.id)) S.projects.delete(p.id); else S.projects.add(p.id); render(); } }, p.path)));
+  const pc = h("div", { class: "pchips" }, selectedProjects.map(p => h("button", { class: "pchip", "aria-pressed": String(S.projects.has(p.id)), tip: projName(p.id) + "\nClick to include or exclude this project.", onclick: () => { if (S.projects.has(p.id)) S.projects.delete(p.id); else S.projects.add(p.id); render(); } }, projName(p.id))));
   const opt = (v, l, sel) => { const o = h("option", { value: v }, l); if (sel) o.selected = true; return o; };
   const humans = Object.entries(DATA.people).filter(([, p]) => p.kind === "human").sort((a, b) => person(Number(a[0])).localeCompare(person(Number(b[0]))));
   return h("section", { class: "filters", "aria-label": "Filters" },
@@ -404,7 +404,7 @@ function projectsTab(root) {
   });
   root.append(h("h2", {}, "Projects", info("Analysed projects in the filter. Raw volume (MRs) and review intensity (substantive threads per MR) are shown apart. Click a row to open its findings.")));
   root.append(table([
-    ["Project", r => r.p.path, r => h("span", {}, h("a", { href: r.p.web_url, tip: "Open the project in GitLab (needs GitLab access)." }, r.p.path)), "Full namespace path, linked to GitLab."],
+    ["Project", r => projName(r.p.id), r => h("span", {}, h("a", { href: r.p.web_url, tip: "Open the project in GitLab (needs GitLab access)." }, projName(r.p.id))), "Project pseudonym, or the full path when real names are shown. Linked to GitLab."],
     ["MRs", r => r.mrs, null, "MRs created in the period (all states).", "n"],
     ["Merged", r => r.merged, null, "Of these, merged.", "n"],
     ["Approvals", r => r.appr, null, "Approval events on these MRs. Counted once per approver and MR; not part of threads.", "n"],
@@ -416,12 +416,12 @@ function projectsTab(root) {
     ["Open, not recent", r => r.f ? r.open / r.f : -1, r => lowN(r.open + " / " + r.f + " (" + pct(r.open, r.f) + ")", r.f), "Open or unknown findings, excluding recent open MRs, over all findings.", "n"],
     ["1st response", r => r.fr === null ? Infinity : r.fr, r => lowN(fmtH(r.fr), r.frn), "Median business hours to the first reply (observed cases only).", "n"],
   ], rows, r => drill([["project", String(r.p.id)]]), ["Threads / MR", -1]));
-  const series = selectedProjects.filter(p => S.projects.has(p.id)).map((p, i) => ({ name: p.path, color: [C.blue, C.teal, C.purple, C.amber, C.red, C.green, C.deep][i % 7], values: count(T.filter(t => t.p === p.id && t.sub), t => month(t.created)) }));
+  const series = selectedProjects.filter(p => S.projects.has(p.id)).map((p, i) => ({ name: projName(p.id), color: [C.blue, C.teal, C.purple, C.amber, C.red, C.green, C.deep][i % 7], values: count(T.filter(t => t.p === p.id && t.sub), t => month(t.created)) }));
   root.append(h("div", { class: "card", style: "margin-top:16px" }, h("h3", {}, "Substantive threads per month and project", info("Longitudinal view of review interaction per project. Hover a month for all values.")), lineChart(series, { label: "threads per project and month", wide: true })));
   const skipped = DATA.projects.filter(p => !p.selected);
   root.append(h("h2", {}, "Not analysed", info("Projects found by discovery but not analysed in depth, with the reason. Low activity is not poor collaboration.")));
   root.append(skipped.length ? table([
-    ["Project", p => p.path, p => h("a", { href: p.web_url }, p.path), "Full path, linked to GitLab."],
+    ["Project", p => projName(p.id), p => h("a", { href: p.web_url, tip: "Open the project in GitLab (needs GitLab access)." }, projName(p.id)), "Project pseudonym, or the full path when real names are shown."],
     ["MRs in window", p => p.window_mrs || 0, null, "MRs updated in the activity window.", "n"],
     ["Last activity", p => p.last_activity_at || "", p => (p.last_activity_at || "–").slice(0, 10), "Last activity date reported by GitLab."],
     ["Reason", p => p.skip_reason || "", null, "Why the project was not analysed."],
@@ -484,16 +484,20 @@ function peopleTab(root) {
   ], giv, r => drill([["giver", String(r.id)]]), ["Person", 1], personOpts));
   const rec = ids.map(id => { const fs = F.filter(f => f.T.rec === id); const c = (...acts) => fs.filter(f => f.racts.some(a => acts.includes(a))).length; const fr = byThread(fs).filter(f => f.tm.fr[0] === "o").map(f => f.tm.fr[2]);
     return { id, f: fs.length, agree: c("agreement", "partial_agreement"), reasoned: c("reasoned_disagreement", "explanation"), alt: c("alternative_proposal"), defer: c("deferral"), reject: c("unsupported_rejection"), none: fs.filter(f => !f.racts.length).length,
+      reacted: fs.filter(f => f.racts.length).length, declR: fs.filter(f => LEGIT.has(f.outcome)).length, declN: fs.filter(f => f.outcome === "declined_unjustified").length,
       ver: fs.filter(f => CHANGE.has(f.outcome) && f.ver === "direct").length, textonly: fs.filter(f => CHANGE.has(f.outcome) && f.ver === "textual_only").length, open: fs.filter(CLUE_PRED.open_unattended).length, unk: fs.filter(f => f.outcome === "unknown").length, fr: quantile(fr, .5), frn: fr.length }; }).filter(r => r.f);
   root.append(h("h2", {}, "Receiving review", info("Per review recipient: usually the MR author. Only reactions written by the recipient count, each kind once per finding. The person who replies is not always the person who implements.")));
   root.append(table([
     ["Person", r => person(r.id), null, "Pseudonym by default."],
     ["Findings", r => r.f, r => lowN(String(r.f), r.f), "Findings addressed to the person.", "n"],
+    ["Reaction rate", r => r.f ? r.reacted / r.f : 0, r => r.reacted + " / " + r.f + " (" + pct(r.reacted, r.f) + ")", "Findings the recipient reacted to in writing, over all findings addressed to the recipient. Bots and other people do not count.", "n"],
     ["Agreement", r => r.agree, null, "Full or partial agreement.", "n"],
     ["Reasoned / explained", r => r.reasoned, null, "Reasoned disagreement or explanation. These can be good outcomes.", "n"],
     ["Alternative", r => r.alt, null, "Proposed a different solution.", "n"],
     ["Deferral", r => r.defer, null, "Moved to later work.", "n"],
     ["Rejection, no reason", r => r.reject, null, "Rejected without a technical reason.", "n"],
+    ["Declined, with reason", r => r.declR, null, "Outcome: justified no change or declined optional suggestion. A legitimate closure.", "n"],
+    ["Declined, no reason", r => r.declN, null, "Outcome: a requested change was declined without a reason.", "n"],
     ["No reaction", r => r.none, null, "The recipient wrote no reaction to the finding (others may have).", "n"],
     ["Verified changes", r => r.ver, null, "Stated change with direct code evidence.", "n"],
     ["Change, text only", r => r.textonly, null, "Stated change without code evidence.", "n"],
@@ -579,7 +583,7 @@ function methodTab(root) {
     h("li", { text: "Code evidence shows that lines changed, not that a fix is correct. A resolved thread and a merged MR are not proof that a finding was handled." }),
     h("li", { text: "Business hours are an estimate. Personal schedules, leave and workload are unknown." }),
     h("li", { text: "Person-level numbers are context, not a performance score or a ranking, and say nothing about personality or motives. Use aggregate trends, and review individual cases with the people involved." }),
-    h("li", { text: "Names in free text are masked when they match a known username, full name or name part (3+ letters), and unknown @mentions are masked too. Nicknames and misspellings stay visible." }),
+    h("li", { text: "Names in free text are masked when they match a known username, full name or name part (3+ letters); unknown @mentions are masked too. Project paths and project names (4+ characters) are masked the same way. Nicknames, misspellings and file paths stay visible." }),
     h("li", { text: "The identity toggle is a display switch, not access control or anonymisation. Names are inside this file. Project paths and links can re-identify people. Keep this file confidential and share it only with approved recipients." }),
     h("li", { text: "Observational associations do not show causes. Role, review difficulty, language and team norms can explain differences." }))));
 }
