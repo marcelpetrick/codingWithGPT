@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.1.11: feat(diffs): parse new-side lines of unified diffs
 - 0.1.10: fix(demo): apply fixture code changes in time order
 - 0.1.9: feat(normalize): build review threads with roles
 - 0.1.8: feat(collect): discover projects and collect full MR history
