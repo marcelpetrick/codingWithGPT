@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.28: docs: record the reviewBranch findings and the resume point
 - 0.2.27: feat(db): portable database with backups, export and import
 - 0.2.26: docs: record owner inputs D-013 to D-017 and the extended plan
 - 0.2.25: feat(scripts): add the step-by-step scope widening chain

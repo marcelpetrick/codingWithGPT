@@ -47,7 +47,8 @@ This is the one living document for this task. Read it first.
 | 15 | Owner D-016: `/reviewBranch` over the whole project (first project commit to HEAD), architecture included | open |
 | 16 | Owner D-016: self-review: run every command of README and WORKLOG from a clean clone | open |
 | 17 | Owner D-016: profiling of collect, evidence, analyze, evaluate, report; bottlenecks and improvements | open |
-| 18 | Fix all findings of steps 14 to 17, gate green, push | open |
+| 18 | Owner D-018: database portable between machines and tool versions; converters where needed (`db-upgrade` with backup, `db-export`/`db-import`, migration test over all versions) | open |
+| 18b | Fix all findings of steps 14 to 18, gate green, push | open |
 | 19 | After the focus run: final evidence, evaluate, report with current code | open |
 | 20 | Start `scripts/widen.sh` (steps 2 to 4, chunks of one hour); record each chunk | open |
 | 21 | Final check against VISION.md section 10 and docs/acceptance.md, push | open |
@@ -90,7 +91,16 @@ This is the one living document for this task. Read it first.
 | Live LLM validity | 284/284 |
 | Live LLM agreement with truth (text outcome) | 251/278 = 90.3% |
 
-## Resume here
+## Resume here (state at 12:26, usage limit reached)
+
+Done since the plan update: steps 11 to 13, step 15 (reviewBranch: 9 findings, open, `docs/review_20261126_branch.md`),
+step 18 (database portability: migration backups, `db-pack`, `db-export`, `db-import`, pinned migration checksums).
+Open, in this order:
+1. Fix the reviewBranch findings 1 and 2 **before** `scripts/widen.sh` runs (outages must not be booked as results).
+2. Step 14 (document review: restart the subagent), step 16 (clean-clone self-review), step 17 (profiling: script in WORKLOG history, real-DB copy via `db-pack`).
+3. After the focus run ends (log line "report:"): `evidence`, `evaluate`, `report` with current code, then start `scripts/widen.sh`.
+4. README screenshot of real data: only after the owner's explicit OK (public repository).
+
 
 - State: the full real run writes `out/real/mrreview.sqlite3` and `out/real/dashboard.html`. Log: `out/real-run.log`.
 - Check the run: `tail out/real-run.log`, then `uv run mrreview --db out/real/mrreview.sqlite3 status`.
