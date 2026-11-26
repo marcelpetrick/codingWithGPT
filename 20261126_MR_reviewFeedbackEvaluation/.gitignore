@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+mutants/
+data/
+out/
+*.sqlite3
+*.sqlite3-*
+.env
+config.local.toml

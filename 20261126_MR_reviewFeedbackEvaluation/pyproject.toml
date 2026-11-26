@@ -1,0 +1,64 @@
+[project]
+name = "mrreview"
+version = "0.1.0"
+description = "Evidence-based GitLab merge request review and collaboration analytics with a local LLM."
+readme = "README.md"
+license = "GPL-3.0-or-later"
+authors = [{ name = "Marcel Petrick" }]
+requires-python = ">=3.14"
+dependencies = [
+    "regex==2026.11.25",
+    "tzdata==2026.6",
+]
+
+[project.scripts]
+mrreview = "mrreview.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.13.7,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "black==26.10.1",
+    "mutmut==3.8.1",
+    "mypy==2.4.1",
+    "playwright==1.65.2",
+    "pytest==9.2.0",
+    "pytest-cov==7.1.0",
+    "ruff==0.17.6",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py314"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF", "PL", "C4", "PT"]
+ignore = ["PLR0913", "PLR2004", "PLR0911", "PLR0912", "PLR0915", "S608"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "S310", "PLC0415", "S603", "S607"]
+
+[tool.mypy]
+strict = true
+files = ["src/mrreview"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=mrreview --cov-branch --cov-report=term-missing --cov-report=html --cov-fail-under=99"
+markers = ["browser: needs Chromium through Playwright", "live: needs the real GitLab or Ollama endpoint"]
+
+[tool.coverage.run]
+source = ["mrreview"]
+
+[tool.coverage.report]
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "\\.\\.\\."]
+
+[tool.mutmut]
+paths_to_mutate = ["src/mrreview/bizhours.py", "src/mrreview/textutil.py", "src/mrreview/evaluate.py"]
+tests_dir = ["tests/unit"]
