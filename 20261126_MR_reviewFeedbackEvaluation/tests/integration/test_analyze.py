@@ -6,6 +6,7 @@ import json
 import sqlite3
 from collections.abc import Iterator
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -96,14 +97,12 @@ def test_malformed_output_is_kept_and_retried(
     assert stats.ok == 1
     assert stats.invalid == 3
     assert stats.failed == 2
-    bad = conn.execute("SELECT * FROM classifications WHERE status='invalid'").fetchall()
+    bad = conn.execute("SELECT * FROM classification_failures WHERE status='invalid'").fetchall()
     assert all(b["error"] for b in bad)
     assert sum(1 for b in bad if b["raw_excerpt"]) == 2
     stats2 = analyze.run_analyze(conn, collected, client)
     assert stats2.todo >= 6
-    assert (
-        conn.execute("SELECT COUNT(*) FROM classifications WHERE status!='ok'").fetchone()[0] == 0
-    )
+    assert conn.execute("SELECT COUNT(*) FROM classification_failures").fetchone()[0] == 0
 
 
 def test_concurrency(
@@ -137,7 +136,7 @@ def test_server_dies_mid_run_stops_job(conn: sqlite3.Connection, collected: Conf
     with pytest.raises(collect.StopRun):
         analyze.run_analyze(conn, collected, dead_chat)
     assert conn.execute("SELECT COUNT(*) FROM classifications WHERE status='ok'").fetchone()[0] == 0
-    assert conn.execute("SELECT COUNT(*) FROM classifications").fetchone()[0] == 3
+    assert conn.execute("SELECT COUNT(*) FROM classification_failures").fetchone()[0] == 3
 
 
 def test_evaluate_on_fixture_truth(
@@ -182,3 +181,83 @@ def test_evaluate_on_fixture_truth(
 def test_evaluate_needs_snapshot(conn: sqlite3.Connection) -> None:
     with pytest.raises(RuntimeError, match="snapshot"):
         evaluate.run_evaluate(conn, Config())
+
+
+class Interrupting(llm.OllamaClient):
+    """Simulates Ctrl-C after a number of successful calls."""
+
+    def __init__(self, url: str, after: int) -> None:
+        super().__init__(url, UrllibTransport())
+        self.after = after
+        self.calls = 0
+
+    def chat(self, *args: Any, **kwargs: Any) -> llm.Completion:
+        self.calls += 1
+        if self.calls > self.after:
+            raise KeyboardInterrupt
+        return super().chat(*args, **kwargs)
+
+
+def test_interrupted_analysis_resumes_without_rework(
+    conn: sqlite3.Connection, collected: Config
+) -> None:
+    fake = FakeOllama()
+    with serve(fake) as url:
+        with pytest.raises(KeyboardInterrupt):
+            analyze.run_analyze(conn, collected, Interrupting(url, 4))
+        assert (
+            conn.execute("SELECT COUNT(*) FROM classifications WHERE status='ok'").fetchone()[0]
+            == 4
+        )
+        before = fake.calls
+        stats = analyze.run_analyze(conn, collected, llm.OllamaClient(url, UrllibTransport()))
+    n_sub = conn.execute("SELECT COUNT(*) FROM threads WHERE substantive=1").fetchone()[0]
+    assert stats.reused == 4
+    assert fake.calls - before == n_sub - 4
+    assert conn.execute("SELECT COUNT(*) FROM classifications").fetchone()[0] == n_sub
+
+
+def test_failed_reanalysis_keeps_last_valid_result(
+    conn: sqlite3.Connection,
+    collected: Config,
+    ollama: tuple[FakeOllama, llm.OllamaClient],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake, client = ollama
+    analyze.run_analyze(conn, collected, client, limit=3)
+    monkeypatch.setattr(llm, "PROMPT_VERSION", "p-next")
+    fake.faults = ["malformed"] * 3
+    stats = analyze.run_analyze(conn, collected, client, limit=3)
+    assert stats.invalid == 3
+    assert conn.execute("SELECT COUNT(*) FROM classifications WHERE status='ok'").fetchone()[0] == 3
+    rows = conn.execute("SELECT attempts, cache_key FROM classification_failures").fetchall()
+    assert all(r["attempts"] == 1 and "p-next" in r["cache_key"] for r in rows)
+
+
+def test_attempt_budget_is_per_prompt_version(
+    conn: sqlite3.Connection,
+    collected: Config,
+    ollama: tuple[FakeOllama, llm.OllamaClient],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake, client = ollama
+    for _ in range(analyze.MAX_ATTEMPTS):
+        fake.faults = ["malformed"]
+        analyze.run_analyze(conn, collected, client, limit=1)
+    first = conn.execute("SELECT thread_id, attempts FROM classification_failures").fetchone()
+    assert first["attempts"] == analyze.MAX_ATTEMPTS
+    todo, _ = analyze._todo(conn, collected.ollama_model, None)
+    assert first["thread_id"] not in {t["id"] for t in todo}
+    monkeypatch.setattr(llm, "PROMPT_VERSION", "p-next")
+    todo, _ = analyze._todo(conn, collected.ollama_model, None)
+    assert first["thread_id"] in {t["id"] for t in todo}
+
+
+def test_non_json_reply_is_booked_not_fatal(
+    conn: sqlite3.Connection, collected: Config, ollama: tuple[FakeOllama, llm.OllamaClient]
+) -> None:
+    fake, client = ollama
+    fake.faults = ["notjson", "badmessage"]
+    stats = analyze.run_analyze(conn, collected, client, limit=4)
+    assert stats.failed == 2
+    assert stats.ok == 2

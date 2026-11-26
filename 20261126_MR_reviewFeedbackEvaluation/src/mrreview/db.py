@@ -99,6 +99,15 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY (thread_id, idx)
     );
     """,
+    """
+    ALTER TABLE threads ADD COLUMN llm_hash TEXT NOT NULL DEFAULT '';
+    ALTER TABLE findings ADD COLUMN evidence_level TEXT NOT NULL DEFAULT 'none';
+    ALTER TABLE projects ADD COLUMN focus_mrs INTEGER NOT NULL DEFAULT 0;
+    CREATE TABLE classification_failures (
+        thread_id TEXT PRIMARY KEY, cache_key TEXT NOT NULL, status TEXT NOT NULL,
+        attempts INTEGER NOT NULL, error TEXT, raw_excerpt TEXT, created_at TEXT NOT NULL
+    );
+    """,
 ]
 
 

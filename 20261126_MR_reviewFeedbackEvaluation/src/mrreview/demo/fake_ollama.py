@@ -159,6 +159,10 @@ class FakeOllama:
             return 404, json.dumps({"error": f"model '{req.get('model')}' not found"}).encode()
         if fault == "500":
             return 500, b'{"error":"boom"}'
+        if fault == "notjson":
+            return 200, b"<html>proxy error</html>"
+        if fault == "badmessage":
+            return 200, b'{"message": "oops"}'
         if fault == "nomessage":
             return 200, b'{"done":true}'
         if fault == "length":

@@ -312,7 +312,10 @@ class OllamaClient:
             backoff_base=self._backoff,
             sleep=self._sleep,
         )
-        return json.loads(resp.body or b"null")
+        try:
+            return json.loads(resp.body or b"null")
+        except json.JSONDecodeError, UnicodeDecodeError:
+            raise HttpError(502, self.base + path, "the reply is not JSON") from None
 
     def model_info(self, model: str) -> ModelInfo:
         """Return the digest of model and the server version. Raise if the model is absent."""
@@ -345,7 +348,7 @@ class OllamaClient:
             body["think"] = think
         start = time.monotonic()
         data = self._call("POST", "/api/chat", body)
-        if not isinstance(data, dict) or "message" not in data:
+        if not isinstance(data, dict) or not isinstance(data.get("message"), dict):
             raise HttpError(502, self.base + "/api/chat", "no message in reply")
         if data.get("done_reason") == "length":
             raise InvalidOutput("generation stopped at the length limit")

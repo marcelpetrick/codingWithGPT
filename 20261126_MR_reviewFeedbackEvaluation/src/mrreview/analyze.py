@@ -109,61 +109,85 @@ def thread_context(
     return payload, {int(n["id"]) for n in notes}
 
 
+def cache_key(llm_hash: str, model: str) -> str:
+    """A classification is valid for one thread text, prompt, schema and model."""
+    return f"{llm_hash}|{llm.PROMPT_VERSION}|{llm.SCHEMA_VERSION}|{model}"
+
+
 def _todo(conn: sqlite3.Connection, model: str, limit: int | None) -> tuple[list[sqlite3.Row], int]:
     rows = conn.execute(
         """SELECT t.*, c.input_hash AS c_hash, c.prompt_version AS c_pv, c.schema_version AS c_sv,
-        c.model AS c_model, c.status AS c_status, c.attempts AS c_attempts
+        c.model AS c_model, c.status AS c_status, f.cache_key AS f_key, f.attempts AS f_attempts
         FROM threads t LEFT JOIN classifications c ON c.thread_id = t.id
+        LEFT JOIN classification_failures f ON f.thread_id = t.id
         WHERE t.substantive = 1 ORDER BY t.created_at, t.id"""
     ).fetchall()
     todo: list[sqlite3.Row] = []
     reused = 0
     for r in rows:
-        same = (
-            r["c_hash"] == r["input_hash"]
-            and r["c_pv"] == llm.PROMPT_VERSION
-            and r["c_sv"] == llm.SCHEMA_VERSION
-            and r["c_model"] == model
+        key = cache_key(r["llm_hash"], model)
+        current = (
+            r["c_status"] == "ok"
+            and r["c_hash"] == r["llm_hash"]
+            and (r["c_pv"], r["c_sv"], r["c_model"])
+            == (llm.PROMPT_VERSION, llm.SCHEMA_VERSION, model)
         )
-        if same and r["c_status"] == "ok":
+        if current:
             reused += 1
-        elif not same or (
-            r["c_status"] in ("failed", "invalid") and r["c_attempts"] < MAX_ATTEMPTS
-        ):
+        elif not (r["f_key"] == key and r["f_attempts"] >= MAX_ATTEMPTS):
             todo.append(r)
     return (todo[:limit] if limit is not None else todo), reused
 
 
-def _store(
+def _store_ok(
     conn: sqlite3.Connection,
     thread: sqlite3.Row,
     model: llm.ModelInfo,
-    status: str,
-    result: list[dict[str, Any]] | None,
-    error: str | None,
-    raw: str | None,
-    duration: float | None,
+    result: list[dict[str, Any]],
+    duration: float,
 ) -> None:
-    same = thread["c_hash"] == thread["input_hash"] and thread["c_model"] == model.name
-    attempts = (int(thread["c_attempts"] or 0) if same else 0) + 1
     with db.tx(conn):
         conn.execute(
             """INSERT OR REPLACE INTO classifications(thread_id, input_hash, prompt_version,
             schema_version, model, model_digest, status, result_json, error, raw_excerpt, attempts,
-            duration_s, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            duration_s, created_at) VALUES (?, ?, ?, ?, ?, ?, 'ok', ?, NULL, NULL, 1, ?, ?)""",
             (
                 thread["id"],
-                thread["input_hash"],
+                thread["llm_hash"],
                 llm.PROMPT_VERSION,
                 llm.SCHEMA_VERSION,
                 model.name,
                 model.digest,
-                status,
-                json.dumps(result, ensure_ascii=False) if result is not None else None,
-                error,
-                truncate(raw, 500) if raw else None,
-                attempts,
+                json.dumps(result, ensure_ascii=False),
                 duration,
+                db.utcnow(),
+            ),
+        )
+        conn.execute("DELETE FROM classification_failures WHERE thread_id=?", (thread["id"],))
+        db.set_work(conn, "classify", thread["id"], "done", input_hash=thread["llm_hash"])
+
+
+def _store_failure(
+    conn: sqlite3.Connection,
+    thread: sqlite3.Row,
+    model: llm.ModelInfo,
+    status: str,
+    error: str,
+    raw: str | None,
+) -> None:
+    """Record a failed attempt. An earlier valid classification stays untouched."""
+    key = cache_key(thread["llm_hash"], model.name)
+    attempts = (int(thread["f_attempts"] or 0) if thread["f_key"] == key else 0) + 1
+    with db.tx(conn):
+        conn.execute(
+            "INSERT OR REPLACE INTO classification_failures VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (
+                thread["id"],
+                key,
+                status,
+                attempts,
+                error[:300],
+                truncate(raw, 500) if raw else None,
                 db.utcnow(),
             ),
         )
@@ -171,9 +195,9 @@ def _store(
             conn,
             "classify",
             thread["id"],
-            "done" if status == "ok" else "failed",
-            input_hash=thread["input_hash"],
-            error=error,
+            "failed",
+            input_hash=thread["llm_hash"],
+            error=error[:300],
         )
 
 
@@ -233,9 +257,7 @@ def run_analyze(
                     result, error, raw, dur = fut.result()
                 except TransportError as exc:
                     streak += 1
-                    _store(
-                        conn, thread, model, "failed", None, f"transport: {exc}"[:300], None, None
-                    )
+                    _store_failure(conn, thread, model, "failed", f"transport: {exc}", None)
                     counts["failed"] += 1
                     if streak >= MAX_CONSECUTIVE_TRANSPORT_ERRORS:
                         pending.clear()
@@ -243,17 +265,20 @@ def run_analyze(
                             f.cancel()
                         raise StopRun(f"Ollama unreachable, analysis stopped: {exc}") from None
                     continue
-                except HttpError as exc:
+                except (HttpError, ValueError, KeyError, TypeError, AttributeError) as exc:
                     streak = 0
-                    _store(conn, thread, model, "failed", None, str(exc)[:300], None, None)
+                    _store_failure(
+                        conn, thread, model, "failed", f"{type(exc).__name__}: {exc}", None
+                    )
                     counts["failed"] += 1
                     continue
                 streak = 0
-                status = "ok" if result is not None else "invalid"
-                _store(
-                    conn, thread, model, status, result, error, raw if status != "ok" else None, dur
-                )
-                counts[status] += 1
+                if result is not None:
+                    _store_ok(conn, thread, model, result, dur)
+                    counts["ok"] += 1
+                else:
+                    _store_failure(conn, thread, model, "invalid", error or "invalid", raw)
+                    counts["invalid"] += 1
             n = sum(counts.values())
             if n and n % 10 == 0:
                 progress(f"analyze: {n}/{len(todo)}")
