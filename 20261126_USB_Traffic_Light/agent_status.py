@@ -17,9 +17,10 @@ from websockets.sync.client import unix_connect
 
 from traffic_light import find_device, set_lights
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 POLL_SECONDS = 5
 QUOTA_SECONDS = 60
+CODEX_QUOTA_MAX_AGE = 300
 CLAUDE_QUOTA_MAX_AGE = 300
 READ_ERRORS = (
     OSError,
@@ -134,6 +135,7 @@ class CodexSource:
     def __init__(self, path):
         self.path = path
         self.next_quota = 0
+        self.quota_expires = 0
         self.quota = {}
 
     def status(self, now):
@@ -214,8 +216,10 @@ class CodexSource:
                 try:
                     self.quota = rpc("account/rateLimits/read")
                 except READ_ERRORS:
-                    self.quota = {}
-            if states and codex_quota(self.quota, now):
+                    pass
+                else:
+                    self.quota_expires = now + CODEX_QUOTA_MAX_AGE
+            if states and now < self.quota_expires and codex_quota(self.quota, now):
                 states.append(State.BLOCKED)
             return states
 
@@ -273,7 +277,7 @@ def main(argv=None):
     }
     previous = None
     last_usb_error = None
-    displayed = False
+    attempted_output = False
     counts = dict.fromkeys(("red", "yellow", "green", "off"), 0)
     last_shown = None
     count_label = "planned" if args.dry_run else "shown"
@@ -287,9 +291,9 @@ def main(argv=None):
             ]
             shown = color
             if not args.dry_run:
+                attempted_output = True
                 try:
                     show_color(color, args.usb_port)
-                    displayed = True
                     last_usb_error = None
                 except OSError as error:
                     shown = None
@@ -312,7 +316,7 @@ def main(argv=None):
                 return
             time.sleep(POLL_SECONDS)
     except KeyboardInterrupt:
-        if displayed and not args.once:
+        if attempted_output and not args.once:
             try:
                 show_color("off", args.usb_port)
             except OSError as error:

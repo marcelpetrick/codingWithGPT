@@ -59,11 +59,11 @@ The monitor waits five seconds between scans. Use `--once` to write one color an
 The monitor switches the light off on Ctrl+C or SIGTERM. A one-shot command leaves its color on.
 Use `--usb-port` to select one light when several are connected.
 
-Version 0.2.0 prints its Semantic Version at startup and with `--version`.
+The monitor prints its Semantic Version at startup and with `--version`.
 It adds the color counts at the end of each status line.
 
 ```text
-Cleware agent monitor 0.2.0
+Cleware agent monitor 0.2.1
 yellow claude=running claude-dmo=waiting codex=running codex-dmo=idle shown=red:0,yellow:1,green:2,off:0
 ```
 
@@ -92,6 +92,7 @@ Claude quotas come from the local `abtop-rate-limits.json` cache when that cache
 Codex reads the loaded threads and goals on each profile's local App Server socket.
 A failed thread read adds an unavailable state. Other threads can still report red or yellow.
 Codex quota refreshes at most once a minute per profile while that profile has loaded threads.
+If a refresh fails, the monitor uses the last quota response for up to five minutes. It respects the reported window reset.
 The monitor covers sessions exposed by these local interfaces. Separate Codex servers and cloud-only sessions are outside that view.
 [Claude CLI reference](https://code.claude.com/docs/en/agent-view#list-sessions-as-json) ·
 [Codex App Server](https://developers.openai.com/codex/app-server/) ·

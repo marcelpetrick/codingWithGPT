@@ -241,6 +241,42 @@ class CodexSocketTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             monitor.codex_state(None, {})
 
+    def test_known_quota_block_survives_a_failed_refresh_until_reset(self):
+        source = monitor.CodexSource(Path("socket"))
+        frames = [
+            '{"id":1,"result":{}}',
+            '{"id":2,"result":{"data":["thread"]}}',
+            '{"id":3,"result":{"thread":{"status":{"type":"active","activeFlags":[]}}}}',
+            '{"id":4,"result":{"goal":null}}',
+        ]
+        with patch.object(monitor, "unix_connect") as connect:
+            connection = connect.return_value.__enter__.return_value
+            connection.recv.side_effect = frames + [
+                '{"id":5,"result":{"rateLimits":{"primary":{"usedPercent":100,"resetsAt":100}}}}'
+            ]
+            self.assertEqual(source.status(10), [State.RUNNING, State.BLOCKED])
+            connection.recv.side_effect = frames + ['{"id":5,"error":{}}']
+            self.assertEqual(source.status(70), [State.RUNNING, State.BLOCKED])
+            connection.recv.side_effect = frames
+            self.assertEqual(source.status(100), [State.RUNNING])
+
+    def test_quota_cache_drops_an_expired_block_without_a_reset_time(self):
+        source = monitor.CodexSource(Path("socket"))
+        frames = [
+            '{"id":1,"result":{}}',
+            '{"id":2,"result":{"data":["thread"]}}',
+            '{"id":3,"result":{"thread":{"status":{"type":"active","activeFlags":[]}}}}',
+            '{"id":4,"result":{"goal":null}}',
+        ]
+        with patch.object(monitor, "unix_connect") as connect:
+            connection = connect.return_value.__enter__.return_value
+            connection.recv.side_effect = frames + [
+                '{"id":5,"result":{"ordinaryUsageAllowed":false}}'
+            ]
+            self.assertEqual(source.status(10), [State.RUNNING, State.BLOCKED])
+            connection.recv.side_effect = frames + ['{"id":5,"error":{}}']
+            self.assertEqual(source.status(310), [State.RUNNING])
+
     def test_rpc_stops_at_deadline(self):
         with (
             patch.object(monitor, "unix_connect"),
@@ -312,6 +348,21 @@ class CliTest(unittest.TestCase):
         ):
             monitor.main(["--dry-run"])
         show.assert_not_called()
+
+    def test_interrupt_during_the_first_write_still_clears_the_light(self):
+        with (
+            patch.object(
+                monitor, "read_profiles", return_value={"claude": [State.RUNNING]}
+            ),
+            patch.object(
+                monitor, "show_color", side_effect=[KeyboardInterrupt, None]
+            ) as show,
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            monitor.main([])
+        self.assertEqual(
+            [call.args[0] for call in show.call_args_list], ["green", "off"]
+        )
 
     def test_monitor_can_stop_after_the_light_is_unplugged(self):
         with (

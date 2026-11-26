@@ -36,6 +36,16 @@ MONITOR_MUTATIONS = (
         "\n                    shown = None\n",
         "\n                    shown = color\n",
     ),
+    (
+        "discard an observed quota block on a refresh error",
+        "except READ_ERRORS:\n                    pass",
+        "except READ_ERRORS:\n                    self.quota = {}",
+    ),
+    (
+        "skip cleanup during the first USB write",
+        "                attempted_output = True\n                try:\n                    show_color(color, args.usb_port)",
+        "                try:\n                    show_color(color, args.usb_port)\n                    attempted_output = True",
+    ),
 )
 
 
