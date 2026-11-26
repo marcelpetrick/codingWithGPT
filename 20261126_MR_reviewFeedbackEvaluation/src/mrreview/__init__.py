@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """mrreview: GitLab merge request review and collaboration analytics."""
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
