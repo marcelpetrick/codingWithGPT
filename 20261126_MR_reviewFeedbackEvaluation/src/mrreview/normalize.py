@@ -171,6 +171,12 @@ def build_threads(conn: sqlite3.Connection) -> dict[str, int]:
                 f"ON CONFLICT(id) DO UPDATE SET {updates}",
                 (did, pid, iid, *rec.values()),
             )
+        # Upgrade path (schema 1 -> 2): classifications keyed by the old full hash move to llm_hash.
+        conn.execute(
+            """UPDATE classifications SET input_hash = (SELECT llm_hash FROM threads t
+            WHERE t.id = classifications.thread_id) WHERE EXISTS (SELECT 1 FROM threads t
+            WHERE t.id = classifications.thread_id AND t.input_hash = classifications.input_hash)"""
+        )
         for (tid,) in conn.execute("SELECT id FROM threads").fetchall():
             if tid not in keep:
                 conn.execute("DELETE FROM threads WHERE id=?", (tid,))
