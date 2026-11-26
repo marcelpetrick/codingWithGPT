@@ -13,4 +13,5 @@ Git holds the timestamp of each entry. Each entry links to its requirement.
 | D-007 | 2026-11-26 | Ollama live tests use synthetic review threads only. | No real review text leaves GitLab without authorization. | REQ-LLM-1 |
 | D-008 | 2026-11-26 | Runtime uses only the standard library plus `regex` (grapheme clusters) and `tzdata`. HTTP uses `urllib`. Charts are hand-written SVG. | Few dependencies, no CDN, simple offline HTML. | REQ-UI-1, REQ-ENG-1 |
 | D-009 | 2026-11-26 | Ruff lints, Black formats. Ruff format is not used. | AGENTS.md: one formatter per language. | REQ-ENG-1 |
-| D-010 | 2026-11-26 | Commits are not pushed. | Project AGENTS.md: publishing needs approval; root AGENTS.md: never push unasked. | — |
+| D-010 | 2026-11-26 | Owner: write a README and push to GitHub. The push goes to `origin master` of the monorepo. | Owner approval to publish. The synthetic demo holds no real data. | REQ-ENG-1 |
+| D-011 | 2026-11-26 | No Markdown file contains a double curly brace or a curly-percent pair. | The monorepo Pages build runs Liquid on every .md file and fails on them. | REQ-ENG-1 |

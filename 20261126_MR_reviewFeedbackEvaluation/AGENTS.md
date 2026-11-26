@@ -55,3 +55,17 @@ For each new behavior or defect, write one test first and confirm that it fails 
 Document the architecture with C4. Start with a system context view showing users, the system boundary, and external systems. Use a container view for applications, data stores, and their responsibilities. Add component or code views when a design question needs them, and verify every relationship against the documented design or revision.
 
 Keep editable Mermaid blocks in version-controlled Markdown. State each diagram’s purpose and label its relationships. For C4 views, state the view level and scope. Verify the diagram renders in the intended viewer and update it when the architecture changes.
+
+## Project specifics (mrreview)
+
+This section adds the engineering conventions of this repository. The rules above stay valid.
+
+- Living document: `WORKLOG.md`. Update it after every step. Requirements: `docs/requirements.md` (REQ-*). Owner inputs and decisions: `docs/decisions.md` (D-*).
+- Gate: `./localPipeline.sh`. CI (`.github/workflows/mr-review-analytics.yml` in the monorepo root) runs exactly this script. Every commit is green.
+- Versions: every commit bumps the patch version in `pyproject.toml` and `src/mrreview/__init__.py` and adds a line to `CHANGELOG.md`. A feature milestone bumps the minor version.
+- Tests: unit tests in `tests/unit`, real-HTTP integration tests against `mrreview.demo.fake_gitlab` and `fake_ollama` in `tests/integration`, Chromium tests in `tests/e2e`. The synthetic fixture (`mrreview.demo.fixture`) records the ground truth (`truth`, `applied`) for assertions.
+- Security: GitLab access is GET only. The token comes only from `MRREVIEW_GITLAB_TOKEN`. Review text reaches the LLM only with names replaced by role labels. Model output is validated data and is never executed.
+- Live data: real GitLab data needs the authorization of VISION.md section 8 and the `--authorized` flag. Ollama live tests use synthetic threads only.
+- The dashboard is generated from the database, never edited by hand. Every element that shows a number or a term has a `data-tip` tooltip; `tests/e2e` checks this.
+- Markdown files must not contain a double curly brace or a curly-percent pair (the monorepo Pages build runs Liquid).
+- Writing: Simplified Technical English, about 80% (see the monorepo `AGENTS.md`).
