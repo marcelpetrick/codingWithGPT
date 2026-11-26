@@ -60,13 +60,11 @@ def main():
             sys.exit(f"Expected one match for mutation {label}")
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
-            shutil.copytree(
-                ROOT / "tests",
-                directory / "tests",
-                ignore=shutil.ignore_patterns("__pycache__"),
-            )
+            (directory / "tests").mkdir()
             for production_file in targets:
                 shutil.copyfile(ROOT / production_file, directory / production_file)
+                test_file = Path("tests") / f"test_{production_file}"
+                shutil.copyfile(ROOT / test_file, directory / test_file)
             (directory / filename).write_text(
                 source.replace(before, after), encoding="utf-8"
             )

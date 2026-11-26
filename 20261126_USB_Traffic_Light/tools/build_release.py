@@ -29,17 +29,19 @@ def build_release(tag, output):
     name = f"cleware-traffic-light-{tag}-linux"
     output.mkdir(parents=True, exist_ok=True)
     archive = output / f"{name}.tar.gz"
+    files = [
+        "traffic_light.py",
+        "agent_status.py",
+        "requirements-monitor.txt",
+        "README.md",
+        "LICENSE",
+    ]
+    files.extend(
+        filter(None, git("ls-files", "-z", "--", "docs/", "udev/").split("\0"))
+    )
     with tarfile.open(archive, "w:gz") as bundle:
-        for filename in (
-            "traffic_light.py",
-            "agent_status.py",
-            "requirements-monitor.txt",
-            "README.md",
-            "LICENSE",
-            "docs",
-            "udev",
-        ):
-            bundle.add(ROOT / filename, arcname=f"{name}/{filename}")
+        for filename in files:
+            bundle.add(ROOT / filename, arcname=f"{name}/{filename}", recursive=False)
 
     history = "HEAD"
     for candidate in git(
