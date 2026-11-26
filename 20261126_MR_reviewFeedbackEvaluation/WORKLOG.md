@@ -19,6 +19,12 @@ This is the one living document for this task. Read it first.
   1,389 author notes, 112 routine. 4,071 threads to classify (about 4.5 h at about 4 s each);
   the focus user's 2,960 threads (2,048 as giver, 912 as recipient) go first (about 3.3 h).
   Data stays local (`out/real/`, git-ignored).
+- 11:55 interim report: works on real data (42 people, no real name in the default view, no script errors).
+  It showed a defect: 89% "indirect" evidence. Cause: GitLab returns **empty diff lists for old MR versions**,
+  and the collector booked them as complete. Fixed (12:03): such versions count as incomplete (migration 3 repairs
+  stored data), and a new `evidence` stage uses the GitLab compare API from the commented commit to the final
+  version. Real result: 1,955 diff comments, 1,106 changed later, 849 on the final version, 0 unavailable.
+  Verified remediation in the interim report went from 1.6% to 18.4%.
 
 ## Plan
 
@@ -60,6 +66,9 @@ This is the one living document for this task. Read it first.
 | 10:46 | Restarted with focus-first order; collection resumed. |
 | 10:48 | Pushed; CI green (both runs). |
 | 11:29 | Real collection done: 1,637 MRs, 0 failed, 4,071 threads to classify. |
+| 11:55 | Interim report: evidence almost always "indirect". Harness suspected first, confirmed: empty version diffs. |
+| 12:03 | Compare-API evidence stage committed (mutation gate caught missing unit tests on the way: 77.8% → 85.8%). |
+| 12:05 | Evidence stage on real data done; interim report regenerated. Analysis at 810/4,071. |
 
 ## Results
 
@@ -77,6 +86,8 @@ This is the one living document for this task. Read it first.
 - Check the run: `tail out/real-run.log`, then `uv run mrreview --db out/real/mrreview.sqlite3 status`.
 - Resume an interrupted real run (idempotent):
   `MRREVIEW_GITLAB_URL=https://git.data-modul.com MRREVIEW_GITLAB_TOKEN="$GITLAB_TOKEN" uv run mrreview --db out/real/mrreview.sqlite3 run --focus-user MPetrick --focus-only --out out/real/dashboard.html`
+- After the analysis: the running process ends with its own evaluate and report (older code). Then run
+  `uv run mrreview --db out/real/mrreview.sqlite3 evidence`, `... evaluate`, `... report --out out/real/dashboard.html` with the current code.
 - Interim report while analysis runs: `uv run mrreview --db out/real/mrreview.sqlite3 evaluate && uv run mrreview --db out/real/mrreview.sqlite3 report --out out/real/dashboard.html`
 - Gate: `./localPipeline.sh`
 - Synthetic live demo (idempotent): `uv run python scripts/live_synthetic.py out/live/mrreview.sqlite3`, then
