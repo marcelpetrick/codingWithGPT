@@ -1,7 +1,7 @@
 # mrreview: GitLab review and collaboration analytics
 
 [![pipeline](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml/badge.svg)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml)
-![version](https://img.shields.io/badge/version-0.2.37-blue)
+![version](https://img.shields.io/badge/version-0.2.38-blue)
 ![coverage](https://img.shields.io/badge/line%20coverage-99.1%25-brightgreen)
 ![mutation](https://img.shields.io/badge/mutation%20score-85.8%25-brightgreen)
 ![python](https://img.shields.io/badge/python-3.14-blue)
@@ -31,7 +31,7 @@ A promise is not a fix. A resolved thread is not proof. A reasoned "no" is a leg
 | Pipeline (collect, normalize, analyze, evaluate, report) | done, tested |
 | Live LLM on synthetic threads (the Ollama box, qwen3.6 35B-A3B) | done: all valid; agreement with the fixture truth 90.3% (prompt p1), **98.9% (prompt p2)** |
 | Independent reviews | 27 + 9 + 18 findings, all fixed: [review](docs/review_20261126.md), [reviewBranch](docs/review_20261126_branch.md), document review (recorded in WORKLOG) |
-| Live run on real GitLab data | focus run done 2026-11-26 (26 projects, 1,637 MRs, 4,060 threads); scope widening in 1-hour chunks running; data kept local |
+| Live run on real GitLab data | done 2026-11-26: all 76 active projects (of 706 visible), 3,274 MRs, 5,574 valid classified threads; data kept local |
 
 The living work log is [WORKLOG.md](WORKLOG.md). Requirements: [docs/requirements.md](docs/requirements.md).
 Decisions: [docs/decisions.md](docs/decisions.md). Architecture (C4): [docs/architecture.md](docs/architecture.md).

@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.38: docs: record the final acceptance check with the widened run
 - 0.2.37: docs(worklog): record the finished scope widening
 - 0.2.36: docs(worklog): record the widening stop caused by low memory
 - 0.2.35: docs(worklog): record the clean-clone self-review

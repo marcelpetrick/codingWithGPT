@@ -51,7 +51,7 @@ This is the one living document for this task. Read it first.
 | 18b | Fix all findings of steps 14 to 18, gate green, push | done 14:36 |
 | 19 | After the focus run: final evidence, evaluate, report with current code | done 14:31 |
 | 20 | `scripts/widen.sh` (steps 2 to 4, chunks of one hour); record each chunk | done 17:37 (one stop at 15:50 for low laptop memory, restarted 16:43) |
-| 21 | Final check against VISION.md section 10 and docs/acceptance.md, push | open |
+| 21 | Final check against VISION.md section 10 and docs/acceptance.md, push | done 17:40: all 10 criteria met; 4 open items need a person (see acceptance.md) |
 
 ## Status (chronological, 2026-11-26, CET)
 
