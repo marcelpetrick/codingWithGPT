@@ -189,6 +189,7 @@ def test_client_is_read_only(gl: Env) -> None:
         "commits",
         "requests",
         "involved_mrs",
+        "compare",
     }
     status, _, _ = gl.fake.handle("POST", "/api/v4/projects", {"private-token": "tok-123"})
     assert status == 405

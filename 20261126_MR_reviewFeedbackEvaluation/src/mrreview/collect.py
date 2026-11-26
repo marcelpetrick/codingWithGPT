@@ -22,6 +22,7 @@ from mrreview.http import HttpError, TransportError
 from mrreview.identity import user_kind
 
 MAX_ATTEMPTS = 5
+MAX_VERSION_FILES = 1000  # GitLab's default diff file limit; at the cap the list is cut
 Progress = Callable[[str], None]
 
 
@@ -334,7 +335,15 @@ def collect_mr(
                 conn.execute("INSERT OR IGNORE INTO approvals VALUES (?, ?, ?)", (pid, iid, uid))
         for meta, detail in versions:
             complete = detail is not None
-            for diff in (detail or {}).get("diffs") or []:
+            files = (detail or {}).get("diffs") or []
+            state = str((detail or meta).get("state") or "collected")
+            if detail is not None and (state != "collected" or not files):
+                complete = False  # GitLab dropped or never stored the files of this version
+                gaps.append(("version_without_files", f"{meta['id']}:{state}"))
+            elif len(files) >= MAX_VERSION_FILES:
+                complete = False
+                gaps.append(("version_file_cap", str(meta["id"])))
+            for diff in files:
                 text = diff.get("diff") or ""
                 if (
                     diff.get("too_large")
