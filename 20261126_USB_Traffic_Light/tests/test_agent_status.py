@@ -273,7 +273,7 @@ class CliTest(unittest.TestCase):
             patch.object(
                 monitor,
                 "show_color",
-                side_effect=[OSError("unplugged"), OSError("unplugged"), None],
+                side_effect=[OSError("unplugged"), OSError("unplugged"), None, None],
             ) as show,
             patch.object(
                 monitor.time, "sleep", side_effect=[None, None, KeyboardInterrupt]
@@ -282,13 +282,43 @@ class CliTest(unittest.TestCase):
             contextlib.redirect_stderr(io.StringIO()) as errors,
         ):
             monitor.main([])
-            self.assertEqual(show.call_count, 3)
+            self.assertEqual(
+                [call.args[0] for call in show.call_args_list],
+                ["green", "green", "green", "off"],
+            )
             self.assertEqual(output.getvalue().count("green"), 1)
             self.assertEqual(errors.getvalue(), "unplugged\n")
             show.side_effect = OSError("unplugged")
             with self.assertRaises(SystemExit) as failure:
                 monitor.main(["--once"])
             self.assertEqual(failure.exception.code, 1)
+
+    def test_termination_signal_requests_cleanup(self):
+        with self.assertRaises(KeyboardInterrupt):
+            monitor.on_terminate(monitor.signal.SIGTERM, None)
+
+    def test_interrupted_dry_run_leaves_the_light_alone(self):
+        with (
+            patch.object(monitor, "read_profiles", side_effect=KeyboardInterrupt),
+            patch.object(monitor, "show_color") as show,
+        ):
+            monitor.main(["--dry-run"])
+        show.assert_not_called()
+
+    def test_monitor_can_stop_after_the_light_is_unplugged(self):
+        with (
+            patch.object(
+                monitor, "read_profiles", return_value={"claude": [State.RUNNING]}
+            ),
+            patch.object(
+                monitor, "show_color", side_effect=[None, OSError("unplugged")]
+            ),
+            patch.object(monitor.time, "sleep", side_effect=KeyboardInterrupt),
+            contextlib.redirect_stdout(io.StringIO()),
+            contextlib.redirect_stderr(io.StringIO()) as errors,
+        ):
+            monitor.main([])
+            self.assertEqual(errors.getvalue(), "unplugged\n")
 
     def test_real_output_reports(self):
         with tempfile.TemporaryDirectory() as directory:

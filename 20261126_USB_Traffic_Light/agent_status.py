@@ -5,6 +5,7 @@ import argparse
 import fcntl
 import json
 import os
+import signal
 import subprocess
 import sys
 import time
@@ -268,6 +269,7 @@ def main(argv=None):
     }
     previous = None
     last_usb_error = None
+    displayed = False
     try:
         while True:
             profiles = read_profiles(home, codex, time.time())
@@ -283,6 +285,7 @@ def main(argv=None):
             if not args.dry_run:
                 try:
                     show_color(color, args.usb_port)
+                    displayed = True
                     last_usb_error = None
                 except OSError as error:
                     if args.once:
@@ -294,8 +297,17 @@ def main(argv=None):
                 return
             time.sleep(POLL_SECONDS)
     except KeyboardInterrupt:
-        return
+        if displayed and not args.once:
+            try:
+                show_color("off", args.usb_port)
+            except OSError as error:
+                print(error, file=sys.stderr, flush=True)
+
+
+def on_terminate(_signal, _frame):
+    raise KeyboardInterrupt
 
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, on_terminate)
     main()
