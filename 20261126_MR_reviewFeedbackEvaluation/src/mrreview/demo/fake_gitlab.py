@@ -58,13 +58,19 @@ class FakeGitLab:
                 items = [m for m in items if m["updated_at"] >= after.replace("+00:00", "Z")]
             return sorted(items, key=lambda m: m["updated_at"])
         key = (pid, int(groups[1]))
-        table = {"discussions": fx.discussions, "versions": fx.versions, "commits": fx.commits,
-                 "approvals": fx.approvals}
+        table: dict[str, dict[tuple[int, int], Any]] = {
+            "discussions": fx.discussions,
+            "versions": fx.versions,
+            "commits": fx.commits,
+            "approvals": fx.approvals,
+        }
         if route == "version":
             return fx.version_detail.get((*key, int(groups[2])))
         return table[route].get(key)
 
-    def handle(self, method: str, raw_path: str, headers: dict[str, str]) -> tuple[int, dict[str, str], bytes]:
+    def handle(
+        self, method: str, raw_path: str, headers: dict[str, str]
+    ) -> tuple[int, dict[str, str], bytes]:
         with self.lock:
             self.methods.append(method)
             self.paths.append(raw_path)
@@ -92,8 +98,12 @@ class FakeGitLab:
             page = int(query.get("page", ["1"])[0])
             chunk = data[(page - 1) * per_page : page * per_page]
             more = page * per_page < len(data)
-            hdrs = {"content-type": "application/json", "x-page": str(page),
-                    "x-next-page": str(page + 1) if more else "", "x-total": str(len(data))}
+            hdrs = {
+                "content-type": "application/json",
+                "x-page": str(page),
+                "x-next-page": str(page + 1) if more else "",
+                "x-total": str(len(data)),
+            }
             return 200, hdrs, json.dumps(chunk).encode()
         return 404, {}, b'{"message":"404 Not Found"}'
 
@@ -115,7 +125,7 @@ def _handler(fake: FakeGitLab) -> type[BaseHTTPRequestHandler]:
         do_PUT = _serve
         do_DELETE = _serve
 
-        def log_message(self, format: str, *args: Any) -> None:  # noqa: A002
+        def log_message(self, format: str, *args: Any) -> None:
             return
 
     return Handler

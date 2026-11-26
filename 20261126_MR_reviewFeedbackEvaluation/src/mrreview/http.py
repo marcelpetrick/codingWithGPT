@@ -50,7 +50,9 @@ class Transport(Protocol):
 def redact(url: str) -> str:
     """Remove secret query parameters from a URL before it is logged."""
     parts = urlsplit(url)
-    query = [(k, "REDACTED" if k.lower() in _SECRET_PARAMS else v) for k, v in parse_qsl(parts.query)]
+    query = [
+        (k, "REDACTED" if k.lower() in _SECRET_PARAMS else v) for k, v in parse_qsl(parts.query)
+    ]
     return urlunsplit(parts._replace(query=urlencode(query)))
 
 
@@ -62,7 +64,9 @@ class UrllibTransport:
     ) -> Response:
         if not url.startswith(("http://", "https://")):
             raise ValueError("only http and https URLs are allowed")
-        req = urllib.request.Request(url, data=body, method=method, headers=dict(headers))  # noqa: S310
+        req = urllib.request.Request(  # noqa: S310 - scheme checked above
+            url, data=body, method=method, headers=dict(headers)
+        )
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
                 return Response(

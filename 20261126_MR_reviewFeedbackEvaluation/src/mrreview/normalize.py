@@ -38,7 +38,9 @@ def _kind(kinds: dict[int, str], uid: int | None) -> str:
     return "deleted" if uid is None else kinds.get(uid, "deleted")
 
 
-def classify_thread(notes: list[NoteRow], mr_author: int | None, kinds: dict[int, str]) -> dict[str, object] | None:
+def classify_thread(
+    notes: list[NoteRow], mr_author: int | None, kinds: dict[int, str]
+) -> dict[str, object] | None:
     """Derive the thread record from its notes, or None for a system-only discussion."""
     visible = [n for n in notes if not n.system]
     if not visible:
@@ -60,39 +62,62 @@ def classify_thread(notes: list[NoteRow], mr_author: int | None, kinds: dict[int
         reason = "author_self_note"
     else:
         reason = "substantive"
-    if giver != mr_author:
-        recipient = mr_author
-    else:
-        recipient = responders[0] if responders else None
+    recipient = mr_author if giver != mr_author else (responders[0] if responders else None)
     resolvable_notes = [n for n in visible if n.resolvable]
     resolved = bool(resolvable_notes) and all(n.resolved for n in resolvable_notes)
     resolved_times = [n.resolved_at for n in resolvable_notes if n.resolved_at]
-    resolved_by = next((n.resolved_by_id for n in reversed(resolvable_notes) if n.resolved_by_id), None)
+    resolved_by = next(
+        (n.resolved_by_id for n in reversed(resolvable_notes) if n.resolved_by_id), None
+    )
     digest = hashlib.sha256(
         json.dumps(
             [NORMALIZER_VERSION, mr_author]
-            + [[n.id, n.author_id, n.body, n.created_at, n.updated_at, n.resolved, n.new_path, n.new_line]
-               for n in visible],
+            + [
+                [
+                    n.id,
+                    n.author_id,
+                    n.body,
+                    n.created_at,
+                    n.updated_at,
+                    n.resolved,
+                    n.new_path,
+                    n.new_line,
+                ]
+                for n in visible
+            ],
             ensure_ascii=False,
         ).encode()
     ).hexdigest()
     return {
-        "first_note_id": first.id, "giver_id": giver, "giver_kind": giver_kind,
-        "recipient_id": recipient, "responders": json.dumps(responders),
-        "created_at": first.created_at, "last_note_at": max(n.created_at for n in visible),
-        "n_notes": len(visible), "n_human_notes": len(humans), "has_reply": int(bool(others)),
-        "substantive": int(reason == "substantive"), "reason": reason,
-        "resolvable": int(bool(resolvable_notes)), "resolved": int(resolved),
+        "first_note_id": first.id,
+        "giver_id": giver,
+        "giver_kind": giver_kind,
+        "recipient_id": recipient,
+        "responders": json.dumps(responders),
+        "created_at": first.created_at,
+        "last_note_at": max(n.created_at for n in visible),
+        "n_notes": len(visible),
+        "n_human_notes": len(humans),
+        "has_reply": int(bool(others)),
+        "substantive": int(reason == "substantive"),
+        "reason": reason,
+        "resolvable": int(bool(resolvable_notes)),
+        "resolved": int(resolved),
         "resolved_at": max(resolved_times) if resolved and resolved_times else None,
         "resolved_by_id": resolved_by if resolved else None,
-        "new_path": first.new_path, "new_line": first.new_line, "input_hash": digest,
+        "new_path": first.new_path,
+        "new_line": first.new_line,
+        "input_hash": digest,
     }
 
 
 def build_threads(conn: sqlite3.Connection) -> dict[str, int]:
     """Rebuild the threads table from collected notes. Returns counts per reason."""
     kinds = {int(r[0]): str(r[1]) for r in conn.execute("SELECT id, kind FROM users")}
-    authors = {(r[0], r[1]): r[2] for r in conn.execute("SELECT project_id, iid, author_id FROM merge_requests")}
+    authors = {
+        (r[0], r[1]): r[2]
+        for r in conn.execute("SELECT project_id, iid, author_id FROM merge_requests")
+    }
     rows = conn.execute(
         """SELECT d.id, d.project_id, d.mr_iid, n.id, n.author_id, n.body, n.created_at, n.updated_at,
         n.system, n.resolvable, n.resolved, n.resolved_at, n.resolved_by_id, n.new_path, n.new_line
@@ -102,8 +127,22 @@ def build_threads(conn: sqlite3.Connection) -> dict[str, int]:
     grouped: dict[str, tuple[int, int, list[NoteRow]]] = {}
     for r in rows:
         entry = grouped.setdefault(r[0], (r[1], r[2], []))
-        entry[2].append(NoteRow(r[3], r[4], r[5], r[6], r[7], bool(r[8]), bool(r[9]), bool(r[10]),
-                                r[11], r[12], r[13], r[14]))
+        entry[2].append(
+            NoteRow(
+                r[3],
+                r[4],
+                r[5],
+                r[6],
+                r[7],
+                bool(r[8]),
+                bool(r[9]),
+                bool(r[10]),
+                r[11],
+                r[12],
+                r[13],
+                r[14],
+            )
+        )
     counts: dict[str, int] = {}
     with db.tx(conn):
         keep: set[str] = set()

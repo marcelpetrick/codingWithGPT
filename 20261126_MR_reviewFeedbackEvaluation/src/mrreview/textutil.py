@@ -15,10 +15,42 @@ import regex
 _GRAPHEME = regex.compile(r"\X")
 _SHORTCODE = regex.compile(r":[a-z0-9_+\-]+:")
 _ROUTINE_WORDS = frozenset(
-    """
-    lgtm looks look good to me approved approve ship it thanks thank you thx ty ok okay nice great
-    cool job well +1 sieht gut aus passt danke super top merci parfait perfect lgtm.
-    """.split()
+    [
+        "lgtm",
+        "looks",
+        "look",
+        "good",
+        "to",
+        "me",
+        "approved",
+        "approve",
+        "ship",
+        "it",
+        "thanks",
+        "thank",
+        "you",
+        "thx",
+        "ty",
+        "ok",
+        "okay",
+        "nice",
+        "great",
+        "cool",
+        "job",
+        "well",
+        "+1",
+        "sieht",
+        "gut",
+        "aus",
+        "passt",
+        "danke",
+        "super",
+        "top",
+        "merci",
+        "parfait",
+        "perfect",
+        "lgtm.",
+    ]
 )
 _MAX_ROUTINE_WORDS = 8
 

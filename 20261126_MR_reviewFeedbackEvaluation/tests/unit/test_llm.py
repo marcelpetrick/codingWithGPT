@@ -76,8 +76,13 @@ def test_validate_rejects_bad_findings(mutate: Any, msg: str) -> None:
 
 @pytest.mark.parametrize(
     ("text", "msg"),
-    [("not json", "not JSON"), ("[]", "top level"), ('{"findings": 1}', "top level"),
-     ('{"findings": [1]}', "not an object"), (raw(*[GOOD] * 6), "more than")],
+    [
+        ("not json", "not JSON"),
+        ("[]", "top level"),
+        ('{"findings": 1}', "top level"),
+        ('{"findings": [1]}', "not an object"),
+        (raw(*[GOOD] * 6), "more than"),
+    ],
 )
 def test_validate_rejects_bad_documents(text: str, msg: str) -> None:
     with pytest.raises(InvalidOutput, match=msg):

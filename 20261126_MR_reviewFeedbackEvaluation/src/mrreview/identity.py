@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import hashlib
+import secrets
 import sqlite3
 from collections.abc import Mapping
 
@@ -19,16 +20,74 @@ _BOT_PATTERNS = [
     regex.compile(r"^(dependabot|renovate|gitlab-bot|support-bot|alert-bot|ci-bot)"),
 ]
 
-ADJECTIVES = (
-    "Amber Azure Coral Cobalt Crimson Golden Indigo Ivory Jade Lime Magenta Olive Onyx Pearl Ruby "
-    "Saffron Scarlet Silver Teal Topaz Umber Violet Cyan Bronze Copper Emerald Garnet Lilac Ochre "
-    "Plum Sand Slate"
-).split()
-ANIMALS = (
-    "Otter Falcon Lynx Heron Badger Marten Ibex Puffin Gecko Koala Lemur Narwhal Ocelot Panda "
-    "Quokka Raven Seal Tapir Urchin Vole Walrus Yak Zebra Bison Crane Dingo Egret Ferret Gazelle "
-    "Hare Jackal Kiwi"
-).split()
+ADJECTIVES = [
+    "Amber",
+    "Azure",
+    "Coral",
+    "Cobalt",
+    "Crimson",
+    "Golden",
+    "Indigo",
+    "Ivory",
+    "Jade",
+    "Lime",
+    "Magenta",
+    "Olive",
+    "Onyx",
+    "Pearl",
+    "Ruby",
+    "Saffron",
+    "Scarlet",
+    "Silver",
+    "Teal",
+    "Topaz",
+    "Umber",
+    "Violet",
+    "Cyan",
+    "Bronze",
+    "Copper",
+    "Emerald",
+    "Garnet",
+    "Lilac",
+    "Ochre",
+    "Plum",
+    "Sand",
+    "Slate",
+]
+ANIMALS = [
+    "Otter",
+    "Falcon",
+    "Lynx",
+    "Heron",
+    "Badger",
+    "Marten",
+    "Ibex",
+    "Puffin",
+    "Gecko",
+    "Koala",
+    "Lemur",
+    "Narwhal",
+    "Ocelot",
+    "Panda",
+    "Quokka",
+    "Raven",
+    "Seal",
+    "Tapir",
+    "Urchin",
+    "Vole",
+    "Walrus",
+    "Yak",
+    "Zebra",
+    "Bison",
+    "Crane",
+    "Dingo",
+    "Egret",
+    "Ferret",
+    "Gazelle",
+    "Hare",
+    "Jackal",
+    "Kiwi",
+]
 
 
 def user_kind(user: Mapping[str, object] | None) -> str:
@@ -49,8 +108,6 @@ def _salt(conn: sqlite3.Connection) -> str:
     row = conn.execute("SELECT value FROM meta WHERE key='pseudonym_salt'").fetchone()
     if row:
         return str(row[0])
-    import secrets
-
     salt = secrets.token_hex(16)
     conn.execute("INSERT OR IGNORE INTO meta(key, value) VALUES ('pseudonym_salt', ?)", (salt,))
     return str(conn.execute("SELECT value FROM meta WHERE key='pseudonym_salt'").fetchone()[0])

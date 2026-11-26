@@ -44,7 +44,9 @@ class Config:
     ollama_timeout_s: float = 600.0
     ollama_concurrency: int = 1
     ollama_keep_alive: str = "15m"
-    ollama_options: dict[str, Any] = field(default_factory=lambda: {"temperature": 0, "num_ctx": 16384})
+    ollama_options: dict[str, Any] = field(
+        default_factory=lambda: {"temperature": 0, "num_ctx": 16384}
+    )
     max_note_graphemes: int = 1500
     max_thread_notes: int = 30
     timezone: str = "Europe/Berlin"
@@ -69,8 +71,11 @@ _ENV = {
 def _check(cfg: Config) -> Config:
     for name in ("window_months", "per_page", "max_retries", "censor_days", "min_window_mrs"):
         value = getattr(cfg, name)
-        if not isinstance(value, int) or isinstance(value, bool) or value < 0 or (
-            value == 0 and name in {"window_months", "per_page"}
+        if (
+            not isinstance(value, int)
+            or isinstance(value, bool)
+            or value < 0
+            or (value == 0 and name in {"window_months", "per_page"})
         ):
             raise ConfigError(f"{name} must be a positive integer")
     if not isinstance(cfg.ollama_concurrency, int) or cfg.ollama_concurrency < 1:

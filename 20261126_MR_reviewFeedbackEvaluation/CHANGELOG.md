@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.1.20: style: apply Black, Ruff and mypy strict fixes
 - 0.1.19: test(e2e): drive the demo dashboard in Chromium
 - 0.1.18: feat(cli): add stage commands, demo, gated smoke and quality tools
 - 0.1.17: feat(report): add offline HTML dashboard with clues and tooltips

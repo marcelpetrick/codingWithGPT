@@ -9,10 +9,30 @@ from mrreview.normalize import NoteRow, classify_thread
 KINDS = {1: "human", 2: "human", 3: "human", 9: "bot"}
 
 
-def note(i: int, author: int | None, body: str, *, system: bool = False, resolved: bool = False,
-         resolved_at: str | None = None, resolvable: bool = True) -> NoteRow:
-    return NoteRow(i, author, body, f"2026-01-0{i}T10:00:00+00:00", None, system, resolvable,
-                   resolved, resolved_at, 2 if resolved else None, "a.py", 3)
+def note(
+    i: int,
+    author: int | None,
+    body: str,
+    *,
+    system: bool = False,
+    resolved: bool = False,
+    resolved_at: str | None = None,
+    resolvable: bool = True,
+) -> NoteRow:
+    return NoteRow(
+        i,
+        author,
+        body,
+        f"2026-01-0{i}T10:00:00+00:00",
+        None,
+        system,
+        resolvable,
+        resolved,
+        resolved_at,
+        2 if resolved else None,
+        "a.py",
+        3,
+    )
 
 
 def test_system_only_is_dropped() -> None:
@@ -20,7 +40,9 @@ def test_system_only_is_dropped() -> None:
 
 
 def test_roles_reviewer_comment_on_author_mr() -> None:
-    rec = classify_thread([note(1, 2, "Null check?"), note(2, 1, "Fixed."), note(3, 3, "+1")], 1, KINDS)
+    rec = classify_thread(
+        [note(1, 2, "Null check?"), note(2, 1, "Fixed."), note(3, 3, "+1")], 1, KINDS
+    )
     assert rec is not None
     assert rec["giver_id"] == 2
     assert rec["recipient_id"] == 1
@@ -65,13 +87,22 @@ def test_deleted_user_counts_as_human_contribution() -> None:
 
 
 def test_resolution_requires_all_resolvable_notes() -> None:
-    partly = classify_thread([note(1, 2, "x?", resolved=True, resolved_at="2026-01-05T00:00:00+00:00"),
-                              note(2, 1, "y")], 1, KINDS)
+    partly = classify_thread(
+        [note(1, 2, "x?", resolved=True, resolved_at="2026-01-05T00:00:00+00:00"), note(2, 1, "y")],
+        1,
+        KINDS,
+    )
     assert partly is not None
     assert partly["resolved"] == 0
     assert partly["resolved_at"] is None
-    full = classify_thread([note(1, 2, "x?", resolved=True, resolved_at="2026-01-05T00:00:00+00:00"),
-                            note(2, 1, "y", resolvable=False)], 1, KINDS)
+    full = classify_thread(
+        [
+            note(1, 2, "x?", resolved=True, resolved_at="2026-01-05T00:00:00+00:00"),
+            note(2, 1, "y", resolvable=False),
+        ],
+        1,
+        KINDS,
+    )
     assert full is not None
     assert full["resolved"] == 1
     assert full["resolved_at"] == "2026-01-05T00:00:00+00:00"

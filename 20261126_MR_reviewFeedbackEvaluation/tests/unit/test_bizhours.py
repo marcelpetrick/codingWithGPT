@@ -59,7 +59,7 @@ def test_zero_and_errors() -> None:
     with pytest.raises(ValueError, match="before"):
         CAL.seconds(t, t - timedelta(seconds=1))
     with pytest.raises(ValueError, match="timezone"):
-        CAL.seconds(datetime(2026, 1, 1), t)  # noqa: DTZ001
+        CAL.seconds(datetime(2026, 1, 1), t)
     with pytest.raises(ValueError, match="hours"):
         BusinessCalendar(tz=BERLIN, start_hour=18, end_hour=8)
 

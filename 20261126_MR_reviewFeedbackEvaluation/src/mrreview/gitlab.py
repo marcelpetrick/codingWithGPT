@@ -38,9 +38,11 @@ class GitLabClient:
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
         self._api = base_url.rstrip("/") + "/api/v4"
-        self._headers = {"PRIVATE-TOKEN": token, "Accept": "application/json"} if token else {
-            "Accept": "application/json"
-        }
+        self._headers = (
+            {"PRIVATE-TOKEN": token, "Accept": "application/json"}
+            if token
+            else {"Accept": "application/json"}
+        )
         self._transport = transport
         self._per_page = per_page
         self._timeout = timeout
@@ -59,8 +61,14 @@ class GitLabClient:
         self.requests += 1
         try:
             return request_with_retry(
-                self._transport, "GET", url, self._headers, timeout=self._timeout,
-                max_retries=self._retries, backoff_base=self._backoff, sleep=self._sleep,
+                self._transport,
+                "GET",
+                url,
+                self._headers,
+                timeout=self._timeout,
+                max_retries=self._retries,
+                backoff_base=self._backoff,
+                sleep=self._sleep,
             )
         except HttpError as exc:
             if exc.status in (403, 404):
@@ -98,8 +106,15 @@ class GitLabClient:
             params["archived"] = "false"
         return self.paginate("/projects", params)
 
-    def merge_requests(self, project_id: int, updated_after: str | None = None) -> Iterator[JSONDict]:
-        params: dict[str, object] = {"state": "all", "scope": "all", "order_by": "updated_at", "sort": "asc"}
+    def merge_requests(
+        self, project_id: int, updated_after: str | None = None
+    ) -> Iterator[JSONDict]:
+        params: dict[str, object] = {
+            "state": "all",
+            "scope": "all",
+            "order_by": "updated_at",
+            "sort": "asc",
+        }
         if updated_after:
             params["updated_after"] = updated_after
         return self.paginate(f"/projects/{self._p(project_id)}/merge_requests", params)

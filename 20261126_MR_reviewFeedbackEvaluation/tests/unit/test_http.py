@@ -28,8 +28,14 @@ class Scripted:
 def run(items: list[Response | Exception], retries: int = 3) -> tuple[Response, list[float]]:
     waits: list[float] = []
     resp = http.request_with_retry(
-        Scripted(items), "GET", "http://x/y?private_token=abc", {}, timeout=1,
-        max_retries=retries, backoff_base=0.5, sleep=waits.append,
+        Scripted(items),
+        "GET",
+        "http://x/y?private_token=abc",
+        {},
+        timeout=1,
+        max_retries=retries,
+        backoff_base=0.5,
+        sleep=waits.append,
     )
     return resp, waits
 
@@ -70,7 +76,10 @@ def test_client_errors_are_not_retried() -> None:
 
 
 def test_redact() -> None:
-    assert http.redact("https://h/p?private_token=s&page=2") == "https://h/p?private_token=REDACTED&page=2"
+    assert (
+        http.redact("https://h/p?private_token=s&page=2")
+        == "https://h/p?private_token=REDACTED&page=2"
+    )
     assert http.redact("https://h/p") == "https://h/p"
 
 

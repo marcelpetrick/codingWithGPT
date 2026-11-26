@@ -36,9 +36,14 @@ def test_newer_schema_is_refused(tmp_path: Path) -> None:
 def test_tx_commits_and_rolls_back(conn: sqlite3.Connection) -> None:
     with db.tx(conn):
         conn.execute("INSERT INTO meta(key, value) VALUES ('a', '1')")
-    with pytest.raises(ZeroDivisionError), db.tx(conn):
-        conn.execute("INSERT INTO meta(key, value) VALUES ('b', '2')")
-        _ = 1 / 0
+
+    def failing() -> None:
+        with db.tx(conn):
+            conn.execute("INSERT INTO meta(key, value) VALUES ('b', '2')")
+            raise ZeroDivisionError
+
+    with pytest.raises(ZeroDivisionError):
+        failing()
     keys = [r[0] for r in conn.execute("SELECT key FROM meta")]
     assert keys == ["a"]
 

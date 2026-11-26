@@ -131,7 +131,9 @@ def connect(path: str | Path) -> sqlite3.Connection:
         conn.close()
         raise RuntimeError(f"database schema {version} is newer than this program")
     for number in range(version, len(MIGRATIONS)):
-        conn.executescript("BEGIN;" + MIGRATIONS[number] + f"PRAGMA user_version = {number + 1};COMMIT;")
+        conn.executescript(
+            "BEGIN;" + MIGRATIONS[number] + f"PRAGMA user_version = {number + 1};COMMIT;"
+        )
     return conn
 
 

@@ -26,7 +26,11 @@ def test_toml_and_env_override(tmp_path: Path) -> None:
         'holidays = ["2026-12-25"]\n[ollama_options]\ntemperature = 0.1\n',
         encoding="utf-8",
     )
-    env = {"MRREVIEW_GITLAB_TOKEN": "glpat-x", "MRREVIEW_OLLAMA_MODEL": "m:1", "MRREVIEW_DB": "x.db"}
+    env = {
+        "MRREVIEW_GITLAB_TOKEN": "glpat-x",
+        "MRREVIEW_OLLAMA_MODEL": "m:1",
+        "MRREVIEW_DB": "x.db",
+    }
     cfg = load_config(p, env=env)
     assert cfg.gitlab_url == "https://gitlab.example"
     assert cfg.window_months == 6
@@ -64,7 +68,7 @@ def test_repr_hides_token() -> None:
         ("ollama_concurrency = 0\n", "concurrency"),
         ("business_start_hour = 19\n", "business"),
         ('holidays = ["tomorrow"]\n', "holidays"),
-        ("window_months = \"x\"\n", "window_months"),
+        ('window_months = "x"\n', "window_months"),
     ],
 )
 def test_invalid_values(tmp_path: Path, text: str, msg: str) -> None:
