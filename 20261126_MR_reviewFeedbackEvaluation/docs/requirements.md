@@ -10,7 +10,7 @@ The acceptance check column names the test or command that shows the requirement
 | REQ-COL-2 | Rank projects by MR activity in a rolling window (12 months default). Skip inactive projects for deep analysis, keep their metadata and the skip reason. [3] | `test_discover_selects_and_skips` |
 | REQ-COL-3 | For selected projects, collect the full MR history: all states, discussions, notes, approvals, versions, version diffs, commits. [3] | `test_collect_full_history` |
 | REQ-COL-4 | Keep project ID, name, full path, web URL, MR and note IDs, source links, original timestamps. Record API gaps and partial imports. [3] | `test_gaps_recorded`, `test_dataset_masks_names_in_text` (note links) |
-| REQ-COL-5 | Separate human, bot, system and deleted-user activity. Do not count a note, discussion or approval twice. [3] | `tests/unit/test_identity.py`, `test_rerun_no_duplicates` |
+| REQ-COL-5 | Separate human, bot, system and deleted-user activity. Do not count a note, discussion or approval twice. [3] | `tests/unit/test_identity.py`, `test_rerun_no_duplicates_and_no_refetch` |
 | REQ-COL-6 | Retry with backoff, obey rate limits (429, Retry-After), checkpoint, refresh incrementally. Never write the token to logs or reports. [3] | `tests/unit/test_http.py`, `test_token_never_logged` |
 | REQ-UNIT-1 | The unit is the review thread and the findings in it. A thread is substantive when a human note adds more than routine approval. Single comments without a reply count. [4] | `tests/unit/test_textutil.py`, `tests/unit/test_normalize.py` |
 | REQ-UNIT-2 | Separate the review giver, the recipient, the responders and the implementer. Do not assume the MR author answers every comment. [4] | `test_roles_*` |
@@ -26,7 +26,7 @@ The acceptance check column names the test or command that shows the requirement
 | REQ-DB-1 | Store everything in local SQLite with migrations, transactions and stable IDs. [6] | `tests/unit/test_db.py` |
 | REQ-DB-2 | Every stage resumes after an interruption without loss or duplicates. Work states are explicit: pending, done, stale, failed. [6] | `test_resume_after_interruption`, `test_interrupted_analysis_resumes_without_rework`, `test_rerun_no_duplicates_and_no_refetch`, `test_changed_thread_is_reclassified_only`, `test_failing_project_does_not_stop_the_others` |
 | REQ-DB-3 | A report from partial data shows its coverage and the pending and failed work. [6] | `test_report_discloses_partial` |
-| REQ-UI-1 | One self-contained static HTML file. No server, no CDN, no external fonts, no tracking. [7] | `tests/e2e/test_dashboard_browser.py::test_offline` |
+| REQ-UI-1 | One self-contained static HTML file. No server, no CDN, no external fonts, no tracking. [7] | `tests/e2e/test_dashboard_browser.py::test_offline_and_no_errors` |
 | REQ-UI-2 | Spectrum 2.0-inspired identity: white, deep blue headings, RGB gradient accents, semantic colours with text labels. [7.1] | browser screenshot in `docs/img/` |
 | REQ-UI-3 | Sections: overview, projects, review effectiveness, participants, evidence, methodology. Filters for project, period, person and role. Drill-down to source links. A tooltip on every element that shows a number or a term (owner input D-003). Insight hints that point to patterns (owner input D-004). [7.2] | `test_dashboard_browser.py` |
 | REQ-UI-4 | Every ratio shows numerator, denominator and unknowns. Use medians and percentiles. Guard small samples. No ranking, no score. [7.2] | `tests/unit/test_metrics.py`, browser cross-check |
