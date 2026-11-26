@@ -72,3 +72,58 @@ The official Linux CLI built on Manjaro. It prints usage with `./USBswitchCmd -h
 Its source uses the older `/dev/usb/hiddev*` interface.
 Use `./USBswitchCmd -l` to list the available devices once you have access to that interface.
 With one accessible light, use `./USBswitchCmd r y` for red and yellow or `./USBswitchCmd o` for all off.
+
+## Setup and use
+
+Linux with Python 3.14 is the supported target. The program uses only the standard library.
+Run the commands from this directory.
+
+1. Check that Linux sees the light.
+
+   ```sh
+   lsusb -d 0d50:0008
+   ```
+
+2. If access fails, grant your account access to this light until you unplug it.
+
+   ```sh
+   sudo setfacl -m "u:$(id -un):rw" /dev/input/by-id/usb-Cleware_GmbH_USB-Ampel_63813-hidraw
+   ```
+
+3. Cycle through all three colors. Each stays on for one second. The cycle ends with all lights off.
+
+   ```sh
+   python3 traffic_light.py cycle
+   ```
+
+4. Set a color or a combination.
+
+   ```sh
+   python3 traffic_light.py set green
+   python3 traffic_light.py set red yellow
+   python3 traffic_light.py set red yellow green
+   python3 traffic_light.py flash 0.5 yellow
+   python3 traffic_light.py off
+   ```
+
+Use `set` to replace the full light state. It switches off any color you do not name.
+Use `flash` with an interval of `0.5`, `1` or `2` seconds.
+The program sends changes in separate reports, one per channel.
+The channel changes can therefore take effect at slightly different times.
+If you connect more than one matching light, use `--usb-serial` to select a device by its USB descriptor string.
+If two units expose the same marker, their descriptor strings alone cannot tell them apart.
+
+### Small Python example
+
+```python
+from traffic_light import find_device, set_lights
+
+with find_device("63813").open("wb", buffering=0) as device:
+    set_lights(device, ("red", "yellow"))
+```
+
+Each CLI invocation locks the device while it sends reports. Use the CLI for concurrent callers.
+
+## License
+
+The project uses GNU GPL v3 or later. See [LICENSE](LICENSE).

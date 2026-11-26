@@ -37,3 +37,11 @@ Use Python 3.14 for the verification and release pipeline.
 1. Run `lsusb -d 0d50:0008` to check for the light.
 2. Run `getfacl /dev/input/by-id/usb-Cleware_GmbH_USB-Ampel_63813-hidraw` to check access.
 3. Follow the setup and verification commands in [README.md](../README.md).
+
+## Python checks
+
+The first test run failed at import because the project had no controller module.
+The implementation then passed all nine tests.
+The fixture writes to a regular file and checks the bytes that would reach hidraw.
+The CLI also ran with `--help` as a separate process. Coverage recorded 64 of 64 executable lines.
+The live `cycle` command reached the correct device path. Linux denied access before the first report.
