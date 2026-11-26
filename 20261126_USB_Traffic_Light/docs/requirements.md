@@ -31,12 +31,19 @@ Use Python 3.14 for the verification and release pipeline.
 | 16:37 | Identify device | Linux sees `0d50:0008`, USB serial string `63813` and release field `0.80`. |
 | 16:39 | Check the protocol | Cleware's source and the device descriptor agree on three output bytes. |
 | 16:40 | Set the project boundary | Keep all changes below the project directory and commit on `master`. |
+| 16:43 | Verify Python control reports | Nine fixture tests passed. Linux denied the live write. |
+| 16:45 | Render the diagrams | Chromium rendered both Mermaid views with all relationship labels. |
+| 16:46 | Verify a clean clone | Lint, format, coverage, mutation and release artifact checks passed. |
 
 ## Resume here
 
 1. Run `lsusb -d 0d50:0008` to check for the light.
 2. Run `getfacl /dev/input/by-id/usb-Cleware_GmbH_USB-Ampel_63813-hidraw` to check access.
-3. Follow the setup and verification commands in [README.md](../README.md).
+3. Grant access with the command in [README.md](../README.md).
+4. Run `python3 traffic_light.py cycle` and observe red, yellow, green, then off.
+5. Run `python3 traffic_light.py set red yellow` and observe both colors together.
+6. Run `python3 traffic_light.py flash 0.5 yellow` and observe the yellow channel.
+7. Run `python3 traffic_light.py off` and observe that every channel is off.
 
 ## Python checks
 
@@ -64,3 +71,21 @@ No release tag exists for this project.
 Both Mermaid views rendered with Mermaid CLI 12.2.0 and Chromium.
 They describe the Python process and the Linux HID driver observed on the host.
 GitHub rendering and the hosted workflow run remain unverified in the directory checkout.
+
+## Commit review
+
+| Commit | Requirement | Findings and evidence |
+| --- | --- | --- |
+| `328bf1a66cd8f8ca0e16091562245382da1a9857` | USB-01 | USB identity and report sizes match sysfs. Cleware's source identifies the controller marker. The chip marking still needs a physical check. |
+| `e7237c46d1eb620f128a0a9ad2c389a21253a76b` | USB-02 | The fixtures cover channel selection, short writes, flash rates, cycle cleanup and access errors. Live output remains open because the device has no user write ACL. |
+| `f9a7e2e5a4e656e999e224fdb9619886fd0616dd` | USB-03 | The clean clone passed dependency, lint, format, workflow syntax, coverage, mutation and archive checks. Hosted CI and release publishing remain unverified. |
+
+The clean clone used Python 3.14.10 and installed all 22 pinned development dependencies.
+The coverage gate counted 64 of 64 executable lines. The unit suite detected all six deliberate mutations.
+The archive check ran the installed entry point from an extracted copy and verified its missing-device error.
+The SHA-256 check matched the archive, SPDX SBOM and changelog.
+The development dependency license metadata and bundled license text cover permissive, MPL 2.0 and GPL v3 licenses.
+The release archive includes no development dependencies.
+
+The live access check used `getfacl` and `sudo -n true`. The device retained root-only access and sudo required a password.
+The light needs the acceptance checks above once write access is available.
