@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.35: docs(worklog): record the clean-clone self-review
 - 0.2.34: docs(worklog): record the focus result, profiling and all fixes
 - 0.2.33: docs: add configuration and operations guides; update all records
 - 0.2.32: test(docs): guard version badge, test names and Liquid markers

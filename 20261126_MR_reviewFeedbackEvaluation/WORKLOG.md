@@ -45,7 +45,7 @@ This is the one living document for this task. Read it first.
 | 13 | Owner D-015: chunked scope widening (`--max-minutes`, discovery reuse, `scripts/widen.sh`, AGENTS.md) | done 12:21 |
 | 14 | Owner D-016: review of all documents (subagent): 18 findings, fixed; drift tests added | done 14:35 |
 | 15 | Owner D-016: `/reviewBranch` over the whole project: 9 findings, all fixed | done 14:31 |
-| 16 | Owner D-016: self-review: run every command of README and WORKLOG from a clean clone | open |
+| 16 | Owner D-016: self-review from a clean GitHub clone: gate green (259 tests), CLI and demo work | done 14:40 |
 | 17 | Owner D-016: profiling (see "Profiling" below): report did not finish in 1 h, now 8 s | done 14:26 |
 | 18 | Owner D-018: database portable (backup before migrations, `db-pack`, `db-export`/`db-import`, pinned migration checksums) | done 12:25 |
 | 18b | Fix all findings of steps 14 to 18, gate green, push | done 14:36 |
