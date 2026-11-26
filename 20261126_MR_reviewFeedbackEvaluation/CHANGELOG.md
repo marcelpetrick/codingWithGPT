@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.15: feat(analyze): classify threads of the focus user first
 - 0.2.14: docs: record iteration 1, the review and the real-data runs
 - 0.2.13: fix(normalize): carry old classification keys over to llm_hash
 - 0.2.12: style: keep keys() for sqlite3.Row membership

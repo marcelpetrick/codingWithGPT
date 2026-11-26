@@ -139,17 +139,23 @@ def test_old_classification_key_is_upgraded(tmp_path: object) -> None:
     conn = db.connect(f"{tmp_path}/u.sqlite3")
     with db.tx(conn):
         conn.execute("INSERT INTO users VALUES (1,'a','A','human',NULL),(2,'b','B','human',NULL)")
-        conn.execute("INSERT INTO merge_requests(project_id, iid, id, title, state, author_id, created_at, "
-                     "updated_at, web_url, fetched_at) VALUES (1,1,1,'t','merged',1,'x','x','u','x')")
+        conn.execute(
+            "INSERT INTO merge_requests(project_id, iid, id, title, state, author_id, created_at, "
+            "updated_at, web_url, fetched_at) VALUES (1,1,1,'t','merged',1,'x','x','u','x')"
+        )
         conn.execute("INSERT INTO discussions VALUES ('d',1,1,0)")
-        conn.execute("INSERT INTO notes(id, discussion_id, project_id, mr_iid, author_id, body, created_at, "
-                     "system, resolvable, resolved) VALUES (1,'d',1,1,2,'Leak?','2026-01-01T00:00:00+00:00',0,1,0)")
+        conn.execute(
+            "INSERT INTO notes(id, discussion_id, project_id, mr_iid, author_id, body, created_at, "
+            "system, resolvable, resolved) VALUES (1,'d',1,1,2,'Leak?','2026-01-01T00:00:00+00:00',0,1,0)"
+        )
     build_threads(conn)
     old_hash, llm_hash = conn.execute("SELECT input_hash, llm_hash FROM threads").fetchone()
     with db.tx(conn):
-        conn.execute("INSERT INTO classifications(thread_id, input_hash, prompt_version, schema_version, "
-                     "model, status, attempts, created_at) VALUES ('d', ?, 'p2', 's1', 'm', 'ok', 1, 'x')",
-                     (old_hash,))
+        conn.execute(
+            "INSERT INTO classifications(thread_id, input_hash, prompt_version, schema_version, "
+            "model, status, attempts, created_at) VALUES ('d', ?, 'p2', 's1', 'm', 'ok', 1, 'x')",
+            (old_hash,),
+        )
     build_threads(conn)
     assert conn.execute("SELECT input_hash FROM classifications").fetchone()[0] == llm_hash
     conn.close()

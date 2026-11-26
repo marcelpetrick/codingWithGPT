@@ -114,13 +114,22 @@ def cache_key(llm_hash: str, model: str) -> str:
     return f"{llm_hash}|{llm.PROMPT_VERSION}|{llm.SCHEMA_VERSION}|{model}"
 
 
+def _focus_id(conn: sqlite3.Connection) -> int:
+    """User id of the focus user, or -1. Threads that involve the focus user are classified first."""
+    name = db.get_meta(conn, "focus_username") or ""
+    row = conn.execute("SELECT id FROM users WHERE lower(username)=lower(?)", (name,)).fetchone()
+    return int(row[0]) if row else -1
+
+
 def _todo(conn: sqlite3.Connection, model: str, limit: int | None) -> tuple[list[sqlite3.Row], int]:
     rows = conn.execute(
         """SELECT t.*, c.input_hash AS c_hash, c.prompt_version AS c_pv, c.schema_version AS c_sv,
         c.model AS c_model, c.status AS c_status, f.cache_key AS f_key, f.attempts AS f_attempts
         FROM threads t LEFT JOIN classifications c ON c.thread_id = t.id
         LEFT JOIN classification_failures f ON f.thread_id = t.id
-        WHERE t.substantive = 1 ORDER BY t.created_at DESC, t.id"""
+        WHERE t.substantive = 1
+        ORDER BY (t.giver_id = :focus OR t.recipient_id = :focus) DESC, t.created_at DESC, t.id""",
+        {"focus": _focus_id(conn)},
     ).fetchall()
     todo: list[sqlite3.Row] = []
     reused = 0

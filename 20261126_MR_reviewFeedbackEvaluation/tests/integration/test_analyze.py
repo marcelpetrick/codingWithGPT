@@ -261,3 +261,15 @@ def test_non_json_reply_is_booked_not_fatal(
     stats = analyze.run_analyze(conn, collected, client, limit=4)
     assert stats.failed == 2
     assert stats.ok == 2
+
+
+def test_focus_user_threads_come_first(conn: sqlite3.Connection, collected: Config) -> None:
+    giver = conn.execute(
+        "SELECT giver_id FROM threads WHERE substantive=1 GROUP BY giver_id ORDER BY COUNT(*) LIMIT 1"
+    ).fetchone()[0]
+    name = conn.execute("SELECT username FROM users WHERE id=?", (giver,)).fetchone()[0]
+    db.set_meta(conn, "focus_username", name)
+    todo, _ = analyze._todo(conn, collected.ollama_model, None)
+    flags = [giver in (t["giver_id"], t["recipient_id"]) for t in todo]
+    assert flags[0] is True
+    assert flags == sorted(flags, reverse=True)
