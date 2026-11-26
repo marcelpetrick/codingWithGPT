@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.1.8: feat(collect): discover projects and collect full MR history
 - 0.1.7: feat(demo): add synthetic GitLab fixture and fake REST server
 - 0.1.6: feat(gitlab): add GET-only client with retry and backoff
 - 0.1.5: feat(config): load TOML and environment settings
