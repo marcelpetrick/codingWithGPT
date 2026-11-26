@@ -91,3 +91,12 @@ Tests also cover mixed priorities, quota reset, unavailable data, and a USB repl
 
 The live test restored the current status after the fixture states.
 Both updated C4 diagrams rendered with their monitor relationships.
+
+## Commit review
+
+Reviewed `7eb9bf464735de59842592c4ea4f7b8e1cfb1601` for USB-05.
+The clean clone passed 23 tests, covered 233 of 233 executable lines, and caught nine mutations.
+The archive passed the packaged command checks and SHA-256 verification.
+The device returned `8b`, `8e` and `9a` as the first input bytes for red, yellow and green with fixture states.
+Live reads confirmed both local Codex sockets and both Claude profile commands.
+A live quota exhaustion and a live Codex input wait remain unobserved.
