@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.26: docs: record owner inputs D-013 to D-017 and the extended plan
 - 0.2.25: feat(scripts): add the step-by-step scope widening chain
 - 0.2.24: feat(run): time-boxed chunks and reuse of the discovery result
 - 0.2.23: feat(dashboard): project pseudonyms, reaction rate and decline columns

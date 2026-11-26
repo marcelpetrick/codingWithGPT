@@ -39,8 +39,18 @@ This is the one living document for this task. Read it first.
 | 7 | Iteration 1: prompt p2 for the weak spots, rerun, compare | done 10:34 |
 | 8 | Iteration 1: independent review (subagents), fixes, mutation testing | done 10:37 |
 | 9 | Real GitLab: bounded smoke, fixes from it | done 10:45 |
-| 10 | Real GitLab: full focus run (collect, analyze, evaluate, report) | running |
-| 11 | Final check against VISION.md section 10, push | open |
+| 10 | Real GitLab: full focus run (collect, evidence, analyze, evaluate, report) | running, ETA about 14:15 |
+| 11 | Owner D-013: reaction-rate and decline columns (unsortable) | done 12:20 |
+| 12 | Owner D-014: project pseudonyms in the name switch (REQ-UI-6) | done 12:20 |
+| 13 | Owner D-015: chunked scope widening (`--max-minutes`, discovery reuse, `scripts/widen.sh`, AGENTS.md) | done 12:21 |
+| 14 | Owner D-016: review of all documents (subagent) | open |
+| 15 | Owner D-016: `/reviewBranch` over the whole project (first project commit to HEAD), architecture included | open |
+| 16 | Owner D-016: self-review: run every command of README and WORKLOG from a clean clone | open |
+| 17 | Owner D-016: profiling of collect, evidence, analyze, evaluate, report; bottlenecks and improvements | open |
+| 18 | Fix all findings of steps 14 to 17, gate green, push | open |
+| 19 | After the focus run: final evidence, evaluate, report with current code | open |
+| 20 | Start `scripts/widen.sh` (steps 2 to 4, chunks of one hour); record each chunk | open |
+| 21 | Final check against VISION.md section 10 and docs/acceptance.md, push | open |
 
 ## Status (chronological, 2026-11-26, CET)
 
