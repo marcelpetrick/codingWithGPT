@@ -45,3 +45,22 @@ The implementation then passed all nine tests.
 The fixture writes to a regular file and checks the bytes that would reach hidraw.
 The CLI also ran with `--help` as a separate process. Coverage recorded 64 of 64 executable lines.
 The live `cycle` command reached the correct device path. Linux denied access before the first report.
+
+## CI and release decisions
+
+Use one Linux archive for Python 3.14.10. The distro supplies the kernel HID driver.
+The archive contains the controller, license and user documentation. It needs no Python packages at runtime.
+The dependency lock contains the development and lint tools. The release does not ship them.
+The coverage gate counts all executable lines in `traffic_light.py`.
+Build scripts, checks and fixtures are development tools outside the released application.
+
+The workflow checks pull requests and pushes when this directory is a repository root.
+The project boundary keeps the parent repository workflows outside this change.
+The release job uses GitHub's `GH_TOKEN` from the workflow context. No project secrets are required.
+It accepts tags such as `v1.2.3`. Use the major, minor and patch rules in Semantic Versioning.
+The changelog selects Conventional Commit subjects since the highest reachable previous release tag.
+No release tag exists for this project.
+
+Both Mermaid views rendered with Mermaid CLI 12.2.0 and Chromium.
+They describe the Python process and the Linux HID driver observed on the host.
+GitHub rendering and the hosted workflow run remain unverified in the directory checkout.

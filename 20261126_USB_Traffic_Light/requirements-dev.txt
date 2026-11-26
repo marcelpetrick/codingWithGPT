@@ -1,0 +1,48 @@
+application-file-scanner==0.6.4
+    # via pymarkdownlnt
+application-properties==0.9.3
+    # via pymarkdownlnt
+black==26.10.1
+click==8.5.1
+    # via black
+columnar==1.4.1
+    # via pymarkdownlnt
+coverage==7.17.5
+mypy-extensions==1.2.0
+    # via black
+packaging==26.4
+    # via black
+pathspec==1.1.1
+    # via
+    #   black
+    #   yamllint
+platformdirs==4.14.8
+    # via black
+py-walk==0.3.3
+    # via
+    #   application-file-scanner
+    #   pymarkdownlnt
+pyjson5==2.0.1
+    # via application-properties
+pymarkdownlnt==0.9.42
+pytokens==0.4.1
+    # via black
+pyyaml==6.0.4
+    # via
+    #   application-properties
+    #   yamllint
+ruff==0.17.6
+sly==0.5
+    # via py-walk
+tomli==2.5.0
+    # via application-properties
+toolz==1.2.0
+    # via columnar
+typing-extensions==4.16.0
+    # via
+    #   application-file-scanner
+    #   application-properties
+    #   pymarkdownlnt
+wcwidth==0.9.5
+    # via columnar
+yamllint==1.38.0

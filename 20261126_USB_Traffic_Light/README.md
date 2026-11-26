@@ -78,6 +78,8 @@ With one accessible light, use `./USBswitchCmd r y` for red and yellow or `./USB
 Linux with Python 3.14 is the supported target. The program uses only the standard library.
 Run the commands from this directory.
 
+![Terminal output from the Python command help](docs/cli-help.png)
+
 1. Check that Linux sees the light.
 
    ```sh
@@ -123,6 +125,34 @@ with find_device("63813").open("wb", buffering=0) as device:
 ```
 
 Each CLI invocation locks the device while it sends reports. Use the CLI for concurrent callers.
+
+## Build and test
+
+Run these commands from a clean source checkout with Python 3.14.10 and Git.
+
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --only-binary=:all: -r requirements-dev.txt
+ruff check traffic_light.py tests tools
+black --check traffic_light.py tests tools
+pymarkdown --config .pymarkdown.json scan README.md docs
+yamllint --strict .github/workflows
+coverage erase
+coverage run --append -m unittest discover -s tests
+coverage run --append traffic_light.py --help
+coverage json -o - | python tools/check_coverage.py
+python tools/mutation_check.py
+python tools/build_release.py v0.0.0
+(cd dist && sha256sum --check SHA256SUMS)
+```
+
+The tests check reports without a USB device. The release build runs the packaged command and checks the missing-device error.
+The build writes a Linux source archive, SHA-256 checksums, an SPDX SBOM and a changelog in `dist/`.
+The local build uses `v0.0.0` as a test version. Publishing uses a checked Git tag through the release job.
+The project workflow also runs actionlint on its YAML and embedded shell commands.
+GitHub runs it when this directory is a repository root. The parent repository does not discover a workflow below its root.
+See the [architecture](docs/architecture.md) and [work record](docs/requirements.md).
 
 ## License
 
