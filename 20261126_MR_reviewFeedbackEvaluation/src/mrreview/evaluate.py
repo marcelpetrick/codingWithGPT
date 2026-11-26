@@ -77,6 +77,19 @@ def code_evidence(conn: sqlite3.Connection, thread: sqlite3.Row | dict[str, Any]
         return Evidence("unavailable", None)
     before = [v for v in versions if v["created_at"] <= start] or versions[:1]
     base = before[-1]
+    head_sha = None
+    if "first_note_id" in thread.keys():
+        row = conn.execute(
+            "SELECT head_sha FROM notes WHERE id=?", (thread["first_note_id"],)
+        ).fetchone()
+        head_sha = row[0] if row else None
+    if head_sha:  # the version the comment was written on is the exact base
+        exact = conn.execute(
+            "SELECT version_id, created_at, diffs_complete FROM mr_versions "
+            "WHERE project_id=? AND mr_iid=? AND head_sha=?",
+            (pid, iid, head_sha),
+        ).fetchone()
+        base = exact or base
     later = [v for v in versions if v["created_at"] > start]
     if not later:
         return Evidence("none", None)

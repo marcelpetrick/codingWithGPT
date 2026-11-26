@@ -303,3 +303,30 @@ def test_deleted_common_line_is_direct_even_if_text_repeats_far_away(
         ],
     )
     assert code_evidence(conn, T).level == "direct"
+
+
+def test_base_version_comes_from_the_comment_head_sha(conn: sqlite3.Connection) -> None:
+    changed = BASE[:]
+    changed[9] = "l10 fixed"
+    with db.tx(conn):
+        conn.execute(
+            "INSERT INTO mr_versions VALUES (1, 1, 1, 'sha-a', 'b', '2026-01-01T00:00:00+00:00', 1)"
+        )
+        conn.execute(
+            "INSERT INTO mr_versions VALUES (1, 1, 2, 'sha-b', 'b', '2026-01-01T13:00:00+00:00', 1)"
+        )
+        conn.execute(
+            "INSERT INTO mr_versions VALUES (1, 1, 3, 'sha-c', 'b', '2026-01-02T00:00:00+00:00', 1)"
+        )
+        conn.execute("INSERT INTO version_diffs VALUES (1, 1, 1, 'x.c', 'x.c', ?)", (diff(["x"]),))
+        conn.execute("INSERT INTO version_diffs VALUES (1, 1, 2, 'a.c', 'a.c', ?)", (diff(BASE),))
+        conn.execute(
+            "INSERT INTO version_diffs VALUES (1, 1, 3, 'a.c', 'a.c', ?)", (diff(changed),)
+        )
+        conn.execute(
+            "INSERT INTO notes(id, discussion_id, project_id, mr_iid, author_id, body, created_at, system, "
+            "resolvable, resolved, head_sha) VALUES (7, 'd', 1, 1, 2, 'x', '2026-01-01T12:00:00+00:00', 0, 1, 0, 'sha-b')"
+        )
+    # By time alone the base would be version 1, which lacks a.c. The comment was made on sha-b.
+    thread = {**T, "first_note_id": 7}
+    assert code_evidence(conn, thread) == Evidence("direct", "2026-01-02T00:00:00+00:00")
