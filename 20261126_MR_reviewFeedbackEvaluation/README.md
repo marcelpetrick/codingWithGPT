@@ -1,7 +1,7 @@
 # mrreview: GitLab review and collaboration analytics
 
 [![pipeline](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml/badge.svg)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml)
-![version](https://img.shields.io/badge/version-0.2.0-blue)
+![version](https://img.shields.io/badge/version-0.2.13-blue)
 ![coverage](https://img.shields.io/badge/line%20coverage-%E2%89%A599%25-brightgreen)
 ![python](https://img.shields.io/badge/python-3.14-blue)
 [![license](https://img.shields.io/badge/license-GPLv3-blue)](../LICENSE)
@@ -28,8 +28,9 @@ A promise is not a fix. A resolved thread is not proof. A reasoned "no" is a leg
 | Item | State |
 |---|---|
 | Pipeline (collect, normalize, analyze, evaluate, report) | done, tested |
-| Live LLM on synthetic threads (`.67`, qwen3.6 35B-A3B) | done: 284/284 valid, 90% agreement with the fixture truth (prompt p1) |
-| Live run on real GitLab data | **blocked**: needs a token and the organisational authorization of [VISION.md](VISION.md) section 8 |
+| Live LLM on synthetic threads (`.67`, qwen3.6 35B-A3B) | done: all valid; agreement with the fixture truth 90.3% (prompt p1), **98.9% (prompt p2)** |
+| Independent review | 27 findings, all fixed: [docs/review_20261126.md](docs/review_20261126.md) |
+| Live run on real GitLab data | bounded smoke done; full run on the owner's projects (`--focus-user`) on 2026-11-26, data kept local |
 
 The living work log is [WORKLOG.md](WORKLOG.md). Requirements: [docs/requirements.md](docs/requirements.md).
 Decisions: [docs/decisions.md](docs/decisions.md). Architecture (C4): [docs/architecture.md](docs/architecture.md).
@@ -65,10 +66,11 @@ Do these steps only after the authorization in VISION.md section 8 is confirmed.
    export MRREVIEW_OLLAMA_MODEL=qwen3.6:35b-a3b-q4_K_M-agentic
    ```
 
-2. Start with a bounded smoke test (2 projects, 5 MRs each, 20 threads):
+2. Start with a bounded smoke test (2 projects, 5 MRs each, 20 threads). Add `--focus-user <username>`
+   to rank projects by that person's MRs as author or reviewer, and `--focus-only` to analyse only those:
 
    ```bash
-   uv run mrreview smoke --authorized --out out/smoke
+   uv run mrreview smoke --authorized --focus-user <username> --focus-only --out out/smoke
    ```
 
 3. Read `out/smoke/smoke_dashboard.html` and check some threads against GitLab.
