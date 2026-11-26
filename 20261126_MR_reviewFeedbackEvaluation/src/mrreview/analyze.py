@@ -120,7 +120,7 @@ def _todo(conn: sqlite3.Connection, model: str, limit: int | None) -> tuple[list
         c.model AS c_model, c.status AS c_status, f.cache_key AS f_key, f.attempts AS f_attempts
         FROM threads t LEFT JOIN classifications c ON c.thread_id = t.id
         LEFT JOIN classification_failures f ON f.thread_id = t.id
-        WHERE t.substantive = 1 ORDER BY t.created_at, t.id"""
+        WHERE t.substantive = 1 ORDER BY t.created_at DESC, t.id"""
     ).fetchall()
     todo: list[sqlite3.Row] = []
     reused = 0
