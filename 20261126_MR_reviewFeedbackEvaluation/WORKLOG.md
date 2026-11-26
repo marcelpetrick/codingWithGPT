@@ -4,7 +4,7 @@ This is the one living document for this task. Read it first.
 
 ## Verdict so far
 
-**Focus run on real data done (14:10); scope widening running in 1-hour chunks (since 14:31). All review findings fixed.**
+**Focus run on real data done (14:10). Scope widening step 2 stopped at 15:50: the session stopped the chain because the laptop was low on memory. All review findings fixed.**
 
 - MVP green (v0.2.0, 10:20). Pushed to GitHub at 10:21. CI and Pages build of the push: see "Status".
 - Prompt p2 (10:34): **275/278 = 98.9%** text-outcome agreement with the fixture truth (p1: 251/278 = 90.3%).
@@ -50,7 +50,7 @@ This is the one living document for this task. Read it first.
 | 18 | Owner D-018: database portable (backup before migrations, `db-pack`, `db-export`/`db-import`, pinned migration checksums) | done 12:25 |
 | 18b | Fix all findings of steps 14 to 18, gate green, push | done 14:36 |
 | 19 | After the focus run: final evidence, evaluate, report with current code | done 14:31 |
-| 20 | `scripts/widen.sh` (steps 2 to 4, chunks of one hour); record each chunk | running since 14:31 (restarted 14:33 after a script edit) |
+| 20 | `scripts/widen.sh` (steps 2 to 4, chunks of one hour); record each chunk | step 1 done 14:35; step 2 chunk 1 stopped 15:50 (low memory, not a tool defect); waits for owner restart |
 | 21 | Final check against VISION.md section 10 and docs/acceptance.md, push | open |
 
 ## Status (chronological, 2026-11-26, CET)
@@ -86,6 +86,8 @@ This is the one living document for this task. Read it first.
 | 14:26 | Profiling: report path 1 h+ → 8 s. |
 | 14:31 | reviewBranch findings fixed (gate 256 tests); final focus report; widen.sh started. |
 | 14:35 | Document review findings fixed; drift tests added. |
+| 14:35 | Widening step 1 done (no new work). Step 2 (top 50 projects): collection 2,880 MRs, 0 failed. |
+| 15:50 | Step 2 chunk 1 stopped at 780/1,364 threads. Claude Code stopped the chain: RAM 29/31 GiB, swap 26/33 GiB, mostly Firefox tabs. Database state is consistent: 4,848 classified, 2 failed. |
 
 ## Results
 
@@ -108,7 +110,16 @@ This is the one living document for this task. Read it first.
 | evaluate | 0.4 s | none | — |
 | report | did not finish in 1 h, now **8 s** | name masking compiled ~200 regexes per text | One compiled pattern per name set; mask only the shown part. |
 
-## Resume here (state at 12:26, usage limit reached)
+## Resume here (state at 15:50)
+
+The widening chain stopped in step 2, chunk 1 (low memory on the laptop). All stages are idempotent.
+
+1. Close unused Firefox tabs. Check that `free -h` shows several GiB available.
+2. Restart the chain:
+   `systemd-inhibit --what=sleep:idle --why="mrreview scope widening" env MRREVIEW_GITLAB_URL=https://git.data-modul.com MRREVIEW_FOCUS_USER=MPetrick scripts/widen.sh >> out/widen.stdout 2>&1`
+3. Look at `tail out/widen.log`. Step 1 is skipped quickly; step 2 continues at the open threads.
+
+## Earlier resume point (state at 12:26, usage limit reached)
 
 Done since the plan update: steps 11 to 13, step 15 (reviewBranch: 9 findings, open, `docs/review_20261126_branch.md`),
 step 18 (database portability: migration backups, `db-pack`, `db-export`, `db-import`, pinned migration checksums).
