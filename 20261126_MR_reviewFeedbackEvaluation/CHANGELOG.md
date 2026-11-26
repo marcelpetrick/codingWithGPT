@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.5: fix(evaluate): valid decision notes, meaningful replies, safer evidence
 - 0.2.4: fix(analyze): keep valid results and survive bad replies
 - 0.2.3: fix(security): refuse redirects and mask more name forms
 - 0.2.2: test: close mutation-testing gaps in time, text and censoring

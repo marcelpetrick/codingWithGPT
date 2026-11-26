@@ -25,6 +25,7 @@ from mrreview import db
 from mrreview.bizhours import BusinessCalendar
 from mrreview.config import Config
 from mrreview.diffs import new_side_lines, window
+from mrreview.textutil import is_routine
 
 CHANGE_OUTCOMES = frozenset({"implemented", "alternative_implemented", "partially_implemented"})
 TEXT_TO_OUTCOME = {
@@ -51,6 +52,7 @@ DECISION_ACTS = frozenset(
     }
 )
 LINE_RADIUS = 2
+SHIFT_RADIUS = 60  # a commented line that moved by more lines than this counts as changed
 
 
 @dataclass(frozen=True)
@@ -91,6 +93,8 @@ def code_evidence(conn: sqlite3.Connection, thread: sqlite3.Row | dict[str, Any]
     base_diffs = diffs(base["version_id"])
     incomplete = not base["diffs_complete"] or any(not v["diffs_complete"] for v in later)
     path, line = thread["new_path"], thread["new_line"]
+    if path and path not in base_diffs and not base["diffs_complete"]:
+        return Evidence("unavailable", None)  # the base diff of the commented file is missing
     indirect: str | None = None
     for v in later:
         cur = diffs(v["version_id"])
@@ -98,12 +102,14 @@ def code_evidence(conn: sqlite3.Connection, thread: sqlite3.Row | dict[str, Any]
             old, new = base_diffs.get(path), cur.get(path)
             if old == new:
                 continue
+            if new is None and not v["diffs_complete"]:
+                continue  # missing in an incomplete version: no evidence either way
             if old is None or new is None or not line:
                 indirect = indirect or v["created_at"]
                 continue
             old_lines, new_lines = new_side_lines(old), new_side_lines(new)
             near = window(old_lines, int(line), LINE_RADIUS)
-            surviving = set(new_lines.values())
+            surviving = set(window(new_lines, int(line), SHIFT_RADIUS).values())
             if any(text not in surviving for text in near.values()):
                 return Evidence("direct", v["created_at"])
             indirect = indirect or v["created_at"]
@@ -169,18 +175,25 @@ def timings(
 ) -> dict[str, Any]:
     """Elapsed times from the first note. A missing event is pending, never zero."""
     notes = conn.execute(
-        "SELECT id, author_id, created_at FROM notes WHERE discussion_id=? AND system=0 "
+        "SELECT id, author_id, created_at, body FROM notes WHERE discussion_id=? AND system=0 "
         "ORDER BY created_at, id",
         (thread["id"],),
     ).fetchall()
     kinds = {r[0]: r[1] for r in conn.execute("SELECT id, kind FROM users")}
     start = thread["created_at"]
-    times = {n["id"]: n["created_at"] for n in notes}
+    # A decision must come after the opening note and not from the giver (the model can point anywhere).
+    times = {
+        n["id"]: n["created_at"]
+        for n in notes
+        if n["created_at"] > start and n["author_id"] != thread["giver_id"]
+    }
     first_response = next(
         (
             n["created_at"]
             for n in notes[1:]
-            if n["author_id"] != thread["giver_id"] and kinds.get(n["author_id"]) != "bot"
+            if n["author_id"] != thread["giver_id"]
+            and kinds.get(n["author_id"]) != "bot"
+            and not is_routine(n["body"])
         ),
         None,
     )
@@ -216,6 +229,15 @@ def timings(
     return out
 
 
+def _role(author: int | None, thread: sqlite3.Row) -> str:
+    """Who wrote a response note: the recipient, the giver, or someone else."""
+    if author is not None and author == thread["recipient_id"]:
+        return "recipient"
+    if author is not None and author == thread["giver_id"]:
+        return "giver"
+    return "other"
+
+
 def run_evaluate(conn: sqlite3.Connection, cfg: Config) -> dict[str, int]:
     """Rebuild the findings table from valid classifications. Returns counts per outcome."""
     cutoff = db.get_meta(conn, "snapshot_at")
@@ -225,11 +247,12 @@ def run_evaluate(conn: sqlite3.Connection, cfg: Config) -> dict[str, int]:
         cfg.zone(), cfg.business_start_hour, cfg.business_end_hour, frozenset(cfg.holidays)
     )
     rows = conn.execute("""SELECT t.*, c.result_json, m.state AS mr_state FROM threads t
-        JOIN classifications c ON c.thread_id = t.id AND c.status = 'ok' AND c.input_hash = t.input_hash
+        JOIN classifications c ON c.thread_id = t.id AND c.status = 'ok' AND c.input_hash = t.llm_hash
         JOIN merge_requests m ON m.project_id = t.project_id AND m.iid = t.mr_iid
         WHERE t.substantive = 1""").fetchall()
     counts: dict[str, int] = {}
     now = db.utcnow()
+    authors = {int(r[0]): r[1] for r in conn.execute("SELECT id, author_id FROM notes")}
     with db.tx(conn):
         conn.execute("DELETE FROM findings")
         for t in rows:
@@ -238,31 +261,34 @@ def run_evaluate(conn: sqlite3.Connection, cfg: Config) -> dict[str, int]:
                 outcome, verification = decide(f["text_outcome"], f["abstain"], ev)
                 cens = censoring(outcome, t["mr_state"], t["last_note_at"], cutoff, cfg.censor_days)
                 tm = timings(conn, t, f, cal, ev, outcome, cutoff)
+                acts = [{**r, "by": _role(authors.get(r["note_id"]), t)} for r in f["responses"]]
+                row = {
+                    "thread_id": t["id"],
+                    "idx": idx,
+                    "summary": f["summary"],
+                    "intent": f["intent"],
+                    "actionability": f["actionability"],
+                    "validity": f["validity"],
+                    "tone": f["tone"],
+                    "criticism_target": f["criticism_target"],
+                    "responses": json.dumps({"acts": acts, "primary": f["primary_response"]}),
+                    "text_outcome": f["text_outcome"],
+                    "outcome": outcome,
+                    "verification": verification,
+                    "code_changed_after": int(ev.level in ("direct", "indirect")),
+                    "evidence_level": ev.level,
+                    "censored": cens,
+                    "deferral_ref": f["deferral_ref"],
+                    "decision_note_id": f["decision_note_id"],
+                    "evidence_note_ids": json.dumps(f["evidence_note_ids"]),
+                    "rationale": f["rationale"],
+                    "abstained": int(f["abstain"]),
+                    "timings": json.dumps(tm),
+                    "evaluated_at": now,
+                }
                 conn.execute(
-                    """INSERT INTO findings VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                    (
-                        t["id"],
-                        idx,
-                        f["summary"],
-                        f["intent"],
-                        f["actionability"],
-                        f["validity"],
-                        f["tone"],
-                        f["criticism_target"],
-                        json.dumps({"acts": f["responses"], "primary": f["primary_response"]}),
-                        f["text_outcome"],
-                        outcome,
-                        verification,
-                        int(ev.level in ("direct", "indirect")),
-                        cens,
-                        f["deferral_ref"],
-                        f["decision_note_id"],
-                        json.dumps(f["evidence_note_ids"]),
-                        f["rationale"],
-                        int(f["abstain"]),
-                        json.dumps(tm),
-                        now,
-                    ),
+                    f"INSERT INTO findings({', '.join(row)}) VALUES ({', '.join('?' for _ in row)})",
+                    tuple(row.values()),
                 )
                 counts[outcome] = counts.get(outcome, 0) + 1
         db.set_meta(conn, "evaluated_at", now)

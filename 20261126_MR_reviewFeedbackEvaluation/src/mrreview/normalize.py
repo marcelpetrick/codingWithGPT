@@ -39,7 +39,7 @@ def _kind(kinds: dict[int, str], uid: int | None) -> str:
 
 
 def classify_thread(
-    notes: list[NoteRow], mr_author: int | None, kinds: dict[int, str]
+    notes: list[NoteRow], mr_author: int | None, kinds: dict[int, str], title: str = ""
 ) -> dict[str, object] | None:
     """Derive the thread record from its notes, or None for a system-only discussion."""
     visible = [n for n in notes if not n.system]
@@ -108,15 +108,24 @@ def classify_thread(
         "new_path": first.new_path,
         "new_line": first.new_line,
         "input_hash": digest,
+        "llm_hash": _llm_hash(visible, mr_author, title),
     }
+
+
+def _llm_hash(visible: list[NoteRow], mr_author: int | None, title: str) -> str:
+    """Hash of what the LLM sees. Resolution changes do not change it (no needless re-classification)."""
+    payload = [NORMALIZER_VERSION, mr_author, title] + [
+        [n.id, n.author_id, n.body, n.created_at, n.new_path, n.new_line] for n in visible
+    ]
+    return hashlib.sha256(json.dumps(payload, ensure_ascii=False).encode()).hexdigest()
 
 
 def build_threads(conn: sqlite3.Connection) -> dict[str, int]:
     """Rebuild the threads table from collected notes. Returns counts per reason."""
     kinds = {int(r[0]): str(r[1]) for r in conn.execute("SELECT id, kind FROM users")}
     authors = {
-        (r[0], r[1]): r[2]
-        for r in conn.execute("SELECT project_id, iid, author_id FROM merge_requests")
+        (r[0], r[1]): (r[2], r[3])
+        for r in conn.execute("SELECT project_id, iid, author_id, title FROM merge_requests")
     }
     rows = conn.execute(
         """SELECT d.id, d.project_id, d.mr_iid, n.id, n.author_id, n.body, n.created_at, n.updated_at,
@@ -147,7 +156,8 @@ def build_threads(conn: sqlite3.Connection) -> dict[str, int]:
     with db.tx(conn):
         keep: set[str] = set()
         for did, (pid, iid, notes) in grouped.items():
-            rec = classify_thread(notes, authors.get((pid, iid)), kinds)
+            author, title = authors.get((pid, iid), (None, ""))
+            rec = classify_thread(notes, author, kinds, title)
             if rec is None:
                 continue
             keep.add(did)

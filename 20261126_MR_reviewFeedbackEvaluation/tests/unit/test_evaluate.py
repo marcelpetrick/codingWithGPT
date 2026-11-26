@@ -170,7 +170,7 @@ def test_timings_pending_is_never_zero(conn: sqlite3.Connection) -> None:
             "INSERT INTO notes(id, discussion_id, project_id, mr_iid, author_id, body, created_at, system, resolvable, resolved) VALUES "
             "(1, 'd', 1, 1, 2, 'x', '2026-11-23T09:00:00+00:00', 0, 1, 0),"
             "(2, 'd', 1, 1, 9, 'bot', '2026-11-23T09:30:00+00:00', 0, 1, 0),"
-            "(3, 'd', 1, 1, 1, 'ok', '2026-11-23T11:00:00+00:00', 0, 1, 0)"
+            "(3, 'd', 1, 1, 1, 'Fixed the null check.', '2026-11-23T11:00:00+00:00', 0, 1, 0)"
         )
     cal = BusinessCalendar(ZoneInfo("UTC"))
     thread = {
@@ -189,7 +189,7 @@ def test_timings_pending_is_never_zero(conn: sqlite3.Connection) -> None:
     tm2 = timings(
         conn,
         {**thread, "resolvable": 0},
-        {"decision_note_id": 1, "responses": []},
+        {"decision_note_id": 3, "responses": []},
         cal,
         D,  # type: ignore[arg-type]
         "open",
@@ -197,4 +197,109 @@ def test_timings_pending_is_never_zero(conn: sqlite3.Connection) -> None:
     )
     assert tm2["implementation"] == {"state": "n/a"}
     assert tm2["resolution"] == {"state": "n/a"}
-    assert tm2["decision"]["wall_h"] == 0.0
+    assert tm2["decision"]["wall_h"] == 2.0
+
+
+def test_first_response_skips_routine_notes(conn: sqlite3.Connection) -> None:
+    with db.tx(conn):
+        conn.execute(
+            "INSERT INTO users VALUES (1, 'a', 'A', 'human', NULL), (2, 'b', 'B', 'human', NULL)"
+        )
+        conn.execute(
+            "INSERT INTO notes(id, discussion_id, project_id, mr_iid, author_id, body, created_at, "
+            "system, resolvable, resolved) VALUES "
+            "(1, 'd', 1, 1, 2, 'Leak here?', '2026-11-23T09:00:00+00:00', 0, 1, 0),"
+            "(2, 'd', 1, 1, 1, '👍', '2026-11-23T09:05:00+00:00', 0, 1, 0),"
+            "(3, 'd', 1, 1, 1, 'Yes, closed it now.', '2026-11-23T12:00:00+00:00', 0, 1, 0)"
+        )
+    cal = BusinessCalendar(ZoneInfo("UTC"))
+    thread = {
+        "id": "d",
+        "giver_id": 2,
+        "created_at": "2026-11-23T09:00:00+00:00",
+        "resolved_at": None,
+        "resolvable": 0,
+    }
+    tm = timings(
+        conn,
+        thread,
+        {"decision_note_id": None, "responses": []},
+        cal,
+        N,
+        "open",  # type: ignore[arg-type]
+        "2026-11-24T00:00:00+00:00",
+    )
+    assert tm["first_response"]["wall_h"] == 3.0
+
+
+def test_evidence_missing_base_diff_is_unavailable(conn: sqlite3.Connection) -> None:
+    seed(
+        conn,
+        [
+            (1, "2026-01-01T00:00:00+00:00", {}, 0),
+            (2, "2026-01-02T00:00:00+00:00", {"a.c": BASE}, 1),
+        ],
+    )
+    assert code_evidence(conn, T) == Evidence("unavailable", None)
+
+
+def test_evidence_file_missing_in_incomplete_later_version(conn: sqlite3.Connection) -> None:
+    seed(
+        conn,
+        [
+            (1, "2026-01-01T00:00:00+00:00", {"a.c": BASE}, 1),
+            (2, "2026-01-02T00:00:00+00:00", {}, 0),
+        ],
+    )
+    assert code_evidence(conn, T) == Evidence("unavailable", None)
+
+
+def test_response_roles() -> None:
+    from mrreview.evaluate import _role
+
+    t = {"recipient_id": 1, "giver_id": 2}
+    assert _role(1, t) == "recipient"  # type: ignore[arg-type]
+    assert _role(2, t) == "giver"  # type: ignore[arg-type]
+    assert _role(3, t) == "other"  # type: ignore[arg-type]
+    assert _role(None, t) == "other"  # type: ignore[arg-type]
+
+
+def test_decision_on_opening_note_is_ignored(conn: sqlite3.Connection) -> None:
+    with db.tx(conn):
+        conn.execute(
+            "INSERT INTO users VALUES (1, 'a', 'A', 'human', NULL), (2, 'b', 'B', 'human', NULL)"
+        )
+        conn.execute(
+            "INSERT INTO notes(id, discussion_id, project_id, mr_iid, author_id, body, created_at, "
+            "system, resolvable, resolved) VALUES "
+            "(1, 'd', 1, 1, 2, 'Leak here?', '2026-11-23T09:00:00+00:00', 0, 1, 0),"
+            "(2, 'd', 1, 1, 2, 'Also, ping.', '2026-11-23T10:00:00+00:00', 0, 1, 0)"
+        )
+    cal = BusinessCalendar(ZoneInfo("UTC"))
+    thread = {
+        "id": "d",
+        "giver_id": 2,
+        "created_at": "2026-11-23T09:00:00+00:00",
+        "resolved_at": None,
+        "resolvable": 0,
+    }
+    f = {"decision_note_id": 1, "responses": [{"note_id": 2, "act": "agreement"}]}
+    tm = timings(conn, thread, f, cal, N, "open", "2026-11-24T00:00:00+00:00")  # type: ignore[arg-type]
+    assert tm["decision"]["state"] == "pending"
+
+
+def test_deleted_common_line_is_direct_even_if_text_repeats_far_away(
+    conn: sqlite3.Connection,
+) -> None:
+    lines = [f"l{i}" for i in range(1, 200)]
+    lines[9] = "return None"
+    lines[150] = "return None"
+    changed = lines[:9] + lines[10:]
+    seed(
+        conn,
+        [
+            (1, "2026-01-01T00:00:00+00:00", {"a.c": lines}, 1),
+            (2, "2026-01-02T00:00:00+00:00", {"a.c": changed}, 1),
+        ],
+    )
+    assert code_evidence(conn, T).level == "direct"

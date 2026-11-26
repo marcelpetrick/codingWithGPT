@@ -28,7 +28,7 @@ def seed(conn: sqlite3.Connection) -> None:
             conn.execute(
                 "INSERT INTO findings VALUES (?, 0, 's', 'defect', 'change_request', 'supported', "
                 "'neutral', 'code', ?, 'open', ?, 'not_applicable', 0, NULL, NULL, NULL, '[]', 'r', 0, "
-                "'{}', 'x')",
+                "'{}', 'x', 'none')",
                 (f"t{i}", '{"acts": [], "primary": "agreement"}', outcome),
             )
 
