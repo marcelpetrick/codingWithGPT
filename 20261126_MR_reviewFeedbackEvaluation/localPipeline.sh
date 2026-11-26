@@ -4,10 +4,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Usage:  ./localPipeline.sh            run all stages, stop at the first failure
-#         MUTATION=1 ./localPipeline.sh  also run mutation testing (slow, about 10 minutes)
 # Stages: install (uv, locked) · license headers · ruff lint · black check · mypy --strict ·
 #         node --check of the dashboard script · pytest (unit, integration, e2e in Chromium)
-#         with line coverage >= 99% · CLI smoke (demo dashboard) · optional mutation testing.
+#         with line coverage >= 99% · CLI smoke (demo dashboard) · mutation score >= 80%.
 # Needs:  uv, Python 3.14, Node.js (syntax check only). Playwright downloads Chromium once.
 #         No GitLab and no Ollama: the tests use fake HTTP servers.
 # Exit:   0 all green; 1 a stage failed (the summary names it).
@@ -57,10 +56,15 @@ cli_smoke() {
   return $rc
 }
 
-mutation() {
-  rm -rf mutants && uv run mutmut run --max-children 4 >/dev/null 2>&1
-  uv run mutmut results 2>/dev/null | tee mutation_results.txt | tail -20
-  return 0
+mutation() {  # gate: killed / (killed + survived) >= 0.80 (equivalent survivors are listed in docs)
+  rm -rf mutants && uv run mutmut run --max-children 4 >/dev/null 2>&1 &&
+    uv run mutmut export-cicd-stats >/dev/null 2>&1 &&
+    uv run python -c "
+import json, sys
+s = json.load(open('mutants/mutmut-cicd-stats.json'))
+score = s['killed'] / (s['killed'] + s['survived'])
+print(f\"mutation score {s['killed']}/{s['killed'] + s['survived']} = {score:.3f} (gate 0.80)\")
+sys.exit(0 if score >= 0.80 else 1)"
 }
 
 stage "install"           install
@@ -71,5 +75,5 @@ stage "mypy strict"       uv run mypy
 stage "dashboard syntax"  node --check src/mrreview/assets/dashboard.js
 stage "pytest coverage"   uv run pytest -q
 stage "cli smoke"         cli_smoke
-if [ "${MUTATION:-0}" = "1" ]; then stage "mutation testing" mutation; fi
+stage "mutation testing"  mutation
 print_summary

@@ -29,8 +29,12 @@ def test_calendar_uses_its_own_timezone_not_the_machine_one() -> None:
 
 
 def test_censoring_boundary_is_inclusive() -> None:
-    assert evaluate.censoring("open", "opened", "2026-11-06T12:00:00+00:00",
-                              "2026-11-20T12:00:00+00:00", 14) == "recent"
+    assert (
+        evaluate.censoring(
+            "open", "opened", "2026-11-06T12:00:00+00:00", "2026-11-20T12:00:00+00:00", 14
+        )
+        == "recent"
+    )
 
 
 def test_truncate_to_one_grapheme() -> None:
@@ -45,8 +49,9 @@ def test_routine_word_limit() -> None:
 
 def test_span_keeps_fractions() -> None:
     cal = BusinessCalendar(ZoneInfo("UTC"))
-    obs = evaluate._span(cal, "2026-11-23T09:00:00+00:00", "2026-11-23T09:20:00+00:00",
-                         "2026-11-24T00:00:00+00:00")
+    obs = evaluate._span(
+        cal, "2026-11-23T09:00:00+00:00", "2026-11-23T09:20:00+00:00", "2026-11-24T00:00:00+00:00"
+    )
     assert obs == {"state": "observed", "wall_h": 0.333, "biz_h": 0.333}
     pend = evaluate._span(cal, "2026-11-23T09:00:00+00:00", None, "2026-11-23T09:20:00+00:00")
     assert pend == {"state": "pending", "open_h": 0.33}

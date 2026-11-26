@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.8: docs: record the review, fix requirement checks, gate mutations
 - 0.2.7: fix(report): honest coverage, per-thread times, recipient-only acts
 - 0.2.6: feat(collect): focus user selection, per-project failure handling
 - 0.2.5: fix(evaluate): valid decision notes, meaningful replies, safer evidence
