@@ -28,8 +28,21 @@ def _intent(text: str) -> tuple[str, str]:
         return "style", "optional_suggestion"
     rules = [
         (("token", "sql"), "security"),
-        (("null", "crash", "underflow", "use-after-free", "off-by-one", "nullptr", "millisekunden",
-          "vide", "swallowed", "hides the exception"), "defect"),
+        (
+            (
+                "null",
+                "crash",
+                "underflow",
+                "use-after-free",
+                "off-by-one",
+                "nullptr",
+                "millisekunden",
+                "vide",
+                "swallowed",
+                "hides the exception",
+            ),
+            "defect",
+        ),
         (("singleton", "free function", "mutex", "approach", "std::span"), "design"),
         (("test",), "test"),
         (("o(n", "duplicated", "split", "document"), "maintainability"),
@@ -45,6 +58,8 @@ def _intent(text: str) -> tuple[str, str]:
 def stub_classify(thread: dict[str, Any]) -> dict[str, Any]:
     """Classify a thread with keyword rules (for tests and the offline demo only)."""
     notes = thread["notes"]
+    if not notes:
+        return {"findings": []}
     first = notes[0]
     intent, action = _intent(first["text"])
     replies = notes[1:]
@@ -80,7 +95,10 @@ def stub_classify(thread: dict[str, Any]) -> dict[str, Any]:
             act = "agreement"
             if "enabled" in tl:
                 act, outcome, validity = "explanation", "open", "supported"
-        if any(w in tl for w in ("thanks", "good catch", "merci", "🙏", "fair point")) and tone == "neutral":
+        if (
+            any(w in tl for w in ("thanks", "good catch", "merci", "🙏", "fair point"))
+            and tone == "neutral"
+        ):
             tone = "appreciative"
         responses.append({"note_id": r["id"], "act": act})
         if act != "acknowledgement" or outcome == "promised":
@@ -91,13 +109,20 @@ def stub_classify(thread: dict[str, Any]) -> dict[str, Any]:
         tone = "dismissive"
     abstain = "ignore all previous instructions" in first["text"].lower()
     finding = {
-        "summary": first["text"][:120], "intent": intent, "actionability": action,
-        "validity": validity, "responses": responses, "primary_response": primary, "tone": tone,
-        "criticism_target": "code", "text_outcome": "unknown" if abstain else outcome,
-        "deferral_ref": ref, "decision_note_id": decision,
+        "summary": first["text"][:120],
+        "intent": intent,
+        "actionability": action,
+        "validity": validity,
+        "responses": responses,
+        "primary_response": primary,
+        "tone": tone,
+        "criticism_target": "code",
+        "text_outcome": "unknown" if abstain else outcome,
+        "deferral_ref": ref,
+        "decision_note_id": decision,
         "evidence_note_ids": [n["id"] for n in notes[:3]],
         "rationale": f"Rule-based stub: first note {first['id']} read as {intent}; "
-                     f"{len(replies)} replies.",
+        f"{len(replies)} replies.",
         "abstain": abstain,
     }
     return {"findings": [finding]}
@@ -117,8 +142,12 @@ class FakeOllama:
         if path == "/api/version":
             return 200, b'{"version":"0.0.0-fake"}'
         if path == "/api/tags":
-            return 200, json.dumps({"models": [{"name": self.model, "model": self.model,
-                                                "digest": "f" * 64}]}).encode()
+            return (
+                200,
+                json.dumps(
+                    {"models": [{"name": self.model, "model": self.model, "digest": "f" * 64}]}
+                ).encode(),
+            )
         if path != "/api/chat" or method != "POST":
             return 404, b'{"error":"not found"}'
         req = json.loads(body)
@@ -143,8 +172,18 @@ class FakeOllama:
         elif fault == "bad_enum":
             result["findings"][0]["intent"] = "bug"
             content = json.dumps(result)
-        return 200, json.dumps({"model": self.model, "message": {"role": "assistant", "content": content},
-                                "done": True, "done_reason": "stop", "eval_count": 42}).encode()
+        return (
+            200,
+            json.dumps(
+                {
+                    "model": self.model,
+                    "message": {"role": "assistant", "content": content},
+                    "done": True,
+                    "done_reason": "stop",
+                    "eval_count": 42,
+                }
+            ).encode(),
+        )
 
 
 def _handler(fake: FakeOllama) -> type[BaseHTTPRequestHandler]:
@@ -161,7 +200,7 @@ def _handler(fake: FakeOllama) -> type[BaseHTTPRequestHandler]:
         do_GET = _serve
         do_POST = _serve
 
-        def log_message(self, format: str, *args: Any) -> None:  # noqa: A002
+        def log_message(self, format: str, *args: Any) -> None:
             return
 
     return Handler
