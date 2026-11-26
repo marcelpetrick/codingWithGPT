@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.18: docs(worklog): record the real collection result
 - 0.2.17: docs: check the system against VISION acceptance criteria
 - 0.2.16: docs(demo): rebuild the live demo with prompt p2 and bot reviews
 - 0.2.15: feat(analyze): classify threads of the focus user first

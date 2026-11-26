@@ -14,7 +14,10 @@ This is the one living document for this task. Read it first.
 - Real GitLab (owner request D-012, focus user MPetrick): bounded smoke at 10:41 worked. 2 projects, 16 MRs,
   25/25 valid classifications, no real name in the default view. It showed two weaknesses, both fixed:
   the base version now comes from the comment `head_sha`, and bot reviews with a human reply are analysed as source "bot".
-- Full real run started 10:45: 26 projects that involve the focus user, full MR history, newest threads first.
+- Full real run started 10:45 (restarted 10:46 with focus-first order): 26 projects that involve the focus user.
+  Collection done 11:29: **1,637 MRs, 0 failed**; threads: 3,581 substantive, 490 bot reviews, 2,621 bot-only,
+  1,389 author notes, 112 routine. 4,071 threads to classify (about 4.5 h at about 4 s each);
+  the focus user's 2,960 threads (2,048 as giver, 912 as recipient) go first (about 3.3 h).
   Data stays local (`out/real/`, git-ignored).
 
 ## Plan
@@ -54,6 +57,9 @@ This is the one living document for this task. Read it first.
 | 10:36 | All review fixes green: 226 tests, 99.6% line coverage. |
 | 10:41 | Real bounded smoke: works; evidence was always "indirect", 282 bot threads excluded. Analysed both. |
 | 10:45 | Fixes committed (head_sha base, bot reviews, newest first). Full real run started. |
+| 10:46 | Restarted with focus-first order; collection resumed. |
+| 10:48 | Pushed; CI green (both runs). |
+| 11:29 | Real collection done: 1,637 MRs, 0 failed, 4,071 threads to classify. |
 
 ## Results
 
