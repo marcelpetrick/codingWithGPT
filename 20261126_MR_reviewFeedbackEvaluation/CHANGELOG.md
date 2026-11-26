@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.1.13: feat(demo): add fake Ollama with a rule-based stub classifier
 - 0.1.12: feat(llm): add codebook prompt, output schema and validator
 - 0.1.11: feat(diffs): parse new-side lines of unified diffs
 - 0.1.10: fix(demo): apply fixture code changes in time order
