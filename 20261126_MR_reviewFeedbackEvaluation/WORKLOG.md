@@ -4,7 +4,7 @@ This is the one living document for this task. Read it first.
 
 ## Verdict so far
 
-**Iteration 1 done (v0.2.13, 2026-11-26 10:45). Live run on real GitLab data running.**
+**Focus run on real data done (14:10); scope widening running in 1-hour chunks (since 14:31). All review findings fixed.**
 
 - MVP green (v0.2.0, 10:20). Pushed to GitHub at 10:21. CI and Pages build of the push: see "Status".
 - Prompt p2 (10:34): **275/278 = 98.9%** text-outcome agreement with the fixture truth (p1: 251/278 = 90.3%).
@@ -31,26 +31,26 @@ This is the one living document for this task. Read it first.
 | # | Step | State |
 |---|---|---|
 | 1 | Scaffold, requirements, decisions, pipeline | done 09:35 |
-| 2 | MVP core: config, db, http, GitLab client, collect, normalize, business hours | done 08:42 |
-| 3 | MVP analysis: Ollama client, schema validation, analyze, evaluate | done 08:49 |
-| 4 | MVP report: dataset export, metrics, HTML dashboard | done 09:00 |
-| 5 | Synthetic GitLab fixture, demo, end-to-end and browser tests | done 09:16 |
-| 6 | Live Ollama run on synthetic threads | done 09:01 (p1) |
+| 2 | MVP core: config, db, http, GitLab client, collect, normalize, business hours | done 09:42 |
+| 3 | MVP analysis: Ollama client, schema validation, analyze, evaluate | done 09:49 |
+| 4 | MVP report: dataset export, metrics, HTML dashboard | done 10:00 |
+| 5 | Synthetic GitLab fixture, demo, end-to-end and browser tests | done 10:16 |
+| 6 | Live Ollama run on synthetic threads | done 10:01 (p1) |
 | 7 | Iteration 1: prompt p2 for the weak spots, rerun, compare | done 10:34 |
 | 8 | Iteration 1: independent review (subagents), fixes, mutation testing | done 10:37 |
 | 9 | Real GitLab: bounded smoke, fixes from it | done 10:45 |
-| 10 | Real GitLab: full focus run (collect, evidence, analyze, evaluate, report) | running, ETA about 14:15 |
+| 10 | Real GitLab: full focus run (collect, evidence, analyze, evaluate, report) | done 14:10 (4,060/4,071 valid) |
 | 11 | Owner D-013: reaction-rate and decline columns (unsortable) | done 12:20 |
 | 12 | Owner D-014: project pseudonyms in the name switch (REQ-UI-6) | done 12:20 |
 | 13 | Owner D-015: chunked scope widening (`--max-minutes`, discovery reuse, `scripts/widen.sh`, AGENTS.md) | done 12:21 |
-| 14 | Owner D-016: review of all documents (subagent) | open |
-| 15 | Owner D-016: `/reviewBranch` over the whole project (first project commit to HEAD), architecture included | open |
+| 14 | Owner D-016: review of all documents (subagent): 18 findings, fixed; drift tests added | done 14:35 |
+| 15 | Owner D-016: `/reviewBranch` over the whole project: 9 findings, all fixed | done 14:31 |
 | 16 | Owner D-016: self-review: run every command of README and WORKLOG from a clean clone | open |
-| 17 | Owner D-016: profiling of collect, evidence, analyze, evaluate, report; bottlenecks and improvements | open |
-| 18 | Owner D-018: database portable between machines and tool versions; converters where needed (`db-upgrade` with backup, `db-export`/`db-import`, migration test over all versions) | open |
-| 18b | Fix all findings of steps 14 to 18, gate green, push | open |
-| 19 | After the focus run: final evidence, evaluate, report with current code | open |
-| 20 | Start `scripts/widen.sh` (steps 2 to 4, chunks of one hour); record each chunk | open |
+| 17 | Owner D-016: profiling (see "Profiling" below): report did not finish in 1 h, now 8 s | done 14:26 |
+| 18 | Owner D-018: database portable (backup before migrations, `db-pack`, `db-export`/`db-import`, pinned migration checksums) | done 12:25 |
+| 18b | Fix all findings of steps 14 to 18, gate green, push | done 14:36 |
+| 19 | After the focus run: final evidence, evaluate, report with current code | done 14:31 |
+| 20 | `scripts/widen.sh` (steps 2 to 4, chunks of one hour); record each chunk | running since 14:31 (restarted 14:33 after a script edit) |
 | 21 | Final check against VISION.md section 10 and docs/acceptance.md, push | open |
 
 ## Status (chronological, 2026-11-26, CET)
@@ -80,16 +80,33 @@ This is the one living document for this task. Read it first.
 | 11:55 | Interim report: evidence almost always "indirect". Harness suspected first, confirmed: empty version diffs. |
 | 12:03 | Compare-API evidence stage committed (mutation gate caught missing unit tests on the way: 77.8% → 85.8%). |
 | 12:05 | Evidence stage on real data done; interim report regenerated. Analysis at 810/4,071. |
+| 12:20 | D-013/D-014 (decline columns, project pseudonyms), 12:21 D-015 (chunks, widen.sh). |
+| 12:25 | D-018 database portability; a migration edited after it ran was found and moved to migration 4. |
+| 14:10 | Focus run done: 4,060/4,071 valid. |
+| 14:26 | Profiling: report path 1 h+ → 8 s. |
+| 14:31 | reviewBranch findings fixed (gate 256 tests); final focus report; widen.sh started. |
+| 14:35 | Document review findings fixed; drift tests added. |
 
 ## Results
 
 | Measure | Value |
 |---|---|
-| Tests | 201 (unit, integration over HTTP, e2e in Chromium) |
-| Line coverage | 99.9% (gate 99%) |
-| Synthetic fixture | 6 projects (2 skipped), 148 MRs, 380 threads, 284 substantive |
-| Live LLM validity | 284/284 |
-| Live LLM agreement with truth (text outcome) | 251/278 = 90.3% |
+| Tests | 259 (unit, integration over HTTP, e2e in Chromium), plus document drift checks |
+| Line coverage | 99.1% (gate 99%) |
+| Mutation score | 626/730 = 85.8% (gate 80%) |
+| Synthetic fixture | 6 projects (2 skipped), 148 MRs, 401 threads, 305 substantive (incl. 21 bot reviews) |
+| Live LLM agreement with truth (text outcome) | p2: 275/278 = 98.9%; p1: 251/278 = 90.3% |
+| Real focus run | 26 projects, 1,637 MRs, 4,071 threads classified (4,060 valid), ~2.4 s per thread |
+
+## Profiling (14:20, real data, 4,071 threads)
+
+| Stage | Time | Bottleneck | Action |
+|---|---|---|---|
+| collect | ~0.8 s per MR (1,637 MRs: 25 min) | GitLab round trips, one MR after another | Possible: fetch MRs in parallel (2-4 workers). Not done: the server is shared. |
+| evidence | 1,955 compare calls in ~2 min | none | — |
+| analyze | ~2.4 s per thread (4,071: 2 h 40 min) | the single GPU of the Ollama box | Focus-first and newest-first order; 1-hour chunks. Larger batches need server changes (not ours). |
+| evaluate | 0.4 s | none | — |
+| report | did not finish in 1 h, now **8 s** | name masking compiled ~200 regexes per text | One compiled pattern per name set; mask only the shown part. |
 
 ## Resume here (state at 12:26, usage limit reached)
 
