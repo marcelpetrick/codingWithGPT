@@ -54,3 +54,20 @@ A separate process still owns the current monitor session on the host. Restart i
 
 The fixes inside the project pass local verification. Hosted CI needs a root workflow.
 The GitHub README link needs publication of the local commits.
+
+## Second review
+
+Base `origin/master` at `b9ddb0e`. Reviewed head `fc83c42`.
+The project diff contained 23 files and 2,682 additions.
+
+| Rank | Severity | Category | Location at reviewed head | Finding | Status |
+| --- | --- | --- | --- | --- | --- |
+| 1 | MEDIUM | Code | `agent_status.py:217` | A failed quota refresh discarded a recently verified block and could turn red to green before reset. | Fixed in `bf702dc`. The tests cover a failed refresh, the window reset and the cache age limit. |
+| 2 | MEDIUM | Code | `agent_status.py:315` | An interrupt during the first USB write could leave a color on because cleanup required a completed write. | Fixed in `bf702dc`. The test interrupts the first write and confirms the off command. |
+
+The Codex schema from the installed client confirmed the wait flags and quota-limited goal states.
+Both regression tests failed at the reviewed head.
+The clean checkout at `bf702dc` passed 39 tests and covered 299 of 299 executable lines.
+The tests caught all 13 mutations. The release archive and its checksums passed.
+The live dry run printed version 0.2.1 and queried both Claude and both Codex profiles.
+The hosted CI and GitHub publication decisions remain open.
