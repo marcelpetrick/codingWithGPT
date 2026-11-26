@@ -78,7 +78,7 @@ def code_evidence(conn: sqlite3.Connection, thread: sqlite3.Row | dict[str, Any]
     before = [v for v in versions if v["created_at"] <= start] or versions[:1]
     base = before[-1]
     head_sha = None
-    if "first_note_id" in thread.keys():
+    if "first_note_id" in thread.keys():  # noqa: SIM118 - "in" on a sqlite3.Row tests values
         row = conn.execute(
             "SELECT head_sha FROM notes WHERE id=?", (thread["first_note_id"],)
         ).fetchone()
