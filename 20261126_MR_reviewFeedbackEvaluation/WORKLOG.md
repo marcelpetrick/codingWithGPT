@@ -4,7 +4,7 @@ This is the one living document for this task. Read it first.
 
 ## Verdict so far
 
-**Focus run on real data done (14:10). Scope widening step 2 stopped at 15:50: the session stopped the chain because the laptop was low on memory. All review findings fixed.**
+**Scope widening done (17:37): all 76 active projects (of 706 visible), 3,274 MRs, 5,578 threads classified (5,574 valid). All review findings fixed.**
 
 - MVP green (v0.2.0, 10:20). Pushed to GitHub at 10:21. CI and Pages build of the push: see "Status".
 - Prompt p2 (10:34): **275/278 = 98.9%** text-outcome agreement with the fixture truth (p1: 251/278 = 90.3%).
@@ -50,7 +50,7 @@ This is the one living document for this task. Read it first.
 | 18 | Owner D-018: database portable (backup before migrations, `db-pack`, `db-export`/`db-import`, pinned migration checksums) | done 12:25 |
 | 18b | Fix all findings of steps 14 to 18, gate green, push | done 14:36 |
 | 19 | After the focus run: final evidence, evaluate, report with current code | done 14:31 |
-| 20 | `scripts/widen.sh` (steps 2 to 4, chunks of one hour); record each chunk | step 1 done 14:35; step 2 chunk 1 stopped 15:50 (low memory, not a tool defect); waits for owner restart |
+| 20 | `scripts/widen.sh` (steps 2 to 4, chunks of one hour); record each chunk | done 17:37 (one stop at 15:50 for low laptop memory, restarted 16:43) |
 | 21 | Final check against VISION.md section 10 and docs/acceptance.md, push | open |
 
 ## Status (chronological, 2026-11-26, CET)
@@ -88,6 +88,11 @@ This is the one living document for this task. Read it first.
 | 14:35 | Document review findings fixed; drift tests added. |
 | 14:35 | Widening step 1 done (no new work). Step 2 (top 50 projects): collection 2,880 MRs, 0 failed. |
 | 15:50 | Step 2 chunk 1 stopped at 780/1,364 threads. Claude Code stopped the chain: RAM 29/31 GiB, swap 26/33 GiB, mostly Firefox tabs. Database state is consistent: 4,848 classified, 2 failed. |
+| 16:43 | Owner: continue. Chain restarted (RAM 7 GiB available). |
+| 17:10 | Step 1 done: 6 new MRs, 594 threads (the step 2 leftovers included, analyze takes all open threads, focus first). |
+| 17:13 | Step 2 done: 4 new MRs, 3 threads. Only 76 projects are active in the 12-month window, so steps 3 and 4 select the same 76. |
+| 17:34 | Step 3 done: 26 more projects, 392 MRs, 140 threads (138 valid). |
+| 17:37 | Step 4 done: 1 MR, 1 thread. `all steps done`, exit 0. |
 
 ## Results
 
@@ -99,6 +104,7 @@ This is the one living document for this task. Read it first.
 | Synthetic fixture | 6 projects (2 skipped), 148 MRs, 401 threads, 305 substantive (incl. 21 bot reviews) |
 | Live LLM agreement with truth (text outcome) | p2: 275/278 = 98.9%; p1: 251/278 = 90.3% |
 | Real focus run | 26 projects, 1,637 MRs, 4,071 threads classified (4,060 valid), ~2.4 s per thread |
+| Real widened run (all active projects) | 76 of 706 visible projects, 3,274 MRs, 5,578 threads (5,574 valid); outcomes: 1,822 implemented, 898 justified no change, 1,420 open, 454 optional declined, 217 declined without reason, 176 deferred |
 
 ## Profiling (14:20, real data, 4,071 threads)
 
@@ -110,9 +116,9 @@ This is the one living document for this task. Read it first.
 | evaluate | 0.4 s | none | — |
 | report | did not finish in 1 h, now **8 s** | name masking compiled ~200 regexes per text | One compiled pattern per name set; mask only the shown part. |
 
-## Resume here (state at 15:50)
+## Resume here (state at 17:37)
 
-The widening chain stopped in step 2, chunk 1 (low memory on the laptop). All stages are idempotent.
+The widening chain is done (all steps, exit 0). To refresh with new GitLab activity, run the same chain again; it fetches only new work. All stages are idempotent.
 
 1. Close unused Firefox tabs. Check that `free -h` shows several GiB available.
 2. Restart the chain:
