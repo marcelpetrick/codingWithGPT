@@ -16,7 +16,7 @@ flowchart LR
   ollama[("Ollama server<br/>REST API, existing")]
   browser["Web browser<br/>(opens the HTML file offline)"]
   analyst -- "runs commands, configures token via environment" --> sys
-  sys -- "reads projects, MRs, discussions, versions, diffs (GET only)" --> gitlab
+  sys -- "reads projects, MRs, discussions, versions, diffs, compare (GET only)" --> gitlab
   sys -- "sends minimised thread text, receives JSON classification" --> ollama
   sys -- "writes one self-contained dashboard file" --> browser
   analyst -- "reads dashboard, follows links" --> browser
@@ -29,7 +29,7 @@ Purpose: show the parts of mrreview and the data each part owns. Scope: inside t
 
 ```mermaid
 flowchart TB
-  cli["CLI (mrreview.cli)<br/>stages: collect · normalize · analyze · evaluate · report"]
+  cli["CLI (mrreview.cli)<br/>stages: collect · normalize · evidence · analyze · evaluate · report"]
   db[("SQLite database<br/>raw data, threads, classifications, findings, work state")]
   html["dashboard.html<br/>inline CSS + JS + JSON, CSP blocks network"]
   gitlab[("GitLab REST API")]
@@ -49,7 +49,9 @@ flowchart LR
   http["http.py<br/>transport, retry"] --> gl["gitlab.py<br/>GET-only client"]
   gl --> collect["collect.py<br/>discover, select, collect, gaps"]
   collect --> norm["normalize.py<br/>threads, roles, substantive check"]
-  norm --> analyze["analyze.py<br/>context, cache by hash, concurrency"]
+  norm --> analyze["analyze.py<br/>context, cache by hash, concurrency, time budget"]
+  gl --> evid["evidence.py<br/>compare API per diff comment"]
+  evid --> evaluate
   llm["llm.py<br/>codebook prompt, schema, validator"] --> analyze
   analyze --> evaluate["evaluate.py<br/>code evidence, outcome, censoring, timings"]
   diffs["diffs.py"] --> evaluate
@@ -66,7 +68,8 @@ flowchart LR
 |---|---|---|
 | Unit of analysis | The review thread. The LLM splits it into findings. | REQ-UNIT-1 |
 | Determinism | Counting, timing, roles and code evidence are plain Python. The LLM only classifies text. | REQ-LLM-1 |
-| Evidence | Code evidence compares the new-side lines of the MR version before the comment with later versions. | REQ-OUT-1 |
+| Evidence | The GitLab compare API from the comment's head_sha to the final version decides direct or indirect; stored version diffs are the fallback (GitLab drops old version diffs). | REQ-OUT-1 |
+| Portability | Numbered migrations with pinned checksums, a backup before each migration, and a JSON-lines export that imports into the current layout. | REQ-DB-1 |
 | Resumption | A work table per MR and per thread; content hashes decide what is stale. | REQ-DB-2 |
 | Privacy | Names never reach the LLM (role labels). The HTML holds name tokens; the toggle swaps them. | REQ-UI-5 |
 | Safety | Model output is validated data. Nothing in it is executed. The client has no write method. | REQ-LLM-2, REQ-SEC-1 |

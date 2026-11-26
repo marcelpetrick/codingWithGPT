@@ -12,6 +12,7 @@
 #         `mrreview run <step> --max-minutes 60` (exit 0 = step done, exit 3 = more work: same step again).
 # Every chunk is idempotent: collection, evidence and classification resume where they stopped.
 # A failed chunk (any other exit code) stops the chain and is logged; it never deletes data.
+# A box that stays busy or unreachable for 6 checks (1 hour) stops the chain with exit code 4.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -41,10 +42,16 @@ box_free() {  # true when the shared box has no model loaded, or only ours
 }
 
 step=${START_STEP:-1}
+busy=0
 while [ "$step" -le "${#STEPS[@]}" ]; do
   args=${STEPS[$((step - 1))]}
   if [ -e out/widen.STOP ]; then log "stop file found; stopping before step $step"; exit 0; fi
-  if ! box_free; then log "Ollama box busy or unreachable; waiting 10 minutes"; sleep 600; continue; fi
+  if ! box_free; then
+    busy=$((busy + 1))
+    if [ "$busy" -ge 6 ]; then log "Ollama box busy or unreachable for 1 hour; chain stopped"; exit 4; fi
+    log "Ollama box busy or unreachable; waiting 10 minutes ($busy/6)"; sleep 600; continue
+  fi
+  busy=0
   log "step $step chunk start: $args"
   # shellcheck disable=SC2086
   uv run mrreview --db "$DB" run $args --max-minutes "$CHUNK_MINUTES" --out "$OUT" >>"$LOG" 2>&1

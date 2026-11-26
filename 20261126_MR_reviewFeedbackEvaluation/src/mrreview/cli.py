@@ -178,7 +178,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     r = sub.add_parser("report", help="write the HTML dashboard")
     r.add_argument("--out", type=Path, default=Path("out/dashboard.html"))
     r.add_argument("--demo", action="store_true", help="label the report as synthetic demo data")
-    run = sub.add_parser("run", help="all stages: collect, normalize, analyze, evaluate, report")
+    run = sub.add_parser(
+        "run", help="all stages: collect, normalize, evidence, analyze, evaluate, report"
+    )
     run.add_argument("--out", type=Path, default=Path("out/dashboard.html"))
     run.add_argument("--max-projects", type=int)
     run.add_argument("--max-mrs", type=int)

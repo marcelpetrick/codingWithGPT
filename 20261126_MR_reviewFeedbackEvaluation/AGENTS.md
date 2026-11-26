@@ -8,7 +8,7 @@ Ask an advisor for a recommendation when a project rule is unclear, conflicting,
 
 Make routine, reversible implementation decisions within the agreed scope, such as naming a private helper. Seek user approval before expanding scope, changing required behavior, publishing material, or taking an irreversible action.
 
-Use the project’s preferred technologies (html, csss, modern style). Explain any proposed change before adding a replacement.
+Use the project’s preferred technologies (HTML, CSS, modern style). Explain any proposed change before adding a replacement.
 
 Use these languages and frameworks: Shell, Python. When a task clearly needs a more domain-specific language, such as a query, shader, build, or hardware description language, use it and record why.
 
@@ -72,7 +72,7 @@ This section adds the engineering conventions of this repository. The rules abov
 
 ## Scope widening procedure (owner input D-015)
 
-Widen the analysed scope step by step. Spend the shared Ollama box in chunks of one hour.
+Widen the analysed scope step by step. Spend the Ollama box in chunks of one hour.
 
 1. Finish the current step before the next one starts. The steps are:
    1. the focus user's projects only (`--focus-user <user> --focus-only`);
@@ -82,7 +82,7 @@ Widen the analysed scope step by step. Spend the shared Ollama box in chunks of 
 
    The focus user's projects rank first in every step.
 2. Run one chunk as `mrreview run <step arguments> --max-minutes 60`. Exit code 0 means the step is done. Exit code 3 means work remains, so run the same step again.
-3. Use `scripts/widen.sh` to run the chain. It checks before each chunk that no other model is loaded on the box. It stops on any other exit code and when `out/widen.STOP` exists.
+3. Use `scripts/widen.sh` to run the chain. Before each chunk it checks that no other model is loaded on the Ollama box. It waits 10 minutes while the box is busy and stops after 6 failed checks (exit code 4). It stops on any other exit code and when `out/widen.STOP` exists.
 4. After each chunk, look at `out/widen.log` and the regenerated `out/real/dashboard.html`. Record the chunk in `WORKLOG.md` with time, step, classified count and anything unusual.
 5. Suspect the harness first. Explain a sudden jump in a figure before you start the next chunk.
 6. Never commit real data. `out/` is git-ignored. Public documents get aggregate numbers only, with no project or person names.

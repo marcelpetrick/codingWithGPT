@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.33: docs: add configuration and operations guides; update all records
 - 0.2.32: test(docs): guard version badge, test names and Liquid markers
 - 0.2.31: fix(collect): retry temporary errors, drop vanished projects, stable order
 - 0.2.30: fix(analyze): never book outages; one definition of a current result

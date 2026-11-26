@@ -1,7 +1,7 @@
 # Mutation testing
 
-Run: `MUTATION=1 ./localPipeline.sh`, or `uv run mutmut run` and `uv run mutmut results`.
-Scope: `bizhours.py`, `textutil.py`, `evaluate.py` (the modules with the most decision logic), against the unit tests.
+Run: `./localPipeline.sh` (stage "mutation testing", gate: score at least 80%), or `uv run mutmut run` and `uv run mutmut results`.
+Scope: `bizhours.py`, `textutil.py`, `evaluate.py`, `evidence.py` (the modules with the most decision logic), against the unit tests.
 The other modules are covered by integration and browser tests, which mutmut does not run here.
 
 ## Round 1 (2026-11-26, mutmut 3.8.1)
@@ -40,3 +40,14 @@ The new tests are in `tests/unit/test_mutation_gaps.py`.
 | Killed | 487 |
 | Survived | 78 (equivalent kinds above) |
 | Score over reached mutants | 487 / 565 = 86.2% |
+
+## Round 2 (2026-11-26, after the compare-API evidence stage)
+
+| Result | Count |
+|---|---|
+| Mutants | 730 |
+| Killed | 626 |
+| Score over reached mutants (the gate value) | 626 / 730 = 85.8% |
+
+The gate first failed at 77.8%: the new compare branch in `evaluate.py` had only integration tests.
+Unit tests for every branch (`test_compare_evidence_branches` and two more) brought it to 85.8%.
