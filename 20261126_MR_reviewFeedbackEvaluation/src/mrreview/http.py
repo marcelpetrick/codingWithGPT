@@ -56,8 +56,18 @@ def redact(url: str) -> str:
     return urlunsplit(parts._replace(query=urlencode(query)))
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Refuse redirects: urllib would copy the token header to the new host."""
+
+    def redirect_request(self, *args: object, **kwargs: object) -> None:
+        return None
+
+
+_OPENER = urllib.request.build_opener(_NoRedirect)
+
+
 class UrllibTransport:
-    """The real network transport (standard library)."""
+    """The real network transport (standard library). Redirects are refused."""
 
     def request(
         self, method: str, url: str, headers: Mapping[str, str], body: bytes | None, timeout: float
@@ -68,7 +78,7 @@ class UrllibTransport:
             url, data=body, method=method, headers=dict(headers)
         )
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
+            with _OPENER.open(req, timeout=timeout) as resp:
                 return Response(
                     resp.status, {k.lower(): v for k, v in resp.headers.items()}, resp.read()
                 )
@@ -119,6 +129,10 @@ def request_with_retry(
             sleep(wait if wait is not None else backoff_base * 2**attempt)
             attempt += 1
             continue
+        if 300 <= resp.status < 400:
+            raise HttpError(
+                resp.status, url, "redirects are refused (the token must not follow them)"
+            )
         if resp.status >= 400:
             raise HttpError(resp.status, url)
         return resp

@@ -50,9 +50,10 @@ def test_mask_names_replaces_mentions_and_names() -> None:
     users = {1: ("alice", "Alice Müller"), 2: ("bo", "Bo")}
     text = "@alice said Alice Müller agrees; email alice@example.org; @alicex; Bob"
     masked = identity.mask_names(text, users)
-    assert "⟦u:1⟧ said ⟦u:1⟧ agrees" in masked
-    assert "alice@example.org" in masked
-    assert "@alicex" in masked
+    assert masked.startswith("⟦u:1⟧ said ⟦u:1⟧ agrees")
+    assert "example.org" in masked
+    assert "@alicex" not in masked
+    assert "⟦u:?⟧" in masked  # unknown mention
     assert "Bob" in masked  # two-letter names are not replaced inside words
     assert identity.mask_names("plain", {}) == "plain"
 
@@ -60,3 +61,18 @@ def test_mask_names_replaces_mentions_and_names() -> None:
 def test_mask_names_handles_decomposed_input() -> None:
     users = {1: ("jose", "José Núñez")}
     assert identity.mask_names("Jose\u0301 Nu\u0301n\u0303ez wrote", users) == "⟦u:1⟧ wrote"
+
+
+def test_mask_names_review_findings() -> None:
+    users = {1: ("anna", "Anna Berg"), 2: ("john.doe", "Jo Do"), 3: ("john", "Johnathan Smithers")}
+    masked = identity.mask_names(
+        "thanks anna, see john.doe's note; @carol please check; ANNA BERG", users
+    )
+    assert "anna" not in masked.casefold()
+    assert "john.doe" not in masked
+    assert "carol" not in masked
+    assert masked.count("⟦u:1⟧") == 2
+    assert "⟦u:2⟧'s note" in masked
+    assert identity.mask_names("ping @john.doe.", users) == "ping ⟦u:2⟧."
+    assert identity.mask_names("ping @john.doe", users) == "ping ⟦u:2⟧"
+    assert identity.mask_names("Smithers fixed it", users) == "⟦u:3⟧ fixed it"

@@ -129,19 +129,43 @@ def label_for(conn: sqlite3.Connection, user_id: int) -> str:
     return label
 
 
-def mask_names(text: str, users: Mapping[int, tuple[str, str]]) -> str:
-    """Replace @mentions and full names of known users with the token ⟦u:ID⟧.
+UNKNOWN_MENTION = "⟦u:?⟧"
+_MENTION = regex.compile(r"(?<![\w.])@([A-Za-z0-9_][A-Za-z0-9_.\-]*[A-Za-z0-9_]|[A-Za-z0-9_])")
+_MIN_TOKEN = 3
 
-    The dashboard swaps the token for a pseudonym or the real name.
+
+def mask_names(text: str, users: Mapping[int, tuple[str, str]]) -> str:
+    """Replace names of people with tokens ⟦u:ID⟧; unknown @mentions become ⟦u:?⟧.
+
+    Masked: @mentions (longest username first), bare usernames, full names, and name parts of
+    at least three letters, all without regard to case. The dashboard swaps each token for a
+    pseudonym or the real name. Limit: nicknames and misspelled names stay visible.
     """
     out = normalize(text)
-    for uid, (username, name) in sorted(users.items(), key=lambda kv: -len(kv[1][1])):
-        token = f"⟦u:{uid}⟧"
-        if username:
-            out = regex.sub(
-                rf"(?<![\w.])@{regex.escape(username)}(?![\w-])", token, out, flags=regex.IGNORECASE
-            )
+    by_username = {u.casefold(): uid for uid, (u, _n) in users.items() if u}
+
+    def mention(m: regex.Match[str]) -> str:
+        handle = m.group(1)
+        uid = by_username.get(handle.casefold())
+        while uid is None and "." in handle:  # "@john.doe." at a sentence end
+            handle = handle.rsplit(".", 1)[0]
+            uid = by_username.get(handle.casefold())
+        rest = m.group(1)[len(handle) :]
+        return (f"⟦u:{uid}⟧" if uid is not None else UNKNOWN_MENTION) + rest
+
+    out = _MENTION.sub(mention, out)
+    patterns: list[tuple[str, int]] = []
+    for uid, (username, name) in users.items():
         clean = normalize(name).strip()
-        if len(clean) >= 3:
-            out = regex.sub(rf"(?<!\w){regex.escape(clean)}(?!\w)", token, out)
+        if len(clean) >= _MIN_TOKEN:
+            patterns.append((clean, uid))
+        patterns += [
+            (part, uid) for part in regex.split(r"[\s,]+", clean) if len(part) >= _MIN_TOKEN
+        ]
+        if len(username) >= _MIN_TOKEN:
+            patterns.append((username, uid))
+    for term, uid in sorted(patterns, key=lambda p: -len(p[0])):
+        out = regex.sub(
+            rf"(?<![\w⟦:]){regex.escape(term)}(?![\w⟧])", f"⟦u:{uid}⟧", out, flags=regex.IGNORECASE
+        )
     return out
