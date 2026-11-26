@@ -119,6 +119,18 @@ class GitLabClient:
             params["updated_after"] = updated_after
         return self.paginate(f"/projects/{self._p(project_id)}/merge_requests", params)
 
+    def involved_mrs(self, username: str, role: str, updated_after: str) -> Iterator[JSONDict]:
+        """MRs across all visible projects where username is the author or an assigned reviewer."""
+        if role not in ("author", "reviewer"):
+            raise ValueError("role must be author or reviewer")
+        params = {
+            "scope": "all",
+            "state": "all",
+            "updated_after": updated_after,
+            f"{role}_username": username,
+        }
+        return self.paginate("/merge_requests", params)
+
     def discussions(self, project_id: int, iid: int) -> Iterator[JSONDict]:
         return self.paginate(f"/projects/{self._p(project_id)}/merge_requests/{iid}/discussions")
 

@@ -30,6 +30,8 @@ class Config:
     gitlab_url: str = ""
     gitlab_token: str = field(default="", repr=False)
     discover_membership_only: bool = False
+    focus_username: str = ""
+    focus_only: bool = False
     include_archived: bool = False
     db_path: Path = Path("data/mrreview.sqlite3")
     window_months: int = 12
@@ -65,6 +67,7 @@ _ENV = {
     "MRREVIEW_DB": "db_path",
     "MRREVIEW_OLLAMA_URL": "ollama_url",
     "MRREVIEW_OLLAMA_MODEL": "ollama_model",
+    "MRREVIEW_FOCUS_USER": "focus_username",
 }
 
 

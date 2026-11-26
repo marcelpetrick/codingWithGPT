@@ -112,3 +112,24 @@ def test_config_file(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None
     cfg.write_text('gitlab_token = "x"\n', encoding="utf-8")
     assert cli.main(["--config", str(cfg), "status"]) == 1
     assert "environment" in capsys.readouterr().err
+
+
+def test_focus_flags(servers: None, tmp_path: Path) -> None:
+    from mrreview.demo.fixture import HUMANS
+
+    dbp = str(tmp_path / "f.sqlite3")
+    args = [
+        "--db",
+        dbp,
+        "run",
+        "--out",
+        str(tmp_path / "f.html"),
+        "--max-mrs",
+        "3",
+        "--focus-user",
+        HUMANS[1][1],
+        "--focus-only",
+    ]
+    assert cli.main(args) == 0
+    html = (tmp_path / "f.html").read_text(encoding="utf-8")
+    assert '"focus_user":102' in html

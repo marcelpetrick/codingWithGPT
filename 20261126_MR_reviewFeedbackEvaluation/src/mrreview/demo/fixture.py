@@ -611,6 +611,12 @@ class _Builder:
             }
         )
         key = (pid, iid)
+        givers = {
+            d["notes"][0]["author"]["id"]: d["notes"][0]["author"]
+            for d in discussions
+            if d["notes"][0]["author"]["id"] in {u["id"] for u in reviewers}
+        }
+        fx.mrs[pid][-1]["reviewers"] = list(givers.values())
         fx.discussions[key] = discussions
         approvers = rng.sample(reviewers, rng.randint(0, 2)) if state == "merged" else []
         fx.approvals[key] = {"approved_by": [{"user": u} for u in approvers]}

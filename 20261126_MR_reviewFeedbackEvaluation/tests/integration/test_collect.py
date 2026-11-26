@@ -3,6 +3,7 @@
 """Integration tests: collector against the fake GitLab over HTTP (REQ-COL-*, REQ-DB-2)."""
 
 import sqlite3
+from typing import Any
 
 import pytest
 
@@ -187,6 +188,7 @@ def test_client_is_read_only(gl: Env) -> None:
         "version",
         "commits",
         "requests",
+        "involved_mrs",
     }
     status, _, _ = gl.fake.handle("POST", "/api/v4/projects", {"private-token": "tok-123"})
     assert status == 405
@@ -221,3 +223,74 @@ def test_threads_from_collected_data(gl: Env, conn: sqlite3.Connection) -> None:
     assert not any(r["id"].startswith("sys") for r in rows.values())
     again = normalize.build_threads(conn)
     assert again == counts
+
+
+def test_failing_project_does_not_stop_the_others(gl: Env, conn: sqlite3.Connection) -> None:
+    gl.fake.faults = {r"/projects/11/merge_requests$": [500] * 8}
+    stats = collect.run_collect(gl.client, conn, gl.cfg, REFERENCE_NOW)
+    assert stats.mrs_collected == sum(len(gl.fixture.mrs[p]) for p in (12, 13, 14))
+    assert db.get_work(conn, "project", "11").status == "failed"  # type: ignore[union-attr]
+    kinds = {r[0] for r in conn.execute("SELECT kind FROM gaps WHERE scope='project'")}
+    assert kinds & {"activity_check_failed", "mr_list_failed"}
+    assert db.get_meta(conn, "snapshot_at") is not None
+    gl.fake.faults = {}
+    collect.run_collect(gl.client, conn, gl.cfg, REFERENCE_NOW)
+    assert db.get_work(conn, "project", "11").status == "done"  # type: ignore[union-attr]
+    assert conn.execute("SELECT COUNT(*) FROM gaps WHERE scope='project'").fetchone()[0] == 0
+
+
+def test_bounded_sample_is_recorded(gl: Env, conn: sqlite3.Connection) -> None:
+    collect.run_collect(gl.client, conn, gl.cfg, REFERENCE_NOW, max_projects=1, max_mrs=3)
+    assert db.get_meta(conn, "bounded_sample") == "1"
+    gap = conn.execute("SELECT detail FROM gaps WHERE kind='history_truncated'").fetchone()
+    assert gap[0].startswith("3 of ")
+    collect.run_collect(gl.client, conn, gl.cfg, REFERENCE_NOW)
+    assert db.get_meta(conn, "bounded_sample") == "0"
+    assert (
+        conn.execute("SELECT COUNT(*) FROM gaps WHERE kind='history_truncated'").fetchone()[0] == 0
+    )
+
+
+def test_failing_full_listing_is_recorded(gl: Env, conn: sqlite3.Connection) -> None:
+    real = gl.client.merge_requests
+
+    def flaky(pid: int, updated_after: str | None = None) -> Any:
+        if pid == 12 and updated_after is None:
+            raise HttpError(500, "http://x")
+        return real(pid, updated_after)
+
+    gl.client.merge_requests = flaky  # type: ignore[method-assign]
+    collect.run_collect(gl.client, conn, gl.cfg, REFERENCE_NOW)
+    assert db.get_work(conn, "project", "12").status == "failed"  # type: ignore[union-attr]
+    assert conn.execute("SELECT kind FROM gaps WHERE ref='12'").fetchone()[0] == "mr_list_failed"
+
+
+def test_focus_user_ranks_and_filters(gl: Env, conn: sqlite3.Connection) -> None:
+    from dataclasses import replace
+
+    from mrreview.demo.fixture import HUMANS
+
+    username = HUMANS[0][1]
+    involved = {
+        m["project_id"]
+        for ms in gl.fixture.mrs.values()
+        for m in ms
+        if m["author"]["username"] == username
+        or username in {r["username"] for r in m.get("reviewers", [])}
+    }
+    assert involved
+    cfg = replace(gl.cfg, focus_username=username, focus_only=True)
+    selected = collect.discover(gl.client, conn, cfg, REFERENCE_NOW)
+    assert set(selected) <= involved
+    focus = {r[0]: r[1] for r in conn.execute("SELECT id, focus_mrs FROM projects")}
+    assert [focus[p] for p in selected] == sorted((focus[p] for p in selected), reverse=True)
+    skipped = conn.execute("SELECT skip_reason FROM projects WHERE selected=0").fetchall()
+    assert (
+        any(r[0] == "focus user not involved in the window" for r in skipped) or len(involved) == 4
+    )
+    assert db.get_meta(conn, "focus_username") == username
+
+
+def test_involved_mrs_role_is_checked(gl: Env) -> None:
+    with pytest.raises(ValueError, match="role"):
+        list(gl.client.involved_mrs("x", "assignee", "2026-01-01"))

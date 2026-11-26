@@ -122,6 +122,18 @@ def cmd_smoke(args: argparse.Namespace, cfg: Config) -> int:
     return 0
 
 
+def _focus_args(p: argparse.ArgumentParser) -> None:
+    p.add_argument(
+        "--focus-user",
+        help="GitLab username: rank projects by this person's MRs as author or reviewer",
+    )
+    p.add_argument(
+        "--focus-only",
+        action="store_true",
+        help="analyse only projects that involve the focus user",
+    )
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="mrreview", description=__doc__)
     p.add_argument("--version", action="version", version=f"mrreview {__version__}")
@@ -131,6 +143,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     c = sub.add_parser("collect", help="discover projects and collect MR history")
     c.add_argument("--max-projects", type=int)
     c.add_argument("--max-mrs", type=int, help="most recent MRs per project (bounded sample)")
+    for sp in (c,):
+        _focus_args(sp)
     a = sub.add_parser("analyze", help="classify substantive threads with Ollama")
     a.add_argument("--limit", type=int)
     sub.add_parser("evaluate", help="verify outcomes and compute timings")
@@ -142,6 +156,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     run.add_argument("--max-projects", type=int)
     run.add_argument("--max-mrs", type=int)
     run.add_argument("--limit", type=int)
+    _focus_args(run)
     sub.add_parser("status", help="show work state and coverage")
     d = sub.add_parser("demo", help="run everything on synthetic data")
     d.add_argument("--out", default="out/demo")
@@ -153,6 +168,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     sm.add_argument("--max-projects", type=int, default=2)
     sm.add_argument("--max-mrs", type=int, default=5)
     sm.add_argument("--limit", type=int, default=20)
+    _focus_args(sm)
     sa = sub.add_parser("sample", help="write a stratified sample for manual annotation")
     sa.add_argument("--n", type=int, default=40)
     sa.add_argument("--out", type=Path, default=Path("out/annotation_sample.csv"))
@@ -163,6 +179,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         cfg = load_config(args.config, os.environ)
         if args.db:
             cfg = replace(cfg, db_path=args.db)
+        if getattr(args, "focus_user", None):
+            cfg = replace(cfg, focus_username=args.focus_user)
+        if getattr(args, "focus_only", False):
+            cfg = replace(cfg, focus_only=True)
         if args.cmd == "demo":
             return cmd_demo(args, cfg)
         if args.cmd == "smoke":

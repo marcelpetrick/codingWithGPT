@@ -71,6 +71,51 @@ def upsert_user(conn: sqlite3.Connection, user: JSONDict | None) -> int | None:
     return int(user["id"])
 
 
+def focus_counts(client: GitLabClient, cfg: Config, start: str) -> dict[int, int]:
+    """MRs per project in the window where the focus user is author or assigned reviewer."""
+    if not cfg.focus_username:
+        return {}
+    seen: dict[int, set[int]] = {}
+    for role in ("author", "reviewer"):
+        for mr in client.involved_mrs(cfg.focus_username, role, start):
+            seen.setdefault(int(mr["project_id"]), set()).add(int(mr["id"]))
+    return {pid: len(ids) for pid, ids in seen.items()}
+
+
+def _upsert_project(
+    conn: sqlite3.Connection,
+    p: JSONDict,
+    n_mrs: int,
+    n_notes: int,
+    skip: str | None,
+    focus_mrs: int,
+) -> None:
+    with db.tx(conn):
+        conn.execute(
+            """INSERT INTO projects(id, name, path, web_url, last_activity_at, archived,
+            window_mrs, window_notes, selected, skip_reason, discovered_at, focus_mrs)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET name=excluded.name, path=excluded.path,
+            web_url=excluded.web_url, last_activity_at=excluded.last_activity_at,
+            archived=excluded.archived, window_mrs=excluded.window_mrs,
+            window_notes=excluded.window_notes, skip_reason=excluded.skip_reason,
+            discovered_at=excluded.discovered_at, focus_mrs=excluded.focus_mrs""",
+            (
+                int(p["id"]),
+                p.get("name_with_namespace") or p.get("name", ""),
+                p.get("path_with_namespace", ""),
+                p.get("web_url", ""),
+                _ts(p.get("last_activity_at")),
+                int(bool(p.get("archived"))),
+                n_mrs,
+                n_notes,
+                skip,
+                db.utcnow(),
+                focus_mrs,
+            ),
+        )
+
+
 def discover(
     client: GitLabClient,
     conn: sqlite3.Connection,
@@ -87,10 +132,18 @@ def discover(
     found = list(
         client.projects(membership=cfg.discover_membership_only, archived=cfg.include_archived)
     )
+    focus = focus_counts(client, cfg, start)
     progress(f"discover: {len(found)} projects visible")
-    ranked: list[tuple[int, int, int]] = []
+    if cfg.focus_username:
+        progress(f"discover: focus user is involved in {len(focus)} projects")
+    ranked: list[tuple[int, int, int, int]] = []
     for p in found:
         pid = int(p["id"])
+        skip: str | None
+        if cfg.focus_only and pid not in focus:
+            n_mrs, n_notes, skip = 0, 0, "focus user not involved in the window"
+            _upsert_project(conn, p, n_mrs, n_notes, skip, 0)
+            continue
         try:
             mrs = list(client.merge_requests(pid, updated_after=start))
             n_mrs = len(mrs)
@@ -98,33 +151,22 @@ def discover(
             skip = None if n_mrs >= cfg.min_window_mrs else f"no MR activity since {start[:10]}"
         except NotAccessible:
             n_mrs, n_notes, skip = 0, 0, "merge requests not accessible"
-        with db.tx(conn):
-            conn.execute(
-                """INSERT INTO projects(id, name, path, web_url, last_activity_at, archived,
-                window_mrs, window_notes, selected, skip_reason, discovered_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)
-                ON CONFLICT(id) DO UPDATE SET name=excluded.name, path=excluded.path,
-                web_url=excluded.web_url, last_activity_at=excluded.last_activity_at,
-                archived=excluded.archived, window_mrs=excluded.window_mrs,
-                window_notes=excluded.window_notes, skip_reason=excluded.skip_reason,
-                discovered_at=excluded.discovered_at""",
-                (
-                    pid,
-                    p.get("name_with_namespace") or p.get("name", ""),
-                    p.get("path_with_namespace", ""),
-                    p.get("web_url", ""),
-                    _ts(p.get("last_activity_at")),
-                    int(bool(p.get("archived"))),
-                    n_mrs,
-                    n_notes,
-                    skip,
-                    db.utcnow(),
-                ),
-            )
+        except HttpError as exc:
+            n_mrs, n_notes, skip = 0, 0, "activity check failed; rerun collect"
+            with db.tx(conn):
+                db.record_gap(conn, "project", str(pid), "activity_check_failed", str(exc)[:200])
+                db.set_work(conn, "project", str(pid), "failed", error=str(exc)[:300])
+        else:
+            with db.tx(conn):
+                conn.execute(
+                    "DELETE FROM gaps WHERE scope='project' AND ref=? AND kind='activity_check_failed'",
+                    (str(pid),),
+                )
+        _upsert_project(conn, p, n_mrs, n_notes, skip, focus.get(pid, 0))
         if skip is None:
-            ranked.append((n_notes, n_mrs, pid))
+            ranked.append((focus.get(pid, 0), n_notes, n_mrs, pid))
     ranked.sort(reverse=True)
-    selected = [pid for _, _, pid in ranked]
+    selected = [pid for *_, pid in ranked]
     limited = selected[:max_projects] if max_projects is not None else selected
     with db.tx(conn):
         conn.execute("UPDATE projects SET selected = 0")
@@ -137,6 +179,7 @@ def discover(
                     (pid,),
                 )
         db.set_meta(conn, "window_start", start)
+        db.set_meta(conn, "focus_username", cfg.focus_username)
         db.set_work(conn, "discover", "all", "done")
     progress(f"discover: {len(limited)} selected, {len(found) - len(limited)} skipped")
     return limited
@@ -153,6 +196,15 @@ def list_project_mrs(
     """Store MR metadata (full history) and queue MRs that are new or changed."""
     count = 0
     mrs = list(client.merge_requests(pid))
+    with db.tx(conn):
+        conn.execute(
+            "DELETE FROM gaps WHERE scope='project' AND ref=? AND kind='history_truncated'",
+            (str(pid),),
+        )
+        if max_mrs is not None and len(mrs) > max_mrs:
+            db.record_gap(
+                conn, "project", str(pid), "history_truncated", f"{max_mrs} of {len(mrs)} MRs"
+            )
     if max_mrs is not None:
         mrs = sorted(mrs, key=lambda m: str(m.get("updated_at")), reverse=True)[:max_mrs]
     for mr in mrs:
@@ -344,7 +396,20 @@ def run_collect(
         selected = discover(client, conn, cfg, now, progress, max_projects)
         listed = 0
         for pid in selected:
-            listed += list_project_mrs(client, conn, pid, max_mrs)
+            try:
+                listed += list_project_mrs(client, conn, pid, max_mrs)
+            except (NotAccessible, HttpError) as exc:
+                with db.tx(conn):
+                    db.record_gap(conn, "project", str(pid), "mr_list_failed", str(exc)[:200])
+                    db.set_work(conn, "project", str(pid), "failed", error=str(exc)[:300])
+                progress(f"collect: MR list of project {pid} failed, continuing")
+                continue
+            with db.tx(conn):
+                conn.execute(
+                    "DELETE FROM gaps WHERE scope='project' AND ref=? AND kind='mr_list_failed'",
+                    (str(pid),),
+                )
+                db.set_work(conn, "project", str(pid), "done")
         todo = pending_mrs(conn)
         progress(f"collect: {len(todo)} MRs to fetch")
         done = failed = skipped = 0
@@ -370,6 +435,8 @@ def run_collect(
     with db.tx(conn):
         db.set_meta(conn, "snapshot_at", now.astimezone(UTC).isoformat(timespec="seconds"))
         db.set_meta(conn, "gitlab_requests", str(client.requests))
+        bounded = max_projects is not None or max_mrs is not None
+        db.set_meta(conn, "bounded_sample", "1" if bounded else "0")
     progress(f"collect: {done} fetched, {failed} failed, {skipped} not accessible")
     return CollectStats(len(selected), listed, done, failed, skipped)
 

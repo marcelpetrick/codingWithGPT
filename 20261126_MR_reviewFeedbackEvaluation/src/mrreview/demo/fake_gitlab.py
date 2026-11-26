@@ -21,6 +21,7 @@ from mrreview.demo.fixture import Fixture
 
 _ROUTES = [
     (re.compile(r"^/api/v4/projects$"), "projects"),
+    (re.compile(r"^/api/v4/merge_requests$"), "all_mrs"),
     (re.compile(r"^/api/v4/projects/(\d+)/merge_requests$"), "mrs"),
     (re.compile(r"^/api/v4/projects/(\d+)/merge_requests/(\d+)/discussions$"), "discussions"),
     (re.compile(r"^/api/v4/projects/(\d+)/merge_requests/(\d+)/approvals$"), "approvals"),
@@ -48,6 +49,20 @@ class FakeGitLab:
             if query.get("archived") == ["false"]:
                 items = [p for p in items if not p["archived"]]
             return items
+        if route == "all_mrs":
+            since = query.get("updated_after", [""])[0].replace("+00:00", "Z")
+            author = query.get("author_username", [None])[0]
+            reviewer = query.get("reviewer_username", [None])[0]
+            return [
+                m
+                for ms in fx.mrs.values()
+                for m in ms
+                if m["updated_at"] >= since
+                and (author is None or m["author"]["username"] == author)
+                and (
+                    reviewer is None or reviewer in {r["username"] for r in m.get("reviewers", [])}
+                )
+            ]
         pid = int(groups[0])
         if route == "mrs":
             if pid not in fx.mrs:
