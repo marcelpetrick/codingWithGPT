@@ -370,6 +370,30 @@ class CliTest(unittest.TestCase):
         self.assertTrue(running.endswith("shown=red:1,yellow:1,green:2,off:0"))
         self.assertTrue(idle.endswith("shown=red:1,yellow:1,green:2,off:1"))
 
+    def test_reconnect_counts_a_new_period_for_the_same_color(self):
+        with (
+            patch.object(
+                monitor, "read_profiles", return_value={"claude": [State.RUNNING]}
+            ),
+            patch.object(
+                monitor,
+                "show_color",
+                side_effect=[None, OSError("unplugged"), None, None],
+            ),
+            patch.object(
+                monitor.time, "sleep", side_effect=[None, None, KeyboardInterrupt]
+            ),
+            contextlib.redirect_stdout(io.StringIO()) as output,
+            contextlib.redirect_stderr(io.StringIO()),
+        ):
+            monitor.main([])
+        _, first, disconnected, recovered = output.getvalue().splitlines()
+        self.assertTrue(first.endswith("shown=red:0,yellow:0,green:1,off:0"))
+        self.assertTrue(
+            disconnected.endswith("usb=unavailable shown=red:0,yellow:0,green:1,off:0")
+        )
+        self.assertTrue(recovered.endswith("shown=red:0,yellow:0,green:2,off:0"))
+
     def test_dry_run_counts_without_usb_and_version_exits_before_scanning(self):
         with (
             patch.object(
