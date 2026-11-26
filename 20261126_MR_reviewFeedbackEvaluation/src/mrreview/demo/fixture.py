@@ -190,6 +190,7 @@ class Fixture:
     version_detail: dict[tuple[int, int, int], JSON] = field(default_factory=dict)
     commits: dict[tuple[int, int], list[JSON]] = field(default_factory=dict)
     truth: dict[str, str] = field(default_factory=dict)  # discussion id -> scenario key
+    applied: dict[str, str] = field(default_factory=dict)  # discussion id -> code change made
     now: datetime = REFERENCE_NOW
 
 
@@ -248,7 +249,7 @@ class _Builder:
         fx = self.fx
         files = rng.sample(FILES, 2)
         content = {f: _file_lines(f) for f in files}
-        versions: list[tuple[datetime, dict[str, list[str]]]] = [(created, {k: v[:] for k, v in content.items()})]
+        changes: list[tuple[datetime, str, str, int, str]] = []  # time, kind, path, line, scenario
         discussions: list[JSON] = []
         n_threads = {"thorough": rng.randint(1, 5), "light": rng.randint(0, 2),
                      "mixed": rng.randint(0, 4), "inactive": rng.randint(0, 2)}[style]
@@ -265,7 +266,7 @@ class _Builder:
                 continue
             path_ = rng.choice(files)
             line = rng.randint(5, 45)
-            pos = {"base_sha": "b" * 40, "start_sha": "b" * 40, "head_sha": f"{len(versions):040d}",
+            pos = {"base_sha": "b" * 40, "start_sha": "b" * 40, "head_sha": "0" * 40,
                    "old_path": path_, "new_path": path_, "position_type": "text",
                    "old_line": None, "new_line": line} if sc.diff_note else None
             body = rng.choice(sc.comments).replace("{issue}", str(self.issue))
@@ -286,17 +287,13 @@ class _Builder:
                 notes.append(self._note(who, text, t, ntype=first["type"], position=pos, resolvable=True))
             if sc.key == "deferred":
                 self.issue += 1
+            applied = "none"
             if change in ("direct", "file", "silent") and t < fx.now - timedelta(hours=2):
                 tv = _business_shift(t, rng.uniform(0.2, 3) if change != "silent" else rng.uniform(2, 20))
                 if tv < fx.now:
-                    snap = {k: v[:] for k, v in versions[-1][1].items()}
-                    if change in ("direct", "silent"):
-                        for k in range(line - 2, line + 1):
-                            snap[path_][k] = snap[path_][k] + "  // reviewed"
-                    else:
-                        snap[path_].append(f"// new test for {sc.key}")
-                    versions.append((tv, snap))
+                    changes.append((tv, change, path_, line, sc.key))
                     t = max(t, tv)
+                    applied = change
             resolved = sc.resolved
             if sc.key == "promise_no_fix" or (sc.key.startswith("defect") and change == "none"):
                 resolved = rng.random() < 0.7
@@ -311,6 +308,7 @@ class _Builder:
             did = hashlib.sha1(f"{pid}-{iid}-{first['id']}".encode()).hexdigest()  # noqa: S324
             discussions.append({"id": did, "individual_note": False, "notes": notes})
             fx.truth[did] = sc.key
+            fx.applied[did] = applied
             last_event = max(last_event, t)
         # routine and non-review notes
         if rng.random() < 0.3:
@@ -361,6 +359,15 @@ class _Builder:
         fx.discussions[key] = discussions
         approvers = rng.sample(reviewers, rng.randint(0, 2)) if state == "merged" else []
         fx.approvals[key] = {"approved_by": [{"user": u} for u in approvers]}
+        versions: list[tuple[datetime, dict[str, list[str]]]] = [(created, {k: v[:] for k, v in content.items()})]
+        for tv, kind, path_, line, key_ in sorted(changes):
+            snap = {k: v[:] for k, v in versions[-1][1].items()}
+            if kind in ("direct", "silent"):
+                for k in range(line - 2, line + 1):
+                    snap[path_][k] = snap[path_][k] + "  // reviewed"
+            else:
+                snap[path_].append(f"// new test for {key_}")
+            versions.append((tv, snap))
         vlist: list[JSON] = []
         clist: list[JSON] = []
         for i, (tv, snap) in enumerate(versions):
