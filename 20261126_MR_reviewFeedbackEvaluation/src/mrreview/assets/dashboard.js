@@ -86,7 +86,7 @@ const selectedProjects = DATA.projects.filter(p => p.selected);
 
 /* ---------- state ---------- */
 const S = { tab: "overview", projects: new Set(selectedProjects.map(p => p.id)), from: months[0] || "", to: months[months.length - 1] || "",
-  person: "", role: "any", names: false, ev: { facets: [], search: "", page: 0, sort: ["created", -1], open: null } };
+  person: M.focus_user ? String(M.focus_user) : "", role: "any", names: false, ev: { facets: [], search: "", page: 0, sort: ["created", -1], open: null } };
 
 /* ---------- helpers ---------- */
 function h(tag, attrs, ...kids) {
@@ -123,6 +123,7 @@ function quantile(vals, q) {
   if (!vals.length) return null; const a = [...vals].sort((x, y) => x - y); const pos = (a.length - 1) * q;
   const lo = Math.floor(pos), hi = Math.ceil(pos); return a[lo] + (a[hi] - a[lo]) * (pos - lo);
 }
+const byThread = arr => { const seen = new Set(); return arr.filter(f => !seen.has(f.t) && seen.add(f.t)); };
 const count = (arr, fn) => { const m = new Map(); arr.forEach(x => { const k = fn(x); m.set(k, (m.get(k) || 0) + 1); }); return m; };
 function person(id) {
   if (id === null || id === undefined) return "–";
@@ -213,6 +214,8 @@ function lineChart(series, opts) {
 }
 const BUCKETS = [[0, 1, "<1 h"], [1, 4, "1–4 h"], [4, 10, "4–10 h"], [10, 20, "1–2 d"], [20, 50, "2–5 d"], [50, 100, "5–10 d"], [100, Infinity, ">10 d"]];
 function timingCard(title, key, list, tipText) {
+  const unit = key === "fr" || key === "re" ? "threads" : "findings";
+  if (key === "fr" || key === "re") list = byThread(list);
   const obs = list.filter(f => f.tm[key][0] === "o"); const pend = list.filter(f => f.tm[key][0] === "p");
   const biz = obs.map(f => f.tm[key][2]); const wall = obs.map(f => f.tm[key][1]);
   const counts = BUCKETS.map(b => biz.filter(v => v >= b[0] && v < b[1]).length); const max = Math.max(1, ...counts, pend.length);
@@ -220,14 +223,14 @@ function timingCard(title, key, list, tipText) {
   const col = (label, n, color, tip) => h("div", { class: "col", tip: tip }, h("div", { class: "cv", text: n ? String(n) : "" }), h("div", { class: "colbar", style: "height:" + (100 * n / max) + "%;background:" + color }), h("div", { class: "cl", text: label }));
   return h("div", { class: "card" }, h("h3", {}, title, info(tipText + "\nBusiness hours: Mon–Fri " + M.hours[0] + ":00–" + M.hours[1] + ":00, " + M.timezone + ". 1 d = one business day = " + (M.hours[1] - M.hours[0]) + " h. An estimate, not a measure of effort or availability.")),
     h("div", { class: "hist", role: "img", "aria-label": title + " histogram" },
-      BUCKETS.map((b, i) => col(b[2], counts[i], C.blue, b[2] + " (business time): " + counts[i] + " of " + obs.length + " observed (" + pct(counts[i], obs.length) + ")")),
-      col("pending", pend.length, "repeating-linear-gradient(45deg,#CBD5E1,#CBD5E1 4px,#E2E8F0 4px,#E2E8F0 8px)", "Pending: " + pend.length + " cases had no such event by the snapshot. They are not counted as zero; they are excluded from the median.")),
+      BUCKETS.map((b, i) => col(b[2], counts[i], C.blue, b[2] + " (business time): " + counts[i] + " of " + obs.length + " observed " + unit + " (" + pct(counts[i], obs.length) + ")")),
+      col("pending", pend.length, "repeating-linear-gradient(45deg,#CBD5E1,#CBD5E1 4px,#E2E8F0 4px,#E2E8F0 8px)", "Pending: " + pend.length + " " + unit + " had no such event by the snapshot. They are not counted as zero; they are excluded from the median.")),
     h("div", { class: "stats" },
       h("span", { tip: "Median of observed business hours. Half the cases were faster." }, "median ", h("b", { class: low ? "lowN" : "", text: fmtH(quantile(biz, .5)) })),
       h("span", { tip: "75th percentile of observed business hours." }, "p75 ", h("b", { text: fmtH(quantile(biz, .75)) })),
       h("span", { tip: "90th percentile of observed business hours." }, "p90 ", h("b", { text: fmtH(quantile(biz, .9)) })),
       h("span", { tip: "Median of raw wall-clock hours, including nights and weekends." }, "wall median ", h("b", { text: fmtH(quantile(wall, .5)) })),
-      h("span", { tip: "Observed cases (n) and cases still pending at the snapshot." }, "n ", h("b", { text: String(obs.length) }), " · pending ", h("b", { text: String(pend.length) }))),
+      h("span", { tip: "Observed " + unit + " (n) and " + unit + " still pending at the snapshot. Thread-level times count each thread once." }, "n ", h("b", { text: String(obs.length) }), " · pending ", h("b", { text: String(pend.length) }))),
     low ? h("div", { class: "small muted", text: "Fewer than " + MIN_N + " observed cases: do not interpret." }) : null);
 }
 
@@ -249,22 +252,24 @@ const FACETS = {
 const CLUE_PRED = {
   resolved_no_code: f => f.T.resolved && CHANGE.has(f.outcome) && f.ver === "textual_only",
   promise_open: f => f.text === "promised" && f.outcome === "open" && !f.cens,
-  silent_fix: f => (f.outcome === "open" || f.outcome === "unknown") && f.changed,
+  silent_fix: f => (f.outcome === "open" || f.outcome === "unknown") && f.ev === "direct" && f.primary === "none_observed",
   unanswered_merged: f => f.primary === "none_observed" && f.MR && f.MR.state === "merged" && (f.outcome === "open" || f.outcome === "unknown"),
   legit_no_change: f => LEGIT.has(f.outcome),
   harsh: f => f.tone === "dismissive" || f.tone === "confrontational" || f.target === "person",
   deferred_noref: f => f.outcome === "deferred" && !f.ref,
   abstained: f => f.abstain || f.validity === "indeterminate",
-  open_unattended: f => (f.outcome === "open" || f.outcome === "unknown") && !f.cens,
+  open_unattended: f => f.outcome === "open" && !f.cens,
+  unknown: f => f.outcome === "unknown",
   verified: f => CHANGE.has(f.outcome) && f.ver === "direct",
 };
-const CLUE_NAME = { resolved_no_code: "Resolved, fix claimed, no code change", promise_open: "Promised, not confirmed", silent_fix: "Code changed, no reply",
+const CLUE_NAME = { unknown: "Outcome unknown", resolved_no_code: "Resolved, fix claimed, no code change", promise_open: "Promised, not confirmed", silent_fix: "Code changed, no reply",
   unanswered_merged: "Merged with unanswered finding", legit_no_change: "Legitimate no-change closure", harsh: "Dismissive or personal tone",
   deferred_noref: "Deferred without a reference", abstained: "Ambiguous, needs a human", open_unattended: "Open, not recent", verified: "Verified remediation" };
 function drill(facets) { S.ev.facets = facets; S.ev.page = 0; S.ev.open = null; S.tab = "evidence"; render(); window.scrollTo(0, 0); }
 
 /* ---------- clues: hints that point at patterns, with sample-size guards ---------- */
 function clues(F, T) {
+  const MRF = fMrs();
   const out = []; const add = (icon, color, title, desc, key, n) => out.push({ icon, color, title, desc, key, n });
   const n = key => F.filter(CLUE_PRED[key]).length;
   const changeClaims = F.filter(f => CHANGE.has(f.outcome)).length;
@@ -273,7 +278,7 @@ function clues(F, T) {
   const po = n("promise_open");
   if (po) add("⏳", C.red, po + " promised fixes have no confirmation and no code evidence", "'Will fix' is a promise, not a fix. Recent open MRs are excluded (censored).", "promise_open", po);
   const sf = n("silent_fix");
-  if (sf) add("⚙", C.teal, sf + " findings got a code change but no written answer", "The commented lines changed later, but nobody replied. Possibly a silent fix: check by hand.", "silent_fix", sf);
+  if (sf) add("⚙", C.teal, sf + " findings got a code change but no written answer", "The commented lines changed later, nobody reacted, and no outcome is stated. Possibly a silent fix: check by hand.", "silent_fix", sf);
   const um = n("unanswered_merged");
   if (um) add("✉", C.red, um + " findings had no response and the MR was merged anyway", "No reply, no decision, no change claim. These may be lost findings.", "unanswered_merged", um);
   const lg = n("legit_no_change");
@@ -290,7 +295,7 @@ function clues(F, T) {
   for (const [p, a] of byP) {
     const restN = tot - a.n, restOpen = totOpen - a.open;
     if (a.n >= 10 && restN >= 10 && a.open / a.n - restOpen / restN >= 0.15)
-      out.push({ icon: "◎", color: C.red, title: projName(p) + ": " + pct(a.open, a.n) + " of findings stay open", desc: "Elsewhere " + pct(restOpen, restN) + " (" + restOpen + "/" + restN + "). n = " + a.n + ". A difference, not a cause: workload and norms differ.", facets: [["project", String(p)], ["clue", "open_unattended"]], n: a.open });
+      out.push({ icon: "◎", color: C.red, title: projName(p) + ": " + pct(a.open, a.n) + " of findings stay open (not recent)", desc: "Elsewhere " + pct(restOpen, restN) + " (" + restOpen + "/" + restN + "). n = " + a.n + ". A difference, not a cause: workload and norms differ.", facets: [["project", String(p)], ["clue", "open_unattended"]], n: a.open });
   }
   // response-time trend: last 3 months vs 3 months before
   const ms = [...new Set(F.map(f => month(f.T.created)))].sort();
@@ -305,7 +310,7 @@ function clues(F, T) {
     }
   }
   // most intensive project
-  const ints = selectedProjects.filter(p => S.projects.has(p.id)).map(p => { const mrs = DATA.mrs.filter(m => m.p === p.id && inPeriod(m.created)).length; const th = T.filter(t => t.p === p.id && t.reason === "substantive").length; return { p, mrs, th, r: mrs ? th / mrs : 0 }; }).filter(x => x.mrs >= 10).sort((a, b) => b.r - a.r);
+  const ints = selectedProjects.filter(p => S.projects.has(p.id)).map(p => { const mrs = MRF.filter(m => m.p === p.id).length; const th = T.filter(t => t.p === p.id && t.reason === "substantive").length; return { p, mrs, th, r: mrs ? th / mrs : 0 }; }).filter(x => x.mrs >= 10).sort((a, b) => b.r - a.r);
   if (ints.length >= 2) out.push({ icon: "★", color: C.blue, title: "Most review per MR: " + ints[0].p.path + " (" + ints[0].r.toFixed(1) + " threads/MR)", desc: "Lowest: " + ints[ints.length - 1].p.path + " (" + ints[ints.length - 1].r.toFixed(1) + "). Review intensity, not quality.", facets: [["project", String(ints[0].p.id)]], n: ints[0].th });
   const ver = n("verified");
   if (ver) add("✔", C.green, ver + " findings have direct code evidence of a change", "The commented lines changed after the comment, and the text states a change.", "verified", ver);
@@ -326,9 +331,10 @@ function header() {
       M.demo ? h("span", { class: "chip warn", tip: "This file uses invented demo data from the synthetic GitLab fixture. No real person or project is in it." }, "Synthetic demo data") : null,
       h("span", { class: "chip", tip: "Snapshot: the observation cutoff. Outcomes and pending times are judged at this instant.\nGenerated: when this file was built." }, "Snapshot " + (M.snapshot_at || "–").replace("T", " ").slice(0, 16) + " UTC"),
       M.stub ? h("span", { class: "chip bad", tip: "The classifications come from a keyword stub (model stub-rules), not from a language model. Use them only to check the pipeline." }, "Stub classifier, not an LLM")
-        : h("span", { class: "chip", tip: "Model: " + M.model + "\nDigest: " + (M.model_digest || "–") + "\nOllama " + (M.ollama_version || "–") + "\nPrompt " + M.prompt_version + ", schema " + M.schema_version }, "Model " + (M.model || "–")),
-      cov.complete ? h("span", { class: "chip ok", tip: "All selected MRs were collected and all substantive threads have a valid classification." }, "Coverage complete")
-        : h("span", { class: "chip warn", tip: "Partial data: some MRs or threads are pending or failed. See Methodology → Coverage." }, "Partial coverage"),
+        : h("span", { class: "chip" + (M.provenance.length > 1 ? " warn" : ""), tip: "Classifications by model and prompt:\n" + M.provenance.map(p => p.n + " × " + p.model + ", prompt " + p.prompt_version + ", schema " + p.schema_version).join("\n") + "\nOllama " + (M.ollama_version || "–") + (M.provenance.length > 1 ? "\nMore than one model or prompt: results mix." : "") }, "Model " + (M.provenance[0] ? M.provenance[0].model + " · " + M.provenance[0].prompt_version : "–") + (M.provenance.length > 1 ? " (+" + (M.provenance.length - 1) + ")" : "")),
+      cov.state === "complete" ? h("span", { class: "chip ok", tip: "All selected MRs were collected, all substantive threads have a current classification, and the findings are up to date. No API gaps." }, "Coverage complete")
+        : cov.state === "complete_with_gaps" ? h("span", { class: "chip warn", tip: "Complete, but GitLab did not return some data: " + Object.entries(cov.gaps).map(([k, v]) => k + " " + v).join(", ") + (cov.work.mr && cov.work.mr.skipped ? ", MRs not accessible " + cov.work.mr.skipped : "") + ". See Methodology → Coverage." }, "Complete, with gaps")
+        : h("span", { class: "chip bad", tip: "Partial data:\n• " + cov.partial_reasons.join("\n• ") + "\nSee Methodology → Coverage." }, "Partial coverage"),
       toggle));
 }
 const TABS = [["overview", "Overview"], ["projects", "Projects"], ["effect", "Review effectiveness"], ["people", "Participants"], ["evidence", "Evidence"], ["method", "Methodology"]];
@@ -356,9 +362,10 @@ function overview(root) {
   const T = fThreads(), F = fFindings(), MRS = fMrs();
   const subst = T.filter(t => t.reason === "substantive"); const actionable = F.filter(f => f.act === "change_request");
   const verified = actionable.filter(CLUE_PRED.verified); const openU = F.filter(CLUE_PRED.open_unattended); const rnc = F.filter(CLUE_PRED.resolved_no_code);
-  const fr = F.filter(f => f.tm.fr[0] === "o").map(f => f.tm.fr[2]); const frPend = F.filter(f => f.tm.fr[0] === "p").length;
-  const cov = M.coverage; const pendingCls = (cov.classification.pending || 0) + (cov.classification.failed || 0) + (cov.classification.invalid || 0) + (cov.classification.stale || 0);
-  if (!cov.complete) root.append(h("div", { class: "banner b-warn" }, "⚠ ", h("div", {}, h("b", {}, "Partial data. "), pendingCls + " substantive threads have no valid classification yet, and collection work is " + JSON.stringify(cov.work.mr || {}) + ". Numbers below cover only the finished part.")));
+  const FT = byThread(F); const fr = FT.filter(f => f.tm.fr[0] === "o").map(f => f.tm.fr[2]); const frPend = FT.filter(f => f.tm.fr[0] === "p").length;
+  const unk = F.filter(CLUE_PRED.unknown).length;
+  const cov = M.coverage;
+  if (cov.state === "partial") root.append(h("div", { class: "banner b-warn" }, "⚠ ", h("div", {}, h("b", {}, "Partial data. "), cov.partial_reasons.join(" · ") + ". Numbers below cover only the finished part.")));
   if (M.stub) root.append(h("div", { class: "banner b-info" }, "ℹ ", h("div", {}, "The classifications in this file come from the keyword stub, not from a language model. They show how the dashboard works; they are not an analysis.")));
   root.append(h("div", { class: "kpis" },
     kpi("Merge requests", fmtN(MRS.length), "in the filter", "MRs created in the period, in the selected projects. Merged, open and closed MRs all count.", C.blue, null, "mrs"),
@@ -366,9 +373,9 @@ function overview(root) {
     kpi("Findings", fmtN(F.length), "classified issues", "Distinct issues the model found in substantive threads. One thread can hold several findings.", C.deep, () => drill([]), "findings"),
     kpi("Actionable", fmtN(actionable.length), pct(actionable.length, F.length) + " of findings", "Findings that ask for a code change (change requests). Questions and optional nits are not actionable.", C.purple, () => drill([["act", "change_request"]]), "actionable"),
     kpi("Verified remediation", pct(verified.length, actionable.length), fmtN(verified.length) + " of " + fmtN(actionable.length) + " actionable", "Numerator: actionable findings with a stated change AND direct code evidence (the commented lines changed later).\nDenominator: all actionable findings.\nUnverified and unknown outcomes stay in the denominator; see Review effectiveness.", C.green, () => drill([["act", "change_request"], ["clue", "verified"]]), "verified"),
-    kpi("Open, not recent", fmtN(openU.length), pct(openU.length, F.length) + " of findings", "Findings with outcome open or unknown that are not recent (an open MR with activity in the last " + M.censor_days + " days is censored and excluded).", C.red, () => drill([["clue", "open_unattended"]]), "open"),
+    kpi("Open, not recent", fmtN(openU.length), pct(openU.length, F.length) + " of findings · " + unk + " unknown", "Findings with outcome open that are not recent (an open MR with activity in the last " + M.censor_days + " days is censored and excluded).\nOutcome unknown (no reliable evidence, or the model abstained) is counted apart: " + unk + ".", C.red, () => drill([["clue", "open_unattended"]]), "open"),
     kpi("Resolved, no code evidence", fmtN(rnc.length), "resolved + change claimed", "Threads marked resolved where the text claims a change, but no later MR version shows one. A resolved thread is not proof of a fix.", C.amber, () => drill([["clue", "resolved_no_code"]]), "rnc"),
-    kpi("First response", fmtH(quantile(fr, .5)), "median, business hours · n=" + fr.length + (frPend ? ", " + frPend + " pending" : ""), "Median business hours from the first comment to the first human reply by someone else. Unanswered cases are pending and excluded, never counted as zero.", C.blue, null, "fr")));
+    kpi("First response", fmtH(quantile(fr, .5)), "median, business hours · n=" + fr.length + (frPend ? ", " + frPend + " pending" : ""), "Median business hours from the first comment to the first meaningful human reply by someone else (LGTM, thanks and emoji do not count). Counted once per thread. Unanswered threads are pending and excluded, never counted as zero.", C.blue, null, "fr")));
   root.append(h("h2", {}, "Clues", info("Automatic hints that point at patterns worth a look. Each is a count with its denominator. Click a clue to see the cases. A clue is a question for a human, not a verdict.")));
   const cl = clues(F, T);
   root.append(cl.length ? h("div", { class: "clues" }, cl.map(c => h("div", { class: "clue", tip: c.desc + "\nClick to open the " + c.n + " cases in Evidence.", onclick: () => drill(c.facets || [["clue", c.key]]) }, h("div", { class: "ic", style: "background:" + c.color, text: c.icon }), h("div", {}, h("div", { class: "t", text: c.title }), h("div", { class: "d", text: c.desc }))))) : h("div", { class: "empty", text: "No clues for the current filter." }));
@@ -385,11 +392,11 @@ function overview(root) {
     Object.entries(res).map(([k, arr]) => h("div", { style: "margin:8px 0" }, h("div", { class: "small muted", text: k + " threads · " + arr.length + " findings" }), stack(dictParts(OUTCOME, count(arr, f => f.outcome)), o => drill([["outcome", o]]))))));
 }
 function projectsTab(root) {
-  const T = fThreads(), F = fFindings();
+  const T = fThreads(), F = fFindings(), MRF = fMrs();
   const rows = selectedProjects.filter(p => S.projects.has(p.id)).map(p => {
-    const mrs = DATA.mrs.filter(m => m.p === p.id && inPeriod(m.created)); const th = T.filter(t => t.p === p.id); const sub = th.filter(t => t.reason === "substantive");
+    const mrs = MRF.filter(m => m.p === p.id); const th = T.filter(t => t.p === p.id); const sub = th.filter(t => t.reason === "substantive");
     const fs = F.filter(f => f.T.p === p.id); const act = fs.filter(f => f.act === "change_request"); const ver = act.filter(CLUE_PRED.verified); const op = fs.filter(CLUE_PRED.open_unattended);
-    const fr = fs.filter(f => f.tm.fr[0] === "o").map(f => f.tm.fr[2]);
+    const fr = byThread(fs).filter(f => f.tm.fr[0] === "o").map(f => f.tm.fr[2]);
     return { p, mrs: mrs.length, merged: mrs.filter(m => m.state === "merged").length, sub: sub.length, inten: mrs.length ? sub.length / mrs.length : 0, f: fs.length, act: act.length, ver: ver.length, open: op.length, fr: quantile(fr, .5), frn: fr.length, appr: mrs.reduce((a, m) => a + m.approvals, 0) };
   });
   root.append(h("h2", {}, "Projects", info("Analysed projects in the filter. Raw volume (MRs) and review intensity (substantive threads per MR) are shown apart. Click a row to open its findings.")));
@@ -449,7 +456,7 @@ function effectTab(root) {
     ["Open, not recent", r => r.o, r => r.o + " (" + pct(r.o, r.f.length) + ")", "Over all findings.", "n"],
     ["Unknown", r => r.u, null, "Outcome unknown (model abstained or no evidence).", "n"],
     ["1st response", r => r.fr === null ? Infinity : r.fr, r => lowN(fmtH(r.fr), r.frn), "Median business hours.", "n"],
-  ], qs.map(q => { const f = F.filter(x => quarter(x.T.created) === q); const a = f.filter(x => x.act === "change_request"); const fr = f.filter(x => x.tm.fr[0] === "o").map(x => x.tm.fr[2]);
+  ], qs.map(q => { const f = F.filter(x => quarter(x.T.created) === q); const a = f.filter(x => x.act === "change_request"); const fr = byThread(f).filter(x => x.tm.fr[0] === "o").map(x => x.tm.fr[2]);
     return { q, f, a, v: a.filter(CLUE_PRED.verified).length, l: f.filter(x => LEGIT.has(x.outcome)).length, o: f.filter(CLUE_PRED.open_unattended).length, u: f.filter(x => x.outcome === "unknown").length, fr: quantile(fr, .5), frn: fr.length }; }), null, ["Quarter", 1]));
 }
 function quarter(iso) { const m = Number(iso.slice(5, 7)); return iso.slice(0, 4) + "-Q" + Math.ceil(m / 3); }
@@ -458,7 +465,8 @@ function peopleTab(root) {
   root.append(h("div", { class: "banner b-info" }, "ℹ ", h("div", {}, h("b", {}, "Context, not a score. "), "These tables describe observable interactions. They do not rank people, rate performance or read personality. Role, workload, review difficulty and project norms explain much of any difference. Rows with fewer than " + MIN_N + " cases are marked ⚠. Click a row to read the actual threads.")));
   const ids = [...new Set(T.flatMap(t => [t.giver, t.rec]).filter(id => id !== null && DATA.people[String(id)] && DATA.people[String(id)].kind === "human"))];
   const giv = ids.map(id => { const th = T.filter(t => t.giver === id); const fs = F.filter(f => f.T.giver === id); const act = fs.filter(f => f.act === "change_request");
-    return { id, th: th.length, f: fs.length, act: act.length, ver: act.filter(CLUE_PRED.verified).length, legit: fs.filter(f => LEGIT.has(f.outcome)).length, open: fs.filter(CLUE_PRED.open_unattended).length, noresp: fs.filter(f => f.primary === "none_observed").length }; }).filter(r => r.th);
+    return { id, th: th.length, f: fs.length, act: act.length, ver: act.filter(CLUE_PRED.verified).length, legit: fs.filter(f => LEGIT.has(f.outcome)).length, open: fs.filter(CLUE_PRED.open_unattended).length, unk: fs.filter(CLUE_PRED.unknown).length, noresp: fs.filter(f => f.primary === "none_observed").length }; }).filter(r => r.th);
+  const personOpts = { sortable: ["Person", "Findings"], lowRow: r => r.f < MIN_N, noSortTip: "Not sortable: person tables are context, not a ranking." };
   root.append(h("h2", {}, "Giving review", info("Per review giver: the person who wrote the first comment of a thread. Counts are about the findings they raised.")));
   root.append(table([
     ["Person", r => person(r.id), null, "Pseudonym by default. Switch 'Show real names' in the header to see names."],
@@ -468,12 +476,13 @@ function peopleTab(root) {
     ["Verified changes", r => r.ver, r => lowN(r.ver + " / " + r.act, r.act), "Their actionable findings with direct code evidence of a change.", "n"],
     ["Legit. no change", r => r.legit, null, "Their findings closed by a reasoned no-change decision or a declined nit.", "n"],
     ["No response", r => r.noresp, null, "Their findings that got no reaction.", "n"],
-    ["Open, not recent", r => r.open, null, "Their findings still open (not counting recent open MRs).", "n"],
-  ], giv, r => drill([["giver", String(r.id)]]), ["Person", 1]));
-  const rec = ids.map(id => { const fs = F.filter(f => f.T.rec === id); const c = a => fs.filter(f => f.primary === a || f.acts.includes(a)).length; const fr = fs.filter(f => f.tm.fr[0] === "o").map(f => f.tm.fr[2]);
-    return { id, f: fs.length, agree: c("agreement") + c("partial_agreement"), reasoned: c("reasoned_disagreement") + c("explanation"), alt: c("alternative_proposal"), defer: c("deferral"), reject: c("unsupported_rejection"), none: fs.filter(f => f.primary === "none_observed").length,
+    ["Open, not recent", r => r.open, null, "Their findings with outcome open (not counting recent open MRs).", "n"],
+    ["Unknown", r => r.unk, null, "Their findings with no reliable outcome.", "n"],
+  ], giv, r => drill([["giver", String(r.id)]]), ["Person", 1], personOpts));
+  const rec = ids.map(id => { const fs = F.filter(f => f.T.rec === id); const c = (...acts) => fs.filter(f => f.racts.some(a => acts.includes(a))).length; const fr = byThread(fs).filter(f => f.tm.fr[0] === "o").map(f => f.tm.fr[2]);
+    return { id, f: fs.length, agree: c("agreement", "partial_agreement"), reasoned: c("reasoned_disagreement", "explanation"), alt: c("alternative_proposal"), defer: c("deferral"), reject: c("unsupported_rejection"), none: fs.filter(f => !f.racts.length).length,
       ver: fs.filter(f => CHANGE.has(f.outcome) && f.ver === "direct").length, textonly: fs.filter(f => CHANGE.has(f.outcome) && f.ver === "textual_only").length, open: fs.filter(CLUE_PRED.open_unattended).length, unk: fs.filter(f => f.outcome === "unknown").length, fr: quantile(fr, .5), frn: fr.length }; }).filter(r => r.f);
-  root.append(h("h2", {}, "Receiving review", info("Per review recipient: usually the MR author. Responses count each kind once per finding. The person who replies is not always the person who implements.")));
+  root.append(h("h2", {}, "Receiving review", info("Per review recipient: usually the MR author. Only reactions written by the recipient count, each kind once per finding. The person who replies is not always the person who implements.")));
   root.append(table([
     ["Person", r => person(r.id), null, "Pseudonym by default."],
     ["Findings", r => r.f, r => lowN(String(r.f), r.f), "Findings addressed to the person.", "n"],
@@ -482,13 +491,13 @@ function peopleTab(root) {
     ["Alternative", r => r.alt, null, "Proposed a different solution.", "n"],
     ["Deferral", r => r.defer, null, "Moved to later work.", "n"],
     ["Rejection, no reason", r => r.reject, null, "Rejected without a technical reason.", "n"],
-    ["No response", r => r.none, null, "No reaction observed.", "n"],
+    ["No reaction", r => r.none, null, "The recipient wrote no reaction to the finding (others may have).", "n"],
     ["Verified changes", r => r.ver, null, "Stated change with direct code evidence.", "n"],
     ["Change, text only", r => r.textonly, null, "Stated change without code evidence.", "n"],
     ["Open, not recent", r => r.open, null, "Still open, excluding recent open MRs.", "n"],
     ["Unknown", r => r.unk, null, "No reliable outcome.", "n"],
-    ["1st response", r => r.fr === null ? Infinity : r.fr, r => lowN(fmtH(r.fr), r.frn), "Median business hours to the first reply by someone other than the giver.", "n"],
-  ], rec, r => drill([["rec", String(r.id)]]), ["Person", 1]));
+    ["1st response", r => r.fr === null ? Infinity : r.fr, r => lowN(fmtH(r.fr), r.frn), "Median business hours to the first meaningful reply by someone other than the giver, once per thread.", "n"],
+  ], rec, r => drill([["rec", String(r.id)]]), ["Person", 1], personOpts));
 }
 function evidenceTab(root) {
   let F = fFindings();
@@ -546,8 +555,8 @@ function methodTab(root) {
     h("div", { class: "card" }, h("h3", {}, "Data"), kv([["Projects visible", cov.projects_visible, "Projects the token can see."], ["Projects analysed", cov.projects_selected, "Projects with MR activity in the window."], ["Merge requests", cov.mrs, "Full history of the analysed projects."], ["Notes", cov.notes, "All notes including system notes."],
       ["Threads by kind", Object.entries(cov.thread_reasons).map(([k, v]) => (REASON[k] ? REASON[k][0] : k) + " " + v).join(", "), "Every non-system discussion, by the deterministic substantive check."],
       ["Classification", Object.entries(cov.classification).map(([k, v]) => k + " " + v).join(", "), "Status of substantive threads: ok, invalid (bad model output), failed (server error), pending, stale (input changed)."],
-      ["MR collection", JSON.stringify(cov.work.mr || {}), "Work state per MR."], ["API gaps", Object.entries(cov.gaps).map(([k, v]) => k + " " + v).join(", ") || "none", "Data GitLab did not return, for example missing diffs."]])),
-    h("div", { class: "card" }, h("h3", {}, "Run"), kv([["Tool version", M.tool_version], ["Model", M.model + (M.stub ? " (stub, not an LLM)" : "")], ["Model digest", M.model_digest || "–"], ["Ollama", M.ollama_version || "–"], ["Prompt / schema", M.prompt_version + " / " + M.schema_version, "Changing either re-classifies the threads."],
+      ["MR collection", JSON.stringify(cov.work.mr || {}), "Work state per MR."], ["Coverage state", cov.state + (cov.partial_reasons.length ? ": " + cov.partial_reasons.join("; ") : ""), "complete, complete_with_gaps, or partial with the reasons."], ["API gaps", Object.entries(cov.gaps).map(([k, v]) => k + " " + v).join(", ") || "none", "Data GitLab did not return, for example missing diffs."]])),
+    h("div", { class: "card" }, h("h3", {}, "Run"), kv([["Tool version", M.tool_version], ["Classifications", M.provenance.map(p => p.n + " × " + p.model + " (" + (p.model_digest || "").slice(0, 12) + "), prompt " + p.prompt_version + ", schema " + p.schema_version).join("; ") || "–", "Model, digest and prompt of each stored classification. More than one line means the results mix."], ["Current prompt / schema", M.prompt_version + " / " + M.schema_version, "Changing either re-classifies the threads."], ["Ollama", M.ollama_version || "–"], ["Findings evaluated", M.evaluated_at || "never", "When the outcome and timing step last ran."],
       ["Snapshot (cutoff)", M.snapshot_at], ["Window start", M.window_start, "Rolling window of " + M.window_months + " months for project selection only; analysed projects keep their full history."], ["Generated", M.generated_at],
       ["Business hours", "Mon–Fri " + M.hours[0] + ":00–" + M.hours[1] + ":00, " + M.timezone], ["Holidays", M.holidays.length ? M.holidays.join(", ") : "none excluded"], ["Censoring", "open MR with activity in the last " + M.censor_days + " days"]]))));
   root.append(h("h2", {}, "Definitions", info("Every category used in this dashboard.")));
@@ -567,18 +576,22 @@ function methodTab(root) {
     h("li", { text: "Code evidence shows that lines changed, not that a fix is correct. A resolved thread and a merged MR are not proof that a finding was handled." }),
     h("li", { text: "Business hours are an estimate. Personal schedules, leave and workload are unknown." }),
     h("li", { text: "Person-level numbers are context, not a performance score or a ranking, and say nothing about personality or motives. Use aggregate trends, and review individual cases with the people involved." }),
+    h("li", { text: "Names in free text are masked when they match a known username, full name or name part (3+ letters), and unknown @mentions are masked too. Nicknames and misspellings stay visible." }),
     h("li", { text: "The identity toggle is a display switch, not access control or anonymisation. Names are inside this file. Project paths and links can re-identify people. Keep this file confidential and share it only with approved recipients." }),
     h("li", { text: "Observational associations do not show causes. Role, review difficulty, language and team norms can explain differences." }))));
 }
 
 /* ---------- generic sortable table ---------- */
-function table(cols, rows, onRow, defSort) {
+function table(cols, rows, onRow, defSort, opts) {
+  opts = opts || {};
   const wrap = h("div", { class: "tablewrap" }); let sort = defSort ? [cols.findIndex(c => c[0] === defSort[0]), defSort[1]] : [0, 1];
+  const canSort = i => !opts.sortable || opts.sortable.includes(cols[i][0]);
+  const cell = (c, r) => { const v = c[2] ? c[2](r) : String(c[1](r)); return opts.lowRow && opts.lowRow(r) && c[4] === "n" && typeof v === "string" ? h("span", { class: "lowN", tip: "Fewer than " + MIN_N + " findings in this row. Do not interpret." }, v) : v; };
   const draw = () => {
     const [ci, dir] = sort; const keyf = cols[ci][1];
     const sorted = [...rows].sort((a, b) => { const x = keyf(a), y = keyf(b); return (x < y ? -1 : x > y ? 1 : 0) * dir; });
-    wrap.replaceChildren(h("table", {}, h("thead", {}, h("tr", {}, cols.map((c, i) => h("th", { class: (c[4] || "") + (i === ci ? " sorted" + (dir > 0 ? " asc" : "") : ""), scope: "col", tip: c[3] + "\nClick to sort.", onclick: () => { sort = [i, sort[0] === i ? -sort[1] : -1]; draw(); } }, c[0])))),
-      h("tbody", {}, sorted.map(r => h("tr", { class: onRow ? "click" : "", onclick: onRow ? () => onRow(r) : null, tip: onRow ? "Click to open the findings behind this row." : null }, cols.map(c => h("td", { class: c[4] || "" }, c[2] ? c[2](r) : String(c[1](r)))))))));
+    wrap.replaceChildren(h("table", {}, h("thead", {}, h("tr", {}, cols.map((c, i) => h("th", { class: (c[4] || "") + (i === ci ? " sorted" + (dir > 0 ? " asc" : "") : ""), scope: "col", tip: c[3] + (canSort(i) ? "\nClick to sort." : opts.noSortTip ? "\n" + opts.noSortTip : ""), onclick: canSort(i) ? () => { sort = [i, sort[0] === i ? -sort[1] : -1]; draw(); } : null }, c[0])))),
+      h("tbody", {}, sorted.map(r => h("tr", { class: onRow ? "click" : "", onclick: onRow ? () => onRow(r) : null, tip: onRow ? "Click to open the findings behind this row." : null }, cols.map(c => h("td", { class: c[4] || "" }, cell(c, r))))))));
     if (!rows.length) wrap.append(h("div", { class: "empty", style: "padding:12px", text: "No rows in the current filter." }));
   };
   draw(); return wrap;

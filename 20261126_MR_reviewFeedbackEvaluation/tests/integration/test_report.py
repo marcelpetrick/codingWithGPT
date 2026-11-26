@@ -47,7 +47,11 @@ def test_dataset_masks_names_in_text(gl: Env, conn: sqlite3.Connection) -> None:
     humans = [p for p in people.values() if p["kind"] == "human"]
     assert all(p["label"] and " " in p["label"] for p in humans)
     assert {p["name"] for p in humans} <= {h[2] for h in HUMANS}
-    assert ds["meta"]["coverage"]["complete"] is True
+    cov = ds["meta"]["coverage"]
+    assert cov["state"] == "partial"
+    assert cov["partial_reasons"] == [
+        "bounded sample: --max-projects or --max-mrs limited the collection"
+    ]
     assert ds["meta"]["stub"] is True
     assert all(t["url"].startswith("http") and "#note_" in t["url"] for t in ds["threads"])
 

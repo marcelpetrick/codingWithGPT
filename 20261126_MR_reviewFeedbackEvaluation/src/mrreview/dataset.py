@@ -9,10 +9,12 @@ pseudonym or the real name for each token, depending on the identity toggle.
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 from typing import Any
 
 from mrreview import __version__, db, llm
+from mrreview.analyze import cache_key
 from mrreview.collect import collect_summary
 from mrreview.config import Config
 from mrreview.demo.fake_ollama import STUB_MODEL
@@ -20,6 +22,7 @@ from mrreview.identity import label_for, mask_names
 from mrreview.textutil import truncate
 
 EXCERPT_GRAPHEMES = 320
+_HALF_TOKEN = re.compile(r"⟦[^⟧]*…$")
 _TIMING_KEYS = {
     "first_response": "fr",
     "decision": "de",
@@ -37,18 +40,77 @@ def _tm(value: dict[str, Any]) -> list[Any]:
     return ["n"]
 
 
+def _status(
+    thread: sqlite3.Row, cls: sqlite3.Row | None, fail: sqlite3.Row | None, model: str
+) -> str:
+    """Classification state of one thread against the current prompt, schema and model."""
+    if not thread["substantive"]:
+        return "not_needed"
+    key = cache_key(thread["llm_hash"], model)
+    if (
+        cls is not None
+        and cls["status"] == "ok"
+        and cache_key(cls["input_hash"], cls["model"]) == key
+        and (cls["prompt_version"], cls["schema_version"])
+        == (llm.PROMPT_VERSION, llm.SCHEMA_VERSION)
+    ):
+        return "ok"
+    if fail is not None and fail["cache_key"] == key:
+        return str(fail["status"])
+    if cls is not None and cls["status"] == "ok":
+        return "stale"
+    return "pending"
+
+
+def _partial_reasons(
+    conn: sqlite3.Connection, summary: dict[str, Any], statuses: dict[str, int]
+) -> list[str]:
+    """Why the data is not complete. An empty list means complete."""
+    out: list[str] = []
+    for status in ("pending", "stale", "failed", "invalid"):
+        if statuses.get(status):
+            out.append(
+                f"{statuses[status]} substantive threads have classification state '{status}'"
+            )
+    for status in ("pending", "stale", "failed"):
+        n = summary["work"].get("mr", {}).get(status)
+        if n:
+            out.append(f"{n} merge requests are '{status}' in collection")
+    n_proj = summary["work"].get("project", {}).get("failed")
+    if n_proj:
+        out.append(f"{n_proj} projects could not be listed")
+    if db.get_meta(conn, "bounded_sample") == "1":
+        out.append("bounded sample: --max-projects or --max-mrs limited the collection")
+    newest = conn.execute(
+        "SELECT MAX(created_at) FROM classifications WHERE status='ok'"
+    ).fetchone()[0]
+    evaluated = db.get_meta(conn, "evaluated_at")
+    if newest and (evaluated is None or newest > evaluated):
+        out.append("findings are older than the newest classification: run evaluate")
+    return out
+
+
+def _focus_user(conn: sqlite3.Connection) -> int | None:
+    name = db.get_meta(conn, "focus_username")
+    if not name:
+        return None
+    row = conn.execute("SELECT id FROM users WHERE lower(username)=lower(?)", (name,)).fetchone()
+    return int(row[0]) if row else None
+
+
 def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
     """Collect everything the dashboard needs. The result is plain JSON data."""
     users = {r["id"]: r for r in conn.execute("SELECT * FROM users")}
     names = {uid: (r["username"], r["name"]) for uid, r in users.items() if r["kind"] != "bot"}
 
     def mask(text: str, limit: int) -> str:
-        return truncate(mask_names(text, names), limit)
+        cut = truncate(mask_names(text, names), limit)
+        return _HALF_TOKEN.sub("…", cut)  # never show half a name token
 
     projects = [
         dict(r)
         for r in conn.execute(
-            "SELECT id, name, path, web_url, last_activity_at, window_mrs, window_notes, selected, skip_reason "
+            "SELECT id, name, path, web_url, last_activity_at, window_mrs, window_notes, selected, skip_reason, focus_mrs "
             "FROM projects ORDER BY path"
         )
     ]
@@ -72,10 +134,9 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
             }
         )
     mr_url = {(m["p"], m["iid"]): m["url"] for m in mrs}
-    cls = {
-        r["thread_id"]: r["status"]
-        for r in conn.execute("SELECT thread_id, status FROM classifications")
-    }
+    cls = {r["thread_id"]: r for r in conn.execute("SELECT * FROM classifications")}
+    fails = {r["thread_id"]: r for r in conn.execute("SELECT * FROM classification_failures")}
+    model = cfg.ollama_model
     threads = []
     seen_users: set[int] = set()
     for r in conn.execute("SELECT * FROM threads ORDER BY created_at, id"):
@@ -86,12 +147,7 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
         for uid in [r["giver_id"], r["recipient_id"], *responders]:
             if uid is not None:
                 seen_users.add(uid)
-        hashed = conn.execute(
-            "SELECT input_hash FROM classifications WHERE thread_id=?", (r["id"],)
-        ).fetchone()
-        status = cls.get(r["id"], "pending") if r["substantive"] else "not_needed"
-        if status == "ok" and hashed and hashed[0] != r["input_hash"]:
-            status = "stale"
+        status = _status(r, cls.get(r["id"]), fails.get(r["id"]), model)
         threads.append(
             {
                 "id": r["id"],
@@ -132,6 +188,8 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
                 "target": r["criticism_target"],
                 "primary": resp["primary"],
                 "acts": [a["act"] for a in resp["acts"]],
+                "racts": [a["act"] for a in resp["acts"] if a.get("by") == "recipient"],
+                "ev": r["evidence_level"],
                 "text": r["text_outcome"],
                 "outcome": r["outcome"],
                 "ver": r["verification"],
@@ -168,10 +226,16 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
     for t in threads:
         if t["reason"] == "substantive":
             statuses[t["cls"]] = statuses.get(t["cls"], 0) + 1
-    model = db.get_meta(conn, "ollama_model") or ""
-    complete = statuses.get("ok", 0) == reasons.get("substantive", 0) and not any(
-        s in summary["work"].get("mr", {}) for s in ("pending", "failed", "stale")
-    )
+    partial = _partial_reasons(conn, summary, statuses)
+    gap_total = sum(summary["gaps"].values()) + summary["work"].get("mr", {}).get("skipped", 0)
+    state = "partial" if partial else ("complete_with_gaps" if gap_total else "complete")
+    provenance = [
+        dict(r)
+        for r in conn.execute(
+            "SELECT model, model_digest, prompt_version, schema_version, COUNT(*) AS n "
+            "FROM classifications WHERE status='ok' GROUP BY 1, 2, 3, 4 ORDER BY n DESC"
+        )
+    ]
     meta = {
         "tool_version": __version__,
         "generated_at": db.utcnow(),
@@ -181,7 +245,7 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
         "model": model,
         "model_digest": db.get_meta(conn, "ollama_digest"),
         "ollama_version": db.get_meta(conn, "ollama_version"),
-        "stub": model == STUB_MODEL,
+        "stub": any(p["model"] == STUB_MODEL for p in provenance),
         "prompt_version": llm.PROMPT_VERSION,
         "schema_version": llm.SCHEMA_VERSION,
         "timezone": cfg.timezone,
@@ -198,8 +262,13 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
             "work": summary["work"],
             "thread_reasons": reasons,
             "classification": statuses,
-            "complete": complete,
+            "complete": state != "partial",
+            "state": state,
+            "partial_reasons": partial,
+            "bounded_sample": db.get_meta(conn, "bounded_sample") == "1",
         },
+        "provenance": provenance,
+        "focus_user": _focus_user(conn),
     }
     return {
         "meta": meta,

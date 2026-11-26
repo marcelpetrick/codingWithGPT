@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.7: fix(report): honest coverage, per-thread times, recipient-only acts
 - 0.2.6: feat(collect): focus user selection, per-project failure handling
 - 0.2.5: fix(evaluate): valid decision notes, meaningful replies, safer evidence
 - 0.2.4: fix(analyze): keep valid results and survive bad replies

@@ -38,21 +38,25 @@ def test_overview() -> None:
         "mrs": [{}, {}],
         "threads": [
             {"id": "a", "reason": "substantive", "resolved": True},
-            {"id": "b", "reason": "routine_only", "resolved": False},
+            {"id": "b", "reason": "substantive", "resolved": False},
+            {"id": "c", "reason": "substantive", "resolved": False},
         ],
         "findings": [
             f(),
             f(ver="textual_only"),
-            f(outcome="open", tm={"fr": ["p", 3.0]}),
-            f(outcome="open", cens="recent", act="question", tm={"fr": ["o", 1.0, 3.0]}),
+            f(t="b", outcome="open", tm={"fr": ["p", 3.0]}),
+            f(t="c", outcome="open", cens="recent", act="question", tm={"fr": ["o", 1.0, 3.0]}),
+            f(t="c", outcome="unknown", tm={"fr": ["o", 1.0, 3.0]}),
         ],
     }
     o = overview(ds)
     assert o["mrs"] == 2
-    assert o["substantive_threads"] == 1
-    assert o["actionable"] == 3
-    assert o["verified_rate"] == {"num": 1, "den": 3, "value": 1 / 3}
+    assert o["substantive_threads"] == 3
+    assert o["actionable"] == 4
+    assert o["verified_rate"] == {"num": 1, "den": 4, "value": 1 / 4}
+    assert o["unknown"] == 1
+    assert o["first_response_n"] == 2  # thread a and thread c, once each
     assert o["unresolved"] == 1
     assert o["resolved_without_code"] == 1
-    assert o["median_first_response_biz_h"] == 1.0
+    assert o["median_first_response_biz_h"] == 2.0
     assert o["first_response_pending"] == 1
