@@ -69,3 +69,20 @@ This section adds the engineering conventions of this repository. The rules abov
 - The dashboard is generated from the database, never edited by hand. Every element that shows a number or a term has a `data-tip` tooltip; `tests/e2e` checks this.
 - Markdown files must not contain a double curly brace or a curly-percent pair (the monorepo Pages build runs Liquid).
 - Writing: Simplified Technical English, about 80% (see the monorepo `AGENTS.md`).
+
+## Scope widening procedure (owner input D-015)
+
+Widen the analysed scope step by step. Spend the shared Ollama box in chunks of one hour.
+
+1. Finish the current step before the next one starts. The steps are:
+   1. the focus user's projects only (`--focus-user <user> --focus-only`);
+   2. the 50 most active projects in the window;
+   3. the 100 most active projects;
+   4. all active projects.
+
+   The focus user's projects rank first in every step.
+2. Run one chunk as `mrreview run <step arguments> --max-minutes 60`. Exit code 0 means the step is done. Exit code 3 means work remains, so run the same step again.
+3. Use `scripts/widen.sh` to run the chain. It checks before each chunk that no other model is loaded on the box. It stops on any other exit code and when `out/widen.STOP` exists.
+4. After each chunk, look at `out/widen.log` and the regenerated `out/real/dashboard.html`. Record the chunk in `WORKLOG.md` with time, step, classified count and anything unusual.
+5. Suspect the harness first. Explain a sudden jump in a figure before you start the next chunk.
+6. Never commit real data. `out/` is git-ignored. Public documents get aggregate numbers only, with no project or person names.
