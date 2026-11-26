@@ -1,7 +1,7 @@
 # mrreview: GitLab review and collaboration analytics
 
 [![pipeline](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml/badge.svg)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml)
-![version](https://img.shields.io/badge/version-0.2.38-blue)
+![version](https://img.shields.io/badge/version-0.2.39-blue)
 ![coverage](https://img.shields.io/badge/line%20coverage-99.1%25-brightgreen)
 ![mutation](https://img.shields.io/badge/mutation%20score-85.8%25-brightgreen)
 ![python](https://img.shields.io/badge/python-3.14-blue)
@@ -34,7 +34,7 @@ A promise is not a fix. A resolved thread is not proof. A reasoned "no" is a leg
 | Live run on real GitLab data | done 2026-11-26: all 76 active projects (of 706 visible), 3,274 MRs, 5,574 valid classified threads; data kept local |
 
 The living work log is [WORKLOG.md](WORKLOG.md). Requirements: [docs/requirements.md](docs/requirements.md).
-Decisions: [docs/decisions.md](docs/decisions.md). Architecture (C4): [docs/architecture.md](docs/architecture.md).
+Decisions: [docs/decisions.md](docs/decisions.md). Comparison with published studies: [docs/literature_comparison.md](docs/literature_comparison.md). Architecture (C4): [docs/architecture.md](docs/architecture.md).
 
 ## Quick start (synthetic data, no credentials)
 

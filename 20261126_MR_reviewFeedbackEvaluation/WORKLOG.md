@@ -93,6 +93,8 @@ This is the one living document for this task. Read it first.
 | 17:13 | Step 2 done: 4 new MRs, 3 threads. Only 76 projects are active in the 12-month window, so steps 3 and 4 select the same 76. |
 | 17:34 | Step 3 done: 26 more projects, 392 MRs, 140 threads (138 valid). |
 | 17:37 | Step 4 done: 1 MR, 1 thread. `all steps done`, exit 0. |
+| 18:15 | Harness check of the open outcomes: 390 open findings have a direct code change; the existing clue "Code changed, no reply" shows them (no defect). 4 failed threads: 3 had more than 5 findings, 1 hit the length limit (kept as failures). |
+| 18:15 | Comparison with the Microsoft code review baselines: defect and maintainability shares match; learning-curve and size trends differ (proxy limits). `docs/literature_comparison.md`. |
 
 ## Results
 
