@@ -37,7 +37,8 @@ Use Python 3.14 for the verification and release pipeline.
 | 16:45 | Render the diagrams | Chromium rendered both Mermaid views with all relationship labels. |
 | 16:46 | Verify a clean clone | Lint, format, coverage, mutation and release artifact checks passed. |
 | 16:53 | Test the attached light | The user granted access. HID reports confirmed the cycle, red plus yellow, off, and green. |
-| 16:54 | Check persistent access | The staged udev rule tagged the light in a simulation. The system rule still needs installation. |
+| 16:54 | Check persistent access | The staged udev rule tagged the light in a simulation. |
+| 17:10 | Verify the installed rule | The root-owned system file matches the project file. The existing connection has yet to get the tag. |
 
 ## Resume here
 
@@ -119,4 +120,5 @@ The `uaccess` tag grants an ACL to the active local login.
 `udevadm test --extra-rules-dir` added `uaccess` to the attached light.
 The same check before the rule did not add that tag.
 The rule did not match the attached Dell dock HID node.
-The system installation and replug check are open. This session still lacks administrator authentication.
+The user installed and reloaded the rule. The installed file matches the project file and passes `udevadm verify`.
+The existing HID node still has the temporary ACL and no `uaccess` tag. The replug test is open.
