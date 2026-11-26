@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.29: perf(identity): compile name masks once; mask only what is shown
 - 0.2.28: docs: record the reviewBranch findings and the resume point
 - 0.2.27: feat(db): portable database with backups, export and import
 - 0.2.26: docs: record owner inputs D-013 to D-017 and the extended plan

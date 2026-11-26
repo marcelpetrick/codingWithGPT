@@ -90,6 +90,16 @@ def _partial_reasons(
     return out
 
 
+def _prefix(text: str, n: int) -> str:
+    """The first n characters, extended to the next whitespace, so no word (or name) is cut."""
+    if len(text) <= n:
+        return text
+    end = n
+    while end < len(text) and not text[end].isspace():
+        end += 1
+    return text[:end]
+
+
 def _focus_user(conn: sqlite3.Connection) -> int | None:
     name = db.get_meta(conn, "focus_username")
     if not name:
@@ -109,6 +119,7 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
     }
 
     def mask(text: str, limit: int) -> str:
+        text = _prefix(text, limit * 3)  # mask only what can be shown (profiling: 10x faster)
         cut = truncate(mask_projects(mask_names(text, names), proj_terms), limit)
         return _HALF_TOKEN.sub("…", cut)  # never show half a name token
 

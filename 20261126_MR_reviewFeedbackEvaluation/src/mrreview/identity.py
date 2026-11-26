@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import secrets
 import sqlite3
@@ -134,6 +135,32 @@ _MENTION = regex.compile(r"(?<![\w.])@([A-Za-z0-9_][A-Za-z0-9_.\-]*[A-Za-z0-9_]|
 _MIN_TOKEN = 3
 
 
+def _alternation(terms: list[str]) -> str:
+    return "|".join(regex.escape(t) for t in sorted(set(terms), key=lambda t: (-len(t), t)))
+
+
+@functools.lru_cache(maxsize=16)
+def _name_masker(
+    users: tuple[tuple[int, str, str], ...],
+) -> tuple[dict[str, int], regex.Pattern[str] | None]:
+    """One compiled pattern for all names of a user set (compiling per call was the bottleneck)."""
+    lookup: dict[str, int] = {}
+    for uid, username, name in sorted(users, key=lambda u: u[0]):
+        clean = normalize(name).strip()
+        terms = [clean] if len(clean) >= _MIN_TOKEN else []
+        terms += [part for part in regex.split(r"[\s,]+", clean) if len(part) >= _MIN_TOKEN]
+        if len(username) >= _MIN_TOKEN:
+            terms.append(username)
+        for term in terms:
+            lookup.setdefault(term.casefold(), uid)
+    if not lookup:
+        return lookup, None
+    pattern = regex.compile(
+        rf"(?<![\w⟦:])(?:{_alternation(list(lookup))})(?![\w⟧])", flags=regex.IGNORECASE
+    )
+    return lookup, pattern
+
+
 def mask_names(text: str, users: Mapping[int, tuple[str, str]]) -> str:
     """Replace names of people with tokens ⟦u:ID⟧; unknown @mentions become ⟦u:?⟧.
 
@@ -154,21 +181,10 @@ def mask_names(text: str, users: Mapping[int, tuple[str, str]]) -> str:
         return (f"⟦u:{uid}⟧" if uid is not None else UNKNOWN_MENTION) + rest
 
     out = _MENTION.sub(mention, out)
-    patterns: list[tuple[str, int]] = []
-    for uid, (username, name) in users.items():
-        clean = normalize(name).strip()
-        if len(clean) >= _MIN_TOKEN:
-            patterns.append((clean, uid))
-        patterns += [
-            (part, uid) for part in regex.split(r"[\s,]+", clean) if len(part) >= _MIN_TOKEN
-        ]
-        if len(username) >= _MIN_TOKEN:
-            patterns.append((username, uid))
-    for term, uid in sorted(patterns, key=lambda p: -len(p[0])):
-        out = regex.sub(
-            rf"(?<![\w⟦:]){regex.escape(term)}(?![\w⟧])", f"⟦u:{uid}⟧", out, flags=regex.IGNORECASE
-        )
-    return out
+    lookup, pattern = _name_masker(tuple((uid, u, n) for uid, (u, n) in users.items()))
+    if pattern is None:
+        return out
+    return pattern.sub(lambda m: f"⟦u:{lookup[m.group(0).casefold()]}⟧", out)
 
 
 PROJECT_WORDS = [
@@ -240,17 +256,26 @@ def project_label_for(conn: sqlite3.Connection, project_id: int) -> str:
     return label
 
 
+@functools.lru_cache(maxsize=16)
+def _project_masker(
+    projects: tuple[tuple[int, str, str], ...],
+) -> tuple[dict[str, int], regex.Pattern[str] | None]:
+    lookup: dict[str, int] = {}
+    for pid, path, name in sorted(projects):
+        for term in (path, name):
+            if term and len(term) >= _MIN_PROJECT_TOKEN:
+                lookup.setdefault(term.casefold(), pid)
+    if not lookup:
+        return lookup, None
+    pattern = regex.compile(
+        rf"(?<![\w⟦:/.-])(?:{_alternation(list(lookup))})(?![\w⟧/-])", flags=regex.IGNORECASE
+    )
+    return lookup, pattern
+
+
 def mask_projects(text: str, projects: Mapping[int, tuple[str, str]]) -> str:
     """Replace project paths and project names (4+ characters) with tokens ⟦p:ID⟧."""
-    terms: list[tuple[str, int]] = []
-    for pid, (path, name) in projects.items():
-        terms += [(t, pid) for t in (path, name) if t and len(t) >= _MIN_PROJECT_TOKEN]
-    out = text
-    for term, pid in sorted(terms, key=lambda p: -len(p[0])):
-        out = regex.sub(
-            rf"(?<![\w⟦:/.-]){regex.escape(term)}(?![\w⟧/-])",
-            f"⟦p:{pid}⟧",
-            out,
-            flags=regex.IGNORECASE,
-        )
-    return out
+    lookup, pattern = _project_masker(tuple((p, a, b) for p, (a, b) in projects.items()))
+    if pattern is None:
+        return text
+    return pattern.sub(lambda m: f"⟦p:{lookup[m.group(0).casefold()]}⟧", text)

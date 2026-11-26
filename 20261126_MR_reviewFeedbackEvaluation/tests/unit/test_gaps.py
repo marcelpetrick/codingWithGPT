@@ -167,3 +167,11 @@ def test_fixture_seeds_are_deterministic_and_varied() -> None:
     assert a.truth == b.truth
     sizes = {len(build_fixture(seed=s).truth) for s in range(2, 6)}
     assert len(sizes) > 1
+
+
+def test_prefix_never_cuts_a_word() -> None:
+    from mrreview.dataset import _prefix
+
+    assert _prefix("short", 10) == "short"
+    assert _prefix("Hello Jürgen Groß, bye", 8) == "Hello Jürgen"
+    assert _prefix("abcdef", 3) == "abcdef"
