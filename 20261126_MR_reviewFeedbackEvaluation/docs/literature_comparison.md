@@ -26,5 +26,29 @@ or an open outcome with a direct code change (the commented lines changed later)
 
 1. The proxies differ. Microsoft used the author's judgement; this tool uses the text outcome and the code. Compare trends, not levels.
 2. Prior exposure counts only comments in the 12-month window, per reviewer, project and file. Earlier history is not visible, so many "first" comments are not first contacts.
-3. Large MRs have more later changes. A change within 2 lines of a comment is then more likely by chance. The direct-evidence rule probably favours large MRs. A test of this needs a churn-matched control (open item).
+3. The size trend is not a chance effect of the 2-line rule: the placebo rate does not grow with MR size (next section). The cause is open.
 4. Intent comes from the LLM. The real-data annotation sample (docs/annotation_rubric.md) is still open, so the intent shares are not checked by a human.
+
+## Placebo check of the direct-evidence rule
+
+Question: how often does a change within 2 lines of a comment happen by chance?
+Method: for 1,595 diff comments whose file changed later, apply the same rule to a line shifted by k lines up and down.
+Command: `uv run python scripts/placebo_check.py out/real/mrreview.sqlite3`.
+
+| Line tested | Hit rate |
+|---|---|
+| The commented line | **91.7%** |
+| Shifted by 10 lines | 33.4% |
+| Shifted by 25 lines | 21.6% |
+| Shifted by 50 lines | 13.6% |
+| Shifted by 100 lines | 7.8% |
+
+| MR size (files) | Commented line | Shifted by 50 |
+|---|---|---|
+| 1–4 | 92.2% | 11.5% |
+| 5–9 | 87.6% | 17.3% |
+| 10–19 | 95.9% | 12.1% |
+| 20+ | 94.0% | 14.4% |
+
+Result: a direct hit is about 7 times more frequent at the commented line than 50 lines away. The rule measures the review, not chance.
+About 8–14% of all "direct" hits can still be coincidence (large rewrites of a file). Read "direct" as strong evidence, not proof.

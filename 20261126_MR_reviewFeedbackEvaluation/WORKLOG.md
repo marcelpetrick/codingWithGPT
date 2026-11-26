@@ -95,6 +95,7 @@ This is the one living document for this task. Read it first.
 | 17:37 | Step 4 done: 1 MR, 1 thread. `all steps done`, exit 0. |
 | 18:15 | Harness check of the open outcomes: 390 open findings have a direct code change; the existing clue "Code changed, no reply" shows them (no defect). 4 failed threads: 3 had more than 5 findings, 1 hit the length limit (kept as failures). |
 | 18:15 | Comparison with the Microsoft code review baselines: defect and maintainability shares match; learning-curve and size trends differ (proxy limits). `docs/literature_comparison.md`. |
+| 18:20 | Placebo check of the direct-evidence rule: 91.7% hits at the commented line, 13.6% 50 lines away; no growth with MR size. `scripts/placebo_check.py`. Gate green. |
 
 ## Results
 
