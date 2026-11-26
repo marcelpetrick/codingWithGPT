@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.20: feat(evidence): verify changes with the GitLab compare API
 - 0.2.19: fix(collect): treat empty and capped MR versions as incomplete
 - 0.2.18: docs(worklog): record the real collection result
 - 0.2.17: docs: check the system against VISION acceptance criteria

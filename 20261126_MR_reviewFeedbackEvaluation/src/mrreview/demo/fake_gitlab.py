@@ -8,6 +8,7 @@ inject faults (status codes) to test retry and resumption.
 
 from __future__ import annotations
 
+import difflib
 import json
 import re
 import threading
@@ -22,6 +23,7 @@ from mrreview.demo.fixture import Fixture
 _ROUTES = [
     (re.compile(r"^/api/v4/projects$"), "projects"),
     (re.compile(r"^/api/v4/merge_requests$"), "all_mrs"),
+    (re.compile(r"^/api/v4/projects/(\d+)/repository/compare$"), "compare"),
     (re.compile(r"^/api/v4/projects/(\d+)/merge_requests$"), "mrs"),
     (re.compile(r"^/api/v4/projects/(\d+)/merge_requests/(\d+)/discussions$"), "discussions"),
     (re.compile(r"^/api/v4/projects/(\d+)/merge_requests/(\d+)/approvals$"), "approvals"),
@@ -64,6 +66,8 @@ class FakeGitLab:
                 )
             ]
         pid = int(groups[0])
+        if route == "compare":
+            return self._compare(pid, query.get("from", [""])[0], query.get("to", [""])[0])
         if route == "mrs":
             if pid not in fx.mrs:
                 return None
@@ -82,6 +86,28 @@ class FakeGitLab:
         if route == "version":
             return fx.version_detail.get((*key, int(groups[2])))
         return table[route].get(key)
+
+    def _snapshot(self, pid: int, sha: str) -> dict[str, list[str]] | None:
+        for (p, _iid, _vid), detail in self.fixture.version_detail.items():
+            if p == pid and detail["head_commit_sha"] == sha:
+                return {
+                    d["new_path"]: [ln[1:] for ln in d["diff"].splitlines()[1:]]
+                    for d in detail["diffs"]
+                }
+        return None
+
+    def _compare(self, pid: int, from_sha: str, to_sha: str) -> Any:
+        old, new = self._snapshot(pid, from_sha), self._snapshot(pid, to_sha)
+        if old is None or new is None:
+            return None
+        diffs = []
+        for path in sorted(set(old) | set(new)):
+            a, b = old.get(path, []), new.get(path, [])
+            if a == b:
+                continue
+            lines = list(difflib.unified_diff(a, b, lineterm="", n=3))[2:]
+            diffs.append({"old_path": path, "new_path": path, "diff": "\n".join(lines) + "\n"})
+        return {"commits": [], "diffs": diffs}
 
     def handle(
         self, method: str, raw_path: str, headers: dict[str, str]

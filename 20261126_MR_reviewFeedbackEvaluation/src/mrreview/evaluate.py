@@ -24,7 +24,7 @@ from typing import Any
 from mrreview import db
 from mrreview.bizhours import BusinessCalendar
 from mrreview.config import Config
-from mrreview.diffs import new_side_lines, window
+from mrreview.diffs import new_side_lines, old_side_changes, window
 from mrreview.textutil import is_routine
 
 CHANGE_OUTCOMES = frozenset({"implemented", "alternative_implemented", "partially_implemented"})
@@ -66,7 +66,31 @@ def _dt(s: str) -> datetime:
 
 
 def code_evidence(conn: sqlite3.Connection, thread: sqlite3.Row | dict[str, Any]) -> Evidence:
-    """Did the code change after the thread started, and where?"""
+    """Did the code change after the thread started, and where?
+
+    The compare-API result (evidence stage) wins when it exists. The MR version snapshots are the
+    fallback, and they give the time of the change.
+    """
+    snapshot = _snapshot_evidence(conn, thread)
+    keys = thread.keys()
+    if "id" not in keys or not thread["new_path"] or not thread["new_line"]:
+        return snapshot
+    row = conn.execute(
+        "SELECT status, file_changed, file_diff, to_created_at FROM code_changes WHERE thread_id=?",
+        (thread["id"],),
+    ).fetchone()
+    if row is None or row["status"] == "unavailable":
+        return snapshot
+    if row["status"] == "same" or not row["file_changed"]:
+        return Evidence("none", None)
+    at = snapshot.at if snapshot.level in ("direct", "indirect") else row["to_created_at"]
+    line = int(thread["new_line"])
+    near = any(abs(n - line) <= LINE_RADIUS for n in old_side_changes(row["file_diff"]))
+    return Evidence("direct" if near else "indirect", at)
+
+
+def _snapshot_evidence(conn: sqlite3.Connection, thread: sqlite3.Row | dict[str, Any]) -> Evidence:
+    """Evidence from the stored MR version diffs (fallback, and the time of the change)."""
     pid, iid, start = thread["project_id"], thread["mr_iid"], thread["created_at"]
     versions = conn.execute(
         "SELECT version_id, created_at, diffs_complete FROM mr_versions WHERE project_id=? AND mr_iid=? "

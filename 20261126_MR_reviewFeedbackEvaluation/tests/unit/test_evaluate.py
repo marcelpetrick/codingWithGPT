@@ -330,3 +330,52 @@ def test_base_version_comes_from_the_comment_head_sha(conn: sqlite3.Connection) 
     # By time alone the base would be version 1, which lacks a.c. The comment was made on sha-b.
     thread = {**T, "first_note_id": 7}
     assert code_evidence(conn, thread) == Evidence("direct", "2026-01-02T00:00:00+00:00")
+
+
+def _change(conn: sqlite3.Connection, status: str, changed: int, diff_text: str) -> None:
+    with db.tx(conn):
+        conn.execute(
+            "INSERT OR REPLACE INTO code_changes VALUES ('d', 'a', 'b', '2026-01-03T00:00:00+00:00', ?, ?, ?, NULL, 'x')",
+            (status, changed, diff_text),
+        )
+
+
+TC = {**T, "id": "d"}
+
+
+def test_compare_evidence_branches(conn: sqlite3.Connection) -> None:
+    seed(conn, [(1, "2026-01-01T00:00:00+00:00", {"a.c": BASE}, 1)])
+    assert code_evidence(conn, TC) == Evidence("none", None)  # no compare row: snapshot says none
+    _change(conn, "ok", 1, "@@ -9,3 +9,3 @@\n l9\n-l10\n+l10 fixed\n l11\n")
+    assert code_evidence(conn, TC) == Evidence("direct", "2026-01-03T00:00:00+00:00")
+    _change(conn, "ok", 1, "@@ -12,3 +12,3 @@\n l12\n-l13\n+x\n l14\n")
+    assert code_evidence(conn, TC) == Evidence("indirect", "2026-01-03T00:00:00+00:00")
+    _change(conn, "ok", 1, "@@ -13,3 +13,3 @@\n l13\n-l14\n+x\n l15\n")
+    assert code_evidence(conn, TC).level == "indirect"  # 4 lines away is outside the radius
+    _change(conn, "ok", 0, "")
+    assert code_evidence(conn, TC) == Evidence("none", None)
+    _change(conn, "same", 0, "")
+    assert code_evidence(conn, TC) == Evidence("none", None)
+    _change(conn, "unavailable", 0, "")
+    assert code_evidence(conn, TC) == Evidence("none", None)  # falls back to the snapshot
+
+
+def test_compare_evidence_keeps_snapshot_time(conn: sqlite3.Connection) -> None:
+    changed = BASE[:]
+    changed[9] = "l10 fixed"
+    seed(
+        conn,
+        [
+            (1, "2026-01-01T00:00:00+00:00", {"a.c": BASE}, 1),
+            (2, "2026-01-02T00:00:00+00:00", {"a.c": changed}, 1),
+        ],
+    )
+    _change(conn, "ok", 1, "@@ -10 +10 @@\n-l10\n+l10 fixed\n")
+    assert code_evidence(conn, TC) == Evidence("direct", "2026-01-02T00:00:00+00:00")
+
+
+def test_compare_evidence_needs_a_line(conn: sqlite3.Connection) -> None:
+    seed(conn, [(1, "2026-01-01T00:00:00+00:00", {"a.c": BASE}, 1)])
+    _change(conn, "ok", 1, "@@ -10 +10 @@\n-l10\n+x\n")
+    assert code_evidence(conn, {**TC, "new_line": None}).level == "none"
+    assert code_evidence(conn, {**TC, "new_path": None, "new_line": None}).level == "none"

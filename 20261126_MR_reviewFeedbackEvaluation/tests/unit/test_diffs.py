@@ -19,3 +19,18 @@ def test_window() -> None:
     lines = {1: "a", 2: "b", 3: "c", 9: "z"}
     assert window(lines, 2, 1) == {1: "a", 2: "b", 3: "c"}
     assert window(lines, 9, 5) == {9: "z"}
+
+
+def test_old_side_changes() -> None:
+    from mrreview.diffs import old_side_changes
+
+    diff = "@@ -10,4 +10,4 @@\n a\n-b\n+B\n c\n d\n@@ -40,2 +40,3 @@\n x\n+inserted\n y\n"
+    # b (old line 11) changed; an insertion after old line 40 touches lines 40 and 41.
+    assert old_side_changes(diff) == {11, 40, 41}
+    assert old_side_changes("") == set()
+
+
+def test_old_side_changes_deletion_only() -> None:
+    from mrreview.diffs import old_side_changes
+
+    assert old_side_changes("@@ -5,3 +5,2 @@\n a\n-gone\n c\n") == {6}

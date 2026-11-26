@@ -15,7 +15,18 @@ from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 
-from mrreview import __version__, analyze, collect, db, evaluate, llm, normalize, quality, report
+from mrreview import (
+    __version__,
+    analyze,
+    collect,
+    db,
+    evaluate,
+    evidence,
+    llm,
+    normalize,
+    quality,
+    report,
+)
 from mrreview.config import Config, ConfigError, load_config
 from mrreview.demo import fake_gitlab, fake_ollama
 from mrreview.demo.fixture import REFERENCE_NOW, build_fixture
@@ -66,6 +77,7 @@ def _stages(
         max_mrs=getattr(args, "max_mrs", None),
     )
     _log(f"normalize: {normalize.build_threads(conn)}")
+    _log(f"evidence: {evidence.run_evidence(gl, conn)}")
     analyze.run_analyze(conn, cfg, ol, _log, limit=getattr(args, "limit", None))
     _log(f"evaluate: {evaluate.run_evaluate(conn, cfg)}")
     _log(f"report: {report.write_report(conn, cfg, out, demo=demo)}")
@@ -147,6 +159,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         _focus_args(sp)
     a = sub.add_parser("analyze", help="classify substantive threads with Ollama")
     a.add_argument("--limit", type=int)
+    sub.add_parser("evidence", help="fetch compare diffs as code evidence for diff comments")
     sub.add_parser("evaluate", help="verify outcomes and compute timings")
     r = sub.add_parser("report", help="write the HTML dashboard")
     r.add_argument("--out", type=Path, default=Path("out/dashboard.html"))
@@ -204,6 +217,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             _log(f"normalize: {normalize.build_threads(conn)}")
         elif args.cmd == "analyze":
             analyze.run_analyze(conn, cfg, _ollama(cfg), _log, limit=args.limit)
+        elif args.cmd == "evidence":
+            _log(f"evidence: {evidence.run_evidence(_gitlab(cfg), conn)}")
         elif args.cmd == "evaluate":
             _log(f"evaluate: {evaluate.run_evaluate(conn, cfg)}")
         elif args.cmd == "report":

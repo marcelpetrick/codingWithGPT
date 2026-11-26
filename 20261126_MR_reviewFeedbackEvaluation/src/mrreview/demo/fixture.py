@@ -722,6 +722,15 @@ class _Builder:
                 }
             )
         fx.versions[key] = list(reversed(vlist))
+        for (
+            d
+        ) in (
+            discussions
+        ):  # a diff comment points at the head commit of the version it was written on
+            for n in d["notes"]:
+                if n.get("position"):
+                    shown = [v for v in vlist if v["created_at"] <= n["created_at"]] or vlist[:1]
+                    n["position"] = {**n["position"], "head_sha": shown[-1]["head_commit_sha"]}
         fx.commits[key] = list(reversed(clist))
 
 

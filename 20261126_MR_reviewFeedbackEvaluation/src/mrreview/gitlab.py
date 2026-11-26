@@ -147,5 +147,13 @@ class GitLabClient:
         )
         return data if isinstance(data, dict) else {}
 
+    def compare(self, project_id: int, from_sha: str, to_sha: str) -> JSONDict:
+        """Diff between two commits (straight, not from the merge base)."""
+        data = self.get_json(
+            f"/projects/{self._p(project_id)}/repository/compare",
+            {"from": from_sha, "to": to_sha, "straight": "true"},
+        )
+        return data if isinstance(data, dict) else {}
+
     def commits(self, project_id: int, iid: int) -> Iterator[JSONDict]:
         return self.paginate(f"/projects/{self._p(project_id)}/merge_requests/{iid}/commits")
