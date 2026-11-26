@@ -1,7 +1,7 @@
 # Work record and requirements
 
 Linux detects the light. Cleware's source gives the control reports.
-The live test requires write access to the HID device.
+The attached light reports the requested steady channel states after the user grants access.
 
 ## Plan
 
@@ -34,6 +34,7 @@ Use Python 3.14 for the verification and release pipeline.
 | 16:43 | Verify Python control reports | Nine fixture tests passed. Linux denied the live write. |
 | 16:45 | Render the diagrams | Chromium rendered both Mermaid views with all relationship labels. |
 | 16:46 | Verify a clean clone | Lint, format, coverage, mutation and release artifact checks passed. |
+| 16:53 | Test the attached light | The user granted access. HID reports confirmed the cycle, red plus yellow, off, and green. |
 
 ## Resume here
 
@@ -77,7 +78,7 @@ GitHub rendering and the hosted workflow run remain unverified in the directory 
 | Commit | Requirement | Findings and evidence |
 | --- | --- | --- |
 | `328bf1a66cd8f8ca0e16091562245382da1a9857` | USB-01 | USB identity and report sizes match sysfs. Cleware's source identifies the controller marker. The chip marking still needs a physical check. |
-| `e7237c46d1eb620f128a0a9ad2c389a21253a76b` | USB-02 | The fixtures cover channel selection, short writes, flash rates, cycle cleanup and access errors. Live output remains open because the device has no user write ACL. |
+| `e7237c46d1eb620f128a0a9ad2c389a21253a76b` | USB-02 | The fixtures cover channel selection, short writes, flash rates, cycle cleanup and access errors. The live test initially lacked write access. The user granted access and the steady states passed. |
 | `f9a7e2e5a4e656e999e224fdb9619886fd0616dd` | USB-03 | The clean clone passed dependency, lint, format, workflow syntax, coverage, mutation and archive checks. Hosted CI and release publishing remain unverified. |
 
 The clean clone used Python 3.14.10 and installed all 22 pinned development dependencies.
@@ -87,5 +88,16 @@ The SHA-256 check matched the archive, SPDX SBOM and changelog.
 The development dependency license metadata and bundled license text cover permissive, MPL 2.0 and GPL v3 licenses.
 The release archive includes no development dependencies.
 
-The live access check used `getfacl` and `sudo -n true`. The device retained root-only access and sudo required a password.
-The light needs the acceptance checks above once write access is available.
+## Live hardware test
+
+The user granted a temporary ACL and the controller accepted each command.
+A separate process recorded six-byte HID input reports during each command.
+Cleware's `GetSwitch` uses bits 0, 2 and 4 in the first byte for red, yellow and green.
+
+| Command | Confirmed state | HID input |
+| --- | --- | --- |
+| `cycle` | Red, yellow, green, then off. | `8b`, `8e`, `9a`, `8a` in the first byte |
+| `set red yellow` | Red and yellow together. | `8f 00 00 00 00 00` |
+| `flash 0.5 yellow` | Yellow selected. Flash timing needs visual observation. | `8e 00 00 00 00 00` |
+| `off` | All three channels off. | `8a 00 00 00 00 00` |
+| `set green` | Green on at the end of the test. | `9a 00 00 00 00 00` |

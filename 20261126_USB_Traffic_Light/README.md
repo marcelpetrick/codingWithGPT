@@ -46,6 +46,9 @@ The shop offers cable length and splash protection options. The USB descriptors 
 [Cleware API](https://www.cleware.info/data/API_E.pdf) ·
 [Cleware command FAQ](https://www.cleware-shop.de/FAQs/en)
 
+The attached light reported red, yellow, green, off, and red plus yellow during live tests.
+The flash command set yellow. The HID reports did not show the physical flash timing.
+
 ## USB control
 
 Write `00 channel state` as three bytes to interrupt endpoint `0x02`.
