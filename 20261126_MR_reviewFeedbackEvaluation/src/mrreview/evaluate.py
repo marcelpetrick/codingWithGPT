@@ -22,6 +22,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from mrreview import db
+from mrreview.analyze import is_current
 from mrreview.bizhours import BusinessCalendar
 from mrreview.config import Config
 from mrreview.diffs import new_side_lines, old_side_changes, window
@@ -283,10 +284,18 @@ def run_evaluate(conn: sqlite3.Connection, cfg: Config) -> dict[str, int]:
     cal = BusinessCalendar(
         cfg.zone(), cfg.business_start_hour, cfg.business_end_hour, frozenset(cfg.holidays)
     )
-    rows = conn.execute("""SELECT t.*, c.result_json, m.state AS mr_state FROM threads t
-        JOIN classifications c ON c.thread_id = t.id AND c.status = 'ok' AND c.input_hash = t.llm_hash
-        JOIN merge_requests m ON m.project_id = t.project_id AND m.iid = t.mr_iid
-        WHERE t.substantive = 1""").fetchall()
+    digest = db.get_meta(conn, "ollama_digest")
+    rows = [
+        r
+        for r in conn.execute("""SELECT t.*, c.result_json, c.status, c.prompt_version,
+            c.schema_version, c.model, c.model_digest, c.input_hash AS c_hash, m.state AS mr_state
+            FROM threads t JOIN classifications c ON c.thread_id = t.id
+            JOIN merge_requests m ON m.project_id = t.project_id AND m.iid = t.mr_iid
+            WHERE t.substantive = 1""").fetchall()
+        if is_current(
+            {**dict(r), "input_hash": r["c_hash"]}, r["llm_hash"], cfg.ollama_model, digest
+        )
+    ]
     counts: dict[str, int] = {}
     now = db.utcnow()
     authors = {int(r[0]): r[1] for r in conn.execute("SELECT id, author_id FROM notes")}

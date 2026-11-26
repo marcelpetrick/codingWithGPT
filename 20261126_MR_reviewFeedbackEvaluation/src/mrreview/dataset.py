@@ -14,7 +14,7 @@ import sqlite3
 from typing import Any
 
 from mrreview import __version__, db, llm
-from mrreview.analyze import cache_key
+from mrreview.analyze import cache_key, is_current
 from mrreview.collect import collect_summary
 from mrreview.config import Config
 from mrreview.demo.fake_ollama import STUB_MODEL
@@ -41,19 +41,17 @@ def _tm(value: dict[str, Any]) -> list[Any]:
 
 
 def _status(
-    thread: sqlite3.Row, cls: sqlite3.Row | None, fail: sqlite3.Row | None, model: str
+    thread: sqlite3.Row,
+    cls: sqlite3.Row | None,
+    fail: sqlite3.Row | None,
+    model: str,
+    digest: str | None = None,
 ) -> str:
     """Classification state of one thread against the current prompt, schema and model."""
     if not thread["substantive"]:
         return "not_needed"
     key = cache_key(thread["llm_hash"], model)
-    if (
-        cls is not None
-        and cls["status"] == "ok"
-        and cache_key(cls["input_hash"], cls["model"]) == key
-        and (cls["prompt_version"], cls["schema_version"])
-        == (llm.PROMPT_VERSION, llm.SCHEMA_VERSION)
-    ):
+    if is_current(cls, thread["llm_hash"], model, digest):
         return "ok"
     if fail is not None and fail["cache_key"] == key:
         return str(fail["status"])
@@ -156,6 +154,7 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
     cls = {r["thread_id"]: r for r in conn.execute("SELECT * FROM classifications")}
     fails = {r["thread_id"]: r for r in conn.execute("SELECT * FROM classification_failures")}
     model = cfg.ollama_model
+    digest = db.get_meta(conn, "ollama_digest")
     threads = []
     seen_users: set[int] = set()
     for r in conn.execute("SELECT * FROM threads ORDER BY created_at, id"):
@@ -166,7 +165,7 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
         for uid in [r["giver_id"], r["recipient_id"], *responders]:
             if uid is not None:
                 seen_users.add(uid)
-        status = _status(r, cls.get(r["id"]), fails.get(r["id"]), model)
+        status = _status(r, cls.get(r["id"]), fails.get(r["id"]), model, digest)
         threads.append(
             {
                 "id": r["id"],

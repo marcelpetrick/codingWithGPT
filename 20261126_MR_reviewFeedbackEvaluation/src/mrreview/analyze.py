@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from dataclasses import dataclass
 from typing import Any
@@ -110,6 +110,20 @@ def thread_context(
     return payload, {int(n["id"]) for n in notes}
 
 
+def is_current(
+    cls: Mapping[str, Any] | sqlite3.Row | None, llm_hash: str, model: str, digest: str | None
+) -> bool:
+    """The one definition of a current classification (used by analyze, evaluate and dataset)."""
+    return (
+        cls is not None
+        and cls["status"] == "ok"
+        and cls["input_hash"] == llm_hash
+        and (cls["prompt_version"], cls["schema_version"], cls["model"])
+        == (llm.PROMPT_VERSION, llm.SCHEMA_VERSION, model)
+        and (not digest or not cls["model_digest"] or cls["model_digest"] == digest)
+    )
+
+
 def cache_key(llm_hash: str, model: str) -> str:
     """A classification is valid for one thread text, prompt, schema and model."""
     return f"{llm_hash}|{llm.PROMPT_VERSION}|{llm.SCHEMA_VERSION}|{model}"
@@ -122,10 +136,13 @@ def _focus_id(conn: sqlite3.Connection) -> int:
     return int(row[0]) if row else -1
 
 
-def _todo(conn: sqlite3.Connection, model: str, limit: int | None) -> tuple[list[sqlite3.Row], int]:
+def _todo(
+    conn: sqlite3.Connection, model: str, limit: int | None, digest: str | None = None
+) -> tuple[list[sqlite3.Row], int]:
     rows = conn.execute(
         """SELECT t.*, c.input_hash AS c_hash, c.prompt_version AS c_pv, c.schema_version AS c_sv,
-        c.model AS c_model, c.status AS c_status, f.cache_key AS f_key, f.attempts AS f_attempts
+        c.model AS c_model, c.status AS c_status, c.model_digest AS c_digest,
+        f.cache_key AS f_key, f.attempts AS f_attempts
         FROM threads t LEFT JOIN classifications c ON c.thread_id = t.id
         LEFT JOIN classification_failures f ON f.thread_id = t.id
         WHERE t.substantive = 1
@@ -136,13 +153,15 @@ def _todo(conn: sqlite3.Connection, model: str, limit: int | None) -> tuple[list
     reused = 0
     for r in rows:
         key = cache_key(r["llm_hash"], model)
-        current = (
-            r["c_status"] == "ok"
-            and r["c_hash"] == r["llm_hash"]
-            and (r["c_pv"], r["c_sv"], r["c_model"])
-            == (llm.PROMPT_VERSION, llm.SCHEMA_VERSION, model)
-        )
-        if current:
+        cls = {
+            "status": r["c_status"],
+            "input_hash": r["c_hash"],
+            "prompt_version": r["c_pv"],
+            "schema_version": r["c_sv"],
+            "model": r["c_model"],
+            "model_digest": r["c_digest"],
+        }
+        if is_current(cls, r["llm_hash"], model, digest):
             reused += 1
         elif not (r["f_key"] == key and r["f_attempts"] >= MAX_ATTEMPTS):
             todo.append(r)
@@ -230,7 +249,7 @@ def run_analyze(
         db.set_meta(conn, "ollama_model", model.name)
         db.set_meta(conn, "ollama_digest", model.digest or "")
         db.set_meta(conn, "ollama_version", model.server_version or "")
-    todo, reused = _todo(conn, model.name, limit)
+    todo, reused = _todo(conn, model.name, limit, model.digest)
     progress(f"analyze: {len(todo)} threads to classify, {reused} reused")
     counts = {"ok": 0, "invalid": 0, "failed": 0}
     streak = 0
@@ -275,13 +294,12 @@ def run_analyze(
                 try:
                     result, error, raw, dur = fut.result()
                 except TransportError as exc:
+                    # Unreachable or timed out: never booked; the thread stays pending for the next run.
                     streak += 1
-                    _store_failure(conn, thread, model, "failed", f"transport: {exc}", None)
                     counts["failed"] += 1
                     if streak >= MAX_CONSECUTIVE_TRANSPORT_ERRORS:
                         pending.clear()
-                        for f in running:
-                            f.cancel()
+                        pool.shutdown(wait=False, cancel_futures=True)
                         raise StopRun(f"Ollama unreachable, analysis stopped: {exc}") from None
                     continue
                 except (HttpError, ValueError, KeyError, TypeError, AttributeError) as exc:

@@ -136,7 +136,8 @@ def test_server_dies_mid_run_stops_job(conn: sqlite3.Connection, collected: Conf
     with pytest.raises(collect.StopRun):
         analyze.run_analyze(conn, collected, dead_chat)
     assert conn.execute("SELECT COUNT(*) FROM classifications WHERE status='ok'").fetchone()[0] == 0
-    assert conn.execute("SELECT COUNT(*) FROM classification_failures").fetchone()[0] == 3
+    # an unreachable server is never booked as a result (review finding 1)
+    assert conn.execute("SELECT COUNT(*) FROM classification_failures").fetchone()[0] == 0
 
 
 def test_evaluate_on_fixture_truth(
