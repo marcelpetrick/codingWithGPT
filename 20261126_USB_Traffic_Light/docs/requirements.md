@@ -82,6 +82,8 @@ GitHub rendering and the hosted workflow run remain unverified in the directory 
 | `328bf1a66cd8f8ca0e16091562245382da1a9857` | USB-01 | USB identity and report sizes match sysfs. Cleware's source identifies the controller marker. The chip marking still needs a physical check. |
 | `e7237c46d1eb620f128a0a9ad2c389a21253a76b` | USB-02 | The fixtures cover channel selection, short writes, flash rates, cycle cleanup and access errors. The live test initially lacked write access. The user granted access and the steady states passed. |
 | `f9a7e2e5a4e656e999e224fdb9619886fd0616dd` | USB-03 | The clean clone passed dependency, lint, format, workflow syntax, coverage, mutation and archive checks. Hosted CI and release publishing remain unverified. |
+| `fdea77dc41baf25ae0cf72027f02286061612fbd` | USB-02 | The live input reports confirm the requested steady states. The flash interval needs visual confirmation. |
+| `281737ae2ce2ea2d5c5ceda4d05d91cbd6d12e52` | USB-04 | Rule simulation matched the light only. The clean clone passed the rule and workflow checks. The archive contained the rule and its checksum matched. |
 
 The clean clone used Python 3.14.10 and installed all 22 pinned development dependencies.
 The coverage gate counted 64 of 64 executable lines. The unit suite detected all six deliberate mutations.
