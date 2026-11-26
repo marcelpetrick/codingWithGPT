@@ -1,6 +1,6 @@
 [project]
 name = "mrreview"
-version = "0.1.14"
+version = "0.1.15"
 description = "Evidence-based GitLab merge request review and collaboration analytics with a local LLM."
 readme = "README.md"
 license = "GPL-3.0-or-later"

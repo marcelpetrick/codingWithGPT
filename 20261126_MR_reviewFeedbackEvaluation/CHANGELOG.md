@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.1.15: feat(evaluate): verify outcomes against code and time them
 - 0.1.14: feat(analyze): classify substantive threads via Ollama
 - 0.1.13: feat(demo): add fake Ollama with a rule-based stub classifier
 - 0.1.12: feat(llm): add codebook prompt, output schema and validator
