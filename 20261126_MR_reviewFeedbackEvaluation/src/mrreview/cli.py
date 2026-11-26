@@ -33,6 +33,8 @@ from mrreview.demo.fixture import REFERENCE_NOW, build_fixture
 from mrreview.gitlab import GitLabClient
 from mrreview.http import UrllibTransport
 
+MORE_WORK = 3  # exit code: the time budget ran out and threads are still unclassified
+
 
 def _log(msg: str) -> None:
     print(time.strftime("%H:%M:%S"), msg, file=sys.stderr, flush=True)
@@ -66,7 +68,7 @@ def _stages(
     *,
     demo: bool = False,
     now: datetime | None = None,
-) -> None:
+) -> bool:
     collect.run_collect(
         gl,
         conn,
@@ -78,9 +80,12 @@ def _stages(
     )
     _log(f"normalize: {normalize.build_threads(conn)}")
     _log(f"evidence: {evidence.run_evidence(gl, conn)}")
-    analyze.run_analyze(conn, cfg, ol, _log, limit=getattr(args, "limit", None))
+    stats = analyze.run_analyze(
+        conn, cfg, ol, _log, limit=getattr(args, "limit", None), max_seconds=_budget(args)
+    )
     _log(f"evaluate: {evaluate.run_evaluate(conn, cfg)}")
     _log(f"report: {report.write_report(conn, cfg, out, demo=demo)}")
+    return stats.budget_reached
 
 
 def cmd_demo(args: argparse.Namespace, cfg: Config) -> int:
@@ -134,6 +139,11 @@ def cmd_smoke(args: argparse.Namespace, cfg: Config) -> int:
     return 0
 
 
+def _budget(args: argparse.Namespace) -> float | None:
+    minutes = getattr(args, "max_minutes", None)
+    return float(minutes) * 60 if minutes else None
+
+
 def _focus_args(p: argparse.ArgumentParser) -> None:
     p.add_argument(
         "--focus-user",
@@ -159,6 +169,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         _focus_args(sp)
     a = sub.add_parser("analyze", help="classify substantive threads with Ollama")
     a.add_argument("--limit", type=int)
+    a.add_argument(
+        "--max-minutes", type=float, help="stop taking new threads after this time (exit 3)"
+    )
     sub.add_parser("evidence", help="fetch compare diffs as code evidence for diff comments")
     sub.add_parser("evaluate", help="verify outcomes and compute timings")
     r = sub.add_parser("report", help="write the HTML dashboard")
@@ -169,6 +182,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     run.add_argument("--max-projects", type=int)
     run.add_argument("--max-mrs", type=int)
     run.add_argument("--limit", type=int)
+    run.add_argument("--max-minutes", type=float, help="LLM time budget; exit 3 when work remains")
     _focus_args(run)
     sub.add_parser("status", help="show work state and coverage")
     d = sub.add_parser("demo", help="run everything on synthetic data")
@@ -216,7 +230,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             _log(f"normalize: {normalize.build_threads(conn)}")
         elif args.cmd == "analyze":
-            analyze.run_analyze(conn, cfg, _ollama(cfg), _log, limit=args.limit)
+            st = analyze.run_analyze(
+                conn, cfg, _ollama(cfg), _log, limit=args.limit, max_seconds=_budget(args)
+            )
+            if st.budget_reached:
+                conn.close()
+                return MORE_WORK
         elif args.cmd == "evidence":
             _log(f"evidence: {evidence.run_evidence(_gitlab(cfg), conn)}")
         elif args.cmd == "evaluate":
@@ -224,7 +243,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         elif args.cmd == "report":
             _log(f"report: {report.write_report(conn, cfg, args.out, demo=args.demo)}")
         elif args.cmd == "run":
-            _stages(conn, cfg, args, _gitlab(cfg), _ollama(cfg), args.out)
+            if _stages(conn, cfg, args, _gitlab(cfg), _ollama(cfg), args.out):
+                conn.close()
+                return MORE_WORK
         elif args.cmd == "status":
             print(json.dumps(collect.collect_summary(conn), indent=2, default=str))
         elif args.cmd == "sample":

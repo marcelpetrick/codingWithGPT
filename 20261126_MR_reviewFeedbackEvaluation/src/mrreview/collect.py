@@ -22,6 +22,8 @@ from mrreview.http import HttpError, TransportError
 from mrreview.identity import user_kind
 
 MAX_ATTEMPTS = 5
+DISCOVERY_REUSE_HOURS = 24
+OUTSIDE_SAMPLE = "outside the bounded sample"
 MAX_VERSION_FILES = 1000  # GitLab's default diff file limit; at the cap the list is cut
 Progress = Callable[[str], None]
 
@@ -130,6 +132,39 @@ def discover(
     Returns the selected project IDs, the most active first.
     """
     start = window_start(now, cfg.window_months).isoformat(timespec="seconds")
+    key = "|".join(
+        str(x)
+        for x in (
+            cfg.window_months,
+            cfg.focus_username,
+            cfg.focus_only,
+            cfg.discover_membership_only,
+            cfg.include_archived,
+            cfg.min_window_mrs,
+        )
+    )
+    last = db.get_meta(conn, "discover_at")
+    failed_checks = conn.execute(
+        "SELECT COUNT(*) FROM gaps WHERE kind='activity_check_failed'"
+    ).fetchone()[0]
+    if (
+        db.get_meta(conn, "discover_key") == key
+        and last
+        and not failed_checks
+        and (now - datetime.fromisoformat(last) < timedelta(hours=DISCOVERY_REUSE_HOURS))
+    ):
+        ranked_ids = [
+            r[0]
+            for r in conn.execute(
+                "SELECT id FROM projects WHERE skip_reason IS NULL OR skip_reason = ? "
+                "ORDER BY focus_mrs DESC, window_notes DESC, window_mrs DESC, id DESC",
+                (OUTSIDE_SAMPLE,),
+            )
+        ]
+        progress(
+            f"discover: reused the result from {last[:16]} ({len(ranked_ids)} active projects)"
+        )
+        return _select(conn, ranked_ids, max_projects, progress)
     found = list(
         client.projects(membership=cfg.discover_membership_only, archived=cfg.include_archived)
     )
@@ -167,22 +202,33 @@ def discover(
         if skip is None:
             ranked.append((focus.get(pid, 0), n_notes, n_mrs, pid))
     ranked.sort(reverse=True)
-    selected = [pid for *_, pid in ranked]
-    limited = selected[:max_projects] if max_projects is not None else selected
     with db.tx(conn):
-        conn.execute("UPDATE projects SET selected = 0")
-        for pid in selected:
-            if pid in limited:
-                conn.execute("UPDATE projects SET selected = 1 WHERE id = ?", (pid,))
-            else:
-                conn.execute(
-                    "UPDATE projects SET skip_reason = 'outside the bounded sample' WHERE id = ?",
-                    (pid,),
-                )
         db.set_meta(conn, "window_start", start)
         db.set_meta(conn, "focus_username", cfg.focus_username)
+        db.set_meta(conn, "discover_key", key)
+        db.set_meta(conn, "discover_at", now.isoformat())
+    progress(f"discover: {len(found)} visible, {len(ranked)} active")
+    return _select(conn, [pid for *_, pid in ranked], max_projects, progress)
+
+
+def _select(
+    conn: sqlite3.Connection, ranked_ids: list[int], max_projects: int | None, progress: Progress
+) -> list[int]:
+    """Mark the first max_projects of the ranked active projects as selected."""
+    limited = ranked_ids[:max_projects] if max_projects is not None else ranked_ids
+    with db.tx(conn):
+        conn.execute("UPDATE projects SET selected = 0")
+        for pid in ranked_ids:
+            if pid in limited:
+                conn.execute(
+                    "UPDATE projects SET selected = 1, skip_reason = NULL WHERE id = ?", (pid,)
+                )
+            else:
+                conn.execute(
+                    "UPDATE projects SET skip_reason = ? WHERE id = ?", (OUTSIDE_SAMPLE, pid)
+                )
         db.set_work(conn, "discover", "all", "done")
-    progress(f"discover: {len(limited)} selected, {len(found) - len(limited)} skipped")
+    progress(f"discover: {len(limited)} selected")
     return limited
 
 

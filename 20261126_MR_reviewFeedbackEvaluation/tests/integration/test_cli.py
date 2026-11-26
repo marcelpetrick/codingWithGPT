@@ -133,3 +133,11 @@ def test_focus_flags(servers: None, tmp_path: Path) -> None:
     assert cli.main(args) == 0
     html = (tmp_path / "f.html").read_text(encoding="utf-8")
     assert '"focus_user":102' in html
+
+
+def test_time_budget_exit_code(servers: None, tmp_path: Path) -> None:
+    dbp = str(tmp_path / "b.sqlite3")
+    base = ["--db", dbp, "run", "--out", str(tmp_path / "b.html"), "--max-projects", "1"]
+    assert cli.main([*base, "--max-minutes", "0.00001"]) == cli.MORE_WORK
+    assert cli.main(["--db", dbp, "analyze", "--max-minutes", "0.00001"]) == cli.MORE_WORK
+    assert cli.main([*base, "--max-minutes", "60"]) == 0

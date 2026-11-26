@@ -3,6 +3,7 @@
 """Integration tests: collector against the fake GitLab over HTTP (REQ-COL-*, REQ-DB-2)."""
 
 import sqlite3
+from datetime import timedelta
 from typing import Any
 
 import pytest
@@ -295,3 +296,14 @@ def test_focus_user_ranks_and_filters(gl: Env, conn: sqlite3.Connection) -> None
 def test_involved_mrs_role_is_checked(gl: Env) -> None:
     with pytest.raises(ValueError, match="role"):
         list(gl.client.involved_mrs("x", "assignee", "2026-01-01"))
+
+
+def test_discovery_is_reused_within_a_day(gl: Env, conn: sqlite3.Connection) -> None:
+    first = collect.discover(gl.client, conn, gl.cfg, REFERENCE_NOW)
+    calls = gl.client.requests
+    again = collect.discover(gl.client, conn, gl.cfg, REFERENCE_NOW, max_projects=2)
+    assert gl.client.requests == calls  # no API call
+    assert again == first[:2]
+    later = collect.discover(gl.client, conn, gl.cfg, REFERENCE_NOW + timedelta(hours=25))
+    assert gl.client.requests > calls
+    assert later == first

@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.24: feat(run): time-boxed chunks and reuse of the discovery result
 - 0.2.23: feat(dashboard): project pseudonyms, reaction rate and decline columns
 - 0.2.22: feat(identity): pseudonymise project names for shareable screenshots
 - 0.2.21: docs(worklog): record the evidence defect found on real data

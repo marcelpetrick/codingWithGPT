@@ -36,6 +36,7 @@ class AnalyzeStats:
     invalid: int
     failed: int
     reused: int
+    budget_reached: bool = False
 
 
 def _role_map(
@@ -217,6 +218,8 @@ def run_analyze(
     progress: Progress = lambda _m: None,
     *,
     limit: int | None = None,
+    max_seconds: float | None = None,
+    clock: Callable[[], float] = time.monotonic,
 ) -> AnalyzeStats:
     """Classify every substantive thread that has no valid, current classification."""
     try:
@@ -252,9 +255,16 @@ def run_analyze(
             return None, str(exc), comp.content, time.monotonic() - start
 
     pending = list(todo)
+    started = clock()
+    budget_reached = False
     with ThreadPoolExecutor(max_workers=cfg.ollama_concurrency) as pool:
         running: dict[Future[Any], sqlite3.Row] = {}
         while pending or running:
+            if pending and max_seconds is not None and clock() - started >= max_seconds:
+                budget_reached = True  # stop taking new work; the running calls finish
+                pending.clear()
+                if not running:
+                    break
             while pending and len(running) < cfg.ollama_concurrency:
                 t = pending.pop(0)
                 payload, ids = thread_context(conn, t, cfg)
@@ -291,5 +301,10 @@ def run_analyze(
             n = sum(counts.values())
             if n and n % 10 == 0:
                 progress(f"analyze: {n}/{len(todo)}")
-    progress(f"analyze: {counts['ok']} ok, {counts['invalid']} invalid, {counts['failed']} failed")
-    return AnalyzeStats(len(todo), counts["ok"], counts["invalid"], counts["failed"], reused)
+    note = " (time budget reached; rerun to continue)" if budget_reached else ""
+    progress(
+        f"analyze: {counts['ok']} ok, {counts['invalid']} invalid, {counts['failed']} failed{note}"
+    )
+    return AnalyzeStats(
+        len(todo), counts["ok"], counts["invalid"], counts["failed"], reused, budget_reached
+    )

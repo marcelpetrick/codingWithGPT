@@ -273,3 +273,18 @@ def test_focus_user_threads_come_first(conn: sqlite3.Connection, collected: Conf
     flags = [giver in (t["giver_id"], t["recipient_id"]) for t in todo]
     assert flags[0] is True
     assert flags == sorted(flags, reverse=True)
+
+
+def test_time_budget_stops_cleanly_and_resumes(
+    conn: sqlite3.Connection, collected: Config, ollama: tuple[FakeOllama, llm.OllamaClient]
+) -> None:
+    _fake, client = ollama
+    ticks = iter(range(0, 10_000, 10))  # every clock read advances 10 s
+    stats = analyze.run_analyze(
+        conn, collected, client, max_seconds=35, clock=lambda: float(next(ticks))
+    )
+    assert stats.budget_reached is True
+    assert 0 < stats.ok < stats.todo
+    rest = analyze.run_analyze(conn, collected, client)
+    assert rest.budget_reached is False
+    assert rest.reused == stats.ok
