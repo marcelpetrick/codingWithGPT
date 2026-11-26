@@ -74,6 +74,7 @@ An ordinary idle chat adds no wait. A completed answer that ends in a question n
 Claude uses `claude agents --json` with `CLAUDE_CONFIG_DIR` set to each profile.
 Claude quotas come from the local `abtop-rate-limits.json` cache when that cache is at most five minutes old.
 Codex reads the loaded threads and goals on each profile's local App Server socket.
+A failed thread read adds an unavailable state. Other threads can still report red or yellow.
 Codex quota refreshes at most once a minute per profile while that profile has loaded threads.
 The monitor covers sessions exposed by these local interfaces. Separate Codex servers and cloud-only sessions are outside that view.
 [Claude CLI reference](https://code.claude.com/docs/en/agent-view#list-sessions-as-json) ·

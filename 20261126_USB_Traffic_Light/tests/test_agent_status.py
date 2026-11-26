@@ -183,10 +183,68 @@ class CodexSocketTest(unittest.TestCase):
         requests = [json.loads(call.args[0]) for call in connection.send.call_args_list]
         self.assertEqual(requests[3]["params"], {"cursor": "next"})
 
+    def test_preserves_a_blocker_when_threads_vanish_or_return_invalid_json(self):
+        connection = Mock()
+        connection.recv.side_effect = [
+            '{"id":1,"result":{}}',
+            '{"id":2,"result":{"data":["blocked","closed","malformed","running"]}}',
+            '{"id":3,"result":{"thread":{"status":{"type":"systemError"}}}}',
+            '{"id":4,"result":{"goal":null}}',
+            '{"id":5,"error":{"code":-32602}}',
+            "[]",
+            '{"id":7,"result":{"thread":{"status":{"type":"active","activeFlags":[]}}}}',
+            '{"id":8,"result":{"goal":null}}',
+            '{"id":9,"result":{"rateLimits":["invalid"]}}',
+        ]
+        with patch.object(monitor, "unix_connect") as connect:
+            connect.return_value.__enter__.return_value = connection
+            states = monitor.CodexSource(Path("socket")).status(10)
+        self.assertEqual(
+            states, [State.BLOCKED, State.UNKNOWN, State.UNKNOWN, State.RUNNING]
+        )
+        self.assertEqual(monitor.color_for(states), "red")
+
+    def test_repeated_pagination_preserves_previous_results(self):
+        connection = Mock()
+        connection.recv.side_effect = [
+            '{"id":1,"result":{}}',
+            '{"id":2,"result":{"data":["thread"],"nextCursor":"repeat"}}',
+            '{"id":3,"result":{"thread":{"status":{"type":"active","activeFlags":["waitingOnApproval"]}}}}',
+            '{"id":4,"result":{"goal":null}}',
+            '{"id":5,"result":{"data":[],"nextCursor":"repeat"}}',
+            '{"id":6,"result":{}}',
+        ]
+        with patch.object(monitor, "unix_connect") as connect:
+            connect.return_value.__enter__.return_value = connection
+            self.assertEqual(
+                monitor.CodexSource(Path("socket")).status(10),
+                [State.WAITING, State.UNKNOWN],
+            )
+
+    def test_invalid_list_is_unknown(self):
+        for row in ('{"noData":true}', '{"data":[1]}'):
+            with (
+                self.subTest(row=row),
+                patch.object(monitor, "unix_connect") as connect,
+            ):
+                connection = connect.return_value.__enter__.return_value
+                connection.recv.side_effect = [
+                    '{"id":1,"result":{}}',
+                    '{"id":2,"result":' + row + "}",
+                    '{"id":3,"result":{}}',
+                ]
+                self.assertEqual(
+                    monitor.CodexSource(Path("socket")).status(10), [State.UNKNOWN]
+                )
+
+    def test_invalid_status_is_detected(self):
+        with self.assertRaises(ValueError):
+            monitor.codex_state(None, {})
+
     def test_rpc_stops_at_deadline(self):
         with (
             patch.object(monitor, "unix_connect"),
-            patch.object(monitor.time, "monotonic", side_effect=(0, 4)),
+            patch.object(monitor.time, "monotonic", side_effect=(0, 0, 4)),
             self.assertRaises(TimeoutError),
         ):
             monitor.CodexSource(Path("socket")).status(10)
