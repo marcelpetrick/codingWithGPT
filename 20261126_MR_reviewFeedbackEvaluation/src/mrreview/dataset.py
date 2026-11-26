@@ -18,7 +18,7 @@ from mrreview.analyze import cache_key
 from mrreview.collect import collect_summary
 from mrreview.config import Config
 from mrreview.demo.fake_ollama import STUB_MODEL
-from mrreview.identity import label_for, mask_names
+from mrreview.identity import label_for, mask_names, mask_projects, project_label_for
 from mrreview.textutil import truncate
 
 EXCERPT_GRAPHEMES = 320
@@ -103,17 +103,25 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
     users = {r["id"]: r for r in conn.execute("SELECT * FROM users")}
     names = {uid: (r["username"], r["name"]) for uid, r in users.items() if r["kind"] != "bot"}
 
+    proj_terms = {
+        int(r[0]): (str(r[1]), str(r[1]).rsplit("/", 1)[-1])
+        for r in conn.execute("SELECT id, path FROM projects")
+    }
+
     def mask(text: str, limit: int) -> str:
-        cut = truncate(mask_names(text, names), limit)
+        cut = truncate(mask_projects(mask_names(text, names), proj_terms), limit)
         return _HALF_TOKEN.sub("…", cut)  # never show half a name token
 
     projects = [
         dict(r)
         for r in conn.execute(
             "SELECT id, name, path, web_url, last_activity_at, window_mrs, window_notes, selected, skip_reason, focus_mrs "
-            "FROM projects ORDER BY path"
+            "FROM projects ORDER BY id"
         )
     ]
+    with db.tx(conn):
+        for p in projects:
+            p["label"] = project_label_for(conn, p["id"])
     mrs = []
     for r in conn.execute("SELECT * FROM merge_requests ORDER BY project_id, iid"):
         n_appr = conn.execute(

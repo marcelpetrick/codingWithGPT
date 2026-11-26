@@ -76,3 +76,18 @@ def test_mask_names_review_findings() -> None:
     assert identity.mask_names("ping @john.doe.", users) == "ping ⟦u:2⟧."
     assert identity.mask_names("ping @john.doe", users) == "ping ⟦u:2⟧"
     assert identity.mask_names("Smithers fixed it", users) == "⟦u:3⟧ fixed it"
+
+
+def test_project_labels_are_stable_and_unique(conn: sqlite3.Connection) -> None:
+    first = identity.project_label_for(conn, 11)
+    assert first.startswith("Project ")
+    assert identity.project_label_for(conn, 11) == first
+    labels = {identity.project_label_for(conn, pid) for pid in range(1, 200)}
+    assert len(labels) == 199
+
+
+def test_mask_projects_in_text() -> None:
+    projects = {11: ("firmware/display-controller", "display-controller"), 12: ("x/bsp", "bsp")}
+    text = "See firmware/display-controller!3 and the Display-Controller repo; bsp stays."
+    masked = identity.mask_projects(text, projects)
+    assert masked == "See ⟦p:11⟧!3 and the ⟦p:11⟧ repo; bsp stays."

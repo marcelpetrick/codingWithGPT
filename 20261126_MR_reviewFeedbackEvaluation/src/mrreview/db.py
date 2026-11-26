@@ -114,6 +114,7 @@ MIGRATIONS: list[str] = [
         to_created_at TEXT, status TEXT NOT NULL, file_changed INTEGER NOT NULL,
         file_diff TEXT NOT NULL, detail TEXT, fetched_at TEXT NOT NULL
     );
+    CREATE TABLE project_pseudonyms (project_id INTEGER PRIMARY KEY, label TEXT NOT NULL UNIQUE);
     UPDATE mr_versions SET diffs_complete = 0 WHERE NOT EXISTS (
         SELECT 1 FROM version_diffs d WHERE d.project_id = mr_versions.project_id
         AND d.mr_iid = mr_versions.mr_iid AND d.version_id = mr_versions.version_id);

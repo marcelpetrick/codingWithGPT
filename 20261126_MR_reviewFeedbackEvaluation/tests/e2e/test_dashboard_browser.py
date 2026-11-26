@@ -151,7 +151,7 @@ def test_project_filter_changes_numbers(page: Any, built: tuple[Path, dict[str, 
     ds = built[1]
     first = page.locator(".pchip").first
     path = first.inner_text()
-    pid = next(p["id"] for p in ds["projects"] if p["path"] == path)
+    pid = next(p["id"] for p in ds["projects"] if p["label"] == path)
     first.click()
     remaining = sum(
         1 for f in ds["findings"] if next(t for t in ds["threads"] if t["id"] == f["t"])["p"] != pid
@@ -192,3 +192,14 @@ def test_script_injection_stays_text(
     assert pg.evaluate("window.__pwned") is None
     assert "window.__pwned=1" in pg.locator("tbody").inner_text()
     pg.close()
+
+
+def test_project_names_follow_the_toggle(page: Any, built: tuple[Path, dict[str, Any]]) -> None:
+    paths = [p["path"] for p in built[1]["projects"]]
+    for name in ["Overview", "Projects", "Evidence", "Methodology"]:
+        tab(page, name)
+        text = visible_text(page)
+        assert not any(p in text for p in paths), name
+    page.locator("#names").check()
+    tab(page, "Projects")
+    assert any(p in visible_text(page) for p in paths)

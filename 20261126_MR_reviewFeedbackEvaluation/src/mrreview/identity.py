@@ -169,3 +169,88 @@ def mask_names(text: str, users: Mapping[int, tuple[str, str]]) -> str:
             rf"(?<![\w⟦:]){regex.escape(term)}(?![\w⟧])", f"⟦u:{uid}⟧", out, flags=regex.IGNORECASE
         )
     return out
+
+
+PROJECT_WORDS = [
+    "Andromeda",
+    "Aquila",
+    "Auriga",
+    "Bootes",
+    "Caelum",
+    "Carina",
+    "Cetus",
+    "Columba",
+    "Corvus",
+    "Crater",
+    "Crux",
+    "Cygnus",
+    "Delphinus",
+    "Dorado",
+    "Draco",
+    "Fornax",
+    "Gemini",
+    "Grus",
+    "Hydra",
+    "Indus",
+    "Lacerta",
+    "Lepus",
+    "Libra",
+    "Lupus",
+    "Lyra",
+    "Mensa",
+    "Norma",
+    "Octans",
+    "Orion",
+    "Pavo",
+    "Pegasus",
+    "Perseus",
+    "Phoenix",
+    "Pictor",
+    "Pyxis",
+    "Sagitta",
+    "Scutum",
+    "Serpens",
+    "Taurus",
+    "Tucana",
+    "Vela",
+    "Virgo",
+    "Volans",
+    "Vulpecula",
+]
+_MIN_PROJECT_TOKEN = 4
+
+
+def project_label_for(conn: sqlite3.Connection, project_id: int) -> str:
+    """Stable pseudonym of a project ("Project Orion"). Assigned once and stored."""
+    row = conn.execute(
+        "SELECT label FROM project_pseudonyms WHERE project_id=?", (project_id,)
+    ).fetchone()
+    if row:
+        return str(row[0])
+    digest = hashlib.sha256(f"{_salt(conn)}:project:{project_id}".encode()).digest()
+    base = f"Project {PROJECT_WORDS[int.from_bytes(digest[:2], 'big') % len(PROJECT_WORDS)]}"
+    label = base
+    n = 2
+    while conn.execute("SELECT 1 FROM project_pseudonyms WHERE label=?", (label,)).fetchone():
+        label = f"{base} {n}"
+        n += 1
+    conn.execute(
+        "INSERT INTO project_pseudonyms(project_id, label) VALUES (?, ?)", (project_id, label)
+    )
+    return label
+
+
+def mask_projects(text: str, projects: Mapping[int, tuple[str, str]]) -> str:
+    """Replace project paths and project names (4+ characters) with tokens ⟦p:ID⟧."""
+    terms: list[tuple[str, int]] = []
+    for pid, (path, name) in projects.items():
+        terms += [(t, pid) for t in (path, name) if t and len(t) >= _MIN_PROJECT_TOKEN]
+    out = text
+    for term, pid in sorted(terms, key=lambda p: -len(p[0])):
+        out = regex.sub(
+            rf"(?<![\w⟦:/.-]){regex.escape(term)}(?![\w⟧/-])",
+            f"⟦p:{pid}⟧",
+            out,
+            flags=regex.IGNORECASE,
+        )
+    return out
