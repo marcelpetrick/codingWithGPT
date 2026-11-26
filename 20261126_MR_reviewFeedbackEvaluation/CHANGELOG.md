@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.1.17: feat(report): add offline HTML dashboard with clues and tooltips
 - 0.1.16: fix(analyze): build context in main thread, book truncation as invalid
 - 0.1.15: feat(evaluate): verify outcomes against code and time them
 - 0.1.14: feat(analyze): classify substantive threads via Ollama

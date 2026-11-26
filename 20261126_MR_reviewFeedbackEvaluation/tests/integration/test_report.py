@@ -1,0 +1,125 @@
+# Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Integration tests: dataset export and HTML report (REQ-UI-*, REQ-SEC-1, REQ-DB-3)."""
+
+import json
+import re
+import sqlite3
+from dataclasses import replace
+from pathlib import Path
+
+import pytest
+
+from mrreview import analyze, collect, dataset, evaluate, llm, metrics, normalize, report
+from mrreview.config import Config
+from mrreview.demo.fake_ollama import STUB_MODEL, FakeOllama, serve
+from mrreview.demo.fixture import HUMANS, REFERENCE_NOW
+from mrreview.http import UrllibTransport
+
+from .conftest import Env
+
+
+def pipeline(gl: Env, conn: sqlite3.Connection, limit: int | None = None) -> Config:
+    cfg = replace(gl.cfg, ollama_model=STUB_MODEL)
+    collect.run_collect(gl.client, conn, cfg, REFERENCE_NOW, max_projects=2)
+    normalize.build_threads(conn)
+    with serve(FakeOllama()) as url:
+        analyze.run_analyze(conn, cfg, llm.OllamaClient(url, UrllibTransport()), limit=limit)
+    evaluate.run_evaluate(conn, cfg)
+    return cfg
+
+
+def test_dataset_masks_names_in_text(gl: Env, conn: sqlite3.Connection) -> None:
+    cfg = pipeline(gl, conn)
+    ds = dataset.build_dataset(conn, cfg)
+    text_fields = json.dumps(
+        [
+            [t["excerpt"] for t in ds["threads"]],
+            [f["why"] for f in ds["findings"]],
+            [m["title"] for m in ds["mrs"]],
+        ],
+        ensure_ascii=False,
+    )
+    for _, username, name in HUMANS:
+        assert name not in text_fields
+        assert "@" + username not in text_fields
+    people = ds["people"]
+    humans = [p for p in people.values() if p["kind"] == "human"]
+    assert all(p["label"] and " " in p["label"] for p in humans)
+    assert {p["name"] for p in humans} <= {h[2] for h in HUMANS}
+    assert ds["meta"]["coverage"]["complete"] is True
+    assert ds["meta"]["stub"] is True
+    assert all(t["url"].startswith("http") and "#note_" in t["url"] for t in ds["threads"])
+
+
+def test_metrics_match_dataset(gl: Env, conn: sqlite3.Connection) -> None:
+    cfg = pipeline(gl, conn)
+    ds = dataset.build_dataset(conn, cfg)
+    o = metrics.overview(ds)
+    assert o["findings"] == len(ds["findings"])
+    assert o["verified_rate"]["den"] == o["actionable"]
+    assert 0 < o["verified_rate"]["num"] < o["actionable"]
+
+
+def test_report_discloses_partial(gl: Env, conn: sqlite3.Connection) -> None:
+    cfg = pipeline(gl, conn, limit=5)
+    ds = dataset.build_dataset(conn, cfg)
+    cov = ds["meta"]["coverage"]
+    assert cov["complete"] is False
+    assert cov["classification"]["pending"] > 0
+    assert cov["classification"]["ok"] == 5
+
+
+def test_stale_classification_is_reported(gl: Env, conn: sqlite3.Connection) -> None:
+    cfg = pipeline(gl, conn)
+    tid = conn.execute("SELECT id FROM threads WHERE substantive=1 LIMIT 1").fetchone()[0]
+    conn.execute("UPDATE notes SET body = body || '!' WHERE discussion_id=?", (tid,))
+    normalize.build_threads(conn)
+    ds = dataset.build_dataset(conn, cfg)
+    assert ds["meta"]["coverage"]["classification"]["stale"] == 1
+
+
+def test_write_report_is_self_contained(gl: Env, conn: sqlite3.Connection, tmp_path: Path) -> None:
+    cfg = pipeline(gl, conn)
+    out = report.write_report(conn, cfg, tmp_path / "r" / "dash.html", demo=True)
+    html = out.read_text(encoding="utf-8")
+    assert html.startswith("<!doctype html>")
+    assert "Content-Security-Policy" in html
+    assert not re.search(r"(src|href)=[\"']https?://", html)
+    assert "@import" not in html
+    assert html.count("<script") == 2
+    assert not (tmp_path / "r" / "dash.html.tmp").exists()
+    for _, _, name in HUMANS:
+        assert html.count(name) <= 1  # only in the people map
+
+
+def test_embed_json_cannot_break_out() -> None:
+    evil = {"x": "</script><script>alert(1)</script> & \u2028 <!--"}
+    text = report.embed_json(evil)
+    assert "<" not in text
+    assert ">" not in text
+    assert "&" not in text
+    assert "\u2028" not in text
+    assert json.loads(text) == evil
+
+
+def test_html_injection(tmp_path: Path) -> None:
+    ds = {"meta": {}, "evil": "<img src=x onerror=alert(1)></script>"}
+    html = report.render_html(ds, title="<b>t</b>")
+    assert "<img src=x" not in html
+    assert "<title>&lt;b&gt;t&lt;/b&gt;</title>" in html
+
+
+def test_render_refuses_closing_tag_in_asset(monkeypatch: pytest.MonkeyPatch) -> None:
+    real = report._asset
+    monkeypatch.setattr(report, "_asset", lambda n: "x</script>" if n.endswith(".js") else real(n))
+    with pytest.raises(ValueError, match="closing tag"):
+        report.render_html({})
+
+
+def test_evaluate_counts_stub_outcomes(gl: Env, conn: sqlite3.Connection) -> None:
+    cfg = pipeline(gl, conn)
+    counts = evaluate.run_evaluate(conn, cfg)
+    assert counts.get("implemented", 0) > 0
+    assert counts.get("justified_no_change", 0) > 0
+    assert Config().censor_days == 14
