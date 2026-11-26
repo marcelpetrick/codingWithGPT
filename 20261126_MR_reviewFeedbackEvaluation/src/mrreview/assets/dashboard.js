@@ -65,7 +65,8 @@ const REASON = {
   substantive: ["Substantive", "At least one human note adds more than routine approval: a finding, a question, a rationale."],
   routine_only: ["Routine only", "Only 'LGTM', thanks or emoji. Not analysed."],
   author_self_note: ["Author note", "A note by the MR author with no reply from others, for example 'rebased'. Not review."],
-  bot_initiated: ["Bot", "Started by a bot or automation. Not analysed."],
+  bot_initiated: ["Bot", "Started by a bot or automation, with no human reaction. Not analysed."],
+  bot_review: ["Bot review", "An automated review comment that a human replied to. Analysed, and labelled as source 'bot'."],
 };
 const CHANGE = new Set(["implemented", "alternative_implemented", "partially_implemented"]);
 const LEGIT = new Set(["justified_no_change", "optional_declined"]);
@@ -86,7 +87,7 @@ const selectedProjects = DATA.projects.filter(p => p.selected);
 
 /* ---------- state ---------- */
 const S = { tab: "overview", projects: new Set(selectedProjects.map(p => p.id)), from: months[0] || "", to: months[months.length - 1] || "",
-  person: M.focus_user ? String(M.focus_user) : "", role: "any", names: false, ev: { facets: [], search: "", page: 0, sort: ["created", -1], open: null } };
+  person: M.focus_user ? String(M.focus_user) : "", role: "any", source: "all", names: false, ev: { facets: [], search: "", page: 0, sort: ["created", -1], open: null } };
 
 /* ---------- helpers ---------- */
 function h(tag, attrs, ...kids) {
@@ -161,8 +162,9 @@ function involves(t) {
   if (S.role === "giver") return t.giver === id; if (S.role === "recipient") return t.rec === id;
   return t.giver === id || t.rec === id || t.resp.includes(id);
 }
-const fThreads = () => DATA.threads.filter(t => S.projects.has(t.p) && inPeriod(t.created) && involves(t));
-const fFindings = () => DATA.findings.filter(f => S.projects.has(f.T.p) && inPeriod(f.T.created) && involves(f.T));
+const fromSource = t => S.source === "all" || (S.source === "bot" ? t.gk === "bot" : t.gk !== "bot");
+const fThreads = () => DATA.threads.filter(t => S.projects.has(t.p) && inPeriod(t.created) && involves(t) && fromSource(t));
+const fFindings = () => DATA.findings.filter(f => S.projects.has(f.T.p) && inPeriod(f.T.created) && involves(f.T) && fromSource(f.T));
 function fMrs() {
   const id = Number(S.person);
   return DATA.mrs.filter(m => S.projects.has(m.p) && inPeriod(m.created) && (!S.person || (S.role !== "giver" && m.author === id) ||
@@ -310,7 +312,7 @@ function clues(F, T) {
     }
   }
   // most intensive project
-  const ints = selectedProjects.filter(p => S.projects.has(p.id)).map(p => { const mrs = MRF.filter(m => m.p === p.id).length; const th = T.filter(t => t.p === p.id && t.reason === "substantive").length; return { p, mrs, th, r: mrs ? th / mrs : 0 }; }).filter(x => x.mrs >= 10).sort((a, b) => b.r - a.r);
+  const ints = selectedProjects.filter(p => S.projects.has(p.id)).map(p => { const mrs = MRF.filter(m => m.p === p.id).length; const th = T.filter(t => t.p === p.id && t.sub).length; return { p, mrs, th, r: mrs ? th / mrs : 0 }; }).filter(x => x.mrs >= 10).sort((a, b) => b.r - a.r);
   if (ints.length >= 2) out.push({ icon: "★", color: C.blue, title: "Most review per MR: " + ints[0].p.path + " (" + ints[0].r.toFixed(1) + " threads/MR)", desc: "Lowest: " + ints[ints.length - 1].p.path + " (" + ints[ints.length - 1].r.toFixed(1) + "). Review intensity, not quality.", facets: [["project", String(ints[0].p.id)]], n: ints[0].th });
   const ver = n("verified");
   if (ver) add("✔", C.green, ver + " findings have direct code evidence of a change", "The commented lines changed after the comment, and the text states a change.", "verified", ver);
@@ -350,7 +352,8 @@ function filters() {
     h("label", { tip: "Last month, inclusive." }, "To", h("input", { type: "month", value: S.to, min: months[0], max: months[months.length - 1], onchange: e => { S.to = e.target.value; render(); } })),
     h("label", { tip: "Limit everything to threads that involve one person." }, "Person", h("select", { onchange: e => { S.person = e.target.value; render(); } }, opt("", "Everyone", !S.person), humans.map(([id]) => opt(id, person(Number(id)), S.person === id)))),
     h("label", { tip: "Role of the person: giver = wrote the first comment; recipient = the person the comment addresses (usually the MR author); any = also as responder." }, "Role", h("select", { onchange: e => { S.role = e.target.value; render(); } }, opt("any", "any role", S.role === "any"), opt("giver", "review giver", S.role === "giver"), opt("recipient", "review recipient", S.role === "recipient"))),
-    h("button", { class: "btn", tip: "Reset all filters to the full dataset.", onclick: () => { S.projects = new Set(selectedProjects.map(p => p.id)); S.from = months[0] || ""; S.to = months[months.length - 1] || ""; S.person = ""; S.role = "any"; render(); } }, "Reset"));
+    h("label", { tip: "Who wrote the first comment: a human reviewer or an automated reviewer (bot). Bot threads count only when a human replied." }, "Source", h("select", { onchange: e => { S.source = e.target.value; render(); } }, opt("all", "humans and bots", S.source === "all"), opt("human", "human reviews", S.source === "human"), opt("bot", "bot reviews", S.source === "bot"))),
+    h("button", { class: "btn", tip: "Reset all filters to the full dataset.", onclick: () => { S.projects = new Set(selectedProjects.map(p => p.id)); S.from = months[0] || ""; S.to = months[months.length - 1] || ""; S.person = ""; S.role = "any"; S.source = "all"; render(); } }, "Reset"));
 }
 function kpi(label, value, sub, tip, accent, onclick, id) {
   return h("div", { class: "kpi" + (onclick ? " click" : ""), style: "--accent:" + accent, tip: tip + (onclick ? "\nClick to see the cases." : ""), onclick, "data-kpi": id },
@@ -360,7 +363,7 @@ function kpi(label, value, sub, tip, accent, onclick, id) {
 /* ---------- sections ---------- */
 function overview(root) {
   const T = fThreads(), F = fFindings(), MRS = fMrs();
-  const subst = T.filter(t => t.reason === "substantive"); const actionable = F.filter(f => f.act === "change_request");
+  const subst = T.filter(t => t.sub); const actionable = F.filter(f => f.act === "change_request");
   const verified = actionable.filter(CLUE_PRED.verified); const openU = F.filter(CLUE_PRED.open_unattended); const rnc = F.filter(CLUE_PRED.resolved_no_code);
   const FT = byThread(F); const fr = FT.filter(f => f.tm.fr[0] === "o").map(f => f.tm.fr[2]); const frPend = FT.filter(f => f.tm.fr[0] === "p").length;
   const unk = F.filter(CLUE_PRED.unknown).length;
@@ -369,7 +372,7 @@ function overview(root) {
   if (M.stub) root.append(h("div", { class: "banner b-info" }, "ℹ ", h("div", {}, "The classifications in this file come from the keyword stub, not from a language model. They show how the dashboard works; they are not an analysis.")));
   root.append(h("div", { class: "kpis" },
     kpi("Merge requests", fmtN(MRS.length), "in the filter", "MRs created in the period, in the selected projects. Merged, open and closed MRs all count.", C.blue, null, "mrs"),
-    kpi("Substantive threads", fmtN(subst.length), pct(subst.length, T.length) + " of " + fmtN(T.length) + " threads", "Threads where at least one human adds more than routine approval. Denominator: all non-system threads, including LGTM, bot and author notes.", C.teal, null, "subst"),
+    kpi("Substantive threads", fmtN(subst.length), pct(subst.length, T.length) + " of " + fmtN(T.length) + " threads · " + subst.filter(t => t.gk === "bot").length + " bot reviews", "Threads where a human adds more than routine approval, plus bot reviews that a human replied to. Denominator: all non-system threads, including LGTM, bot and author notes.", C.teal, null, "subst"),
     kpi("Findings", fmtN(F.length), "classified issues", "Distinct issues the model found in substantive threads. One thread can hold several findings.", C.deep, () => drill([]), "findings"),
     kpi("Actionable", fmtN(actionable.length), pct(actionable.length, F.length) + " of findings", "Findings that ask for a code change (change requests). Questions and optional nits are not actionable.", C.purple, () => drill([["act", "change_request"]]), "actionable"),
     kpi("Verified remediation", pct(verified.length, actionable.length), fmtN(verified.length) + " of " + fmtN(actionable.length) + " actionable", "Numerator: actionable findings with a stated change AND direct code evidence (the commented lines changed later).\nDenominator: all actionable findings.\nUnverified and unknown outcomes stay in the denominator; see Review effectiveness.", C.green, () => drill([["act", "change_request"], ["clue", "verified"]]), "verified"),
@@ -394,7 +397,7 @@ function overview(root) {
 function projectsTab(root) {
   const T = fThreads(), F = fFindings(), MRF = fMrs();
   const rows = selectedProjects.filter(p => S.projects.has(p.id)).map(p => {
-    const mrs = MRF.filter(m => m.p === p.id); const th = T.filter(t => t.p === p.id); const sub = th.filter(t => t.reason === "substantive");
+    const mrs = MRF.filter(m => m.p === p.id); const th = T.filter(t => t.p === p.id); const sub = th.filter(t => t.sub);
     const fs = F.filter(f => f.T.p === p.id); const act = fs.filter(f => f.act === "change_request"); const ver = act.filter(CLUE_PRED.verified); const op = fs.filter(CLUE_PRED.open_unattended);
     const fr = byThread(fs).filter(f => f.tm.fr[0] === "o").map(f => f.tm.fr[2]);
     return { p, mrs: mrs.length, merged: mrs.filter(m => m.state === "merged").length, sub: sub.length, inten: mrs.length ? sub.length / mrs.length : 0, f: fs.length, act: act.length, ver: ver.length, open: op.length, fr: quantile(fr, .5), frn: fr.length, appr: mrs.reduce((a, m) => a + m.approvals, 0) };
@@ -413,7 +416,7 @@ function projectsTab(root) {
     ["Open, not recent", r => r.f ? r.open / r.f : -1, r => lowN(r.open + " / " + r.f + " (" + pct(r.open, r.f) + ")", r.f), "Open or unknown findings, excluding recent open MRs, over all findings.", "n"],
     ["1st response", r => r.fr === null ? Infinity : r.fr, r => lowN(fmtH(r.fr), r.frn), "Median business hours to the first reply (observed cases only).", "n"],
   ], rows, r => drill([["project", String(r.p.id)]]), ["Threads / MR", -1]));
-  const series = selectedProjects.filter(p => S.projects.has(p.id)).map((p, i) => ({ name: p.path, color: [C.blue, C.teal, C.purple, C.amber, C.red, C.green, C.deep][i % 7], values: count(T.filter(t => t.p === p.id && t.reason === "substantive"), t => month(t.created)) }));
+  const series = selectedProjects.filter(p => S.projects.has(p.id)).map((p, i) => ({ name: p.path, color: [C.blue, C.teal, C.purple, C.amber, C.red, C.green, C.deep][i % 7], values: count(T.filter(t => t.p === p.id && t.sub), t => month(t.created)) }));
   root.append(h("div", { class: "card", style: "margin-top:16px" }, h("h3", {}, "Substantive threads per month and project", info("Longitudinal view of review interaction per project. Hover a month for all values.")), lineChart(series, { label: "threads per project and month", wide: true })));
   const skipped = DATA.projects.filter(p => !p.selected);
   root.append(h("h2", {}, "Not analysed", info("Projects found by discovery but not analysed in depth, with the reason. Low activity is not poor collaboration.")));
@@ -461,7 +464,7 @@ function effectTab(root) {
 }
 function quarter(iso) { const m = Number(iso.slice(5, 7)); return iso.slice(0, 4) + "-Q" + Math.ceil(m / 3); }
 function peopleTab(root) {
-  const F = fFindings(); const T = fThreads().filter(t => t.reason === "substantive");
+  const F = fFindings(); const T = fThreads().filter(t => t.sub);
   root.append(h("div", { class: "banner b-info" }, "ℹ ", h("div", {}, h("b", {}, "Context, not a score. "), "These tables describe observable interactions. They do not rank people, rate performance or read personality. Role, workload, review difficulty and project norms explain much of any difference. Rows with fewer than " + MIN_N + " cases are marked ⚠. Click a row to read the actual threads.")));
   const ids = [...new Set(T.flatMap(t => [t.giver, t.rec]).filter(id => id !== null && DATA.people[String(id)] && DATA.people[String(id)].kind === "human"))];
   const giv = ids.map(id => { const th = T.filter(t => t.giver === id); const fs = F.filter(f => f.T.giver === id); const act = fs.filter(f => f.act === "change_request");

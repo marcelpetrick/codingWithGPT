@@ -115,3 +115,18 @@ def test_hash_changes_with_content() -> None:
     assert a is not None
     assert b is not None
     assert a["input_hash"] != b["input_hash"]
+
+
+def test_bot_review_with_human_reply_is_substantive() -> None:
+    rec = classify_thread(
+        [note(1, 9, "Possible null dereference in parse()."), note(2, 1, "Fixed.")], 1, KINDS
+    )
+    assert rec is not None
+    assert rec["reason"] == "bot_review"
+    assert rec["substantive"] == 1
+    assert rec["giver_kind"] == "bot"
+    assert rec["recipient_id"] == 1
+    silent = classify_thread([note(1, 9, "Pipeline report: 87 % coverage.")], 1, KINDS)
+    assert silent is not None
+    assert silent["reason"] == "bot_initiated"
+    assert silent["substantive"] == 0

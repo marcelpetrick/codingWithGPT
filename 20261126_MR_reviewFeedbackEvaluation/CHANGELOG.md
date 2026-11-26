@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.10: feat(normalize): analyse bot reviews that a human answered
 - 0.2.9: fix(evaluate): take the base version from the comment head_sha
 - 0.2.8: docs: record the review, fix requirement checks, gate mutations
 - 0.2.7: fix(report): honest coverage, per-thread times, recipient-only acts

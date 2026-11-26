@@ -163,6 +163,7 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
                 "n": r["n_notes"],
                 "reply": bool(r["has_reply"]),
                 "reason": r["reason"],
+                "sub": bool(r["substantive"]),
                 "resolvable": bool(r["resolvable"]),
                 "resolved": bool(r["resolved"]),
                 "resolvedAt": r["resolved_at"],
@@ -224,7 +225,7 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
         reasons[t["reason"]] = reasons.get(t["reason"], 0) + 1
     statuses: dict[str, int] = {}
     for t in threads:
-        if t["reason"] == "substantive":
+        if t["sub"]:
             statuses[t["cls"]] = statuses.get(t["cls"], 0) + 1
     partial = _partial_reasons(conn, summary, statuses)
     gap_total = sum(summary["gaps"].values()) + summary["work"].get("mr", {}).get("skipped", 0)

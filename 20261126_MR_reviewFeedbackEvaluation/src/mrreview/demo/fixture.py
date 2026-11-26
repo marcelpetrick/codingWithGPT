@@ -361,6 +361,7 @@ class _Builder:
         self.rng = random.Random(seed)
         self.fx = Fixture(now=now)
         self.note_id = 50_000
+        self.bot_note_id = 900_000
         self.version_id = 9_000
         self.issue = 300
         self.humans = [_user(*h) for h in HUMANS]
@@ -544,6 +545,58 @@ class _Builder:
             )
             discussions.append({"id": f"bot{n['id']}", "individual_note": True, "notes": [n]})
             fx.truth[f"bot{n['id']}"] = "bot"
+        brng = random.Random(pid * 100_000 + iid)  # separate stream: other data stays unchanged
+        if style != "inactive" and brng.random() < 0.2:
+            self.bot_note_id += 1
+            bot = _user(*BOTS[0])
+            t_bot = _business_shift(created, 0.5)
+            path_ = files[0]
+            pos = {
+                "base_sha": "b" * 40,
+                "start_sha": "b" * 40,
+                "head_sha": "0" * 40,
+                "old_path": path_,
+                "new_path": path_,
+                "position_type": "text",
+                "old_line": None,
+                "new_line": 12,
+            }
+            first_bot = {
+                "id": self.bot_note_id,
+                "type": "DiffNote",
+                "author": bot,
+                "system": False,
+                "body": "AI review: `buffer` is read after `release()` in this branch. Possible use-after-free.",
+                "created_at": _iso(t_bot),
+                "updated_at": _iso(t_bot),
+                "resolvable": True,
+                "resolved": False,
+                "resolved_by": None,
+                "resolved_at": None,
+                "position": pos,
+            }
+            self.bot_note_id += 1
+            t_rep = _business_shift(t_bot, brng.uniform(1, 20))
+            reply = {
+                **first_bot,
+                "id": self.bot_note_id,
+                "author": author,
+                "created_at": _iso(t_rep),
+                "updated_at": _iso(t_rep),
+                "type": "DiffNote",
+                "body": brng.choice(
+                    [
+                        "False positive: release() only drops the handle, the buffer is owned by the caller.",
+                        "Good find, fixed.",
+                    ]
+                ),
+            }
+            if t_rep < fx.now:
+                did = f"botreview{first_bot['id']}"
+                discussions.append(
+                    {"id": did, "individual_note": False, "notes": [first_bot, reply]}
+                )
+                fx.truth[did] = "bot_review"
         sysn = self._note(
             author,
             "added 1 commit",

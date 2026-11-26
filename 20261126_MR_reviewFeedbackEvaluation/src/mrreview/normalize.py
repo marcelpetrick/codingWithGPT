@@ -55,7 +55,8 @@ def classify_thread(
         if n.author_id is not None and n.author_id not in responders:
             responders.append(n.author_id)
     if giver_kind == "bot":
-        reason = "bot_initiated"
+        # An automated review that a human reacted to is review interaction too; it stays labelled.
+        reason = "bot_review" if others and not is_routine(first.body) else "bot_initiated"
     elif all(is_routine(n.body) for n in humans):
         reason = "routine_only"
     elif giver == mr_author and not others:
@@ -99,7 +100,7 @@ def classify_thread(
         "n_notes": len(visible),
         "n_human_notes": len(humans),
         "has_reply": int(bool(others)),
-        "substantive": int(reason == "substantive"),
+        "substantive": int(reason in ("substantive", "bot_review")),
         "reason": reason,
         "resolvable": int(bool(resolvable_notes)),
         "resolved": int(resolved),

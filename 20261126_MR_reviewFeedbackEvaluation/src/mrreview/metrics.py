@@ -61,7 +61,9 @@ def overview(ds: dict[str, Any]) -> dict[str, Any]:
     fr = [f["tm"]["fr"][2] for f in first if f["tm"]["fr"][0] == "o"]
     return {
         "mrs": len(ds["mrs"]),
-        "substantive_threads": sum(1 for t in threads if t["reason"] == "substantive"),
+        "substantive_threads": sum(
+            1 for t in threads if t.get("sub", t["reason"] == "substantive")
+        ),
         "findings": len(findings),
         "actionable": len(actionable),
         "verified_rate": rate(len(verified), len(actionable)),
