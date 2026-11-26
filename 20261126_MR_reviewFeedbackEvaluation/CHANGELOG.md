@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.16: docs(demo): rebuild the live demo with prompt p2 and bot reviews
 - 0.2.15: feat(analyze): classify threads of the focus user first
 - 0.2.14: docs: record iteration 1, the review and the real-data runs
 - 0.2.13: fix(normalize): carry old classification keys over to llm_hash
