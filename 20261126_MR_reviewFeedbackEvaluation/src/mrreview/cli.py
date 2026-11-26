@@ -142,7 +142,7 @@ def cmd_smoke(args: argparse.Namespace, cfg: Config) -> int:
 
 def _budget(args: argparse.Namespace) -> float | None:
     minutes = getattr(args, "max_minutes", None)
-    return float(minutes) * 60 if minutes else None
+    return float(minutes) * 60 if minutes is not None else None
 
 
 def _focus_args(p: argparse.ArgumentParser) -> None:

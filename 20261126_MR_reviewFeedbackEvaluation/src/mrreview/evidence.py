@@ -12,8 +12,9 @@ from __future__ import annotations
 import sqlite3
 
 from mrreview import db
+from mrreview.collect import StopRun
 from mrreview.gitlab import GitLabClient, JSONDict, NotAccessible
-from mrreview.http import HttpError
+from mrreview.http import HttpError, TransportError
 
 MAX_FILE_DIFF_BYTES = 200_000
 
@@ -39,7 +40,7 @@ def _file_diff(diffs: list[JSONDict], path: str, old_path: str | None) -> JSONDi
 
 def run_evidence(client: GitLabClient, conn: sqlite3.Connection) -> dict[str, int]:
     """Fetch the compare diff for every diff comment that has none for its current versions."""
-    stats = {"fetched": 0, "ok": 0, "same": 0, "unavailable": 0}
+    stats = {"fetched": 0, "ok": 0, "same": 0, "unavailable": 0, "failed": 0}
     cache: dict[tuple[int, str, str], list[JSONDict] | None] = {}
     errors: dict[tuple[int, str, str], str] = {}
     for t in _targets(conn):
@@ -56,9 +57,23 @@ def run_evidence(client: GitLabClient, conn: sqlite3.Connection) -> dict[str, in
             if ck not in cache:
                 try:
                     cache[ck] = list(client.compare(*ck).get("diffs") or [])
-                except (NotAccessible, HttpError) as exc:
+                except NotAccessible as exc:  # final: the commits are gone or not visible
                     cache[ck] = None
                     errors[ck] = str(exc)[:200]
+                except HttpError as exc:  # temporary: retried on the next run
+                    with db.tx(conn):
+                        db.set_work(
+                            conn,
+                            "evidence",
+                            t["id"],
+                            "failed",
+                            input_hash=key,
+                            error=str(exc)[:300],
+                        )
+                    stats["failed"] += 1
+                    continue
+                except TransportError as exc:
+                    raise StopRun(f"GitLab unreachable, evidence stopped: {exc}") from None
             diffs = cache[ck]
             if diffs is None:
                 status, detail = "unavailable", errors[ck]

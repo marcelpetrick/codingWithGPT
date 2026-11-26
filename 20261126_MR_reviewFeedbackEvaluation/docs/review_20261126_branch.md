@@ -1,6 +1,6 @@
 # reviewBranch 2026-11-26 (fa0fcf0..2f5747c, whole project)
 
-Independent subagent review with the reviewBranch rules. All findings are verified by the reviewer. Status: **open** (usage limit reached).
+Independent subagent review with the reviewBranch rules. All findings are verified by the reviewer. Status: **all fixed** (2026-11-26 14:31), tests in `tests/integration/test_review_fixes.py` and `test_server_dies_mid_run_stops_job`.
 
 | # | Sev. | Where | Finding | Fix |
 |---|---|---|---|---|

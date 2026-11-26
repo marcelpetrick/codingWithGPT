@@ -112,7 +112,7 @@ class GitLabClient:
         params: dict[str, object] = {
             "state": "all",
             "scope": "all",
-            "order_by": "updated_at",
+            "order_by": "created_at",  # stable while the listing runs; updated_at moves items
             "sort": "asc",
         }
         if updated_after:

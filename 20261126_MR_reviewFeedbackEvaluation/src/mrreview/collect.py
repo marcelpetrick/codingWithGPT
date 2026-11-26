@@ -202,7 +202,12 @@ def discover(
         if skip is None:
             ranked.append((focus.get(pid, 0), n_notes, n_mrs, pid))
     ranked.sort(reverse=True)
+    seen = [int(p["id"]) for p in found]
     with db.tx(conn):
+        conn.execute(  # projects that vanished (deleted, archived, no access) must not be reused
+            f"UPDATE projects SET skip_reason = 'not visible', selected = 0 WHERE id NOT IN ({','.join('?' for _ in seen) or 'NULL'})",
+            seen,
+        )
         db.set_meta(conn, "window_start", start)
         db.set_meta(conn, "focus_username", cfg.focus_username)
         db.set_meta(conn, "discover_key", key)
@@ -482,6 +487,13 @@ def run_collect(
             except HttpError as exc:
                 with db.tx(conn):
                     db.set_work(conn, "mr", f"{pid}:{iid}", "failed", error=str(exc)[:300])
+                failed += 1
+            except (ValueError, sqlite3.IntegrityError) as exc:  # a malformed record from the API
+                with db.tx(conn):
+                    db.record_gap(conn, "mr", f"{pid}:{iid}", "bad_record", str(exc)[:200])
+                    db.set_work(
+                        conn, "mr", f"{pid}:{iid}", "failed", error=f"bad record: {exc}"[:300]
+                    )
                 failed += 1
             if n % 25 == 0:
                 progress(f"collect: {n}/{len(todo)}")
