@@ -30,7 +30,7 @@ def build_release(tag, output):
     output.mkdir(parents=True, exist_ok=True)
     archive = output / f"{name}.tar.gz"
     with tarfile.open(archive, "w:gz") as bundle:
-        for filename in ("traffic_light.py", "README.md", "LICENSE", "docs"):
+        for filename in ("traffic_light.py", "README.md", "LICENSE", "docs", "udev"):
             bundle.add(ROOT / filename, arcname=f"{name}/{filename}")
 
     history = "HEAD"

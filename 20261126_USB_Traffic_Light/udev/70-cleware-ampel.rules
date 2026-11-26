@@ -1,0 +1,2 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="0d50", ATTRS{idProduct}=="0008", TAG+="uaccess"

@@ -24,6 +24,7 @@ jobs:
           black --check traffic_light.py tests tools
           pymarkdown --config .pymarkdown.json scan README.md docs
           yamllint --strict .github/workflows
+          udevadm verify udev/70-cleware-ampel.rules
       - name: Check workflow syntax
         run: |
           curl --fail --silent --show-error --location \

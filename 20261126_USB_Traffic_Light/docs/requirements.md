@@ -17,6 +17,7 @@ The attached light reports the requested steady channel states after the user gr
 | --- | --- | --- | --- |
 | USB-01 | Identify the hardware and describe what it can do. | Compare the USB descriptors with Cleware's Linux source and the controller data sheet. Record observed and inferred details in [README.md](../README.md). | Match the IDs and report sizes against the attached light. Check the controller claim against both sources. |
 | USB-02 | Change the light from Python. | Use the Python standard library and Linux hidraw to avoid a third-party runtime dependency. Implement steady colors, a color cycle, all off, and documented flash intervals. | Check the reports for each operation with a fixture. Confirm changes with the attached light when the account can open its control port. |
+| USB-04 | Keep access after reboot and replug. | Install a udev rule for the USB-Ampel hidraw interface. Let systemd grant access to the active local login. | Verify the rule and simulate events for the light and an unrelated device. Replug after installation and check the account ACL. |
 | USB-03 | Keep tests, documentation and release checks in this directory. | Use Python unittest, Ruff, Black, coverage.py and pinned check tools. Use GitHub Actions for a standalone checkout of this directory. | Run the checks from a clean clone. Check the release archive, checksum, SBOM and changelog. Record the hosted workflow status. |
 
 Choose one Linux source distribution for all supported CPU architectures.
@@ -35,6 +36,7 @@ Use Python 3.14 for the verification and release pipeline.
 | 16:45 | Render the diagrams | Chromium rendered both Mermaid views with all relationship labels. |
 | 16:46 | Verify a clean clone | Lint, format, coverage, mutation and release artifact checks passed. |
 | 16:53 | Test the attached light | The user granted access. HID reports confirmed the cycle, red plus yellow, off, and green. |
+| 16:54 | Check persistent access | The staged udev rule tagged the light in a simulation. The system rule still needs installation. |
 
 ## Resume here
 
@@ -101,3 +103,17 @@ Cleware's `GetSwitch` uses bits 0, 2 and 4 in the first byte for red, yellow and
 | `flash 0.5 yellow` | Yellow selected. Flash timing needs visual observation. | `8e 00 00 00 00 00` |
 | `off` | All three channels off. | `8a 00 00 00 00 00` |
 | `set green` | Green on at the end of the test. | `9a 00 00 00 00 00` |
+
+## Persistent access test
+
+The user asked to keep access across USB connections.
+The rule matches only HID raw nodes with USB vendor `0d50` and product `0008`.
+File number 70 loads before the system's seat access rule.
+The `uaccess` tag grants an ACL to the active local login.
+[systemd seat access](https://www.freedesktop.org/software/systemd/man/262/sd-login.html)
+
+`udevadm verify` accepted the rule.
+`udevadm test --extra-rules-dir` added `uaccess` to the attached light.
+The same check before the rule did not add that tag.
+The rule did not match the attached Dell dock HID node.
+The system installation and replug check are open. This session still lacks administrator authentication.

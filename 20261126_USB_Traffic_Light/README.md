@@ -89,10 +89,18 @@ Run the commands from this directory.
    lsusb -d 0d50:0008
    ```
 
-2. If access fails, grant your account access to this light until you unplug it.
+2. Install the udev rule once.
 
    ```sh
-   sudo setfacl -m "u:$(id -un):rw" /dev/input/by-id/usb-Cleware_GmbH_USB-Ampel_63813-hidraw
+   sudo install -m 0644 udev/70-cleware-ampel.rules /etc/udev/rules.d/70-cleware-ampel.rules
+   sudo udevadm control --reload-rules
+   ```
+
+   Unplug the light and plug it in again. The active local login gets access after each replug or reboot.
+   Check for an entry with your account and `rw-` in the output of `getfacl`.
+
+   ```sh
+   getfacl /dev/input/by-id/usb-Cleware_GmbH_USB-Ampel_63813-hidraw
    ```
 
 3. Cycle through all three colors. Each stays on for one second. The cycle ends with all lights off.
@@ -118,6 +126,14 @@ The channel changes can therefore take effect at slightly different times.
 If you connect more than one matching light, use `--usb-serial` to select a device by its USB descriptor string.
 If two units expose the same marker, their descriptor strings alone cannot tell them apart.
 
+### Temporary access
+
+Use this command if you need access for one USB connection.
+
+```sh
+sudo setfacl -m "u:$(id -un):rw" /dev/input/by-id/usb-Cleware_GmbH_USB-Ampel_63813-hidraw
+```
+
 ### Small Python example
 
 ```python
@@ -141,6 +157,7 @@ ruff check traffic_light.py tests tools
 black --check traffic_light.py tests tools
 pymarkdown --config .pymarkdown.json scan README.md docs
 yamllint --strict .github/workflows
+udevadm verify udev/70-cleware-ampel.rules
 coverage erase
 coverage run --append -m unittest discover -s tests
 coverage run --append traffic_light.py --help
