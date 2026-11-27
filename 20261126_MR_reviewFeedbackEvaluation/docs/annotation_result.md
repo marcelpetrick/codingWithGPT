@@ -46,6 +46,18 @@ Result: the gains on response (+15.0) and outcome (+5.0) hold out of sample. Int
 just outside the 3-point limit. Decision: keep p5, because response and outcome feed the outcome figures and intent does not.
 This is a judgement call against the letter of the rule; the owner can reverse it (rerun with p2).
 
+## Tone and thanks (REQ-UI-7, fresh sample n=60)
+
+| Measure | Agreement with Opus | Kappa |
+|---|---|---|
+| Tone, Qwen p5, six classes | 56.7% | 0.26 |
+| Tone, coarse (positive / neutral / negative) | 61.7% | 0.30 |
+| Thanks in the author's own reply (word match) | 91.7% | 0.82 |
+
+- Qwen reads most exchanges as neutral. Opus reads 29 of 60 as constructive and 4 as dismissive; Qwen finds none of the 4 dismissive ones.
+- The word match for thanks is reliable. "Thanks in advance" is excluded since this check (it asks, it does not credit).
+- So the dashboard columns "Fix rate", "Reply depth" and "Thanks" are the solid part of the reaction profile. The tone columns carry a low-reliability warning.
+
 ## Reading
 
 - Kappa stays below 0.6 for response, validity and outcome. Do not read these per person. Project and trend level is the safe use.

@@ -132,6 +132,14 @@ def reply_words(text: str) -> int:
     return len(_WORD.findall(own_text(text)))
 
 
+_IN_ADVANCE = regex.compile(
+    r"\b(?:thanks?(?: you)?|danke) (?:in advance|im voraus)\b", flags=regex.IGNORECASE
+)
+
+
 def is_thanks(text: str) -> bool:
-    """True when the note thanks or credits the feedback in its own words (REQ-UI-7)."""
-    return _THANKS.search(own_text(text)) is not None
+    """True when the note thanks or credits the feedback in its own words (REQ-UI-7).
+
+    "Thanks in advance" asks for something; it does not credit feedback.
+    """
+    return _THANKS.search(_IN_ADVANCE.sub(" ", own_text(text))) is not None

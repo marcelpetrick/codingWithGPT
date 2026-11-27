@@ -96,6 +96,8 @@ def test_reply_words_skips_quotes_and_code() -> None:
         ("> thanks\nNo, this stays.", False),
         ("Won't do, not needed.", False),
         ("thankless task", False),
+        ("Please approve, thank you in advance.", False),
+        ("Thanks in advance, and thanks for the hint!", True),
     ],
 )
 def test_is_thanks(text: str, expected: bool) -> None:
