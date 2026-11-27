@@ -336,6 +336,7 @@ function header() {
   const toggle = h("label", { class: "switch", tip: "Show real names of people and projects instead of pseudonyms everywhere: tables, charts, tooltips, excerpts and search.\nOff (default): screenshots show only pseudonyms such as 'Jade Crane' and 'Project Orion'.\nThis is a display switch, not access control: the names are inside this file." },
     h("input", { type: "checkbox", id: "names", "aria-label": "Show real names", onchange: e => { S.names = e.target.checked; render(); } }), "Show real names");
   toggle.querySelector("input").checked = S.names;
+  if (M.share) toggle.replaceChildren(h("span", { class: "chip", tip: "Share build: this file holds no real names, paths or GitLab links (mrreview report --share)." }, "Pseudonymised file"));
   return h("header", { class: "top" },
     h("div", {}, h("h1", {}, "Review & Collaboration ", h("span", { text: "Analytics" })),
       h("div", { class: "subtitle", text: fmtN(selectedProjects.length) + " of " + fmtN(cov.projects_visible) + " projects analysed · " + fmtN(cov.mrs) + " merge requests · activity window since " + (M.window_start || "–").slice(0, 10) })),
@@ -415,7 +416,7 @@ function projectsTab(root) {
   });
   root.append(h("h2", {}, "Projects", info("Analysed projects in the filter. Raw volume (MRs) and review intensity (substantive threads per MR) are shown apart. Click a row to open its findings.")));
   root.append(table([
-    ["Project", r => projName(r.p.id), r => h("span", {}, h("a", { href: r.p.web_url, tip: "Open the project in GitLab (needs GitLab access)." }, projName(r.p.id))), "Project pseudonym, or the full path when real names are shown. Linked to GitLab."],
+    ["Project", r => projName(r.p.id), r => h("span", {}, (r.p.web_url ? h("a", { href: r.p.web_url, tip: "Open the project in GitLab (needs GitLab access)." }, projName(r.p.id)) : projName(r.p.id))), "Project pseudonym, or the full path when real names are shown. Linked to GitLab."],
     ["MRs", r => r.mrs, null, "MRs created in the period (all states).", "n"],
     ["Merged", r => r.merged, null, "Of these, merged.", "n"],
     ["Approvals", r => r.appr, null, "Approval events on these MRs. Counted once per approver and MR; not part of threads.", "n"],
@@ -432,7 +433,7 @@ function projectsTab(root) {
   const shown = new Set(selectedProjects.map(p => p.id)); const skipped = DATA.projects.filter(p => !shown.has(p.id));
   root.append(h("h2", {}, "Not analysed", info("Projects found by discovery but not analysed in depth, with the reason. Low activity is not poor collaboration.")));
   root.append(skipped.length ? table([
-    ["Project", p => projName(p.id), p => h("a", { href: p.web_url, tip: "Open the project in GitLab (needs GitLab access)." }, projName(p.id)), "Project pseudonym, or the full path when real names are shown."],
+    ["Project", p => projName(p.id), p => p.web_url ? h("a", { href: p.web_url, tip: "Open the project in GitLab (needs GitLab access)." }, projName(p.id)) : projName(p.id), "Project pseudonym, or the full path when real names are shown."],
     ["MRs in window", p => p.window_mrs || 0, null, "MRs updated in the activity window.", "n"],
     ["Last activity", p => p.last_activity_at || "", p => (p.last_activity_at || "–").slice(0, 10), "Last activity date reported by GitLab."],
     ["Reason", p => p.skip_reason || "", null, "Why the project was not analysed."],
@@ -548,7 +549,7 @@ function evidenceTab(root) {
       const key = f.t + ":" + f.i; const open = S.ev.open === key;
       const row = h("tr", { class: "click", onclick: () => { S.ev.open = open ? null : key; render(); }, tip: "Click to show or hide details." },
         h("td", { class: "small", text: f.T.created.slice(0, 10) }),
-        h("td", { class: "small" }, h("div", { text: projName(f.T.p) }), h("a", { href: f.T.url, tip: "Open this thread in GitLab (needs access). " + (f.MR ? unmask(f.MR.title) : ""), onclick: e => e.stopPropagation() }, "!" + f.T.iid + " ↗")),
+        h("td", { class: "small" }, h("div", { text: projName(f.T.p) }), (f.T.url ? h("a", { href: f.T.url, tip: "Open this thread in GitLab (needs access). " + (f.MR ? unmask(f.MR.title) : ""), onclick: e => e.stopPropagation() }, "!" + f.T.iid + " ↗") : "!" + f.T.iid)),
         h("td", { class: "small", text: person(f.T.giver) + " → " + person(f.T.rec) }),
         h("td", {}, h("div", { style: "font-weight:600", text: unmask(f.summary) }), h("div", { class: "excerpt small muted", text: unmask(f.T.excerpt) })),
         h("td", {}, tag(INTENT, f.intent), h("div", { class: "small muted", text: ACT[f.act] ? ACT[f.act][0] : f.act })),
@@ -566,9 +567,9 @@ function evidenceTab(root) {
         h("dt", { text: "Tone / target" }), h("dd", {}, tag(TONE, f.tone), " ", h("span", { class: "small muted", text: "criticism of: " + f.target })),
         h("dt", { text: "All response acts" }), h("dd", { text: f.acts.join(", ") || "none" }),
         tmr("fr", "First response"), tmr("de", "Decision"), tmr("im", "Implementation"), tmr("re", "Resolution"),
-        h("dt", { text: "Evidence notes" }), h("dd", {}, f.evidence.map(id => h("a", { href: mrUrl + "#note_" + id, style: "margin-right:8px" }, "#" + id))),
+        h("dt", { text: "Evidence notes" }), h("dd", {}, f.evidence.map(id => mrUrl ? h("a", { href: mrUrl + "#note_" + id, style: "margin-right:8px" }, "#" + id) : h("span", { style: "margin-right:8px", text: "#" + id }))),
         h("dt", { text: "Location" }), h("dd", { text: (f.T.path || "general comment") + (f.T.line ? ":" + f.T.line : "") }),
-        h("dt", { text: "MR" }), h("dd", {}, h("a", { href: mrUrl }, f.MR ? unmask(f.MR.title) : "–"), h("span", { class: "muted", text: f.MR ? " · " + f.MR.state : "" })))))];
+        h("dt", { text: "MR" }), h("dd", {}, mrUrl ? h("a", { href: mrUrl }, f.MR ? unmask(f.MR.title) : "–") : (f.MR ? unmask(f.MR.title) : "–"), h("span", { class: "muted", text: f.MR ? " · " + f.MR.state : "" })))))];
     })));
   root.append(h("div", { class: "tablewrap" }, tbl));
   if (!F.length) root.append(h("div", { class: "empty", text: "No findings match." }));

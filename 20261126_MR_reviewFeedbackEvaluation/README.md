@@ -1,7 +1,7 @@
 # mrreview: GitLab review and collaboration analytics
 
 [![pipeline](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml/badge.svg)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml)
-![version](https://img.shields.io/badge/version-0.3.9-blue)
+![version](https://img.shields.io/badge/version-0.4.0-blue)
 ![coverage](https://img.shields.io/badge/line%20coverage-99.1%25-brightgreen)
 ![mutation](https://img.shields.io/badge/mutation%20score-86.1%25-brightgreen)
 ![python](https://img.shields.io/badge/python-3.14-blue)
@@ -123,7 +123,8 @@ with at least 99% line coverage.
 - The LLM can be wrong. Check the evidence before you act on a finding.
 - Changed lines are evidence of a change, not proof of a correct fix.
 - Person-level tables are context. They are not a score, a ranking or a judgement of personality.
-- The name toggle is a display switch, not anonymisation. Keep the HTML file confidential.
+- The name toggle is a display switch, not anonymisation: the normal HTML file holds real names, so keep it confidential.
+  To pass a file on, build it with `uv run mrreview report --share --out out/share.html`: that file holds only pseudonyms and no links, paths or e-mail addresses.
 - No GitLab write calls exist in the code. No review text goes to an external service.
 
 ## License

@@ -12,6 +12,7 @@ import json
 import re
 import sqlite3
 from typing import Any
+from urllib.parse import urlsplit
 
 from mrreview import __version__, db, llm
 from mrreview.analyze import cache_key, is_current
@@ -312,3 +313,68 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
         "threads": threads,
         "findings": findings,
     }
+
+
+_EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+_LINK = re.compile(r"(?:[a-z][a-z0-9+.-]*://|www\.|[\w.-]+@[\w.-]+:)\S+", re.IGNORECASE)
+
+
+def _scrubber(ds: dict[str, Any], host: str) -> Any:
+    """Replace links, the GitLab host and full project paths anywhere in a text."""
+    paths = sorted({p["path"] for p in ds["projects"] if p.get("path")}, key=len, reverse=True)
+    label = {p["path"].casefold(): p["label"] for p in ds["projects"] if p.get("path")}
+    pat = re.compile("|".join(re.escape(p) for p in paths), re.IGNORECASE) if paths else None
+    # the host and its domain ("git.example.com" and "example.com"), longest first
+    hosts = [h for h in (host, host.split(".", 1)[1] if host.count(".") >= 2 else "") if h]
+    # the organisation label of the domain ("example-corp" in git.example-corp.com), in its usual
+    # spellings, because repository and layer names often carry it
+    org = host.split(".")[-2] if host.count(".") >= 1 else ""
+    if len(org) >= 4:
+        parts = re.split(r"[-_]", org)
+        hosts += sorted(
+            {"-".join(parts), "_".join(parts), "".join(parts), " ".join(parts)},
+            key=len,
+            reverse=True,
+        )
+
+    def scrub(text: str | None) -> str | None:
+        if not text:
+            return text
+        text = _EMAIL.sub("<email>", _LINK.sub("<link>", text))
+        for name in hosts:
+            text = re.sub(
+                re.escape(name), "<org>" if "." not in name else "<host>", text, flags=re.IGNORECASE
+            )
+        return (
+            pat.sub(lambda m: label.get(m.group(0).casefold(), "<project>"), text) if pat else text
+        )
+
+    return scrub
+
+
+def share_dataset(ds: dict[str, Any], gitlab_url: str = "") -> dict[str, Any]:
+    """Remove real names, paths and links, so the file itself is pseudonymous (REQ-UI-9).
+
+    The normal build keeps real names for the display switch. This build does not: people, bots
+    and projects carry only their pseudonyms, and GitLab links and file paths are dropped.
+    """
+    scrub = _scrubber(ds, urlsplit(gitlab_url).hostname or "")
+    for p in ds["people"].values():
+        fixed = p["label"] or ("Bot" if p["kind"] == "bot" else "Deleted user")
+        p["name"] = p["username"] = fixed
+    for p in ds["projects"]:
+        p["name"] = p["path"] = p["label"]
+        p["web_url"] = ""
+    for m in ds["mrs"]:
+        m["url"] = ""
+        m["title"] = scrub(m["title"])
+    for t in ds["threads"]:
+        t["url"] = ""
+        t["path"] = None
+        t["excerpt"] = scrub(t["excerpt"])
+    for f in ds["findings"]:
+        f["summary"] = scrub(f["summary"])
+        f["why"] = scrub(f["why"])
+        f["ref"] = scrub(f["ref"])
+    ds["meta"]["share"] = True
+    return ds

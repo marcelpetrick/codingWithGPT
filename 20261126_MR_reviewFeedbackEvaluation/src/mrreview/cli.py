@@ -178,6 +178,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     r = sub.add_parser("report", help="write the HTML dashboard")
     r.add_argument("--out", type=Path, default=Path("out/dashboard.html"))
     r.add_argument("--demo", action="store_true", help="label the report as synthetic demo data")
+    r.add_argument(
+        "--share", action="store_true", help="leave real names, paths and links out of the file"
+    )
     run = sub.add_parser(
         "run", help="all stages: collect, normalize, evidence, analyze, evaluate, report"
     )
@@ -253,7 +256,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         elif args.cmd == "evaluate":
             _log(f"evaluate: {evaluate.run_evaluate(conn, cfg)}")
         elif args.cmd == "report":
-            _log(f"report: {report.write_report(conn, cfg, args.out, demo=args.demo)}")
+            _log(
+                f"report: {report.write_report(conn, cfg, args.out, demo=args.demo, share=args.share)}"
+            )
         elif args.cmd == "run":
             if _stages(conn, cfg, args, _gitlab(cfg), _ollama(cfg), args.out):
                 conn.close()

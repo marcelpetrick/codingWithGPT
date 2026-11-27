@@ -174,3 +174,34 @@ def test_recipient_reply_stats_match_known_texts(gl: Env, conn: sqlite3.Connecti
     threads = {t["id"]: t for t in dataset.build_dataset(conn, cfg)["threads"]}
     assert (threads[t_thanks]["rw"], threads[t_thanks]["rthx"]) == (4, True)
     assert (threads[t_no]["rw"], threads[t_no]["rthx"]) == (4, False)
+
+
+def test_share_report_holds_no_real_names_or_links(
+    gl: Env, conn: sqlite3.Connection, tmp_path: Path
+) -> None:
+    """REQ-UI-9: the share build leaves real names, paths and links out of the file itself."""
+    cfg = pipeline(gl, conn)
+    path0 = conn.execute("SELECT path FROM projects ORDER BY id LIMIT 1").fetchone()[0]
+    host = gl.url.split("//", 1)[1]
+    with conn:
+        conn.execute(
+            "UPDATE notes SET body = body || ? WHERE id IN (SELECT first_note_id FROM threads LIMIT 5)",
+            (
+                f"\nlog: /builds/{path0}/x.c failed; git://git@{host}/{path0}.git; {host}; a.b@corp.example.org",
+            ),
+        )
+    evaluate.run_evaluate(conn, cfg)
+    out = report.write_report(conn, cfg, tmp_path / "share.html", share=True)
+    html = out.read_text(encoding="utf-8")
+    for _, username, name in HUMANS:
+        assert name not in html
+        assert username not in html
+    for (path,) in conn.execute("SELECT path FROM projects"):
+        assert path not in html
+    assert gl.url.split("//", 1)[1] not in html
+    assert "corp.example.org" not in html
+    data = json.loads(
+        re.search(r'<script type="application/json" id="data">(.*?)</script>', html, re.S).group(1)
+    )
+    assert data["meta"]["share"] is True
+    assert all(p["name"] == p["label"] for p in data["people"].values() if p["label"])

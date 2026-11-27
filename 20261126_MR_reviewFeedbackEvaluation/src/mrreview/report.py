@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from mrreview.config import Config
-from mrreview.dataset import build_dataset
+from mrreview.dataset import build_dataset, share_dataset
 
 _ESCAPES = {
     "<": "\\u003c",
@@ -51,9 +51,13 @@ def render_html(dataset: dict[str, Any], title: str = "Review & Collaboration An
     return page.replace("__DATA__", embed_json(dataset), 1)
 
 
-def write_report(conn: sqlite3.Connection, cfg: Config, out: Path, *, demo: bool = False) -> Path:
-    """Build the dataset and write the HTML file atomically."""
+def write_report(
+    conn: sqlite3.Connection, cfg: Config, out: Path, *, demo: bool = False, share: bool = False
+) -> Path:
+    """Build the dataset and write the HTML file atomically. share=True leaves real names out."""
     ds = build_dataset(conn, cfg)
+    if share:
+        ds = share_dataset(ds, cfg.gitlab_url)
     ds["meta"]["demo"] = demo
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp = out.with_suffix(out.suffix + ".tmp")
