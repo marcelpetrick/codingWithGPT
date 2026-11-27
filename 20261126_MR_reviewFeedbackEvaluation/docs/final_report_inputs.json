@@ -1,0 +1,64 @@
+{
+ "quality_columns": [
+  "Opus vs Opus (n=40)",
+  "Qwen p2",
+  "Qwen p3",
+  "Qwen p4",
+  "Qwen p5 (adopted)"
+ ],
+ "quality": {
+  "Opus vs Opus (n=40)": {
+   "intent": "87.5% (0.84)",
+   "actionability": "84.6% (0.74)",
+   "validity": "87.5% (0.81)",
+   "primary_response": "85.0% (0.83)",
+   "text_outcome": "90.0% (0.88)"
+  },
+  "Qwen p2": {
+   "intent": "64.7% (0.59)",
+   "actionability": "73.1% (0.57)",
+   "validity": "66.7% (0.40)",
+   "primary_response": "44.2% (0.35)",
+   "text_outcome": "51.7% (0.44)"
+  },
+  "Qwen p3": {
+   "intent": "58.0% (0.51)",
+   "actionability": "73.1% (0.55)",
+   "validity": "63.3% (0.35)",
+   "primary_response": "45.8% (0.35)",
+   "text_outcome": "49.2% (0.36)"
+  },
+  "Qwen p4": {
+   "intent": "58.0% (0.51)",
+   "actionability": "71.4% (0.54)",
+   "validity": "59.2% (0.29)",
+   "primary_response": "40.8% (0.29)",
+   "text_outcome": "53.3% (0.41)"
+  },
+  "Qwen p5 (adopted)": {
+   "intent": "62.2% (0.56)",
+   "actionability": "77.3% (0.63)",
+   "validity": "69.2% (0.45)",
+   "primary_response": "52.5% (0.43)",
+   "text_outcome": "56.7% (0.48)"
+  }
+ },
+ "quality_note": "120 real findings, stratified over projects and outcomes, labelled blind by Claude Opus on masked text. Opus is a second model, not human truth. A new prompt had to gain 5 points on the text outcome with no dimension down more than 3 (rule fixed before p4 and p5 ran).",
+ "done": [
+  "Built the pipeline: collect, normalize, evidence (GitLab compare API), analyze (Ollama, schema-validated), evaluate, report. GET-only GitLab access.",
+  "Tests: 260 (unit, integration over HTTP, end-to-end in Chromium); line coverage 99.1%; mutation score 85.8%; CI mirrors the local gate.",
+  "Reviews: 27 + 9 + 18 findings fixed (method, code, reviewBranch, documents).",
+  "Real run, widened step by step in 1-hour chunks: all active projects in the 12-month window.",
+  "Profiling: the report went from more than 1 hour to 8 seconds.",
+  "Portable database: migrations with backups and checksums, export and import.",
+  "Self-checks: the open outcomes, a placebo test of the direct-evidence rule, a comparison with published studies, a browser check of the default view for real names (bot names were found and pseudonymised).",
+  "README screenshot of the real dashboard in the pseudonymised default view (owner OK).",
+  "Opus annotation of 120 real findings; prompts p3 and p4 rejected, p5 adopted; all threads classified again with p5."
+ ],
+ "limits": [
+  "Kappa stays below 0.6 for response, validity and outcome: read these at project and trend level, not per person.",
+  "Changed lines are evidence of a change, not proof of a correct fix; about 8 to 14% of direct hits can be chance.",
+  "Business hours: Mon to Fri 08:00 to 18:00 Europe/Berlin, no public holidays (owner decision D-022).",
+  "The name switch in the dashboard is a display switch, not anonymisation."
+ ]
+}
