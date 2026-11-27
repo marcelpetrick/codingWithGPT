@@ -289,3 +289,16 @@ def test_time_budget_stops_cleanly_and_resumes(
     rest = analyze.run_analyze(conn, collected, client)
     assert rest.budget_reached is False
     assert rest.reused == stats.ok
+
+
+def test_never_classified_threads_come_first(
+    conn: sqlite3.Connection, collected: Config, ollama: tuple[FakeOllama, llm.OllamaClient]
+) -> None:
+    """D-034: after a model switch, threads without any valid result go before reclassification."""
+    _fake, client = ollama
+    analyze.run_analyze(conn, collected, client, limit=4)
+    todo, _ = analyze._todo(conn, "another-model", None)
+    seen = [t["c_status"] == "ok" for t in todo]
+    assert seen.count(True) == 4
+    assert seen[0] is False
+    assert seen == sorted(seen)

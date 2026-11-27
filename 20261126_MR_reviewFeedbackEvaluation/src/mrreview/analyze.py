@@ -146,7 +146,8 @@ def _todo(
         FROM threads t LEFT JOIN classifications c ON c.thread_id = t.id
         LEFT JOIN classification_failures f ON f.thread_id = t.id
         WHERE t.substantive = 1
-        ORDER BY (t.giver_id = :focus OR t.recipient_id = :focus) DESC, t.created_at DESC, t.id""",
+        ORDER BY (c.status IS 'ok') ASC,
+        (t.giver_id = :focus OR t.recipient_id = :focus) DESC, t.created_at DESC, t.id""",
         {"focus": _focus_id(conn)},
     ).fetchall()
     todo: list[sqlite3.Row] = []
