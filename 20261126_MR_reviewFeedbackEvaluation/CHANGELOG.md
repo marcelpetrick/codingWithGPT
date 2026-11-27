@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.4.3: docs(quality): compare four models against the Opus labels
 - 0.4.2: fix(dashboard): one valence colour scale; three-colour project chart
 - 0.4.1: docs(quality): record why a word-list decline detector was rejected
 - 0.4.0: feat(report): share build without real names, links, paths or host

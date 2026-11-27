@@ -113,6 +113,7 @@ This is the one living document for this task. Read it first.
 | 2026-11-27 11:10 | Code review (10 findings) and document review (22 findings) fixed. Owner screenshot: "Linux" in a summary was masked as a project (5 projects end in /linux); the masker now skips shared and generic short names (D-028). /tmp (RAM disk) was full; own scratch files deleted. |
 | 2026-11-27 13:37 | p5 rerun done (chunks 09:47, 10:47, 11:47, 12:47; steps 2–4 13:36–13:37; changed MRs collected at each chunk). 5,590 valid, 5 invalid. optional_declined 454 → 41 and open 1,420 → 1,575: intended, p5 no longer reads silence as a decline. |
 | 2026-11-27 13:45 | Dashboard and final report regenerated; README screenshot retaken on the "Everyone" view (name check clean on all tabs); literature figures refreshed with p5. |
+| 2026-11-27 15:22 | Model comparison (D-029, rule fixed before the runs): qwen3.8-pi +9.5 outcome, +9.4 response, but 3.8× slower; gemma4, KAT, occamy fail on quality. qwen3.6 stays until the owner decides (D-033, docs/model_comparison.md). |
 | 2026-11-27 09:47 | Full reclassification with p5 started (5,581 threads, widen chain). Final report generator: scripts/final_report.py. |
 
 ## Results
