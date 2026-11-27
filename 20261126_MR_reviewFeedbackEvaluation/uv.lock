@@ -404,7 +404,7 @@ wheels = [
 
 [[package]]
 name = "mrreview"
-version = "0.2.42"
+version = "0.2.43"
 source = { editable = "." }
 dependencies = [
     { name = "regex" },

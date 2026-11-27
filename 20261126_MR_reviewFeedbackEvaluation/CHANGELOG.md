@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.43: docs(worklog): record the real-dashboard self-check
 - 0.2.42: docs(demo): rebuild the demo dashboard with bot pseudonyms
 - 0.2.41: fix(identity): pseudonymise bot names in the default view
 - 0.2.40: feat(scripts): placebo check of the direct-evidence rule
