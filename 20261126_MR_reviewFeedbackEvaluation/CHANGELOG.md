@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.3.2: fix(dashboard): consistent project counts, code-based fix rate, tone per thread
 - 0.3.1: fix(textutil): thanks in advance is not appreciation; show tone reliability
 - 0.3.0: feat(dashboard): developer reaction profile, project All/None, log scale
 - 0.2.51: docs(quality): confirm prompt p5 on a fresh sample of 60 findings

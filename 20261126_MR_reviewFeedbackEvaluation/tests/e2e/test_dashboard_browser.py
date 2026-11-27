@@ -155,6 +155,33 @@ def test_activity_chart_log_scale(page: Any) -> None:
     card.locator("button.scale-lin").click()
 
 
+def test_no_nan_with_empty_project_selection(page: Any) -> None:
+    """Review 2026-11-27b: an empty filter must not show NaN or Infinity anywhere."""
+    page.locator("button.pnone").click()
+    for name in [
+        "Overview",
+        "Projects",
+        "Review effectiveness",
+        "Participants",
+        "Evidence",
+        "Methodology",
+    ]:
+        tab(page, name)
+        text = visible_text(page)
+        assert "NaN" not in text, name
+        assert "Infinity" not in text, name
+    page.locator("button.pall").click()
+
+
+def test_receiving_table_shows_reaction_profile(page: Any) -> None:
+    """REQ-UI-7: the reaction-profile columns exist and a missing value shows as a dash."""
+    tab(page, "Participants")
+    heads = page.locator("th").all_inner_texts()
+    for col in ["Fix rate", "Reply depth", "Thanks", "Positive tone", "Dismissive tone"]:
+        assert col in heads, col
+    assert "NaN" not in visible_text(page)
+
+
 def test_tooltips_everywhere(page: Any) -> None:
     for name in [
         "Overview",

@@ -159,6 +159,11 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
     digest = db.get_meta(conn, "ollama_digest")
     threads = []
     seen_users: set[int] = set()
+    notes_by_thread: dict[str, list[tuple[int, int, str]]] = {}  # one query, not one per thread
+    for d_id, author, nid, body in conn.execute(
+        "SELECT discussion_id, author_id, id, body FROM notes WHERE system=0"
+    ):
+        notes_by_thread.setdefault(d_id, []).append((author, nid, body))
     for r in conn.execute("SELECT * FROM threads ORDER BY created_at, id"):
         body = conn.execute("SELECT body FROM notes WHERE id=?", (r["first_note_id"],)).fetchone()[
             0
@@ -169,11 +174,9 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
                 seen_users.add(uid)
         status = _status(r, cls.get(r["id"]), fails.get(r["id"]), model, digest)
         own = [
-            b
-            for (b,) in conn.execute(
-                "SELECT body FROM notes WHERE discussion_id=? AND system=0 AND author_id=? AND id != ?",
-                (r["id"], r["recipient_id"], r["first_note_id"]),
-            )
+            body
+            for author, nid, body in notes_by_thread.get(r["id"], [])
+            if author == r["recipient_id"] and nid != r["first_note_id"]
         ]
         threads.append(
             {

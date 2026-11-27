@@ -113,10 +113,11 @@ def is_routine(body: str) -> bool:
     return all(w in _ROUTINE_WORDS or w == "plusone" for w in words)
 
 
-_FENCE = regex.compile(r"```.*?(?:```|$)", flags=regex.DOTALL)
-_WORD = regex.compile(r"\w+")
+_FENCE = regex.compile(r"(```|~~~).*?(?:\1|\n\s*\n|$)", flags=regex.DOTALL)
+_INLINE = regex.compile(r"`[^`\n]*`|https?://\S+")
+_WORD = regex.compile(r"\w+(?:['\u2019]\w+)?")  # an apostrophe joins: one word
 _THANKS = regex.compile(
-    r"\b(?:thanks?|thx|ty|danke|merci|good (?:catch|point|idea|hint)|nice (?:catch|idea)|"
+    r"\b(?:thanks?|thx|thank u|danke|dankeschön|dank|merci|good (?:catch|point|idea|hint)|nice (?:catch|idea)|"
     r"great (?:catch|point|idea)|guter (?:punkt|hinweis|catch|einwand)|gute idee)\b",
     flags=regex.IGNORECASE,
 )
@@ -124,7 +125,7 @@ _THANKS = regex.compile(
 
 def own_text(text: str) -> str:
     """The author's own words: without quoted lines and fenced code."""
-    return _FENCE.sub(" ", strip_quotes(normalize(text)))
+    return _INLINE.sub(" ", _FENCE.sub(" ", strip_quotes(normalize(text))))
 
 
 def reply_words(text: str) -> int:
@@ -133,13 +134,15 @@ def reply_words(text: str) -> int:
 
 
 _IN_ADVANCE = regex.compile(
-    r"\b(?:thanks?(?: you)?|danke) (?:in advance|im voraus)\b", flags=regex.IGNORECASE
+    r"\b(?:thanks?(?: you)?|danke) (?:in advance|im voraus)\b|\b(?:no thanks?|nein,? danke)\b|"
+    r"\b(?:thanks?|danke),? (?:but|aber)\b",
+    flags=regex.IGNORECASE,
 )
 
 
 def is_thanks(text: str) -> bool:
     """True when the note thanks or credits the feedback in its own words (REQ-UI-7).
 
-    "Thanks in advance" asks for something; it does not credit feedback.
+    "Thanks in advance" asks for something, and "no thanks" or "thanks, but" refuse: neither credits feedback.
     """
     return _THANKS.search(_IN_ADVANCE.sub(" ", own_text(text))) is not None

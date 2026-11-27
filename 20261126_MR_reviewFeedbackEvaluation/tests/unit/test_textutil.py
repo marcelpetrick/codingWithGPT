@@ -83,6 +83,11 @@ def test_reply_words_skips_quotes_and_code() -> None:
     assert reply_words(text) == 7
     assert reply_words("") == 0
     assert reply_words("Grüße, naïve café") == 3
+    assert reply_words("See https://example.org/a/b/c?d=e now") == 2
+    assert reply_words("Use `foo.bar.baz()` here") == 2
+    assert reply_words("I don't think so") == 4
+    assert reply_words("Fix:\n~~~\ncode here\n~~~\nok") == 2
+    assert reply_words("Start\n```\nunclosed code\n\nAfter the gap") == 4
 
 
 @pytest.mark.parametrize(
@@ -97,6 +102,11 @@ def test_reply_words_skips_quotes_and_code() -> None:
         ("Won't do, not needed.", False),
         ("thankless task", False),
         ("Please approve, thank you in advance.", False),
+        ("Vielen Dank, passe ich an", True),
+        ("Dankeschön!", True),
+        ("No thanks, this stays.", False),
+        ("Thanks, but no.", False),
+        ("ty", False),
         ("Thanks in advance, and thanks for the hint!", True),
     ],
 )

@@ -169,8 +169,10 @@ const fThreads = () => DATA.threads.filter(t => S.projects.has(t.p) && inPeriod(
 const fFindings = () => DATA.findings.filter(f => S.projects.has(f.T.p) && inPeriod(f.T.created) && involves(f.T) && fromSource(f.T));
 function fMrs() {
   const id = Number(S.person);
+  // one pass over the threads (was: one scan per MR, about 50 million checks with a person filter)
+  const inv = S.person ? new Set(DATA.threads.filter(involves).map(t => t.p + ":" + t.iid)) : null;
   return DATA.mrs.filter(m => S.projects.has(m.p) && inPeriod(m.created) && (!S.person || (S.role !== "giver" && m.author === id) ||
-    DATA.threads.some(t => t.p === m.p && t.iid === m.iid && involves(t))));
+    inv.has(m.p + ":" + m.iid)));
 }
 
 /* ---------- charts ---------- */
@@ -202,7 +204,7 @@ function lineChart(series, opts) {
   const x = i => L + (ms.length === 1 ? (W - L - R) / 2 : i * (W - L - R) / (ms.length - 1)); const y = v => T + (H - T - B) * (1 - frac(v));
   const svg = s("svg", { class: "chart", viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": opts.label || "time series" });
   const g = s("g", { class: "grid" });
-  const ticks = log ? [0, ...[1, 10, 100, 1000, 10000, 100000].filter(v => v <= max * 1.0001)] : [0, 1, 2, 3, 4].map(k => Math.round(max * k / 4));
+  const ticks = log ? [...new Set([0, ...[1, 10, 100, 1000, 10000, 100000].filter(v => v < max), max])] : [0, 1, 2, 3, 4].map(k => Math.round(max * k / 4));
   for (const v of ticks) { g.append(s("line", { x1: L, x2: W - R, y1: y(v), y2: y(v) }), s("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", text: String(v) })); }
   svg.append(g);
   const step = Math.ceil(ms.length / 12);
@@ -427,7 +429,7 @@ function projectsTab(root) {
   ], rows, r => drill([["project", String(r.p.id)]]), ["Threads / MR", -1]));
   const series = selectedProjects.filter(p => S.projects.has(p.id)).map((p, i) => ({ name: projName(p.id), color: [C.blue, C.teal, C.purple, C.amber, C.red, C.green, C.deep][i % 7], values: count(T.filter(t => t.p === p.id && t.sub), t => month(t.created)) }));
   root.append(h("div", { class: "card", style: "margin-top:16px" }, h("h3", {}, "Substantive threads per month and project", info("Longitudinal view of review interaction per project. Hover a month for all values.")), lineChart(series, { label: "threads per project and month", wide: true })));
-  const skipped = DATA.projects.filter(p => !p.selected);
+  const shown = new Set(selectedProjects.map(p => p.id)); const skipped = DATA.projects.filter(p => !shown.has(p.id));
   root.append(h("h2", {}, "Not analysed", info("Projects found by discovery but not analysed in depth, with the reason. Low activity is not poor collaboration.")));
   root.append(skipped.length ? table([
     ["Project", p => projName(p.id), p => h("a", { href: p.web_url, tip: "Open the project in GitLab (needs GitLab access)." }, projName(p.id)), "Project pseudonym, or the full path when real names are shown."],
@@ -492,11 +494,10 @@ function peopleTab(root) {
     ["Unknown", r => r.unk, null, "Their findings with no reliable outcome.", "n"],
   ], giv, r => drill([["giver", String(r.id)]]), ["Person", 1], personOpts));
   const rec = ids.map(id => { const fs = F.filter(f => f.T.rec === id); const c = (...acts) => fs.filter(f => f.racts.some(a => acts.includes(a))).length; const fr = byThread(fs).filter(f => f.tm.fr[0] === "o").map(f => f.tm.fr[2]);
-    const ask = fs.filter(f => f.act === "change_request"); const fixed = ask.filter(f => CLUE_PRED.verified(f) || CLUE_PRED.silent_fix(f)).length;
+    const ask = fs.filter(f => f.act === "change_request"); const fixed = ask.filter(f => f.ev === "direct").length; const thr = byThread(fs);
     const answered = byThread(fs).filter(f => f.T.rw !== null && f.T.rw !== undefined);
     return { id, ask: ask.length, fixed, depth: quantile(answered.map(f => f.T.rw), .5), ans: answered.length, thx: answered.filter(f => f.T.rthx).length,
-      appr: fs.filter(f => f.tone === "appreciative" || f.tone === "constructive").length, harsh: fs.filter(f => f.tone === "dismissive" || f.tone === "confrontational").length,
-      push: fs.filter(f => f.outcome === "declined_unjustified" || f.racts.includes("unsupported_rejection")).length,
+      nthr: thr.length, appr: thr.filter(f => f.tone === "appreciative" || f.tone === "constructive").length, harsh: thr.filter(f => f.tone === "dismissive" || f.tone === "confrontational").length,
       f: fs.length, agree: c("agreement", "partial_agreement"), reasoned: c("reasoned_disagreement", "explanation"), alt: c("alternative_proposal"), defer: c("deferral"), reject: c("unsupported_rejection"), none: fs.filter(f => !f.racts.length).length,
       reacted: fs.filter(f => f.racts.length).length, declR: fs.filter(f => LEGIT.has(f.outcome)).length, declN: fs.filter(f => f.outcome === "declined_unjustified").length,
       ver: fs.filter(f => CHANGE.has(f.outcome) && f.ver === "direct").length, textonly: fs.filter(f => CHANGE.has(f.outcome) && f.ver === "textual_only").length, open: fs.filter(CLUE_PRED.open_unattended).length, unk: fs.filter(f => f.outcome === "unknown").length, fr: quantile(fr, .5), frn: fr.length }; }).filter(r => r.f);
@@ -505,12 +506,11 @@ function peopleTab(root) {
     ["Person", r => person(r.id), null, "Pseudonym by default."],
     ["Findings", r => r.f, r => lowN(String(r.f), r.f), "Findings addressed to the person.", "n"],
     ["Reaction rate", r => r.f ? r.reacted / r.f : 0, r => r.reacted + " / " + r.f + " (" + pct(r.reacted, r.f) + ")", "Findings the recipient reacted to in writing, over all findings addressed to the recipient. Bots and other people do not count.", "n"],
-    ["Fix rate", r => r.ask ? r.fixed / r.ask : 0, r => lowN(r.fixed + " / " + r.ask + " (" + pct(r.fixed, r.ask) + ")", r.ask), "Change requests to this person with a code change at the commented lines: a stated and verified change, or a silent fix (code changed, no written answer). Code-based, so it is the most reliable column.", "n"],
-    ["Reply depth", r => r.depth === null ? -1 : r.depth, r => r.depth === null ? "–" : lowN(Math.round(r.depth) + " words", r.ans), "Median number of words the person wrote per answered thread, without quotes and code. Deterministic. Long is not always better: a precise short answer can be best.", "n"],
-    ["Thanks", r => r.ans ? r.thx / r.ans : 0, r => lowN(r.thx + " / " + r.ans + " (" + pct(r.thx, r.ans) + ")", r.ans), "Answered threads where the person's own reply thanks or credits the feedback (thanks, good catch, danke, guter Punkt). Deterministic word match; agrees with Opus labels at kappa 0.82 (n=60).", "n"],
-    ["Appreciative tone", r => r.f ? r.appr / r.f : 0, r => r.appr + " (" + pct(r.appr, r.f) + ")", "Findings whose exchange the model reads as appreciative or constructive. Tone of the whole exchange, not only this person. Low reliability: kappa 0.26 against Opus labels (n=60). Check cases before you conclude.", "n"],
-    ["Dismissive tone", r => r.f ? r.harsh / r.f : 0, r => r.harsh + " (" + pct(r.harsh, r.f) + ")", "Findings whose exchange the model reads as dismissive or confrontational. Low reliability: the model misses most dismissive cases (kappa 0.26). Check cases before you conclude.", "n"],
-    ["Pushback, no reason", r => r.f ? r.push / r.f : 0, r => r.push + " (" + pct(r.push, r.f) + ")", "Findings this person rejected without a technical reason, or a requested change declined with no reason (model reading, moderate reliability).", "n"],
+    ["Fix rate", r => r.ask ? r.fixed / r.ask : -1, r => r.ask ? lowN(r.fixed + " / " + r.ask + " (" + pct(r.fixed, r.ask) + ")", r.ask) : "–", "Change requests to this person where the commented lines changed after the comment (direct code evidence), whatever the text says. Code-based, so it is the most reliable column. A change is evidence, not proof of a correct fix.", "n"],
+    ["Reply depth", r => r.depth === null ? -1 : r.depth, r => r.depth === null ? "–" : lowN(Math.round(r.depth) + " words", r.ans), "Median number of words the person wrote per answered thread, without quotes, code and links. Deterministic. Long is not always better: a precise short answer can be best.", "n"],
+    ["Thanks", r => r.ans ? r.thx / r.ans : -1, r => r.ans ? lowN(r.thx + " / " + r.ans + " (" + pct(r.thx, r.ans) + ")", r.ans) : "–", "Answered threads where the person's own reply thanks or credits the feedback (thanks, good catch, danke, guter Punkt). Deterministic word match; agrees with Opus labels at kappa 0.82 (n=60).", "n"],
+    ["Positive tone", r => r.nthr ? r.appr / r.nthr : -1, r => r.nthr ? lowN(r.appr + " / " + r.nthr + " (" + pct(r.appr, r.nthr) + ")", r.nthr) : "–", "Threads whose exchange the model reads as appreciative or constructive, counted once per thread. Tone of the whole exchange, not only this person. Low reliability: kappa 0.26 against Opus labels (n=60). Check cases before you conclude.", "n"],
+    ["Dismissive tone", r => r.nthr ? r.harsh / r.nthr : -1, r => r.nthr ? lowN(r.harsh + " / " + r.nthr + " (" + pct(r.harsh, r.nthr) + ")", r.nthr) : "–", "Threads (once each) whose exchange the model reads as dismissive or confrontational. Low reliability: the model misses most dismissive cases (kappa 0.26). Check cases before you conclude.", "n"],
     ["Agreement", r => r.agree, null, "Full or partial agreement.", "n"],
     ["Reasoned / explained", r => r.reasoned, null, "Reasoned disagreement or explanation. These can be good outcomes.", "n"],
     ["Alternative", r => r.alt, null, "Proposed a different solution.", "n"],
@@ -579,7 +579,7 @@ function methodTab(root) {
   root.append(h("h2", {}, "Coverage", info("What was collected and analysed. A partial report says so.")));
   const kv = (pairs) => h("div", { class: "kv" }, pairs.flatMap(([k, v, tip]) => [h("div", { tip: tip || k }, k), h("div", { text: String(v) })]));
   root.append(h("div", { class: "grid g2" },
-    h("div", { class: "card" }, h("h3", {}, "Data"), kv([["Projects visible", cov.projects_visible, "Projects the token can see."], ["Projects analysed", cov.projects_selected, "Projects with MR activity in the window."], ["Merge requests", cov.mrs, "Full history of the analysed projects."], ["Notes", cov.notes, "All notes including system notes."],
+    h("div", { class: "card" }, h("h3", {}, "Data"), kv([["Projects visible", cov.projects_visible, "Projects the token can see."], ["Projects analysed", selectedProjects.length, "Projects with collected MRs (all widening steps so far)."], ["Merge requests", cov.mrs, "Full history of the analysed projects."], ["Notes", cov.notes, "All notes including system notes."],
       ["Threads by kind", Object.entries(cov.thread_reasons).map(([k, v]) => (REASON[k] ? REASON[k][0] : k) + " " + v).join(", "), "Every non-system discussion, by the deterministic substantive check."],
       ["Classification", Object.entries(cov.classification).map(([k, v]) => k + " " + v).join(", "), "Status of substantive threads: ok, invalid (bad model output), failed (server error), pending, stale (input changed)."],
       ["MR collection", JSON.stringify(cov.work.mr || {}), "Work state per MR."], ["Coverage state", cov.state + (cov.partial_reasons.length ? ": " + cov.partial_reasons.join("; ") : ""), "complete, complete_with_gaps, or partial with the reasons."], ["API gaps", Object.entries(cov.gaps).map(([k, v]) => k + " " + v).join(", ") || "none", "Data GitLab did not return, for example missing diffs."]])),
