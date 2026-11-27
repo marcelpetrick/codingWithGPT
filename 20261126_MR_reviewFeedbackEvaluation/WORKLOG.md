@@ -56,8 +56,8 @@ This is the one living document for this task. Read it first.
 | 24 | Owner D-026: project All/None, log scale; fix: dashboard showed only the current step's projects (REQ-UI-8) | done 11:05 |
 | 25 | p5 reclassification of all threads; final report; README screenshot (Everyone view); figures in docs refreshed | done 13:45 |
 | 26 | Tone and thanks reliability against Opus; self-review; document review | done 11:15 |
-| 27 | D-034: switch to qwen3.8-pi; unclassified threads first, then the full rerun (about 16.5 h, chain from 18:23) | running |
-| 28 | Quality evaluation Q1–Q4 (docs/model_comparison.md): fresh holdout of 90 Opus-labelled findings, production check, drift against the qwen3.6 snapshot | Opus labels running; rest after the rerun |
+| 27 | D-034: switch to qwen3.8-pi; unclassified threads first, then the full rerun | stopped 18:54 on owner request: 140 of 5,611 done; 5,471 left (about 19.5 h at the measured 12.8 s per thread) |
+| 28 | Quality evaluation Q1–Q4 (docs/model_comparison.md): fresh holdout of 90 Opus-labelled findings, production check, drift against the qwen3.6 snapshot | fresh-holdout labels done (90), qwen3.6 baseline measured (mean 48.3); Q1, Q2, Q4 and the qwen3.8-pi side of Q3 after the rerun |
 | 21 | Final check against VISION.md section 10 and docs/acceptance.md, push | done 17:40: all 10 criteria met; 4 open items need a person (see acceptance.md) |
 
 ## Status (chronological, 2026-11-26, CET)
@@ -117,6 +117,7 @@ This is the one living document for this task. Read it first.
 | 2026-11-27 13:45 | Dashboard and final report regenerated; README screenshot retaken on the "Everyone" view (name check clean on all tabs); literature figures refreshed with p5. |
 | 2026-11-27 15:22 | Model comparison (D-029, rule fixed before the runs): qwen3.8-pi +9.5 outcome, +9.4 response, but 3.8× slower; gemma4, KAT, occamy fail on quality. qwen3.6 stays until the owner decides (D-033, docs/model_comparison.md). |
 | 2026-11-27 18:23 | Owner: switch to qwen3.8-pi (D-034). qwen3.6 results saved as a local snapshot. Rerun started: 5,611 threads; new threads go first. Quality checks Q1–Q4 fixed before the results; 90-finding fresh holdout sent to three blind Opus annotators. |
+| 2026-11-27 18:54 | Owner: stop here. Chain stopped; `out/widen.STOP` set. 140 threads classified with qwen3.8-pi (12.8 s each), 5,471 still carry the qwen3.6 result. Database integrity check ok. |
 | 2026-11-27 09:47 | Full reclassification with p5 started (5,581 threads, widen chain). Final report generator: scripts/final_report.py. |
 
 ## Results
@@ -141,12 +142,20 @@ This is the one living document for this task. Read it first.
 | evaluate | 0.4 s | none | — |
 | report | did not finish in 1 h, now **8 s** | name masking compiled ~200 regexes per text | One compiled pattern per name set; mask only the shown part. |
 
-## Resume here (state at 2026-11-27 18:30)
+## Resume here (state at 2026-11-27 18:55, work stopped by the owner)
 
-The qwen3.8-pi rerun runs (D-034): `scripts/widen.sh` with START_STEP=4, chunks of one hour, started 18:23, about 16.5 h.
+State: the qwen3.8-pi rerun (D-034) is stopped. 140 of 5,611 threads have the qwen3.8-pi result; 5,471 still have the qwen3.6 result.
+The dashboard therefore mixes both models until the rerun ends; do not publish figures from it. Time left: about 19.5 h.
 The qwen3.6 results are in `out/real/mrreview_qwen36_p5.sqlite3`. Do not delete it before Q3 and Q4 are done.
-To restart after a stop, use step 2 below with `START_STEP=4` added after `env`; the new default model is qwen3.8-pi.
-After it ends: `uv run python scripts/final_report.py out/real/mrreview.sqlite3 docs/final_report_inputs.json out/real/final_report.html`.
+Fresh-holdout labels: `out/annotation/f2batch_*.jsonl`, `f2labels_*.json`; the scorer is kept locally as `out/annotation/q3score.py` (stored findings matched by summary overlap; run `uv run python out/annotation/q3score.py <db> holdout2|first180`); add it to `scripts/` with a test before Q2/Q3.
+
+To resume:
+
+1. Remove the stop file: `rm out/widen.STOP`.
+2. Start the chain as in step 2 below, with `START_STEP=4` added after `env`. It continues where it stopped (idempotent).
+3. When it ends, run Q1 to Q4 (docs/model_comparison.md), then the dashboard, the share build and the final report.
+
+Earlier procedure (refresh with new GitLab activity):
 
 1. Close unused Firefox tabs. Check that `free -h` shows several GiB available.
 2. Restart the chain:

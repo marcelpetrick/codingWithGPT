@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.5.1: docs(worklog): record the stopped qwen3.8-pi rerun and the resume steps
 - 0.5.0: feat(llm): switch the default model to qwen3.8-pi 27B; quality checks Q1–Q4
 - 0.4.4: feat(analyze): classify threads without a valid result first
 - 0.4.3: docs(quality): compare four models against the Opus labels
