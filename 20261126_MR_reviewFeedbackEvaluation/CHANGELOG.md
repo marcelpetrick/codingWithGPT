@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.51: docs(quality): confirm prompt p5 on a fresh sample of 60 findings
 - 0.2.50: docs: record the review of 2026-11-27 and correct the placebo claims
 - 0.2.49: fix(scripts): placebo uses lines inside the file and a chance ratio
 - 0.2.48: fix(identity): mask whole bot names only; fail closed without a label

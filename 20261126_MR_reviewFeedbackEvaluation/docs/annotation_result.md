@@ -30,6 +30,22 @@ Note: the sample over-weights rare outcomes, so the figures are not population a
   It meets the rule. The text-outcome gain (6 of 120 items) is within the noise of this sample size.
 - Coarse classes with p2 (change / promised / no change / deferred / open): outcome 61.7% (0.50), actionability 89.9% (0.75), intent 76.5% (0.60).
 
+## Confirmation on a fresh sample (n=60)
+
+60 new findings (not in the first 120 threads), stratified by stated outcome, labelled blind by Opus. p2 values were saved before the rerun.
+
+| Dimension | Qwen p2 | Qwen p5 |
+|---|---|---|
+| intent | 78.3% (0.74) | 75.0% (0.70) |
+| actionability | 75.0% (0.52) | 76.7% (0.55) |
+| validity | 65.0% (0.39) | 70.0% (0.46) |
+| primary_response | 30.0% (0.22) | 45.0% (0.35) |
+| text_outcome | 45.0% (0.39) | 50.0% (0.41) |
+
+Result: the gains on response (+15.0) and outcome (+5.0) hold out of sample. Intent drops 3.3 points (2 of 60 items),
+just outside the 3-point limit. Decision: keep p5, because response and outcome feed the outcome figures and intent does not.
+This is a judgement call against the letter of the rule; the owner can reverse it (rerun with p2).
+
 ## Reading
 
 - Kappa stays below 0.6 for response, validity and outcome. Do not read these per person. Project and trend level is the safe use.
