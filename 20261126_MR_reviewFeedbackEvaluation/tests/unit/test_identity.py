@@ -91,3 +91,13 @@ def test_mask_projects_in_text() -> None:
     text = "See firmware/display-controller!3 and the Display-Controller repo; bsp stays."
     masked = identity.mask_projects(text, projects)
     assert masked == "See ⟦p:11⟧!3 and the ⟦p:11⟧ repo; bsp stays."
+
+
+def test_mask_exact_masks_only_whole_bot_names() -> None:
+    """D-019 review: a bot name like "CI Bot" must not mask the common word "bot"."""
+    bots = {7: ("project_11_bot_ci", "CI Bot")}
+    text = "The bot said: CI Bot and project_11_bot_ci reported, ci bot too. Robot stays."
+    assert identity.mask_exact(text, bots) == (
+        "The bot said: ⟦u:7⟧ and ⟦u:7⟧ reported, ⟦u:7⟧ too. Robot stays."
+    )
+    assert identity.mask_exact("no names", {}) == "no names"

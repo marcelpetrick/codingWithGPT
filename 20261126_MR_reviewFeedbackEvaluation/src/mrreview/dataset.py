@@ -18,7 +18,7 @@ from mrreview.analyze import cache_key, is_current
 from mrreview.collect import collect_summary
 from mrreview.config import Config
 from mrreview.demo.fake_ollama import STUB_MODEL
-from mrreview.identity import label_for, mask_names, mask_projects, project_label_for
+from mrreview.identity import label_for, mask_exact, mask_names, mask_projects, project_label_for
 from mrreview.textutil import truncate
 
 EXCERPT_GRAPHEMES = 320
@@ -109,8 +109,9 @@ def _focus_user(conn: sqlite3.Connection) -> int | None:
 def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
     """Collect everything the dashboard needs. The result is plain JSON data."""
     users = {r["id"]: r for r in conn.execute("SELECT * FROM users")}
-    # Bots too (REQ-UI-6): a bot name can carry a project name.
-    names = {uid: (r["username"], r["name"]) for uid, r in users.items()}
+    names = {uid: (r["username"], r["name"]) for uid, r in users.items() if r["kind"] != "bot"}
+    # Bots too (REQ-UI-6, D-019): whole names only, so "CI Bot" does not mask the word "bot".
+    bots = {uid: (r["username"], r["name"]) for uid, r in users.items() if r["kind"] == "bot"}
 
     proj_terms = {
         int(r[0]): (str(r[1]), str(r[1]).rsplit("/", 1)[-1])
@@ -119,7 +120,7 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
 
     def mask(text: str, limit: int) -> str:
         text = _prefix(text, limit * 3)  # mask only what can be shown (profiling: 10x faster)
-        cut = truncate(mask_projects(mask_names(text, names), proj_terms), limit)
+        cut = truncate(mask_projects(mask_exact(mask_names(text, names), bots), proj_terms), limit)
         return _HALF_TOKEN.sub("…", cut)  # never show half a name token
 
     projects = [

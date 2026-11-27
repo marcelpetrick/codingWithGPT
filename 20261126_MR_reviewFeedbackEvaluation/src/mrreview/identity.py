@@ -187,6 +187,31 @@ def mask_names(text: str, users: Mapping[int, tuple[str, str]]) -> str:
     return pattern.sub(lambda m: f"⟦u:{lookup[m.group(0).casefold()]}⟧", out)
 
 
+@functools.lru_cache(maxsize=16)
+def _exact_masker(
+    users: tuple[tuple[int, str, str], ...],
+) -> tuple[dict[str, int], regex.Pattern[str] | None]:
+    lookup: dict[str, int] = {}
+    for uid, username, name in sorted(users, key=lambda u: u[0]):
+        for term in (normalize(name).strip(), username):
+            if len(term) >= _MIN_TOKEN:
+                lookup.setdefault(term.casefold(), uid)
+    if not lookup:
+        return lookup, None
+    pattern = regex.compile(
+        rf"(?<![\w⟦:])(?:{_alternation(list(lookup))})(?![\w⟧])", flags=regex.IGNORECASE
+    )
+    return lookup, pattern
+
+
+def mask_exact(text: str, users: Mapping[int, tuple[str, str]]) -> str:
+    """Replace only whole names and usernames with ⟦u:ID⟧ (for bots: no name parts, D-019)."""
+    lookup, pattern = _exact_masker(tuple((uid, u, n) for uid, (u, n) in users.items()))
+    if pattern is None:
+        return text
+    return pattern.sub(lambda m: f"⟦u:{lookup[m.group(0).casefold()]}⟧", text)
+
+
 PROJECT_WORDS = [
     "Andromeda",
     "Aquila",

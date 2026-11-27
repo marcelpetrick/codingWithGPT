@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.48: fix(identity): mask whole bot names only; fail closed without a label
 - 0.2.47: docs(worklog): record the Opus annotation and the p5 rerun
 - 0.2.46: feat(scripts): generate the final project report as HTML
 - 0.2.45: feat(llm): prompt p5 with worked examples after the Opus annotation
