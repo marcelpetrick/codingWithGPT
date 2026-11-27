@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.45: feat(llm): prompt p5 with worked examples after the Opus annotation
 - 0.2.44: docs(readme): show the real dashboard in the pseudonymised default view
 - 0.2.43: docs(worklog): record the real-dashboard self-check
 - 0.2.42: docs(demo): rebuild the demo dashboard with bot pseudonyms

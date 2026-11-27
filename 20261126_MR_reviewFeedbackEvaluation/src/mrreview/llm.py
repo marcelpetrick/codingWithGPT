@@ -18,7 +18,7 @@ from typing import Any
 from mrreview.http import HttpError, Transport, request_with_retry
 from mrreview.textutil import truncate
 
-PROMPT_VERSION = "p2"
+PROMPT_VERSION = "p5"
 SCHEMA_VERSION = "s1"
 MAX_FINDINGS = 5
 
@@ -100,8 +100,7 @@ Codebook:
   promised (a fix is promised but not confirmed, for example "will fix", "working on it"),
   justified_no_change (a reasoned answer or decision shows that no change is needed, for example
   an answered question or a technical counterargument that the reviewer does not refute),
-  optional_declined (an optional suggestion or nit is declined, with or without a reason; always use
-  this when actionability is optional_suggestion and the suggestion is not applied),
+  optional_declined (an optional suggestion or nit is declined in a reply, with or without a reason),
   declined_unjustified (a requested change is rejected with no reason at all; if any technical reason
   is given, use justified_no_change instead),
   deferred (moved to an issue or later work), open (no decision yet), unknown.
@@ -110,6 +109,22 @@ Codebook:
 - evidence_note_ids: the note ids your classification relies on.
 - rationale: one or two short sentences that cite note ids. Do not use names.
 - abstain: true when the thread is too ambiguous to classify reliably.
+
+Worked examples (reviewer comment / reply -> primary_response, text_outcome):
+- "Please add a null check." / no reply from anyone else -> none_observed, open.
+- "Nit: rename x to count?" / no reply -> none_observed, open (silence is not a decline).
+- "Please add a null check." / "Good point, will do." -> agreement, promised.
+- "Please add a null check." / "Done." or "Fixed in abc123." -> agreement, implemented_claimed.
+- "Please add a null check." / "The caller already checks this, see line 40, so it cannot be null." and no
+  objection -> reasoned_disagreement, justified_no_change.
+- "Why do you sleep here?" / "The device needs 50 ms after reset, see the datasheet." -> explanation,
+  justified_no_change.
+- "Please split this class." / "Agreed, but not in this MR, I opened #12." -> deferral, deferred.
+- "Please split this class." / "Out of scope here, let us do it later." -> deferral, deferred.
+- "Please use the enum." / "No." and nothing else -> unsupported_rejection, declined_unjustified.
+- "Please use the enum." / "I used a constexpr table instead, it is faster." -> alternative_proposal,
+  alternative_claimed.
+- "Please use the enum." / "I could use a table instead?" and no later report -> alternative_proposal, open.
 """
 
 

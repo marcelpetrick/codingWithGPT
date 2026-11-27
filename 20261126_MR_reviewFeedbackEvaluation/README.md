@@ -1,7 +1,7 @@
 # mrreview: GitLab review and collaboration analytics
 
 [![pipeline](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml/badge.svg)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml)
-![version](https://img.shields.io/badge/version-0.2.44-blue)
+![version](https://img.shields.io/badge/version-0.2.45-blue)
 ![coverage](https://img.shields.io/badge/line%20coverage-99.1%25-brightgreen)
 ![mutation](https://img.shields.io/badge/mutation%20score-85.8%25-brightgreen)
 ![python](https://img.shields.io/badge/python-3.14-blue)
