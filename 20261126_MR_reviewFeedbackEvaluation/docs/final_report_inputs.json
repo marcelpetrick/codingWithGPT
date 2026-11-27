@@ -53,9 +53,13 @@
   "Portable database: migrations with backups and checksums, export and import.",
   "Self-checks: the open outcomes, a placebo test of the direct-evidence rule, a comparison with published studies, a browser check of the default view for real names (bot names were found and pseudonymised).",
   "README screenshot of the real dashboard in the pseudonymised default view (owner OK).",
-  "Opus annotation of 120 real findings; prompts p3 and p4 rejected, p5 adopted; all threads classified again with p5."
+  "Opus annotation of 120 real findings; prompts p3 and p4 rejected, p5 adopted; all threads classified again with p5 (fresh-sample check: response +15, outcome +5 points).",
+  "Developer reaction profile: fix rate, reply depth, thanks (deterministic, kappa 0.82 against Opus), tone (model, kappa 0.26).",
+  "Dashboard: project All/None, linear or logarithmic activity axis; project masker no longer hides generic words such as Linux.",
+  "Three review rounds on 2026-11-27 (code, dashboard, documents): all findings fixed or recorded."
  ],
  "limits": [
+  "Tone is unreliable (kappa 0.26): Qwen misses most dismissive exchanges. Use fix rate, reply depth and thanks first.",
   "Kappa stays below 0.6 for response, validity and outcome: read these at project and trend level, not per person.",
   "Changed lines are evidence of a change, not proof of a correct fix; about 8 to 14% of direct hits can be chance.",
   "Business hours: Mon to Fri 08:00 to 18:00 Europe/Berlin, no public holidays (owner decision D-022).",

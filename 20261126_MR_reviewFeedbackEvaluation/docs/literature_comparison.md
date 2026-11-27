@@ -1,6 +1,6 @@
 # Comparison with published code review studies
 
-State: 2026-11-26, real run over all 76 active projects (5,078 findings). Aggregates only, no names.
+State: 2026-11-27, real run over all active projects with prompt p5 (4,946 findings). Aggregates only, no names.
 Purpose: put the figures of this tool next to published baselines. A match supports the classification; a difference is a question, not a verdict.
 
 ## Source
@@ -13,10 +13,10 @@ It summarises the Microsoft study of Bosu, Greiler and Bird (MSR 2015). All base
 
 | Question | Microsoft baseline | This run | Reading |
 |---|---|---|---|
-| Share of review comments that point at a possible defect | about 15% | 943 / 5,078 = **18.6%** (intent `defect`) | Close. The codebook counts possible defects, as the baseline does. |
-| Share of comments about long-term maintainability | at least 50% | 2,567 / 5,078 = **50.6%** (intent `style`, `design`, `maintainability`) | Match. |
-| Usefulness grows with the reviewer's prior exposure: 33% at first contact, about 67% at the third | strong learning curve | 60.4% (first comment on a file), 58.9%, 55.0%, 64.3% (3 or more earlier comments) | No learning curve. See limit 2. |
-| Usefulness falls in reviews with 20 or more files | lower for 20+ files | 47.6% (1–4 files), 52.9% (5–9), 59.9% (10–19), **65.3% (20+)** | Opposite trend. See limit 3. |
+| Share of review comments that point at a possible defect | about 15% | 838 / 4,946 = **16.9%** (intent `defect`) | Close. The codebook counts possible defects, as the baseline does. |
+| Share of comments about long-term maintainability | at least 50% | 2,480 / 4,946 = **50.1%** (intent `style`, `design`, `maintainability`) | Match. |
+| Usefulness grows with the reviewer's prior exposure: 33% at first contact, about 67% at the third | strong learning curve | 67.4% (first comment on a file), 66.7%, 64.5%, 73.9% (3 or more earlier comments) | Weak rise only after 3 earlier comments. See limit 2. |
+| Usefulness falls in reviews with 20 or more files | lower for 20+ files | 51.2% (1–4 files), 60.1% (5–9), 66.3% (10–19), **67.1% (20+)** | Opposite trend. See limit 3. |
 | Median time to all sign-offs | about 24 hours (Rigby and Bird 2013) | not compared | This tool times findings, not sign-offs. |
 
 "Useful" here is a proxy: an actionable finding (change request or optional suggestion) from a human that has a stated change,
@@ -27,7 +27,7 @@ or an open outcome with a direct code change (the commented lines changed later)
 1. The proxies differ. Microsoft used the author's judgement; this tool uses the text outcome and the code. Compare trends, not levels.
 2. Prior exposure counts only comments in the 12-month window, per reviewer, project and file. Earlier history is not visible, so many "first" comments are not first contacts.
 3. The size trend is not explained by chance hits alone: the placebo rate does not grow steadily with MR size (next section). The cause is open.
-4. Intent comes from the LLM (prompt p2 for the figures above). The Opus annotation (docs/annotation_result.md) gives intent kappa 0.56–0.59, so the shares are approximate.
+4. Intent comes from the LLM (prompt p5 for the figures above; the p2 run gave 18.6% and 50.6%). The Opus annotation (docs/annotation_result.md) gives intent kappa 0.56–0.59, so the shares are approximate.
 
 ## Placebo check of the direct-evidence rule
 

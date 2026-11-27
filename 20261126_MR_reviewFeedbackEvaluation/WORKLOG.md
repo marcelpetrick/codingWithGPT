@@ -4,7 +4,7 @@ This is the one living document for this task. Read it first.
 
 ## Verdict so far
 
-**v0.3.x (2026-11-27): prompt p5 adopted (D-024); reclassification of all threads with p5 running since 09:47. Reaction profile per developer (D-025), project All/None and log scale (D-026). Widened run with p2: 76 of 706 projects, 3,274 MRs, 5,574 valid threads. Review findings of 2026-11-27 fixed.**
+**v0.3.x (2026-11-27 13:45): all 77 active projects classified again with prompt p5 (5,590 of 5,595 valid). Reaction profile per developer (D-025), project All/None and log scale (D-026). All review findings of 2026-11-27 fixed. Final report: `scripts/final_report.py`.**
 
 - MVP green (v0.2.0, 10:20). Pushed to GitHub at 10:21. CI and Pages build of the push: see "Status".
 - Prompt p2 (10:34): **275/278 = 98.9%** text-outcome agreement with the fixture truth (p1: 251/278 = 90.3%).
@@ -54,8 +54,8 @@ This is the one living document for this task. Read it first.
 | 22 | Owner D-023/D-024: Opus annotation, prompt p5, fresh-sample check | done 10:10 |
 | 23 | Owner D-025: per-developer reaction profile (REQ-UI-7) | done 11:05 |
 | 24 | Owner D-026: project All/None, log scale; fix: dashboard showed only the current step's projects (REQ-UI-8) | done 11:05 |
-| 25 | p5 reclassification of all threads; final report; README screenshot (Everyone view); figures in docs refreshed | running since 09:47 |
-| 26 | Tone and thanks reliability against Opus; self-review; document review | open |
+| 25 | p5 reclassification of all threads; final report; README screenshot (Everyone view); figures in docs refreshed | done 13:45 |
+| 26 | Tone and thanks reliability against Opus; self-review; document review | done 11:15 |
 | 21 | Final check against VISION.md section 10 and docs/acceptance.md, push | done 17:40: all 10 criteria met; 4 open items need a person (see acceptance.md) |
 
 ## Status (chronological, 2026-11-26, CET)
@@ -111,6 +111,8 @@ This is the one living document for this task. Read it first.
 | 2026-11-27 11:03 | v0.3.0: reaction profile per recipient (REQ-UI-7, D-025); project All/None and log scale (REQ-UI-8, D-026); fix: dashboard showed only the current step's projects. |
 | 2026-11-27 11:05 | Tone against Opus: kappa 0.26 (low); thanks word match: kappa 0.82. Tone columns warn. |
 | 2026-11-27 11:10 | Code review (10 findings) and document review (22 findings) fixed. Owner screenshot: "Linux" in a summary was masked as a project (5 projects end in /linux); the masker now skips shared and generic short names (D-028). /tmp (RAM disk) was full; own scratch files deleted. |
+| 2026-11-27 13:37 | p5 rerun done (chunks 09:47, 10:47, 11:47, 12:47; steps 2–4 13:36–13:37; changed MRs collected at each chunk). 5,590 valid, 5 invalid. optional_declined 454 → 41 and open 1,420 → 1,575: intended, p5 no longer reads silence as a decline. |
+| 2026-11-27 13:45 | Dashboard and final report regenerated; README screenshot retaken on the "Everyone" view (name check clean on all tabs); literature figures refreshed with p5. |
 | 2026-11-27 09:47 | Full reclassification with p5 started (5,581 threads, widen chain). Final report generator: scripts/final_report.py. |
 
 ## Results
@@ -135,9 +137,9 @@ This is the one living document for this task. Read it first.
 | evaluate | 0.4 s | none | — |
 | report | did not finish in 1 h, now **8 s** | name masking compiled ~200 regexes per text | One compiled pattern per name set; mask only the shown part. |
 
-## Resume here (state at 2026-11-27 09:50)
+## Resume here (state at 2026-11-27 13:45)
 
-The widen chain reclassifies all threads with prompt p5 (started 09:47, about 4 h). All stages are idempotent; restart with the command in step 2 below.
+All work is done. To refresh with new GitLab activity, run the widen chain again (step 2 below); it fetches only changed MRs and classifies only new or changed threads.
 After it ends: `uv run python scripts/final_report.py out/real/mrreview.sqlite3 docs/final_report_inputs.json out/real/final_report.html`.
 
 1. Close unused Firefox tabs. Check that `free -h` shows several GiB available.
