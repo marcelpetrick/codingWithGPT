@@ -18,3 +18,29 @@ at least 99% valid replies, at most 3 times the time per thread of qwen3.6.
 - qwen3.8-pi is the only candidate that improves the judgement of outcome and response. A full rerun takes about 16.5 hours
   (5,600 threads × 10.6 s); after that, daily new threads take minutes. The speed limit was set by the agent, so the switch is the owner's decision.
 - Ornith-1.5 was not measured: the register records looping and broken tool calls, and it trails on the coding round.
+
+## Decision and quality evaluation after the switch (D-034)
+
+Owner decision 2026-11-27: switch to qwen3.8-pi 27B (`qwen3.8-pi:27b-q4km-ctx200k-nothink`) and accept the 3.8× time.
+Threads without a valid result are classified first, then all others again. The qwen3.6 results stay in
+`out/real/mrreview_qwen36_p5.sqlite3` (local only) as the fallback and for the comparison below.
+
+The 180 items above chose the model, so their figures favour the winner. The rules below were fixed before any qwen3.8-pi production result existed.
+
+| Check | Data | Rule | Action if it fails |
+|---|---|---|---|
+| Q1 run health | the full rerun | at least 99% valid replies; no outage booked as a result | stop, analyse the harness first |
+| Q2 production equals harness | stored results on the 180 items | outcome and response within ±3 points of the harness figures (63.9, 58.3) | find the difference before the data is used |
+| Q3 fresh holdout | 90 new findings, stratified by the qwen3.6 outcome, blind Opus labels, never used to choose the model | mean of outcome and response: qwen3.8-pi minus qwen3.6 on the same items ≥ 0 confirms; between −3 and 0 is a tie (switch kept); below −3 reopens D-034 | reopen D-034, restore the snapshot on the owner's word |
+| Q4 drift | all threads with both results | agreement qwen3.6 vs qwen3.8-pi per dimension; change of the outcome shares and of the person-level tone and response columns | a shift above 10 points is explained with examples before a figure is published |
+
+The holdout is stratified, so its figures are not population shares; rare outcomes are over-represented on purpose.
+Baselines, measured before any qwen3.8-pi production result (scorer: stored findings, matched to the labelled finding by summary overlap):
+
+| Set | Model | Outcome | Response | Validity | Intent | Actionability | Tone |
+|---|---|---|---|---|---|---|---|
+| fresh holdout, n=90 | qwen3.6 (snapshot) | 54.4 (0.48) | 42.2 (0.32) | 65.6 | 68.9 | 82.2 | 80.0 (0.61) |
+| first 180, production | qwen3.6 (snapshot) | 56.1 (0.47) | 47.2 (0.38) | 69.4 | 65.4 | 74.9 | not labelled for all |
+
+The qwen3.6 production figures on the 180 items are within 2 points of its harness figures (54.4, 48.9), so the Q2 scorer agrees with the harness.
+Q3 confirms the switch when the qwen3.8-pi mean on the fresh holdout is at least 48.3. Results are added here when the rerun ends.

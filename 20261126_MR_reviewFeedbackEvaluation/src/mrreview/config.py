@@ -16,7 +16,7 @@ from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 DEFAULT_OLLAMA_URL = "http://192.168.100.67:11434"
-DEFAULT_MODEL = "qwen3.6:35b-a3b-q4_K_M-agentic"
+DEFAULT_MODEL = "qwen3.8-pi:27b-q4km-ctx200k-nothink"
 
 
 class ConfigError(ValueError):

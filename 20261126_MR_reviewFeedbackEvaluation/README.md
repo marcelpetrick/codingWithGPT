@@ -1,7 +1,7 @@
 # mrreview: GitLab review and collaboration analytics
 
 [![pipeline](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml/badge.svg)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml)
-![version](https://img.shields.io/badge/version-0.4.4-blue)
+![version](https://img.shields.io/badge/version-0.5.0-blue)
 ![coverage](https://img.shields.io/badge/line%20coverage-99.1%25-brightgreen)
 ![mutation](https://img.shields.io/badge/mutation%20score-86.1%25-brightgreen)
 ![python](https://img.shields.io/badge/python-3.14-blue)
@@ -33,7 +33,7 @@ A promise is not a fix. A resolved thread is not proof. A reasoned "no" is a leg
 | Item | State |
 |---|---|
 | Pipeline (collect, normalize, analyze, evaluate, report) | done, tested |
-| Live LLM on synthetic threads (the Ollama box, qwen3.6 35B-A3B) | done: synthetic fixture truth 90.3% (p1), 98.9% (p2). Prompt in use: **p5** (D-024). Real data against Opus labels: outcome 50.0%, response 45.0% (fresh sample, [docs/annotation_result.md](docs/annotation_result.md)) |
+| Live LLM on synthetic threads (the Ollama box, qwen3.6 35B-A3B) | done: synthetic fixture truth 90.3% (p1), 98.9% (p2). Prompt in use: **p5** (D-024). Model in use: **qwen3.8-pi 27B** (D-034, [comparison](docs/model_comparison.md); rerun running). Real data against Opus labels: outcome 50.0%, response 45.0% (fresh sample, [docs/annotation_result.md](docs/annotation_result.md)) |
 | Independent reviews | 27 + 9 + 18 findings fixed: [review](docs/review_20261126.md), [reviewBranch](docs/review_20261126_branch.md), document review (WORKLOG); [review 2026-11-27](docs/review_20261127.md): three rounds (code, dashboard, documents) |
 | Live run on real GitLab data | done 2026-11-26: all 77 active projects (of 706 visible), 3,281 MRs, 5,590 valid classified threads (prompt p5, 2026-11-27); data kept local |
 
@@ -69,7 +69,7 @@ Do these steps only after the authorization in VISION.md section 8 is confirmed.
    export MRREVIEW_GITLAB_URL=https://gitlab.example.com
    export MRREVIEW_GITLAB_TOKEN=<read_api token>
    export MRREVIEW_OLLAMA_URL=http://192.168.100.67:11434
-   export MRREVIEW_OLLAMA_MODEL=qwen3.6:35b-a3b-q4_K_M-agentic
+   export MRREVIEW_OLLAMA_MODEL=qwen3.8-pi:27b-q4km-ctx200k-nothink
    ```
 
 2. Start with a bounded smoke test (2 projects, 5 MRs each, 20 threads). Add `--focus-user <username>`

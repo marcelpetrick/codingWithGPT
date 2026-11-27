@@ -27,7 +27,7 @@ Command-line flags (`--db`, `--focus-user`, `--focus-only`, `--max-minutes`, …
 | `backoff_base_s` | `1.0` | — |
 | `max_diff_bytes` | `200000` | — |
 | `ollama_url` | `http://192.168.100.67:11434` | `MRREVIEW_OLLAMA_URL` |
-| `ollama_model` | `qwen3.6:35b-a3b-q4_K_M-agentic` | `MRREVIEW_OLLAMA_MODEL` |
+| `ollama_model` | `qwen3.8-pi:27b-q4km-ctx200k-nothink` | `MRREVIEW_OLLAMA_MODEL` |
 | `ollama_timeout_s` | `600.0` | — |
 | `ollama_concurrency` | `1` | — |
 | `ollama_keep_alive` | `15m` | — |
@@ -47,7 +47,7 @@ db_path = "out/real/mrreview.sqlite3"
 window_months = 12
 focus_username = "your-username"
 ollama_url = "http://localhost:11434"
-ollama_model = "qwen3.6:35b-a3b-q4_K_M-agentic"
+ollama_model = "qwen3.8-pi:27b-q4km-ctx200k-nothink"
 timezone = "Europe/Berlin"
 holidays = ["2026-12-24", "2026-12-25", "2026-12-26"]
 

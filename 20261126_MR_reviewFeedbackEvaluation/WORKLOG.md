@@ -56,6 +56,8 @@ This is the one living document for this task. Read it first.
 | 24 | Owner D-026: project All/None, log scale; fix: dashboard showed only the current step's projects (REQ-UI-8) | done 11:05 |
 | 25 | p5 reclassification of all threads; final report; README screenshot (Everyone view); figures in docs refreshed | done 13:45 |
 | 26 | Tone and thanks reliability against Opus; self-review; document review | done 11:15 |
+| 27 | D-034: switch to qwen3.8-pi; unclassified threads first, then the full rerun (about 16.5 h, chain from 18:23) | running |
+| 28 | Quality evaluation Q1–Q4 (docs/model_comparison.md): fresh holdout of 90 Opus-labelled findings, production check, drift against the qwen3.6 snapshot | Opus labels running; rest after the rerun |
 | 21 | Final check against VISION.md section 10 and docs/acceptance.md, push | done 17:40: all 10 criteria met; 4 open items need a person (see acceptance.md) |
 
 ## Status (chronological, 2026-11-26, CET)
@@ -114,6 +116,7 @@ This is the one living document for this task. Read it first.
 | 2026-11-27 13:37 | p5 rerun done (chunks 09:47, 10:47, 11:47, 12:47; steps 2–4 13:36–13:37; changed MRs collected at each chunk). 5,590 valid, 5 invalid. optional_declined 454 → 41 and open 1,420 → 1,575: intended, p5 no longer reads silence as a decline. |
 | 2026-11-27 13:45 | Dashboard and final report regenerated; README screenshot retaken on the "Everyone" view (name check clean on all tabs); literature figures refreshed with p5. |
 | 2026-11-27 15:22 | Model comparison (D-029, rule fixed before the runs): qwen3.8-pi +9.5 outcome, +9.4 response, but 3.8× slower; gemma4, KAT, occamy fail on quality. qwen3.6 stays until the owner decides (D-033, docs/model_comparison.md). |
+| 2026-11-27 18:23 | Owner: switch to qwen3.8-pi (D-034). qwen3.6 results saved as a local snapshot. Rerun started: 5,611 threads; new threads go first. Quality checks Q1–Q4 fixed before the results; 90-finding fresh holdout sent to three blind Opus annotators. |
 | 2026-11-27 09:47 | Full reclassification with p5 started (5,581 threads, widen chain). Final report generator: scripts/final_report.py. |
 
 ## Results
@@ -138,9 +141,11 @@ This is the one living document for this task. Read it first.
 | evaluate | 0.4 s | none | — |
 | report | did not finish in 1 h, now **8 s** | name masking compiled ~200 regexes per text | One compiled pattern per name set; mask only the shown part. |
 
-## Resume here (state at 2026-11-27 13:45)
+## Resume here (state at 2026-11-27 18:30)
 
-All work is done. To refresh with new GitLab activity, run the widen chain again (step 2 below); it fetches only changed MRs and classifies only new or changed threads.
+The qwen3.8-pi rerun runs (D-034): `scripts/widen.sh` with START_STEP=4, chunks of one hour, started 18:23, about 16.5 h.
+The qwen3.6 results are in `out/real/mrreview_qwen36_p5.sqlite3`. Do not delete it before Q3 and Q4 are done.
+To restart after a stop, use step 2 below with `START_STEP=4` added after `env`; the new default model is qwen3.8-pi.
 After it ends: `uv run python scripts/final_report.py out/real/mrreview.sqlite3 docs/final_report_inputs.json out/real/final_report.html`.
 
 1. Close unused Firefox tabs. Check that `free -h` shows several GiB available.
