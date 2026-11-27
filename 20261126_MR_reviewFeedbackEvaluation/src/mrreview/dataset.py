@@ -109,7 +109,8 @@ def _focus_user(conn: sqlite3.Connection) -> int | None:
 def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
     """Collect everything the dashboard needs. The result is plain JSON data."""
     users = {r["id"]: r for r in conn.execute("SELECT * FROM users")}
-    names = {uid: (r["username"], r["name"]) for uid, r in users.items() if r["kind"] != "bot"}
+    # Bots too (REQ-UI-6): a bot name can carry a project name.
+    names = {uid: (r["username"], r["name"]) for uid, r in users.items()}
 
     proj_terms = {
         int(r[0]): (str(r[1]), str(r[1]).rsplit("/", 1)[-1])
@@ -229,7 +230,7 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
     with db.tx(conn):
         people = {
             str(uid): {
-                "label": label_for(conn, uid) if users[uid]["kind"] == "human" else None,
+                "label": label_for(conn, uid) if users[uid]["kind"] in ("human", "bot") else None,
                 "name": users[uid]["name"],
                 "username": users[uid]["username"],
                 "kind": users[uid]["kind"],

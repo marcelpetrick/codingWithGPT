@@ -18,7 +18,7 @@ import pytest
 
 from mrreview import dataset, db, metrics, report
 from mrreview.config import Config
-from mrreview.demo.fixture import HUMANS
+from mrreview.demo.fixture import BOTS, HUMANS
 
 pw = pytest.importorskip("playwright.sync_api")
 pytestmark = pytest.mark.browser
@@ -113,6 +113,18 @@ def test_identity_toggle(page: Any) -> None:
     assert any(n in text for n in names)
     page.locator("#names").uncheck()
     assert not any(n in visible_text(page) for n in names)
+
+
+def test_bot_names_follow_the_identity_toggle(page: Any) -> None:
+    """REQ-UI-6: a bot name can carry a project name, so the default view hides it too."""
+    bots = [b[2] for b in BOTS]
+    tab(page, "Evidence")
+    page.locator("select:has(option[value=bot])").first.select_option("bot")
+    text = visible_text(page)
+    assert "(bot)" in text
+    assert not any(b in text for b in bots)
+    page.locator("#names").check()
+    assert any(b in visible_text(page) for b in bots)
 
 
 def test_tooltips_everywhere(page: Any) -> None:

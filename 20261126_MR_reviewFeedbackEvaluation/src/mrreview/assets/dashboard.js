@@ -130,7 +130,7 @@ function person(id) {
   if (id === null || id === undefined) return "–";
   const p = DATA.people[String(id)];
   if (!p) return "Unknown user";
-  if (p.kind === "bot") return p.name + " (bot)";
+  if (p.kind === "bot") return (S.names || !p.label ? p.name : p.label) + " (bot)";
   if (p.kind === "deleted") return "Deleted user";
   return S.names ? p.name : p.label;
 }

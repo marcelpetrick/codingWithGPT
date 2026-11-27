@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.41: fix(identity): pseudonymise bot names in the default view
 - 0.2.40: feat(scripts): placebo check of the direct-evidence rule
 - 0.2.39: docs: compare the real-run figures with Microsoft review baselines
 - 0.2.38: docs: record the final acceptance check with the widened run
