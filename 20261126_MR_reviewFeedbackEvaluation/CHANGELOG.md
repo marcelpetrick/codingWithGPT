@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.2.47: docs(worklog): record the Opus annotation and the p5 rerun
 - 0.2.46: feat(scripts): generate the final project report as HTML
 - 0.2.45: feat(llm): prompt p5 with worked examples after the Opus annotation
 - 0.2.44: docs(readme): show the real dashboard in the pseudonymised default view
