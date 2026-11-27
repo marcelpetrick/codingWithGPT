@@ -119,7 +119,7 @@ This is the one living document for this task. Read it first.
 
 | Measure | Value |
 |---|---|
-| Tests | 283 (unit, integration over HTTP, e2e in Chromium), document drift checks included |
+| Tests | 285 (unit, integration over HTTP, e2e in Chromium), document drift checks included |
 | Line coverage | 99.1% (gate 99%) |
 | Mutation score | 646/750 = 86.1% (gate 80%) |
 | Synthetic fixture | 6 projects (2 skipped), 148 MRs, 401 threads, 305 substantive (incl. 21 bot reviews) |

@@ -14,7 +14,7 @@ State: 2026-11-26 17:40, v0.2.38. Evidence is a test name, a command or a run re
 | 7 | Resume after interruption without loss, duplicates or needless reprocessing | met | `test_resume_after_interruption`, `test_interrupted_analysis_resumes_without_rework`, `test_old_classification_key_is_upgraded`; the real run was stopped and resumed twice on 2026-11-26 (one stop for low laptop memory), with all earlier results reused |
 | 8 | One offline, polished HTML dashboard with charts, filters, backlinks, default-pseudonymous toggle | met | `tests/e2e/test_dashboard_browser.py` (no network request, toggle, tooltips, drill-down, injection) |
 | 9 | Verify aggregates, drill-down, identity display, browser rendering; report coverage and limits | met | KPI = Python metrics in Chromium (`test_kpis_match_python_metrics`); coverage states with reasons |
-| 10 | Ruff, Black, pytest and integration/report checks pass; review and test evidence kept | met | `./localPipeline.sh` (283 tests, 99.1% lines, mutation 646/750 = 86.1%, v0.3.x), CI `mr-review-analytics`, `docs/review_20261126.md`, `docs/review_20261126_branch.md`, `docs/review_20261127.md` |
+| 10 | Ruff, Black, pytest and integration/report checks pass; review and test evidence kept | met | `./localPipeline.sh` (285 tests, 99.1% lines, mutation 646/750 = 86.1%, v0.3.x), CI `mr-review-analytics`, `docs/review_20261126.md`, `docs/review_20261126_branch.md`, `docs/review_20261127.md` |
 
 ## Open items
 
