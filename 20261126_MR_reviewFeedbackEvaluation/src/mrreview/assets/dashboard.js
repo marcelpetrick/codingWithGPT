@@ -8,23 +8,26 @@ const M = DATA.meta;
 const MIN_N = 8;
 const C = { deep: "#003B70", blue: "#0078D4", teal: "#00B8A9", green: "#38A169", red: "#E54865",
   amber: "#F2A900", gray: "#8A94A6", purple: "#7B61FF", orange: "#DD6B20", dgreen: "#276749", lgreen: "#68D391", steel: "#5B8DB8" };
+/* Valence scale for outcomes, responses, tone and evidence (validated for colour blindness, 2026-11-27):
+   fixed = greens and blue-teal, legitimate closure = blue and violet, warning = amber, negative = red, worst = dark red. */
+const V = { good: "#2E9E5B", good2: "#007C92", part: "#9BBF3E", legit: "#22A3C4", legit2: "#6A6FD8", warn: "#C98200", bad: "#F06464", worst: "#A3162D", none: "#8A94A6" };
 
 /* ---------- vocabulary: one label, one colour and one explanation per category ---------- */
 const OUTCOME = {
-  implemented: ["Implemented", C.green, "The requested change is stated as done. See the verification column for code evidence."],
-  alternative_implemented: ["Alternative fix", C.dgreen, "A different change than requested is stated as done."],
-  partially_implemented: ["Partly implemented", C.lgreen, "Part of the request is stated as done."],
-  justified_no_change: ["Justified no change", C.teal, "A reasoned answer or decision shows that no change is needed. This is a legitimate closure, not a failure."],
-  optional_declined: ["Optional, declined", C.steel, "An optional suggestion (nit) was declined. This is a legitimate closure."],
-  declined_unjustified: ["Declined, no reason", C.orange, "A request was rejected without a technical reason."],
-  deferred: ["Deferred", C.amber, "Moved to later work, for example an issue. See the reference column."],
-  open: ["Open", C.red, "No decision and no confirmed change by the snapshot. Promises without code evidence stay open."],
-  unknown: ["Unknown", C.gray, "Not enough evidence, or the model abstained."],
+  implemented: ["Implemented", V.good, "The requested change is stated as done. See the verification column for code evidence."],
+  alternative_implemented: ["Alternative fix", V.good2, "A different change than requested is stated as done."],
+  partially_implemented: ["Partly implemented", V.part, "Part of the request is stated as done."],
+  justified_no_change: ["Justified no change", V.legit, "A reasoned answer or decision shows that no change is needed. This is a legitimate closure, not a failure."],
+  optional_declined: ["Optional, declined", V.legit2, "An optional suggestion (nit) was declined. This is a legitimate closure."],
+  declined_unjustified: ["Declined, no reason", V.worst, "A request was rejected without a technical reason."],
+  deferred: ["Deferred", V.warn, "Moved to later work, for example an issue. See the reference column."],
+  open: ["Open", V.bad, "No decision and no confirmed change by the snapshot. Promises without code evidence stay open."],
+  unknown: ["Unknown", V.none, "Not enough evidence, or the model abstained."],
 };
 const VER = {
-  direct: ["Direct", C.green, "A commented line changed in a later MR version. This is evidence of a change, not proof of a correct fix."],
-  indirect: ["Indirect", C.lgreen, "The commented file (or, for a general comment, any file) changed later, but not the commented lines."],
-  textual_only: ["Text only", C.amber, "Someone states a change, but no later MR version shows one."],
+  direct: ["Direct", V.good, "A commented line changed in a later MR version. This is evidence of a change, not proof of a correct fix."],
+  indirect: ["Indirect", V.part, "The commented file (or, for a general comment, any file) changed later, but not the commented lines."],
+  textual_only: ["Text only", V.warn, "Someone states a change, but no later MR version shows one."],
   unavailable: ["Unavailable", C.gray, "The diffs needed for a check are missing (API gap or diff too large)."],
   not_applicable: ["n/a", "#CBD5E1", "No code change is expected for this outcome."],
 };
@@ -41,25 +44,25 @@ const ACT = {
   question: ["Question", "Asks only for information."], none: ["None", "Not a request."],
 };
 const VALIDITY = {
-  supported: ["Supported", C.green, "A reply or evidence confirms the finding."],
-  rebutted: ["Rebutted", C.teal, "A reasoned technical counterargument shows that it does not apply."],
-  partially_supported: ["Partly supported", C.lgreen, "Part of the finding is confirmed."],
+  supported: ["Supported", V.good, "A reply or evidence confirms the finding."],
+  rebutted: ["Rebutted", V.legit, "A reasoned technical counterargument shows that it does not apply."],
+  partially_supported: ["Partly supported", V.part, "Part of the finding is confirmed."],
   indeterminate: ["Indeterminate", C.gray, "The thread does not show enough evidence. Needs a human check."],
 };
 const RESP = {
   acknowledgement: ["Acknowledgement", C.steel, "Notes the comment without a decision, for example 'will do'."],
-  agreement: ["Agreement", C.green, "Agrees with the finding."], partial_agreement: ["Partial agreement", C.lgreen, "Agrees with part of it."],
-  clarification_request: ["Asks back", C.blue, "Asks for clarification."], explanation: ["Explanation", C.teal, "Answers or explains."],
+  agreement: ["Agreement", V.good, "Agrees with the finding."], partial_agreement: ["Partial agreement", V.part, "Agrees with part of it."],
+  clarification_request: ["Asks back", C.blue, "Asks for clarification."], explanation: ["Explanation", V.legit, "Answers or explains."],
   reasoned_disagreement: ["Reasoned disagreement", C.deep, "Disagrees and gives a technical reason. This can be a good outcome."],
-  alternative_proposal: ["Alternative", C.dgreen, "Proposes a different solution."],
-  unsupported_rejection: ["Rejection, no reason", C.orange, "Rejects without a reason."],
-  deferral: ["Deferral", C.amber, "Moves it to later work."], unclear: ["Unclear", C.gray, "The reaction is unclear."],
-  none_observed: ["No response", C.red, "Nobody reacted to the finding."],
+  alternative_proposal: ["Alternative", V.legit2, "Proposes a different solution."],
+  unsupported_rejection: ["Rejection, no reason", V.worst, "Rejects without a reason."],
+  deferral: ["Deferral", V.warn, "Moves it to later work."], unclear: ["Unclear", C.gray, "The reaction is unclear."],
+  none_observed: ["No response", V.bad, "Nobody reacted to the finding."],
 };
 const TONE = {
-  appreciative: ["Appreciative", C.green, "Thanks or praise."], constructive: ["Constructive", C.teal, "Helpful and specific."],
-  neutral: ["Neutral", C.steel, "Plain technical text. Short is not hostile."], dismissive: ["Dismissive", C.orange, "Brushes the point aside."],
-  confrontational: ["Confrontational", C.red, "Hostile wording."], uncertain: ["Uncertain", C.gray, "Tone cannot be read reliably."],
+  appreciative: ["Appreciative", V.good, "Thanks or praise."], constructive: ["Constructive", V.legit, "Helpful and specific."],
+  neutral: ["Neutral", C.steel, "Plain technical text. Short is not hostile."], dismissive: ["Dismissive", V.bad, "Brushes the point aside."],
+  confrontational: ["Confrontational", V.worst, "Hostile wording."], uncertain: ["Uncertain", C.gray, "Tone cannot be read reliably."],
 };
 const REASON = {
   substantive: ["Substantive", "At least one human note adds more than routine approval: a finding, a question, a rationale."],
@@ -286,19 +289,19 @@ function clues(F, T) {
   const n = key => F.filter(CLUE_PRED[key]).length;
   const changeClaims = F.filter(f => CHANGE.has(f.outcome)).length;
   const rnc = n("resolved_no_code");
-  if (rnc) add("⚑", C.amber, rnc + " resolved threads claim a fix that no later code change shows", pct(rnc, changeClaims) + " of " + changeClaims + " change claims. A resolved thread is not proof of a fix. Check these first.", "resolved_no_code", rnc);
+  if (rnc) add("⚑", V.warn, rnc + " resolved threads claim a fix that no later code change shows", pct(rnc, changeClaims) + " of " + changeClaims + " change claims. A resolved thread is not proof of a fix. Check these first.", "resolved_no_code", rnc);
   const po = n("promise_open");
-  if (po) add("⏳", C.red, po + " promised fixes have no confirmation and no code evidence", "'Will fix' is a promise, not a fix. Recent open MRs are excluded (censored).", "promise_open", po);
+  if (po) add("⏳", V.warn, po + " promised fixes have no confirmation and no code evidence", "'Will fix' is a promise, not a fix. Recent open MRs are excluded (censored).", "promise_open", po);
   const sf = n("silent_fix");
   if (sf) add("⚙", C.teal, sf + " findings got a code change but no written answer", "The commented lines changed later, nobody reacted, and no outcome is stated. Possibly a silent fix: check by hand.", "silent_fix", sf);
   const um = n("unanswered_merged");
-  if (um) add("✉", C.red, um + " findings had no response and the MR was merged anyway", "No reply, no decision, no change claim. These may be lost findings.", "unanswered_merged", um);
+  if (um) add("✉", V.bad, um + " findings had no response and the MR was merged anyway", "No reply, no decision, no change claim. These may be lost findings.", "unanswered_merged", um);
   const lg = n("legit_no_change");
   if (lg) add("✓", C.teal, lg + " findings closed with a reasoned no-change decision", "Reasoned disagreement and declined nits count as legitimate closure, not as failure.", "legit_no_change", lg);
   const dn = n("deferred_noref");
-  if (dn) add("↷", C.amber, dn + " deferrals have no issue or MR reference", "A deferral without a link is hard to follow up.", "deferred_noref", dn);
+  if (dn) add("↷", V.warn, dn + " deferrals have no issue or MR reference", "A deferral without a link is hard to follow up.", "deferred_noref", dn);
   const hs = n("harsh");
-  if (hs) add("!", C.orange, hs + " exchanges read as dismissive or personal", "Model reading of tone. Verify the text before you draw a conclusion.", "harsh", hs);
+  if (hs) add("!", V.bad, hs + " exchanges read as dismissive or personal", "Model reading of tone. Verify the text before you draw a conclusion.", "harsh", hs);
   const ab = n("abstained");
   if (ab >= 1) add("?", C.gray, ab + " findings are ambiguous (indeterminate or abstained)", "These need a human check before they count either way.", "abstained", ab);
   // project with clearly higher open rate
@@ -307,7 +310,7 @@ function clues(F, T) {
   for (const [p, a] of byP) {
     const restN = tot - a.n, restOpen = totOpen - a.open;
     if (a.n >= 10 && restN >= 10 && a.open / a.n - restOpen / restN >= 0.15)
-      out.push({ icon: "◎", color: C.red, title: projName(p) + ": " + pct(a.open, a.n) + " of findings stay open (not recent)", desc: "Elsewhere " + pct(restOpen, restN) + " (" + restOpen + "/" + restN + "). n = " + a.n + ". A difference, not a cause: workload and norms differ.", facets: [["project", String(p)], ["clue", "open_unattended"]], n: a.open });
+      out.push({ icon: "◎", color: V.bad, title: projName(p) + ": " + pct(a.open, a.n) + " of findings stay open (not recent)", desc: "Elsewhere " + pct(restOpen, restN) + " (" + restOpen + "/" + restN + "). n = " + a.n + ". A difference, not a cause: workload and norms differ.", facets: [["project", String(p)], ["clue", "open_unattended"]], n: a.open });
   }
   // response-time trend: last 3 months vs 3 months before
   const ms = [...new Set(F.map(f => month(f.T.created)))].sort();
@@ -318,14 +321,14 @@ function clues(F, T) {
     if (a.length >= MIN_N && b.length >= MIN_N) {
       const ma = quantile(a, .5), mb = quantile(b, .5);
       if (mb > 0 && Math.abs(ma - mb) / mb >= 0.25)
-        out.push({ icon: ma > mb ? "↗" : "↘", color: ma > mb ? C.amber : C.green, title: "First responses got " + (ma > mb ? "slower" : "faster") + ": median " + fmtH(mb) + " → " + fmtH(ma), desc: "Business hours, last 3 months (n=" + a.length + ") against the 3 months before (n=" + b.length + "). Rule: shown only at ≥25% change and n ≥ " + MIN_N + " each.", facets: [], n: a.length });
+        out.push({ icon: ma > mb ? "↗" : "↘", color: ma > mb ? V.warn : V.good, title: "First responses got " + (ma > mb ? "slower" : "faster") + ": median " + fmtH(mb) + " → " + fmtH(ma), desc: "Business hours, last 3 months (n=" + a.length + ") against the 3 months before (n=" + b.length + "). Rule: shown only at ≥25% change and n ≥ " + MIN_N + " each.", facets: [], n: a.length });
     }
   }
   // most intensive project
   const ints = selectedProjects.filter(p => S.projects.has(p.id)).map(p => { const mrs = MRF.filter(m => m.p === p.id).length; const th = T.filter(t => t.p === p.id && t.sub).length; return { p, mrs, th, r: mrs ? th / mrs : 0 }; }).filter(x => x.mrs >= 10).sort((a, b) => b.r - a.r);
   if (ints.length >= 2) out.push({ icon: "★", color: C.blue, title: "Most review per MR: " + projName(ints[0].p.id) + " (" + ints[0].r.toFixed(1) + " threads/MR)", desc: "Lowest: " + projName(ints[ints.length - 1].p.id) + " (" + ints[ints.length - 1].r.toFixed(1) + "). Review intensity, not quality.", facets: [["project", String(ints[0].p.id)]], n: ints[0].th });
   const ver = n("verified");
-  if (ver) add("✔", C.green, ver + " findings have direct code evidence of a change", "The commented lines changed after the comment, and the text states a change.", "verified", ver);
+  if (ver) add("✔", V.good, ver + " findings have direct code evidence of a change", "The commented lines changed after the comment, and the text states a change.", "verified", ver);
   return out;
 }
 
@@ -387,9 +390,9 @@ function overview(root) {
     kpi("Substantive threads", fmtN(subst.length), pct(subst.length, T.length) + " of " + fmtN(T.length) + " threads · " + subst.filter(t => t.gk === "bot").length + " bot reviews", "Threads where a human adds more than routine approval, plus bot reviews that a human replied to. Denominator: all non-system threads, including LGTM, bot and author notes.", C.teal, null, "subst"),
     kpi("Findings", fmtN(F.length), "classified issues", "Distinct issues the model found in substantive threads. One thread can hold several findings.", C.deep, () => drill([]), "findings"),
     kpi("Actionable", fmtN(actionable.length), pct(actionable.length, F.length) + " of findings", "Findings that ask for a code change (change requests). Questions and optional nits are not actionable.", C.purple, () => drill([["act", "change_request"]]), "actionable"),
-    kpi("Verified remediation", pct(verified.length, actionable.length), fmtN(verified.length) + " of " + fmtN(actionable.length) + " actionable", "Numerator: actionable findings with a stated change AND direct code evidence (the commented lines changed later).\nDenominator: all actionable findings.\nUnverified and unknown outcomes stay in the denominator; see Review effectiveness.", C.green, () => drill([["act", "change_request"], ["clue", "verified"]]), "verified"),
-    kpi("Open, not recent", fmtN(openU.length), pct(openU.length, F.length) + " of findings · " + unk + " unknown", "Findings with outcome open that are not recent (an open MR with activity in the last " + M.censor_days + " days is censored and excluded).\nOutcome unknown (no reliable evidence, or the model abstained) is counted apart: " + unk + ".", C.red, () => drill([["clue", "open_unattended"]]), "open"),
-    kpi("Resolved, no code evidence", fmtN(rnc.length), "resolved + change claimed", "Threads marked resolved where the text claims a change, but no later MR version shows one. A resolved thread is not proof of a fix.", C.amber, () => drill([["clue", "resolved_no_code"]]), "rnc"),
+    kpi("Verified remediation", pct(verified.length, actionable.length), fmtN(verified.length) + " of " + fmtN(actionable.length) + " actionable", "Numerator: actionable findings with a stated change AND direct code evidence (the commented lines changed later).\nDenominator: all actionable findings.\nUnverified and unknown outcomes stay in the denominator; see Review effectiveness.", V.good, () => drill([["act", "change_request"], ["clue", "verified"]]), "verified"),
+    kpi("Open, not recent", fmtN(openU.length), pct(openU.length, F.length) + " of findings · " + unk + " unknown", "Findings with outcome open that are not recent (an open MR with activity in the last " + M.censor_days + " days is censored and excluded).\nOutcome unknown (no reliable evidence, or the model abstained) is counted apart: " + unk + ".", V.bad, () => drill([["clue", "open_unattended"]]), "open"),
+    kpi("Resolved, no code evidence", fmtN(rnc.length), "resolved + change claimed", "Threads marked resolved where the text claims a change, but no later MR version shows one. A resolved thread is not proof of a fix.", V.warn, () => drill([["clue", "resolved_no_code"]]), "rnc"),
     kpi("First response", fmtH(quantile(fr, .5)), "median, business hours · n=" + fr.length + (frPend ? ", " + frPend + " pending" : ""), "Median business hours from the first comment to the first meaningful human reply by someone else (LGTM, thanks and emoji do not count). Counted once per thread. Unanswered threads are pending and excluded, never counted as zero.", C.blue, null, "fr")));
   root.append(h("h2", {}, "Clues", info("Automatic hints that point at patterns worth a look. Each is a count with its denominator. Click a clue to see the cases. A clue is a question for a human, not a verdict.")));
   const cl = clues(F, T);
@@ -428,8 +431,12 @@ function projectsTab(root) {
     ["Open, not recent", r => r.f ? r.open / r.f : -1, r => lowN(r.open + " / " + r.f + " (" + pct(r.open, r.f) + ")", r.f), "Open or unknown findings, excluding recent open MRs, over all findings.", "n"],
     ["1st response", r => r.fr === null ? Infinity : r.fr, r => lowN(fmtH(r.fr), r.frn), "Median business hours to the first reply (observed cases only).", "n"],
   ], rows, r => drill([["project", String(r.p.id)]]), ["Threads / MR", -1]));
-  const series = selectedProjects.filter(p => S.projects.has(p.id)).map((p, i) => ({ name: projName(p.id), color: [C.blue, C.teal, C.purple, C.amber, C.red, C.green, C.deep][i % 7], values: count(T.filter(t => t.p === p.id && t.sub), t => month(t.created)) }));
-  root.append(h("div", { class: "card", style: "margin-top:16px" }, h("h3", {}, "Substantive threads per month and project", info("Longitudinal view of review interaction per project. Hover a month for all values.")), lineChart(series, { label: "threads per project and month", wide: true })));
+  // Three fixed series colours pass the colour-blindness check for all pairs; the rest is one gray "Other" line.
+  const ranked = selectedProjects.filter(p => S.projects.has(p.id)).map(p => ({ p, n: T.filter(t => t.p === p.id && t.sub).length })).filter(x => x.n).sort((a, b) => b.n - a.n);
+  const top = ranked.slice(0, 3), rest = new Set(ranked.slice(3).map(x => x.p.id));
+  const series = top.map((x, i) => ({ name: projName(x.p.id), color: ["#257de0", "#f47230", "#00b894"][i], values: count(T.filter(t => t.p === x.p.id && t.sub), t => month(t.created)) }));
+  if (rest.size) series.push({ name: "Other projects (" + rest.size + ")", color: V.none, tip: "All other selected projects together. Use the project chips to look at one of them.", values: count(T.filter(t => rest.has(t.p) && t.sub), t => month(t.created)) });
+  root.append(h("div", { class: "card", style: "margin-top:16px" }, h("h3", {}, "Substantive threads per month and project", info("The three projects with the most substantive threads in the filter, and all others as one gray line. Hover a month for the values.")), lineChart(series, { label: "threads per project and month", wide: true })));
   const shown = new Set(selectedProjects.map(p => p.id)); const skipped = DATA.projects.filter(p => !shown.has(p.id));
   root.append(h("h2", {}, "Not analysed", info("Projects found by discovery but not analysed in depth, with the reason. Low activity is not poor collaboration.")));
   root.append(skipped.length ? table([
