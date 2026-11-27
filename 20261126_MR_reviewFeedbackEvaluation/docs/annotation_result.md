@@ -55,7 +55,7 @@ This is a judgement call against the letter of the rule; the owner can reverse i
 | Thanks in the author's own reply (word match) | 91.7% | 0.82 |
 
 - Qwen reads most exchanges as neutral. Opus reads 29 of 60 as constructive and 4 as dismissive; Qwen finds none of the 4 dismissive ones.
-- The word match for thanks is reliable. "Thanks in advance" is excluded since this check (it asks, it does not credit).
+- The word match for thanks is reliable. From v0.3.1, the check excludes "thanks in advance" (it asks for work and does not credit it), "no thanks" and "thanks, but".
 - So the dashboard columns "Fix rate", "Reply depth" and "Thanks" are the solid part of the reaction profile. The tone columns carry a low-reliability warning.
 
 ## Reading

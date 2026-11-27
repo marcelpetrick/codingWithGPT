@@ -51,3 +51,11 @@ The new tests are in `tests/unit/test_mutation_gaps.py`.
 
 The gate first failed at 77.8%: the new compare branch in `evaluate.py` had only integration tests.
 Unit tests for every branch (`test_compare_evidence_branches` and two more) brought it to 85.8%.
+
+## Round 3 (2026-11-27, v0.3.x)
+
+| Result | Count |
+|---|---|
+| Killed | 646 |
+| Survived | 104 |
+| Score over reached mutants (the gate value) | 646 / 750 = 86.1% |

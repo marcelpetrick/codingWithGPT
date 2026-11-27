@@ -36,3 +36,13 @@ def test_no_liquid_markers_in_markdown() -> None:
         text = path.read_text(encoding="utf-8")
         assert "{{" not in text, path
         assert "{%" not in text, path
+
+
+def test_no_shell_output_or_home_paths_in_markdown() -> None:
+    """Review 2026-11-27: a document held pasted shell errors and a local home path."""
+    for path in ROOT.rglob("*.md"):
+        if ".venv" in path.parts or "mutants" in path.parts or "out" in path.parts:
+            continue
+        text = path.read_text(encoding="utf-8")
+        assert "command not found" not in text, path
+        assert "/home/" not in text, path

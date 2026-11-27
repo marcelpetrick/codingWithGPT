@@ -59,7 +59,9 @@ flowchart LR
   evaluate --> dataset["dataset.py<br/>export, name tokens, coverage"]
   ident["identity.py<br/>bots, pseudonyms, masking"] --> dataset
   dataset --> report["report.py<br/>safe JSON embedding"]
-  assets["assets/dashboard.*<br/>charts, filters, tooltips, clues"] --> report
+  assets["assets/dashboard.*<br/>charts, filters, tooltips, clues, reaction profile"] --> report
+  evaluate --> placebo["scripts/placebo_check.py<br/>chance check of direct evidence"]
+  dataset --> final["scripts/final_report.py<br/>aggregate-only HTML report"]
 ```
 
 ## Decisions that shape the design
@@ -71,5 +73,5 @@ flowchart LR
 | Evidence | The GitLab compare API from the comment's head_sha to the final version decides direct or indirect; stored version diffs are the fallback (GitLab drops old version diffs). | REQ-OUT-1 |
 | Portability | Numbered migrations with pinned checksums, a backup before each migration, and a JSON-lines export that imports into the current layout. | REQ-DB-1 |
 | Resumption | A work table per MR and per thread; content hashes decide what is stale. | REQ-DB-2 |
-| Privacy | Names never reach the LLM (role labels). The HTML holds name tokens; the toggle swaps them. | REQ-UI-5 |
+| Privacy | Names never reach the LLM (role labels). The HTML holds name tokens; the toggle swaps them. People, bots and projects get pseudonyms. | REQ-UI-5, REQ-UI-6 |
 | Safety | Model output is validated data. Nothing in it is executed. The client has no write method. | REQ-LLM-2, REQ-SEC-1 |

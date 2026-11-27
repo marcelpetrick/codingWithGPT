@@ -12,40 +12,32 @@ Command-line flags (`--db`, `--focus-user`, `--focus-only`, `--max-minutes`, …
 
 | Key | Default | Environment variable |
 |---|---|---|
-(eval):1: command not found: f.name
-(eval):1: command not found: v
-(eval):1: command not found:  + env[f.name] + 
-   Building mrreview @ file:///home/mpetrick/repos/codingWithGPT/20261126_MR_reviewFeedbackEvaluation
-      Built mrreview @ file:///home/mpetrick/repos/codingWithGPT/20261126_MR_reviewFeedbackEvaluation
-Uninstalled 1 package in 0.18ms
-Installed 1 package in 1ms
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
+| `gitlab_url` | empty | `MRREVIEW_GITLAB_URL` |
+| `gitlab_token` | empty (environment only) | `MRREVIEW_GITLAB_TOKEN` |
+| `db_path` | `data/mrreview.sqlite3` | `MRREVIEW_DB` |
+| `focus_username` | empty | `MRREVIEW_FOCUS_USER` |
+| `focus_only` | `false` | — |
+| `discover_membership_only` | `false` | — |
+| `include_archived` | `false` | — |
+| `window_months` | `12` | — |
+| `min_window_mrs` | `1` | — |
+| `per_page` | `100` | — |
+| `http_timeout_s` | `30.0` | — |
+| `max_retries` | `5` | — |
+| `backoff_base_s` | `1.0` | — |
+| `max_diff_bytes` | `200000` | — |
+| `ollama_url` | `http://192.168.100.67:11434` | `MRREVIEW_OLLAMA_URL` |
+| `ollama_model` | `qwen3.6:35b-a3b-q4_K_M-agentic` | `MRREVIEW_OLLAMA_MODEL` |
+| `ollama_timeout_s` | `600.0` | — |
+| `ollama_concurrency` | `1` | — |
+| `ollama_keep_alive` | `15m` | — |
+| `ollama_options` | `temperature = 0`, `num_ctx = 16384` | — |
+| `max_note_graphemes` | `1500` | — |
+| `max_thread_notes` | `30` | — |
+| `timezone` | `Europe/Berlin` | — |
+| `business_start_hour` / `business_end_hour` | `8` / `18` | — |
+| `holidays` | none (owner decision D-022) | — |
+| `censor_days` | `14` | — |
 
 ## Example `config.local.toml` (git-ignored)
 

@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.3.4: docs: apply the document review; remove host and user from commands
 - 0.3.3: fix(identity): do not mask shared or generic project names in text
 - 0.3.2: fix(dashboard): consistent project counts, code-based fix rate, tone per thread
 - 0.3.1: fix(textutil): thanks in advance is not appreciation; show tone reliability

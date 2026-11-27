@@ -4,14 +4,14 @@ This is the one living document for this task. Read it first.
 
 ## Verdict so far
 
-**Scope widening done (17:37): all 76 active projects (of 706 visible), 3,274 MRs, 5,578 threads classified (5,574 valid). All review findings fixed.**
+**v0.3.x (2026-11-27): prompt p5 adopted (D-024); reclassification of all threads with p5 running since 09:47. Reaction profile per developer (D-025), project All/None and log scale (D-026). Widened run with p2: 76 of 706 projects, 3,274 MRs, 5,574 valid threads. Review findings of 2026-11-27 fixed.**
 
 - MVP green (v0.2.0, 10:20). Pushed to GitHub at 10:21. CI and Pages build of the push: see "Status".
 - Prompt p2 (10:34): **275/278 = 98.9%** text-outcome agreement with the fixture truth (p1: 251/278 = 90.3%).
   Regression: the prompt-injection trap is now `declined_unjustified` (p1: `unknown`); the injected instruction is still not followed.
 - Independent review (2 subagents): 27 findings, all fixed with tests. Record: `docs/review_20261126.md`.
 - Mutation testing: 537/619 = 86.8% (gate 80%). Record: `docs/mutation_testing.md`.
-- Real GitLab (owner request D-012, focus user MPetrick): bounded smoke at 10:41 worked. 2 projects, 16 MRs,
+- Real GitLab (owner request D-012, focus user = the owner): bounded smoke at 10:41 worked. 2 projects, 16 MRs,
   25/25 valid classifications, no real name in the default view. It showed two weaknesses, both fixed:
   the base version now comes from the comment `head_sha`, and bot reviews with a human reply are analysed as source "bot".
 - Full real run started 10:45 (restarted 10:46 with focus-first order): 26 projects that involve the focus user.
@@ -100,26 +100,30 @@ This is the one living document for this task. Read it first.
 | 17:37 | Step 4 done: 1 MR, 1 thread. `all steps done`, exit 0. |
 | 18:15 | Harness check of the open outcomes: 390 open findings have a direct code change; the existing clue "Code changed, no reply" shows them (no defect). 4 failed threads: 3 had more than 5 findings, 1 hit the length limit (kept as failures). |
 | 18:15 | Comparison with the Microsoft code review baselines: defect and maintainability shares match; learning-curve and size trends differ (proxy limits). `docs/literature_comparison.md`. |
-| 18:20 | Placebo check of the direct-evidence rule: 91.7% hits at the commented line, 13.6% 50 lines away; no growth with MR size. `scripts/placebo_check.py`. Gate green. |
+| 18:20 | Placebo check of the direct-evidence rule: 91.7% hits at the commented line, 17.5% 50 lines above (chance share 0.19, corrected 2026-11-27); no steady growth with MR size. `scripts/placebo_check.py`. Gate green. |
 | 2026-11-27 08:50 | Self-check of the real dashboard in Chromium (all tabs, bot source): no script error, no external request. One defect: bot display names showed in the default view. Fixed (D-019, REQ-UI-6), test first; recheck: 0 real person, bot or project names. Gate green (260 tests). |
 | 2026-11-27 09:16 | Owner OK (D-020): README screenshot of the real dashboard, default view. Page text checked for names and host, image inspected. |
 | 2026-11-27 09:17 | Owner: Opus annotates instead of a person (D-023); works council not needed (D-021); business hours and palette stay approximations (D-022). |
 | 2026-11-27 09:19 | Opus labelled 120 real findings blind. Qwen p2 agreement: outcome 51.7%, response 44.2%. Opus vs Opus: 85–90%. |
 | 2026-11-27 09:27 | Own harness defect: a scratch file named dis.py shadowed the standard module; renamed. Findings first paired by position; re-scored by summary match. |
 | 2026-11-27 09:43 | p3 (prose rules) did not improve; the adoption rule was then fixed in advance; p4 rejected by it; p5 (worked examples) adopted: outcome 56.7%, response 52.5% (D-024, docs/annotation_result.md). |
+| 2026-11-27 10:10 | Fresh sample of 60 (Opus, blind): p5 response +15.0, outcome +5.0, intent −3.3 (exception recorded, D-024). |
+| 2026-11-27 11:03 | v0.3.0: reaction profile per recipient (REQ-UI-7, D-025); project All/None and log scale (REQ-UI-8, D-026); fix: dashboard showed only the current step's projects. |
+| 2026-11-27 11:05 | Tone against Opus: kappa 0.26 (low); thanks word match: kappa 0.82. Tone columns warn. |
+| 2026-11-27 11:10 | Code review (10 findings) and document review (22 findings) fixed. Owner screenshot: "Linux" in a summary was masked as a project (5 projects end in /linux); the masker now skips shared and generic short names (D-028). /tmp (RAM disk) was full; own scratch files deleted. |
 | 2026-11-27 09:47 | Full reclassification with p5 started (5,581 threads, widen chain). Final report generator: scripts/final_report.py. |
 
 ## Results
 
 | Measure | Value |
 |---|---|
-| Tests | 259 (unit, integration over HTTP, e2e in Chromium), plus document drift checks |
+| Tests | 283 (unit, integration over HTTP, e2e in Chromium), document drift checks included |
 | Line coverage | 99.1% (gate 99%) |
-| Mutation score | 626/730 = 85.8% (gate 80%) |
+| Mutation score | 646/750 = 86.1% (gate 80%) |
 | Synthetic fixture | 6 projects (2 skipped), 148 MRs, 401 threads, 305 substantive (incl. 21 bot reviews) |
 | Live LLM agreement with truth (text outcome) | p2: 275/278 = 98.9%; p1: 251/278 = 90.3% |
 | Real focus run | 26 projects, 1,637 MRs, 4,071 threads classified (4,060 valid), ~2.4 s per thread |
-| Real widened run (all active projects) | 76 of 706 visible projects, 3,274 MRs, 5,578 threads (5,574 valid); outcomes: 1,822 implemented, 898 justified no change, 1,420 open, 454 optional declined, 217 declined without reason, 176 deferred |
+| Real widened run (all active projects, prompt p2; p5 rerun running) | 76 of 706 visible projects, 3,274 MRs, 5,578 threads (5,574 valid); outcomes: 1,822 implemented, 898 justified no change, 1,420 open, 454 optional declined, 217 declined without reason, 176 deferred |
 
 ## Profiling (14:20, real data, 4,071 threads)
 
@@ -138,8 +142,9 @@ After it ends: `uv run python scripts/final_report.py out/real/mrreview.sqlite3 
 
 1. Close unused Firefox tabs. Check that `free -h` shows several GiB available.
 2. Restart the chain:
-   `systemd-inhibit --what=sleep:idle --why="mrreview scope widening" env MRREVIEW_GITLAB_URL=https://git.data-modul.com MRREVIEW_FOCUS_USER=MPetrick scripts/widen.sh >> out/widen.stdout 2>&1`
-3. Look at `tail out/widen.log`. Step 1 is skipped quickly; step 2 continues at the open threads.
+   `systemd-inhibit --what=sleep:idle --why="mrreview scope widening" env MRREVIEW_GITLAB_URL="$MRREVIEW_GITLAB_URL" MRREVIEW_FOCUS_USER="$MRREVIEW_FOCUS_USER" scripts/widen.sh >> out/widen.stdout 2>&1`
+3. Check that `GITLAB_TOKEN` or `MRREVIEW_GITLAB_TOKEN` is set in the shell.
+4. Look at `tail out/widen.log`. Step 1 classifies all stale threads (analyze takes every open thread, focus first). Steps 2 to 4 then finish quickly.
 
 ## Earlier resume point (state at 12:26, usage limit reached)
 
@@ -155,7 +160,7 @@ Open, in this order:
 - State: the full real run writes `out/real/mrreview.sqlite3` and `out/real/dashboard.html`. Log: `out/real-run.log`.
 - Check the run: `tail out/real-run.log`, then `uv run mrreview --db out/real/mrreview.sqlite3 status`.
 - Resume an interrupted real run (idempotent):
-  `MRREVIEW_GITLAB_URL=https://git.data-modul.com MRREVIEW_GITLAB_TOKEN="$GITLAB_TOKEN" uv run mrreview --db out/real/mrreview.sqlite3 run --focus-user MPetrick --focus-only --out out/real/dashboard.html`
+  `MRREVIEW_GITLAB_URL="$MRREVIEW_GITLAB_URL" MRREVIEW_GITLAB_TOKEN="$GITLAB_TOKEN" uv run mrreview --db out/real/mrreview.sqlite3 run --focus-user "$MRREVIEW_FOCUS_USER" --focus-only --out out/real/dashboard.html`
 - After the analysis: the running process ends with its own evaluate and report (older code). Then run
   `uv run mrreview --db out/real/mrreview.sqlite3 evidence`, `... evaluate`, `... report --out out/real/dashboard.html` with the current code.
 - Interim report while analysis runs: `uv run mrreview --db out/real/mrreview.sqlite3 evaluate && uv run mrreview --db out/real/mrreview.sqlite3 report --out out/real/dashboard.html`
