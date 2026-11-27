@@ -97,6 +97,7 @@ This is the one living document for this task. Read it first.
 | 18:15 | Comparison with the Microsoft code review baselines: defect and maintainability shares match; learning-curve and size trends differ (proxy limits). `docs/literature_comparison.md`. |
 | 18:20 | Placebo check of the direct-evidence rule: 91.7% hits at the commented line, 13.6% 50 lines away; no growth with MR size. `scripts/placebo_check.py`. Gate green. |
 | 2026-11-27 08:50 | Self-check of the real dashboard in Chromium (all tabs, bot source): no script error, no external request. One defect: bot display names showed in the default view. Fixed (D-019, REQ-UI-6), test first; recheck: 0 real person, bot or project names. Gate green (260 tests). |
+| 2026-11-27 09:16 | Owner OK (D-020): README screenshot of the real dashboard, default view. Page text checked for names and host, image inspected. |
 
 ## Results
 

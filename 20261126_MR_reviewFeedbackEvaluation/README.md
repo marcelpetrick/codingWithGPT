@@ -1,7 +1,7 @@
 # mrreview: GitLab review and collaboration analytics
 
 [![pipeline](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml/badge.svg)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml)
-![version](https://img.shields.io/badge/version-0.2.43-blue)
+![version](https://img.shields.io/badge/version-0.2.44-blue)
 ![coverage](https://img.shields.io/badge/line%20coverage-99.1%25-brightgreen)
 ![mutation](https://img.shields.io/badge/mutation%20score-85.8%25-brightgreen)
 ![python](https://img.shields.io/badge/python-3.14-blue)
@@ -11,7 +11,9 @@ mrreview reads the merge request history of a GitLab instance and shows how code
 It finds review threads, classifies each finding with a local LLM (Ollama), checks the claimed outcome
 against the code, and writes one offline HTML dashboard with clues, drill-downs and a tooltip on every element.
 
-![Overview of the dashboard on synthetic demo data](docs/img/overview.png)
+![Overview of the dashboard on real data, default pseudonymised view: 76 active projects, 3,274 merge requests](docs/img/real_overview.png)
+
+Real data, default view: people and projects are pseudonyms. A [synthetic example](docs/img/overview.png) shows the same dashboard on demo data.
 
 ## What it answers
 
