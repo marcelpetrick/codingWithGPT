@@ -25,6 +25,7 @@ Note: the sample over-weights rare outcomes, so the figures are not population a
 | text_outcome | 90.0% (0.88) | 51.7% (0.44) | 49.2% (0.36) | 53.3% (0.41) | 56.7% (0.48) |
 
 - p3 and p4 added decision rules in prose. They over-corrected (answered questions became "open"). Rejected.
+- All figures are in-sample: p3 to p5 were written from the confusions in the same 120 items. A fresh sample confirms p5 (next section, after the p5 rerun).
 - p5 adds eleven short synthetic worked examples and drops the p2 rule that read silence on a nit as a decline.
   It meets the rule. The text-outcome gain (6 of 120 items) is within the noise of this sample size.
 - Coarse classes with p2 (change / promised / no change / deferred / open): outcome 61.7% (0.50), actionability 89.9% (0.75), intent 76.5% (0.60).

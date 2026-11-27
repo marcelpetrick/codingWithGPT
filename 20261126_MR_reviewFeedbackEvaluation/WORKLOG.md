@@ -97,12 +97,12 @@ This is the one living document for this task. Read it first.
 | 18:15 | Comparison with the Microsoft code review baselines: defect and maintainability shares match; learning-curve and size trends differ (proxy limits). `docs/literature_comparison.md`. |
 | 18:20 | Placebo check of the direct-evidence rule: 91.7% hits at the commented line, 13.6% 50 lines away; no growth with MR size. `scripts/placebo_check.py`. Gate green. |
 | 2026-11-27 08:50 | Self-check of the real dashboard in Chromium (all tabs, bot source): no script error, no external request. One defect: bot display names showed in the default view. Fixed (D-019, REQ-UI-6), test first; recheck: 0 real person, bot or project names. Gate green (260 tests). |
+| 2026-11-27 09:16 | Owner OK (D-020): README screenshot of the real dashboard, default view. Page text checked for names and host, image inspected. |
 | 2026-11-27 09:17 | Owner: Opus annotates instead of a person (D-023); works council not needed (D-021); business hours and palette stay approximations (D-022). |
 | 2026-11-27 09:19 | Opus labelled 120 real findings blind. Qwen p2 agreement: outcome 51.7%, response 44.2%. Opus vs Opus: 85–90%. |
 | 2026-11-27 09:27 | Own harness defect: a scratch file named dis.py shadowed the standard module; renamed. Findings first paired by position; re-scored by summary match. |
-| 2026-11-27 09:43 | p3 and p4 (prose rules) rejected by the rule fixed in advance; p5 (worked examples) adopted: outcome 56.7%, response 52.5% (D-024, docs/annotation_result.md). |
+| 2026-11-27 09:43 | p3 (prose rules) did not improve; the adoption rule was then fixed in advance; p4 rejected by it; p5 (worked examples) adopted: outcome 56.7%, response 52.5% (D-024, docs/annotation_result.md). |
 | 2026-11-27 09:47 | Full reclassification with p5 started (5,581 threads, widen chain). Final report generator: scripts/final_report.py. |
-| 2026-11-27 09:16 | Owner OK (D-020): README screenshot of the real dashboard, default view. Page text checked for names and host, image inspected. |
 
 ## Results
 
