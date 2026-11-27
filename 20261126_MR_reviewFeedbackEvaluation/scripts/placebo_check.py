@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Placebo check of the direct-evidence rule: real comment lines against lines shifted by k.
 
+Only upward shifts (line - k) are tested: those lines exist in the file for sure. A line past the
+end of the file would count as a miss and bias the placebo rate down.
+
 Usage: uv run python scripts/placebo_check.py <db>. Prints aggregate rates only.
 """
 
@@ -44,16 +47,18 @@ def main(db: str) -> None:
         size[0] += 1
         size[1] += near(line)
         for k in shifts:
-            for x in (line - k, line + k):
-                if x >= 1:
-                    total[k][0] += near(x)
-                    total[k][1] += 1
-                    if k == 50:
-                        size[2] += near(x)
-                        size[3] += 1
+            x = line - k
+            if x >= 1:
+                total[k][0] += near(x)
+                total[k][1] += 1
+                if k == 50:
+                    size[2] += near(x)
+                    size[3] += 1
     print(f"threads with a changed file: {len(rows)}, real direct: {100 * real / len(rows):.1f}%")
     for k, (hit, n) in total.items():
-        print(f"placebo +-{k} lines: {100 * hit / n:.1f}%")
+        print(
+            f"placebo -{k} lines: {100 * hit / n:.1f}% (n={n}), chance share {hit / n / (real / len(rows)):.2f}"
+        )
     for name in sorted(by_size):
         n, hit, phit, pn = by_size[name]
         print(

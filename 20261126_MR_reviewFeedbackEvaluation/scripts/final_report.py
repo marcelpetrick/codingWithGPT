@@ -15,7 +15,7 @@ from datetime import UTC, datetime
 from mrreview.evaluate import LINE_RADIUS, old_side_changes
 
 OUTCOME_TIPS = {
-    "implemented": "A change is stated in the text.",
+    "implemented": "A change is stated in the text, or a promise has a direct code change.",
     "alternative_implemented": "A different fix than requested is stated.",
     "partially_implemented": "Part of the request is stated as done.",
     "justified_no_change": "A reasoned answer shows no change is needed.",
@@ -67,13 +67,19 @@ def placebo(conn: sqlite3.Connection) -> list[list[object]]:
     for line, diff in rows:
         changed = old_side_changes(diff)
         for k in (0, 10, 25, 50, 100):
-            for x in {line - k, line + k}:
-                if x >= 1:
-                    tries[k] += 1
-                    hits[k] += any(abs(m - x) <= LINE_RADIUS for m in changed)
+            x = line - k  # upward only: the line exists in the file for sure
+            if x >= 1:
+                tries[k] += 1
+                hits[k] += any(abs(m - x) <= LINE_RADIUS for m in changed)
     names = {0: "the commented line"}
+    real = hits[0] / tries[0] if tries[0] else 0
     return [
-        [names.get(k, f"shifted by {k} lines"), pct(hits[k], tries[k]), tries[k]]
+        [
+            names.get(k, f"{k} lines above"),
+            pct(hits[k], tries[k]),
+            f"{hits[k] / tries[k] / real:.2f}" if k and tries[k] and real else "",
+            tries[k],
+        ]
         for k in (0, 10, 25, 50, 100)
     ]
 
@@ -172,8 +178,9 @@ ul li{{margin:.2rem 0}} .note{{color:var(--mut);font-size:.9rem}}
 {table(["Dimension", *summary["quality_columns"]], qual_rows)}
 
 <h2>Placebo check of the direct-evidence rule</h2>
-<p class="note">Same rule (a change within {LINE_RADIUS} lines) applied to lines shifted away from the comment. A large gap means the rule measures review effect, not chance.</p>
-{table(["Line tested", "Hit rate", "Tests"], placebo(conn))}
+<p class="note">Same rule (a change within {LINE_RADIUS} lines) applied to lines shifted away from the comment. Chance share = placebo rate divided by the rate at the commented line.</p>
+{table(["Line tested", "Hit rate", "Chance share of a direct hit", "Tests"], placebo(conn))}
+<p class="note">Limit: comments sit on lines that the MR already edits, and such lines change again more often. The placebo lines share this only partly, so the chance share is a lower bound.</p>
 
 <h2>Comparison with published studies</h2>
 {table(["Question", "Microsoft (Czerwonka et al. 2015)", "This run"], [
