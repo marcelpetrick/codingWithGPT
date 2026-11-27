@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.3.9: docs(decisions): fix the model comparison rule before the runs
 - 0.3.8: docs: correct the test count to 285
 - 0.3.7: docs(report): current test figures, corrected chance share, fresh sample
 - 0.3.6: docs: record the p5 rerun, retake the screenshot, refresh figures
