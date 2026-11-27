@@ -83,7 +83,9 @@ const months = (() => {
   while (y < ey || (y === ey && mo <= em)) { out.push(y + "-" + String(mo).padStart(2, "0")); mo++; if (mo > 12) { mo = 1; y++; } }
   return out;
 })();
-const selectedProjects = DATA.projects.filter(p => p.selected).sort((a, b) => a.label.localeCompare(b.label));
+// A project counts when it is selected now or has collected MRs (the selected flag follows the current widening step).
+const withMrs = new Set(DATA.mrs.map(m => m.p));
+const selectedProjects = DATA.projects.filter(p => p.selected || withMrs.has(p.id)).sort((a, b) => a.label.localeCompare(b.label));
 
 /* ---------- state ---------- */
 const S = { tab: "overview", projects: new Set(selectedProjects.map(p => p.id)), from: months[0] || "", to: months[months.length - 1] || "",
@@ -195,10 +197,13 @@ function lineChart(series, opts) {
   const ms = months.filter(m => (!S.from || m >= S.from) && (!S.to || m <= S.to));
   if (!ms.length) return h("div", { class: "empty", text: "No months in the current filter." });
   const max = Math.max(1, ...series.flatMap(se => ms.map(m => se.values.get(m) || 0)));
-  const x = i => L + (ms.length === 1 ? (W - L - R) / 2 : i * (W - L - R) / (ms.length - 1)); const y = v => T + (H - T - B) * (1 - v / max);
+  const log = S.scale === "log"; // owner request: a burst must not hide the quiet months
+  const frac = v => log ? Math.log10(v + 1) / Math.log10(max + 1) : v / max;
+  const x = i => L + (ms.length === 1 ? (W - L - R) / 2 : i * (W - L - R) / (ms.length - 1)); const y = v => T + (H - T - B) * (1 - frac(v));
   const svg = s("svg", { class: "chart", viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": opts.label || "time series" });
   const g = s("g", { class: "grid" });
-  for (let k = 0; k <= 4; k++) { const v = Math.round(max * k / 4); g.append(s("line", { x1: L, x2: W - R, y1: y(v), y2: y(v) }), s("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", text: String(v) })); }
+  const ticks = log ? [0, ...[1, 10, 100, 1000, 10000, 100000].filter(v => v <= max * 1.0001)] : [0, 1, 2, 3, 4].map(k => Math.round(max * k / 4));
+  for (const v of ticks) { g.append(s("line", { x1: L, x2: W - R, y1: y(v), y2: y(v) }), s("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end", text: String(v) })); }
   svg.append(g);
   const step = Math.ceil(ms.length / 12);
   ms.forEach((m, i) => { if (i % step === 0) svg.append(s("text", { x: x(i), y: H - 12, "text-anchor": "middle", text: m })); });
@@ -212,7 +217,10 @@ function lineChart(series, opts) {
   ms.forEach((m, i) => svg.append(s("rect", { class: "hit", x: x(i) - colW / 2, y: T, width: colW, height: H - T - B,
     tip: m + "\n" + series.map(se => se.name + ": " + fmtN(se.values.get(m) || 0)).join("\n") + (opts.extra ? "\n" + opts.extra(m) : ""), onclick: opts.onMonth ? () => opts.onMonth(m) : null })));
   const legend = h("div", { class: "legend" }, series.map(se => h("span", { class: "item", tip: se.tip || se.name }, h("span", { class: "swatch", style: "background:" + se.color }), se.name)));
-  return h("div", {}, svg, legend);
+  const sw = (key, label, tip) => h("button", { class: "btn scale-" + key, "aria-pressed": String((S.scale || "lin") === key), tip, onclick: () => { S.scale = key; render(); } }, label);
+  const scale = h("div", { class: "scalesw" }, sw("lin", "Linear", "Linear axis: the height is the absolute number. A large burst can flatten the other months."),
+    sw("log", "Logarithmic", "Logarithmic axis (log10 of n+1): quiet months stay visible next to a burst. Equal steps mean equal ratios. Hover shows the absolute numbers."));
+  return h("div", {}, scale, svg, legend);
 }
 const BUCKETS = [[0, 1, "<1 h"], [1, 4, "1–4 h"], [4, 10, "4–10 h"], [10, 20, "1–2 d"], [20, 50, "2–5 d"], [50, 100, "5–10 d"], [100, Infinity, ">10 d"]];
 function timingCard(title, key, list, tipText) {
@@ -328,7 +336,7 @@ function header() {
   toggle.querySelector("input").checked = S.names;
   return h("header", { class: "top" },
     h("div", {}, h("h1", {}, "Review & Collaboration ", h("span", { text: "Analytics" })),
-      h("div", { class: "subtitle", text: fmtN(cov.projects_selected) + " of " + fmtN(cov.projects_visible) + " projects analysed · " + fmtN(cov.mrs) + " merge requests · activity window since " + (M.window_start || "–").slice(0, 10) })),
+      h("div", { class: "subtitle", text: fmtN(selectedProjects.length) + " of " + fmtN(cov.projects_visible) + " projects analysed · " + fmtN(cov.mrs) + " merge requests · activity window since " + (M.window_start || "–").slice(0, 10) })),
     h("div", { class: "chips" },
       M.demo ? h("span", { class: "chip warn", tip: "This file uses invented demo data from the synthetic GitLab fixture. No real person or project is in it." }, "Synthetic demo data") : null,
       h("span", { class: "chip", tip: "Snapshot: the observation cutoff. Outcomes and pending times are judged at this instant.\nGenerated: when this file was built." }, "Snapshot " + (M.snapshot_at || "–").replace("T", " ").slice(0, 16) + " UTC"),
@@ -343,7 +351,8 @@ const TABS = [["overview", "Overview"], ["projects", "Projects"], ["effect", "Re
 const TAB_TIPS = { overview: "Key numbers, clues and trends for the current filter.", projects: "Activity and review intensity per project, and the skipped projects.", effect: "What reviews find, how people respond, what happens, and how long it takes.", people: "Per-person context, split into giving and receiving review. No score and no ranking.", evidence: "Every finding with its classification, rationale, evidence and GitLab link.", method: "Definitions, denominators, assumptions, coverage and limits." };
 function tabs() { return h("nav", { class: "tabs", role: "tablist" }, TABS.map(([k, l]) => h("button", { role: "tab", "aria-selected": String(S.tab === k), tip: TAB_TIPS[k], onclick: () => { S.tab = k; render(); } }, l))); }
 function filters() {
-  const pc = h("div", { class: "pchips" }, selectedProjects.map(p => h("button", { class: "pchip", "aria-pressed": String(S.projects.has(p.id)), tip: projName(p.id) + "\nClick to include or exclude this project.", onclick: () => { if (S.projects.has(p.id)) S.projects.delete(p.id); else S.projects.add(p.id); render(); } }, projName(p.id))));
+  const pc = h("div", { class: "pchips" }, h("button", { class: "btn pall", tip: "Select all projects.", onclick: () => { S.projects = new Set(selectedProjects.map(p => p.id)); render(); } }, "All"),
+    h("button", { class: "btn pnone", tip: "Clear the project selection. Then click single projects to add them.", onclick: () => { S.projects = new Set(); render(); } }, "None"), selectedProjects.map(p => h("button", { class: "pchip", "aria-pressed": String(S.projects.has(p.id)), tip: projName(p.id) + "\nClick to include or exclude this project.", onclick: () => { if (S.projects.has(p.id)) S.projects.delete(p.id); else S.projects.add(p.id); render(); } }, projName(p.id))));
   const opt = (v, l, sel) => { const o = h("option", { value: v }, l); if (sel) o.selected = true; return o; };
   const humans = Object.entries(DATA.people).filter(([, p]) => p.kind === "human").sort((a, b) => person(Number(a[0])).localeCompare(person(Number(b[0]))));
   return h("section", { class: "filters", "aria-label": "Filters" },
@@ -483,7 +492,12 @@ function peopleTab(root) {
     ["Unknown", r => r.unk, null, "Their findings with no reliable outcome.", "n"],
   ], giv, r => drill([["giver", String(r.id)]]), ["Person", 1], personOpts));
   const rec = ids.map(id => { const fs = F.filter(f => f.T.rec === id); const c = (...acts) => fs.filter(f => f.racts.some(a => acts.includes(a))).length; const fr = byThread(fs).filter(f => f.tm.fr[0] === "o").map(f => f.tm.fr[2]);
-    return { id, f: fs.length, agree: c("agreement", "partial_agreement"), reasoned: c("reasoned_disagreement", "explanation"), alt: c("alternative_proposal"), defer: c("deferral"), reject: c("unsupported_rejection"), none: fs.filter(f => !f.racts.length).length,
+    const ask = fs.filter(f => f.act === "change_request"); const fixed = ask.filter(f => CLUE_PRED.verified(f) || CLUE_PRED.silent_fix(f)).length;
+    const answered = byThread(fs).filter(f => f.T.rw !== null && f.T.rw !== undefined);
+    return { id, ask: ask.length, fixed, depth: quantile(answered.map(f => f.T.rw), .5), ans: answered.length, thx: answered.filter(f => f.T.rthx).length,
+      appr: fs.filter(f => f.tone === "appreciative" || f.tone === "constructive").length, harsh: fs.filter(f => f.tone === "dismissive" || f.tone === "confrontational").length,
+      push: fs.filter(f => f.outcome === "declined_unjustified" || f.racts.includes("unsupported_rejection")).length,
+      f: fs.length, agree: c("agreement", "partial_agreement"), reasoned: c("reasoned_disagreement", "explanation"), alt: c("alternative_proposal"), defer: c("deferral"), reject: c("unsupported_rejection"), none: fs.filter(f => !f.racts.length).length,
       reacted: fs.filter(f => f.racts.length).length, declR: fs.filter(f => LEGIT.has(f.outcome)).length, declN: fs.filter(f => f.outcome === "declined_unjustified").length,
       ver: fs.filter(f => CHANGE.has(f.outcome) && f.ver === "direct").length, textonly: fs.filter(f => CHANGE.has(f.outcome) && f.ver === "textual_only").length, open: fs.filter(CLUE_PRED.open_unattended).length, unk: fs.filter(f => f.outcome === "unknown").length, fr: quantile(fr, .5), frn: fr.length }; }).filter(r => r.f);
   root.append(h("h2", {}, "Receiving review", info("Per review recipient: usually the MR author. Only reactions written by the recipient count, each kind once per finding. The person who replies is not always the person who implements.")));
@@ -491,6 +505,12 @@ function peopleTab(root) {
     ["Person", r => person(r.id), null, "Pseudonym by default."],
     ["Findings", r => r.f, r => lowN(String(r.f), r.f), "Findings addressed to the person.", "n"],
     ["Reaction rate", r => r.f ? r.reacted / r.f : 0, r => r.reacted + " / " + r.f + " (" + pct(r.reacted, r.f) + ")", "Findings the recipient reacted to in writing, over all findings addressed to the recipient. Bots and other people do not count.", "n"],
+    ["Fix rate", r => r.ask ? r.fixed / r.ask : 0, r => lowN(r.fixed + " / " + r.ask + " (" + pct(r.fixed, r.ask) + ")", r.ask), "Change requests to this person with a code change at the commented lines: a stated and verified change, or a silent fix (code changed, no written answer). Code-based, so it is the most reliable column.", "n"],
+    ["Reply depth", r => r.depth === null ? -1 : r.depth, r => r.depth === null ? "–" : lowN(Math.round(r.depth) + " words", r.ans), "Median number of words the person wrote per answered thread, without quotes and code. Deterministic. Long is not always better: a precise short answer can be best.", "n"],
+    ["Thanks", r => r.ans ? r.thx / r.ans : 0, r => lowN(r.thx + " / " + r.ans + " (" + pct(r.thx, r.ans) + ")", r.ans), "Answered threads where the person's own reply thanks or credits the feedback (thanks, good catch, danke, guter Punkt). Deterministic word match.", "n"],
+    ["Appreciative tone", r => r.f ? r.appr / r.f : 0, r => r.appr + " (" + pct(r.appr, r.f) + ")", "Findings whose exchange the model reads as appreciative or constructive. Tone of the whole exchange, not only this person. Model reading: check cases before you conclude.", "n"],
+    ["Dismissive tone", r => r.f ? r.harsh / r.f : 0, r => r.harsh + " (" + pct(r.harsh, r.f) + ")", "Findings whose exchange the model reads as dismissive or confrontational. Model reading of the whole exchange.", "n"],
+    ["Pushback, no reason", r => r.f ? r.push / r.f : 0, r => r.push + " (" + pct(r.push, r.f) + ")", "Findings this person rejected without a technical reason, or a requested change declined with no reason (model reading, moderate reliability).", "n"],
     ["Agreement", r => r.agree, null, "Full or partial agreement.", "n"],
     ["Reasoned / explained", r => r.reasoned, null, "Reasoned disagreement or explanation. These can be good outcomes.", "n"],
     ["Alternative", r => r.alt, null, "Proposed a different solution.", "n"],

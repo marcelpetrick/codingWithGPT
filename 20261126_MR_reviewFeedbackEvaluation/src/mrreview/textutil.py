@@ -111,3 +111,27 @@ def is_routine(body: str) -> bool:
     if len(words) > _MAX_ROUTINE_WORDS:
         return False
     return all(w in _ROUTINE_WORDS or w == "plusone" for w in words)
+
+
+_FENCE = regex.compile(r"```.*?(?:```|$)", flags=regex.DOTALL)
+_WORD = regex.compile(r"\w+")
+_THANKS = regex.compile(
+    r"\b(?:thanks?|thx|ty|danke|merci|good (?:catch|point|idea|hint)|nice (?:catch|idea)|"
+    r"great (?:catch|point|idea)|guter (?:punkt|hinweis|catch|einwand)|gute idee)\b",
+    flags=regex.IGNORECASE,
+)
+
+
+def own_text(text: str) -> str:
+    """The author's own words: without quoted lines and fenced code."""
+    return _FENCE.sub(" ", strip_quotes(normalize(text)))
+
+
+def reply_words(text: str) -> int:
+    """Words a person wrote in a note (REQ-UI-7). Quotes, code and emoji do not count."""
+    return len(_WORD.findall(own_text(text)))
+
+
+def is_thanks(text: str) -> bool:
+    """True when the note thanks or credits the feedback in its own words (REQ-UI-7)."""
+    return _THANKS.search(own_text(text)) is not None

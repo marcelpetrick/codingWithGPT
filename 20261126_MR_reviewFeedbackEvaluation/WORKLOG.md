@@ -51,6 +51,11 @@ This is the one living document for this task. Read it first.
 | 18b | Fix all findings of steps 14 to 18, gate green, push | done 14:36 |
 | 19 | After the focus run: final evidence, evaluate, report with current code | done 14:31 |
 | 20 | `scripts/widen.sh` (steps 2 to 4, chunks of one hour); record each chunk | done 17:37 (one stop at 15:50 for low laptop memory, restarted 16:43) |
+| 22 | Owner D-023/D-024: Opus annotation, prompt p5, fresh-sample check | done 10:10 |
+| 23 | Owner D-025: per-developer reaction profile (REQ-UI-7) | done 11:05 |
+| 24 | Owner D-026: project All/None, log scale; fix: dashboard showed only the current step's projects (REQ-UI-8) | done 11:05 |
+| 25 | p5 reclassification of all threads; final report; README screenshot (Everyone view); figures in docs refreshed | running since 09:47 |
+| 26 | Tone and thanks reliability against Opus; self-review; document review | open |
 | 21 | Final check against VISION.md section 10 and docs/acceptance.md, push | done 17:40: all 10 criteria met; 4 open items need a person (see acceptance.md) |
 
 ## Status (chronological, 2026-11-26, CET)

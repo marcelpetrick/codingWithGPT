@@ -19,7 +19,7 @@ from mrreview.collect import collect_summary
 from mrreview.config import Config
 from mrreview.demo.fake_ollama import STUB_MODEL
 from mrreview.identity import label_for, mask_exact, mask_names, mask_projects, project_label_for
-from mrreview.textutil import truncate
+from mrreview.textutil import is_thanks, reply_words, truncate
 
 EXCERPT_GRAPHEMES = 320
 _HALF_TOKEN = re.compile(r"⟦[^⟧]*…$")
@@ -168,9 +168,19 @@ def build_dataset(conn: sqlite3.Connection, cfg: Config) -> dict[str, Any]:
             if uid is not None:
                 seen_users.add(uid)
         status = _status(r, cls.get(r["id"]), fails.get(r["id"]), model, digest)
+        own = [
+            b
+            for (b,) in conn.execute(
+                "SELECT body FROM notes WHERE discussion_id=? AND system=0 AND author_id=? AND id != ?",
+                (r["id"], r["recipient_id"], r["first_note_id"]),
+            )
+        ]
         threads.append(
             {
                 "id": r["id"],
+                # REQ-UI-7: the recipient's own replies (words, thanks); None when none
+                "rw": sum(reply_words(b) for b in own) if own else None,
+                "rthx": any(is_thanks(b) for b in own),
                 "p": r["project_id"],
                 "iid": r["mr_iid"],
                 "url": f"{mr_url.get((r['project_id'], r['mr_iid']), '')}#note_{r['first_note_id']}",

@@ -127,6 +127,34 @@ def test_bot_names_follow_the_identity_toggle(page: Any) -> None:
     assert any(b in visible_text(page) for b in bots)
 
 
+def test_project_chips_select_all_and_none(page: Any) -> None:
+    """Owner request: change the project filter quickly."""
+    chips = page.locator(".pchip")
+    page.locator("button.pall").click()
+    assert chips.count() > 1
+    assert all(c == "true" for c in chips.evaluate_all("els => els.map(e => e.ariaPressed)"))
+    page.locator("button.pnone").click()
+    assert all(c == "false" for c in chips.evaluate_all("els => els.map(e => e.ariaPressed)"))
+    assert page.locator("[data-kpi=mrs] .v").inner_text() == "0"
+    page.locator("button.pall").click()
+    assert page.locator("[data-kpi=mrs] .v").inner_text() != "0"
+
+
+def test_activity_chart_log_scale(page: Any) -> None:
+    """Owner request: a logarithmic view keeps quiet months visible; hover keeps absolute numbers."""
+    card = page.locator(".card", has_text="Activity over time")
+    linear_labels = card.locator("svg .grid text").all_text_contents()
+    card.locator("button.scale-log").click()
+    card = page.locator(".card", has_text="Activity over time")
+    log_labels = card.locator("svg .grid text").all_text_contents()
+    assert "10" in log_labels
+    assert log_labels != linear_labels
+    assert card.locator("button.scale-log").get_attribute("aria-pressed") == "true"
+    tip = card.locator("svg rect.hit").first.get_attribute("data-tip") or ""
+    assert re.search(r"Merge requests: \d", tip)
+    card.locator("button.scale-lin").click()
+
+
 def test_tooltips_everywhere(page: Any) -> None:
     for name in [
         "Overview",

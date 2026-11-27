@@ -73,3 +73,33 @@ def test_substantive_bodies(body: str) -> None:
 
 def test_strip_quotes_removes_quoted_lines() -> None:
     assert textutil.strip_quotes("> old\nnew\n>also old") == "new"
+
+
+def test_reply_words_skips_quotes_and_code() -> None:
+    """REQ-UI-7: reply depth counts the person's own words, not quoted text or code."""
+    from mrreview.textutil import reply_words
+
+    text = "> quoted reviewer text here\nGood point, I changed the loop.\n```\nfor x in y: pass\n```\nDone 👍"
+    assert reply_words(text) == 7
+    assert reply_words("") == 0
+    assert reply_words("Grüße, naïve café") == 3
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Thanks, fixed.", True),
+        ("thank you for the review", True),
+        ("Danke, erledigt", True),
+        ("Good catch! Changed.", True),
+        ("Guter Punkt, passe ich an", True),
+        ("> thanks\nNo, this stays.", False),
+        ("Won't do, not needed.", False),
+        ("thankless task", False),
+    ],
+)
+def test_is_thanks(text: str, expected: bool) -> None:
+    """REQ-UI-7: appreciation in the recipient's own words (English and German)."""
+    from mrreview.textutil import is_thanks
+
+    assert is_thanks(text) is expected

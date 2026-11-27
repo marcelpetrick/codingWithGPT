@@ -1,7 +1,7 @@
 # mrreview: GitLab review and collaboration analytics
 
 [![pipeline](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml/badge.svg)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml)
-![version](https://img.shields.io/badge/version-0.2.51-blue)
+![version](https://img.shields.io/badge/version-0.3.0-blue)
 ![coverage](https://img.shields.io/badge/line%20coverage-99.1%25-brightgreen)
 ![mutation](https://img.shields.io/badge/mutation%20score-85.8%25-brightgreen)
 ![python](https://img.shields.io/badge/python-3.14-blue)
@@ -22,6 +22,7 @@ Real data, default view: people and projects are pseudonyms. A [synthetic exampl
 - How fast do people respond, decide and implement (business hours and wall clock)?
 - Which findings are implemented, solved differently, rebutted with a reason, deferred, or left open?
 - Where does a "resolved" thread have no code change behind it?
+- How does each developer react to review input: do they answer, fix, explain in depth, thank, or reject without a reason?
 
 It keeps acknowledgement, decision, implementation, GitLab resolution, merge and verified remediation apart.
 A promise is not a fix. A resolved thread is not proof. A reasoned "no" is a legitimate outcome.

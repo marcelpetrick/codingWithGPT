@@ -127,3 +127,32 @@ def test_evaluate_counts_stub_outcomes(gl: Env, conn: sqlite3.Connection) -> Non
     assert counts.get("implemented", 0) > 0
     assert counts.get("justified_no_change", 0) > 0
     assert Config().censor_days == 14
+
+
+def test_dataset_has_recipient_reply_stats(gl: Env, conn: sqlite3.Connection) -> None:
+    """REQ-UI-7: per thread, the recipient's own reply words and thanks, from the stored notes."""
+    from mrreview.textutil import is_thanks, reply_words
+
+    cfg = pipeline(gl, conn)
+    ds = dataset.build_dataset(conn, cfg)
+    checked = 0
+    for t in ds["threads"]:
+        first = conn.execute("SELECT first_note_id FROM threads WHERE id=?", (t["id"],)).fetchone()[
+            0
+        ]
+        bodies = [
+            b
+            for (b,) in conn.execute(
+                "SELECT body FROM notes WHERE discussion_id=? AND system=0 AND author_id=? "
+                "AND id != ?",
+                (t["id"], t["rec"], first),
+            )
+        ]
+        if bodies:
+            assert t["rw"] == sum(reply_words(b) for b in bodies)
+            assert t["rthx"] is any(is_thanks(b) for b in bodies)
+            checked += 1
+        else:
+            assert t["rw"] is None
+            assert t["rthx"] is False
+    assert checked > 10

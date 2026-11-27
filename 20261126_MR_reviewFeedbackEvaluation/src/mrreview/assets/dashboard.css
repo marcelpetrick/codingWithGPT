@@ -132,3 +132,6 @@ footer { color: var(--muted); font-size: 12px; padding: 18px 32px 30px; border-t
 .empty { color: var(--muted); font-style: italic; padding: 12px 0; }
 @media (max-width: 720px) { header.top, nav.tabs, .filters, main { padding-left: 14px; padding-right: 14px; } .g2 { grid-template-columns: 1fr; } }
 @media print { nav.tabs, .filters { position: static; } #tip { display: none; } }
+
+.scalesw { display: flex; gap: 6px; justify-content: flex-end; margin: -4px 0 6px; }
+.scalesw .btn[aria-pressed="true"] { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
