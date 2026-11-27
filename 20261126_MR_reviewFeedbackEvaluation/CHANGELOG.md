@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.3.7: docs(report): current test figures, corrected chance share, fresh sample
 - 0.3.6: docs: record the p5 rerun, retake the screenshot, refresh figures
 - 0.3.5: test(report): check reply stats against fixed texts and values
 - 0.3.4: docs: apply the document review; remove host and user from commands

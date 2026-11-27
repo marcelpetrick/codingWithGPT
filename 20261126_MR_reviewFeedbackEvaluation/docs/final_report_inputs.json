@@ -43,10 +43,10 @@
    "text_outcome": "56.7% (0.48)"
   }
  },
- "quality_note": "120 real findings, stratified over projects and outcomes, labelled blind by Claude Opus on masked text. Opus is a second model, not human truth. A new prompt had to gain 5 points on the text outcome with no dimension down more than 3 (rule fixed before p4 and p5 ran).",
+ "quality_note": "120 real findings, stratified over projects and outcomes, labelled blind by Claude Opus on masked text. Opus is a second model, not human truth. A new prompt had to gain 5 points on the text outcome with no dimension down more than 3 (rule fixed before p4 and p5 ran). Confirmation on 60 fresh findings (p2 → p5): intent 78.3 → 75.0%, actionability 75.0 → 76.7%, validity 65.0 → 70.0%, response 30.0 → 45.0%, outcome 45.0 → 50.0%.",
  "done": [
   "Built the pipeline: collect, normalize, evidence (GitLab compare API), analyze (Ollama, schema-validated), evaluate, report. GET-only GitLab access.",
-  "Tests: 260 (unit, integration over HTTP, end-to-end in Chromium); line coverage 99.1%; mutation score 85.8%; CI mirrors the local gate.",
+  "Tests: 284 (unit, integration over HTTP, end-to-end in Chromium); line coverage 99.1%; mutation score 646/750 = 86.1%; CI mirrors the local gate.",
   "Reviews: 27 + 9 + 18 findings fixed (method, code, reviewBranch, documents).",
   "Real run, widened step by step in 1-hour chunks: all active projects in the 12-month window.",
   "Profiling: the report went from more than 1 hour to 8 seconds.",
@@ -61,7 +61,7 @@
  "limits": [
   "Tone is unreliable (kappa 0.26): Qwen misses most dismissive exchanges. Use fix rate, reply depth and thanks first.",
   "Kappa stays below 0.6 for response, validity and outcome: read these at project and trend level, not per person.",
-  "Changed lines are evidence of a change, not proof of a correct fix; about 8 to 14% of direct hits can be chance.",
+  "Changed lines are evidence of a change, not proof of a correct fix; about 10 to 20% of direct hits can be chance (placebo check).",
   "Business hours: Mon to Fri 08:00 to 18:00 Europe/Berlin, no public holidays (owner decision D-022).",
   "The name switch in the dashboard is a display switch, not anonymisation."
  ]
