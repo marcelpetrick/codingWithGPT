@@ -156,3 +156,21 @@ def test_dataset_has_recipient_reply_stats(gl: Env, conn: sqlite3.Connection) ->
             assert t["rw"] is None
             assert t["rthx"] is False
     assert checked > 10
+
+
+def test_recipient_reply_stats_match_known_texts(gl: Env, conn: sqlite3.Connection) -> None:
+    """Review 2026-11-27 finding 9: fixed inputs and expected values, not the production query."""
+    cfg = pipeline(gl, conn)
+    rows = conn.execute("""SELECT t.id, n.id FROM threads t JOIN notes n ON n.discussion_id = t.id
+        WHERE n.system = 0 AND n.author_id = t.recipient_id AND n.id != t.first_note_id
+        GROUP BY t.id HAVING count(*) = 1 ORDER BY t.id LIMIT 2""").fetchall()
+    assert len(rows) == 2
+    (t_thanks, n_thanks), (t_no, n_no) = rows
+    with conn:
+        conn.execute(
+            "UPDATE notes SET body=? WHERE id=?", ("> quoted\nThanks, fixed it now.", n_thanks)
+        )
+        conn.execute("UPDATE notes SET body=? WHERE id=?", ("No thanks, this stays.", n_no))
+    threads = {t["id"]: t for t in dataset.build_dataset(conn, cfg)["threads"]}
+    assert (threads[t_thanks]["rw"], threads[t_thanks]["rthx"]) == (4, True)
+    assert (threads[t_no]["rw"], threads[t_no]["rthx"]) == (4, False)
