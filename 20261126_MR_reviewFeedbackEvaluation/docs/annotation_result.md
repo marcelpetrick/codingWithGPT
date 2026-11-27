@@ -58,6 +58,12 @@ This is a judgement call against the letter of the rule; the owner can reverse i
 - The word match for thanks is reliable. From v0.3.1, the check excludes "thanks in advance" (it asks for work and does not credit it), "no thanks" and "thanks, but".
 - So the dashboard columns "Fix rate", "Reply depth" and "Thanks" are the solid part of the reaction profile. The tone columns carry a low-reliability warning.
 
+## Declines in the author's own words: word list rejected (D-031)
+
+A word list for declines ("won't do", "not needed", "bleibt so", "false positive", "is intended") was measured
+out of sample on the 120 findings: it found 4 of 18 declines (recall 22%) and fired on 10 of 98 other findings.
+Declines are worded too differently for a list. The check was not shipped. The decline signal stays with the model.
+
 ## Reading
 
 - Kappa stays below 0.6 for response, validity and outcome. Do not read these per person. Project and trend level is the safe use.

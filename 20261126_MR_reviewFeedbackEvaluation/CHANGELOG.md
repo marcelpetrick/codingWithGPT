@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.4.1: docs(quality): record why a word-list decline detector was rejected
 - 0.4.0: feat(report): share build without real names, links, paths or host
 - 0.3.9: docs(decisions): fix the model comparison rule before the runs
 - 0.3.8: docs: correct the test count to 285
