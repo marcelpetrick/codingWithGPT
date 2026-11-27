@@ -2,6 +2,7 @@
 
 Semantic Versioning. Newest first.
 
+- 0.3.3: fix(identity): do not mask shared or generic project names in text
 - 0.3.2: fix(dashboard): consistent project counts, code-based fix rate, tone per thread
 - 0.3.1: fix(textutil): thanks in advance is not appreciation; show tone reliability
 - 0.3.0: feat(dashboard): developer reaction profile, project All/None, log scale

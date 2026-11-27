@@ -1,15 +1,16 @@
 # mrreview: GitLab review and collaboration analytics
 
 [![pipeline](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml/badge.svg)](https://github.com/marcelpetrick/codingWithGPT/actions/workflows/mr-review-analytics.yml)
-![version](https://img.shields.io/badge/version-0.3.2-blue)
+![version](https://img.shields.io/badge/version-0.3.3-blue)
 ![coverage](https://img.shields.io/badge/line%20coverage-99.1%25-brightgreen)
-![mutation](https://img.shields.io/badge/mutation%20score-85.8%25-brightgreen)
+![mutation](https://img.shields.io/badge/mutation%20score-86.1%25-brightgreen)
 ![python](https://img.shields.io/badge/python-3.14-blue)
 [![license](https://img.shields.io/badge/license-GPLv3-blue)](../LICENSE)
 
 mrreview reads the merge request history of a GitLab instance and shows how code review gets work done.
 It finds review threads, classifies each finding with a local LLM (Ollama), checks the claimed outcome
 against the code, and writes one offline HTML dashboard with clues, drill-downs and a tooltip on every element.
+The "Receiving review" table shows each person's reaction profile (fix rate, reply depth, thanks, tone). The project filter has All/None buttons. Activity charts switch between a linear and a logarithmic axis.
 
 ![Overview of the dashboard on real data, default pseudonymised view: 76 active projects, 3,274 merge requests](docs/img/real_overview.png)
 
@@ -32,9 +33,9 @@ A promise is not a fix. A resolved thread is not proof. A reasoned "no" is a leg
 | Item | State |
 |---|---|
 | Pipeline (collect, normalize, analyze, evaluate, report) | done, tested |
-| Live LLM on synthetic threads (the Ollama box, qwen3.6 35B-A3B) | done: all valid; agreement with the fixture truth 90.3% (prompt p1), **98.9% (prompt p2)** |
-| Independent reviews | 27 + 9 + 18 findings, all fixed: [review](docs/review_20261126.md), [reviewBranch](docs/review_20261126_branch.md), document review (recorded in WORKLOG) |
-| Live run on real GitLab data | done 2026-11-26: all 76 active projects (of 706 visible), 3,274 MRs, 5,574 valid classified threads; data kept local |
+| Live LLM on synthetic threads (the Ollama box, qwen3.6 35B-A3B) | done: synthetic fixture truth 90.3% (p1), 98.9% (p2). Prompt in use: **p5** (D-024). Real data against Opus labels: outcome 50.0%, response 45.0% (fresh sample, [docs/annotation_result.md](docs/annotation_result.md)) |
+| Independent reviews | 27 + 9 + 18 findings fixed: [review](docs/review_20261126.md), [reviewBranch](docs/review_20261126_branch.md), document review (WORKLOG); [review 2026-11-27](docs/review_20261127.md): three rounds (code, dashboard, documents) |
+| Live run on real GitLab data | done 2026-11-26: all 76 active projects (of 706 visible), 3,274 MRs, 5,574 valid classified threads (prompt p2; p5 reclassification running); data kept local |
 
 The living work log is [WORKLOG.md](WORKLOG.md). Requirements: [docs/requirements.md](docs/requirements.md).
 Decisions: [docs/decisions.md](docs/decisions.md). Comparison with published studies: [docs/literature_comparison.md](docs/literature_comparison.md). Architecture (C4): [docs/architecture.md](docs/architecture.md).
@@ -88,6 +89,8 @@ Do these steps only after the authorization in VISION.md section 8 is confirmed.
 
 5. Check the classification quality with the rubric in [docs/annotation_rubric.md](docs/annotation_rubric.md):
    `mrreview sample`, then `mrreview agreement`.
+
+6. Optional checks and summary: `uv run python scripts/placebo_check.py out/real/mrreview.sqlite3` tests the direct-evidence rule against chance. `uv run python scripts/final_report.py out/real/mrreview.sqlite3 docs/final_report_inputs.json out/real/final_report.html` writes an aggregate-only report.
 
 Each stage also runs alone: `collect` (includes normalize), `evidence`, `analyze`, `evaluate`, `report`.
 Settings: [docs/configuration.md](docs/configuration.md). Operations, exit codes, scope widening and data handling:

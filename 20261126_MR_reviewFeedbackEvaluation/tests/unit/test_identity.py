@@ -93,6 +93,20 @@ def test_mask_projects_in_text() -> None:
     assert masked == "See ⟦p:11⟧!3 and the ⟦p:11⟧ repo; bsp stays."
 
 
+def test_mask_projects_skips_shared_and_generic_names() -> None:
+    """Owner screenshot 2026-11-27: "Linux tests" became a project path, because 5 projects end in /linux."""
+    projects = {
+        1: ("bsp-a/linux", "linux"),
+        2: ("bsp-b/linux", "linux"),
+        3: ("tools/documentation", "documentation"),
+        4: ("apps/easyhelper", "easyhelper"),
+    }
+    text = "Linux tests fail; see bsp-a/linux and the documentation; easyhelper too."
+    assert identity.mask_projects(text, projects) == (
+        "Linux tests fail; see ⟦p:1⟧ and the documentation; ⟦p:4⟧ too."
+    )
+
+
 def test_mask_exact_masks_only_whole_bot_names() -> None:
     """D-019 review: a bot name like "CI Bot" must not mask the common word "bot"."""
     bots = {7: ("project_11_bot_ci", "CI Bot")}

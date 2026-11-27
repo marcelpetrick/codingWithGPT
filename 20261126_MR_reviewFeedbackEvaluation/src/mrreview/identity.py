@@ -8,6 +8,7 @@ import functools
 import hashlib
 import secrets
 import sqlite3
+from collections import Counter
 from collections.abc import Mapping
 
 import regex
@@ -281,15 +282,73 @@ def project_label_for(conn: sqlite3.Connection, project_id: int) -> str:
     return label
 
 
+_GENERIC_PROJECT_WORDS = frozenset(
+    [
+        "linux",
+        "kernel",
+        "android",
+        "windows",
+        "docker",
+        "documentation",
+        "docs",
+        "doc",
+        "test",
+        "tests",
+        "testing",
+        "tools",
+        "utils",
+        "common",
+        "core",
+        "config",
+        "configs",
+        "build",
+        "builds",
+        "scripts",
+        "firmware",
+        "bootloader",
+        "uboot",
+        "u-boot",
+        "backend",
+        "frontend",
+        "server",
+        "client",
+        "library",
+        "libs",
+        "demo",
+        "demos",
+        "examples",
+        "sandbox",
+        "playground",
+        "website",
+        "wiki",
+        "release",
+        "releases",
+        "images",
+        "image",
+        "packages",
+        "infra",
+        "deploy",
+        "deployment",
+        "pipeline",
+        "pipelines",
+    ]
+)
+
+
 @functools.lru_cache(maxsize=16)
 def _project_masker(
     projects: tuple[tuple[int, str, str], ...],
 ) -> tuple[dict[str, int], regex.Pattern[str] | None]:
     lookup: dict[str, int] = {}
+    # A short name (last path part) is masked only when exactly one project has it and it is not a
+    # common word: "linux" ends five project paths and also means the operating system.
+    short = Counter(name.casefold() for _pid, _path, name in projects if name)
     for pid, path, name in sorted(projects):
-        for term in (path, name):
-            if term and len(term) >= _MIN_PROJECT_TOKEN:
-                lookup.setdefault(term.casefold(), pid)
+        if path and len(path) >= _MIN_PROJECT_TOKEN:
+            lookup.setdefault(path.casefold(), pid)
+        key = name.casefold() if name else ""
+        if len(key) >= _MIN_PROJECT_TOKEN and short[key] == 1 and key not in _GENERIC_PROJECT_WORDS:
+            lookup.setdefault(key, pid)
     if not lookup:
         return lookup, None
     pattern = regex.compile(
